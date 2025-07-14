@@ -1,13 +1,46 @@
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import { check } from '@tauri-apps/plugin-updater'
+import { relaunch } from '@tauri-apps/plugin-process'
 
 export function SiteHeader() {
+  const checkForUpdates = async () => {
+    const update = await check()
+    console.log('update', update)
+    if (update) {
+      console.log(`found update ${update.version} from ${update.date} with notes ${update.body}`)
+      let downloaded = 0
+      let contentLength = 0
+      // alternatively we could also call update.download() and update.install() separately
+      await update.downloadAndInstall((event) => {
+        switch (event.event) {
+          case 'Started':
+            contentLength = event.data.contentLength || 0
+            console.log(`started downloading ${event.data.contentLength} bytes`)
+            break
+          case 'Progress':
+            downloaded += event.data.chunkLength
+            console.log(`downloaded ${downloaded} from ${contentLength}`)
+            break
+          case 'Finished':
+            console.log('download finished')
+            break
+        }
+      })
+
+      console.log('update installed')
+      await relaunch()
+    }
+  }
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
+        <Button variant="ghost" size="sm" onClick={checkForUpdates}>
+          Check for updates
+        </Button>
         <div className="ml-auto flex items-center gap-2">
           <Button variant="ghost" asChild size="sm" className="hidden sm:flex">
             <a
