@@ -32,7 +32,7 @@ import {
   HardDrive,
   Info,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface UserAgentProcessingResult {
   id: string
@@ -186,7 +186,6 @@ type SecurityRisk = 'high' | 'medium' | 'low' | 'minimal'
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -792,7 +791,7 @@ const useUserAgentProcessing = () => {
       const inputSize = new Blob([userAgent]).size
 
       return {
-        id: generateId(),
+        id: nanoid(),
         input: userAgent,
         isValid: true,
         statistics: {
@@ -810,7 +809,7 @@ const useUserAgentProcessing = () => {
       const processingTime = endTime - startTime
 
       return {
-        id: generateId(),
+        id: nanoid(),
         input: userAgent,
         isValid: false,
         error: error instanceof Error ? error.message : 'Processing failed',
@@ -893,7 +892,7 @@ const useUserAgentProcessing = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           results,
           count: results.length,
           settings,

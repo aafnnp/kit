@@ -9,7 +9,7 @@ import { toast } from 'sonner'
 import { Upload, Download, Loader2, FileImage, Trash2, BarChart3, Layers, Grid, Code2 } from 'lucide-react'
 // @ts-ignore
 import JSZip from 'jszip'
-
+import { nanoid } from 'nanoid'
 // 类型定义
 interface IconFile {
   id: string
@@ -38,7 +38,7 @@ interface SpriteStats {
 }
 
 // 工具函数
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
+
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
   const k = 1024
@@ -168,7 +168,7 @@ const IconSpriter = () => {
       }
       try {
         const content = await getContent(file)
-        const id = generateId()
+        const id = nanoid()
         const url = URL.createObjectURL(file)
         newIcons.push({ id, file, name: file.name, size: file.size, type: file.type, status: 'pending', content, url })
       } catch (e: any) {

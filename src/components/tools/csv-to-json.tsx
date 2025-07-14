@@ -26,7 +26,7 @@ import {
   Braces,
   FileSpreadsheet,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface ConversionResult {
   id: string
@@ -145,7 +145,6 @@ type ExportFormat = 'json' | 'csv' | 'txt' | 'xlsx'
 type CSVQuoting = 'minimal' | 'all' | 'non-numeric' | 'none'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -720,7 +719,7 @@ const useDataConversion = () => {
         const outputSize = new Blob([output]).size
 
         return {
-          id: generateId(),
+          id: nanoid(),
           input,
           output,
           direction,
@@ -742,7 +741,7 @@ const useDataConversion = () => {
         const processingTime = endTime - startTime
 
         return {
-          id: generateId(),
+          id: nanoid(),
           input,
           output: '',
           direction,
@@ -800,7 +799,7 @@ const useDataConversion = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           results,
           count: results.length,
           settings,

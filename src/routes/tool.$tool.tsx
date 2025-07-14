@@ -6,7 +6,7 @@ const Tool = () => {
   const DynamicTool = lazy(() => import(`@/components/tools/${tool}.tsx`))
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={null}>
       <div className="px-4">
         <DynamicTool />
       </div>

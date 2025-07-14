@@ -27,7 +27,7 @@ import {
   Image as ImageIcon,
   Paintbrush,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface GradientFile {
   id: string
@@ -128,7 +128,6 @@ type BlendMode =
 type ExportFormat = 'css' | 'scss' | 'svg' | 'png' | 'json'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateGradientFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
@@ -336,7 +335,7 @@ const createGradient = (
   size?: RadialSize,
   repeating?: boolean
 ): Gradient => {
-  const id = generateId()
+  const id = nanoid()
 
   let css = ''
   switch (type) {
@@ -572,7 +571,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const gradientFile: GradientFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -600,7 +599,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,
@@ -903,7 +902,7 @@ const GradientMakerCore = () => {
       setColors((prev) => [
         ...prev,
         {
-          id: generateId(),
+          id: nanoid(),
           color: '#ffffff',
           position: Math.min(newPosition, 100),
         },

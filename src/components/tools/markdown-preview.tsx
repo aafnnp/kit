@@ -23,7 +23,7 @@ import {
   Settings,
   Target,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface MarkdownFile {
   id: string
@@ -74,7 +74,6 @@ interface ExportOptions {
 }
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateMarkdownFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
@@ -272,7 +271,7 @@ const useMarkdownProcessing = () => {
             const { html, statistics } = processMarkdown(content)
 
             const markdownFile: MarkdownFile = {
-              id: generateId(),
+              id: nanoid(),
               name: file.name,
               content,
               size: file.size,
@@ -305,7 +304,7 @@ const useMarkdownProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,

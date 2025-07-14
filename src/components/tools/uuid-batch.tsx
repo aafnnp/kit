@@ -196,7 +196,6 @@ type ExportFormat = 'txt' | 'json' | 'csv' | 'xml'
 type ViewMode = 'grid' | 'list' | 'compact'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // UUID generation functions
 const generateUUID = (type: UUIDType, settings?: Partial<BatchSettings>): string => {
@@ -791,7 +790,7 @@ const useBatchProcessor = () => {
 
   const createBatchOperation = useCallback((name: string, settings: BatchSettings): BatchOperation => {
     const operation: BatchOperation = {
-      id: generateId(),
+      id: nanoid(),
       name,
       type: settings.type,
       count: settings.count,
@@ -852,7 +851,7 @@ const useBatchProcessor = () => {
               const formattedUuid = formatUUID(rawUuid, operation.settings.format, operation.settings)
 
               const batchUuid: BatchUUID = {
-                id: generateId(),
+                id: nanoid(),
                 value: formattedUuid,
                 type: operation.settings.type,
                 version: getUUIDVersion(operation.settings.type),
@@ -882,7 +881,7 @@ const useBatchProcessor = () => {
               batchUUIDs.push(batchUuid)
             } catch (error) {
               const batchUuid: BatchUUID = {
-                id: generateId(),
+                id: nanoid(),
                 value: '',
                 type: operation.settings.type,
                 timestamp: new Date(),

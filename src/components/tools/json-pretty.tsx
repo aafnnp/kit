@@ -27,7 +27,7 @@ import {
   Minimize2,
   Maximize2,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface JSONProcessingResult {
   id: string
@@ -125,7 +125,6 @@ type JSONOperation = 'format' | 'minify' | 'validate' | 'analyze' | 'escape' | '
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -297,7 +296,7 @@ const processJSON = (input: string, operation: JSONOperation, settings: JSONSett
 
     if (!validation.isValid) {
       return {
-        id: generateId(),
+        id: nanoid(),
         input,
         output: '',
         operation,
@@ -350,7 +349,7 @@ const processJSON = (input: string, operation: JSONOperation, settings: JSONSett
     }
 
     return {
-      id: generateId(),
+      id: nanoid(),
       input,
       output,
       operation,
@@ -360,7 +359,7 @@ const processJSON = (input: string, operation: JSONOperation, settings: JSONSett
     }
   } catch (error) {
     return {
-      id: generateId(),
+      id: nanoid(),
       input,
       output: '',
       operation,
@@ -606,7 +605,7 @@ const useJSONProcessing = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           results,
           count: results.length,
           settings,

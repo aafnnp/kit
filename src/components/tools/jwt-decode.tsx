@@ -21,7 +21,7 @@ import {
   CheckCircle,
   XCircle,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface JWTToken {
   id: string
@@ -208,7 +208,6 @@ interface JWTError {
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -220,7 +219,7 @@ const formatFileSize = (bytes: number): string => {
 
 // JWT parsing and analysis functions
 const parseJWT = (token: string): JWTToken => {
-  const id = generateId()
+  const id = nanoid()
   const createdAt = new Date()
 
   try {
@@ -990,7 +989,7 @@ const useJWTDecoder = () => {
 
     try {
       const batch: JWTBatch = {
-        id: generateId(),
+        id: nanoid(),
         name: batchSettings.namingPattern || 'JWT Batch',
         tokens: [],
         settings: batchSettings,

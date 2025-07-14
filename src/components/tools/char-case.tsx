@@ -6,8 +6,21 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
-import { Upload, Download, FileText, Loader2, FileImage, Trash2, Type, RefreshCw, BookOpen, Target, Copy, Check } from 'lucide-react'
-
+import {
+  Upload,
+  Download,
+  FileText,
+  Loader2,
+  FileImage,
+  Trash2,
+  Type,
+  RefreshCw,
+  BookOpen,
+  Target,
+  Copy,
+  Check,
+} from 'lucide-react'
+import { nanoid } from 'nanoid'
 // Types
 interface TextFile {
   id: string
@@ -77,14 +90,18 @@ const formatFileSize = (bytes: number): string => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
-
 const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
   const allowedTypes = [
-    'text/plain', 'text/markdown', 'text/rtf', 'text/csv',
-    'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/json', 'text/html', 'text/xml'
+    'text/plain',
+    'text/markdown',
+    'text/rtf',
+    'text/csv',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/json',
+    'text/html',
+    'text/xml',
   ]
 
   // Check file extension as fallback
@@ -92,7 +109,10 @@ const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
   const allowedExtensions = ['txt', 'md', 'rtf', 'csv', 'doc', 'docx', 'json', 'html', 'xml']
 
   if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(extension || '')) {
-    return { isValid: false, error: 'Unsupported file format. Please use TXT, MD, RTF, CSV, DOC, DOCX, JSON, HTML, or XML.' }
+    return {
+      isValid: false,
+      error: 'Unsupported file format. Please use TXT, MD, RTF, CSV, DOC, DOCX, JSON, HTML, or XML.',
+    }
   }
 
   if (file.size > maxSize) {
@@ -112,9 +132,9 @@ const convertCase = (text: string, caseType: CaseType, settings: ConversionSetti
   // Helper function to handle word boundaries
   const getWords = (str: string): string[] => {
     if (handleSpecialChars) {
-      return str.split(/[\s\-_\.]+/).filter(word => word.length > 0)
+      return str.split(/[\s\-_\.]+/).filter((word) => word.length > 0)
     }
-    return str.split(/\s+/).filter(word => word.length > 0)
+    return str.split(/\s+/).filter((word) => word.length > 0)
   }
 
   // Helper function to capitalize first letter
@@ -138,80 +158,108 @@ const convertCase = (text: string, caseType: CaseType, settings: ConversionSetti
   // Helper function to handle snake_case conversion
   const toSnakeCase = (str: string): string => {
     const words = getWords(str)
-    return words.map(word => word.toLowerCase()).join('_')
+    return words.map((word) => word.toLowerCase()).join('_')
   }
 
   // Helper function to handle kebab-case conversion
   const toKebabCase = (str: string): string => {
     const words = getWords(str)
-    return words.map(word => word.toLowerCase()).join('-')
+    return words.map((word) => word.toLowerCase()).join('-')
   }
 
   // Helper function to handle CONSTANT_CASE conversion
   const toConstantCase = (str: string): string => {
     const words = getWords(str)
-    return words.map(word => word.toUpperCase()).join('_')
+    return words.map((word) => word.toUpperCase()).join('_')
   }
 
   // Helper function to handle dot.case conversion
   const toDotCase = (str: string): string => {
     const words = getWords(str)
-    return words.map(word => word.toLowerCase()).join('.')
+    return words.map((word) => word.toLowerCase()).join('.')
   }
 
   // Helper function to handle path/case conversion
   const toPathCase = (str: string): string => {
     const words = getWords(str)
-    return words.map(word => word.toLowerCase()).join('/')
+    return words.map((word) => word.toLowerCase()).join('/')
   }
 
   // Helper function to handle tOgGlE cAsE conversion
   const toToggleCase = (str: string): string => {
-    return str.split('').map((char, index) => {
-      return index % 2 === 0 ? char.toLowerCase() : char.toUpperCase()
-    }).join('')
+    return str
+      .split('')
+      .map((char, index) => {
+        return index % 2 === 0 ? char.toLowerCase() : char.toUpperCase()
+      })
+      .join('')
   }
 
   // Helper function to handle sentence case
   const toSentenceCase = (str: string): string => {
     if (preserveFormatting) {
       // Preserve line breaks and paragraph structure
-      return str.split('\n').map(line => {
-        const trimmed = line.trim()
-        if (trimmed.length === 0) return line
-        return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase()
-      }).join('\n')
+      return str
+        .split('\n')
+        .map((line) => {
+          const trimmed = line.trim()
+          if (trimmed.length === 0) return line
+          return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase()
+        })
+        .join('\n')
     } else {
-      const sentences = str.split(/[.!?]+/).filter(s => s.trim().length > 0)
-      return sentences.map(sentence => {
-        const trimmed = sentence.trim()
-        return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase()
-      }).join('. ') + (str.endsWith('.') || text.endsWith('!') || text.endsWith('?') ? '' : '.')
+      const sentences = str.split(/[.!?]+/).filter((s) => s.trim().length > 0)
+      return (
+        sentences
+          .map((sentence) => {
+            const trimmed = sentence.trim()
+            return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase()
+          })
+          .join('. ') + (str.endsWith('.') || text.endsWith('!') || text.endsWith('?') ? '' : '.')
+      )
     }
   }
 
   // Helper function to handle title case
   const toTitleCase = (str: string): string => {
     const words = str.split(/(\s+)/)
-    const articles = new Set(['a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'on', 'at', 'to', 'from', 'by', 'of', 'in'])
+    const articles = new Set([
+      'a',
+      'an',
+      'the',
+      'and',
+      'but',
+      'or',
+      'for',
+      'nor',
+      'on',
+      'at',
+      'to',
+      'from',
+      'by',
+      'of',
+      'in',
+    ])
 
-    return words.map((word, index) => {
-      if (/^\s+$/.test(word)) return word // Preserve whitespace
+    return words
+      .map((word, index) => {
+        if (/^\s+$/.test(word)) return word // Preserve whitespace
 
-      const lowerWord = word.toLowerCase()
+        const lowerWord = word.toLowerCase()
 
-      // Always capitalize first and last words
-      if (index === 0 || index === words.length - 1) {
+        // Always capitalize first and last words
+        if (index === 0 || index === words.length - 1) {
+          return capitalize(word)
+        }
+
+        // Don't capitalize articles, conjunctions, and prepositions (unless they're the first/last word)
+        if (articles.has(lowerWord)) {
+          return lowerWord
+        }
+
         return capitalize(word)
-      }
-
-      // Don't capitalize articles, conjunctions, and prepositions (unless they're the first/last word)
-      if (articles.has(lowerWord)) {
-        return lowerWord
-      }
-
-      return capitalize(word)
-    }).join('')
+      })
+      .join('')
   }
 
   switch (caseType) {
@@ -251,85 +299,85 @@ const caseOptions: CaseOption[] = [
     name: 'UPPERCASE',
     description: 'Convert all text to uppercase letters',
     example: 'HELLO WORLD',
-    icon: <Type className="h-4 w-4" />
+    icon: <Type className="h-4 w-4" />,
   },
   {
     value: 'lowercase',
     name: 'lowercase',
     description: 'Convert all text to lowercase letters',
     example: 'hello world',
-    icon: <Type className="h-4 w-4" />
+    icon: <Type className="h-4 w-4" />,
   },
   {
     value: 'titlecase',
     name: 'Title Case',
     description: 'Capitalize the first letter of each major word',
     example: 'Hello World Example',
-    icon: <Type className="h-4 w-4" />
+    icon: <Type className="h-4 w-4" />,
   },
   {
     value: 'sentencecase',
     name: 'Sentence case',
     description: 'Capitalize only the first letter of each sentence',
     example: 'Hello world. This is an example.',
-    icon: <Type className="h-4 w-4" />
+    icon: <Type className="h-4 w-4" />,
   },
   {
     value: 'camelcase',
     name: 'camelCase',
     description: 'First word lowercase, subsequent words capitalized, no spaces',
     example: 'helloWorldExample',
-    icon: <Type className="h-4 w-4" />
+    icon: <Type className="h-4 w-4" />,
   },
   {
     value: 'pascalcase',
     name: 'PascalCase',
     description: 'All words capitalized, no spaces (also called UpperCamelCase)',
     example: 'HelloWorldExample',
-    icon: <Type className="h-4 w-4" />
+    icon: <Type className="h-4 w-4" />,
   },
   {
     value: 'snakecase',
     name: 'snake_case',
     description: 'All lowercase with underscores between words',
     example: 'hello_world_example',
-    icon: <Type className="h-4 w-4" />
+    icon: <Type className="h-4 w-4" />,
   },
   {
     value: 'kebabcase',
     name: 'kebab-case',
     description: 'All lowercase with hyphens between words',
     example: 'hello-world-example',
-    icon: <Type className="h-4 w-4" />
+    icon: <Type className="h-4 w-4" />,
   },
   {
     value: 'constantcase',
     name: 'CONSTANT_CASE',
     description: 'All uppercase with underscores between words',
     example: 'HELLO_WORLD_EXAMPLE',
-    icon: <Type className="h-4 w-4" />
+    icon: <Type className="h-4 w-4" />,
   },
   {
     value: 'dotcase',
     name: 'dot.case',
     description: 'All lowercase with dots between words',
     example: 'hello.world.example',
-    icon: <Type className="h-4 w-4" />
+    icon: <Type className="h-4 w-4" />,
   },
   {
     value: 'pathcase',
     name: 'path/case',
     description: 'All lowercase with forward slashes between words',
     example: 'hello/world/example',
-    icon: <Type className="h-4 w-4" />
+    icon: <Type className="h-4 w-4" />,
   },
   {
     value: 'togglecase',
     name: 'tOgGlE cAsE',
     description: 'Alternating uppercase and lowercase letters',
     example: 'hElLo WoRlD eXaMpLe',
-    icon: <Type className="h-4 w-4" />
-  }
+    icon: <Type className="h-4 w-4" />,
+  },
 ]
 
 // Error boundary component
@@ -361,9 +409,7 @@ class CaseConverterErrorBoundary extends React.Component<
                 <h3 className="font-semibold">Something went wrong</h3>
                 <p className="text-sm">Please refresh the page and try again.</p>
               </div>
-              <Button onClick={() => window.location.reload()}>
-                Refresh Page
-              </Button>
+              <Button onClick={() => window.location.reload()}>Refresh Page</Button>
             </div>
           </CardContent>
         </Card>
@@ -439,11 +485,12 @@ const useCaseConversion = (text: string, caseType: CaseType, settings: Conversio
 // Batch conversion hook
 const useBatchConversion = () => {
   const convertAllCases = useCallback((text: string, settings: ConversionSettings): ConversionResult[] => {
-    return caseOptions.map(option => ({
+    return caseOptions.map((option) => ({
       type: option.value,
       content: convertCase(text, option.value, settings),
-      preview: convertCase(text, option.value, settings).substring(0, settings.previewLength) +
-               (convertCase(text, option.value, settings).length > settings.previewLength ? '...' : '')
+      preview:
+        convertCase(text, option.value, settings).substring(0, settings.previewLength) +
+        (convertCase(text, option.value, settings).length > settings.previewLength ? '...' : ''),
     }))
   }, [])
 
@@ -466,9 +513,9 @@ const useTextExport = () => {
   }, [])
 
   const exportAllConversions = useCallback((conversions: ConversionResult[], filename: string) => {
-    const content = conversions.map(conv =>
-      `=== ${caseOptions.find(opt => opt.value === conv.type)?.name} ===\n${conv.content}\n`
-    ).join('\n')
+    const content = conversions
+      .map((conv) => `=== ${caseOptions.find((opt) => opt.value === conv.type)?.name} ===\n${conv.content}\n`)
+      .join('\n')
 
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
@@ -485,20 +532,18 @@ const useTextExport = () => {
     const headers = ['Filename', 'Original Size', 'Case Type', 'Converted Size', 'Character Change']
 
     const rows = files
-      .filter(file => file.conversions && file.conversions.length > 0)
-      .flatMap(file =>
-        file.conversions!.map(conv => [
+      .filter((file) => file.conversions && file.conversions.length > 0)
+      .flatMap((file) =>
+        file.conversions!.map((conv) => [
           file.name,
           file.originalContent.length,
-          caseOptions.find(opt => opt.value === conv.type)?.name || conv.type,
+          caseOptions.find((opt) => opt.value === conv.type)?.name || conv.type,
           conv.content.length,
-          conv.content.length - file.originalContent.length
+          conv.content.length - file.originalContent.length,
         ])
       )
 
-    const csvContent = [headers, ...rows]
-      .map(row => row.map(cell => `"${cell}"`).join(','))
-      .join('\n')
+    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
 
     const blob = new Blob([csvContent], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
@@ -548,7 +593,7 @@ const CaseConverterCore = () => {
     handleSpecialChars: true,
     customDelimiter: ' ',
     batchMode: false,
-    previewLength: 100
+    previewLength: 100,
   })
   const [dragActive, setDragActive] = useState(false)
   const [activeTab, setActiveTab] = useState<'manual' | 'files'>('manual')
@@ -562,8 +607,8 @@ const CaseConverterCore = () => {
 
   // Real-time conversion for manual text input
   const convertedManualText = useCaseConversion(manualText, selectedCaseType, settings)
-  const allManualConversions = useMemo(() =>
-    manualText.trim() ? convertAllCases(manualText, settings) : [],
+  const allManualConversions = useMemo(
+    () => (manualText.trim() ? convertAllCases(manualText, settings) : []),
     [manualText, convertAllCases, settings]
   )
 
@@ -579,7 +624,7 @@ const CaseConverterCore = () => {
         continue
       }
 
-      const id = generateId()
+      const id = nanoid()
       newFiles.push({
         id,
         file,
@@ -588,12 +633,12 @@ const CaseConverterCore = () => {
         name: file.name,
         size: file.size,
         type: file.type || 'text/plain',
-        status: 'pending'
+        status: 'pending',
       })
     }
 
     if (newFiles.length > 0) {
-      setFiles(prev => [...prev, ...newFiles])
+      setFiles((prev) => [...prev, ...newFiles])
       const message = `Added ${newFiles.length} file${newFiles.length > 1 ? 's' : ''} for conversion`
       toast.success(message)
 
@@ -608,12 +653,15 @@ const CaseConverterCore = () => {
     }
   }, [])
 
-  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = e.target.files
-    if (fileList) {
-      handleFiles(fileList)
-    }
-  }, [handleFiles])
+  const handleFileInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const fileList = e.target.files
+      if (fileList) {
+        handleFiles(fileList)
+      }
+    },
+    [handleFiles]
+  )
 
   // Drag and drop handlers
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -626,20 +674,23 @@ const CaseConverterCore = () => {
     }
   }, [])
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setDragActive(false)
 
-    const fileList = e.dataTransfer.files
-    if (fileList) {
-      handleFiles(fileList)
-    }
-  }, [handleFiles])
+      const fileList = e.dataTransfer.files
+      if (fileList) {
+        handleFiles(fileList)
+      }
+    },
+    [handleFiles]
+  )
 
   // Process files
   const processFiles = useCallback(async () => {
-    const pendingFiles = files.filter(file => file.status === 'pending')
+    const pendingFiles = files.filter((file) => file.status === 'pending')
     if (pendingFiles.length === 0) {
       toast.error('No files to process')
       return
@@ -651,40 +702,46 @@ const CaseConverterCore = () => {
     for (const file of pendingFiles) {
       try {
         // Update status to processing
-        setFiles(prev => prev.map(f =>
-          f.id === file.id ? { ...f, status: 'processing' } : f
-        ))
+        setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, status: 'processing' } : f)))
 
         const content = await processTextFile(file.file)
-        const conversions = settings.batchMode ?
-          convertAllCases(content, settings) :
-          [{ type: selectedCaseType, content: convertCase(content, selectedCaseType, settings), preview: '' }]
+        const conversions = settings.batchMode
+          ? convertAllCases(content, settings)
+          : [{ type: selectedCaseType, content: convertCase(content, selectedCaseType, settings), preview: '' }]
 
         // Update with conversion result
-        setFiles(prev => prev.map(f =>
-          f.id === file.id ? {
-            ...f,
-            status: 'completed',
-            originalContent: content,
-            convertedContent: conversions[0].content,
-            conversions
-          } : f
-        ))
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === file.id
+              ? {
+                  ...f,
+                  status: 'completed',
+                  originalContent: content,
+                  convertedContent: conversions[0].content,
+                  conversions,
+                }
+              : f
+          )
+        )
       } catch (error) {
         console.error('Processing failed:', error)
-        setFiles(prev => prev.map(f =>
-          f.id === file.id ? {
-            ...f,
-            status: 'error',
-            error: error instanceof Error ? error.message : 'Processing failed'
-          } : f
-        ))
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === file.id
+              ? {
+                  ...f,
+                  status: 'error',
+                  error: error instanceof Error ? error.message : 'Processing failed',
+                }
+              : f
+          )
+        )
       }
     }
 
     setIsProcessing(false)
     const processingTime = Date.now() - startTime
-    const completedCount = files.filter(f => f.status === 'completed').length
+    const completedCount = files.filter((f) => f.status === 'completed').length
     const message = `Conversion completed! ${completedCount} file${completedCount > 1 ? 's' : ''} processed in ${processingTime}ms.`
     toast.success(message)
 
@@ -700,7 +757,7 @@ const CaseConverterCore = () => {
 
   // Utility functions
   const removeFile = useCallback((id: string) => {
-    setFiles(prev => prev.filter(f => f.id !== id))
+    setFiles((prev) => prev.filter((f) => f.id !== id))
   }, [])
 
   const clearAll = useCallback(() => {
@@ -710,17 +767,16 @@ const CaseConverterCore = () => {
 
   // Statistics calculation
   const stats: ConversionStats = useMemo(() => {
-    const completedFiles = files.filter(f => f.status === 'completed')
+    const completedFiles = files.filter((f) => f.status === 'completed')
 
     return {
       totalFiles: completedFiles.length,
       totalCharacters: completedFiles.reduce((sum, f) => sum + f.originalContent.length, 0),
       totalWords: completedFiles.reduce((sum, f) => sum + f.originalContent.split(/\s+/).length, 0),
       totalConversions: completedFiles.reduce((sum, f) => sum + (f.conversions?.length || 1), 0),
-      averageFileSize: completedFiles.length > 0
-        ? completedFiles.reduce((sum, f) => sum + f.size, 0) / completedFiles.length
-        : 0,
-      processingTime: 0 // This would be calculated during processing
+      averageFileSize:
+        completedFiles.length > 0 ? completedFiles.reduce((sum, f) => sum + f.size, 0) / completedFiles.length : 0,
+      processingTime: 0, // This would be calculated during processing
     }
   }, [files])
 
@@ -734,487 +790,467 @@ const CaseConverterCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className='flex flex-col gap-4'>
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Type className="h-5 w-5" aria-hidden="true" />
-            Character Case Converter
-          </CardTitle>
-          <CardDescription>
-            Convert text between different case formats including uppercase, lowercase, camelCase, snake_case, and more.
-            Supports both manual input and file processing with real-time preview.
-            Use keyboard navigation: Tab to move between controls, Enter or Space to activate buttons.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
-      {/* Tab Navigation */}
-      <Card>
-        <CardHeader>
-          <div className="flex space-x-1 bg-muted p-1 rounded-lg">
-            <Button
-              variant={activeTab === 'manual' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveTab('manual')}
-              className="flex-1"
-            >
-              <BookOpen className="h-4 w-4 mr-2" />
-              Manual Input
-            </Button>
-            <Button
-              variant={activeTab === 'files' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveTab('files')}
-              className="flex-1"
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              File Upload
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* Settings Panel */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Conversion Settings
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="caseType">Case Type</Label>
-              <Select
-                value={selectedCaseType}
-                onValueChange={(value: CaseType) => setSelectedCaseType(value)}
-              >
-                <SelectTrigger id="caseType" aria-label="Select case conversion type">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {caseOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{option.name}</span>
-                        <span className="text-xs text-muted-foreground">{option.example}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="previewLength">Preview Length</Label>
-              <Input
-                id="previewLength"
-                type="number"
-                min="50"
-                max="500"
-                value={settings.previewLength}
-                onChange={(e) => setSettings(prev => ({ ...prev, previewLength: Number(e.target.value) }))}
-                aria-label={`Preview length: ${settings.previewLength} characters`}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center space-x-2">
-              <input
-                id="preserveFormatting"
-                type="checkbox"
-                checked={settings.preserveFormatting}
-                onChange={(e) => setSettings(prev => ({ ...prev, preserveFormatting: e.target.checked }))}
-                className="rounded border-input"
-              />
-              <Label htmlFor="preserveFormatting" className="text-sm">
-                Preserve line breaks and formatting
-              </Label>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <input
-                id="handleSpecialChars"
-                type="checkbox"
-                checked={settings.handleSpecialChars}
-                onChange={(e) => setSettings(prev => ({ ...prev, handleSpecialChars: e.target.checked }))}
-                className="rounded border-input"
-              />
-              <Label htmlFor="handleSpecialChars" className="text-sm">
-                Handle special characters and punctuation
-              </Label>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <input
-              id="batchMode"
-              type="checkbox"
-              checked={settings.batchMode}
-              onChange={(e) => setSettings(prev => ({ ...prev, batchMode: e.target.checked }))}
-              className="rounded border-input"
-            />
-            <Label htmlFor="batchMode" className="text-sm">
-              Batch mode: Generate all case types for files
-            </Label>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Manual Text Input */}
-      {activeTab === 'manual' && (
+      <div id="main-content" className="flex flex-col gap-4">
+        {/* Header */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Manual Text Input</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Type className="h-5 w-5" aria-hidden="true" />
+              Character Case Converter
+            </CardTitle>
+            <CardDescription>
+              Convert text between different case formats including uppercase, lowercase, camelCase, snake_case, and
+              more. Supports both manual input and file processing with real-time preview. Use keyboard navigation: Tab
+              to move between controls, Enter or Space to activate buttons.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        {/* Tab Navigation */}
+        <Card>
+          <CardHeader>
+            <div className="flex space-x-1 bg-muted p-1 rounded-lg">
+              <Button
+                variant={activeTab === 'manual' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveTab('manual')}
+                className="flex-1"
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                Manual Input
+              </Button>
+              <Button
+                variant={activeTab === 'files' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveTab('files')}
+                className="flex-1"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                File Upload
+              </Button>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Settings Panel */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Target className="h-5 w-5" />
+              Conversion Settings
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="manualText">Enter your text for conversion</Label>
-              <Textarea
-                id="manualText"
-                placeholder="Type or paste your text here..."
-                value={manualText}
-                onChange={(e) => setManualText(e.target.value)}
-                className="min-h-[150px] resize-y"
-                aria-label="Text input for case conversion"
-              />
-            </div>
-
-            {/* Real-time Conversion Display */}
-            {manualText.trim() && (
-              <div className="space-y-4">
-                <div className="p-4 bg-muted/30 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">
-                      {caseOptions.find(opt => opt.value === selectedCaseType)?.name} Result
-                    </h4>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => copyToClipboard(convertedManualText, selectedCaseType)}
-                      >
-                        {copiedText === selectedCaseType ? (
-                          <Check className="h-4 w-4" />
-                        ) : (
-                          <Copy className="h-4 w-4" />
-                        )}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => exportConversion(convertedManualText, 'manual_text', selectedCaseType)}
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <Textarea
-                    value={convertedManualText}
-                    readOnly
-                    className="min-h-[100px] bg-background"
-                    aria-label={`Converted text in ${selectedCaseType}`}
-                  />
-                </div>
-
-                {/* Show All Conversions Toggle */}
-                <div className="flex items-center justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowAllConversions(!showAllConversions)}
-                  >
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    {showAllConversions ? 'Hide' : 'Show'} All Case Types
-                  </Button>
-
-                  {showAllConversions && (
-                    <Button
-                      variant="outline"
-                      onClick={() => exportAllConversions(allManualConversions, 'manual_text')}
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Export All
-                    </Button>
-                  )}
-                </div>
-
-                {/* All Conversions Grid */}
-                {showAllConversions && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {allManualConversions.map((conversion) => {
-                      const option = caseOptions.find(opt => opt.value === conversion.type)
-                      return (
-                        <Card key={conversion.type} className="p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <h5 className="font-medium text-sm flex items-center gap-2">
-                              {option?.icon}
-                              {option?.name}
-                            </h5>
-                            <div className="flex gap-1">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => copyToClipboard(conversion.content, conversion.type)}
-                              >
-                                {copiedText === conversion.type ? (
-                                  <Check className="h-3 w-3" />
-                                ) : (
-                                  <Copy className="h-3 w-3" />
-                                )}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => exportConversion(conversion.content, 'manual_text', conversion.type)}
-                              >
-                                <Download className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="text-xs text-muted-foreground mb-1">
-                            {option?.description}
-                          </div>
-                          <div className="p-2 bg-muted/50 rounded text-sm font-mono break-all">
-                            {conversion.preview || conversion.content}
-                          </div>
-                        </Card>
-                      )
-                    })}
-                  </div>
-                )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="caseType">Case Type</Label>
+                <Select value={selectedCaseType} onValueChange={(value: CaseType) => setSelectedCaseType(value)}>
+                  <SelectTrigger id="caseType" aria-label="Select case conversion type">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {caseOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{option.name}</span>
+                          <span className="text-xs text-muted-foreground">{option.example}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
 
-      {/* File Upload */}
-      {activeTab === 'files' && (
-        <>
-          <Card>
-            <CardContent className="pt-6">
-              <div
-                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                  dragActive
-                    ? 'border-primary bg-primary/5'
-                    : 'border-muted-foreground/25 hover:border-muted-foreground/50'
-                }`}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
-                role="button"
-                tabIndex={0}
-                aria-label="Drag and drop text files here or click to select files"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    fileInputRef.current?.click()
-                  }
-                }}
-              >
-                <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Upload Text Files</h3>
-                <p className="text-muted-foreground mb-4">
-                  Drag and drop your text files here, or click to select files
-                </p>
-                <Button
-                  onClick={() => fileInputRef.current?.click()}
-                  variant="outline"
-                  className="mb-2"
-                >
-                  <FileImage className="mr-2 h-4 w-4" />
-                  Choose Files
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  Supports TXT, MD, RTF, CSV, DOC, DOCX, JSON, HTML, XML • Max 50MB per file
-                </p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept=".txt,.md,.rtf,.csv,.doc,.docx,.json,.html,.xml"
-                  onChange={handleFileInput}
-                  className="hidden"
-                  aria-label="Select text files"
+              <div className="space-y-2">
+                <Label htmlFor="previewLength">Preview Length</Label>
+                <Input
+                  id="previewLength"
+                  type="number"
+                  min="50"
+                  max="500"
+                  value={settings.previewLength}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, previewLength: Number(e.target.value) }))}
+                  aria-label={`Preview length: ${settings.previewLength} characters`}
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Statistics */}
-          {files.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Statistics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold">{stats.totalFiles}</div>
-                    <div className="text-sm text-muted-foreground">Files Processed</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">{stats.totalCharacters.toLocaleString()}</div>
-                    <div className="text-sm text-muted-foreground">Total Characters</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">{stats.totalWords.toLocaleString()}</div>
-                    <div className="text-sm text-muted-foreground">Total Words</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">{stats.totalConversions}</div>
-                    <div className="text-sm text-muted-foreground">Total Conversions</div>
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  id="preserveFormatting"
+                  type="checkbox"
+                  checked={settings.preserveFormatting}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, preserveFormatting: e.target.checked }))}
+                  className="rounded border-input"
+                />
+                <Label htmlFor="preserveFormatting" className="text-sm">
+                  Preserve line breaks and formatting
+                </Label>
+              </div>
 
-                {stats.totalFiles > 0 && (
-                  <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                    <div className="text-center">
-                      <span className="text-blue-700 dark:text-blue-400 font-semibold">
-                        Average file size: {formatFileSize(stats.averageFileSize)}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+              <div className="flex items-center space-x-2">
+                <input
+                  id="handleSpecialChars"
+                  type="checkbox"
+                  checked={settings.handleSpecialChars}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, handleSpecialChars: e.target.checked }))}
+                  className="rounded border-input"
+                />
+                <Label htmlFor="handleSpecialChars" className="text-sm">
+                  Handle special characters and punctuation
+                </Label>
+              </div>
+            </div>
 
-          {/* Action Buttons */}
-          {files.length > 0 && (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-wrap gap-3 justify-center">
-                  <Button
-                    onClick={processFiles}
-                    disabled={isProcessing || files.every(f => f.status !== 'pending')}
-                    className="min-w-32"
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Converting...
-                      </>
-                    ) : (
-                      'Convert Files'
-                    )}
-                  </Button>
+            <div className="flex items-center space-x-2">
+              <input
+                id="batchMode"
+                type="checkbox"
+                checked={settings.batchMode}
+                onChange={(e) => setSettings((prev) => ({ ...prev, batchMode: e.target.checked }))}
+                className="rounded border-input"
+              />
+              <Label htmlFor="batchMode" className="text-sm">
+                Batch mode: Generate all case types for files
+              </Label>
+            </div>
+          </CardContent>
+        </Card>
 
-                  <Button
-                    onClick={() => exportCSV(files)}
-                    variant="outline"
-                    disabled={!files.some(f => f.status === 'completed')}
-                  >
-                    <Download className="mr-2 h-4 w-4" />
-                    Export CSV Report
-                  </Button>
+        {/* Manual Text Input */}
+        {activeTab === 'manual' && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Manual Text Input</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="manualText">Enter your text for conversion</Label>
+                <Textarea
+                  id="manualText"
+                  placeholder="Type or paste your text here..."
+                  value={manualText}
+                  onChange={(e) => setManualText(e.target.value)}
+                  className="min-h-[150px] resize-y"
+                  aria-label="Text input for case conversion"
+                />
+              </div>
 
-                  <Button
-                    onClick={clearAll}
-                    variant="destructive"
-                    disabled={isProcessing}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Clear All
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* File List */}
-          {files.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Files</CardTitle>
-              </CardHeader>
-              <CardContent>
+              {/* Real-time Conversion Display */}
+              {manualText.trim() && (
                 <div className="space-y-4">
-                  {files.map((file) => (
-                    <div key={file.id} className="border rounded-lg p-4">
-                      <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0">
-                          <FileText className="h-8 w-8 text-muted-foreground" />
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium truncate" title={file.name}>
-                            {file.name}
-                          </h4>
-                          <div className="text-sm text-muted-foreground space-y-1">
-                            <div>
-                              <span className="font-medium">Size:</span> {formatFileSize(file.size)} •
-                              <span className="font-medium"> Type:</span> {file.type}
-                            </div>
-
-                            {file.status === 'completed' && file.conversions && (
-                              <div className="mt-2 space-y-2">
-                                <div className="text-xs font-medium">Conversions Available:</div>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                  {file.conversions.map((conversion) => {
-                                    const option = caseOptions.find(opt => opt.value === conversion.type)
-                                    return (
-                                      <div key={conversion.type} className="p-2 bg-muted/30 rounded text-xs">
-                                        <div className="font-medium">{option?.name}</div>
-                                        <div className="text-muted-foreground truncate">
-                                          {conversion.preview || conversion.content.substring(0, 30) + '...'}
-                                        </div>
-                                      </div>
-                                    )
-                                  })}
-                                </div>
-                              </div>
-                            )}
-
-                            {file.status === 'pending' && (
-                              <div className="text-blue-600">Ready for conversion</div>
-                            )}
-                            {file.status === 'processing' && (
-                              <div className="text-blue-600 flex items-center gap-2">
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Processing...
-                              </div>
-                            )}
-                            {file.error && (
-                              <div className="text-red-600">Error: {file.error}</div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex-shrink-0 flex items-center gap-2">
-                          {file.status === 'completed' && file.conversions && (
-                            <Button
-                              size="sm"
-                              onClick={() => exportAllConversions(file.conversions!, file.name)}
-                              aria-label={`Export all conversions for ${file.name}`}
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
+                  <div className="p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">
+                        {caseOptions.find((opt) => opt.value === selectedCaseType)?.name} Result
+                      </h4>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => copyToClipboard(convertedManualText, selectedCaseType)}
+                        >
+                          {copiedText === selectedCaseType ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
                           )}
-
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => removeFile(file.id)}
-                            aria-label={`Remove ${file.name}`}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => exportConversion(convertedManualText, 'manual_text', selectedCaseType)}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                  ))}
+                    <Textarea
+                      value={convertedManualText}
+                      readOnly
+                      className="min-h-[100px] bg-background"
+                      aria-label={`Converted text in ${selectedCaseType}`}
+                    />
+                  </div>
+
+                  {/* Show All Conversions Toggle */}
+                  <div className="flex items-center justify-between">
+                    <Button variant="outline" onClick={() => setShowAllConversions(!showAllConversions)}>
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      {showAllConversions ? 'Hide' : 'Show'} All Case Types
+                    </Button>
+
+                    {showAllConversions && (
+                      <Button
+                        variant="outline"
+                        onClick={() => exportAllConversions(allManualConversions, 'manual_text')}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Export All
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* All Conversions Grid */}
+                  {showAllConversions && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {allManualConversions.map((conversion) => {
+                        const option = caseOptions.find((opt) => opt.value === conversion.type)
+                        return (
+                          <Card key={conversion.type} className="p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <h5 className="font-medium text-sm flex items-center gap-2">
+                                {option?.icon}
+                                {option?.name}
+                              </h5>
+                              <div className="flex gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => copyToClipboard(conversion.content, conversion.type)}
+                                >
+                                  {copiedText === conversion.type ? (
+                                    <Check className="h-3 w-3" />
+                                  ) : (
+                                    <Copy className="h-3 w-3" />
+                                  )}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => exportConversion(conversion.content, 'manual_text', conversion.type)}
+                                >
+                                  <Download className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                            <div className="text-xs text-muted-foreground mb-1">{option?.description}</div>
+                            <div className="p-2 bg-muted/50 rounded text-sm font-mono break-all">
+                              {conversion.preview || conversion.content}
+                            </div>
+                          </Card>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* File Upload */}
+        {activeTab === 'files' && (
+          <>
+            <Card>
+              <CardContent className="pt-6">
+                <div
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                    dragActive
+                      ? 'border-primary bg-primary/5'
+                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                  }`}
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Drag and drop text files here or click to select files"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      fileInputRef.current?.click()
+                    }
+                  }}
+                >
+                  <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Upload Text Files</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Drag and drop your text files here, or click to select files
+                  </p>
+                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                    <FileImage className="mr-2 h-4 w-4" />
+                    Choose Files
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Supports TXT, MD, RTF, CSV, DOC, DOCX, JSON, HTML, XML • Max 50MB per file
+                  </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept=".txt,.md,.rtf,.csv,.doc,.docx,.json,.html,.xml"
+                    onChange={handleFileInput}
+                    className="hidden"
+                    aria-label="Select text files"
+                  />
                 </div>
               </CardContent>
             </Card>
-          )}
-        </>
-      )}
+
+            {/* Statistics */}
+            {files.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Statistics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">{stats.totalFiles}</div>
+                      <div className="text-sm text-muted-foreground">Files Processed</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{stats.totalCharacters.toLocaleString()}</div>
+                      <div className="text-sm text-muted-foreground">Total Characters</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">{stats.totalWords.toLocaleString()}</div>
+                      <div className="text-sm text-muted-foreground">Total Words</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">{stats.totalConversions}</div>
+                      <div className="text-sm text-muted-foreground">Total Conversions</div>
+                    </div>
+                  </div>
+
+                  {stats.totalFiles > 0 && (
+                    <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                      <div className="text-center">
+                        <span className="text-blue-700 dark:text-blue-400 font-semibold">
+                          Average file size: {formatFileSize(stats.averageFileSize)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Action Buttons */}
+            {files.length > 0 && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-wrap gap-3 justify-center">
+                    <Button
+                      onClick={processFiles}
+                      disabled={isProcessing || files.every((f) => f.status !== 'pending')}
+                      className="min-w-32"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Converting...
+                        </>
+                      ) : (
+                        'Convert Files'
+                      )}
+                    </Button>
+
+                    <Button
+                      onClick={() => exportCSV(files)}
+                      variant="outline"
+                      disabled={!files.some((f) => f.status === 'completed')}
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Export CSV Report
+                    </Button>
+
+                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Clear All
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* File List */}
+            {files.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Files</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {files.map((file) => (
+                      <div key={file.id} className="border rounded-lg p-4">
+                        <div className="flex items-start gap-4">
+                          <div className="flex-shrink-0">
+                            <FileText className="h-8 w-8 text-muted-foreground" />
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium truncate" title={file.name}>
+                              {file.name}
+                            </h4>
+                            <div className="text-sm text-muted-foreground space-y-1">
+                              <div>
+                                <span className="font-medium">Size:</span> {formatFileSize(file.size)} •
+                                <span className="font-medium"> Type:</span> {file.type}
+                              </div>
+
+                              {file.status === 'completed' && file.conversions && (
+                                <div className="mt-2 space-y-2">
+                                  <div className="text-xs font-medium">Conversions Available:</div>
+                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                    {file.conversions.map((conversion) => {
+                                      const option = caseOptions.find((opt) => opt.value === conversion.type)
+                                      return (
+                                        <div key={conversion.type} className="p-2 bg-muted/30 rounded text-xs">
+                                          <div className="font-medium">{option?.name}</div>
+                                          <div className="text-muted-foreground truncate">
+                                            {conversion.preview || conversion.content.substring(0, 30) + '...'}
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+
+                              {file.status === 'pending' && <div className="text-blue-600">Ready for conversion</div>}
+                              {file.status === 'processing' && (
+                                <div className="text-blue-600 flex items-center gap-2">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  Processing...
+                                </div>
+                              )}
+                              {file.error && <div className="text-red-600">Error: {file.error}</div>}
+                            </div>
+                          </div>
+
+                          <div className="flex-shrink-0 flex items-center gap-2">
+                            {file.status === 'completed' && file.conversions && (
+                              <Button
+                                size="sm"
+                                onClick={() => exportAllConversions(file.conversions!, file.name)}
+                                aria-label={`Export all conversions for ${file.name}`}
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                            )}
+
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeFile(file.id)}
+                              aria-label={`Remove ${file.name}`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </>
+        )}
       </div>
     </div>
   )

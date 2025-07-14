@@ -165,7 +165,6 @@ type UUIDFormat = 'standard' | 'compact' | 'braced' | 'urn' | 'base64' | 'hex'
 type ExportFormat = 'txt' | 'json' | 'csv' | 'xml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // UUID generation functions
 const generateUUID = (type: UUIDType, settings?: Partial<GenerationSettings>): string => {
@@ -727,7 +726,7 @@ const useUUIDGenerator = () => {
       const analysis = analyzeUUID(formattedUuid, type)
 
       return {
-        id: generateId(),
+        id: nanoid(),
         value: formattedUuid,
         type,
         version: getUUIDVersion(type),
@@ -740,7 +739,7 @@ const useUUIDGenerator = () => {
       }
     } catch (error) {
       return {
-        id: generateId(),
+        id: nanoid(),
         value: '',
         type,
         isValid: false,
@@ -791,7 +790,7 @@ const useUUIDGenerator = () => {
       }
 
       const batch: GenerationBatch = {
-        id: generateId(),
+        id: nanoid(),
         uuids,
         count,
         type,
@@ -1174,7 +1173,7 @@ const UUIDGeneratorCore = () => {
     try {
       const analysis = analyzeUUID(analyzeInput, validation.detectedType || 'custom')
       const result: UUIDResult = {
-        id: generateId(),
+        id: nanoid(),
         value: analyzeInput,
         type: validation.detectedType || 'custom',
         isValid: true,

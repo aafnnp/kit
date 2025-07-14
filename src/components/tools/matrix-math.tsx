@@ -26,7 +26,7 @@ import {
   Equal,
   SquareFunction,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface MatrixOperation {
   id: string
@@ -132,7 +132,6 @@ type OperationType =
 type ExportFormat = 'json' | 'csv' | 'txt' | 'matlab' | 'python' | 'latex' | 'mathml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatNumber = (num: number, precision: number = 6): string => {
   if (Math.abs(num) < 1e-10) return '0'
@@ -151,7 +150,7 @@ const createMatrix = (rows: number, cols: number, data?: number[][]): Matrix => 
       .map(() => Array(cols).fill(0))
 
   return {
-    id: generateId(),
+    id: nanoid(),
     name: `Matrix_${rows}x${cols}`,
     data: matrixData,
     rows,
@@ -170,7 +169,7 @@ const createIdentityMatrix = (size: number): Matrix => {
     )
 
   return {
-    id: generateId(),
+    id: nanoid(),
     name: `Identity_${size}x${size}`,
     data,
     rows: size,
@@ -185,7 +184,7 @@ const createZeroMatrix = (rows: number, cols: number): Matrix => {
     .map(() => Array(cols).fill(0))
 
   return {
-    id: generateId(),
+    id: nanoid(),
     name: `Zero_${rows}x${cols}`,
     data,
     rows,
@@ -204,7 +203,7 @@ const createRandomMatrix = (rows: number, cols: number, min: number = -10, max: 
     )
 
   return {
-    id: generateId(),
+    id: nanoid(),
     name: `Random_${rows}x${cols}`,
     data,
     rows,
@@ -643,7 +642,7 @@ const executeMatrixOperation = (operation: OperationType, matrices: Matrix[], pa
   const analysis = analyzeOperation(operation, matrices)
 
   return {
-    id: generateId(),
+    id: nanoid(),
     operation,
     matrices,
     result,

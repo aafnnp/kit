@@ -28,7 +28,7 @@ import {
   BarChart3,
 } from 'lucide-react'
 import * as XLSX from 'xlsx'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface ExcelProcessingResult {
   id: string
@@ -158,7 +158,6 @@ type ExportFormat = 'json' | 'csv' | 'txt' | 'xlsx'
 type SheetSelection = 'all' | 'first' | 'selected' | 'non-empty'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -270,7 +269,7 @@ const processExcelFile = async (file: File, settings: ProcessingSettings): Promi
     const analysis = analyzeExcelData(sheets)
 
     return {
-      id: generateId(),
+      id: nanoid(),
       fileName: file.name,
       fileSize: file.size,
       sheets,
@@ -284,7 +283,7 @@ const processExcelFile = async (file: File, settings: ProcessingSettings): Promi
     const processingTime = endTime - startTime
 
     return {
-      id: generateId(),
+      id: nanoid(),
       fileName: file.name,
       fileSize: file.size,
       sheets: [],
@@ -724,7 +723,7 @@ const useExcelProcessing = () => {
       }
 
       return {
-        id: generateId(),
+        id: nanoid(),
         results,
         count: results.length,
         settings,

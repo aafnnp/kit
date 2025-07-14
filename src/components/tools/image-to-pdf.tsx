@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner'
 import { Upload, Download, Loader2, Trash2, BarChart3 } from 'lucide-react'
 import { PDFDocument } from 'pdf-lib'
-
+import { nanoid } from 'nanoid'
 // 类型定义
 export interface ImageToPdfFile {
   id: string
@@ -45,7 +45,6 @@ const defaultSettings: ImageToPdfSettings = {
 }
 
 // 生成唯一 ID
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // hook: 管理图片文件
 function useImageFiles() {
@@ -55,7 +54,7 @@ function useImageFiles() {
   const addFiles = useCallback((fileList: FileList | File[]) => {
     const arr = Array.from(fileList)
     const newFiles: ImageToPdfFile[] = arr.map((file) => ({
-      id: generateId(),
+      id: nanoid(),
       file,
       url: URL.createObjectURL(file),
       name: file.name,

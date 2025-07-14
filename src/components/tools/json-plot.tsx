@@ -23,7 +23,7 @@ import {
   BarChart3,
   TreePine,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface JSONVisualization {
   id: string
@@ -129,7 +129,6 @@ type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml' | 'svg' | 'png' | 'p
 type ViewMode = 'compact' | 'expanded' | 'minimal' | 'detailed'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -270,7 +269,7 @@ const buildTreeNodes = (data: any, path = '', level = 0, parent?: TreeNode): Tre
       const hasChildren = item !== null && typeof item === 'object'
 
       const node: TreeNode = {
-        id: generateId(),
+        id: nanoid(),
         key,
         value: item,
         type: getValueType(item),
@@ -294,7 +293,7 @@ const buildTreeNodes = (data: any, path = '', level = 0, parent?: TreeNode): Tre
       const hasChildren = value !== null && typeof value === 'object'
 
       const node: TreeNode = {
-        id: generateId(),
+        id: nanoid(),
         key,
         value,
         type: getValueType(value),
@@ -806,7 +805,7 @@ const useJSONVisualization = () => {
         const fullChartConfig = { ...createDefaultChartConfig(), ...chartConfig }
 
         const visualization: JSONVisualization = {
-          id: generateId(),
+          id: nanoid(),
           name: `Visualization ${new Date().toLocaleTimeString()}`,
           data,
           rawJSON,

@@ -25,7 +25,7 @@ import {
   RefreshCw,
   History,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface PasswordItem {
   id: string
@@ -122,7 +122,6 @@ type SecurityLevel = 'low' | 'medium' | 'high' | 'very-high' | 'maximum'
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validatePasswordSettings = (settings: PasswordSettings): { isValid: boolean; error?: string } => {
   if (settings.length < 4 || settings.length > 128) {
@@ -624,7 +623,7 @@ const usePasswordGeneration = () => {
       const entropy = calculateEntropy(password, charset)
 
       return {
-        id: generateId(),
+        id: nanoid(),
         password,
         type,
         strength,
@@ -677,7 +676,7 @@ const usePasswordGeneration = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           passwords,
           count,
           type,
@@ -702,7 +701,7 @@ const usePasswordHistory = () => {
 
   const addToHistory = useCallback((password: PasswordItem) => {
     const historyItem: PasswordHistory = {
-      id: generateId(),
+      id: nanoid(),
       password: password.password,
       type: password.type,
       strength: password.strength,

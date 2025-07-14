@@ -22,7 +22,7 @@ import {
   Settings,
   FileCode,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface SvgFile {
   id: string
@@ -115,7 +115,6 @@ type ExportFormat = 'svg' | 'minified' | 'gzipped' | 'base64'
 type OptimizationType = 'comments' | 'whitespace' | 'attributes' | 'paths' | 'metadata' | 'unused'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateSvgFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
@@ -622,7 +621,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const svgFile: SvgFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -650,7 +649,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,

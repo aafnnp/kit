@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { Loader2, Image as ImageIcon } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // 类型定义
 export interface LoremImageFile {
   id: string
@@ -45,7 +45,6 @@ export interface LoremImageStats {
 }
 
 // 生成唯一 ID
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // 默认设置
 const defaultSettings: LoremImageSettings = {
@@ -91,7 +90,7 @@ function useBatchLoremImages(settings: LoremImageSettings) {
       for (let i = 0; i < settings.batchCount; i++) {
         const url = generateUrl(settings)
         batch.push({
-          id: generateId(),
+          id: nanoid(),
           url,
           width: settings.width,
           height: settings.height,

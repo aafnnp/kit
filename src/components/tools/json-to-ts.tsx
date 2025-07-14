@@ -27,7 +27,7 @@ import {
   EyeOff,
   Braces,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface TypeScriptGenerationResult {
   id: string
@@ -140,7 +140,6 @@ interface JSONError {
 type ExportFormat = 'ts' | 'json' | 'csv' | 'txt'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -647,7 +646,7 @@ const useTypeScriptGeneration = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           input,
           output,
           interfaceName,
@@ -669,7 +668,7 @@ const useTypeScriptGeneration = () => {
         const processingTime = endTime - startTime
 
         return {
-          id: generateId(),
+          id: nanoid(),
           input,
           output: '',
           interfaceName,
@@ -724,7 +723,7 @@ const useTypeScriptGeneration = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           results,
           count: results.length,
           settings,

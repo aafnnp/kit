@@ -24,7 +24,7 @@ import {
   Variable,
   SquareFunction,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface EquationSolution {
   id: string
@@ -159,7 +159,6 @@ type SolutionType = 'real' | 'complex' | 'rational' | 'irrational' | 'repeated'
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml' | 'latex' | 'mathml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatNumber = (num: number, precision: number = 6): string => {
   if (Math.abs(num) < 1e-10) return '0'
@@ -541,7 +540,7 @@ const solveEquation = (type: EquationType, coefficients: number[]): EquationSolu
   const numericalStability = calculateNumericalStability(solutions)
 
   return {
-    id: generateId(),
+    id: nanoid(),
     equation: {
       type,
       coefficients,

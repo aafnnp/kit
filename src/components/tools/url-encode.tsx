@@ -26,7 +26,7 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface URLProcessingResult {
   id: string
@@ -126,7 +126,6 @@ type URLEncodingType = 'component' | 'uri' | 'form' | 'path' | 'query'
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -547,7 +546,7 @@ const useURLProcessing = () => {
         const analysis = analyzeURL(input)
 
         return {
-          id: generateId(),
+          id: nanoid(),
           input,
           output,
           operation,
@@ -572,7 +571,7 @@ const useURLProcessing = () => {
         const processingTime = endTime - startTime
 
         return {
-          id: generateId(),
+          id: nanoid(),
           input,
           output: '',
           operation,
@@ -635,7 +634,7 @@ const useURLProcessing = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           results,
           count: results.length,
           settings,

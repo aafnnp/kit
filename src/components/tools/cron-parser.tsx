@@ -22,7 +22,7 @@ import {
   BookOpen,
   Code,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface CronExpression {
   id: string
@@ -113,7 +113,6 @@ interface CronValidation {
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // Cron field ranges and constraints
 const CRON_RANGES = {
@@ -648,7 +647,7 @@ const useCronParsing = () => {
       const fields = parseCronExpression(expression, false, settings.includeYear)
 
       const cronExpression: CronExpression = {
-        id: generateId(),
+        id: nanoid(),
         expression,
         description: '',
         isValid: validation.isValid,
@@ -671,7 +670,7 @@ const useCronParsing = () => {
     } catch (error) {
       console.error('Cron parsing error:', error)
       return {
-        id: generateId(),
+        id: nanoid(),
         expression,
         description: '',
         isValid: false,
@@ -718,7 +717,7 @@ const useCronParsing = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           expressions: cronExpressions,
           count: cronExpressions.length,
           settings,

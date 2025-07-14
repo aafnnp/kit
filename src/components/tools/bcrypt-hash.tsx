@@ -27,7 +27,7 @@ import {
   Key,
   Timer,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface BcryptFile {
   id: string
@@ -121,7 +121,6 @@ type SecurityLevel = 'low' | 'medium' | 'high' | 'very-high'
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateBcryptFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
@@ -593,7 +592,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const bcryptFile: BcryptFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -621,7 +620,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,
@@ -976,7 +975,7 @@ const BcryptHashCore = () => {
       const processingTime = performance.now() - startTime
 
       const result: BcryptVerification = {
-        id: generateId(),
+        id: nanoid(),
         password: verifyPassword,
         hash: verifyHash,
         isValid,

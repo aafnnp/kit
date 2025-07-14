@@ -23,6 +23,7 @@ import {
   Lock,
   Unlock,
 } from 'lucide-react'
+import { nanoid } from 'nanoid'
 
 // Types
 interface Base64File {
@@ -97,7 +98,6 @@ type EncodingFormat = 'text' | 'base64' | 'url' | 'hex' | 'binary'
 type ExportFormat = 'txt' | 'json' | 'csv'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateEncodingFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
@@ -264,7 +264,7 @@ const performEncoding = (
     const compressionRatio = inputSize > 0 ? outputSize / inputSize : 1
 
     return {
-      id: generateId(),
+      id: nanoid(),
       operation,
       input,
       output,
@@ -283,7 +283,7 @@ const performEncoding = (
     const processingTime = performance.now() - startTime
 
     return {
-      id: generateId(),
+      id: nanoid(),
       operation,
       input,
       output: '',
@@ -474,7 +474,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const encodingFile: Base64File = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -502,7 +502,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,

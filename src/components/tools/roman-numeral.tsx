@@ -25,7 +25,7 @@ import {
   Scroll,
   History,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface RomanConversion {
   id: string
@@ -116,7 +116,6 @@ interface ConversionError {
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml' | 'html'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatNumber = (num: number): string => {
   return new Intl.NumberFormat('en-US').format(num)
@@ -779,7 +778,7 @@ const useRomanConversion = () => {
         const analysis = analyzeRomanNumeral(arabicNumber, romanNumeral)
 
         const conversion: RomanConversion = {
-          id: generateId(),
+          id: nanoid(),
           arabicNumber,
           romanNumeral,
           conversionType: type,

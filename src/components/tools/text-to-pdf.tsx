@@ -24,7 +24,7 @@ import {
   BarChart3,
   BookOpen,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface TextFile {
   id: string
@@ -117,7 +117,6 @@ type FontFamily = 'Arial' | 'Times' | 'Courier' | 'Helvetica' | 'Georgia' | 'Ver
 type TextAlign = 'left' | 'center' | 'right' | 'justify'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
@@ -468,7 +467,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const textFile: TextFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -496,7 +495,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,

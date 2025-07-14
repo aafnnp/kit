@@ -18,7 +18,7 @@ import {
   BarChart3,
   Settings,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface GeneratedText {
   id: string
@@ -77,7 +77,6 @@ type TextStyle =
 type OutputFormat = 'plain' | 'html' | 'markdown' | 'json'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateGenerationSettings = (settings: GenerationSettings): { isValid: boolean; error?: string } => {
   if (settings.paragraphCount < 1 || settings.paragraphCount > 100) {
@@ -814,7 +813,7 @@ const generateText = (settings: GenerationSettings): GeneratedText => {
   const characterCount = allText.length
 
   return {
-    id: generateId(),
+    id: nanoid(),
     content,
     format: settings.outputFormat,
     style: settings.textStyle,
@@ -895,7 +894,7 @@ const useRealTimeGeneration = (settings: GenerationSettings) => {
     } catch (error) {
       console.error('Real-time generation error:', error)
       return {
-        id: generateId(),
+        id: nanoid(),
         content: 'Error generating text',
         format: settings.outputFormat,
         style: settings.textStyle,

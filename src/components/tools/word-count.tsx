@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { Upload, Download, FileText, Loader2, FileImage, Trash2, BarChart3, BookOpen, Target } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface TextFile {
   id: string
@@ -65,8 +65,6 @@ const formatFileSize = (bytes: number): string => {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
-
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
@@ -534,7 +532,7 @@ const WordCountCore = () => {
         continue
       }
 
-      const id = generateId()
+      const id = nanoid()
       newFiles.push({
         id,
         file,

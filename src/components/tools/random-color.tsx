@@ -24,7 +24,7 @@ import {
   Settings,
   Zap,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface ColorFile {
   id: string
@@ -168,7 +168,6 @@ type ExportFormat = 'json' | 'css' | 'scss' | 'ase' | 'gpl'
 type ColorSpace = 'sRGB' | 'P3' | 'Rec2020'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateColorFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 5 * 1024 * 1024 // 5MB
@@ -359,7 +358,7 @@ const generateCompleteColor = (): GeneratedColor => {
   const harmony = generateColorHarmony(hex)
 
   return {
-    id: generateId(),
+    id: nanoid(),
     hex,
     rgb,
     hsl,
@@ -542,7 +541,7 @@ const generateColorPalette = (type: PaletteType, baseColor?: string, count: numb
     colors.reduce((sum, c) => sum + (c.metadata.accessibility.wcagAA ? 100 : 0), 0) / colors.length
 
   return {
-    id: generateId(),
+    id: nanoid(),
     name,
     colors,
     type,
@@ -917,7 +916,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const colorFile: ColorFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -945,7 +944,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,

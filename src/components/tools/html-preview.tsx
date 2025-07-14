@@ -31,7 +31,7 @@ import {
   Globe,
   FileCode,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface HTMLProcessingResult {
   id: string
@@ -164,7 +164,6 @@ type DeviceSize = 'desktop' | 'tablet' | 'mobile' | 'custom'
 type ExportFormat = 'html' | 'pdf' | 'png' | 'json' | 'txt'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -809,7 +808,7 @@ const useHTMLProcessing = () => {
       const inputSize = new Blob([html]).size
 
       return {
-        id: generateId(),
+        id: nanoid(),
         input: html,
         isValid: true,
         statistics: {
@@ -828,7 +827,7 @@ const useHTMLProcessing = () => {
       const processingTime = endTime - startTime
 
       return {
-        id: generateId(),
+        id: nanoid(),
         input: html,
         isValid: false,
         error: error instanceof Error ? error.message : 'Processing failed',
@@ -889,7 +888,7 @@ const useHTMLProcessing = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           results,
           count: results.length,
           settings,

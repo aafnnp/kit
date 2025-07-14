@@ -31,7 +31,7 @@ import {
   Minimize2,
   Palette,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface ImageProcessingResult {
   id: string
@@ -144,7 +144,6 @@ type ImageFormat = 'jpeg' | 'png' | 'webp' | 'gif' | 'bmp'
 type ExportFormat = 'base64' | 'dataurl' | 'json' | 'txt'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -564,7 +563,7 @@ const useImageProcessing = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           input: inputString,
           output,
           direction,
@@ -585,7 +584,7 @@ const useImageProcessing = () => {
         const processingTime = endTime - startTime
 
         return {
-          id: generateId(),
+          id: nanoid(),
           input: typeof input === 'string' ? input : input.name,
           output: '',
           direction,
@@ -652,7 +651,7 @@ const useImageProcessing = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           results,
           count: results.length,
           settings,

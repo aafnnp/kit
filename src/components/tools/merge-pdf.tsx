@@ -22,7 +22,7 @@ import {
   Combine,
 } from 'lucide-react'
 import { PDFDocument, degrees } from 'pdf-lib'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface PDFFile {
   id: string
@@ -179,7 +179,6 @@ interface PDFError {
 type ExportFormat = 'pdf' | 'zip'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -251,7 +250,7 @@ const processPDFFile = async (file: File): Promise<PDFFile> => {
     }
 
     return {
-      id: generateId(),
+      id: nanoid(),
       file,
       name: file.name,
       size: file.size,
@@ -263,7 +262,7 @@ const processPDFFile = async (file: File): Promise<PDFFile> => {
     }
   } catch (error) {
     return {
-      id: generateId(),
+      id: nanoid(),
       file,
       name: file.name,
       size: file.size,
@@ -640,7 +639,7 @@ const usePDFMerger = () => {
 
   const createMergeOperation = useCallback((files: PDFFile[], settings: MergeSettings): MergeOperation => {
     const operation: MergeOperation = {
-      id: generateId(),
+      id: nanoid(),
       files,
       settings,
       status: 'pending',

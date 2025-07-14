@@ -22,7 +22,7 @@ import {
   XCircle,
   Wrench,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface JWTGeneratorConfig {
   id: string
@@ -200,7 +200,6 @@ type JWTAlgorithm =
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -212,7 +211,7 @@ const formatFileSize = (bytes: number): string => {
 
 // JWT generation functions
 const generateJWT = async (config: JWTGeneratorConfig): Promise<GeneratedJWT> => {
-  const id = generateId()
+  const id = nanoid()
   const createdAt = new Date()
 
   try {
@@ -767,7 +766,7 @@ const jwtTemplates: JWTTemplate[] = [
 
 // Default configuration
 const createDefaultConfig = (): JWTGeneratorConfig => ({
-  id: generateId(),
+  id: nanoid(),
   name: 'New JWT Configuration',
   header: {
     alg: 'HS256',
@@ -946,7 +945,7 @@ const useJWTGenerator = () => {
 
     try {
       const batch: JWTBatch = {
-        id: generateId(),
+        id: nanoid(),
         name: batchSettings.namingPattern || 'JWT Batch',
         tokens: [],
         settings: batchSettings,
@@ -1292,7 +1291,7 @@ const JWTGeneratorCore = () => {
       setConfig((prev) => ({
         ...prev,
         ...template.config,
-        id: generateId(),
+        id: nanoid(),
         name: template.name,
         createdAt: new Date(),
       }))

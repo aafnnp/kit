@@ -26,7 +26,7 @@ import {
   Play,
   Pause,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface TimestampItem {
   id: string
@@ -113,7 +113,6 @@ type TimestampFormat = 'unix' | 'unix-ms' | 'iso8601' | 'rfc2822' | 'local' | 'u
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateTimestampInput = (input: string, format: TimestampFormat): { isValid: boolean; error?: string } => {
   if (!input.trim()) {
@@ -510,7 +509,7 @@ const useTimestampConversion = () => {
         const validation = validateTimestampInput(input, inputFormat)
         if (!validation.isValid) {
           return {
-            id: generateId(),
+            id: nanoid(),
             input,
             inputType: inputFormat,
             outputs: [],
@@ -524,7 +523,7 @@ const useTimestampConversion = () => {
         const outputs = convertToMultipleFormats(input, inputFormat, outputFormats, timezone)
 
         return {
-          id: generateId(),
+          id: nanoid(),
           input,
           inputType: inputFormat,
           outputs,
@@ -536,7 +535,7 @@ const useTimestampConversion = () => {
       } catch (error) {
         console.error('Timestamp conversion error:', error)
         return {
-          id: generateId(),
+          id: nanoid(),
           input,
           inputType: inputFormat,
           outputs: [],
@@ -584,7 +583,7 @@ const useTimestampConversion = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           items,
           count: items.length,
           settings,

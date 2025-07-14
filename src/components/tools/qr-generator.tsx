@@ -22,7 +22,7 @@ import {
   QrCode,
   Image,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface QRCodeResult {
   id: string
@@ -196,7 +196,6 @@ type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H'
 type ExportFormat = 'png' | 'svg' | 'pdf' | 'zip'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // QR Code generation functions (using a simple implementation since we don't have qrcode library)
 const generateQRCode = async (settings: QRSettings): Promise<QRCodeResult> => {
@@ -258,7 +257,7 @@ const generateQRCode = async (settings: QRSettings): Promise<QRCodeResult> => {
     const analysis = analyzeQRCode(settings, metadata)
 
     return {
-      id: generateId(),
+      id: nanoid(),
       content: settings.content,
       type: settings.type,
       format: settings.format,
@@ -274,7 +273,7 @@ const generateQRCode = async (settings: QRSettings): Promise<QRCodeResult> => {
     }
   } catch (error) {
     return {
-      id: generateId(),
+      id: nanoid(),
       content: settings.content,
       type: settings.type,
       format: settings.format,
@@ -977,7 +976,7 @@ const useQRGenerator = () => {
 
     try {
       const batch: QRBatch = {
-        id: generateId(),
+        id: nanoid(),
         name: batchSettings.namingPattern || 'QR Batch',
         qrCodes: [],
         settings: batchSettings,
@@ -1015,7 +1014,7 @@ const useQRGenerator = () => {
           batch.progress = progress
         } catch (error) {
           const failedResult: QRCodeResult = {
-            id: generateId(),
+            id: nanoid(),
             content,
             type: settings.type,
             format: settings.format,

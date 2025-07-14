@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 import { Upload, Download, Loader2, FileVideo2, Trash2, BarChart3, Video, Scissors } from 'lucide-react'
 // @ts-ignore
 import JSZip from 'jszip'
-
+import { nanoid } from 'nanoid'
 // 类型定义
 interface VideoFile {
   id: string
@@ -47,7 +47,7 @@ interface TrimResult {
 }
 
 // 工具函数
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
+
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
   const k = 1024
@@ -190,7 +190,7 @@ const VideoTrim = () => {
       }
       try {
         const stats = await getStats(file)
-        const id = generateId()
+        const id = nanoid()
         const url = URL.createObjectURL(file)
         newVideos.push({ id, file, name: file.name, size: file.size, type: file.type, status: 'pending', url, stats })
       } catch (e: any) {

@@ -36,7 +36,7 @@ import {
   Navigation,
   Activity,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface IPLookupResult {
   id: string
@@ -259,7 +259,6 @@ interface IPError {
 type ExportFormat = 'json' | 'csv' | 'xml' | 'txt'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // IP lookup functions (using mock data since browsers have limited IP lookup capabilities)
 const performIPLookup = async (
@@ -696,7 +695,7 @@ const useIPLookup = () => {
       const analysis = analyzeIP(ip, ipInfo, geolocation, security, network)
 
       return {
-        id: generateId(),
+        id: nanoid(),
         ip,
         isValid: true,
         ipInfo,
@@ -728,7 +727,7 @@ const useIPLookup = () => {
       const processingTime = endTime - startTime
 
       return {
-        id: generateId(),
+        id: nanoid(),
         ip,
         isValid: false,
         error: error instanceof Error ? error.message : 'IP lookup failed',
@@ -820,7 +819,7 @@ const useIPLookup = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           results,
           count: results.length,
           settings,

@@ -22,7 +22,7 @@ import {
   Settings,
   FileCode,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface HashFile {
   id: string
@@ -92,7 +92,6 @@ type OutputFormat = 'hex' | 'base64' | 'binary'
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateHashFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 100 * 1024 * 1024 // 100MB
@@ -491,7 +490,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as ArrayBuffer
 
           const hashFile: HashFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -519,7 +518,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,

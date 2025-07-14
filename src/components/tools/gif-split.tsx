@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { Upload, Download, Loader2, FileImage, Trash2, BarChart3, Image as ImageIcon, Layers } from 'lucide-react'
 // @ts-ignore
 import { parseGIF, decompressFrames } from 'gifuct-js'
-
+import { nanoid } from 'nanoid'
 // 类型定义
 interface GifFile {
   id: string
@@ -38,7 +38,7 @@ interface GifStats {
 }
 
 // 工具函数
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
+
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
   const k = 1024
@@ -154,7 +154,7 @@ const GifSplit = () => {
         toast.error(`${file.name}: ${valid.error}`)
         continue
       }
-      const id = generateId()
+      const id = nanoid()
       newGifs.push({ id, file, name: file.name, size: file.size, type: file.type, status: 'pending' })
     }
     if (newGifs.length) setGifs((prev) => [...prev, ...newGifs])

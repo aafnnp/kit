@@ -23,7 +23,7 @@ import {
   XCircle,
   TestTube,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface RegexPattern {
   id: string
@@ -105,7 +105,6 @@ interface RegexCheatsheet {
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // Regex Categories
 const regexCategories: RegexCategory[] = [
@@ -583,7 +582,7 @@ const useRegexTester = () => {
     try {
       const result = testRegex(pattern, flags, testString)
       const test: RegexTest = {
-        id: generateId(),
+        id: nanoid(),
         pattern,
         flags,
         testString,

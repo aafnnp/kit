@@ -24,7 +24,7 @@ import {
   Square,
   Circle,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface BorderRadiusFile {
   id: string
@@ -100,7 +100,6 @@ type BorderRadiusUnit = 'px' | 'rem' | 'em' | '%'
 type ExportFormat = 'css' | 'scss' | 'json' | 'tailwind'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateBorderRadiusFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
@@ -207,7 +206,7 @@ const analyzeBorderRadiusAccessibility = (corners: BorderRadiusCorners): BorderR
 
 // Create complete border radius object
 const createBorderRadius = (type: BorderRadiusType, corners: BorderRadiusCorners): BorderRadius => {
-  const id = generateId()
+  const id = nanoid()
 
   let css = ''
   switch (type) {
@@ -445,7 +444,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const borderRadiusFile: BorderRadiusFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -473,7 +472,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,

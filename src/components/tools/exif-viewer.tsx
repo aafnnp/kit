@@ -24,7 +24,7 @@ import {
   Settings,
   Image as ImageIcon,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface ExifFile {
   id: string
@@ -162,7 +162,6 @@ type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 type ExifCategory = 'basic' | 'camera' | 'exposure' | 'gps' | 'technical'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateImageFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
@@ -594,7 +593,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const exifFile: ExifFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -622,7 +621,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,

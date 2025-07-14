@@ -33,7 +33,7 @@ import {
   File,
   Archive,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface MimeSearchResult {
   id: string
@@ -159,7 +159,6 @@ type SearchMode = 'fuzzy' | 'exact' | 'partial' | 'regex'
 type ExportFormat = 'json' | 'csv' | 'xml' | 'txt'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // Comprehensive MIME type database
 const mimeDatabase: MimeTypeInfo[] = [
@@ -941,7 +940,7 @@ const useMimeSearch = () => {
         })
 
         return {
-          id: generateId(),
+          id: nanoid(),
           query,
           queryType,
           results,
@@ -961,7 +960,7 @@ const useMimeSearch = () => {
         const processingTime = endTime - startTime
 
         return {
-          id: generateId(),
+          id: nanoid(),
           query,
           queryType,
           results: [],
@@ -1019,7 +1018,7 @@ const useMimeSearch = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           results,
           count: results.length,
           settings,

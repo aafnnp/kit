@@ -26,7 +26,7 @@ import {
   Zap,
   Square,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface ShadowFile {
   id: string
@@ -105,7 +105,6 @@ type ShadowType = 'box-shadow' | 'text-shadow' | 'drop-shadow'
 type ExportFormat = 'css' | 'scss' | 'json' | 'tailwind'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateShadowFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
@@ -245,7 +244,7 @@ const analyzeShadowAccessibility = (
 
 // Create complete shadow object
 const createShadow = (type: ShadowType, layers: ShadowLayer[], unit: string = 'px'): Shadow => {
-  const id = generateId()
+  const id = nanoid()
 
   let css = ''
   switch (type) {
@@ -450,7 +449,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const shadowFile: ShadowFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -478,7 +477,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,
@@ -781,7 +780,7 @@ const ShadowGeneratorCore = () => {
       setLayers((prev) => [
         ...prev,
         {
-          id: generateId(),
+          id: nanoid(),
           x: 0,
           y: 4,
           blur: 6,
@@ -1153,7 +1152,7 @@ const ShadowGeneratorCore = () => {
                       onClick={() => {
                         setLayers([
                           {
-                            id: generateId(),
+                            id: nanoid(),
                             x: 0,
                             y: 4,
                             blur: 6,

@@ -26,7 +26,7 @@ import {
   ArrowLeftRight,
   Columns,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface DiffFile {
   id: string
@@ -104,7 +104,6 @@ type DiffFormat = 'unified' | 'side-by-side' | 'split' | 'inline'
 type DiffViewMode = 'full' | 'changes-only' | 'context'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
@@ -493,7 +492,7 @@ const useDiffProcessing = () => {
         const result = processDiff(leftFile.content, rightFile.content, settings)
 
         return {
-          id: generateId(),
+          id: nanoid(),
           leftFile: { ...leftFile, status: 'completed' },
           rightFile: { ...rightFile, status: 'completed' },
           status: 'completed',
@@ -502,7 +501,7 @@ const useDiffProcessing = () => {
         }
       } catch (error) {
         return {
-          id: generateId(),
+          id: nanoid(),
           leftFile: { ...leftFile, status: 'error' },
           rightFile: { ...rightFile, status: 'error' },
           status: 'error',
@@ -585,7 +584,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const diffFile: DiffFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -613,7 +612,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,
@@ -911,7 +910,7 @@ const DiffViewerCore = () => {
   // Create file pairs for comparison
   const createPair = useCallback((leftFile: DiffFile, rightFile: DiffFile) => {
     const newPair: DiffPair = {
-      id: generateId(),
+      id: nanoid(),
       leftFile: { ...leftFile, pairedWith: rightFile.id },
       rightFile: { ...rightFile, pairedWith: leftFile.id },
       status: 'pending',

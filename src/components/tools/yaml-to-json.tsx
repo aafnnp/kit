@@ -24,7 +24,7 @@ import {
   ArrowRight,
   ArrowLeft,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface ConversionResult {
   id: string
@@ -127,7 +127,6 @@ type DataFormat = 'yaml' | 'json'
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -753,7 +752,7 @@ const useConversion = () => {
         const complexity = analyzeComplexity(input, inputFormat)
 
         return {
-          id: generateId(),
+          id: nanoid(),
           input,
           output,
           inputFormat,
@@ -776,7 +775,7 @@ const useConversion = () => {
         const processingTime = endTime - startTime
 
         return {
-          id: generateId(),
+          id: nanoid(),
           input,
           output: '',
           inputFormat,
@@ -840,7 +839,7 @@ const useConversion = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           conversions,
           count: conversions.length,
           settings,

@@ -22,7 +22,7 @@ import {
   ArrowLeftRight,
   Repeat,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface CurrencyConversion {
   id: string
@@ -100,7 +100,6 @@ interface ConversionError {
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml' | 'excel'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatCurrency = (amount: number, currency: Currency): string => {
   return new Intl.NumberFormat('en-US', {
@@ -988,7 +987,7 @@ const useCurrencyConversion = () => {
         const convertedAmount = await convertCurrency(amount, fromCurrency, toCurrency)
 
         const conversion: CurrencyConversion = {
-          id: generateId(),
+          id: nanoid(),
           fromCurrency: fromCurrencyObj,
           toCurrency: toCurrencyObj,
           amount,

@@ -22,7 +22,7 @@ import {
   Sigma,
   SquareFunction,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface PrimeAnalysis {
   id: string
@@ -100,7 +100,6 @@ type NumberType = 'small' | 'medium' | 'large' | 'very_large'
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatNumber = (num: number): string => {
   return new Intl.NumberFormat().format(num)
@@ -644,7 +643,7 @@ const analyzePrime = (number: number, algorithm: PrimeAlgorithm = 'trial_divisio
   const primeGaps = isPrime ? calculatePrimeGaps(number) : []
 
   return {
-    id: generateId(),
+    id: nanoid(),
     number,
     isPrime,
     algorithm,

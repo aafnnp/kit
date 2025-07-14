@@ -34,7 +34,7 @@ import {
   Key,
   Lock,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface URLParseResult {
   id: string
@@ -208,7 +208,6 @@ interface URLError {
 type ExportFormat = 'json' | 'csv' | 'xml' | 'txt'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // URL parsing and analysis functions
 const parseURL = (
@@ -710,7 +709,7 @@ const useURLParser = () => {
       }
 
       return {
-        id: generateId(),
+        id: nanoid(),
         url: urlString,
         isValid: true,
         components,
@@ -725,7 +724,7 @@ const useURLParser = () => {
       const processingTime = endTime - startTime
 
       return {
-        id: generateId(),
+        id: nanoid(),
         url: urlString,
         isValid: false,
         error: error instanceof Error ? error.message : 'URL parsing failed',
@@ -812,7 +811,7 @@ const useURLParser = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           results,
           count: results.length,
           settings,

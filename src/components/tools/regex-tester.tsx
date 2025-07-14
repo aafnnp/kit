@@ -24,7 +24,7 @@ import {
   BookOpen,
   Zap,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface TextFile {
   id: string
@@ -96,7 +96,6 @@ interface RegexTestResult {
 }
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateRegexPattern = (pattern: string, flags: string): { isValid: boolean; error?: string } => {
   if (!pattern.trim()) {
@@ -552,7 +551,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const textFile: TextFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -580,7 +579,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,

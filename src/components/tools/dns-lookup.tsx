@@ -28,7 +28,7 @@ import {
   Clock,
   Network,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface DNSLookupResult {
   id: string
@@ -183,7 +183,6 @@ type DNSRecordType =
 type ExportFormat = 'json' | 'csv' | 'xml' | 'txt'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // DNS lookup functions (using public DNS APIs since browsers don't support native DNS)
 const performDNSLookup = async (domain: string, recordType: DNSRecordType): Promise<DNSRecord[]> => {
@@ -691,7 +690,7 @@ const useDNSLookup = () => {
       const analysis = analyzeDNSRecords(domain, allRecords)
 
       return {
-        id: generateId(),
+        id: nanoid(),
         domain,
         recordType: recordTypes[0], // Primary record type
         isValid: true,
@@ -713,7 +712,7 @@ const useDNSLookup = () => {
       const processingTime = endTime - startTime
 
       return {
-        id: generateId(),
+        id: nanoid(),
         domain,
         recordType: recordTypes[0],
         isValid: false,
@@ -799,7 +798,7 @@ const useDNSLookup = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           results,
           count: results.length,
           settings,

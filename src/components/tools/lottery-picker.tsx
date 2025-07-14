@@ -22,7 +22,7 @@ import {
   Target,
   Sparkles,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface LotteryItem {
   id: string
@@ -146,7 +146,6 @@ type SelectionMode = 'single' | 'multiple' | 'weighted' | 'tournament' | 'elimin
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // Lottery generation functions
 const parseItems = (input: string, separators: string[] = [',', '，', ';', '；', '\n']): LotteryItem[] => {
@@ -160,7 +159,7 @@ const parseItems = (input: string, separators: string[] = [',', '，', ';', '；
     .filter(Boolean)
 
   return items.map((value) => ({
-    id: generateId(),
+    id: nanoid(),
     value,
     weight: 1,
     category: detectCategory(value),
@@ -222,7 +221,7 @@ const performLottery = (items: LotteryItem[], settings: LotterySettings): Lotter
   const statistics = calculateStatistics(items)
 
   return {
-    id: generateId(),
+    id: nanoid(),
     items: items,
     selectedItems,
     selectionMode: settings.selectionMode,
@@ -861,7 +860,7 @@ const useLotteryPicker = () => {
 
       try {
         const batch: LotteryBatch = {
-          id: generateId(),
+          id: nanoid(),
           name: batchSettings.namingPattern || 'Lottery Batch',
           results: [],
           settings: batchSettings,

@@ -24,7 +24,7 @@ import {
   Maximize2,
   ChartArea,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface MermaidDiagram {
   id: string
@@ -194,7 +194,6 @@ type ExportFormat = 'svg' | 'png' | 'pdf' | 'markdown' | 'html' | 'json'
 type ViewMode = 'split' | 'editor' | 'preview' | 'fullscreen'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -241,7 +240,7 @@ const initializeMermaid = (config: Partial<MermaidConfig> = {}) => {
 
 const renderMermaidDiagram = async (code: string, config: MermaidConfig): Promise<MermaidDiagram> => {
   const startTime = performance.now()
-  const id = generateId()
+  const id = nanoid()
 
   try {
     // Initialize Mermaid with config

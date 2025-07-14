@@ -26,7 +26,7 @@ import {
   Play,
   Pause,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface TimezoneConversion {
   id: string
@@ -115,7 +115,6 @@ type TimeFormat = '12h' | '24h'
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // Comprehensive timezone list
 const WORLD_TIMEZONES = [
@@ -300,7 +299,7 @@ const convertTimezone = (
     const dateValidation = validateDateTime(inputTime)
     if (!dateValidation.isValid) {
       return {
-        id: generateId(),
+        id: nanoid(),
         inputTime,
         inputTimezone,
         outputTimezone,
@@ -317,7 +316,7 @@ const convertTimezone = (
 
     if (!validateTimezone(inputTimezone)) {
       return {
-        id: generateId(),
+        id: nanoid(),
         inputTime,
         inputTimezone,
         outputTimezone,
@@ -334,7 +333,7 @@ const convertTimezone = (
 
     if (!validateTimezone(outputTimezone)) {
       return {
-        id: generateId(),
+        id: nanoid(),
         inputTime,
         inputTimezone,
         outputTimezone,
@@ -380,7 +379,7 @@ const convertTimezone = (
     const outputInfo = getTimezoneInfo(outputTimezone, inputDate)
 
     return {
-      id: generateId(),
+      id: nanoid(),
       inputTime,
       inputTimezone,
       outputTimezone,
@@ -395,7 +394,7 @@ const convertTimezone = (
   } catch (error) {
     console.error('Timezone conversion error:', error)
     return {
-      id: generateId(),
+      id: nanoid(),
       inputTime,
       inputTimezone,
       outputTimezone,
@@ -561,7 +560,7 @@ const useTimezoneConversion = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           conversions: results,
           count: results.length,
           settings,

@@ -32,7 +32,7 @@ import {
   Save,
   Monitor,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface ImageFile {
   id: string
@@ -103,8 +103,6 @@ const formatFileSize = (bytes: number): string => {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
-
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // Enhanced Templates
 const COMPRESSION_TEMPLATES: CompressionTemplate[] = [
@@ -487,7 +485,7 @@ const ImageCompressCore = () => {
   const saveToHistory = useCallback(
     (stats: CompressionStats) => {
       const entry: HistoryEntry = {
-        id: generateId(),
+        id: nanoid(),
         timestamp: Date.now(),
         settings: { ...settings },
         stats,
@@ -564,7 +562,7 @@ const ImageCompressCore = () => {
         continue
       }
 
-      const id = generateId()
+      const id = nanoid()
       const originalUrl = URL.createObjectURL(file)
 
       newImages.push({

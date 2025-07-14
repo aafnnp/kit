@@ -24,7 +24,7 @@ import {
   Package,
   Settings,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface FaviconFile {
   id: string
@@ -126,7 +126,6 @@ type FaviconPurpose = 'any' | 'maskable' | 'monochrome'
 type ExportFormat = 'zip' | 'individual' | 'html'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateImageFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
@@ -275,7 +274,7 @@ const generateFaviconSet = async (imageUrl: string, settings: FaviconSettings): 
         const result = await generateFaviconFromImage(imageUrl, size, format)
 
         const favicon: GeneratedFavicon = {
-          id: generateId(),
+          id: nanoid(),
           type,
           size,
           format,
@@ -577,7 +576,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const faviconFile: FaviconFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -605,7 +604,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,

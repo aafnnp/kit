@@ -25,7 +25,7 @@ import {
   Briefcase,
   Heart,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface FakeUser {
   id: string
@@ -207,7 +207,6 @@ interface UserTemplate {
 type ExportFormat = 'json' | 'csv' | 'xml' | 'sql' | 'yaml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // Data sources for fake user generation
 const firstNames = {
@@ -724,7 +723,7 @@ const generateFakeUser = (settings: GenerationSettings): FakeUser => {
   }
 
   return {
-    id: generateId(),
+    id: nanoid(),
     personalInfo,
     contactInfo,
     addressInfo,
@@ -1163,7 +1162,7 @@ const useFakeUserGenerator = () => {
 
     try {
       const batch: UserBatch = {
-        id: generateId(),
+        id: nanoid(),
         name: batchSettings.namingPattern || 'User Batch',
         users: [],
         settings: batchSettings,

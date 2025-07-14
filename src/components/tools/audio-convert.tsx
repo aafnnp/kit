@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { Upload, Download, Loader2, FileAudio2, Trash2, BarChart3, Volume2, SlidersHorizontal } from 'lucide-react'
+import { nanoid } from 'nanoid'
 // @ts-ignore
 import JSZip from 'jszip'
 
@@ -47,7 +48,7 @@ interface ConvertResult {
 }
 
 // 工具函数
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
+
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
   const k = 1024
@@ -193,7 +194,7 @@ const AudioConvert = () => {
       }
       try {
         const stats = await getStats(file)
-        const id = generateId()
+        const id = nanoid()
         const url = URL.createObjectURL(file)
         newAudios.push({ id, file, name: file.name, size: file.size, type: file.type, status: 'pending', url, stats })
       } catch (e: any) {

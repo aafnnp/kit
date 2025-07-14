@@ -29,7 +29,7 @@ import {
   ChevronUp,
   ChevronDown,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface DataFile {
   id: string
@@ -93,7 +93,6 @@ type SortDirection = 'asc' | 'desc'
 type DataFormat = 'csv' | 'tsv' | 'json' | 'auto'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateDataFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
@@ -590,7 +589,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const dataFile: DataFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -618,7 +617,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,

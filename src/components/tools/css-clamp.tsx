@@ -26,7 +26,7 @@ import {
   Settings,
   Calculator,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Types
 interface CssClampFile {
   id: string
@@ -132,7 +132,6 @@ type CssUnit = 'px' | 'rem' | 'em' | 'vw' | 'vh' | 'vmin' | 'vmax' | '%' | 'ch' 
 type ExportFormat = 'css' | 'scss' | 'json' | 'js'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateCssFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 5 * 1024 * 1024 // 5MB
@@ -235,7 +234,7 @@ const calculateClampValue = (
     }
 
     return {
-      id: generateId(),
+      id: nanoid(),
       property: 'font-size',
       minValue,
       idealValue,
@@ -526,7 +525,7 @@ const useFileProcessing = () => {
           const content = e.target?.result as string
 
           const clampFile: CssClampFile = {
-            id: generateId(),
+            id: nanoid(),
             name: file.name,
             content,
             size: file.size,
@@ -554,7 +553,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             name: files[index].name,
             content: '',
             size: files[index].size,

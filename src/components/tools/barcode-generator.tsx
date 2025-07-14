@@ -22,6 +22,7 @@ import {
   Image,
   Barcode as BarcodeIcon,
 } from 'lucide-react'
+import { nanoid } from 'nanoid'
 
 type DataExposure = 'low' | 'medium' | 'high'
 
@@ -219,7 +220,6 @@ type BarcodeFormat =
 type ExportFormat = 'png' | 'svg' | 'pdf' | 'zip'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // Barcode generation functions
 const generateBarcode = async (settings: BarcodeSettings): Promise<BarcodeResult> => {
@@ -315,7 +315,7 @@ const generateBarcode = async (settings: BarcodeSettings): Promise<BarcodeResult
     document.body.removeChild(container)
 
     return {
-      id: generateId(),
+      id: nanoid(),
       content: settings.content,
       format: settings.format,
       width: settings.width,
@@ -339,7 +339,7 @@ const generateBarcode = async (settings: BarcodeSettings): Promise<BarcodeResult
     }
   } catch (error) {
     return {
-      id: generateId(),
+      id: nanoid(),
       content: settings.content,
       format: settings.format,
       width: settings.width,
@@ -1457,7 +1457,7 @@ const useBarcodeGenerator = () => {
 
       try {
         const batch: BarcodeBatch = {
-          id: generateId(),
+          id: nanoid(),
           name: batchSettings.namingPattern || 'Barcode Batch',
           barcodes: [],
           settings: batchSettings,
@@ -1495,7 +1495,7 @@ const useBarcodeGenerator = () => {
             batch.progress = progress
           } catch (error) {
             const failedResult: BarcodeResult = {
-              id: generateId(),
+              id: nanoid(),
               content,
               format: settings.format,
               width: settings.width,

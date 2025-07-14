@@ -22,7 +22,7 @@ import {
   BookOpen,
   Calculator,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface TimeDifference {
   id: string
@@ -120,7 +120,6 @@ type DurationPrecision = 'milliseconds' | 'seconds' | 'minutes' | 'hours' | 'day
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 // Common timezones
 const COMMON_TIMEZONES = [
@@ -428,7 +427,7 @@ const useTimeDiffCalculation = () => {
 
         if (!startValidation.isValid) {
           return {
-            id: generateId(),
+            id: nanoid(),
             startDate: new Date(),
             endDate: new Date(),
             startInput,
@@ -467,7 +466,7 @@ const useTimeDiffCalculation = () => {
 
         if (!endValidation.isValid) {
           return {
-            id: generateId(),
+            id: nanoid(),
             startDate: new Date(),
             endDate: new Date(),
             startInput,
@@ -510,7 +509,7 @@ const useTimeDiffCalculation = () => {
         const businessDays = settings.includeBusinessDays ? calculateBusinessDays(startDate, endDate) : 0
 
         return {
-          id: generateId(),
+          id: nanoid(),
           startDate,
           endDate,
           startInput,
@@ -526,7 +525,7 @@ const useTimeDiffCalculation = () => {
       } catch (error) {
         console.error('Time diff calculation error:', error)
         return {
-          id: generateId(),
+          id: nanoid(),
           startDate: new Date(),
           endDate: new Date(),
           startInput,
@@ -604,7 +603,7 @@ const useTimeDiffCalculation = () => {
         }
 
         return {
-          id: generateId(),
+          id: nanoid(),
           calculations,
           count: calculations.length,
           settings,

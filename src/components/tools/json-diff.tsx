@@ -21,7 +21,7 @@ import {
   GitCompare,
   GitBranch,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface JSONDiffResult {
   id: string
@@ -108,7 +108,6 @@ type DiffType = 'added' | 'removed' | 'modified' | 'moved' | 'unchanged'
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml' | 'html'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -121,7 +120,7 @@ const formatFileSize = (bytes: number): string => {
 // JSON diff comparison functions
 const compareJSON = (left: any, right: any, options: DiffOptions): JSONDiffResult => {
   const startTime = window.performance.now()
-  const id = generateId()
+  const id = nanoid()
   const timestamp = new Date()
 
   const differences: JSONDifference[] = []

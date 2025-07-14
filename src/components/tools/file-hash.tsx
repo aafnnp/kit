@@ -32,7 +32,7 @@ import {
   FileCheck,
   Folder,
 } from 'lucide-react'
-
+import { nanoid } from 'nanoid'
 // Enhanced Types
 interface FileHashItem {
   id: string
@@ -121,7 +121,6 @@ type SecurityLevel = 'low' | 'medium' | 'high' | 'very-high'
 type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
-const generateId = (): string => Math.random().toString(36).substring(2, 11)
 
 const validateFileForHashing = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 500 * 1024 * 1024 // 500MB
@@ -282,7 +281,7 @@ const verifyFileIntegrity = async (
     const processingTime = performance.now() - startTime
 
     return {
-      id: generateId(),
+      id: nanoid(),
       fileName: file.name,
       expectedHash,
       actualHash: result.hash,
@@ -292,7 +291,7 @@ const verifyFileIntegrity = async (
     }
   } catch (error) {
     return {
-      id: generateId(),
+      id: nanoid(),
       fileName: file.name,
       expectedHash,
       actualHash: 'Error: ' + (error instanceof Error ? error.message : 'Verification failed'),
@@ -594,7 +593,7 @@ const useFileProcessing = () => {
     }
 
     const fileHashItem: FileHashItem = {
-      id: generateId(),
+      id: nanoid(),
       file,
       name: file.name,
       size: file.size,
@@ -615,7 +614,7 @@ const useFileProcessing = () => {
           return result.value
         } else {
           return {
-            id: generateId(),
+            id: nanoid(),
             file: files[index],
             name: files[index].name,
             size: files[index].size,
