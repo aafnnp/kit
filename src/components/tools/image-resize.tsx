@@ -101,21 +101,6 @@ interface HistoryEntry {
   description: string
 }
 
-interface AnalysisData {
-  resizeEfficiency: number
-  qualityScore: number
-  dimensionOptimization: number
-  formatRecommendation: string
-  performanceImpact: 'low' | 'medium' | 'high'
-  recommendations: string[]
-  technicalDetails: {
-    aspectRatioPreserved: boolean
-    upscaling: boolean
-    downscaling: boolean
-    significantResize: boolean
-  }
-}
-
 // Utility functions
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -553,7 +538,6 @@ const ImageResizeCore = () => {
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [filterStatus] = useState<'all' | 'pending' | 'completed' | 'error'>('all')
   const [sortBy] = useState<'name' | 'size' | 'dimensions' | 'time'>('name')
-  const [_, setCopySuccess] = useState<string>('')
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { resizeImage } = useImageResize()

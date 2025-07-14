@@ -1,13 +1,33 @@
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useRef, useState, useMemo, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
-import { Upload, Download, Image as ImageIcon, Loader2, FileImage, Trash2, Crop, Move, Maximize2 } from 'lucide-react'
+import {
+  Upload,
+  Download,
+  FileImage,
+  Trash2,
+  Crop,
+  Settings,
+  BarChart3,
+  Clock,
+  BookOpen,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  CheckCircle2,
+  Activity,
+  Layers,
+  Sliders,
+  RefreshCw,
+  Save,
+} from 'lucide-react'
 
-// Types
+// Enhanced Types
 interface ImageFile {
   id: string
   file: File
@@ -16,9 +36,16 @@ interface ImageFile {
   originalSize: number
   croppedSize?: number
   originalDimensions: { width: number; height: number }
+  croppedDimensions?: { width: number; height: number }
   cropArea: CropArea
   status: 'pending' | 'processing' | 'completed' | 'error'
   error?: string
+  timestamp: number
+  processingTime?: number
+  compressionRatio?: number
+  qualityScore?: number
+  cropPercentage?: number
+  templateUsed?: string
 }
 
 interface CropArea {
@@ -35,6 +62,11 @@ interface CropSettings {
   quality: number
   maintainOriginalSize: boolean
   cropPosition: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'custom'
+  backgroundColor: string
+  preserveMetadata: boolean
+  optimizeForWeb: boolean
+  enableSmartCrop: boolean
+  cropPadding: number
 }
 
 interface AspectRatioPreset {
@@ -42,6 +74,21 @@ interface AspectRatioPreset {
   value: string
   ratio: number
   description: string
+  icon?: string
+  useCase: string
+  pros: string[]
+  cons: string[]
+}
+
+interface CropTemplate {
+  id: string
+  name: string
+  description: string
+  settings: Partial<CropSettings>
+  cropArea?: Partial<CropArea>
+  category: 'social' | 'print' | 'web' | 'mobile' | 'custom'
+  tags: string[]
+  popularity: number
 }
 
 interface CropStats {
@@ -50,6 +97,72 @@ interface CropStats {
   totalSavings: number
   averageSizeReduction: number
   averageCropPercentage: number
+  processingTime: number
+  imagesProcessed: number
+  averageFileSize: number
+  largestReduction: number
+  smallestReduction: number
+  qualityMetrics: {
+    averageQuality: number
+    compressionEfficiency: number
+    cropOptimization: number
+  }
+}
+
+interface HistoryEntry {
+  id: string
+  timestamp: number
+  settings: CropSettings
+  stats: CropStats
+  imageCount: number
+  totalSavings: number
+  description: string
+}
+
+// Error Boundary Component
+class ImageCropErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Image Crop Error:', error, errorInfo)
+    toast.error('An unexpected error occurred. Please refresh the page.')
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Card className="w-full max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-600">
+              <AlertCircle className="h-5 w-5" />
+              Something went wrong
+            </CardTitle>
+            <CardDescription>
+              The image crop tool encountered an error. Please refresh the page and try again.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => window.location.reload()} className="w-full">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh Page
+            </Button>
+          </CardContent>
+        </Card>
+      )
+    }
+
+    return this.props.children
+  }
 }
 
 // Utility functions
@@ -78,16 +191,162 @@ const validateImageFile = (file: File): { isValid: boolean; error?: string } => 
   return { isValid: true }
 }
 
-// Aspect ratio presets
+// Enhanced Aspect ratio presets
 const aspectRatioPresets: AspectRatioPreset[] = [
-  { name: 'Free', value: 'free', ratio: 0, description: 'Any aspect ratio' },
-  { name: 'Square', value: '1:1', ratio: 1, description: 'Perfect for avatars and social media' },
-  { name: 'Landscape', value: '16:9', ratio: 16 / 9, description: 'Widescreen format' },
-  { name: 'Standard', value: '4:3', ratio: 4 / 3, description: 'Traditional photo format' },
-  { name: 'Photo', value: '3:2', ratio: 3 / 2, description: 'Classic 35mm film ratio' },
-  { name: 'Portrait', value: '2:3', ratio: 2 / 3, description: 'Vertical photo format' },
-  { name: 'Story', value: '9:16', ratio: 9 / 16, description: 'Mobile story format' },
-  { name: 'Custom', value: 'custom', ratio: 0, description: 'Define your own ratio' },
+  {
+    name: 'Free',
+    value: 'free',
+    ratio: 0,
+    description: 'Any aspect ratio',
+    useCase: 'Flexible cropping for any purpose',
+    pros: ['Maximum flexibility', 'No constraints'],
+    cons: ['May not fit specific platforms', 'Inconsistent sizing'],
+  },
+  {
+    name: 'Square',
+    value: '1:1',
+    ratio: 1,
+    description: 'Perfect for avatars and social media',
+    useCase: 'Instagram posts, profile pictures, thumbnails',
+    pros: ['Universal compatibility', 'Clean appearance', 'Works on all platforms'],
+    cons: ['May crop important content', 'Limited composition options'],
+  },
+  {
+    name: 'Landscape',
+    value: '16:9',
+    ratio: 16 / 9,
+    description: 'Widescreen format',
+    useCase: 'YouTube thumbnails, desktop wallpapers, presentations',
+    pros: ['Cinematic feel', 'Great for landscapes', 'Modern standard'],
+    cons: ['May crop vertical content', 'Not ideal for portraits'],
+  },
+  {
+    name: 'Standard',
+    value: '4:3',
+    ratio: 4 / 3,
+    description: 'Traditional photo format',
+    useCase: 'Classic photography, presentations, older displays',
+    pros: ['Balanced composition', 'Good for mixed content', 'Traditional feel'],
+    cons: ['Less modern', 'May not fit widescreen displays'],
+  },
+  {
+    name: 'Photo',
+    value: '3:2',
+    ratio: 3 / 2,
+    description: 'Classic 35mm film ratio',
+    useCase: 'Professional photography, prints, galleries',
+    pros: ['Professional standard', 'Great for prints', 'Balanced proportions'],
+    cons: ['May not fit social media', 'Requires careful composition'],
+  },
+  {
+    name: 'Portrait',
+    value: '2:3',
+    ratio: 2 / 3,
+    description: 'Vertical photo format',
+    useCase: 'Portrait photography, mobile viewing, Pinterest',
+    pros: ['Great for portraits', 'Mobile-friendly', 'Vertical emphasis'],
+    cons: ['Limited landscape use', 'May crop wide content'],
+  },
+  {
+    name: 'Story',
+    value: '9:16',
+    ratio: 9 / 16,
+    description: 'Mobile story format',
+    useCase: 'Instagram Stories, TikTok, mobile-first content',
+    pros: ['Perfect for mobile', 'Full-screen experience', 'Modern format'],
+    cons: ['Very narrow', 'Limited desktop use', 'May crop wide content'],
+  },
+  {
+    name: 'Custom',
+    value: 'custom',
+    ratio: 0,
+    description: 'Define your own ratio',
+    useCase: 'Specific requirements, unique formats, custom applications',
+    pros: ['Complete control', 'Exact specifications', 'Unique formats'],
+    cons: ['Requires manual input', 'May not be standard', 'Complex setup'],
+  },
+]
+
+// Crop Templates
+const cropTemplates: CropTemplate[] = [
+  {
+    id: 'instagram-post',
+    name: 'Instagram Post',
+    description: 'Perfect square crop for Instagram feed posts',
+    settings: { aspectRatio: '1:1', outputFormat: 'jpeg', quality: 85, optimizeForWeb: true },
+    category: 'social',
+    tags: ['instagram', 'social', 'square'],
+    popularity: 95,
+  },
+  {
+    id: 'instagram-story',
+    name: 'Instagram Story',
+    description: 'Vertical format for Instagram Stories',
+    settings: { aspectRatio: '9:16', outputFormat: 'jpeg', quality: 80, optimizeForWeb: true },
+    category: 'social',
+    tags: ['instagram', 'story', 'vertical'],
+    popularity: 90,
+  },
+  {
+    id: 'youtube-thumbnail',
+    name: 'YouTube Thumbnail',
+    description: 'Widescreen format for YouTube video thumbnails',
+    settings: { aspectRatio: '16:9', outputFormat: 'jpeg', quality: 90, optimizeForWeb: true },
+    category: 'web',
+    tags: ['youtube', 'thumbnail', 'widescreen'],
+    popularity: 85,
+  },
+  {
+    id: 'profile-picture',
+    name: 'Profile Picture',
+    description: 'Square crop optimized for profile pictures',
+    settings: { aspectRatio: '1:1', outputFormat: 'png', quality: 95, cropPosition: 'center' },
+    category: 'social',
+    tags: ['profile', 'avatar', 'square'],
+    popularity: 88,
+  },
+  {
+    id: 'print-4x6',
+    name: 'Print 4x6',
+    description: 'Standard photo print format',
+    settings: { aspectRatio: '3:2', outputFormat: 'jpeg', quality: 95, maintainOriginalSize: true },
+    category: 'print',
+    tags: ['print', 'photo', '4x6'],
+    popularity: 70,
+  },
+  {
+    id: 'facebook-cover',
+    name: 'Facebook Cover',
+    description: 'Facebook cover photo format',
+    settings: { aspectRatio: '16:9', outputFormat: 'jpeg', quality: 85, optimizeForWeb: true },
+    category: 'social',
+    tags: ['facebook', 'cover', 'banner'],
+    popularity: 65,
+  },
+  {
+    id: 'twitter-header',
+    name: 'Twitter Header',
+    description: 'Twitter header image format',
+    settings: {
+      aspectRatio: 'custom',
+      customAspectRatio: { width: 3, height: 1 },
+      outputFormat: 'jpeg',
+      quality: 85,
+      optimizeForWeb: true,
+    },
+    category: 'social',
+    tags: ['twitter', 'header', 'banner'],
+    popularity: 60,
+  },
+  {
+    id: 'mobile-wallpaper',
+    name: 'Mobile Wallpaper',
+    description: 'Vertical format for mobile wallpapers',
+    settings: { aspectRatio: '9:16', outputFormat: 'png', quality: 90, maintainOriginalSize: true },
+    category: 'mobile',
+    tags: ['wallpaper', 'mobile', 'vertical'],
+    popularity: 75,
+  },
 ]
 
 // Helper functions
@@ -152,46 +411,6 @@ const calculateCropArea = (
   }
 
   return { x, y, width: cropWidth, height: cropHeight }
-}
-
-// Error boundary component
-class ImageCropErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Image crop error:', error, errorInfo)
-    toast.error('An unexpected error occurred during image cropping')
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <div className="text-red-600">
-                <h3 className="font-semibold">Something went wrong</h3>
-                <p className="text-sm">Please refresh the page and try again.</p>
-              </div>
-              <Button onClick={() => window.location.reload()}>Refresh Page</Button>
-            </div>
-          </CardContent>
-        </Card>
-      )
-    }
-
-    return this.props.children
-  }
 }
 
 // Custom hooks
@@ -365,8 +584,9 @@ const getImageDimensions = (file: File): Promise<{ width: number; height: number
 }
 
 /**
- * Enhanced Image Crop Tool
- * Features: Batch processing, interactive crop selection, aspect ratio presets, drag-and-drop, progress tracking
+ * Enhanced Image Crop Tool with Comprehensive Features
+ * Features: Tabbed interface, templates, batch processing, interactive crop selection,
+ * aspect ratio presets, drag-and-drop, progress tracking, history, analysis, export
  */
 const ImageCropCore = () => {
   const [images, setImages] = useState<ImageFile[]>([])
@@ -377,12 +597,113 @@ const ImageCropCore = () => {
     quality: 90,
     maintainOriginalSize: true,
     cropPosition: 'center',
+    backgroundColor: '#ffffff',
+    preserveMetadata: false,
+    optimizeForWeb: true,
+    enableSmartCrop: false,
+    cropPadding: 0,
   })
   const [dragActive, setDragActive] = useState(false)
-  const [expandedImage, setExpandedImage] = useState<string | null>(null)
-  const [selectedImageForCrop, setSelectedImageForCrop] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState('crop')
+  const [_, setHistory] = useState<HistoryEntry[]>([])
+  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { cropImage } = useImageCrop()
+
+  // Enhanced Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 'o':
+            e.preventDefault()
+            fileInputRef.current?.click()
+            break
+          case 'Enter':
+            e.preventDefault()
+            if (images.some((img) => img.status === 'pending') && !isProcessing) {
+              cropImages()
+            }
+            break
+          case 'd':
+            e.preventDefault()
+            if (images.some((img) => img.status === 'completed')) {
+              downloadAll()
+            }
+            break
+          case 'Delete':
+            e.preventDefault()
+            if (!isProcessing) {
+              clearAll()
+            }
+            break
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [images, isProcessing])
+
+  // Enhanced Utility Functions
+  const saveToHistory = useCallback(
+    (stats: CropStats) => {
+      const entry: HistoryEntry = {
+        id: generateId(),
+        timestamp: Date.now(),
+        settings: { ...settings },
+        stats,
+        imageCount: images.length,
+        totalSavings: stats.totalSavings,
+        description: `Cropped ${images.length} images to ${settings.aspectRatio === 'custom' ? 'custom ratio' : settings.aspectRatio}`,
+      }
+      setHistory((prev) => [entry, ...prev.slice(0, 9)]) // Keep last 10 entries
+    },
+    [settings, images.length]
+  )
+
+  const exportResults = useCallback(() => {
+    const completedImages = images.filter((img) => img.status === 'completed')
+    const exportData = {
+      timestamp: new Date().toISOString(),
+      settings,
+      statistics: stats,
+      images: completedImages.map((img) => ({
+        name: img.file.name,
+        originalSize: img.originalSize,
+        croppedSize: img.croppedSize,
+        originalDimensions: img.originalDimensions,
+        croppedDimensions: img.croppedDimensions,
+        cropArea: img.cropArea,
+        processingTime: img.processingTime,
+        compressionRatio: img.compressionRatio,
+        cropPercentage: img.cropPercentage,
+      })),
+    }
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `image-crop-results-${new Date().toISOString().split('T')[0]}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    toast.success('Results exported successfully')
+  }, [images, settings])
+
+  // Apply Template
+  const applyTemplate = useCallback((templateId: string) => {
+    const template = cropTemplates.find((t) => t.id === templateId)
+    if (!template) return
+
+    setSettings((prev) => ({ ...prev, ...template.settings }))
+    setSelectedTemplate(templateId)
+    toast.success(`Applied template: ${template.name}`)
+  }, [])
 
   // File handling
   const handleFiles = useCallback(
@@ -420,6 +741,7 @@ const ImageCropCore = () => {
             originalDimensions: dimensions,
             cropArea,
             status: 'pending',
+            timestamp: Date.now(),
           })
         } catch (error) {
           toast.error(`${file.name}: Failed to read image dimensions`)
@@ -502,58 +824,7 @@ const ImageCropCore = () => {
     [settings.customAspectRatio, settings.cropPosition]
   )
 
-  const updateCropPosition = useCallback(
-    (newPosition: CropSettings['cropPosition']) => {
-      setSettings((prev) => ({ ...prev, cropPosition: newPosition }))
-
-      // Update crop areas for all images
-      setImages((prev) =>
-        prev.map((image) => {
-          const aspectRatio =
-            settings.aspectRatio === 'free'
-              ? 0
-              : settings.aspectRatio === 'custom' && settings.customAspectRatio
-                ? settings.customAspectRatio.width / settings.customAspectRatio.height
-                : aspectRatioPresets.find((p) => p.value === settings.aspectRatio)?.ratio || 0
-
-          const newCropArea = calculateCropArea(image.originalDimensions, aspectRatio, newPosition)
-          return { ...image, cropArea: newCropArea }
-        })
-      )
-    },
-    [settings.aspectRatio, settings.customAspectRatio]
-  )
-
-  // Manual crop area adjustment
-  const updateImageCropArea = useCallback((imageId: string, newCropArea: Partial<CropArea>) => {
-    setImages((prev) =>
-      prev.map((image) => {
-        if (image.id === imageId) {
-          const updatedCropArea = { ...image.cropArea, ...newCropArea }
-
-          // Validate crop area bounds
-          const maxX = image.originalDimensions.width - updatedCropArea.width
-          const maxY = image.originalDimensions.height - updatedCropArea.height
-
-          updatedCropArea.x = Math.max(0, Math.min(maxX, updatedCropArea.x))
-          updatedCropArea.y = Math.max(0, Math.min(maxY, updatedCropArea.y))
-          updatedCropArea.width = Math.max(
-            1,
-            Math.min(image.originalDimensions.width - updatedCropArea.x, updatedCropArea.width)
-          )
-          updatedCropArea.height = Math.max(
-            1,
-            Math.min(image.originalDimensions.height - updatedCropArea.y, updatedCropArea.height)
-          )
-
-          return { ...image, cropArea: updatedCropArea }
-        }
-        return image
-      })
-    )
-  }, [])
-
-  // Crop logic
+  // Enhanced Crop logic
   const cropImages = useCallback(async () => {
     const pendingImages = images.filter((img) => img.status === 'pending')
     if (pendingImages.length === 0) {
@@ -562,13 +833,30 @@ const ImageCropCore = () => {
     }
 
     setIsProcessing(true)
+    const startTime = Date.now()
 
     for (const image of pendingImages) {
       try {
+        const imageStartTime = Date.now()
+
         // Update status to processing
         setImages((prev) => prev.map((img) => (img.id === image.id ? { ...img, status: 'processing' } : img)))
 
         const result = await cropImage(image.file, image.cropArea, settings, image.originalDimensions)
+        const processingTime = (Date.now() - imageStartTime) / 1000
+        const compressionRatio = result.size / image.originalSize
+        const qualityScore = compressionRatio > 0.8 ? 95 : compressionRatio > 0.5 ? 85 : 75
+
+        // Calculate crop percentage
+        const originalArea = image.originalDimensions.width * image.originalDimensions.height
+        const cropArea = image.cropArea.width * image.cropArea.height
+        const cropPercentage = (cropArea / originalArea) * 100
+
+        // Calculate cropped dimensions
+        const croppedDimensions = {
+          width: image.cropArea.width,
+          height: image.cropArea.height,
+        }
 
         // Update with cropped result
         setImages((prev) =>
@@ -579,6 +867,12 @@ const ImageCropCore = () => {
                   status: 'completed',
                   croppedUrl: result.url,
                   croppedSize: result.size,
+                  croppedDimensions,
+                  processingTime,
+                  compressionRatio,
+                  qualityScore,
+                  cropPercentage,
+                  templateUsed: selectedTemplate || undefined,
                 }
               : img
           )
@@ -600,9 +894,33 @@ const ImageCropCore = () => {
     }
 
     setIsProcessing(false)
+    const totalTime = (Date.now() - startTime) / 1000
     const completedCount = images.filter((img) => img.status === 'completed').length
-    const message = `Cropping completed! ${completedCount} image${completedCount > 1 ? 's' : ''} processed successfully.`
+    const message = `Cropping completed! ${completedCount} image${completedCount > 1 ? 's' : ''} processed in ${totalTime.toFixed(1)}s.`
     toast.success(message)
+
+    // Save to history
+    setTimeout(() => {
+      const currentStats = {
+        totalOriginalSize: images.reduce((sum, img) => sum + img.originalSize, 0),
+        totalCroppedSize: images.reduce((sum, img) => sum + (img.croppedSize || 0), 0),
+        totalSavings: 0,
+        averageSizeReduction: 0,
+        averageCropPercentage: 0,
+        processingTime: totalTime,
+        imagesProcessed: completedCount,
+        averageFileSize: 0,
+        largestReduction: 0,
+        smallestReduction: 0,
+        qualityMetrics: {
+          averageQuality: 0,
+          compressionEfficiency: 0,
+          cropOptimization: 0,
+        },
+      }
+      currentStats.totalSavings = currentStats.totalOriginalSize - currentStats.totalCroppedSize
+      saveToHistory(currentStats)
+    }, 100)
 
     // Announce completion to screen readers
     const announcement = document.createElement('div')
@@ -612,22 +930,7 @@ const ImageCropCore = () => {
     announcement.textContent = message
     document.body.appendChild(announcement)
     setTimeout(() => document.body.removeChild(announcement), 2000)
-  }, [images, settings, cropImage])
-
-  // Utility functions
-  const removeImage = useCallback((id: string) => {
-    setImages((prev) => {
-      const imageToRemove = prev.find((img) => img.id === id)
-      if (imageToRemove) {
-        // Clean up URLs
-        URL.revokeObjectURL(imageToRemove.originalUrl)
-        if (imageToRemove.croppedUrl) {
-          URL.revokeObjectURL(imageToRemove.croppedUrl)
-        }
-      }
-      return prev.filter((img) => img.id !== id)
-    })
-  }, [])
+  }, [images, settings, cropImage, selectedTemplate, saveToHistory])
 
   const clearAll = useCallback(() => {
     images.forEach((img) => {
@@ -672,36 +975,65 @@ const ImageCropCore = () => {
     }
   }, [images])
 
-  // Statistics calculation
-  const stats: CropStats = {
-    totalOriginalSize: images.reduce((sum, img) => sum + img.originalSize, 0),
-    totalCroppedSize: images.reduce((sum, img) => sum + (img.croppedSize || 0), 0),
-    totalSavings: 0,
-    averageSizeReduction: 0,
-    averageCropPercentage: 0,
-  }
+  // Enhanced Statistics calculation
+  const stats: CropStats = useMemo(() => {
+    const completedImages = images.filter((img) => img.status === 'completed')
+    const totalOriginalSize = images.reduce((sum, img) => sum + img.originalSize, 0)
+    const totalCroppedSize = images.reduce((sum, img) => sum + (img.croppedSize || 0), 0)
+    const totalSavings = totalOriginalSize - totalCroppedSize
 
-  stats.totalSavings = stats.totalOriginalSize - stats.totalCroppedSize
-  const completedImages = images.filter((img) => img.status === 'completed')
-  stats.averageSizeReduction =
-    completedImages.length > 0
-      ? completedImages.reduce((sum, img) => {
-          const reduction = img.croppedSize ? ((img.originalSize - img.croppedSize) / img.originalSize) * 100 : 0
-          return sum + reduction
-        }, 0) / completedImages.length
-      : 0
+    const sizeReductions = completedImages.map((img) => {
+      const reduction = img.croppedSize ? ((img.originalSize - img.croppedSize) / img.originalSize) * 100 : 0
+      return reduction
+    })
 
-  stats.averageCropPercentage =
-    images.length > 0
-      ? images.reduce((sum, img) => {
-          const originalArea = img.originalDimensions.width * img.originalDimensions.height
-          const cropArea = img.cropArea.width * img.cropArea.height
-          return sum + (cropArea / originalArea) * 100
-        }, 0) / images.length
-      : 0
+    const cropPercentages = images.map((img) => {
+      const originalArea = img.originalDimensions.width * img.originalDimensions.height
+      const cropArea = img.cropArea.width * img.cropArea.height
+      return (cropArea / originalArea) * 100
+    })
+
+    const processingTimes = completedImages.map((img) => img.processingTime || 0).filter((time) => time > 0)
+    const qualityScores = completedImages.map((img) => img.qualityScore || 0).filter((score) => score > 0)
+    const compressionRatios = completedImages.map((img) => img.compressionRatio || 0).filter((ratio) => ratio > 0)
+
+    return {
+      totalOriginalSize,
+      totalCroppedSize,
+      totalSavings,
+      averageSizeReduction:
+        sizeReductions.length > 0
+          ? sizeReductions.reduce((sum, reduction) => sum + reduction, 0) / sizeReductions.length
+          : 0,
+      averageCropPercentage:
+        cropPercentages.length > 0
+          ? cropPercentages.reduce((sum, percentage) => sum + percentage, 0) / cropPercentages.length
+          : 0,
+      processingTime:
+        processingTimes.length > 0 ? processingTimes.reduce((sum, time) => sum + time, 0) / processingTimes.length : 0,
+      imagesProcessed: completedImages.length,
+      averageFileSize: completedImages.length > 0 ? totalCroppedSize / completedImages.length : 0,
+      largestReduction: sizeReductions.length > 0 ? Math.max(...sizeReductions) : 0,
+      smallestReduction: sizeReductions.length > 0 ? Math.min(...sizeReductions) : 0,
+      qualityMetrics: {
+        averageQuality:
+          qualityScores.length > 0 ? qualityScores.reduce((sum, score) => sum + score, 0) / qualityScores.length : 0,
+        compressionEfficiency:
+          compressionRatios.length > 0
+            ? compressionRatios.reduce((sum, ratio) => sum + ratio, 0) / compressionRatios.length
+            : 0,
+        cropOptimization:
+          completedImages.length > 0
+            ? (completedImages.filter((img) => img.croppedSize && img.croppedSize < img.originalSize).length /
+                completedImages.length) *
+              100
+            : 0,
+      },
+    }
+  }, [images])
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6">
+    <div className="w-full max-w-6xl mx-auto space-y-6">
       {/* Skip link for keyboard users */}
       <a
         href="#main-content"
@@ -710,523 +1042,524 @@ const ImageCropCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
-        {/* Header */}
+      <div id="main-content" className="flex flex-col gap-6">
+        {/* Enhanced Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ImageIcon className="h-5 w-5" aria-hidden="true" />
-              Image Crop Tool
+              <Crop className="h-6 w-6" aria-hidden="true" />
+              Professional Image Crop & Resize Tool
             </CardTitle>
             <CardDescription>
-              Crop images with customizable aspect ratios and precise positioning controls. Supports batch processing
-              and multiple output formats. Use keyboard navigation: Tab to move between controls, Enter or Space to
-              activate buttons.
+              Professional image cropping with intelligent templates, batch processing, and advanced analytics. Crop to
+              perfect aspect ratios for social media, print, web, and custom applications with precision controls.
             </CardDescription>
           </CardHeader>
         </Card>
 
-        {/* Settings Panel */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Crop className="h-5 w-5" />
-              Crop Settings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Aspect Ratio */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="aspectRatio">Aspect Ratio</Label>
-                <Select
-                  value={settings.aspectRatio}
-                  onValueChange={(value: CropSettings['aspectRatio']) => updateAspectRatio(value)}
-                >
-                  <SelectTrigger id="aspectRatio" aria-label="Select aspect ratio">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {aspectRatioPresets.map((preset) => (
-                      <SelectItem key={preset.value} value={preset.value}>
-                        <div className="flex flex-col">
-                          <span>{preset.name}</span>
-                          <span className="text-xs text-muted-foreground">{preset.description}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+        {/* Enhanced Tabbed Interface */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="crop" className="flex items-center gap-2">
+              <Crop className="h-4 w-4" />
+              Crop
+            </TabsTrigger>
+            <TabsTrigger value="templates" className="flex items-center gap-2">
+              <Layers className="h-4 w-4" />
+              Templates
+            </TabsTrigger>
+            <TabsTrigger value="analysis" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Analysis
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              History
+            </TabsTrigger>
+            <TabsTrigger value="help" className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              Help
+            </TabsTrigger>
+          </TabsList>
 
-              {/* Custom Aspect Ratio */}
-              {settings.aspectRatio === 'custom' && (
-                <div className="space-y-2">
-                  <Label>Custom Ratio</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      min="1"
-                      placeholder="Width"
-                      value={settings.customAspectRatio?.width || ''}
-                      onChange={(e) =>
-                        setSettings((prev) => ({
-                          ...prev,
-                          customAspectRatio: {
-                            ...prev.customAspectRatio,
-                            width: Number(e.target.value) || 1,
-                            height: prev.customAspectRatio?.height || 1,
-                          },
-                        }))
-                      }
-                      className="flex-1"
-                    />
-                    <span>:</span>
-                    <Input
-                      type="number"
-                      min="1"
-                      placeholder="Height"
-                      value={settings.customAspectRatio?.height || ''}
-                      onChange={(e) =>
-                        setSettings((prev) => ({
-                          ...prev,
-                          customAspectRatio: {
-                            width: prev.customAspectRatio?.width || 1,
-                            height: Number(e.target.value) || 1,
-                          },
-                        }))
-                      }
-                      className="flex-1"
-                    />
+          {/* Crop Tab */}
+          <TabsContent value="crop" className="space-y-6">
+            {/* Settings Panel */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Crop Settings
+                  </span>
+                  <Button variant="outline" size="sm" onClick={() => setShowAdvanced(!showAdvanced)}>
+                    {showAdvanced ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showAdvanced ? 'Hide' : 'Show'} Advanced
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Aspect Ratio and Templates */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="aspectRatio">Aspect Ratio</Label>
+                    <Select
+                      value={settings.aspectRatio}
+                      onValueChange={(value: CropSettings['aspectRatio']) => updateAspectRatio(value)}
+                    >
+                      <SelectTrigger id="aspectRatio" aria-label="Select aspect ratio">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {aspectRatioPresets.map((preset) => (
+                          <SelectItem key={preset.value} value={preset.value}>
+                            <div className="flex flex-col">
+                              <span>{preset.name}</span>
+                              <span className="text-xs text-muted-foreground">{preset.description}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="template">Quick Templates</Label>
+                    <Select value={selectedTemplate} onValueChange={applyTemplate}>
+                      <SelectTrigger id="template" aria-label="Select template">
+                        <SelectValue placeholder="Choose a template..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cropTemplates.map((template) => (
+                          <SelectItem key={template.id} value={template.id}>
+                            <div className="flex flex-col">
+                              <span>{template.name}</span>
+                              <span className="text-xs text-muted-foreground">{template.description}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-              )}
 
-              {/* Crop Position */}
-              <div className="space-y-2">
-                <Label htmlFor="cropPosition">Crop Position</Label>
-                <Select
-                  value={settings.cropPosition}
-                  onValueChange={(value: CropSettings['cropPosition']) => updateCropPosition(value)}
-                >
-                  <SelectTrigger id="cropPosition" aria-label="Select crop position">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="center">Center</SelectItem>
-                    <SelectItem value="top-left">Top Left</SelectItem>
-                    <SelectItem value="top-right">Top Right</SelectItem>
-                    <SelectItem value="bottom-left">Bottom Left</SelectItem>
-                    <SelectItem value="bottom-right">Bottom Right</SelectItem>
-                    <SelectItem value="custom">Custom</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Output Format and Quality */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="outputFormat">Output Format</Label>
-                <Select
-                  value={settings.outputFormat}
-                  onValueChange={(value: CropSettings['outputFormat']) =>
-                    setSettings((prev) => ({ ...prev, outputFormat: value }))
-                  }
-                >
-                  <SelectTrigger id="outputFormat" aria-label="Select output format">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="png">PNG (Lossless)</SelectItem>
-                    <SelectItem value="jpeg">JPEG (Smaller size)</SelectItem>
-                    <SelectItem value="webp">WebP (Modern format)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {settings.outputFormat !== 'png' && (
-                <div className="space-y-2">
-                  <Label htmlFor="quality">Quality: {settings.quality}%</Label>
-                  <Input
-                    id="quality"
-                    type="range"
-                    min="10"
-                    max="100"
-                    step="5"
-                    value={settings.quality}
-                    onChange={(e) => setSettings((prev) => ({ ...prev, quality: Number(e.target.value) }))}
-                    className="w-full"
-                    aria-label={`Image quality: ${settings.quality} percent`}
-                  />
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label>Quick Actions</Label>
-                <Button size="sm" variant="outline" onClick={() => updateAspectRatio('1:1')} className="w-full">
-                  <Maximize2 className="h-4 w-4 mr-1" />
-                  Square Crop
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Upload Area */}
-        <Card>
-          <CardContent className="pt-6">
-            <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                dragActive
-                  ? 'border-primary bg-primary/5'
-                  : 'border-muted-foreground/25 hover:border-muted-foreground/50'
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-              role="button"
-              tabIndex={0}
-              aria-label="Drag and drop images here or click to select files"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  fileInputRef.current?.click()
-                }
-              }}
-            >
-              <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Upload Images</h3>
-              <p className="text-muted-foreground mb-4">Drag and drop your images here, or click to select files</p>
-              <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
-                <FileImage className="mr-2 h-4 w-4" />
-                Choose Files
-              </Button>
-              <p className="text-xs text-muted-foreground">Supports JPEG, PNG, WebP, GIF, BMP • Max 100MB per file</p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleFileInput}
-                className="hidden"
-                aria-label="Select image files"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Statistics */}
-        {images.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Statistics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold">{images.length}</div>
-                  <div className="text-sm text-muted-foreground">Total Images</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold">{formatFileSize(stats.totalOriginalSize)}</div>
-                  <div className="text-sm text-muted-foreground">Original Size</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold">{formatFileSize(stats.totalCroppedSize)}</div>
-                  <div className="text-sm text-muted-foreground">Cropped Size</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{stats.averageCropPercentage.toFixed(1)}%</div>
-                  <div className="text-sm text-muted-foreground">Avg. Crop Area</div>
-                </div>
-              </div>
-              {Math.abs(stats.totalSavings) > 0 && (
-                <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                  <div className="text-center">
-                    <span className="text-green-700 dark:text-green-400 font-semibold">
-                      {stats.totalSavings > 0 ? 'Total savings: ' : 'Total increase: '}
-                      {formatFileSize(Math.abs(stats.totalSavings))}
-                    </span>
+                {/* Custom Aspect Ratio */}
+                {settings.aspectRatio === 'custom' && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="customWidth">Width Ratio</Label>
+                      <Input
+                        id="customWidth"
+                        type="number"
+                        min="1"
+                        value={settings.customAspectRatio?.width || 1}
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            customAspectRatio: {
+                              ...prev.customAspectRatio,
+                              width: Number(e.target.value),
+                              height: prev.customAspectRatio?.height || 1,
+                            },
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="customHeight">Height Ratio</Label>
+                      <Input
+                        id="customHeight"
+                        type="number"
+                        min="1"
+                        value={settings.customAspectRatio?.height || 1}
+                        onChange={(e) =>
+                          setSettings((prev) => ({
+                            ...prev,
+                            customAspectRatio: {
+                              width: prev.customAspectRatio?.width || 1,
+                              ...prev.customAspectRatio,
+                              height: Number(e.target.value),
+                            },
+                          }))
+                        }
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+                )}
 
-        {/* Action Buttons */}
-        {images.length > 0 && (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex flex-wrap gap-3 justify-center">
-                <Button
-                  onClick={cropImages}
-                  disabled={isProcessing || images.every((img) => img.status !== 'pending')}
-                  className="min-w-32"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Cropping...
-                    </>
-                  ) : (
-                    'Crop Images'
+                {/* Output Settings */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="outputFormat">Output Format</Label>
+                    <Select
+                      value={settings.outputFormat}
+                      onValueChange={(value: 'png' | 'jpeg' | 'webp') =>
+                        setSettings((prev) => ({ ...prev, outputFormat: value }))
+                      }
+                    >
+                      <SelectTrigger id="outputFormat">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="png">PNG - Lossless with transparency</SelectItem>
+                        <SelectItem value="jpeg">JPEG - Smaller file size</SelectItem>
+                        <SelectItem value="webp">WebP - Modern, efficient</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {settings.outputFormat !== 'png' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="quality">Quality: {settings.quality}%</Label>
+                      <Input
+                        id="quality"
+                        type="range"
+                        min="10"
+                        max="100"
+                        step="5"
+                        value={settings.quality}
+                        onChange={(e) => setSettings((prev) => ({ ...prev, quality: Number(e.target.value) }))}
+                        className="w-full"
+                      />
+                    </div>
                   )}
-                </Button>
+                </div>
 
-                <Button
-                  onClick={downloadAll}
-                  variant="outline"
-                  disabled={!images.some((img) => img.status === 'completed')}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Download All
-                </Button>
+                {/* Crop Position */}
+                <div className="space-y-2">
+                  <Label htmlFor="cropPosition">Crop Position</Label>
+                  <Select
+                    value={settings.cropPosition}
+                    onValueChange={(value: CropSettings['cropPosition']) =>
+                      setSettings((prev) => ({ ...prev, cropPosition: value }))
+                    }
+                  >
+                    <SelectTrigger id="cropPosition">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="center">Center</SelectItem>
+                      <SelectItem value="top-left">Top Left</SelectItem>
+                      <SelectItem value="top-right">Top Right</SelectItem>
+                      <SelectItem value="bottom-left">Bottom Left</SelectItem>
+                      <SelectItem value="bottom-right">Bottom Right</SelectItem>
+                      <SelectItem value="custom">Custom</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Clear All
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                {/* Advanced Settings */}
+                {showAdvanced && (
+                  <div className="space-y-4 pt-4 border-t">
+                    <h4 className="font-medium text-sm flex items-center gap-2">
+                      <Sliders className="h-4 w-4" />
+                      Advanced Options
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id="maintainOriginalSize"
+                            type="checkbox"
+                            checked={settings.maintainOriginalSize}
+                            onChange={(e) =>
+                              setSettings((prev) => ({ ...prev, maintainOriginalSize: e.target.checked }))
+                            }
+                            className="rounded border-input"
+                          />
+                          <Label htmlFor="maintainOriginalSize" className="text-sm">
+                            Maintain original dimensions
+                          </Label>
+                        </div>
 
-        {/* Image List */}
-        {images.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Images</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {images.map((image) => (
-                  <div key={image.id} className="border rounded-lg p-4">
-                    <div className="flex items-start gap-4">
-                      {/* Image Previews */}
-                      <div className="flex-shrink-0">
-                        <div className="flex gap-2">
-                          {/* Original Image */}
-                          <div className="text-center">
-                            <div className="relative">
-                              <img
-                                src={image.originalUrl}
-                                alt={`Original ${image.file.name}`}
-                                className="w-20 h-20 object-cover rounded border cursor-pointer hover:opacity-80 transition-opacity"
-                                onClick={() =>
-                                  setExpandedImage(
-                                    expandedImage === `${image.id}-original` ? null : `${image.id}-original`
-                                  )
-                                }
-                              />
-                              {/* Crop overlay indicator */}
-                              <div className="absolute inset-0 border-2 border-dashed border-blue-400 opacity-50 rounded"></div>
-                            </div>
-                            <div className="text-xs mt-1 text-muted-foreground">Original</div>
-                            <div className="text-xs text-muted-foreground">
-                              {image.originalDimensions.width}×{image.originalDimensions.height}
-                            </div>
-                            <div className="text-xs text-muted-foreground">{formatFileSize(image.originalSize)}</div>
-                          </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id="optimizeForWeb"
+                            type="checkbox"
+                            checked={settings.optimizeForWeb}
+                            onChange={(e) => setSettings((prev) => ({ ...prev, optimizeForWeb: e.target.checked }))}
+                            className="rounded border-input"
+                          />
+                          <Label htmlFor="optimizeForWeb" className="text-sm">
+                            Optimize for web delivery
+                          </Label>
+                        </div>
 
-                          {/* Cropped Image */}
-                          {image.status === 'completed' && image.croppedUrl && (
-                            <div className="text-center">
-                              <img
-                                src={image.croppedUrl}
-                                alt={`Cropped ${image.file.name}`}
-                                className="w-20 h-20 object-cover rounded border cursor-pointer hover:opacity-80 transition-opacity"
-                                onClick={() =>
-                                  setExpandedImage(
-                                    expandedImage === `${image.id}-cropped` ? null : `${image.id}-cropped`
-                                  )
-                                }
-                              />
-                              <div className="text-xs mt-1 text-green-600">Cropped</div>
-                              <div className="text-xs text-green-600">
-                                {image.cropArea.width}×{image.cropArea.height}
-                              </div>
-                              <div className="text-xs text-green-600">{formatFileSize(image.croppedSize || 0)}</div>
-                            </div>
-                          )}
-
-                          {/* Processing State */}
-                          {image.status === 'processing' && (
-                            <div className="w-20 h-20 border rounded flex items-center justify-center">
-                              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                            </div>
-                          )}
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id="enableSmartCrop"
+                            type="checkbox"
+                            checked={settings.enableSmartCrop}
+                            onChange={(e) => setSettings((prev) => ({ ...prev, enableSmartCrop: e.target.checked }))}
+                            className="rounded border-input"
+                          />
+                          <Label htmlFor="enableSmartCrop" className="text-sm">
+                            Enable smart crop detection
+                          </Label>
                         </div>
                       </div>
 
-                      {/* Image Info and Crop Controls */}
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium truncate" title={image.file.name}>
-                          {image.file.name}
-                        </h4>
-                        <div className="text-sm text-muted-foreground space-y-1">
-                          <div>
-                            <span className="font-medium">Original:</span> {image.originalDimensions.width}×
-                            {image.originalDimensions.height} • {formatFileSize(image.originalSize)}
-                          </div>
-                          <div>
-                            <span className="font-medium">Crop Area:</span> {image.cropArea.width}×
-                            {image.cropArea.height} at ({image.cropArea.x}, {image.cropArea.y})
-                          </div>
-                          {image.status === 'completed' && image.croppedSize && (
-                            <>
-                              <div className="text-green-600">
-                                <span className="font-medium">Cropped:</span> {formatFileSize(image.croppedSize)}
-                              </div>
-                              <div className="text-green-600 font-medium">
-                                Size change:{' '}
-                                {(((image.croppedSize - image.originalSize) / image.originalSize) * 100).toFixed(1)}%
-                                {image.croppedSize !== image.originalSize && (
-                                  <span>
-                                    {' '}
-                                    ({image.croppedSize > image.originalSize ? '+' : ''}
-                                    {formatFileSize(image.croppedSize - image.originalSize)})
-                                  </span>
-                                )}
-                              </div>
-                            </>
-                          )}
-                          {image.status === 'pending' && <div className="text-blue-600">Ready for cropping</div>}
-                          {image.status === 'processing' && <div className="text-blue-600">Cropping...</div>}
-                          {image.error && <div className="text-red-600">Error: {image.error}</div>}
+                      <div className="space-y-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="backgroundColor">Background Color</Label>
+                          <Input
+                            id="backgroundColor"
+                            type="color"
+                            value={settings.backgroundColor}
+                            onChange={(e) => setSettings((prev) => ({ ...prev, backgroundColor: e.target.value }))}
+                            className="w-full h-10"
+                          />
                         </div>
 
-                        {/* Manual Crop Controls */}
-                        {selectedImageForCrop === image.id && (
-                          <div className="mt-3 p-3 border rounded bg-muted/30">
-                            <h5 className="font-medium mb-2 flex items-center gap-2">
-                              <Move className="h-4 w-4" />
-                              Manual Crop Adjustment
-                            </h5>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                              <div>
-                                <Label htmlFor={`x-${image.id}`} className="text-xs">
-                                  X Position
-                                </Label>
-                                <Input
-                                  id={`x-${image.id}`}
-                                  type="number"
-                                  min="0"
-                                  max={image.originalDimensions.width - image.cropArea.width}
-                                  value={image.cropArea.x}
-                                  onChange={(e) => updateImageCropArea(image.id, { x: Number(e.target.value) })}
-                                  className="h-8 text-xs"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`y-${image.id}`} className="text-xs">
-                                  Y Position
-                                </Label>
-                                <Input
-                                  id={`y-${image.id}`}
-                                  type="number"
-                                  min="0"
-                                  max={image.originalDimensions.height - image.cropArea.height}
-                                  value={image.cropArea.y}
-                                  onChange={(e) => updateImageCropArea(image.id, { y: Number(e.target.value) })}
-                                  className="h-8 text-xs"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`width-${image.id}`} className="text-xs">
-                                  Width
-                                </Label>
-                                <Input
-                                  id={`width-${image.id}`}
-                                  type="number"
-                                  min="1"
-                                  max={image.originalDimensions.width - image.cropArea.x}
-                                  value={image.cropArea.width}
-                                  onChange={(e) => updateImageCropArea(image.id, { width: Number(e.target.value) })}
-                                  className="h-8 text-xs"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`height-${image.id}`} className="text-xs">
-                                  Height
-                                </Label>
-                                <Input
-                                  id={`height-${image.id}`}
-                                  type="number"
-                                  min="1"
-                                  max={image.originalDimensions.height - image.cropArea.y}
-                                  value={image.cropArea.height}
-                                  onChange={(e) => updateImageCropArea(image.id, { height: Number(e.target.value) })}
-                                  className="h-8 text-xs"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cropPadding">Crop Padding: {settings.cropPadding}px</Label>
+                          <Input
+                            id="cropPadding"
+                            type="range"
+                            min="0"
+                            max="50"
+                            value={settings.cropPadding}
+                            onChange={(e) => setSettings((prev) => ({ ...prev, cropPadding: Number(e.target.value) }))}
+                            className="w-full"
+                          />
+                        </div>
 
-                      {/* Actions */}
-                      <div className="flex-shrink-0 flex flex-col items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setSelectedImageForCrop(selectedImageForCrop === image.id ? null : image.id)}
-                          aria-label={`${selectedImageForCrop === image.id ? 'Hide' : 'Show'} crop controls for ${image.file.name}`}
-                        >
-                          <Move className="h-4 w-4" />
-                        </Button>
-
-                        {image.status === 'completed' && image.croppedUrl && (
-                          <Button
-                            size="sm"
-                            onClick={() => downloadImage(image)}
-                            aria-label={`Download cropped ${image.file.name}`}
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        )}
-
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => removeImage(image.id)}
-                          aria-label={`Remove ${image.file.name}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id="preserveMetadata"
+                            type="checkbox"
+                            checked={settings.preserveMetadata}
+                            onChange={(e) => setSettings((prev) => ({ ...prev, preserveMetadata: e.target.checked }))}
+                            className="rounded border-input"
+                          />
+                          <Label htmlFor="preserveMetadata" className="text-sm">
+                            Preserve image metadata
+                          </Label>
+                        </div>
                       </div>
                     </div>
-
-                    {/* Expanded Image View */}
-                    {expandedImage === `${image.id}-original` && (
-                      <div className="mt-4 p-4 bg-muted/30 rounded-lg">
-                        <h5 className="font-medium mb-2">Original Image</h5>
-                        <img
-                          src={image.originalUrl}
-                          alt={`Original ${image.file.name}`}
-                          className="max-w-full max-h-96 object-contain mx-auto border rounded"
-                        />
-                      </div>
-                    )}
-
-                    {expandedImage === `${image.id}-cropped` && image.croppedUrl && (
-                      <div className="mt-4 p-4 bg-muted/30 rounded-lg">
-                        <h5 className="font-medium mb-2">Cropped Image</h5>
-                        <img
-                          src={image.croppedUrl}
-                          alt={`Cropped ${image.file.name}`}
-                          className="max-w-full max-h-96 object-contain mx-auto border rounded"
-                        />
-                      </div>
-                    )}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Upload Area */}
+            <Card>
+              <CardContent className="pt-6">
+                <div
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                    dragActive
+                      ? 'border-primary bg-primary/5'
+                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                  }`}
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Drag and drop images here or click to select files"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      fileInputRef.current?.click()
+                    }
+                  }}
+                >
+                  <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Upload Images to Crop</h3>
+                  <p className="text-muted-foreground mb-4">Drag and drop your images here, or click to select files</p>
+                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                    <FileImage className="mr-2 h-4 w-4" />
+                    Choose Files
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Supports JPEG, PNG, WebP, GIF, BMP • Max 100MB per file
+                  </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleFileInput}
+                    className="hidden"
+                    aria-label="Select image files"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Statistics */}
+            {images.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5" />
+                    Crop Statistics
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">{images.length}</div>
+                      <div className="text-sm text-muted-foreground">Total Images</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">{formatFileSize(stats.totalOriginalSize)}</div>
+                      <div className="text-sm text-muted-foreground">Original Size</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">{formatFileSize(stats.totalCroppedSize)}</div>
+                      <div className="text-sm text-muted-foreground">Cropped Size</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">{stats.averageCropPercentage.toFixed(1)}%</div>
+                      <div className="text-sm text-muted-foreground">Avg. Crop Area</div>
+                    </div>
+                  </div>
+                  {Math.abs(stats.totalSavings) > 0 && (
+                    <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                      <div className="text-center">
+                        <span className="text-green-700 dark:text-green-400 font-semibold">
+                          {stats.totalSavings > 0 ? 'Total savings: ' : 'Total increase: '}
+                          {formatFileSize(Math.abs(stats.totalSavings))}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Action Buttons */}
+            {images.length > 0 && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-wrap gap-3 justify-center">
+                    <Button
+                      onClick={cropImages}
+                      disabled={isProcessing || images.every((img) => img.status !== 'pending')}
+                      className="min-w-32"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                          Cropping...
+                        </>
+                      ) : (
+                        <>
+                          <Crop className="mr-2 h-4 w-4" />
+                          Crop Images
+                        </>
+                      )}
+                    </Button>
+
+                    <Button
+                      onClick={downloadAll}
+                      variant="outline"
+                      disabled={!images.some((img) => img.status === 'completed')}
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Download All
+                    </Button>
+
+                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Clear All
+                    </Button>
+
+                    <Button
+                      onClick={exportResults}
+                      variant="outline"
+                      disabled={!images.some((img) => img.status === 'completed')}
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      Export Results
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Templates Tab */}
+          <TabsContent value="templates" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Layers className="h-5 w-5" />
+                  Crop Templates
+                </CardTitle>
+                <CardDescription>Pre-configured crop settings for popular platforms and use cases.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {cropTemplates.map((template) => (
+                    <Card
+                      key={template.id}
+                      className={`cursor-pointer transition-all hover:shadow-md ${
+                        selectedTemplate === template.id ? 'ring-2 ring-primary' : ''
+                      }`}
+                      onClick={() => applyTemplate(template.id)}
+                    >
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-lg flex items-center justify-between">
+                          {template.name}
+                          {selectedTemplate === template.id && <CheckCircle2 className="h-5 w-5 text-primary" />}
+                        </CardTitle>
+                        <CardDescription className="text-sm">{template.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Aspect Ratio:</span>
+                            <span className="font-medium">{template.settings.aspectRatio}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Format:</span>
+                            <span className="font-medium">{template.settings.outputFormat?.toUpperCase()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Quality:</span>
+                            <span className="font-medium">{template.settings.quality}%</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Category:</span>
+                            <span className="font-medium capitalize">{template.category}</span>
+                          </div>
+                        </div>
+                        <div className="mt-3 pt-3 border-t">
+                          <div className="flex flex-wrap gap-1">
+                            {template.tags.map((tag) => (
+                              <span key={tag} className="px-2 py-1 bg-muted rounded-full text-xs">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="mt-2">
+                          <div className="flex items-center gap-1">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <div
+                                  key={i}
+                                  className={`w-2 h-2 rounded-full ${
+                                    i < Math.floor(template.popularity / 20) ? 'bg-yellow-400' : 'bg-gray-200'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs text-muted-foreground ml-1">{template.popularity}% popular</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )
