@@ -109,21 +109,6 @@ interface HistoryEntry {
   description: string
 }
 
-interface AnalysisData {
-  conversionEfficiency: number
-  qualityScore: number
-  formatOptimization: number
-  formatRecommendation: string
-  performanceImpact: 'low' | 'medium' | 'high'
-  recommendations: string[]
-  technicalDetails: {
-    formatSupport: boolean
-    qualityLoss: boolean
-    sizeOptimization: boolean
-    compatibilityScore: number
-  }
-}
-
 // Utility functions
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
@@ -454,25 +439,6 @@ const getImageInfo = (file: File): Promise<{ width: number; height: number; form
   })
 }
 
-// Helper function to detect optimal format
-const suggestOptimalFormat = (file: File, hasTransparency: boolean): string => {
-  const fileSize = file.size
-  const fileType = file.type
-
-  // If image has transparency, suggest PNG or WebP
-  if (hasTransparency) {
-    return fileSize > 1024 * 1024 ? 'webp' : 'png' // Use WebP for larger files
-  }
-
-  // For photos without transparency, suggest JPEG or WebP
-  if (fileType.includes('jpeg') || fileType.includes('jpg')) {
-    return fileSize > 2 * 1024 * 1024 ? 'webp' : 'jpeg'
-  }
-
-  // For other formats, suggest WebP for better compression
-  return 'webp'
-}
-
 /**
  * Enhanced Image Conversion Tool
  * Features: Batch processing, multiple format support, quality controls, drag-and-drop, progress tracking
@@ -499,7 +465,6 @@ const ImageConvertCore = () => {
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [filterStatus] = useState<'all' | 'pending' | 'completed' | 'error'>('all')
   const [sortBy] = useState<'name' | 'size' | 'format' | 'time'>('name')
-  const [_, setCopySuccess] = useState<string>('')
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { convertImage } = useImageConversion()
