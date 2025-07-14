@@ -63,18 +63,6 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: 'Kit v${{ github.ref_name }}'
           releaseBody: 'See the assets to download this version and install.'
-          releaseDraft: true
+          draft: false
           prerelease: false
-          args: ${{ matrix.args }}
-
-      - name: Upload release assets
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run publish
-
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./publish
-          keep_files: true
+          includeUpdaterJson: true
