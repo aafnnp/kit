@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
+import { ErrorBoundary } from '@/components/error-boundary'
 import { Upload, Download, FileText, Loader2, FileImage, Trash2, BarChart3, BookOpen, Target } from 'lucide-react'
 import { nanoid } from 'nanoid'
 // Types
@@ -268,46 +269,6 @@ const analyzeText = (text: string, settings: AnalysisSettings): TextAnalysis => 
   }
 }
 
-// Error boundary component
-class WordCountErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Word count error:', error, errorInfo)
-    toast.error('An unexpected error occurred during text analysis')
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <div className="text-red-600">
-                <h3 className="font-semibold">Something went wrong</h3>
-                <p className="text-sm">Please refresh the page and try again.</p>
-              </div>
-              <Button onClick={() => window.location.reload()}>Refresh Page</Button>
-            </div>
-          </CardContent>
-        </Card>
-      )
-    }
-
-    return this.props.children
-  }
-}
-
 // Custom hooks
 const useTextProcessing = () => {
   const processTextFile = useCallback(async (file: File): Promise<string> => {
@@ -565,6 +526,10 @@ const WordCountCore = () => {
       const fileList = e.target.files
       if (fileList) {
         handleFiles(fileList)
+        // 关键：重置 input 的值，允许重复上传同一文件
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''
+        }
       }
     },
     [handleFiles]
@@ -1190,9 +1155,9 @@ const WordCountCore = () => {
 // Main component with error boundary
 const WordCount = () => {
   return (
-    <WordCountErrorBoundary>
+    <ErrorBoundary>
       <WordCountCore />
-    </WordCountErrorBoundary>
+    </ErrorBoundary>
   )
 }
 
