@@ -6,9 +6,7 @@ import { relaunch } from '@tauri-apps/plugin-process'
 
 export function SiteHeader() {
   const checkForUpdates = async () => {
-    const update = await check({
-      target: '',
-    })
+    const update = await check()
     console.log('update', update)
     if (update) {
       console.log(`found update ${update.version} from ${update.date} with notes ${update.body}`)
