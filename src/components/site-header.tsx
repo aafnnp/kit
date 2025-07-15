@@ -8,6 +8,7 @@ export function SiteHeader() {
   const checkForUpdates = async () => {
     const update = await check()
     console.log('update', update)
+    alert(JSON.stringify(update))
     if (update) {
       console.log(`found update ${update.version} from ${update.date} with notes ${update.body}`)
       let downloaded = 0
