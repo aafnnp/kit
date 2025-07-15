@@ -62,18 +62,19 @@ export function NavMain({ items }: { items: typeof tools }) {
                         return (
                           <SidebarMenuItem
                             key={tool.slug}
-                            className={`${isSelected ? 'bg-accent text-accent-foreground' : ''}`}
                             onClick={() => {
                               if (tool.href) {
                                 window.open(tool.href, '_blank')
                                 return
                               }
-                                router.navigate({ to: `/tool/${tool.slug}` })
+                              router.navigate({ to: `/tool/${tool.slug}` })
                             }}
                           >
-                            <SidebarMenuButton tooltip={tool.name}>
+                            <SidebarMenuButton
+                              tooltip={tool.name}
+                              className={`${isSelected ? 'bg-accent text-accent-foreground' : ''}`}
+                            >
                               <span>{tool.name}</span>
-                              <span className="text-xs text-muted-foreground">{tool.status}</span>
                             </SidebarMenuButton>
                           </SidebarMenuItem>
                         )
