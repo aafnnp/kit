@@ -843,8 +843,14 @@ const CaseConverterCore = () => {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="caseType">Case Type</Label>
-                <Select value={selectedCaseType} onValueChange={(value: CaseType) => setSelectedCaseType(value)}>
+                <Label htmlFor="caseType" aria-label="Select case conversion type">
+                  Case Type
+                </Label>
+                <Select
+                  value={selectedCaseType}
+                  onValueChange={(value: CaseType) => setSelectedCaseType(value)}
+                  data-testid="case-type-select"
+                >
                   <SelectTrigger id="caseType" aria-label="Select case conversion type">
                     <SelectValue />
                   </SelectTrigger>
@@ -862,7 +868,9 @@ const CaseConverterCore = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="previewLength">Preview Length</Label>
+                <Label htmlFor="previewLength" aria-label="Preview length">
+                  Preview Length
+                </Label>
                 <Input
                   id="previewLength"
                   type="number"
@@ -884,7 +892,11 @@ const CaseConverterCore = () => {
                   onChange={(e) => setSettings((prev) => ({ ...prev, preserveFormatting: e.target.checked }))}
                   className="rounded border-input"
                 />
-                <Label htmlFor="preserveFormatting" className="text-sm">
+                <Label
+                  htmlFor="preserveFormatting"
+                  className="text-sm"
+                  aria-label="Preserve line breaks and formatting"
+                >
                   Preserve line breaks and formatting
                 </Label>
               </div>
@@ -897,7 +909,11 @@ const CaseConverterCore = () => {
                   onChange={(e) => setSettings((prev) => ({ ...prev, handleSpecialChars: e.target.checked }))}
                   className="rounded border-input"
                 />
-                <Label htmlFor="handleSpecialChars" className="text-sm">
+                <Label
+                  htmlFor="handleSpecialChars"
+                  className="text-sm"
+                  aria-label="Handle special characters and punctuation"
+                >
                   Handle special characters and punctuation
                 </Label>
               </div>
@@ -911,7 +927,7 @@ const CaseConverterCore = () => {
                 onChange={(e) => setSettings((prev) => ({ ...prev, batchMode: e.target.checked }))}
                 className="rounded border-input"
               />
-              <Label htmlFor="batchMode" className="text-sm">
+              <Label htmlFor="batchMode" className="text-sm" aria-label="Batch mode: Generate all case types for files">
                 Batch mode: Generate all case types for files
               </Label>
             </div>
@@ -926,7 +942,9 @@ const CaseConverterCore = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="manualText">Enter your text for conversion</Label>
+                <Label htmlFor="manualText" aria-label="Enter your text for conversion">
+                  Enter your text for conversion
+                </Label>
                 <Textarea
                   id="manualText"
                   placeholder="Type or paste your text here..."
@@ -970,7 +988,7 @@ const CaseConverterCore = () => {
                       value={convertedManualText}
                       readOnly
                       className="min-h-[100px] bg-background"
-                      aria-label={`Converted text in ${selectedCaseType}`}
+                      aria-label={`case-result-${selectedCaseType}`}
                     />
                   </div>
 
@@ -1026,7 +1044,10 @@ const CaseConverterCore = () => {
                               </div>
                             </div>
                             <div className="text-xs text-muted-foreground mb-1">{option?.description}</div>
-                            <div className="p-2 bg-muted/50 rounded text-sm font-mono break-all">
+                            <div
+                              className="p-2 bg-muted/50 rounded text-sm font-mono break-all"
+                              aria-label={`case-result-${conversion.type}`}
+                            >
                               {conversion.preview || conversion.content}
                             </div>
                           </Card>
