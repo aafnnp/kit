@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { check } from '@tauri-apps/plugin-updater'
 import { relaunch } from '@tauri-apps/plugin-process'
+import type { SettingsStep, UpdateInfo } from '@/types/settings'
 
 const VERSION = import.meta.env.VITE_APP_VERSION || '0.0.1'
 
@@ -28,8 +29,8 @@ function RouteComponent() {
 
   // 检查更新相关状态
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [updateInfo, setUpdateInfo] = useState<any>(null)
-  const [step, setStep] = useState<'idle' | 'confirm' | 'downloading' | 'finished'>('idle')
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null)
+  const [step, setStep] = useState<SettingsStep>('idle')
   const [contentLength, setContentLength] = useState(0)
   const [downloaded, setDownloaded] = useState(0)
   const [noUpdateDialog, setNoUpdateDialog] = useState(false)

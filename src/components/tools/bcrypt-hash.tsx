@@ -28,97 +28,21 @@ import {
   Timer,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface BcryptFile {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  bcryptData?: BcryptData
-}
-
-interface BcryptData {
-  original: BcryptContent
-  hashes: BcryptResult[]
-  statistics: BcryptStatistics
-  settings: BcryptSettings
-}
-
-interface BcryptContent {
-  content: string
-  size: number
-  type: 'password' | 'text'
-  strength?: PasswordStrength
-}
-
-interface BcryptResult {
-  saltRounds: number
-  hash: string
-  salt: string
-  processingTime: number
-  verified?: boolean
-  securityLevel: SecurityLevel
-}
-
-interface BcryptStatistics {
-  totalHashes: number
-  saltRoundDistribution: Record<string, number>
-  averageProcessingTime: number
-  totalProcessingTime: number
-  verificationCount: number
-  successRate: number
-  securityScore: number
-}
-
-interface BcryptSettings {
-  saltRounds: number[]
-  includeTimestamp: boolean
-  enableVerification: boolean
-  batchProcessing: boolean
-  realTimeHashing: boolean
-  exportFormat: ExportFormat
-  showPasswords: boolean
-  passwordStrengthCheck: boolean
-}
-
-interface BcryptTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  settings: Partial<BcryptSettings>
-  saltRounds: number[]
-  securityLevel: SecurityLevel
-}
-
-interface PasswordStrength {
-  score: number
-  level: 'very-weak' | 'weak' | 'fair' | 'good' | 'strong'
-  feedback: string[]
-  requirements: PasswordRequirement[]
-}
-
-interface PasswordRequirement {
-  name: string
-  met: boolean
-  description: string
-}
-
-interface BcryptVerification {
-  id: string
-  password: string
-  hash: string
-  isValid: boolean
-  processingTime: number
-}
-
-// Enums
-type SecurityLevel = 'low' | 'medium' | 'high' | 'very-high'
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
+import type {
+  BcryptFile,
+  BcryptData,
+  BcryptContent,
+  BcryptResult,
+  BcryptStatistics,
+  BcryptSettings,
+  BcryptTemplate,
+  PasswordStrength,
+  PasswordRequirement,
+  BcryptVerification,
+  SecurityLevel,
+  ExportFormat,
+} from '@/types/bcrypt-hash'
+import { formatFileSize } from '@/lib/utils'
 
 // Utility functions
 
@@ -135,14 +59,6 @@ const validateBcryptFile = (file: File): { isValid: boolean; error?: string } =>
   }
 
   return { isValid: true }
-}
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 // Simple Bcrypt implementation for browser (educational purposes)
