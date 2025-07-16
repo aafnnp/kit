@@ -18,7 +18,6 @@ import {
   BookOpen,
   Eye,
   EyeOff,
-  AlertCircle,
   CheckCircle2,
   Activity,
   Layers,
@@ -117,52 +116,6 @@ interface HistoryEntry {
   imageCount: number
   totalSavings: number
   description: string
-}
-
-// Error Boundary Component
-class ImageCropErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Image Crop Error:', error, errorInfo)
-    toast.error('An unexpected error occurred. Please refresh the page.')
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Card className="w-full max-w-2xl mx-auto">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-600">
-              <AlertCircle className="h-5 w-5" />
-              Something went wrong
-            </CardTitle>
-            <CardDescription>
-              The image crop tool encountered an error. Please refresh the page and try again.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => window.location.reload()} className="w-full">
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh Page
-            </Button>
-          </CardContent>
-        </Card>
-      )
-    }
-
-    return this.props.children
-  }
 }
 
 // Utility functions
@@ -1565,11 +1518,7 @@ const ImageCropCore = () => {
 
 // Main component with error boundary
 const ImageCrop = () => {
-  return (
-    <ImageCropErrorBoundary>
-      <ImageCropCore />
-    </ImageCropErrorBoundary>
-  )
+  return <ImageCropCore />
 }
 
 export default ImageCrop

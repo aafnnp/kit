@@ -1254,11 +1254,7 @@ const MarkdownPreviewCore = () => {
 
 // Main component with error boundary
 const MarkdownPreview = () => {
-  return (
-    <MarkdownPreviewErrorBoundary>
-      <MarkdownPreviewCore />
-    </MarkdownPreviewErrorBoundary>
-  )
+  return <MarkdownPreviewCore />
 }
 
 export default MarkdownPreview

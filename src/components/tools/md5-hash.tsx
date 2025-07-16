@@ -1236,11 +1236,7 @@ const Md5HashCore = () => {
 
 // Main component with error boundary
 const Md5Hash = () => {
-  return (
-    <Md5HashErrorBoundary>
-      <Md5HashCore />
-    </Md5HashErrorBoundary>
-  )
+  return <Md5HashCore />
 }
 
 export default Md5Hash

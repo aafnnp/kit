@@ -1591,11 +1591,7 @@ const LoremIpsumCore = () => {
 
 // Main component with error boundary
 const LoremIpsum = () => {
-  return (
-    <LoremIpsumErrorBoundary>
-      <LoremIpsumCore />
-    </LoremIpsumErrorBoundary>
-  )
+  return <LoremIpsumCore />
 }
 
 export default LoremIpsum

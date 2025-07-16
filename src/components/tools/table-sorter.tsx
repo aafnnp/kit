@@ -1703,11 +1703,7 @@ const TableSorterCore = () => {
 
 // Main component with error boundary
 const TableSorter = () => {
-  return (
-    <TableSorterErrorBoundary>
-      <TableSorterCore />
-    </TableSorterErrorBoundary>
-  )
+  return <TableSorterCore />
 }
 
 export default TableSorter

@@ -1761,11 +1761,7 @@ const RegexTesterCore = () => {
 
 // Main component with error boundary
 const RegexTester = () => {
-  return (
-    <RegexTesterErrorBoundary>
-      <RegexTesterCore />
-    </RegexTesterErrorBoundary>
-  )
+  return <RegexTesterCore />
 }
 
 export default RegexTester

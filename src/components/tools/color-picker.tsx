@@ -1935,11 +1935,7 @@ const ColorPickerCore = () => {
 
 // Main component with error boundary
 const ColorPicker = () => {
-  return (
-    <ColorPickerErrorBoundary>
-      <ColorPickerCore />
-    </ColorPickerErrorBoundary>
-  )
+  return <ColorPickerCore />
 }
 
 export default ColorPicker

@@ -1387,11 +1387,7 @@ const ShadowGeneratorCore = () => {
 
 // Main component with error boundary
 const ShadowGenerator = () => {
-  return (
-    <ShadowGeneratorErrorBoundary>
-      <ShadowGeneratorCore />
-    </ShadowGeneratorErrorBoundary>
-  )
+  return <ShadowGeneratorCore />
 }
 
 export default ShadowGenerator

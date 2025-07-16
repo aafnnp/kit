@@ -24,27 +24,27 @@ export function NavMain({ items }: { items: typeof tools }) {
   useEffect(() => {
     if (!currentSlug) return
     const group = items.find((item) => item.tools.some((tool) => tool.slug === currentSlug))
-    if (group && !openMap[group.type]) {
-      setOpenMap((prev) => ({ ...prev, [group.type]: true }))
+    if (group && !openMap[group.id]) {
+      setOpenMap((prev) => ({ ...prev, [group.id]: true }))
     }
   }, [currentSlug, items])
 
-  const toggleGroup = (type: string) => {
-    setOpenMap((prev) => ({ ...prev, [type]: !prev[type] }))
+  const toggleGroup = (id: string) => {
+    setOpenMap((prev) => ({ ...prev, [id]: !prev[id] }))
   }
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
           {items.map((item) => {
-            const isOpen = !!openMap[item.type]
+            const isOpen = !!openMap[item.id]
             return (
-              <SidebarGroup key={item.type}>
+              <SidebarGroup key={item.id}>
                 <div
                   className="flex items-center gap-2 mb-2 justify-between cursor-pointer select-none"
-                  onClick={() => toggleGroup(item.type)}
+                  onClick={() => toggleGroup(item.id)}
                 >
-                  <span className="text-sm font-medium">{item.type}</span>
+                  <span className="text-sm font-medium">{item.type.zh}</span>
                   <IconChevronRight className={`!size-4 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
                 </div>
                 <AnimatePresence initial={false}>
@@ -71,7 +71,7 @@ export function NavMain({ items }: { items: typeof tools }) {
                             }}
                           >
                             <SidebarMenuButton
-                              tooltip={tool.name}
+                              tooltip={tool.desc.zh}
                               className={`${isSelected ? 'bg-accent text-accent-foreground' : ''}`}
                             >
                               <span>{tool.name}</span>

@@ -1581,11 +1581,7 @@ const BcryptHashCore = () => {
 
 // Main component with error boundary
 const BcryptHash = () => {
-  return (
-    <BcryptHashErrorBoundary>
-      <BcryptHashCore />
-    </BcryptHashErrorBoundary>
-  )
+  return <BcryptHashCore />
 }
 
 export default BcryptHash

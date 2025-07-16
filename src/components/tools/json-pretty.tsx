@@ -1727,11 +1727,7 @@ const JSONPrettyCore = () => {
 
 // Main component with error boundary
 const JSONFormatter = () => {
-  return (
-    <JSONPrettyErrorBoundary>
-      <JSONPrettyCore />
-    </JSONPrettyErrorBoundary>
-  )
+  return <JSONPrettyCore />
 }
 
 export default JSONFormatter

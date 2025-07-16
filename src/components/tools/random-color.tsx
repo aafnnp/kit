@@ -1905,11 +1905,7 @@ const RandomColorCore = () => {
 
 // Main component with error boundary
 const RandomColor = () => {
-  return (
-    <RandomColorErrorBoundary>
-      <RandomColorCore />
-    </RandomColorErrorBoundary>
-  )
+  return <RandomColorCore />
 }
 
 export default RandomColor

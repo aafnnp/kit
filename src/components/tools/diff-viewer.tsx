@@ -1829,11 +1829,7 @@ const DiffViewerCore = () => {
 
 // Main component with error boundary
 const DiffViewer = () => {
-  return (
-    <DiffViewerErrorBoundary>
-      <DiffViewerCore />
-    </DiffViewerErrorBoundary>
-  )
+  return <DiffViewerCore />
 }
 
 export default DiffViewer

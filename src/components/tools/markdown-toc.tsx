@@ -1641,11 +1641,7 @@ const MarkdownTOCCore = () => {
 
 // Main component with error boundary
 const MarkdownToc = () => {
-  return (
-    <MarkdownTOCErrorBoundary>
-      <MarkdownTOCCore />
-    </MarkdownTOCErrorBoundary>
-  )
+  return <MarkdownTOCCore />
 }
 
 export default MarkdownToc

@@ -1529,11 +1529,7 @@ const FileHashCore = () => {
 
 // Main component with error boundary
 const FileHash = () => {
-  return (
-    <FileHashErrorBoundary>
-      <FileHashCore />
-    </FileHashErrorBoundary>
-  )
+  return <FileHashCore />
 }
 
 export default FileHash

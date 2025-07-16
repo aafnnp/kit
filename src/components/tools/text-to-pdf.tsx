@@ -1513,11 +1513,7 @@ const TextToPDFCore = () => {
 
 // Main component with error boundary
 const TextToPDF = () => {
-  return (
-    <TextToPDFErrorBoundary>
-      <TextToPDFCore />
-    </TextToPDFErrorBoundary>
-  )
+  return <TextToPDFCore />
 }
 
 export default TextToPDF

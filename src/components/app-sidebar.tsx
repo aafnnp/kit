@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { IconInnerShadowTop } from '@tabler/icons-react'
+import { IconInnerShadowTop, IconSettings } from '@tabler/icons-react'
 
 import { NavMain } from '@/components/nav-main'
 import {
@@ -26,7 +26,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
+        <SidebarMenu className="flex flex-row justify-between">
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <Link to="/">
@@ -35,14 +35,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+              <Link to="/settings">
+                <IconSettings className="!size-5" />
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
-      {/* <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter> */}
     </Sidebar>
   )
 }

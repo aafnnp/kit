@@ -1749,11 +1749,7 @@ const JSONDiffCore = () => {
 
 // Main component with error boundary
 const JsonDiff = () => {
-  return (
-    <JSONDiffErrorBoundary>
-      <JSONDiffCore />
-    </JSONDiffErrorBoundary>
-  )
+  return <JSONDiffCore />
 }
 
 export default JsonDiff

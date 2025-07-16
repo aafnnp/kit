@@ -9,53 +9,10 @@ import { Upload, Download, Loader2, FileAudio2, Trash2, BarChart3, Volume2, Slid
 import { nanoid } from 'nanoid'
 // @ts-ignore
 import JSZip from 'jszip'
-
-// 类型定义
-interface AudioFile {
-  id: string
-  file: File
-  name: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  url?: string
-  convertedUrl?: string
-  stats?: AudioStats
-  convertResult?: ConvertResult
-}
-
-interface AudioStats {
-  duration: number // 秒
-  bitrate: number
-  sampleRate: number
-  channels: number
-  fileSize: number
-  format: string
-}
-
-interface ConvertSettings {
-  format: 'mp3' | 'wav' | 'aac' | 'ogg' | 'flac' | 'm4a'
-  bitrate: number // kbps
-  sampleRate: number // Hz
-}
-
-interface ConvertResult {
-  url: string
-  size: number
-  format: string
-  duration: number
-}
+import { AudioFile, AudioStats, ConvertSettings, ConvertResult } from '@/types/audio-convert'
+import { formatFileSize } from '@/lib/utils'
 
 // 工具函数
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
 const validateAudioFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 200 * 1024 * 1024 // 200MB
   const allowedTypes = [

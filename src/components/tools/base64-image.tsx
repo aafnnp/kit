@@ -32,126 +32,21 @@ import {
   Palette,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface ImageProcessingResult {
-  id: string
-  input: string
-  output: string
-  direction: ConversionDirection
-  isValid: boolean
-  error?: string
-  statistics: ImageStatistics
-  analysis?: ImageAnalysis
-  createdAt: Date
-}
-
-interface ImageStatistics {
-  inputSize: number
-  outputSize: number
-  compressionRatio: number
-  processingTime: number
-  imageMetadata: ImageMetadata
-  qualityMetrics: QualityMetrics
-}
-
-interface ImageMetadata {
-  width: number
-  height: number
-  format: string
-  mimeType: string
-  aspectRatio: number
-  pixelCount: number
-  estimatedColors: number
-  hasTransparency: boolean
-}
-
-interface QualityMetrics {
-  resolution: string
-  sizeCategory: string
-  compressionEfficiency: number
-  dataUrlOverhead: number
-  base64Efficiency: number
-}
-
-interface ImageAnalysis {
-  isValidImage: boolean
-  hasDataUrlPrefix: boolean
-  isOptimized: boolean
-  suggestedImprovements: string[]
-  imageIssues: string[]
-  qualityScore: number
-  formatRecommendations: string[]
-}
-
-interface ProcessingBatch {
-  id: string
-  results: ImageProcessingResult[]
-  count: number
-  settings: ProcessingSettings
-  createdAt: Date
-  statistics: BatchStatistics
-}
-
-interface BatchStatistics {
-  totalProcessed: number
-  validCount: number
-  invalidCount: number
-  averageQuality: number
-  totalInputSize: number
-  totalOutputSize: number
-  successRate: number
-}
-
-interface ProcessingSettings {
-  outputFormat: ImageFormat
-  quality: number
-  maxWidth: number
-  maxHeight: number
-  includeDataUrlPrefix: boolean
-  realTimeProcessing: boolean
-  exportFormat: ExportFormat
-  compressionLevel: number
-  preserveMetadata: boolean
-  autoOptimize: boolean
-}
-
-interface ImageTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  base64Example: string
-  imageInfo: string
-  useCase: string[]
-}
-
-interface ImageValidation {
-  isValid: boolean
-  errors: ImageError[]
-  warnings: string[]
-  suggestions: string[]
-}
-
-interface ImageError {
-  message: string
-  type: 'format' | 'size' | 'encoding' | 'corruption'
-  details?: string
-}
-
-// Enums
-type ConversionDirection = 'image-to-base64' | 'base64-to-image'
-type ImageFormat = 'jpeg' | 'png' | 'webp' | 'gif' | 'bmp'
-type ExportFormat = 'base64' | 'dataurl' | 'json' | 'txt'
-
-// Utility functions
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
+import {
+  ImageProcessingResult,
+  ImageMetadata,
+  QualityMetrics,
+  ImageAnalysis,
+  ProcessingBatch,
+  BatchStatistics,
+  ProcessingSettings,
+  ImageTemplate,
+  ImageValidation,
+  ConversionDirection,
+  ImageFormat,
+  ExportFormat,
+} from '@/types/base64-image'
+import { formatFileSize } from '@/lib/utils'
 
 const detectImageFormat = (base64: string): string => {
   if (base64.startsWith('data:image/')) {
@@ -472,46 +367,6 @@ const validateImageInput = (input: string, direction: ConversionDirection): Imag
   }
 
   return validation
-}
-
-// Error boundary component
-class Base64ImageErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Base64 Image processing error:', error, errorInfo)
-    toast.error('An unexpected error occurred during image processing')
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <div className="text-red-600">
-                <h3 className="font-semibold">Something went wrong</h3>
-                <p className="text-sm">Please refresh the page and try again.</p>
-              </div>
-              <Button onClick={() => window.location.reload()}>Refresh Page</Button>
-            </div>
-          </CardContent>
-        </Card>
-      )
-    }
-
-    return this.props.children
-  }
 }
 
 // Custom hooks
@@ -2006,11 +1861,7 @@ const Base64ImageCore = () => {
 
 // Main component with error boundary
 const Base64Image = () => {
-  return (
-    <Base64ImageErrorBoundary>
-      <Base64ImageCore />
-    </Base64ImageErrorBoundary>
-  )
+  return <Base64ImageCore />
 }
 
 export default Base64Image

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
-import { ErrorBoundary } from '@/components/error-boundary'
+// 移除 import { ErrorBoundary } from '@/components/error-boundary'
 import { Upload, Download, FileText, Loader2, FileImage, Trash2, BarChart3, BookOpen, Target } from 'lucide-react'
 import { nanoid } from 'nanoid'
 // Types
@@ -1154,11 +1154,7 @@ const WordCountCore = () => {
 
 // Main component with error boundary
 const WordCount = () => {
-  return (
-    <ErrorBoundary>
-      <WordCountCore />
-    </ErrorBoundary>
-  )
+  return <WordCountCore />
 }
 
 export default WordCount

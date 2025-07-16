@@ -649,46 +649,6 @@ const validateExcelFile = (file: File): FileValidation => {
   return validation
 }
 
-// Error boundary component
-class ExcelToJSONErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Excel to JSON processing error:', error, errorInfo)
-    toast.error('An unexpected error occurred during Excel processing')
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <div className="text-red-600">
-                <h3 className="font-semibold">Something went wrong</h3>
-                <p className="text-sm">Please refresh the page and try again.</p>
-              </div>
-              <Button onClick={() => window.location.reload()}>Refresh Page</Button>
-            </div>
-          </CardContent>
-        </Card>
-      )
-    }
-
-    return this.props.children
-  }
-}
-
 // Custom hooks
 const useExcelProcessing = () => {
   const processSingle = useCallback(
@@ -1935,11 +1895,7 @@ const ExcelToJSONCore = () => {
 
 // Main component with error boundary
 const ExcelToJson = () => {
-  return (
-    <ExcelToJSONErrorBoundary>
-      <ExcelToJSONCore />
-    </ExcelToJSONErrorBoundary>
-  )
+  return <ExcelToJSONCore />
 }
 
 export default ExcelToJson

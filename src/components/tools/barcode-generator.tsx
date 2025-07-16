@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -23,201 +23,25 @@ import {
   Barcode as BarcodeIcon,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-
-type DataExposure = 'low' | 'medium' | 'high'
-
-// Enhanced Types
-interface BarcodeResult {
-  id: string
-  content: string
-  format: BarcodeFormat
-  width: number
-  height: number
-  displayValue: boolean
-  backgroundColor: string
-  lineColor: string
-  fontSize: number
-  fontFamily: string
-  textAlign: 'left' | 'center' | 'right'
-  textPosition: 'top' | 'bottom'
-  textMargin: number
-  margin: number
-  dataUrl?: string
-  svgString?: string
-  isValid: boolean
-  error?: string
-  metadata?: BarcodeMetadata
-  analysis?: BarcodeAnalysis
-  settings: BarcodeSettings
-  createdAt: Date
-}
-
-interface BarcodeMetadata {
-  format: BarcodeFormat
-  capacity: BarcodeCapacity
-  actualSize: { width: number; height: number }
-  dataLength: number
-  checksum?: string
-  encoding: string
-  compressionRatio: number
-  qualityScore: number
-  readabilityScore: number
-}
-
-interface BarcodeCapacity {
-  numeric: number
-  alphanumeric: number
-  binary: number
-  maxLength: number
-  minLength: number
-}
-
-interface BarcodeAnalysis {
-  readability: BarcodeReadability
-  optimization: BarcodeOptimization
-  compatibility: BarcodeCompatibility
-  security: BarcodeSecurity
-  recommendations: string[]
-  warnings: string[]
-}
-
-interface BarcodeReadability {
-  contrastRatio: number
-  barWidth: number
-  quietZone: number
-  aspectRatio: number
-  readabilityScore: number
-  scanDistance: string
-  lightingConditions: string[]
-  printQuality: DataExposure
-}
-
-interface BarcodeOptimization {
-  dataEfficiency: number
-  sizeOptimization: number
-  printOptimization: number
-  scanOptimization: number
-  overallOptimization: number
-}
-
-interface BarcodeCompatibility {
-  scannerCompatibility: string[]
-  industryStandards: string[]
-  printCompatibility: string[]
-  softwareCompatibility: string[]
-  limitations: string[]
-}
-
-interface BarcodeSecurity {
-  dataExposure: DataExposure
-  tampering_resistance: DataExposure
-  privacy_level: DataExposure
-  security_score: number
-  vulnerabilities: string[]
-  recommendations: string[]
-}
-
-interface BarcodeSettings {
-  content: string
-  format: BarcodeFormat
-  width: number
-  height: number
-  displayValue: boolean
-  backgroundColor: string
-  lineColor: string
-  fontSize: number
-  fontFamily: string
-  textAlign: 'left' | 'center' | 'right'
-  textPosition: 'top' | 'bottom'
-  textMargin: number
-  margin: number
-  customization: BarcodeCustomization
-}
-
-interface BarcodeCustomization {
-  showBorder: boolean
-  borderWidth: number
-  borderColor: string
-  showQuietZone: boolean
-  quietZoneSize: number
-  customFont: boolean
-  fontWeight: 'normal' | 'bold'
-  textCase: 'none' | 'uppercase' | 'lowercase'
-}
-
-interface BarcodeBatch {
-  id: string
-  name: string
-  barcodes: BarcodeResult[]
-  settings: BatchSettings
-  status: 'pending' | 'processing' | 'completed' | 'failed'
-  progress: number
-  statistics: BatchStatistics
-  createdAt: Date
-  completedAt?: Date
-}
-
-interface BatchSettings {
-  baseSettings: BarcodeSettings
-  contentList: string[]
-  namingPattern: string
-  exportFormat: ExportFormat
-  includeAnalysis: boolean
-  optimizeForBatch: boolean
-}
-
-interface BatchStatistics {
-  totalGenerated: number
-  successfulGenerated: number
-  failedGenerated: number
-  averageSize: number
-  averageQuality: number
-  totalProcessingTime: number
-  averageProcessingTime: number
-  sizeDistribution: Record<string, number>
-  formatDistribution: Record<string, number>
-}
-
-interface BarcodeTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  format: BarcodeFormat
-  settings: Partial<BarcodeSettings>
-  useCase: string[]
-  examples: string[]
-  preview?: string
-}
-
-interface BarcodeValidation {
-  isValid: boolean
-  errors: BarcodeError[]
-  warnings: string[]
-  suggestions: string[]
-  estimatedSize?: { width: number; height: number }
-  recommendedSettings?: Partial<BarcodeSettings>
-}
-
-interface BarcodeError {
-  message: string
-  type: 'content' | 'format' | 'size' | 'settings' | 'compatibility'
-  severity: 'error' | 'warning' | 'info'
-}
-
-// Enums
-type BarcodeFormat =
-  | 'CODE128'
-  | 'EAN13'
-  | 'EAN8'
-  | 'UPC'
-  | 'CODE39'
-  | 'ITF14'
-  | 'MSI'
-  | 'pharmacode'
-  | 'codabar'
-  | 'CODE93'
-type ExportFormat = 'png' | 'svg' | 'pdf' | 'zip'
+import {
+  BarcodeResult,
+  BarcodeSettings,
+  BarcodeFormat,
+  BarcodeMetadata,
+  BarcodeCapacity,
+  BarcodeAnalysis,
+  BarcodeBatch,
+  BatchSettings,
+  BatchStatistics,
+  BarcodeTemplate,
+  BarcodeValidation,
+  BarcodeReadability,
+  BarcodeOptimization,
+  BarcodeCompatibility,
+  BarcodeSecurity,
+  DataExposure,
+  ExportFormat,
+} from '@/types/barcode-generator'
 
 // Utility functions
 
@@ -1393,46 +1217,6 @@ const validateFormatContent = (content: string, format: BarcodeFormat): boolean 
   }
 }
 
-// Error boundary component
-class BarcodeGeneratorErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Barcode Generator error:', error, errorInfo)
-    toast.error('An unexpected error occurred during barcode generation')
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <div className="text-red-600">
-                <h3 className="font-semibold">Something went wrong</h3>
-                <p className="text-sm">Please refresh the page and try again.</p>
-              </div>
-              <Button onClick={() => window.location.reload()}>Refresh Page</Button>
-            </div>
-          </CardContent>
-        </Card>
-      )
-    }
-
-    return this.props.children
-  }
-}
-
 // Custom hooks
 const useBarcodeGenerator = () => {
   const [barcodes, setBarcodes] = useState<BarcodeResult[]>([])
@@ -2376,11 +2160,7 @@ const BarcodeGeneratorCore = () => {
 
 // Main component with error boundary
 const BarcodeGenerator = () => {
-  return (
-    <BarcodeGeneratorErrorBoundary>
-      <BarcodeGeneratorCore />
-    </BarcodeGeneratorErrorBoundary>
-  )
+  return <BarcodeGeneratorCore />
 }
 
 export default BarcodeGenerator

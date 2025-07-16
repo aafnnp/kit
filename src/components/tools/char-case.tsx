@@ -1264,11 +1264,7 @@ const CaseConverterCore = () => {
 
 // Main component with error boundary
 const CaseConverter = () => {
-  return (
-    <CaseConverterErrorBoundary>
-      <CaseConverterCore />
-    </CaseConverterErrorBoundary>
-  )
+  return <CaseConverterCore />
 }
 
 export default CaseConverter

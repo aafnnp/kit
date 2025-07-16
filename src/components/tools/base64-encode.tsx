@@ -24,78 +24,16 @@ import {
   Unlock,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-
-// Types
-interface Base64File {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  encodingData?: EncodingData
-}
-
-interface EncodingData {
-  encodings: EncodingResult[]
-  statistics: EncodingStatistics
-  settings: EncodingSettings
-}
-
-interface EncodingResult {
-  id: string
-  operation: EncodingOperation
-  input: string
-  output: string
-  inputFormat: EncodingFormat
-  outputFormat: EncodingFormat
-  metadata: EncodingMetadata
-}
-
-interface EncodingMetadata {
-  inputSize: number
-  outputSize: number
-  compressionRatio: number
-  processingTime: number
-  isValid: boolean
-  encoding: string
-}
-
-interface EncodingStatistics {
-  totalEncodings: number
-  operationDistribution: Record<EncodingOperation, number>
-  averageCompressionRatio: number
-  averageProcessingTime: number
-  successRate: number
-  processingTime: number
-}
-
-interface EncodingSettings {
-  defaultOperation: EncodingOperation
-  defaultFormat: EncodingFormat
-  includeMetadata: boolean
-  optimizeOutput: boolean
-  exportFormat: ExportFormat
-  chunkSize: number
-}
-
-interface EncodingTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  operation: EncodingOperation
-  inputFormat: EncodingFormat
-  outputFormat: EncodingFormat
-  example: string
-}
-
-// Enums
-type EncodingOperation = 'encode' | 'decode'
-type EncodingFormat = 'text' | 'base64' | 'url' | 'hex' | 'binary'
-type ExportFormat = 'txt' | 'json' | 'csv'
+import {
+  Base64File,
+  EncodingResult,
+  EncodingSettings,
+  EncodingTemplate,
+  EncodingOperation,
+  EncodingFormat,
+  ExportFormat,
+} from '@/types/base64-encode'
+import { formatFileSize } from '@/lib/utils'
 
 // Utility functions
 
@@ -113,14 +51,6 @@ const validateEncodingFile = (file: File): { isValid: boolean; error?: string } 
   }
 
   return { isValid: true }
-}
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 // Encoding functions

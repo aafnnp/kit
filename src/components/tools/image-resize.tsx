@@ -1730,11 +1730,7 @@ const ImageResizeCore = () => {
 
 // Main component with error boundary
 const ImageResize = () => {
-  return (
-    <ImageResizeErrorBoundary>
-      <ImageResizeCore />
-    </ImageResizeErrorBoundary>
-  )
+  return <ImageResizeCore />
 }
 
 export default ImageResize

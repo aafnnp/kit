@@ -1248,11 +1248,7 @@ const Sha256HashCore = () => {
 
 // Main component with error boundary
 const Sha256Hash = () => {
-  return (
-    <Sha256HashErrorBoundary>
-      <Sha256HashCore />
-    </Sha256HashErrorBoundary>
-  )
+  return <Sha256HashCore />
 }
 
 export default Sha256Hash

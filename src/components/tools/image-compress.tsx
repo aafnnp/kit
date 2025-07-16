@@ -1670,11 +1670,7 @@ const ImageCompressCore = () => {
 
 // Main component with error boundary
 const ImageCompress = () => {
-  return (
-    <ImageCompressionErrorBoundary>
-      <ImageCompressCore />
-    </ImageCompressionErrorBoundary>
-  )
+  return <ImageCompressCore />
 }
 
 export default ImageCompress
