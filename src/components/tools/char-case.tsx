@@ -758,11 +758,17 @@ const CaseConverterCore = () => {
   // Utility functions
   const removeFile = useCallback((id: string) => {
     setFiles((prev) => prev.filter((f) => f.id !== id))
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }, [])
 
   const clearAll = useCallback(() => {
     setFiles([])
     toast.success('All files cleared')
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }, [])
 
   // Statistics calculation

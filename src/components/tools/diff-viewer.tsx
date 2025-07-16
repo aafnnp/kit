@@ -887,24 +887,29 @@ const DiffViewerCore = () => {
   const { exportUnifiedDiff, exportHTML, exportBatch, exportCSV } = useDiffExport()
   const { copyToClipboard, copiedText } = useCopyToClipboard()
 
+  // 顶层调用
+  const { processBatch: processFileBatch } = useFileProcessing()
+
   // Real-time diff processing
   const realtimeDiff = useRealTimeDiff(leftText, rightText, settings)
 
   // File drag and drop
   const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(
-    useCallback(async (droppedFiles: File[]) => {
-      setIsProcessing(true)
-      try {
-        const { processBatch } = useFileProcessing()
-        const processedFiles = await processBatch(droppedFiles)
-        setFiles((prev) => [...processedFiles, ...prev])
-        toast.success(`Added ${processedFiles.length} file(s)`)
-      } catch (error) {
-        toast.error('Failed to process files')
-      } finally {
-        setIsProcessing(false)
-      }
-    }, [])
+    useCallback(
+      async (droppedFiles: File[]) => {
+        try {
+          setIsProcessing(true)
+          const processedFiles = await processFileBatch(droppedFiles)
+          setFiles((prev) => [...processedFiles, ...prev])
+          toast.success(`Added ${processedFiles.length} file(s)`)
+        } catch (error) {
+          toast.error('Failed to process files')
+        } finally {
+          setIsProcessing(false)
+        }
+      },
+      [processFileBatch]
+    )
   )
 
   // Create file pairs for comparison

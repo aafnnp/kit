@@ -964,12 +964,12 @@ const MarkdownPreviewCore = () => {
                         </div>
                       </div>
                       <div
-                        className={`min-h-[400px] p-4 border rounded-lg bg-background overflow-auto prose prose-sm max-w-none ${
+                        className={`min-h-[400px] p-4 border rounded-lg bg-background overflow-auto max-w-none ${
                           settings.fontSize === 'small'
-                            ? 'prose-sm'
+                            ? 'text-sm'
                             : settings.fontSize === 'large'
-                              ? 'prose-lg'
-                              : 'prose-base'
+                              ? 'text-lg'
+                              : 'text-base'
                         }`}
                         dangerouslySetInnerHTML={{ __html: previewHTML }}
                         aria-label="Markdown preview"

@@ -848,24 +848,29 @@ const RegexTesterCore = () => {
   const { exportMatches, exportTestReport, exportBatch, exportCSV } = useRegexExport()
   const { copyToClipboard, copiedText } = useCopyToClipboard()
 
+  // 顶层
+  const { processBatch } = useFileProcessing()
+
   // Real-time regex testing
   const realtimeResult = useRealTimeRegex(pattern, testText, settings)
 
   // File drag and drop
   const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(
-    useCallback(async (droppedFiles: File[]) => {
-      setIsProcessing(true)
-      try {
-        const { processBatch } = useFileProcessing()
-        const processedFiles = await processBatch(droppedFiles)
-        setFiles((prev) => [...processedFiles, ...prev])
-        toast.success(`Added ${processedFiles.length} file(s)`)
-      } catch (error) {
-        toast.error('Failed to process files')
-      } finally {
-        setIsProcessing(false)
-      }
-    }, [])
+    useCallback(
+      async (droppedFiles: File[]) => {
+        try {
+          setIsProcessing(true)
+          const processedFiles = await processBatch(droppedFiles)
+          setFiles((prev) => [...processedFiles, ...prev])
+          toast.success(`Added ${processedFiles.length} file(s)`)
+        } catch (error) {
+          toast.error('Failed to process files')
+        } finally {
+          setIsProcessing(false)
+        }
+      },
+      [processBatch]
+    )
   )
 
   // Apply pattern from library
@@ -906,8 +911,8 @@ const RegexTesterCore = () => {
       return
     }
 
-    setIsProcessing(true)
     try {
+      setIsProcessing(true)
       const updatedFiles = testBatch(pattern, files, settings)
       setFiles(updatedFiles)
       toast.success('Files tested successfully!')
