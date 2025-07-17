@@ -27,125 +27,23 @@ import {
   Layers,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Types
-interface ColorFile {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  colorData?: ColorData
-}
-
-interface ColorData {
-  colors: Color[]
-  palette: ColorPalette
-  statistics: ColorStatistics
-  format: ColorFormat
-}
-
-interface Color {
-  hex: string
-  rgb: RGB
-  hsl: HSL
-  hsv: HSV
-  cmyk: CMYK
-  lab: LAB
-  name?: string
-  accessibility: AccessibilityInfo
-}
-
-interface RGB {
-  r: number
-  g: number
-  b: number
-}
-
-interface HSL {
-  h: number
-  s: number
-  l: number
-}
-
-interface HSV {
-  h: number
-  s: number
-  v: number
-}
-
-interface CMYK {
-  c: number
-  m: number
-  y: number
-  k: number
-}
-
-interface LAB {
-  l: number
-  a: number
-  b: number
-}
-
-interface AccessibilityInfo {
-  contrastRatios: {
-    white: number
-    black: number
-  }
-  wcagAA: {
-    normal: boolean
-    large: boolean
-  }
-  wcagAAA: {
-    normal: boolean
-    large: boolean
-  }
-  colorBlindSafe: boolean
-}
-
-interface ColorPalette {
-  primary: Color
-  complementary: Color[]
-  analogous: Color[]
-  triadic: Color[]
-  tetradic: Color[]
-  monochromatic: Color[]
-  splitComplementary: Color[]
-}
-
-interface ColorStatistics {
-  totalColors: number
-  dominantColor: Color
-  averageBrightness: number
-  averageSaturation: number
-  colorDistribution: Record<string, number>
-  accessibilityScore: number
-  processingTime: number
-}
-
-interface ColorSettings {
-  format: ColorFormat
-  paletteSize: number
-  harmonyType: HarmonyType
-  includeAccessibility: boolean
-  generateNames: boolean
-  sortBy: SortBy
-}
-
-interface ColorTemplate {
-  id: string
-  name: string
-  description: string
-  colors: string[]
-  category: string
-}
-
-// Enums
-type ColorFormat = 'hex' | 'rgb' | 'hsl' | 'hsv' | 'cmyk' | 'lab'
-type HarmonyType = 'complementary' | 'analogous' | 'triadic' | 'tetradic' | 'monochromatic' | 'split-complementary'
-type SortBy = 'hue' | 'saturation' | 'lightness' | 'brightness' | 'name'
+import type {
+  RGB,
+  HSL,
+  HSV,
+  HarmonyType,
+  AccessibilityInfo,
+  ColorPalette,
+  Color,
+  ColorData,
+  ColorFile,
+  ColorFormat,
+  ColorSettings,
+  ColorStatistics,
+  ColorTemplate,
+  CMYK,
+  LAB,
+} from '@/types/color-picker'
 
 // Utility functions
 

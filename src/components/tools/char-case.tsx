@@ -21,74 +21,15 @@ import {
   Check,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Types
-interface TextFile {
-  id: string
-  file: File
-  originalContent: string
-  convertedContent: string
-  name: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  conversions?: ConversionResult[]
-}
-
-interface ConversionResult {
-  type: CaseType
-  content: string
-  preview: string // First 100 characters for preview
-}
-
-interface ConversionSettings {
-  preserveFormatting: boolean
-  handleSpecialChars: boolean
-  customDelimiter: string
-  batchMode: boolean
-  previewLength: number
-}
-
-interface ConversionStats {
-  totalFiles: number
-  totalCharacters: number
-  totalWords: number
-  totalConversions: number
-  averageFileSize: number
-  processingTime: number
-}
-
-// Case conversion types
-type CaseType =
-  | 'uppercase'
-  | 'lowercase'
-  | 'titlecase'
-  | 'sentencecase'
-  | 'camelcase'
-  | 'pascalcase'
-  | 'snakecase'
-  | 'kebabcase'
-  | 'constantcase'
-  | 'dotcase'
-  | 'pathcase'
-  | 'togglecase'
-
-interface CaseOption {
-  value: CaseType
-  name: string
-  description: string
-  example: string
-  icon: React.ReactNode
-}
-
-// Utility functions
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
+import type {
+  CaseType,
+  ConversionResult,
+  ConversionSettings,
+  TextFile,
+  ConversionStats,
+  CaseOption,
+} from '@/types/char-case'
+import { formatFileSize } from '@/lib/utils'
 
 const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB

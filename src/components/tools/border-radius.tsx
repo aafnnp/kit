@@ -25,79 +25,17 @@ import {
   Circle,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Types
-interface BorderRadiusFile {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  borderRadiusData?: BorderRadiusData
-}
-
-interface BorderRadiusData {
-  borderRadii: BorderRadius[]
-  statistics: BorderRadiusStatistics
-  settings: BorderRadiusSettings
-}
-
-interface BorderRadius {
-  id: string
-  type: BorderRadiusType
-  corners: BorderRadiusCorners
-  css: string
-  accessibility: BorderRadiusAccessibility
-}
-
-interface BorderRadiusCorners {
-  topLeft: number
-  topRight: number
-  bottomRight: number
-  bottomLeft: number
-  unit: BorderRadiusUnit
-}
-
-interface BorderRadiusAccessibility {
-  uniformity: 'uniform' | 'mixed'
-  readabilityImpact: 'none' | 'minimal' | 'moderate'
-  designConsistency: 'consistent' | 'varied' | 'chaotic'
-  usabilityScore: number
-}
-
-interface BorderRadiusStatistics {
-  totalBorderRadii: number
-  typeDistribution: Record<BorderRadiusType, number>
-  averageRadius: number
-  uniformityRatio: number
-  accessibilityScore: number
-  processingTime: number
-}
-
-interface BorderRadiusSettings {
-  defaultType: BorderRadiusType
-  defaultUnit: BorderRadiusUnit
-  maxRadius: number
-  includeAccessibility: boolean
-  optimizeOutput: boolean
-  exportFormat: ExportFormat
-}
-
-interface BorderRadiusTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  borderRadius: Partial<BorderRadius>
-  preview: string
-}
-
-// Enums
-type BorderRadiusType = 'uniform' | 'individual' | 'percentage'
-type BorderRadiusUnit = 'px' | 'rem' | 'em' | '%'
-type ExportFormat = 'css' | 'scss' | 'json' | 'tailwind'
+import type {
+  BorderRadius,
+  BorderRadiusCorners,
+  BorderRadiusAccessibility,
+  BorderRadiusSettings,
+  BorderRadiusTemplate,
+  BorderRadiusType,
+  BorderRadiusUnit,
+  ExportFormat,
+  BorderRadiusFile,
+} from '@/types/border-radius'
 
 // Utility functions
 
