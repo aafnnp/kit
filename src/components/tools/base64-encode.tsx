@@ -315,46 +315,6 @@ const encodingTemplates: EncodingTemplate[] = [
   },
 ]
 
-// Error boundary component
-class Base64EncodeErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Base64 Encode error:', error, errorInfo)
-    toast.error('An unexpected error occurred during encoding/decoding')
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <div className="text-red-600">
-                <h3 className="font-semibold">Something went wrong</h3>
-                <p className="text-sm">Please refresh the page and try again.</p>
-              </div>
-              <Button onClick={() => window.location.reload()}>Refresh Page</Button>
-            </div>
-          </CardContent>
-        </Card>
-      )
-    }
-
-    return this.props.children
-  }
-}
-
 // Real-time encoding hook
 const useRealTimeEncoding = (
   input: string,
@@ -1138,11 +1098,7 @@ const Base64EncodeCore = () => {
 
 // Main component with error boundary
 const Base64Encode = () => {
-  return (
-    <Base64EncodeErrorBoundary>
-      <Base64EncodeCore />
-    </Base64EncodeErrorBoundary>
-  )
+  return <Base64EncodeCore />
 }
 
 export default Base64Encode

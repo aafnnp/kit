@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -660,46 +660,6 @@ const validateUUID = (uuid: string): UUIDValidation => {
   }
 
   return validation
-}
-
-// Error boundary component
-class UUIDGeneratorErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('UUID Generator error:', error, errorInfo)
-    toast.error('An unexpected error occurred during UUID generation')
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <div className="text-red-600">
-                <h3 className="font-semibold">Something went wrong</h3>
-                <p className="text-sm">Please refresh the page and try again.</p>
-              </div>
-              <Button onClick={() => window.location.reload()}>Refresh Page</Button>
-            </div>
-          </CardContent>
-        </Card>
-      )
-    }
-
-    return this.props.children
-  }
 }
 
 // Custom hooks
@@ -1965,11 +1925,7 @@ const UUIDGeneratorCore = () => {
 
 // Main component with error boundary
 const UuidGenerator = () => {
-  return (
-    <UUIDGeneratorErrorBoundary>
-      <UUIDGeneratorCore />
-    </UUIDGeneratorErrorBoundary>
-  )
+  return <UUIDGeneratorCore />
 }
 
 export default UuidGenerator

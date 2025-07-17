@@ -1,0 +1,8 @@
+---
+globs: src-tauri/**
+description: Tauri 相关开发约定
+---
+
+- Rust 主入口为 [src-tauri/src/main.rs](mdc:src-tauri/src/main.rs)
+- 配置文件为 [src-tauri/tauri.conf.json](mdc:src-tauri/tauri.conf.json)
+- icon 资源在 [src-tauri/icons/](mdc:src-tauri/icons/) 和 [src-tauri/gen/apple/Assets.xcassets/](mdc:src-tauri/gen/apple/Assets.xcassets/) 下

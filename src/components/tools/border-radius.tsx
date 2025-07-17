@@ -368,46 +368,6 @@ const borderRadiusTemplates: BorderRadiusTemplate[] = [
   },
 ]
 
-// Error boundary component
-class BorderRadiusErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Border Radius error:', error, errorInfo)
-    toast.error('An unexpected error occurred during border radius generation')
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <div className="text-red-600">
-                <h3 className="font-semibold">Something went wrong</h3>
-                <p className="text-sm">Please refresh the page and try again.</p>
-              </div>
-              <Button onClick={() => window.location.reload()}>Refresh Page</Button>
-            </div>
-          </CardContent>
-        </Card>
-      )
-    }
-
-    return this.props.children
-  }
-}
-
 // Real-time border radius preview hook
 const useRealTimeBorderRadius = (type: BorderRadiusType, corners: BorderRadiusCorners) => {
   return useMemo(() => {
@@ -1421,11 +1381,7 @@ const BorderRadiusCore = () => {
 
 // Main component with error boundary
 const BorderRadius = () => {
-  return (
-    <BorderRadiusErrorBoundary>
-      <BorderRadiusCore />
-    </BorderRadiusErrorBoundary>
-  )
+  return <BorderRadiusCore />
 }
 
 export default BorderRadius

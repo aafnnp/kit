@@ -1,0 +1,10 @@
+---
+globs: *.ts,*.tsx
+description: TypeScript/TSX 代码风格约定
+---
+
+- 使用 2 空格缩进
+- 类型定义优先使用 interface
+- 导入顺序：第三方库 -> 本地模块 -> 样式文件
+- 组件命名采用大驼峰（PascalCase）
+- 文件末尾不加分号
