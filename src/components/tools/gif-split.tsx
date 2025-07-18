@@ -7,16 +7,10 @@ import { Upload, Download, Loader2, FileImage, Trash2, BarChart3, Image as Image
 import { parseGIF, decompressFrames } from 'gifuct-js'
 import { nanoid } from 'nanoid'
 import type { GifFile, GifFrame, GifStats } from '@/types/gif-split'
+import { formatFileSize } from '@/lib/utils'
 
 // 工具函数
 
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
 const validateGifFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 100 * 1024 * 1024 // 100MB
   if (file.type !== 'image/gif') return { isValid: false, error: '仅支持 GIF 文件' }

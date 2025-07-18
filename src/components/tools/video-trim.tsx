@@ -10,16 +10,9 @@ import { Upload, Download, Loader2, FileVideo2, Trash2, BarChart3, Video, Scisso
 import JSZip from 'jszip'
 import { nanoid } from 'nanoid'
 import type { VideoFile, VideoStats, TrimSettings, TrimResult } from '@/types/video-trim'
-
+import { formatFileSize } from '@/lib/utils'
 // 工具函数
 
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
 const validateVideoFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 500 * 1024 * 1024 // 500MB
   const allowedTypes = [

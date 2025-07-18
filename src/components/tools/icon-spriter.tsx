@@ -11,16 +11,10 @@ import { Upload, Download, Loader2, FileImage, Trash2, BarChart3, Layers, Grid, 
 import JSZip from 'jszip'
 import { nanoid } from 'nanoid'
 import type { IconFile, SpriteSettings, SpriteStats } from '@/types/icon-spriter'
+import { formatFileSize } from '@/lib/utils'
 
 // 工具函数
 
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
 const validateIconFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 5 * 1024 * 1024 // 5MB
   const allowedTypes = ['image/svg+xml', 'image/png', 'image/x-icon', 'image/vnd.microsoft.icon']

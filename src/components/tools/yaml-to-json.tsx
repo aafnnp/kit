@@ -37,17 +37,7 @@ import type {
   DataFormat,
   ExportFormat,
 } from '@/types/yaml-to-json'
-// Enhanced Types
-
-// Utility functions
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
+import { formatFileSize } from '@/lib/utils'
 
 // Advanced YAML parsing functions
 const parseYAMLValue = (value: string): any => {

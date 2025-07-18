@@ -36,6 +36,7 @@ import type {
   ExportFormat,
   BorderRadiusFile,
 } from '@/types/border-radius'
+import { formatFileSize } from '@/lib/utils'
 
 // Utility functions
 
@@ -53,14 +54,6 @@ const validateBorderRadiusFile = (file: File): { isValid: boolean; error?: strin
   }
 
   return { isValid: true }
-}
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 // Border radius generation functions

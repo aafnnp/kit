@@ -42,6 +42,7 @@ import type {
   ConversionTemplate,
   ColorFormat,
 } from '@/types/hex-rgb'
+import { formatFileSize } from '@/lib/utils'
 // Types
 
 // Utility functions
@@ -60,14 +61,6 @@ const validateColorFile = (file: File): { isValid: boolean; error?: string } => 
   }
 
   return { isValid: true }
-}
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 // Enhanced color conversion functions

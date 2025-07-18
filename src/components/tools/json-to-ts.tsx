@@ -40,17 +40,10 @@ import type {
   JSONValidation,
   ExportFormat,
 } from '@/types/json-to-ts'
+import { formatFileSize } from '@/lib/utils'
 // Enhanced Types
 
 // Utility functions
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
 
 // TypeScript generation functions
 const inferTypeFromValue = (value: any, settings: GenerationSettings, depth: number = 0): string => {

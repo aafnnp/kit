@@ -32,16 +32,10 @@ import {
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
 import type { ImageFile, ConversionSettings, FormatInfo, ConversionStats, HistoryEntry } from '@/types/image-convert'
+import { formatFileSize } from '@/lib/utils'
 // Enhanced Types
 
 // Utility functions
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
 
 const validateImageFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 200 * 1024 * 1024 // 200MB
