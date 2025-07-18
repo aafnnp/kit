@@ -25,142 +25,15 @@ import {
   Image as ImageIcon,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Types
-interface ExifFile {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  exifData?: ExifData
-}
-
-interface ExifData {
-  basicInfo: BasicImageInfo
-  cameraInfo: CameraInfo
-  exposureInfo: ExposureInfo
-  gpsInfo: GPSInfo
-  technicalInfo: TechnicalInfo
-  statistics: ExifStatistics
-  settings: ExifSettings
-}
-
-interface BasicImageInfo {
-  fileName: string
-  fileSize: number
-  fileType: string
-  mimeType: string
-  dimensions: ImageDimensions
-  colorSpace: string
-  bitDepth: number
-  compression: string
-  orientation: number
-}
-
-interface ImageDimensions {
-  width: number
-  height: number
-  aspectRatio: number
-  megapixels: number
-}
-
-interface CameraInfo {
-  make: string
-  model: string
-  software: string
-  artist: string
-  copyright: string
-  dateTime: string
-  dateTimeOriginal: string
-  dateTimeDigitized: string
-  subSecTime: string
-}
-
-interface ExposureInfo {
-  exposureTime: string
-  fNumber: string
-  exposureProgram: string
-  iso: number
-  exposureBias: string
-  meteringMode: string
-  flash: string
-  focalLength: string
-  focalLengthIn35mm: string
-  whiteBalance: string
-  sceneCaptureType: string
-}
-
-interface GPSInfo {
-  latitude: number | null
-  longitude: number | null
-  altitude: number | null
-  latitudeRef: string
-  longitudeRef: string
-  altitudeRef: string
-  timestamp: string
-  datestamp: string
-  mapDatum: string
-  processingMethod: string
-}
-
-interface TechnicalInfo {
-  colorSpace: string
-  pixelXDimension: number
-  pixelYDimension: number
-  resolutionUnit: string
-  xResolution: number
-  yResolution: number
-  yCbCrPositioning: string
-  exifVersion: string
-  flashpixVersion: string
-  componentConfiguration: string
-  compressedBitsPerPixel: string
-}
-
-interface ExifStatistics {
-  totalImages: number
-  formatDistribution: Record<string, number>
-  cameraDistribution: Record<string, number>
-  averageFileSize: number
-  averageMegapixels: number
-  gpsEnabledCount: number
-  processingTime: number
-}
-
-interface ExifSettings {
-  includeGPS: boolean
-  includeTechnical: boolean
-  includeCamera: boolean
-  includeExposure: boolean
-  exportFormat: ExportFormat
-  privacyMode: boolean
-  showThumbnails: boolean
-}
-
-interface ExifTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  settings: Partial<ExifSettings>
-  fields: ExifField[]
-}
-
-interface ExifField {
-  key: string
-  label: string
-  category: ExifCategory
-  required: boolean
-  sensitive: boolean
-}
-
-// Enums
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
-type ExifCategory = 'basic' | 'camera' | 'exposure' | 'gps' | 'technical'
-
+import type {
+  ExifFile,
+  ExifData,
+  BasicImageInfo,
+  ImageDimensions,
+  ExifSettings,
+  ExifTemplate,
+  ExportFormat,
+} from '@/types/exif-viewer'
 // Utility functions
 
 const validateImageFile = (file: File): { isValid: boolean; error?: string } => {

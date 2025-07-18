@@ -33,67 +33,14 @@ import {
   Monitor,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  ImageFile,
+  CompressionSettings,
+  CompressionStats,
+  CompressionTemplate,
+  HistoryEntry,
+} from '@/types/image-compress'
 // Enhanced Types
-interface ImageFile {
-  id: string
-  file: File
-  originalUrl: string
-  compressedUrl?: string
-  originalSize: number
-  compressedSize?: number
-  compressionRatio?: number
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  dimensions?: { width: number; height: number }
-  format?: string
-  timestamp: number
-  processingTime?: number
-}
-
-interface CompressionSettings {
-  quality: number
-  format: 'jpeg' | 'png' | 'webp'
-  maxWidth?: number
-  maxHeight?: number
-  maintainAspectRatio: boolean
-  enableProgressive: boolean
-  removeMetadata: boolean
-  resizeMethod: 'lanczos' | 'bilinear' | 'bicubic'
-  colorSpace: 'srgb' | 'p3' | 'rec2020'
-  dithering: boolean
-}
-
-interface CompressionStats {
-  totalOriginalSize: number
-  totalCompressedSize: number
-  totalSavings: number
-  averageCompressionRatio: number
-  processingTime: number
-  imagesProcessed: number
-  averageFileSize: number
-  largestReduction: number
-  smallestReduction: number
-}
-
-interface CompressionTemplate {
-  id: string
-  name: string
-  description: string
-  settings: CompressionSettings
-  category: 'web' | 'print' | 'mobile' | 'social' | 'custom'
-  useCase: string
-  estimatedSavings: string
-}
-
-interface HistoryEntry {
-  id: string
-  timestamp: number
-  settings: CompressionSettings
-  stats: CompressionStats
-  imageCount: number
-  totalSavings: number
-  description: string
-}
 
 // Utility functions
 const formatFileSize = (bytes: number): string => {

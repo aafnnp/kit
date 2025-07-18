@@ -23,177 +23,25 @@ import {
   Image,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface QRCodeResult {
-  id: string
-  content: string
-  type: QRContentType
-  format: QRFormat
-  size: number
-  errorCorrection: ErrorCorrectionLevel
-  dataUrl?: string
-  svgString?: string
-  isValid: boolean
-  error?: string
-  metadata?: QRMetadata
-  analysis?: QRAnalysis
-  settings: QRSettings
-  createdAt: Date
-}
-
-interface QRMetadata {
-  version: number
-  modules: number
-  capacity: QRCapacity
-  actualSize: number
-  errorCorrectionPercentage: number
-  dataType: string
-  encoding: string
-  compressionRatio: number
-  qualityScore: number
-}
-
-interface QRCapacity {
-  numeric: number
-  alphanumeric: number
-  binary: number
-  kanji: number
-}
-
-interface QRAnalysis {
-  readability: QRReadability
-  optimization: QROptimization
-  compatibility: QRCompatibility
-  security: QRSecurity
-  recommendations: string[]
-  warnings: string[]
-}
-
-interface QRReadability {
-  contrastRatio: number
-  moduleSize: number
-  quietZone: number
-  readabilityScore: number
-  scanDistance: string
-  lightingConditions: string[]
-}
-
-interface QROptimization {
-  dataEfficiency: number
-  sizeOptimization: number
-  errorCorrectionUtilization: number
-  versionOptimality: number
-  overallOptimization: number
-}
-
-interface QRCompatibility {
-  readerCompatibility: string[]
-  deviceCompatibility: string[]
-  softwareCompatibility: string[]
-  standardsCompliance: string[]
-  limitations: string[]
-}
-
-interface QRSecurity {
-  dataExposure: 'low' | 'medium' | 'high'
-  tampering_resistance: 'low' | 'medium' | 'high'
-  privacy_level: 'low' | 'medium' | 'high'
-  security_score: number
-  vulnerabilities: string[]
-  recommendations: string[]
-}
-
-interface QRSettings {
-  content: string
-  type: QRContentType
-  format: QRFormat
-  size: number
-  errorCorrection: ErrorCorrectionLevel
-  margin: number
-  foregroundColor: string
-  backgroundColor: string
-  logoUrl?: string
-  logoSize?: number
-  customization: QRCustomization
-}
-
-interface QRCustomization {
-  cornerStyle: 'square' | 'rounded' | 'circle'
-  moduleStyle: 'square' | 'rounded' | 'circle' | 'diamond'
-  gradientEnabled: boolean
-  gradientColors?: string[]
-  patternEnabled: boolean
-  patternType?: 'dots' | 'lines' | 'squares'
-  borderEnabled: boolean
-  borderWidth?: number
-  borderColor?: string
-}
-
-interface QRBatch {
-  id: string
-  name: string
-  qrCodes: QRCodeResult[]
-  settings: BatchSettings
-  status: 'pending' | 'processing' | 'completed' | 'failed'
-  progress: number
-  statistics: BatchStatistics
-  createdAt: Date
-  completedAt?: Date
-}
-
-interface BatchSettings {
-  baseSettings: QRSettings
-  contentList: string[]
-  namingPattern: string
-  exportFormat: ExportFormat
-  includeAnalysis: boolean
-  optimizeForBatch: boolean
-}
-
-interface BatchStatistics {
-  totalGenerated: number
-  successfulGenerated: number
-  failedGenerated: number
-  averageSize: number
-  averageQuality: number
-  totalProcessingTime: number
-  averageProcessingTime: number
-  sizeDistribution: Record<string, number>
-  typeDistribution: Record<string, number>
-}
-
-interface QRTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  type: QRContentType
-  settings: Partial<QRSettings>
-  useCase: string[]
-  examples: string[]
-  preview?: string
-}
-
-interface QRValidation {
-  isValid: boolean
-  errors: QRError[]
-  warnings: string[]
-  suggestions: string[]
-  estimatedSize?: number
-  recommendedSettings?: Partial<QRSettings>
-}
-
-interface QRError {
-  message: string
-  type: 'content' | 'size' | 'format' | 'settings' | 'capacity'
-  severity: 'error' | 'warning' | 'info'
-}
-
-// Enums
-type QRContentType = 'text' | 'url' | 'email' | 'phone' | 'sms' | 'wifi' | 'vcard' | 'event' | 'location' | 'payment'
-type QRFormat = 'png' | 'svg' | 'jpeg' | 'webp'
-type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H'
-type ExportFormat = 'png' | 'svg' | 'pdf' | 'zip'
+import type {
+  QRCodeResult,
+  QRMetadata,
+  QRCapacity,
+  QRAnalysis,
+  QRReadability,
+  QROptimization,
+  QRCompatibility,
+  QRSecurity,
+  QRSettings,
+  QRBatch,
+  BatchSettings,
+  BatchStatistics,
+  QRTemplate,
+  QRValidation,
+  QRContentType,
+  ErrorCorrectionLevel,
+  ExportFormat,
+} from '@/types/qr-generator'
 
 // Utility functions
 

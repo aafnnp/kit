@@ -27,71 +27,19 @@ import {
   Eye,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  MarkdownFile,
+  TOCResult,
+  Heading,
+  TOCStatistics,
+  TOCSettings,
+  TOCTemplate,
+  TOCFormat,
+  IndentStyle,
+  BulletStyle,
+  CaseStyle,
+} from '@/types/markdown-toc'
 // Types
-interface MarkdownFile {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  tocResult?: TOCResult
-}
-
-interface TOCResult {
-  toc: string
-  headings: Heading[]
-  statistics: TOCStatistics
-  format: TOCFormat
-  settings: TOCSettings
-}
-
-interface Heading {
-  level: number
-  text: string
-  anchor: string
-  line: number
-  children: Heading[]
-}
-
-interface TOCStatistics {
-  totalHeadings: number
-  headingsByLevel: Record<number, number>
-  maxDepth: number
-  averageDepth: number
-  duplicateAnchors: string[]
-  processingTime: number
-}
-
-interface TOCSettings {
-  format: TOCFormat
-  maxDepth: number
-  minDepth: number
-  includeLinks: boolean
-  customPrefix: string
-  indentStyle: IndentStyle
-  bulletStyle: BulletStyle
-  caseStyle: CaseStyle
-  removeNumbers: boolean
-  removeSpecialChars: boolean
-  customAnchorPrefix: string
-}
-
-interface TOCTemplate {
-  id: string
-  name: string
-  description: string
-  settings: Partial<TOCSettings>
-  example: string
-}
-
-// Enums
-type TOCFormat = 'markdown' | 'html' | 'json' | 'plain' | 'numbered'
-type IndentStyle = 'spaces' | 'tabs' | 'none'
-type BulletStyle = 'dash' | 'asterisk' | 'plus' | 'number' | 'custom'
-type CaseStyle = 'original' | 'lowercase' | 'uppercase' | 'title' | 'sentence'
 
 // Utility functions
 

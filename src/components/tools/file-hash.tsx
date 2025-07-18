@@ -33,92 +33,18 @@ import {
   Folder,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface FileHashItem {
-  id: string
-  file: File
-  name: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  hashData?: FileHashData
-  progress?: number
-}
-
-interface FileHashData {
-  original: FileContent
-  hashes: HashResult[]
-  statistics: FileHashStatistics
-  settings: FileHashSettings
-}
-
-interface FileContent {
-  name: string
-  size: number
-  type: string
-  lastModified: Date
-  checksum?: string
-}
-
-interface HashResult {
-  algorithm: HashAlgorithm
-  hash: string
-  processingTime: number
-  verified?: boolean
-  chunks?: number
-}
-
-interface FileHashStatistics {
-  totalFiles: number
-  totalSize: number
-  algorithmDistribution: Record<string, number>
-  averageProcessingTime: number
-  totalProcessingTime: number
-  verificationCount: number
-  successRate: number
-  integrityScore: number
-  largestFile: number
-  smallestFile: number
-}
-
-interface FileHashSettings {
-  algorithms: HashAlgorithm[]
-  includeTimestamp: boolean
-  enableVerification: boolean
-  batchProcessing: boolean
-  realTimeHashing: boolean
-  exportFormat: ExportFormat
-  chunkSize: number
-  showProgress: boolean
-  integrityCheck: boolean
-}
-
-interface FileHashTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  settings: Partial<FileHashSettings>
-  algorithms: HashAlgorithm[]
-  securityLevel: SecurityLevel
-}
-
-interface FileIntegrityCheck {
-  id: string
-  fileName: string
-  expectedHash: string
-  actualHash: string
-  algorithm: HashAlgorithm
-  isValid: boolean
-  processingTime: number
-}
-
-// Enums
-type HashAlgorithm = 'MD5' | 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512'
-type SecurityLevel = 'low' | 'medium' | 'high' | 'very-high'
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
+import type {
+  FileHashItem,
+  FileHashData,
+  FileContent,
+  HashResult,
+  FileHashStatistics,
+  FileHashSettings,
+  FileHashTemplate,
+  FileIntegrityCheck,
+  HashAlgorithm,
+  ExportFormat,
+} from '@/types/file-hash'
 
 // Utility functions
 

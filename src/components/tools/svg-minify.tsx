@@ -23,96 +23,20 @@ import {
   FileCode,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  SvgFile,
+  SvgData,
+  SvgContent,
+  SvgElement,
+  SvgAttribute,
+  SvgMetadata,
+  SvgStatistics,
+  SvgSettings,
+  SvgTemplate,
+  OptimizationLevel,
+  ExportFormat,
+} from '@/types/svg-minify'
 // Types
-interface SvgFile {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  svgData?: SvgData
-}
-
-interface SvgData {
-  original: SvgContent
-  optimized: SvgContent
-  statistics: SvgStatistics
-  settings: SvgSettings
-}
-
-interface SvgContent {
-  content: string
-  size: number
-  elements: SvgElement[]
-  attributes: SvgAttribute[]
-  metadata: SvgMetadata
-}
-
-interface SvgElement {
-  tag: string
-  count: number
-  attributes: string[]
-  hasChildren: boolean
-}
-
-interface SvgAttribute {
-  name: string
-  count: number
-  totalLength: number
-  canOptimize: boolean
-}
-
-interface SvgMetadata {
-  viewBox: string
-  width: string
-  height: string
-  xmlns: string
-  version: string
-  hasComments: boolean
-  hasWhitespace: boolean
-  hasUnusedElements: boolean
-}
-
-interface SvgStatistics {
-  originalSize: number
-  optimizedSize: number
-  compressionRatio: number
-  spaceSaved: number
-  elementsRemoved: number
-  attributesOptimized: number
-  commentsRemoved: number
-  whitespaceRemoved: number
-  processingTime: number
-}
-
-interface SvgSettings {
-  optimizationLevel: OptimizationLevel
-  removeComments: boolean
-  removeWhitespace: boolean
-  removeUnusedElements: boolean
-  optimizeAttributes: boolean
-  simplifyPaths: boolean
-  removeMetadata: boolean
-  exportFormat: ExportFormat
-  preserveAccessibility: boolean
-}
-
-interface SvgTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  settings: Partial<SvgSettings>
-  optimizations: OptimizationType[]
-}
-
-// Enums
-type OptimizationLevel = 'basic' | 'aggressive' | 'custom'
-type ExportFormat = 'svg' | 'minified' | 'gzipped' | 'base64'
-type OptimizationType = 'comments' | 'whitespace' | 'attributes' | 'paths' | 'metadata' | 'unused'
 
 // Utility functions
 

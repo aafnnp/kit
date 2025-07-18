@@ -33,157 +33,23 @@ import {
   Info,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface UserAgentProcessingResult {
-  id: string
-  input: string
-  isValid: boolean
-  error?: string
-  statistics: UserAgentStatistics
-  analysis?: UserAgentAnalysis
-  createdAt: Date
-}
-
-interface UserAgentStatistics {
-  inputSize: number
-  processingTime: number
-  userAgentMetrics: UserAgentMetrics
-  deviceMetrics: DeviceMetrics
-  browserMetrics: BrowserMetrics
-}
-
-interface UserAgentMetrics {
-  length: number
-  tokenCount: number
-  hasValidStructure: boolean
-  detectedComponents: string[]
-  securityFeatures: string[]
-  privacyFeatures: string[]
-}
-
-interface DeviceMetrics {
-  deviceType: DeviceType
-  operatingSystem: OperatingSystem
-  architecture: string
-  screenResolution?: string
-  touchSupport: boolean
-  mobileFeatures: string[]
-  hardwareInfo: HardwareInfo
-}
-
-interface BrowserMetrics {
-  browserName: string
-  browserVersion: string
-  engineName: string
-  engineVersion: string
-  features: string[]
-  capabilities: BrowserCapability[]
-  securityFeatures: string[]
-  modernFeatures: string[]
-}
-
-interface HardwareInfo {
-  cpuCores?: number
-  memory?: number
-  platform: string
-  vendor?: string
-  model?: string
-}
-
-interface BrowserCapability {
-  name: string
-  supported: boolean
-  version?: string
-  description: string
-}
-
-interface OperatingSystem {
-  name: string
-  version: string
-  family: string
-  architecture?: string
-}
-
-interface UserAgentAnalysis {
-  isValidUserAgent: boolean
-  hasModernStructure: boolean
-  isBot: boolean
-  isMobile: boolean
-  isTablet: boolean
-  isDesktop: boolean
-  privacyLevel: PrivacyLevel
-  securityRisk: SecurityRisk
-  suggestedImprovements: string[]
-  userAgentIssues: string[]
-  qualityScore: number
-  compatibilityIssues: string[]
-  modernityScore: number
-}
-
-interface ProcessingBatch {
-  id: string
-  results: UserAgentProcessingResult[]
-  count: number
-  settings: ProcessingSettings
-  createdAt: Date
-  statistics: BatchStatistics
-}
-
-interface BatchStatistics {
-  totalProcessed: number
-  validCount: number
-  invalidCount: number
-  averageQuality: number
-  totalInputSize: number
-  successRate: number
-  deviceTypeDistribution: Record<string, number>
-  browserDistribution: Record<string, number>
-  osDistribution: Record<string, number>
-}
-
-interface ProcessingSettings {
-  includeDeviceInfo: boolean
-  includeBrowserInfo: boolean
-  includeSecurityAnalysis: boolean
-  includePrivacyAnalysis: boolean
-  detectBots: boolean
-  analyzeCapabilities: boolean
-  exportFormat: ExportFormat
-  realTimeProcessing: boolean
-  showDetailedAnalysis: boolean
-}
-
-interface UserAgentTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  userAgent: string
-  deviceType: DeviceType
-  browserName: string
-  osName: string
-  features: string[]
-  useCase: string[]
-}
-
-interface UserAgentValidation {
-  isValid: boolean
-  errors: UserAgentError[]
-  warnings: string[]
-  suggestions: string[]
-}
-
-interface UserAgentError {
-  message: string
-  type: 'format' | 'structure' | 'security' | 'compatibility'
-  severity: 'error' | 'warning' | 'info'
-}
-
-// Enums
-type DeviceType = 'desktop' | 'mobile' | 'tablet' | 'tv' | 'console' | 'bot' | 'unknown'
-type PrivacyLevel = 'high' | 'medium' | 'low' | 'minimal'
-type SecurityRisk = 'high' | 'medium' | 'low' | 'minimal'
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
+import type {
+  UserAgentProcessingResult,
+  UserAgentMetrics,
+  DeviceMetrics,
+  BrowserMetrics,
+  HardwareInfo,
+  BrowserCapability,
+  OperatingSystem,
+  UserAgentAnalysis,
+  ProcessingBatch,
+  BatchStatistics,
+  ProcessingSettings,
+  UserAgentTemplate,
+  UserAgentValidation,
+  DeviceType,
+  ExportFormat,
+} from '@/types/user-agent'
 
 // Utility functions
 
@@ -1433,7 +1299,7 @@ const UserAgentCore = () => {
                         <div className="space-y-4">
                           {/* Device Information */}
                           <div className="border rounded-lg p-3">
-                            <Label className="font-medium text-sm mb-3 block flex items-center gap-2">
+                            <Label className="font-medium text-sm mb-3 flex items-center gap-2">
                               <Monitor className="h-4 w-4" />
                               Device Information
                             </Label>
@@ -1472,7 +1338,7 @@ const UserAgentCore = () => {
 
                           {/* Operating System */}
                           <div className="border rounded-lg p-3">
-                            <Label className="font-medium text-sm mb-3 block flex items-center gap-2">
+                            <Label className="font-medium text-sm mb-3 flex items-center gap-2">
                               <HardDrive className="h-4 w-4" />
                               Operating System
                             </Label>
@@ -1504,7 +1370,7 @@ const UserAgentCore = () => {
 
                           {/* Browser Information */}
                           <div className="border rounded-lg p-3">
-                            <Label className="font-medium text-sm mb-3 block flex items-center gap-2">
+                            <Label className="font-medium text-sm mb-3 flex items-center gap-2">
                               <Globe className="h-4 w-4" />
                               Browser Information
                             </Label>
@@ -1531,7 +1397,7 @@ const UserAgentCore = () => {
 
                           {/* Quality Scores */}
                           <div className="border rounded-lg p-3">
-                            <Label className="font-medium text-sm mb-3 block flex items-center gap-2">
+                            <Label className="font-medium text-sm mb-3 flex items-center gap-2">
                               <Shield className="h-4 w-4" />
                               Quality & Security Assessment
                             </Label>

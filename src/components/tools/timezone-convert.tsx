@@ -27,92 +27,20 @@ import {
   Pause,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  TimezoneConversion,
+  TimezoneInfo,
+  WorldClock,
+  TimezoneConversionBatch,
+  TimezoneStatistics,
+  TimezoneSettings,
+  TimezoneTemplate,
+  DateTimeValidation,
+  DateFormat,
+  ExportFormat,
+} from '@/types/timezone-convert'
+
 // Enhanced Types
-interface TimezoneConversion {
-  id: string
-  inputTime: string
-  inputTimezone: string
-  outputTimezone: string
-  inputDate: Date
-  outputDate: Date
-  outputTime: string
-  timeDifference: number
-  isDST: boolean
-  isValid: boolean
-  error?: string
-  createdAt: Date
-}
-
-interface TimezoneInfo {
-  name: string
-  abbreviation: string
-  offset: string
-  offsetMinutes: number
-  isDST: boolean
-  currentTime: string
-  utcOffset: string
-}
-
-interface WorldClock {
-  timezone: string
-  currentTime: Date
-  formattedTime: string
-  info: TimezoneInfo
-}
-
-interface TimezoneConversionBatch {
-  id: string
-  conversions: TimezoneConversion[]
-  count: number
-  settings: TimezoneSettings
-  createdAt: Date
-  statistics: TimezoneStatistics
-}
-
-interface TimezoneStatistics {
-  totalConversions: number
-  validCount: number
-  invalidCount: number
-  timezoneDistribution: Record<string, number>
-  averageTimeDifference: number
-  dstCount: number
-  successRate: number
-}
-
-interface TimezoneSettings {
-  defaultInputTimezone: string
-  defaultOutputTimezone: string
-  dateFormat: DateFormat
-  timeFormat: TimeFormat
-  includeSeconds: boolean
-  show24Hour: boolean
-  showDST: boolean
-  realTimeConversion: boolean
-  autoRefresh: boolean
-  refreshInterval: number
-  exportFormat: ExportFormat
-}
-
-interface TimezoneTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  inputTimezone: string
-  outputTimezone: string
-  useCase: string[]
-}
-
-interface DateTimeValidation {
-  isValid: boolean
-  error?: string
-  parsedDate?: Date
-}
-
-// Enums
-type DateFormat = 'iso' | 'us' | 'eu' | 'local' | 'custom'
-type TimeFormat = '12h' | '24h'
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
 

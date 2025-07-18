@@ -27,91 +27,20 @@ import {
   Pause,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  TimestampItem,
+  TimestampOutput,
+  TimestampBatch,
+  TimestampStatistics,
+  TimestampSettings,
+  TimestampTemplate,
+  CurrentTime,
+  TimezoneInfo,
+  TimestampFormat,
+  ExportFormat,
+} from '@/types/unix-timestamp'
+
 // Enhanced Types
-interface TimestampItem {
-  id: string
-  input: string
-  inputType: TimestampFormat
-  outputs: TimestampOutput[]
-  timezone: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  isValid: boolean
-}
-
-interface TimestampOutput {
-  format: TimestampFormat
-  value: string
-  timezone: string
-  isValid: boolean
-  relativeTime?: string
-}
-
-interface TimestampBatch {
-  id: string
-  items: TimestampItem[]
-  count: number
-  settings: TimestampSettings
-  createdAt: Date
-  statistics: TimestampStatistics
-}
-
-interface TimestampStatistics {
-  totalProcessed: number
-  validCount: number
-  invalidCount: number
-  formatDistribution: Record<string, number>
-  timezoneDistribution: Record<string, number>
-  averageProcessingTime: number
-  totalProcessingTime: number
-  successRate: number
-}
-
-interface TimestampSettings {
-  inputFormat: TimestampFormat
-  outputFormats: TimestampFormat[]
-  timezone: string
-  includeRelativeTime: boolean
-  includeTimestamp: boolean
-  batchProcessing: boolean
-  realTimeConversion: boolean
-  exportFormat: ExportFormat
-  autoRefresh: boolean
-  refreshInterval: number
-}
-
-interface TimestampTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  settings: Partial<TimestampSettings>
-  formats: TimestampFormat[]
-}
-
-interface CurrentTime {
-  unix: number
-  unixMs: number
-  iso: string
-  rfc2822: string
-  local: string
-  utc: string
-  timezone: string
-  relativeTime: string
-}
-
-interface TimezoneInfo {
-  name: string
-  offset: string
-  abbreviation: string
-  isDST: boolean
-}
-
-// Enums
-type TimestampFormat = 'unix' | 'unix-ms' | 'iso8601' | 'rfc2822' | 'local' | 'utc' | 'custom'
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
-
 // Utility functions
 
 const validateTimestampInput = (input: string, format: TimestampFormat): { isValid: boolean; error?: string } => {

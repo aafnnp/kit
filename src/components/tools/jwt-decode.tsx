@@ -22,190 +22,26 @@ import {
   XCircle,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  JWTToken,
+  JWTHeader,
+  JWTPayload,
+  JWTAnalysis,
+  JWTStructure,
+  JWTClaims,
+  JWTTiming,
+  JWTCompliance,
+  JWTSecurity,
+  JWTVulnerability,
+  JWTMetadata,
+  JWTBatch,
+  BatchSettings,
+  BatchStatistics,
+  JWTTemplate,
+  JWTValidation,
+  ExportFormat,
+} from '@/types/jwt-decode'
 // Enhanced Types
-interface JWTToken {
-  id: string
-  raw: string
-  header: JWTHeader
-  payload: JWTPayload
-  signature: string
-  isValid: boolean
-  isExpired: boolean
-  timeToExpiry?: number
-  algorithm: string
-  keyId?: string
-  analysis: JWTAnalysis
-  security: JWTSecurity
-  metadata: JWTMetadata
-  createdAt: Date
-}
-
-interface JWTHeader {
-  alg: string
-  typ: string
-  kid?: string
-  cty?: string
-  crit?: string[]
-  x5c?: string[]
-  x5t?: string
-  x5u?: string
-  jku?: string
-  jwk?: any
-  [key: string]: any
-}
-
-interface JWTPayload {
-  iss?: string // Issuer
-  sub?: string // Subject
-  aud?: string | string[] // Audience
-  exp?: number // Expiration Time
-  nbf?: number // Not Before
-  iat?: number // Issued At
-  jti?: string // JWT ID
-  scope?: string
-  roles?: string[]
-  permissions?: string[]
-  [key: string]: any
-}
-
-interface JWTAnalysis {
-  structure: JWTStructure
-  claims: JWTClaims
-  timing: JWTTiming
-  compliance: JWTCompliance
-  recommendations: string[]
-  warnings: string[]
-  errors: string[]
-}
-
-interface JWTStructure {
-  hasHeader: boolean
-  hasPayload: boolean
-  hasSignature: boolean
-  headerValid: boolean
-  payloadValid: boolean
-  signaturePresent: boolean
-  partsCount: number
-  encoding: 'base64url' | 'base64' | 'invalid'
-}
-
-interface JWTClaims {
-  standardClaims: string[]
-  customClaims: string[]
-  missingRecommendedClaims: string[]
-  claimTypes: Record<string, string>
-  claimSizes: Record<string, number>
-}
-
-interface JWTTiming {
-  issuedAt?: Date
-  expiresAt?: Date
-  notBefore?: Date
-  timeToExpiry?: number
-  isExpired: boolean
-  isNotYetValid: boolean
-  lifetime?: number
-  age?: number
-}
-
-interface JWTCompliance {
-  rfc7519Compliant: boolean
-  hasRequiredClaims: boolean
-  hasRecommendedClaims: boolean
-  algorithmSupported: boolean
-  structureValid: boolean
-  complianceScore: number
-}
-
-interface JWTSecurity {
-  algorithm: string
-  algorithmType: 'symmetric' | 'asymmetric' | 'none' | 'unknown'
-  securityLevel: 'high' | 'medium' | 'low' | 'critical'
-  vulnerabilities: JWTVulnerability[]
-  recommendations: string[]
-  riskScore: number
-  signatureVerifiable: boolean
-}
-
-interface JWTVulnerability {
-  type: 'algorithm' | 'timing' | 'claims' | 'structure' | 'signature'
-  severity: 'critical' | 'high' | 'medium' | 'low'
-  description: string
-  recommendation: string
-}
-
-interface JWTMetadata {
-  size: number
-  headerSize: number
-  payloadSize: number
-  signatureSize: number
-  compressionRatio: number
-  entropy: number
-  uniqueClaims: number
-  nestedLevels: number
-}
-
-interface JWTBatch {
-  id: string
-  name: string
-  tokens: JWTToken[]
-  settings: BatchSettings
-  status: 'pending' | 'processing' | 'completed' | 'failed'
-  progress: number
-  statistics: BatchStatistics
-  createdAt: Date
-  completedAt?: Date
-}
-
-interface BatchSettings {
-  includeAnalysis: boolean
-  includeSecurityCheck: boolean
-  exportFormat: ExportFormat
-  namingPattern: string
-  validateSignatures: boolean
-}
-
-interface BatchStatistics {
-  totalTokens: number
-  validTokens: number
-  expiredTokens: number
-  invalidTokens: number
-  averageSecurityScore: number
-  averageComplianceScore: number
-  algorithmDistribution: Record<string, number>
-  issuerDistribution: Record<string, number>
-  totalProcessingTime: number
-  averageProcessingTime: number
-}
-
-interface JWTTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  example: string
-  useCase: string[]
-  features: string[]
-  securityLevel: 'high' | 'medium' | 'low'
-}
-
-interface JWTValidation {
-  isValid: boolean
-  errors: JWTError[]
-  warnings: string[]
-  suggestions: string[]
-  qualityScore: number
-}
-
-interface JWTError {
-  message: string
-  type: 'structure' | 'header' | 'payload' | 'signature' | 'timing' | 'security'
-  severity: 'error' | 'warning' | 'info'
-  location?: string
-}
-
-// Enums
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml'
 
 // Utility functions
 

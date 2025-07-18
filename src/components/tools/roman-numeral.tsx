@@ -26,95 +26,18 @@ import {
   History,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface RomanConversion {
-  id: string
-  arabicNumber: number
-  romanNumeral: string
-  conversionType: 'arabic-to-roman' | 'roman-to-arabic'
-  metadata: ConversionMetadata
-  analysis: RomanAnalysis
-  timestamp: Date
-}
-
-interface ConversionMetadata {
-  conversionTime: number
-  complexity: number
-  romanLength: number
-  digitCount: number
-  isValid: boolean
-  hasSubtractiveCases: boolean
-  romanSymbols: RomanSymbol[]
-}
-
-interface RomanAnalysis {
-  breakdown: RomanBreakdown[]
-  historicalContext: HistoricalContext
-  mathematicalProperties: MathematicalProperty[]
-  educationalNotes: string[]
-  commonUsages: string[]
-}
-
-interface RomanBreakdown {
-  symbol: string
-  value: number
-  count: number
-  position: number
-  type: 'additive' | 'subtractive'
-  explanation: string
-}
-
-interface HistoricalContext {
-  period: string
-  usage: string
-  significance: string
-  modernApplications: string[]
-}
-
-interface MathematicalProperty {
-  name: string
-  value: boolean | number | string
-  description: string
-  category: 'number-theory' | 'arithmetic' | 'representation'
-}
-
-interface RomanSymbol {
-  symbol: string
-  value: number
-  name: string
-  origin: string
-  modernUsage: string[]
-}
-
-interface RomanTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  numbers: number[]
-  useCase: string[]
-  difficulty: 'simple' | 'medium' | 'complex'
-  historicalSignificance?: string
-}
-
-interface ConversionValidation {
-  isValid: boolean
-  errors: ConversionError[]
-  warnings: string[]
-  suggestions: string[]
-  qualityScore: number
-}
-
-interface ConversionError {
-  message: string
-  type: 'format' | 'range' | 'syntax' | 'historical'
-  severity: 'error' | 'warning' | 'info'
-  position?: number
-}
-
-// Enums
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml' | 'html'
-
+import type {
+  RomanConversion,
+  ConversionMetadata,
+  RomanAnalysis,
+  RomanBreakdown,
+  HistoricalContext,
+  MathematicalProperty,
+  RomanSymbol,
+  RomanTemplate,
+  ConversionValidation,
+  ExportFormat,
+} from '@/types/roman-numeral'
 // Utility functions
 
 const formatNumber = (num: number): string => {

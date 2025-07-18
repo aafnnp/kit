@@ -8,32 +8,7 @@ import { toast } from 'sonner'
 import { Upload, Download, Loader2, Trash2, BarChart3 } from 'lucide-react'
 import { PDFDocument } from 'pdf-lib'
 import { nanoid } from 'nanoid'
-// 类型定义
-export interface ImageToPdfFile {
-  id: string
-  file: File
-  url: string
-  name: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-}
-
-export interface ImageToPdfSettings {
-  pageSize: 'A4' | 'A5' | 'Letter' | 'Legal'
-  orientation: 'portrait' | 'landscape'
-  margin: number
-  quality: number
-  batch: boolean
-}
-
-export interface ImageToPdfStats {
-  totalImages: number
-  totalSize: number
-  pdfSize?: number
-  pageCount?: number
-}
+import type { ImageToPdfFile, ImageToPdfSettings, ImageToPdfStats } from '@/types/image-to-pdf'
 
 // 默认设置
 const defaultSettings: ImageToPdfSettings = {

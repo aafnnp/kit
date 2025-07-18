@@ -19,62 +19,15 @@ import {
   Settings,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  GeneratedText,
+  GenerationSettings,
+  GenerationStats,
+  TextPreset,
+  TextStyle,
+  OutputFormat,
+} from '@/types/lorem-ipsum'
 // Types
-interface GeneratedText {
-  id: string
-  content: string
-  format: OutputFormat
-  style: TextStyle
-  wordCount: number
-  paragraphCount: number
-  sentenceCount: number
-  characterCount: number
-  generatedAt: Date
-}
-
-interface GenerationSettings {
-  textStyle: TextStyle
-  outputFormat: OutputFormat
-  paragraphCount: number
-  sentencesPerParagraph: number
-  wordsPerSentence: number
-  includeTitle: boolean
-  titleStyle: 'h1' | 'h2' | 'h3' | 'none'
-  customWordList: string[]
-  useCustomWords: boolean
-  startWithLorem: boolean
-  includeNumbers: boolean
-  includePunctuation: boolean
-}
-
-interface GenerationStats {
-  totalGenerated: number
-  totalWords: number
-  totalCharacters: number
-  averageWordsPerParagraph: number
-  averageSentencesPerParagraph: number
-  mostUsedStyle: TextStyle
-  generationTime: number
-}
-
-interface TextPreset {
-  name: string
-  description: string
-  settings: Partial<GenerationSettings>
-}
-
-// Text styles and formats
-type TextStyle =
-  | 'classic-latin'
-  | 'modern-english'
-  | 'tech-jargon'
-  | 'business-formal'
-  | 'creative-writing'
-  | 'academic-paper'
-  | 'casual-blog'
-  | 'custom'
-
-type OutputFormat = 'plain' | 'html' | 'markdown' | 'json'
 
 // Utility functions
 

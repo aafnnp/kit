@@ -33,73 +33,8 @@ import {
   Crop,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type { ImageFile, ResizeSettings, PresetDimension, ResizeStats, HistoryEntry } from '@/types/image-resize'
 // Enhanced Types
-interface ImageFile {
-  id: string
-  file: File
-  originalUrl: string
-  resizedUrl?: string
-  originalSize: number
-  resizedSize?: number
-  originalDimensions: { width: number; height: number }
-  resizedDimensions?: { width: number; height: number }
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  timestamp: number
-  processingTime?: number
-  format?: string
-  aspectRatio?: number
-}
-
-interface ResizeSettings {
-  width: number
-  height: number
-  maintainAspectRatio: boolean
-  resizeMode: 'exact' | 'fit' | 'fill' | 'stretch'
-  format: 'png' | 'jpeg' | 'webp'
-  quality: number
-  backgroundColor: string
-  interpolation: 'nearest' | 'bilinear' | 'bicubic' | 'lanczos'
-  sharpen: boolean
-  removeMetadata: boolean
-}
-
-interface PresetDimension {
-  name: string
-  width: number
-  height: number
-  category: 'social' | 'web' | 'print' | 'video' | 'mobile'
-  description: string
-  aspectRatio: string
-  useCase: string
-}
-
-interface ResizeStats {
-  totalOriginalSize: number
-  totalResizedSize: number
-  totalSavings: number
-  averageSizeReduction: number
-  processingTime: number
-  imagesProcessed: number
-  averageFileSize: number
-  largestIncrease: number
-  largestDecrease: number
-  dimensionChanges: {
-    averageWidthChange: number
-    averageHeightChange: number
-    aspectRatioChanges: number
-  }
-}
-
-interface HistoryEntry {
-  id: string
-  timestamp: number
-  settings: ResizeSettings
-  stats: ResizeStats
-  imageCount: number
-  totalSavings: number
-  description: string
-}
 
 // Utility functions
 const formatFileSize = (bytes: number): string => {

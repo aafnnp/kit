@@ -25,147 +25,24 @@ import {
   Zap,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Types
-interface ColorFile {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  colorData?: ColorData
-}
-
-interface ColorData {
-  colors: GeneratedColor[]
-  palettes: ColorPalette[]
-  statistics: ColorStatistics
-  settings: ColorSettings
-}
-
-interface GeneratedColor {
-  id: string
-  hex: string
-  rgb: RGBColor
-  hsl: HSLColor
-  hsv: HSVColor
-  cmyk: CMYKColor
-  name?: string
-  metadata: ColorMetadata
-}
-
-interface RGBColor {
-  r: number
-  g: number
-  b: number
-}
-
-interface HSLColor {
-  h: number
-  s: number
-  l: number
-}
-
-interface HSVColor {
-  h: number
-  s: number
-  v: number
-}
-
-interface CMYKColor {
-  c: number
-  m: number
-  y: number
-  k: number
-}
-
-interface ColorMetadata {
-  luminance: number
-  brightness: number
-  contrast: number
-  isLight: boolean
-  isDark: boolean
-  accessibility: AccessibilityInfo
-  harmony: ColorHarmony[]
-}
-
-interface AccessibilityInfo {
-  wcagAA: boolean
-  wcagAAA: boolean
-  contrastRatio: number
-  readableOnWhite: boolean
-  readableOnBlack: boolean
-  colorBlindSafe: boolean
-}
-
-interface ColorHarmony {
-  type: HarmonyType
-  colors: string[]
-}
-
-interface ColorPalette {
-  id: string
-  name: string
-  colors: GeneratedColor[]
-  type: PaletteType
-  description: string
-  metadata: PaletteMetadata
-}
-
-interface PaletteMetadata {
-  dominantHue: number
-  averageSaturation: number
-  averageLightness: number
-  colorCount: number
-  harmonyScore: number
-  accessibilityScore: number
-}
-
-interface ColorStatistics {
-  totalColors: number
-  formatDistribution: Record<ColorFormat, number>
-  paletteDistribution: Record<PaletteType, number>
-  averageLuminance: number
-  averageContrast: number
-  accessibilityScore: number
-  processingTime: number
-}
-
-interface ColorSettings {
-  defaultFormat: ColorFormat
-  includeHarmony: boolean
-  checkAccessibility: boolean
-  generatePalettes: boolean
-  paletteSize: number
-  exportFormat: ExportFormat
-  colorSpace: ColorSpace
-}
-
-interface ColorTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  type: PaletteType
-  baseColors: string[]
-  settings: Partial<ColorSettings>
-}
-
-// Enums
-type ColorFormat = 'hex' | 'rgb' | 'hsl' | 'hsv' | 'cmyk'
-type PaletteType =
-  | 'monochromatic'
-  | 'analogous'
-  | 'complementary'
-  | 'triadic'
-  | 'tetradic'
-  | 'split-complementary'
-  | 'random'
-type HarmonyType = 'complementary' | 'analogous' | 'triadic' | 'tetradic' | 'split-complementary' | 'monochromatic'
-type ExportFormat = 'json' | 'css' | 'scss' | 'ase' | 'gpl'
-type ColorSpace = 'sRGB' | 'P3' | 'Rec2020'
+import type {
+  ColorFile,
+  ColorData,
+  GeneratedColor,
+  RGBColor,
+  HSLColor,
+  HSVColor,
+  CMYKColor,
+  AccessibilityInfo,
+  ColorHarmony,
+  ColorPalette,
+  ColorStatistics,
+  ColorSettings,
+  ColorTemplate,
+  ColorFormat,
+  PaletteType,
+  ExportFormat,
+} from '@/types/random-color'
 
 // Utility functions
 

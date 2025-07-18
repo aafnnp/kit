@@ -34,129 +34,20 @@ import {
   Archive,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface MimeSearchResult {
-  id: string
-  query: string
-  queryType: QueryType
-  results: MimeTypeInfo[]
-  isValid: boolean
-  error?: string
-  statistics: MimeStatistics
-  createdAt: Date
-}
-
-interface MimeTypeInfo {
-  mimeType: string
-  extensions: string[]
-  category: MimeCategory
-  description: string
-  commonName: string
-  isStandard: boolean
-  rfc?: string
-  usage: string[]
-  security: SecurityInfo
-  compression: CompressionInfo
-  browserSupport: BrowserSupport
-}
-
-interface MimeStatistics {
-  queryLength: number
-  resultCount: number
-  processingTime: number
-  categoryDistribution: Record<string, number>
-  securityRiskCount: number
-  standardCompliantCount: number
-}
-
-interface SecurityInfo {
-  riskLevel: SecurityRisk
-  executable: boolean
-  scriptable: boolean
-  canContainMalware: boolean
-  requiresSandbox: boolean
-  warnings: string[]
-}
-
-interface CompressionInfo {
-  isCompressed: boolean
-  compressionType?: string
-  typicalSize: string
-  compressionRatio?: number
-}
-
-interface BrowserSupport {
-  chrome: boolean
-  firefox: boolean
-  safari: boolean
-  edge: boolean
-  ie: boolean
-  mobile: boolean
-  notes: string[]
-}
-
-interface ProcessingBatch {
-  id: string
-  results: MimeSearchResult[]
-  count: number
-  settings: ProcessingSettings
-  createdAt: Date
-  statistics: BatchStatistics
-}
-
-interface BatchStatistics {
-  totalProcessed: number
-  validCount: number
-  invalidCount: number
-  totalResults: number
-  categoryDistribution: Record<string, number>
-  securityDistribution: Record<string, number>
-  successRate: number
-}
-
-interface ProcessingSettings {
-  searchMode: SearchMode
-  includeDeprecated: boolean
-  includeExperimental: boolean
-  includeVendorSpecific: boolean
-  caseSensitive: boolean
-  exactMatch: boolean
-  includeSecurityInfo: boolean
-  includeBrowserSupport: boolean
-  exportFormat: ExportFormat
-  realTimeSearch: boolean
-  maxResults: number
-}
-
-interface MimeTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  examples: string[]
-  useCase: string[]
-  searchTerms: string[]
-}
-
-interface MimeValidation {
-  isValid: boolean
-  errors: MimeError[]
-  warnings: string[]
-  suggestions: string[]
-}
-
-interface MimeError {
-  message: string
-  type: 'format' | 'syntax' | 'security' | 'compatibility'
-  severity: 'error' | 'warning' | 'info'
-}
-
-// Enums
-type QueryType = 'extension' | 'mimetype' | 'keyword' | 'category'
-type MimeCategory = 'image' | 'video' | 'audio' | 'text' | 'application' | 'font' | 'model' | 'multipart' | 'message'
-type SecurityRisk = 'high' | 'medium' | 'low' | 'minimal'
-type SearchMode = 'fuzzy' | 'exact' | 'partial' | 'regex'
-type ExportFormat = 'json' | 'csv' | 'xml' | 'txt'
+import type {
+  MimeSearchResult,
+  MimeTypeInfo,
+  ProcessingBatch,
+  BatchStatistics,
+  ProcessingSettings,
+  MimeTemplate,
+  MimeValidation,
+  QueryType,
+  MimeCategory,
+  SecurityRisk,
+  SearchMode,
+  ExportFormat,
+} from '@/types/mime-search'
 
 // Utility functions
 

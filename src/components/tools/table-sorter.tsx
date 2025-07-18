@@ -30,67 +30,18 @@ import {
   ChevronDown,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  DataFile,
+  TableData,
+  SortConfig,
+  SortSettings,
+  TableStatistics,
+  SortPreset,
+  DataType,
+  SortDirection,
+  DataFormat,
+} from '@/types/table-sorter'
 // Types
-interface DataFile {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  parsedData?: TableData
-  sortedData?: TableData
-}
-
-interface TableData {
-  headers: string[]
-  rows: (string | number)[][]
-  metadata: {
-    rowCount: number
-    columnCount: number
-    dataTypes: DataType[]
-    hasHeaders: boolean
-  }
-}
-
-interface SortConfig {
-  column: number
-  direction: SortDirection
-  dataType: DataType
-}
-
-interface SortSettings {
-  multiColumn: boolean
-  sortConfigs: SortConfig[]
-  caseSensitive: boolean
-  nullsFirst: boolean
-  customOrder?: string[]
-}
-
-interface TableStatistics {
-  totalFiles: number
-  totalRows: number
-  totalColumns: number
-  averageProcessingTime: number
-  successfulSorts: number
-  failedSorts: number
-  dataTypeDistribution: Record<DataType, number>
-}
-
-interface SortPreset {
-  id: string
-  name: string
-  description: string
-  settings: Partial<SortSettings>
-  example: string
-}
-
-// Enums
-type DataType = 'string' | 'number' | 'date' | 'boolean' | 'mixed'
-type SortDirection = 'asc' | 'desc'
-type DataFormat = 'csv' | 'tsv' | 'json' | 'auto'
 
 // Utility functions
 

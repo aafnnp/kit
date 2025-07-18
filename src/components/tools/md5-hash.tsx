@@ -23,74 +23,18 @@ import {
   FileCode,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface HashFile {
-  id: string
-  name: string
-  content: string | ArrayBuffer
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  hashData?: HashData
-}
-
-interface HashData {
-  original: HashContent
-  hashes: HashResult[]
-  statistics: HashStatistics
-  settings: HashSettings
-}
-
-interface HashContent {
-  content: string | ArrayBuffer
-  size: number
-  type: 'text' | 'file'
-  encoding: string
-}
-
-interface HashResult {
-  algorithm: HashAlgorithm
-  hash: string
-  processingTime: number
-  verified?: boolean
-}
-
-interface HashStatistics {
-  totalHashes: number
-  algorithmDistribution: Record<string, number>
-  averageProcessingTime: number
-  totalProcessingTime: number
-  collisionCount: number
-  verificationCount: number
-  successRate: number
-}
-
-interface HashSettings {
-  algorithms: HashAlgorithm[]
-  outputFormat: OutputFormat
-  includeTimestamp: boolean
-  enableVerification: boolean
-  batchProcessing: boolean
-  realTimeHashing: boolean
-  exportFormat: ExportFormat
-}
-
-interface HashTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  settings: Partial<HashSettings>
-  algorithms: HashAlgorithm[]
-}
-
-// Enums
-type HashAlgorithm = 'MD5' | 'SHA-1' | 'SHA-256' | 'SHA-512' | 'SHA-384' | 'SHA-3'
-type OutputFormat = 'hex' | 'base64' | 'binary'
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
-
+import type {
+  HashFile,
+  HashData,
+  HashContent,
+  HashResult,
+  HashStatistics,
+  HashSettings,
+  HashTemplate,
+  HashAlgorithm,
+  OutputFormat,
+  ExportFormat,
+} from '@/types/md5-hash'
 // Utility functions
 
 const validateHashFile = (file: File): { isValid: boolean; error?: string } => {

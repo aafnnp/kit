@@ -25,138 +25,18 @@ import {
   SquareFunction,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface EquationSolution {
-  id: string
-  equation: Equation
-  solutions: Solution[]
-  metadata: SolutionMetadata
-  analysis: EquationAnalysis
-  timestamp: Date
-}
-
-interface Equation {
-  type: EquationType
-  coefficients: number[]
-  variables: string[]
-  expression: string
-  standardForm: string
-}
-
-interface Solution {
-  type: SolutionType
-  value: number | ComplexNumber
-  multiplicity: number
-  isReal: boolean
-  isRational: boolean
-  approximation?: string
-}
-
-interface ComplexNumber {
-  real: number
-  imaginary: number
-  magnitude: number
-  argument: number
-}
-
-interface SolutionMetadata {
-  solutionTime: number
-  discriminant?: number
-  numberOfSolutions: number
-  solutionTypes: SolutionType[]
-  complexity: number
-  numericalStability: number
-}
-
-interface EquationAnalysis {
-  vertex?: Point2D
-  axisOfSymmetry?: number
-  yIntercept?: number
-  xIntercepts?: number[]
-  domain: Interval
-  range: Interval
-  concavity: 'up' | 'down' | 'none'
-  extrema: Extremum[]
-  inflectionPoints: Point2D[]
-  asymptotes: Asymptote[]
-}
-
-interface Point2D {
-  x: number
-  y: number
-}
-
-interface Interval {
-  min: number | '-∞'
-  max: number | '∞'
-  minInclusive: boolean
-  maxInclusive: boolean
-}
-
-interface Extremum {
-  type: 'minimum' | 'maximum'
-  point: Point2D
-  isGlobal: boolean
-}
-
-interface Asymptote {
-  type: 'vertical' | 'horizontal' | 'oblique'
-  equation: string
-  value?: number
-}
-
-interface EquationTemplate {
-  id: string
-  name: string
-  description: string
-  type: EquationType
-  category: string
-  coefficients: number[]
-  expectedSolutions: number
-  useCase: string[]
-  difficulty: 'simple' | 'medium' | 'complex'
-}
-
-interface EquationValidation {
-  isValid: boolean
-  errors: EquationError[]
-  warnings: string[]
-  suggestions: string[]
-  qualityScore: number
-}
-
-interface EquationError {
-  message: string
-  type: 'coefficient' | 'structure' | 'numerical' | 'mathematical'
-  severity: 'error' | 'warning' | 'info'
-  coefficient?: string
-}
-
-interface GraphSettings {
-  xMin: number
-  xMax: number
-  yMin: number
-  yMax: number
-  gridSize: number
-  showGrid: boolean
-  showAxes: boolean
-  showLabels: boolean
-  resolution: number
-}
-
-// Enums
-type EquationType =
-  | 'quadratic'
-  | 'linear'
-  | 'cubic'
-  | 'quartic'
-  | 'polynomial'
-  | 'rational'
-  | 'exponential'
-  | 'logarithmic'
-  | 'trigonometric'
-type SolutionType = 'real' | 'complex' | 'rational' | 'irrational' | 'repeated'
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml' | 'latex' | 'mathml'
+import type {
+  EquationSolution,
+  Solution,
+  ComplexNumber,
+  EquationAnalysis,
+  Interval,
+  EquationTemplate,
+  EquationValidation,
+  GraphSettings,
+  EquationType,
+  ExportFormat,
+} from '@/types/quadratic-solver'
 
 // Utility functions
 

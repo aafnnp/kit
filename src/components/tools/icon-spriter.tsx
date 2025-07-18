@@ -10,32 +10,7 @@ import { Upload, Download, Loader2, FileImage, Trash2, BarChart3, Layers, Grid, 
 // @ts-ignore
 import JSZip from 'jszip'
 import { nanoid } from 'nanoid'
-// 类型定义
-interface IconFile {
-  id: string
-  file: File
-  name: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  content?: string // SVG文本或base64
-  url?: string // 预览
-}
-
-interface SpriteSettings {
-  layout: 'symbol' | 'grid'
-  spacing: number
-  naming: 'auto' | 'filename' | 'custom'
-  customPrefix: string
-  output: 'svg' | 'png' | 'css' | 'zip'
-}
-
-interface SpriteStats {
-  iconCount: number
-  totalSize: number
-  formats: string[]
-}
+import type { IconFile, SpriteSettings, SpriteStats } from '@/types/icon-spriter'
 
 // 工具函数
 

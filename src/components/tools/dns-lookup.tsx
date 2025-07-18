@@ -29,158 +29,20 @@ import {
   Network,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface DNSLookupResult {
-  id: string
-  domain: string
-  recordType: DNSRecordType
-  isValid: boolean
-  error?: string
-  records: DNSRecord[]
-  statistics: DNSStatistics
-  analysis?: DNSAnalysis
-  createdAt: Date
-}
-
-interface DNSRecord {
-  type: DNSRecordType
-  name: string
-  value: string
-  ttl?: number
-  priority?: number
-  weight?: number
-  port?: number
-  target?: string
-  class?: string
-  flags?: string
-}
-
-interface DNSStatistics {
-  domainLength: number
-  recordCount: number
-  processingTime: number
-  responseTime: number
-  recordTypeDistribution: Record<string, number>
-  ttlAnalysis: TTLAnalysis
-  securityMetrics: SecurityMetrics
-}
-
-interface TTLAnalysis {
-  minTTL: number
-  maxTTL: number
-  averageTTL: number
-  commonTTL: number
-  ttlDistribution: Record<string, number>
-}
-
-interface SecurityMetrics {
-  hasDNSSEC: boolean
-  hasCAA: boolean
-  hasSPF: boolean
-  hasDMARC: boolean
-  hasDKIM: boolean
-  securityScore: number
-  vulnerabilities: string[]
-  recommendations: string[]
-}
-
-interface DNSAnalysis {
-  isValidDomain: boolean
-  hasIPv4: boolean
-  hasIPv6: boolean
-  hasMailServers: boolean
-  hasNameServers: boolean
-  hasSecurityRecords: boolean
-  domainAge?: number
-  registrar?: string
-  nameServers: string[]
-  mailServers: string[]
-  ipAddresses: string[]
-  suggestedImprovements: string[]
-  dnsIssues: string[]
-  qualityScore: number
-  performanceIssues: string[]
-  securityIssues: string[]
-}
-
-interface ProcessingBatch {
-  id: string
-  results: DNSLookupResult[]
-  count: number
-  settings: ProcessingSettings
-  createdAt: Date
-  statistics: BatchStatistics
-}
-
-interface BatchStatistics {
-  totalProcessed: number
-  validCount: number
-  invalidCount: number
-  averageQuality: number
-  totalRecords: number
-  successRate: number
-  recordTypeDistribution: Record<string, number>
-  securityDistribution: Record<string, number>
-}
-
-interface ProcessingSettings {
-  recordTypes: DNSRecordType[]
-  includeSecurityAnalysis: boolean
-  includePerformanceAnalysis: boolean
-  includeDomainAnalysis: boolean
-  timeout: number
-  retryAttempts: number
-  usePublicDNS: boolean
-  dnsServer: string
-  exportFormat: ExportFormat
-  realTimeLookup: boolean
-  maxResults: number
-}
-
-interface DNSTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  domains: string[]
-  recordTypes: DNSRecordType[]
-  useCase: string[]
-  examples: string[]
-}
-
-interface DNSValidation {
-  isValid: boolean
-  errors: DNSError[]
-  warnings: string[]
-  suggestions: string[]
-}
-
-interface DNSError {
-  message: string
-  type: 'format' | 'syntax' | 'network' | 'security'
-  severity: 'error' | 'warning' | 'info'
-}
-
-// Enums
-type DNSRecordType =
-  | 'A'
-  | 'AAAA'
-  | 'CNAME'
-  | 'MX'
-  | 'NS'
-  | 'TXT'
-  | 'SOA'
-  | 'PTR'
-  | 'SRV'
-  | 'CAA'
-  | 'DNSKEY'
-  | 'DS'
-  | 'RRSIG'
-  | 'NSEC'
-  | 'NSEC3'
-  | 'SPF'
-  | 'DMARC'
-type ExportFormat = 'json' | 'csv' | 'xml' | 'txt'
+import type {
+  DNSLookupResult,
+  DNSRecord,
+  TTLAnalysis,
+  SecurityMetrics,
+  DNSAnalysis,
+  ProcessingBatch,
+  BatchStatistics,
+  ProcessingSettings,
+  DNSTemplate,
+  DNSValidation,
+  DNSRecordType,
+  ExportFormat,
+} from '@/types/dns-lookup'
 
 // Utility functions
 

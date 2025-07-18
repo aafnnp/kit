@@ -24,147 +24,25 @@ import {
   Code,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  UUIDResult,
+  UUIDMetadata,
+  UUIDAnalysis,
+  UUIDStructure,
+  UUIDSecurity,
+  UUIDQuality,
+  UUIDCompatibility,
+  GenerationBatch,
+  BatchStatistics,
+  GenerationSettings,
+  UUIDTemplate,
+  UUIDValidation,
+  UUIDType,
+  UUIDFormat,
+  ExportFormat,
+} from '@/types/uuid-generator'
 
 // Enhanced Types
-interface UUIDResult {
-  id: string
-  value: string
-  type: UUIDType
-  version?: number
-  variant?: string
-  timestamp?: Date
-  isValid: boolean
-  error?: string
-  metadata?: UUIDMetadata
-  analysis?: UUIDAnalysis
-  createdAt: Date
-}
-
-interface UUIDMetadata {
-  length: number
-  format: string
-  encoding: string
-  entropy: number
-  randomness: number
-  collision_probability: number
-  security_level: 'low' | 'medium' | 'high' | 'very_high'
-  use_cases: string[]
-  standards_compliance: string[]
-}
-
-interface UUIDAnalysis {
-  structure: UUIDStructure
-  security: UUIDSecurity
-  quality: UUIDQuality
-  compatibility: UUIDCompatibility
-  recommendations: string[]
-  warnings: string[]
-}
-
-interface UUIDStructure {
-  segments: string[]
-  separators: string[]
-  character_set: string
-  case_format: 'uppercase' | 'lowercase' | 'mixed'
-  has_hyphens: boolean
-  has_braces: boolean
-  total_length: number
-  data_length: number
-}
-
-interface UUIDSecurity {
-  predictability: 'low' | 'medium' | 'high'
-  entropy_bits: number
-  cryptographic_strength: 'weak' | 'moderate' | 'strong' | 'very_strong'
-  timing_attack_resistant: boolean
-  collision_resistance: 'low' | 'medium' | 'high' | 'very_high'
-  security_score: number
-}
-
-interface UUIDQuality {
-  uniqueness_score: number
-  randomness_score: number
-  format_compliance: number
-  readability_score: number
-  overall_quality: number
-  issues: string[]
-  strengths: string[]
-}
-
-interface UUIDCompatibility {
-  database_systems: string[]
-  programming_languages: string[]
-  web_standards: string[]
-  api_compatibility: string[]
-  limitations: string[]
-}
-
-interface GenerationBatch {
-  id: string
-  uuids: UUIDResult[]
-  count: number
-  type: UUIDType
-  settings: GenerationSettings
-  createdAt: Date
-  statistics: BatchStatistics
-}
-
-interface BatchStatistics {
-  totalGenerated: number
-  uniqueCount: number
-  duplicateCount: number
-  averageEntropy: number
-  averageQuality: number
-  generationTime: number
-  collisionRate: number
-  securityDistribution: Record<string, number>
-}
-
-interface GenerationSettings {
-  type: UUIDType
-  count: number
-  format: UUIDFormat
-  case: 'uppercase' | 'lowercase'
-  includeBraces: boolean
-  includeHyphens: boolean
-  customLength?: number
-  customAlphabet?: string
-  prefix?: string
-  suffix?: string
-  exportFormat: ExportFormat
-}
-
-interface UUIDTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  type: UUIDType
-  settings: Partial<GenerationSettings>
-  useCase: string[]
-  examples: string[]
-}
-
-interface UUIDValidation {
-  isValid: boolean
-  errors: UUIDError[]
-  warnings: string[]
-  suggestions: string[]
-  detectedType?: UUIDType
-}
-
-interface UUIDError {
-  message: string
-  type: 'format' | 'length' | 'character' | 'structure' | 'version'
-  severity: 'error' | 'warning' | 'info'
-}
-
-// Enums
-type UUIDType = 'uuid_v1' | 'uuid_v4' | 'uuid_v5' | 'nanoid' | 'ulid' | 'cuid' | 'short_uuid' | 'custom'
-type UUIDFormat = 'standard' | 'compact' | 'braced' | 'urn' | 'base64' | 'hex'
-type ExportFormat = 'txt' | 'json' | 'csv' | 'xml'
-
-// Utility functions
 
 // UUID generation functions
 const generateUUID = (type: UUIDType, settings?: Partial<GenerationSettings>): string => {

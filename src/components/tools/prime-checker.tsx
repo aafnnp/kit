@@ -23,81 +23,18 @@ import {
   SquareFunction,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface PrimeAnalysis {
-  id: string
-  number: number
-  isPrime: boolean
-  algorithm: PrimeAlgorithm
-  factors: number[]
-  primeFactorization: PrimeFactor[]
-  metadata: PrimeMetadata
-  timestamp: Date
-}
-
-interface PrimeFactor {
-  prime: number
-  exponent: number
-}
-
-interface PrimeMetadata {
-  testTime: number
-  complexity: number
-  digitCount: number
-  numberType: NumberType
-  mathematicalProperties: MathematicalProperty[]
-  relatedPrimes: RelatedPrime[]
-  primeGaps: number[]
-}
-
-interface MathematicalProperty {
-  name: string
-  value: boolean | number | string
-  description: string
-}
-
-interface RelatedPrime {
-  type: 'twin' | 'cousin' | 'sexy' | 'safe' | 'sophie_germain' | 'mersenne' | 'fermat'
-  prime: number
-  relationship: string
-}
-
-interface PrimeValidation {
-  isValid: boolean
-  errors: PrimeError[]
-  warnings: string[]
-  suggestions: string[]
-  qualityScore: number
-}
-
-interface PrimeError {
-  message: string
-  type: 'input' | 'range' | 'performance' | 'algorithm'
-  severity: 'error' | 'warning' | 'info'
-}
-
-interface PrimeTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  numbers: number[]
-  expectedResults: boolean[]
-  useCase: string[]
-  difficulty: 'simple' | 'medium' | 'complex'
-}
-
-// Enums
-type PrimeAlgorithm =
-  | 'trial_division'
-  | 'sieve_of_eratosthenes'
-  | 'miller_rabin'
-  | 'fermat'
-  | 'solovay_strassen'
-  | 'aks'
-type GenerationAlgorithm = 'sieve' | 'incremental' | 'wheel' | 'segmented_sieve'
-type NumberType = 'small' | 'medium' | 'large' | 'very_large'
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml'
+import type {
+  PrimeAnalysis,
+  PrimeFactor,
+  MathematicalProperty,
+  RelatedPrime,
+  PrimeValidation,
+  PrimeTemplate,
+  PrimeAlgorithm,
+  GenerationAlgorithm,
+  NumberType,
+  ExportFormat,
+} from '@/types/prime-checker'
 
 // Utility functions
 

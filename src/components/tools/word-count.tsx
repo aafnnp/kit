@@ -9,55 +9,8 @@ import { toast } from 'sonner'
 // 移除 import { ErrorBoundary } from '@/components/error-boundary'
 import { Upload, Download, FileText, Loader2, FileImage, Trash2, BarChart3, BookOpen, Target } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type { TextFile, TextAnalysis, AnalysisSettings, AnalysisStats } from '@/types/word-count'
 // Types
-interface TextFile {
-  id: string
-  file: File
-  content: string
-  name: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  analysis?: TextAnalysis
-}
-
-interface TextAnalysis {
-  characters: number
-  charactersNoSpaces: number
-  words: number
-  sentences: number
-  paragraphs: number
-  lines: number
-  readingTime: number // in minutes
-  averageWordsPerSentence: number
-  averageCharactersPerWord: number
-  readabilityScore: number
-  keywordFrequency: Record<string, number>
-  mostCommonWords: Array<{ word: string; count: number }>
-  longestWord: string
-  shortestWord: string
-}
-
-interface AnalysisSettings {
-  includeSpaces: boolean
-  countPunctuation: boolean
-  wordsPerMinute: number // for reading time calculation
-  minWordLength: number // for keyword analysis
-  excludeCommonWords: boolean
-  language: 'en' | 'zh' | 'auto'
-}
-
-interface AnalysisStats {
-  totalFiles: number
-  totalCharacters: number
-  totalWords: number
-  totalSentences: number
-  totalParagraphs: number
-  averageReadingTime: number
-  averageReadabilityScore: number
-}
-
 // Utility functions
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'

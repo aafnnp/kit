@@ -29,134 +29,21 @@ import {
 } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface ExcelProcessingResult {
-  id: string
-  fileName: string
-  fileSize: number
-  sheets: SheetData[]
-  isValid: boolean
-  error?: string
-  statistics: ProcessingStatistics
-  analysis?: ExcelAnalysis
-  createdAt: Date
-}
-
-interface SheetData {
-  name: string
-  data: any[]
-  headers: string[]
-  rowCount: number
-  columnCount: number
-  isEmpty: boolean
-  hasHeaders: boolean
-  dataTypes: DataTypeDistribution
-}
-
-interface ProcessingStatistics {
-  fileSize: number
-  totalSheets: number
-  totalRows: number
-  totalColumns: number
-  totalCells: number
-  emptySheets: number
-  processingTime: number
-  memoryUsage: number
-  compressionRatio: number
-}
-
-interface DataTypeDistribution {
-  strings: number
-  numbers: number
-  dates: number
-  booleans: number
-  formulas: number
-  errors: number
-  empty: number
-}
-
-interface ExcelAnalysis {
-  hasMultipleSheets: boolean
-  hasFormulas: boolean
-  hasErrors: boolean
-  hasEmptySheets: boolean
-  hasInconsistentHeaders: boolean
-  suggestedImprovements: string[]
-  dataIssues: string[]
-  qualityScore: number
-  sheetAnalysis: SheetAnalysis[]
-}
-
-interface SheetAnalysis {
-  sheetName: string
-  dataQuality: number
-  headerConsistency: boolean
-  hasEmptyRows: boolean
-  hasEmptyColumns: boolean
-  dataTypeConsistency: boolean
-  recommendations: string[]
-}
-
-interface ProcessingBatch {
-  id: string
-  results: ExcelProcessingResult[]
-  count: number
-  settings: ProcessingSettings
-  createdAt: Date
-  statistics: BatchStatistics
-}
-
-interface BatchStatistics {
-  totalProcessed: number
-  validCount: number
-  invalidCount: number
-  averageQuality: number
-  totalFileSize: number
-  totalSheets: number
-  successRate: number
-}
-
-interface ProcessingSettings {
-  includeEmptyRows: boolean
-  includeEmptyColumns: boolean
-  detectDataTypes: boolean
-  preserveFormulas: boolean
-  exportFormat: ExportFormat
-  jsonIndentation: number
-  sheetSelection: SheetSelection
-  headerRow: number
-  dateFormat: string
-  numberFormat: string
-  realTimeProcessing: boolean
-}
-
-interface ExcelTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  excelStructure: string
-  jsonExample: string
-  useCase: string[]
-}
-
-interface FileValidation {
-  isValid: boolean
-  errors: FileError[]
-  warnings: string[]
-  suggestions: string[]
-}
-
-interface FileError {
-  message: string
-  type: 'format' | 'size' | 'content' | 'permission'
-  details?: string
-}
-
-// Enums
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xlsx'
-type SheetSelection = 'all' | 'first' | 'selected' | 'non-empty'
-
+import type {
+  ExcelProcessingResult,
+  SheetData,
+  ProcessingStatistics,
+  DataTypeDistribution,
+  ExcelAnalysis,
+  SheetAnalysis,
+  ProcessingBatch,
+  BatchStatistics,
+  ProcessingSettings,
+  ExcelTemplate,
+  FileValidation,
+  ExportFormat,
+  SheetSelection,
+} from '@/types/excel-to-json'
 // Utility functions
 
 const formatFileSize = (bytes: number): string => {

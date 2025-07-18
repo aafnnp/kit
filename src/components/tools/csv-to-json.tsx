@@ -27,132 +27,21 @@ import {
   FileSpreadsheet,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface ConversionResult {
-  id: string
-  input: string
-  output: string
-  direction: ConversionDirection
-  isValid: boolean
-  error?: string
-  statistics: ConversionStatistics
-  analysis?: DataAnalysis
-  createdAt: Date
-}
-
-interface ConversionStatistics {
-  inputSize: number
-  outputSize: number
-  inputLines: number
-  outputLines: number
-  processingTime: number
-  dataMetrics: DataMetrics
-  compressionRatio: number
-}
-
-interface DataMetrics {
-  rowCount: number
-  columnCount: number
-  totalCells: number
-  emptyValues: number
-  dataTypes: DataTypeCount
-  encoding: string
-}
-
-interface DataTypeCount {
-  strings: number
-  numbers: number
-  booleans: number
-  nulls: number
-  dates: number
-  objects: number
-  arrays: number
-}
-
-interface DataAnalysis {
-  hasHeaders: boolean
-  delimiter: string
-  quoteChar: string
-  escapeChar: string
-  hasNestedData: boolean
-  hasSpecialChars: boolean
-  suggestedImprovements: string[]
-  dataIssues: string[]
-  qualityScore: number
-}
-
-interface ConversionBatch {
-  id: string
-  results: ConversionResult[]
-  count: number
-  settings: ConversionSettings
-  createdAt: Date
-  statistics: BatchStatistics
-}
-
-interface BatchStatistics {
-  totalConverted: number
-  validCount: number
-  invalidCount: number
-  averageQuality: number
-  totalInputSize: number
-  totalOutputSize: number
-  successRate: number
-}
-
-interface ConversionSettings {
-  delimiter: string
-  quoteChar: string
-  escapeChar: string
-  hasHeaders: boolean
-  skipEmptyLines: boolean
-  trimWhitespace: boolean
-  realTimeConversion: boolean
-  exportFormat: ExportFormat
-  jsonIndentation: number
-  csvQuoting: CSVQuoting
-  dateFormat: string
-  numberFormat: string
-}
-
-interface CSVTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  csvExample: string
-  jsonExample: string
-  useCase: string[]
-}
-
-interface DataValidation {
-  isValid: boolean
-  errors: DataError[]
-  warnings: string[]
-  suggestions: string[]
-}
-
-interface DataError {
-  message: string
-  line?: number
-  column?: string
-  value?: string
-}
-
-// Enums
-type ConversionDirection = 'csv-to-json' | 'json-to-csv'
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xlsx'
-type CSVQuoting = 'minimal' | 'all' | 'non-numeric' | 'none'
-
-// Utility functions
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
+import {
+  ConversionSettings,
+  ConversionResult,
+  DataAnalysis,
+  DataMetrics,
+  DataValidation,
+  CSVTemplate,
+  ConversionDirection,
+  type ConversionBatch,
+  type BatchStatistics,
+  type DataTypeCount,
+  type ExportFormat,
+  type CSVQuoting,
+} from '@/types/csv-to-json'
+import { formatFileSize } from '@/lib/utils'
 
 const detectDelimiter = (csvText: string): string => {
   const delimiters = [',', ';', '\t', '|']

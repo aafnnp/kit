@@ -40,7 +40,7 @@ import type {
   ResponsiveBreakpoint,
   ViewportRange,
 } from '@/types/css-clamp'
-// Utility functions
+import { formatFileSize } from '@/lib/utils'
 
 const validateCssFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 5 * 1024 * 1024 // 5MB
@@ -56,14 +56,6 @@ const validateCssFile = (file: File): { isValid: boolean; error?: string } => {
   }
 
   return { isValid: true }
-}
-
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes'
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 // CSS clamp calculation functions

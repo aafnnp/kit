@@ -23,81 +23,14 @@ import {
   Repeat,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface CurrencyConversion {
-  id: string
-  fromCurrency: Currency
-  toCurrency: Currency
-  amount: number
-  convertedAmount: number
-  exchangeRate: number
-  metadata: ConversionMetadata
-  timestamp: Date
-}
-
-interface Currency {
-  code: string
-  name: string
-  symbol: string
-  flag: string
-  country: string
-  region: string
-  isActive: boolean
-  isCrypto: boolean
-  decimals: number
-}
-
-interface ConversionMetadata {
-  rateSource: string
-  rateTimestamp: Date
-  spread: number
-  volatility: number
-  confidence: number
-  marketStatus: 'open' | 'closed' | 'pre-market' | 'after-hours'
-}
-
-interface ExchangeRate {
-  base: string
-  target: string
-  rate: number
-  timestamp: Date
-  source: string
-  bid?: number
-  ask?: number
-  high24h?: number
-  low24h?: number
-  change24h?: number
-  changePercent24h?: number
-}
-
-interface ConversionTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  fromCurrency: string
-  toCurrency: string
-  amount: number
-  useCase: string[]
-  difficulty: 'simple' | 'medium' | 'complex'
-}
-
-interface ConversionValidation {
-  isValid: boolean
-  errors: ConversionError[]
-  warnings: string[]
-  suggestions: string[]
-  qualityScore: number
-}
-
-interface ConversionError {
-  message: string
-  type: 'amount' | 'currency' | 'rate' | 'network'
-  severity: 'error' | 'warning' | 'info'
-}
-
-// Enums
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml' | 'excel'
+import type {
+  CurrencyConversion,
+  Currency,
+  ExchangeRate,
+  ConversionTemplate,
+  ConversionValidation,
+  ExportFormat,
+} from '@/types/currency-convert'
 
 // Utility functions
 

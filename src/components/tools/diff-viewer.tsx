@@ -27,81 +27,19 @@ import {
   Columns,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  DiffFile,
+  DiffPair,
+  DiffLine,
+  WordDiff,
+  DiffResult,
+  DiffStatistics,
+  DiffSettings,
+  DiffAlgorithm,
+  DiffFormat,
+  DiffViewMode,
+} from '@/types/diff-viewer'
 // Types
-interface DiffFile {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  pairedWith?: string // ID of the file this is compared with
-}
-
-interface DiffPair {
-  id: string
-  leftFile: DiffFile
-  rightFile: DiffFile
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  result?: DiffResult
-  processedAt?: Date
-}
-
-interface DiffLine {
-  type: 'added' | 'removed' | 'modified' | 'unchanged' | 'context'
-  leftLineNumber?: number
-  rightLineNumber?: number
-  leftContent?: string
-  rightContent?: string
-  content: string
-  wordDiffs?: WordDiff[]
-}
-
-interface WordDiff {
-  type: 'added' | 'removed' | 'unchanged'
-  content: string
-}
-
-interface DiffResult {
-  lines: DiffLine[]
-  statistics: DiffStatistics
-  algorithm: DiffAlgorithm
-  format: DiffFormat
-}
-
-interface DiffStatistics {
-  totalLines: number
-  addedLines: number
-  removedLines: number
-  modifiedLines: number
-  unchangedLines: number
-  addedWords: number
-  removedWords: number
-  similarity: number // percentage
-  executionTime: number
-}
-
-interface DiffSettings {
-  algorithm: DiffAlgorithm
-  format: DiffFormat
-  viewMode: DiffViewMode
-  showLineNumbers: boolean
-  showWhitespace: boolean
-  ignoreWhitespace: boolean
-  ignoreCase: boolean
-  contextLines: number
-  wordLevelDiff: boolean
-  syntaxHighlighting: boolean
-  wrapLines: boolean
-}
-
-// Enums
-type DiffAlgorithm = 'myers' | 'patience' | 'histogram' | 'minimal'
-type DiffFormat = 'unified' | 'side-by-side' | 'split' | 'inline'
-type DiffViewMode = 'full' | 'changes-only' | 'context'
 
 // Utility functions
 

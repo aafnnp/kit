@@ -27,82 +27,17 @@ import {
   Square,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  ShadowFile,
+  Shadow,
+  ShadowLayer,
+  ShadowAccessibility,
+  ShadowSettings,
+  ShadowTemplate,
+  ShadowType,
+  ExportFormat,
+} from '@/types/shadow-generator'
 // Types
-interface ShadowFile {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  shadowData?: ShadowData
-}
-
-interface ShadowData {
-  shadows: Shadow[]
-  statistics: ShadowStatistics
-  settings: ShadowSettings
-}
-
-interface Shadow {
-  id: string
-  type: ShadowType
-  layers: ShadowLayer[]
-  css: string
-  accessibility: ShadowAccessibility
-}
-
-interface ShadowLayer {
-  id: string
-  x: number
-  y: number
-  blur: number
-  spread?: number
-  color: string
-  opacity: number
-  inset: boolean
-}
-
-interface ShadowAccessibility {
-  contrastRatio: number
-  visibility: 'high' | 'medium' | 'low'
-  readabilityImpact: 'none' | 'minimal' | 'moderate' | 'significant'
-  wcagCompliant: boolean
-}
-
-interface ShadowStatistics {
-  totalShadows: number
-  typeDistribution: Record<ShadowType, number>
-  averageLayers: number
-  averageBlur: number
-  averageOpacity: number
-  accessibilityScore: number
-  processingTime: number
-}
-
-interface ShadowSettings {
-  defaultType: ShadowType
-  maxLayers: number
-  includeAccessibility: boolean
-  optimizeOutput: boolean
-  exportFormat: ExportFormat
-  unit: 'px' | 'rem' | 'em'
-}
-
-interface ShadowTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  shadow: Partial<Shadow>
-  preview: string
-}
-
-// Enums
-type ShadowType = 'box-shadow' | 'text-shadow' | 'drop-shadow'
-type ExportFormat = 'css' | 'scss' | 'json' | 'tailwind'
 
 // Utility functions
 

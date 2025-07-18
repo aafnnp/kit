@@ -26,122 +26,23 @@ import {
   ArrowLeftRight,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  ColorConversionFile,
+  ConversionData,
+  ColorConversion,
+  ConvertedColor,
+  RGB,
+  HSL,
+  HSV,
+  CMYK,
+  LAB,
+  AccessibilityInfo,
+  ConversionStatistics,
+  ConversionSettings,
+  ConversionTemplate,
+  ColorFormat,
+} from '@/types/hex-rgb'
 // Types
-interface ColorConversionFile {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  conversionData?: ConversionData
-}
-
-interface ConversionData {
-  conversions: ColorConversion[]
-  statistics: ConversionStatistics
-  settings: ConversionSettings
-}
-
-interface ColorConversion {
-  original: string
-  originalFormat: ColorFormat
-  converted: ConvertedColor
-  isValid: boolean
-  error?: string
-}
-
-interface ConvertedColor {
-  hex: string
-  rgb: RGB
-  hsl: HSL
-  hsv: HSV
-  cmyk: CMYK
-  lab: LAB
-  accessibility: AccessibilityInfo
-}
-
-interface RGB {
-  r: number
-  g: number
-  b: number
-}
-
-interface HSL {
-  h: number
-  s: number
-  l: number
-}
-
-interface HSV {
-  h: number
-  s: number
-  v: number
-}
-
-interface CMYK {
-  c: number
-  m: number
-  y: number
-  k: number
-}
-
-interface LAB {
-  l: number
-  a: number
-  b: number
-}
-
-interface AccessibilityInfo {
-  contrastRatios: {
-    white: number
-    black: number
-  }
-  wcagAA: {
-    normal: boolean
-    large: boolean
-  }
-  wcagAAA: {
-    normal: boolean
-    large: boolean
-  }
-  colorBlindSafe: boolean
-}
-
-interface ConversionStatistics {
-  totalConversions: number
-  successfulConversions: number
-  failedConversions: number
-  formatDistribution: Record<ColorFormat, number>
-  averageAccessibilityScore: number
-  processingTime: number
-}
-
-interface ConversionSettings {
-  inputFormat: ColorFormat
-  outputFormat: ColorFormat
-  includeAccessibility: boolean
-  validateColors: boolean
-  preserveCase: boolean
-  batchMode: boolean
-}
-
-interface ConversionTemplate {
-  id: string
-  name: string
-  description: string
-  inputFormat: ColorFormat
-  outputFormat: ColorFormat
-  examples: {
-    input: string
-    output: string
-  }[]
-}
-
-// Enums
-type ColorFormat = 'hex' | 'rgb' | 'hsl' | 'hsv' | 'cmyk' | 'lab'
 
 // Utility functions
 

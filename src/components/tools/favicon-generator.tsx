@@ -25,106 +25,20 @@ import {
   Settings,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Types
-interface FaviconFile {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  faviconData?: FaviconData
-}
-
-interface FaviconData {
-  favicons: GeneratedFavicon[]
-  statistics: FaviconStatistics
-  settings: FaviconSettings
-  manifest: WebAppManifest
-}
-
-interface GeneratedFavicon {
-  id: string
-  type: FaviconType
-  size: FaviconSize
-  format: FaviconFormat
-  url: string
-  filename: string
-  fileSize: number
-  quality: number
-  optimized: boolean
-  metadata: FaviconMetadata
-}
-
-interface FaviconMetadata {
-  width: number
-  height: number
-  colorDepth: number
-  hasTransparency: boolean
-  compressionRatio: number
-  processingTime: number
-  purpose: FaviconPurpose[]
-}
-
-interface FaviconStatistics {
-  totalFavicons: number
-  typeDistribution: Record<FaviconType, number>
-  formatDistribution: Record<FaviconFormat, number>
-  averageFileSize: number
-  totalPackageSize: number
-  processingTime: number
-  optimizationSavings: number
-}
-
-interface FaviconSettings {
-  includeStandardSizes: boolean
-  includeAppleSizes: boolean
-  includeAndroidSizes: boolean
-  includeMSApplicationSizes: boolean
-  generateManifest: boolean
-  optimizeImages: boolean
-  backgroundColor: string
-  themeColor: string
-  exportFormat: ExportFormat
-}
-
-interface WebAppManifest {
-  name: string
-  short_name: string
-  description: string
-  start_url: string
-  display: string
-  background_color: string
-  theme_color: string
-  icons: ManifestIcon[]
-}
-
-interface ManifestIcon {
-  src: string
-  sizes: string
-  type: string
-  purpose?: string
-}
-
-interface FaviconTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  sizes: FaviconSize[]
-  formats: FaviconFormat[]
-  settings: Partial<FaviconSettings>
-}
-
-// Enums
-type FaviconType = 'standard' | 'apple-touch' | 'android' | 'ms-application' | 'web-app'
-type FaviconFormat = 'ico' | 'png' | 'svg' | 'webp' | 'jpg'
-type FaviconSize = 16 | 32 | 48 | 64 | 96 | 128 | 152 | 167 | 180 | 192 | 256 | 512
-type FaviconPurpose = 'any' | 'maskable' | 'monochrome'
-type ExportFormat = 'zip' | 'individual' | 'html'
-
+import type {
+  FaviconFile,
+  FaviconData,
+  GeneratedFavicon,
+  FaviconMetadata,
+  FaviconStatistics,
+  FaviconSettings,
+  WebAppManifest,
+  ManifestIcon,
+  FaviconTemplate,
+  FaviconType,
+  FaviconFormat,
+  FaviconSize,
+} from '@/types/favicon-generator'
 // Utility functions
 
 const validateImageFile = (file: File): { isValid: boolean; error?: string } => {

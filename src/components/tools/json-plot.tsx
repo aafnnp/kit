@@ -24,110 +24,18 @@ import {
   TreePine,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface JSONVisualization {
-  id: string
-  name: string
-  data: any
-  rawJSON: string
-  visualizationType: VisualizationType
-  chartConfig: ChartConfig
-  metadata: VisualizationMetadata
-  timestamp: Date
-}
-
-interface ChartConfig {
-  title: string
-  width: number
-  height: number
-  theme: 'light' | 'dark' | 'auto'
-  colors: string[]
-  showLegend: boolean
-  showGrid: boolean
-  showTooltip: boolean
-  animation: boolean
-  responsive: boolean
-  xAxisKey?: string
-  yAxisKey?: string
-  valueKey?: string
-  labelKey?: string
-  groupKey?: string
-}
-
-interface VisualizationMetadata {
-  dataSize: number
-  dataDepth: number
-  dataKeys: number
-  dataTypes: Record<string, number>
-  arrayCount: number
-  objectCount: number
-  primitiveCount: number
-  processingTime: number
-  memoryUsage: number
-}
-
-interface JSONTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  data: any
-  visualizationType: VisualizationType
-  chartConfig: Partial<ChartConfig>
-  useCase: string[]
-}
-
-interface JSONValidation {
-  isValid: boolean
-  errors: JSONError[]
-  warnings: string[]
-  suggestions: string[]
-  qualityScore: number
-}
-
-interface JSONError {
-  message: string
-  type: 'syntax' | 'structure' | 'performance' | 'visualization'
-  severity: 'error' | 'warning' | 'info'
-  position?: number
-}
-
-interface TreeNode {
-  id: string
-  key: string
-  value: any
-  type: string
-  path: string
-  level: number
-  isExpanded: boolean
-  hasChildren: boolean
-  children: TreeNode[]
-  parent?: TreeNode
-}
-
-interface ChartData {
-  labels: string[]
-  datasets: ChartDataset[]
-  metadata: {
-    totalPoints: number
-    dataRange: [number, number]
-    categories: string[]
-  }
-}
-
-interface ChartDataset {
-  label: string
-  data: number[]
-  backgroundColor: string[]
-  borderColor: string[]
-  borderWidth: number
-}
-
-// Enums
-type VisualizationType = 'tree' | 'table' | 'chart' | 'graph' | 'raw' | 'formatted'
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml' | 'svg' | 'png' | 'pdf'
-type ViewMode = 'compact' | 'expanded' | 'minimal' | 'detailed'
-
+import type {
+  JSONVisualization,
+  ChartConfig,
+  VisualizationMetadata,
+  JSONTemplate,
+  JSONValidation,
+  TreeNode,
+  ChartData,
+  VisualizationType,
+  ExportFormat,
+  ViewMode,
+} from '@/types/json-plot'
 // Utility functions
 
 const formatFileSize = (bytes: number): string => {

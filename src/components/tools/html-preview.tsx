@@ -32,136 +32,22 @@ import {
   FileCode,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface HTMLProcessingResult {
-  id: string
-  input: string
-  isValid: boolean
-  error?: string
-  statistics: HTMLStatistics
-  analysis?: HTMLAnalysis
-  createdAt: Date
-}
-
-interface HTMLStatistics {
-  inputSize: number
-  lineCount: number
-  characterCount: number
-  processingTime: number
-  htmlMetrics: HTMLMetrics
-  performanceMetrics: PerformanceMetrics
-}
-
-interface HTMLMetrics {
-  elementCount: number
-  tagTypes: string[]
-  hasDoctype: boolean
-  hasHead: boolean
-  hasBody: boolean
-  hasTitle: boolean
-  hasMeta: boolean
-  hasCSS: boolean
-  hasJavaScript: boolean
-  externalResources: ExternalResource[]
-  semanticElements: string[]
-  accessibilityFeatures: AccessibilityFeature[]
-}
-
-interface ExternalResource {
-  type: 'css' | 'js' | 'image' | 'font' | 'other'
-  url: string
-  isLocal: boolean
-}
-
-interface AccessibilityFeature {
-  type: 'alt' | 'aria' | 'role' | 'label' | 'heading' | 'landmark'
-  element: string
-  description: string
-}
-
-interface PerformanceMetrics {
-  renderTime: number
-  domComplexity: number
-  cssComplexity: number
-  jsComplexity: number
-  seoScore: number
-  accessibilityScore: number
-}
-
-interface HTMLAnalysis {
-  isValidHTML: boolean
-  hasModernStructure: boolean
-  isResponsive: boolean
-  hasAccessibilityFeatures: boolean
-  hasSEOElements: boolean
-  suggestedImprovements: string[]
-  htmlIssues: string[]
-  qualityScore: number
-  securityIssues: string[]
-  performanceIssues: string[]
-}
-
-interface ProcessingBatch {
-  id: string
-  results: HTMLProcessingResult[]
-  count: number
-  settings: ProcessingSettings
-  createdAt: Date
-  statistics: BatchStatistics
-}
-
-interface BatchStatistics {
-  totalProcessed: number
-  validCount: number
-  invalidCount: number
-  averageQuality: number
-  totalInputSize: number
-  successRate: number
-}
-
-interface ProcessingSettings {
-  previewMode: PreviewMode
-  deviceSize: DeviceSize
-  showLineNumbers: boolean
-  enableSyntaxHighlighting: boolean
-  autoRefresh: boolean
-  refreshInterval: number
-  exportFormat: ExportFormat
-  includeCSS: boolean
-  includeJS: boolean
-  sanitizeHTML: boolean
-  validateHTML: boolean
-}
-
-interface HTMLTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  htmlCode: string
-  features: string[]
-  useCase: string[]
-}
-
-interface HTMLValidation {
-  isValid: boolean
-  errors: HTMLError[]
-  warnings: string[]
-  suggestions: string[]
-}
-
-interface HTMLError {
-  message: string
-  line?: number
-  column?: number
-  type: 'syntax' | 'structure' | 'accessibility' | 'security'
-  severity: 'error' | 'warning' | 'info'
-}
-
-// Enums
-type PreviewMode = 'iframe' | 'popup' | 'split' | 'fullscreen'
-type DeviceSize = 'desktop' | 'tablet' | 'mobile' | 'custom'
-type ExportFormat = 'html' | 'pdf' | 'png' | 'json' | 'txt'
+import type {
+  HTMLProcessingResult,
+  HTMLMetrics,
+  ExternalResource,
+  AccessibilityFeature,
+  PerformanceMetrics,
+  HTMLAnalysis,
+  ProcessingBatch,
+  BatchStatistics,
+  ProcessingSettings,
+  HTMLTemplate,
+  HTMLValidation,
+  PreviewMode,
+  DeviceSize,
+  ExportFormat,
+} from '@/types/html-preview'
 
 // Utility functions
 

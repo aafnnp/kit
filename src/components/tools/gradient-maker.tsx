@@ -28,104 +28,22 @@ import {
   Paintbrush,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  GradientFile,
+  Gradient,
+  ColorStop,
+  RadialPosition,
+  GradientAccessibility,
+  GradientSettings,
+  GradientTemplate,
+  GradientType,
+  RadialShape,
+  RadialSize,
+  ExportFormat,
+} from '@/types/gradient-maker'
 // Types
-interface GradientFile {
-  id: string
-  name: string
-  content: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  processedAt?: Date
-  gradientData?: GradientData
-}
-
-interface GradientData {
-  gradients: Gradient[]
-  statistics: GradientStatistics
-  settings: GradientSettings
-}
-
-interface Gradient {
-  id: string
-  type: GradientType
-  colors: ColorStop[]
-  angle?: number
-  position?: RadialPosition
-  shape?: RadialShape
-  size?: RadialSize
-  repeating?: boolean
-  blendMode?: BlendMode
-  css: string
-  svg: string
-  accessibility: GradientAccessibility
-}
-
-interface ColorStop {
-  id: string
-  color: string
-  position: number
-  opacity?: number
-}
-
-interface RadialPosition {
-  x: number
-  y: number
-}
-
-interface GradientAccessibility {
-  contrastRatio: number
-  wcagCompliant: boolean
-  colorBlindSafe: boolean
-  readabilityScore: number
-}
-
-interface GradientStatistics {
-  totalGradients: number
-  typeDistribution: Record<GradientType, number>
-  averageColorStops: number
-  averageContrastRatio: number
-  accessibilityScore: number
-  processingTime: number
-}
-
-interface GradientSettings {
-  defaultType: GradientType
-  maxColorStops: number
-  includeAccessibility: boolean
-  generateSVG: boolean
-  optimizeOutput: boolean
-  exportFormat: ExportFormat
-}
-
-interface GradientTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  gradient: Partial<Gradient>
-  preview: string
-}
 
 // Enums
-type GradientType = 'linear' | 'radial' | 'conic' | 'repeating-linear' | 'repeating-radial'
-type RadialShape = 'circle' | 'ellipse'
-type RadialSize = 'closest-side' | 'closest-corner' | 'farthest-side' | 'farthest-corner'
-type BlendMode =
-  | 'normal'
-  | 'multiply'
-  | 'screen'
-  | 'overlay'
-  | 'darken'
-  | 'lighten'
-  | 'color-dodge'
-  | 'color-burn'
-  | 'hard-light'
-  | 'soft-light'
-  | 'difference'
-  | 'exclusion'
-type ExportFormat = 'css' | 'scss' | 'svg' | 'png' | 'json'
 
 // Utility functions
 

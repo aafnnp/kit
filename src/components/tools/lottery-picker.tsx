@@ -23,127 +23,21 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface LotteryItem {
-  id: string
-  value: string
-  weight: number
-  category?: string
-  description?: string
-  isSelected: boolean
-  selectionCount: number
-  lastSelected?: Date
-}
-
-interface LotteryResult {
-  id: string
-  items: LotteryItem[]
-  selectedItems: LotteryItem[]
-  selectionMode: SelectionMode
-  timestamp: Date
-  settings: LotterySettings
-  statistics: LotteryStatistics
-}
-
-interface LotterySettings {
-  selectionMode: SelectionMode
-  selectionCount: number
-  allowDuplicates: boolean
-  useWeights: boolean
-  excludePrevious: boolean
-  animationEnabled: boolean
-  soundEnabled: boolean
-  customSeparators: string[]
-  filterSettings: FilterSettings
-  sortSettings: SortSettings
-}
-
-interface FilterSettings {
-  enabled: boolean
-  minLength: number
-  maxLength: number
-  excludePatterns: string[]
-  includePatterns: string[]
-  caseSensitive: boolean
-}
-
-interface SortSettings {
-  enabled: boolean
-  sortBy: 'alphabetical' | 'weight' | 'category' | 'random'
-  sortOrder: 'asc' | 'desc'
-}
-
-interface LotteryStatistics {
-  totalItems: number
-  totalSelections: number
-  averageWeight: number
-  selectionDistribution: Record<string, number>
-  categoryDistribution: Record<string, number>
-  fairnessScore: number
-  randomnessScore: number
-}
-
-interface LotteryBatch {
-  id: string
-  name: string
-  results: LotteryResult[]
-  settings: BatchSettings
-  status: 'pending' | 'processing' | 'completed' | 'failed'
-  progress: number
-  statistics: BatchStatistics
-  createdAt: Date
-  completedAt?: Date
-}
-
-interface BatchSettings {
-  baseSettings: LotterySettings
-  iterations: number
-  namingPattern: string
-  exportFormat: ExportFormat
-  includeAnalysis: boolean
-  trackHistory: boolean
-}
-
-interface BatchStatistics {
-  totalIterations: number
-  successfulIterations: number
-  failedIterations: number
-  averageFairnessScore: number
-  averageRandomnessScore: number
-  totalProcessingTime: number
-  averageProcessingTime: number
-  itemFrequency: Record<string, number>
-}
-
-interface LotteryTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  items: string[]
-  settings: Partial<LotterySettings>
-  useCase: string[]
-  examples: string[]
-  preview?: string
-}
-
-interface LotteryValidation {
-  isValid: boolean
-  errors: LotteryError[]
-  warnings: string[]
-  suggestions: string[]
-  qualityScore: number
-}
-
-interface LotteryError {
-  message: string
-  type: 'items' | 'settings' | 'weights' | 'selection'
-  severity: 'error' | 'warning' | 'info'
-}
-
-// Enums
-type SelectionMode = 'single' | 'multiple' | 'weighted' | 'tournament' | 'elimination' | 'round-robin'
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml'
+import type {
+  LotteryItem,
+  LotteryResult,
+  LotterySettings,
+  FilterSettings,
+  SortSettings,
+  LotteryStatistics,
+  LotteryBatch,
+  BatchSettings,
+  BatchStatistics,
+  LotteryTemplate,
+  LotteryValidation,
+  SelectionMode,
+  ExportFormat,
+} from '@/types/lottery-picker'
 
 // Utility functions
 

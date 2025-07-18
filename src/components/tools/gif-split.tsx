@@ -6,36 +6,7 @@ import { Upload, Download, Loader2, FileImage, Trash2, BarChart3, Image as Image
 // @ts-ignore
 import { parseGIF, decompressFrames } from 'gifuct-js'
 import { nanoid } from 'nanoid'
-// 类型定义
-interface GifFile {
-  id: string
-  file: File
-  name: string
-  size: number
-  type: string
-  status: 'pending' | 'processing' | 'completed' | 'error'
-  error?: string
-  frames?: GifFrame[]
-  stats?: GifStats
-}
-
-interface GifFrame {
-  index: number
-  imageDataUrl: string
-  delay: number // ms
-  width: number
-  height: number
-  disposalType: number
-}
-
-interface GifStats {
-  frameCount: number
-  duration: number // ms
-  width: number
-  height: number
-  fileSize: number
-  avgDelay: number
-}
+import type { GifFile, GifFrame, GifStats } from '@/types/gif-split'
 
 // 工具函数
 

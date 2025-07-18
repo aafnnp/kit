@@ -27,103 +27,19 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import type {
+  URLProcessingResult,
+  URLAnalysis,
+  URLBatch,
+  URLBatchStatistics,
+  URLSettings,
+  URLTemplate,
+  URLValidation,
+  URLOperation,
+  URLEncodingType,
+  ExportFormat,
+} from '@/types/url-encode'
 // Enhanced Types
-interface URLProcessingResult {
-  id: string
-  input: string
-  output: string
-  operation: URLOperation
-  encodingType: URLEncodingType
-  isValid: boolean
-  error?: string
-  statistics: URLStatistics
-  analysis?: URLAnalysis
-  createdAt: Date
-}
-
-interface URLStatistics {
-  inputSize: number
-  outputSize: number
-  inputLength: number
-  outputLength: number
-  compressionRatio: number
-  processingTime: number
-  characterChanges: number
-  specialCharacters: number
-}
-
-interface URLAnalysis {
-  protocol?: string
-  domain?: string
-  path?: string
-  queryParams?: Record<string, string>
-  fragment?: string
-  isValidURL: boolean
-  hasSpecialChars: boolean
-  hasUnicodeChars: boolean
-  hasSpaces: boolean
-  encodingNeeded: string[]
-  securityIssues: string[]
-}
-
-interface URLBatch {
-  id: string
-  results: URLProcessingResult[]
-  count: number
-  settings: URLSettings
-  createdAt: Date
-  statistics: URLBatchStatistics
-}
-
-interface URLBatchStatistics {
-  totalProcessed: number
-  validCount: number
-  invalidCount: number
-  averageCompressionRatio: number
-  totalInputSize: number
-  totalOutputSize: number
-  operationDistribution: Record<string, number>
-  successRate: number
-}
-
-interface URLSettings {
-  encodingType: URLEncodingType
-  realTimeProcessing: boolean
-  showAnalysis: boolean
-  validateURLs: boolean
-  exportFormat: ExportFormat
-  maxLength: number
-  preserveCase: boolean
-}
-
-interface URLTemplate {
-  id: string
-  name: string
-  description: string
-  category: string
-  operation: URLOperation
-  encodingType: URLEncodingType
-  example: string
-  useCase: string[]
-}
-
-interface URLValidation {
-  isValid: boolean
-  errors: URLError[]
-  warnings: string[]
-  suggestions: string[]
-}
-
-interface URLError {
-  message: string
-  position?: number
-  character?: string
-}
-
-// Enums
-type URLOperation = 'encode' | 'decode'
-type URLEncodingType = 'component' | 'uri' | 'form' | 'path' | 'query'
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml'
 
 // Utility functions
 

@@ -24,86 +24,16 @@ import {
   TestTube,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-// Enhanced Types
-interface RegexPattern {
-  id: string
-  name: string
-  description: string
-  pattern: string
-  flags?: string
-  category: RegexCategory
-  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert'
-  examples: RegexExample[]
-  explanation: string
-  useCase: string[]
-  tags: string[]
-  alternatives?: string[]
-  performance: 'fast' | 'medium' | 'slow'
-  compatibility: string[]
-  createdAt: Date
-}
-
-interface RegexExample {
-  input: string
-  matches: boolean
-  explanation: string
-  groups?: string[]
-}
-
-interface RegexTest {
-  id: string
-  pattern: string
-  flags: string
-  testString: string
-  result: RegexTestResult
-  timestamp: Date
-}
-
-interface RegexTestResult {
-  isValid: boolean
-  matches: RegexMatch[]
-  groups: string[]
-  error?: string
-  executionTime: number
-  performance: RegexPerformance
-}
-
-interface RegexMatch {
-  match: string
-  index: number
-  groups: string[]
-  namedGroups?: Record<string, string>
-}
-
-interface RegexPerformance {
-  steps: number
-  backtracking: boolean
-  complexity: 'linear' | 'polynomial' | 'exponential'
-  recommendation?: string
-}
-
-interface RegexCategory {
-  id: string
-  name: string
-  description: string
-  icon: string
-  color: string
-  patterns: number
-}
-
-interface RegexCheatsheet {
-  id: string
-  name: string
-  description: string
-  categories: RegexCategory[]
-  patterns: RegexPattern[]
-  createdAt: Date
-  updatedAt: Date
-}
-
-// Enums
-type ExportFormat = 'json' | 'csv' | 'txt' | 'xml' | 'yaml'
-
+import type {
+  RegexPattern,
+  RegexTest,
+  RegexTestResult,
+  RegexMatch,
+  RegexPerformance,
+  RegexCategory,
+  RegexCheatsheet,
+  ExportFormat,
+} from '@/types/regex-cheatsheet'
 // Utility functions
 
 // Regex Categories
