@@ -10,7 +10,6 @@ import { useFavorites, useRecentTools, useToolSearch } from '@/lib/favorites'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Heart, Clock, Grid3X3, Trash2, Activity } from 'lucide-react'
 import { usePreload, useSmartPreload } from '@/lib/preloader'
-import { useCache } from '@/lib/cache'
 import { useResourcePreload } from '@/lib/resource-optimizer'
 import { PerformanceMonitor } from '@/components/performance-monitor'
 

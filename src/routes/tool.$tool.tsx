@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Suspense, lazy, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { preloader } from '@/lib/preloader'
 import { cache } from '@/lib/cache'
@@ -62,7 +62,7 @@ const Tool = () => {
         cache.set(cacheKey, toolModule, 30 * 60 * 1000) // 缓存30分钟
       }
       
-      setDynamicTool(() => toolModule.default)
+      setDynamicTool(() => (toolModule as any).default)
     } catch (err) {
       setError(err as Error)
     } finally {

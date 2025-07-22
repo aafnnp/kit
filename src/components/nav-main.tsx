@@ -76,15 +76,15 @@ export function NavMain({ items }: { items: typeof tools }) {
                             }}
                           >
                             <SidebarMenuButton
-                          tooltip={tool.desc[locale]}
-                          className={`${isSelected ? 'bg-accent text-accent-foreground' : ''} transition-colors hover:bg-primary/10 dark:hover:bg-primary/20`}
-                        >
-                          {tool.icon && typeof tool.icon === 'string' && Icons[tool.icon as keyof typeof Icons] ? 
-                            React.createElement(Icons[tool.icon as keyof typeof Icons], { className: "size-4 mr-2 text-primary" }) : 
-                            null
-                          }
-                          <span>{tool.name}</span>
-                        </SidebarMenuButton>
+                              tooltip={tool.desc[locale]}
+                              className={`${isSelected ? 'bg-accent text-accent-foreground' : ''} transition-colors hover:bg-primary/10 dark:hover:bg-primary/20`}
+                            >
+                              {tool.icon && typeof tool.icon === 'string' && Icons[tool.icon as keyof typeof Icons] ? 
+                                React.createElement(Icons[tool.icon as keyof typeof Icons] as React.ComponentType<any>, { className: "size-4 mr-2 text-primary" }) : 
+                                null
+                              }
+                              <span>{tool.name}</span>
+                            </SidebarMenuButton>
                           </SidebarMenuItem>
                         )
                       })}

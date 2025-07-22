@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Heart, ExternalLink, HelpCircle } from 'lucide-react'
+import { Heart, ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from '@tanstack/react-router'
 import { useFavorites, useRecentTools } from '@/lib/favorites'
@@ -31,7 +31,7 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
   const handleClick = () => {
     addToRecent(tool)
     onClick?.()
-    
+
     if (tool.href) {
       window.open(tool.href, '_blank')
     } else {
@@ -44,12 +44,11 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
     toggleFavorite(tool)
   }
 
-  const IconComponent = tool.icon && Icons[tool.icon as keyof typeof Icons] 
-    ? Icons[tool.icon as keyof typeof Icons] 
-    : Icons.HelpCircle
+  const IconComponent =
+    tool.icon && Icons[tool.icon as keyof typeof Icons] ? Icons[tool.icon as keyof typeof Icons] : Icons.HelpCircle
 
   return (
-    <Card 
+    <Card
       className="group cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] border-border/50 hover:border-border"
       onClick={handleClick}
     >
@@ -58,7 +57,7 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
           <div className="flex items-center gap-3">
             {IconComponent && (
               <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors">
-                {React.createElement(IconComponent, { className: "h-5 w-5" })}
+                {React.createElement(IconComponent as React.ComponentType<any>, { className: 'h-5 w-5' })}
               </div>
             )}
             <div className="flex-1">
@@ -84,9 +83,7 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <CardDescription className="text-sm text-muted-foreground leading-relaxed">
-          {tool.desc[locale]}
-        </CardDescription>
+        <CardDescription className="text-sm text-muted-foreground leading-relaxed">{tool.desc[locale]}</CardDescription>
       </CardContent>
     </Card>
   )

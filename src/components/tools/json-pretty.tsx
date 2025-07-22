@@ -777,7 +777,7 @@ const useCopyToClipboard = () => {
  * Features: Advanced JSON processing, validation, analysis, batch processing, comprehensive formatting
  */
 const JSONPrettyCore = () => {
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const [activeTab, setActiveTab] = useState<'processor' | 'batch' | 'analyzer' | 'templates'>('processor')
   const [input, setInput] = useState('')
   const [currentResult, setCurrentResult] = useState<JSONProcessingResult | null>(null)

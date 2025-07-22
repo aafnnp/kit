@@ -203,7 +203,7 @@ class ResourceOptimizer {
    */
   preloadCriticalResources(): void {
     // 预加载关键CSS
-    const criticalStyles = [
+    const criticalStyles: string[] = [
       // 可以添加关键样式文件
     ]
 

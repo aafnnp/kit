@@ -1,18 +1,12 @@
-import * as React from 'react'
 import { IconMoon, IconSun, IconDeviceDesktop } from '@tabler/icons-react'
 
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useTheme } from '@/lib/theme'
 import { useTranslation } from 'react-i18next'
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
+  const { setTheme } = useTheme()
   const { t } = useTranslation()
 
   return (

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Activity, Zap, Database, Clock, TrendingUp, X } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -38,7 +37,6 @@ interface PerformanceMonitorProps {
 }
 
 export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps) {
-  const { t } = useTranslation()
   const [stats, setStats] = useState<PerformanceStats>({
     cacheHits: 0,
     cacheMisses: 0,

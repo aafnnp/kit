@@ -30,8 +30,10 @@ class CacheManager {
     // 如果缓存已满，删除最旧的条目
     if (this.cache.size >= this.maxSize) {
       const oldestKey = this.cache.keys().next().value
-      this.cache.delete(oldestKey)
-      this.stats.evictions++
+      if (oldestKey) {
+        this.cache.delete(oldestKey)
+        this.stats.evictions++
+      }
     }
 
     this.cache.set(key, {
@@ -125,7 +127,11 @@ class CacheManager {
     // 如果当前缓存超过新的最大值，删除最旧的条目
     while (this.cache.size > this.maxSize) {
       const oldestKey = this.cache.keys().next().value
-      this.cache.delete(oldestKey)
+      if (oldestKey) {
+        this.cache.delete(oldestKey)
+      } else {
+        break; // 如果没有更多的键，退出循环
+      }
     }
   }
 }
@@ -150,7 +156,7 @@ export function cached<T extends (...args: any[]) => any>(
   ttl: number = 5 * 60 * 1000,
   keyGenerator?: (...args: Parameters<T>) => string
 ) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (_target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value
 
     descriptor.value = function (...args: Parameters<T>): ReturnType<T> {
@@ -182,7 +188,7 @@ export function cachedAsync<T extends (...args: any[]) => Promise<any>>(
   ttl: number = 5 * 60 * 1000,
   keyGenerator?: (...args: Parameters<T>) => string
 ) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (_target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value
 
     descriptor.value = async function (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> {
