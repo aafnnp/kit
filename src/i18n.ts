@@ -28,6 +28,35 @@ const resources = {
       更新: '更新',
       重启应用: '重启应用',
       没有检测到新版本: '没有检测到新版本',
+      // 主题切换相关
+      切换主题: '切换主题',
+      浅色: '浅色',
+      深色: '深色',
+      系统: '系统',
+      首页: '首页',
+      切换到中文: '切换到中文',
+      切换到英文: '切换到英文',
+      // 无障碍相关
+      跳转到内容: '跳转到内容',
+      导航菜单: '导航菜单',
+      search: {
+        placeholder: '搜索工具...',
+        'no-results': '未找到相关工具',
+        'clear-search': '清除搜索'
+      },
+      favorites: {
+        title: '收藏',
+        add: '添加到收藏',
+        remove: '从收藏中移除',
+        empty: '暂无收藏的工具',
+        'add-some': '点击工具卡片上的心形图标来收藏工具'
+      },
+      recent: {
+        title: '最近使用',
+        clear: '清除记录',
+        empty: '暂无使用记录',
+        'start-using': '开始使用工具来查看最近记录'
+      },
     },
   },
   en: {
@@ -55,6 +84,35 @@ const resources = {
       更新: 'Update',
       重启应用: 'Restart App',
       没有检测到新版本: 'No new version found',
+      // Theme toggle related
+      切换主题: 'Toggle Theme',
+      浅色: 'Light',
+      深色: 'Dark',
+      系统: 'System',
+      首页: 'Home',
+      切换到中文: 'Switch to Chinese',
+      切换到英文: 'Switch to English',
+      // Accessibility related
+      跳转到内容: 'Skip to content',
+      导航菜单: 'Navigation menu',
+      search: {
+        placeholder: 'Search tools...',
+        'no-results': 'No tools found',
+        'clear-search': 'Clear search'
+      },
+      favorites: {
+        title: 'Favorites',
+        add: 'Add to favorites',
+        remove: 'Remove from favorites',
+        empty: 'No favorite tools',
+        'add-some': 'Click the heart icon on tool cards to add favorites'
+      },
+      recent: {
+        title: 'Recently Used',
+        clear: 'Clear history',
+        empty: 'No recent tools',
+        'start-using': 'Start using tools to see recent history'
+      },
     },
   },
 }
