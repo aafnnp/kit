@@ -1,53 +1,58 @@
 import React from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { AlertCircle, RefreshCw } from 'lucide-react'
 
-interface ErrorBoundaryProps {
-  fallback?: React.ReactNode | ((error: Error, reset: () => void) => React.ReactNode)
+interface ToolErrorBoundaryProps {
+  toolName: string
   children: React.ReactNode
 }
 
-interface ErrorBoundaryState {
-  error: Error | null
+interface ToolErrorBoundaryState {
+  hasError: boolean
+  error?: Error
 }
 
-export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
+export class ToolErrorBoundary extends React.Component<ToolErrorBoundaryProps, ToolErrorBoundaryState> {
+  constructor(props: ToolErrorBoundaryProps) {
     super(props)
-    this.state = { error: null }
+    this.state = { hasError: false }
   }
 
   static getDerivedStateFromError(error: Error) {
-    return { error }
+    return { hasError: true, error }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // 可以在这里上报错误日志
-    if (process.env.NODE_ENV !== 'production') {
-      console.error('ErrorBoundary 捕获到错误:', error, errorInfo)
-    }
-  }
-
-  reset = () => {
-    this.setState({ error: null })
+    console.error(`${this.props.toolName} Error:`, error, errorInfo)
   }
 
   render() {
-    const { error } = this.state
-    const { fallback, children } = this.props
-    if (error) {
-      if (typeof fallback === 'function') {
-        return fallback(error, this.reset)
-      }
+    if (this.state.hasError) {
       return (
-        <div style={{ padding: 24, textAlign: 'center' }}>
-          <h2>出错了</h2>
-          <pre style={{ color: 'red', whiteSpace: 'pre-wrap' }}>{error.message}</pre>
-          <button onClick={this.reset} style={{ marginTop: 16 }}>
-            重试
-          </button>
-          {fallback}
-        </div>
+        <Card className="w-full max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-600">
+              <AlertCircle className="h-5 w-5" />
+              Something went wrong
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4">
+              The {this.props.toolName} tool encountered an error. Please refresh the page and try again.
+            </p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="w-full"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh Page
+            </Button>
+          </CardContent>
+        </Card>
       )
     }
-    return children
+
+    return this.props.children
   }
 }

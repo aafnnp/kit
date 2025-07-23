@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { ErrorBoundary } from '@/components/error-boundary'
+import { ToolErrorBoundary } from '@/components/error-boundary'
 import { preloader } from '@/lib/preloader'
 import { cache } from '@/lib/cache'
 import { motion } from 'motion/react'
@@ -95,7 +95,7 @@ const Tool = () => {
   }
 
   return (
-    <ErrorBoundary>
+    <ToolErrorBoundary toolName={tool}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -104,7 +104,7 @@ const Tool = () => {
       >
         <DynamicTool />
       </motion.div>
-    </ErrorBoundary>
+    </ToolErrorBoundary>
   )
 }
 
