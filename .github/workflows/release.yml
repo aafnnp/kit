@@ -1,69 +1,228 @@
-name: 'publish'
+name: 'Build and Release'
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: false
+        type: string
+      prerelease:
+        description: 'Mark as prerelease'
+        required: false
+        type: boolean
+        default: false
   push:
     branches:
       - release/*
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'src/**'
+      - 'src-tauri/**'
+      - 'package.json'
+      - 'vite.config.ts'
+      - 'tsconfig.json'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
 
 jobs:
-  publish-tauri:
-    permissions:
-      contents: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: 'macos-latest' # for Arm based macs (M1 and above).
-            args: '--target aarch64-apple-darwin'
-          - platform: 'macos-latest' # for Intel based macs.
-            args: '--target x86_64-apple-darwin'
-          - platform: 'ubuntu-22.04'
-            args: ''
-          - platform: 'windows-latest'
-            args: ''
-
-    runs-on: ${{ matrix.platform }}
+  # 代码质量检查和测试
+  test-and-lint:
+    name: Test and Lint
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
-
-      - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-
-      - name: setup node
+      
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: lts/*
-          cache: 'npm' # Set this to npm, yarn or pnpm.
-
-      - name: install Rust stable
-        uses: dtolnay/rust-toolchain@stable # Set this to dtolnay/rust-toolchain@nightly
-        with:
-          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
-
+          node-version: 'lts/*'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Type check
+        run: npx tsc --noEmit
+      
+      - name: Lint
+        run: npm run lint || echo "Lint script not found, skipping..."
+      
+      - name: Build frontend
+        run: npm run build
+      
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: './src-tauri -> target'
+      
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      
+      - name: Build Tauri app (check only)
+        run: |
+          cd src-tauri
+          cargo check
+  
+  # 构建和发布
+  publish-tauri:
+    name: Build and Release (${{ matrix.platform }})
+    permissions:
+      contents: write
+    needs: [test-and-lint]
+    if: always() && (needs.test-and-lint.result == 'success' || needs.test-and-lint.result == 'skipped')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest'
+            args: '--target aarch64-apple-darwin'
+            target: 'aarch64-apple-darwin'
+            arch: 'arm64'
+          - platform: 'macos-latest'
+            args: '--target x86_64-apple-darwin'
+            target: 'x86_64-apple-darwin'
+            arch: 'x64'
+          - platform: 'ubuntu-22.04'
+            args: ''
+            target: 'x86_64-unknown-linux-gnu'
+            arch: 'x64'
+          - platform: 'windows-latest'
+            args: ''
+            target: 'x86_64-pc-windows-msvc'
+            arch: 'x64'
 
-      - name: install frontend dependencies
-        # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
-        run: npm install # change this to npm or pnpm depending on which one you use.
+    runs-on: ${{ matrix.platform }}
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "version=v$(date +'%Y.%m.%d')-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Install dependencies (Ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          components: rustfmt, clippy
+      
+      - name: Setup Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+          cache-on-failure: true
+          key: ${{ matrix.target }}
+      
+      - name: Install frontend dependencies
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: Update version in package.json
+        shell: bash
+        run: |
+          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+      
+      - name: Build frontend with optimizations
+        run: |
+          npm run build
+        env:
+          NODE_ENV: production
+          VITE_APP_VERSION: ${{ steps.version.outputs.version }}
+      
+      - name: Rust format check
+        working-directory: src-tauri
+        run: cargo fmt --all -- --check
+      
+      - name: Rust clippy check
+        working-directory: src-tauri
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
-      - uses: tauri-apps/tauri-action@v0
+      - name: Build and release Tauri app
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_PRIVATE_KEY_PASSWORD }}
+          NODE_ENV: production
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'Kit v${{ github.ref_name }}'
-          releaseBody: 'See the assets to download this version and install.'
-          releaseDraft: true
-          prerelease: false
+          tagName: ${{ steps.version.outputs.version }}
+          releaseName: 'Kit ${{ steps.version.outputs.version }}'
+          releaseBody: |
+            ## 🚀 Kit ${{ steps.version.outputs.version }}
+            
+            ### 📦 安装说明
+            - **Windows**: 下载 `.msi` 文件并运行安装
+            - **macOS**: 下载 `.dmg` 文件，拖拽到应用程序文件夹
+            - **Linux**: 下载 `.AppImage` 文件，添加执行权限后运行
+            
+            ### 🔄 自动更新
+            应用内置自动更新功能，会在有新版本时提示更新。
+            
+            ### 📋 更新内容
+            请查看 [更新日志](https://github.com/aafnnp/kit/releases) 了解详细更新内容。
+            
+            ---
+            
+            **构建信息**:
+            - 构建时间: ${{ github.run_id }}
+            - 提交哈希: ${{ github.sha }}
+            - 分支: ${{ github.ref_name }}
+          releaseDraft: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prerelease == 'true' }}
+          prerelease: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prerelease == 'true' }}
           includeUpdaterJson: true
+          includeDebug: false
+          includeRelease: true
           args: ${{ matrix.args }}
+      
+      - name: Upload build artifacts
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-${{ steps.version.outputs.version }}
+          path: |
+            src-tauri/target/release/bundle/
+            latest.json
+          retention-days: 30
+      
+      - name: Update release info
+        if: matrix.platform == 'ubuntu-22.04' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: npm run publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

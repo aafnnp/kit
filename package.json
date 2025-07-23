@@ -6,9 +6,20 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:analyze": "npm run build && node scripts/build-optimizer.mjs",
+    "build:production": "NODE_ENV=production npm run build && npm run optimize",
     "preview": "vite preview",
     "tauri": "tauri",
-    "publish": "node scripts/updater.mjs"
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "tauri:build:debug": "tauri build --debug",
+    "optimize": "node scripts/build-optimizer.mjs",
+    "publish": "node scripts/updater.mjs",
+    "release:patch": "npm version patch && git push --tags",
+    "release:minor": "npm version minor && git push --tags",
+    "release:major": "npm version major && git push --tags",
+    "clean": "rm -rf dist src-tauri/target node_modules/.vite",
+    "clean:all": "npm run clean && rm -rf node_modules"
   },
   "dependencies": {
     "@actions/github": "^6.0.1",
@@ -73,6 +84,7 @@
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "terser": "^5.43.1",
     "tw-animate-css": "^1.3.5",
     "typescript": "~5.6.2",
     "vite": "^6.0.3"

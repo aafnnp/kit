@@ -1,0 +1,108 @@
+{
+  "timestamp": "2025-07-23T13:16:47.828Z",
+  "summary": {
+    "totalFiles": 142,
+    "totalSize": "6.47 MB",
+    "totalGzipSize": "1.90 MB",
+    "compressionRatio": "70.7%"
+  },
+  "frontend": {
+    "files": 142,
+    "size": "6.47 MB",
+    "gzipSize": "1.90 MB"
+  },
+  "backend": {
+    "files": 0,
+    "size": "0.00 B",
+    "gzipSize": "0.00 B"
+  },
+  "largestFiles": [
+    {
+      "path": "dist/chunks/ui-vendor-BqCAdT99.js",
+      "size": "577.01 KB",
+      "gzipSize": "155.49 KB",
+      "compression": "73.1%"
+    },
+    {
+      "path": "dist/chunks/markdown-mermaid-C8hYmLZc.js",
+      "size": "501.42 KB",
+      "gzipSize": "135.70 KB",
+      "compression": "72.9%"
+    },
+    {
+      "path": "dist/chunks/cytoscape.esm-L6WUYXLK.js",
+      "size": "416.07 KB",
+      "gzipSize": "129.66 KB",
+      "compression": "68.8%"
+    },
+    {
+      "path": "dist/chunks/PDFButton-CDDrKHyh.js",
+      "size": "415.54 KB",
+      "gzipSize": "172.11 KB",
+      "compression": "58.6%"
+    },
+    {
+      "path": "dist/tools/excel-to-json-excel-to-json-B-T-J372.js",
+      "size": "352.08 KB",
+      "gzipSize": "115.35 KB",
+      "compression": "67.2%"
+    },
+    {
+      "path": "dist/chunks/treemap-6Y5VK53G-cfS5lAY_.js",
+      "size": "317.59 KB",
+      "gzipSize": "75.67 KB",
+      "compression": "76.2%"
+    },
+    {
+      "path": "dist/chunks/katex-CQOl0kA9.js",
+      "size": "260.52 KB",
+      "gzipSize": "75.08 KB",
+      "compression": "71.2%"
+    },
+    {
+      "path": "dist/assets/index-Do5UIu0y.js",
+      "size": "214.81 KB",
+      "gzipSize": "68.12 KB",
+      "compression": "68.3%"
+    },
+    {
+      "path": "dist/chunks/architectureDiagram-NQ2NVSRB-D6fCv3Ih.js",
+      "size": "142.09 KB",
+      "gzipSize": "38.78 KB",
+      "compression": "72.7%"
+    },
+    {
+      "path": "dist/chunks/react-vendor-eVk5PToZ.js",
+      "size": "136.07 KB",
+      "gzipSize": "43.98 KB",
+      "compression": "67.7%"
+    }
+  ],
+  "fileTypes": {
+    ".js": {
+      "count": 137,
+      "totalSize": "6.36 MB",
+      "totalGzipSize": "1.87 MB"
+    },
+    ".css": {
+      "count": 1,
+      "totalSize": "95.57 KB",
+      "totalGzipSize": "15.79 KB"
+    },
+    ".png": {
+      "count": 1,
+      "totalSize": "7.66 KB",
+      "totalGzipSize": "7.68 KB"
+    },
+    ".svg": {
+      "count": 2,
+      "totalSize": "4.00 KB",
+      "totalGzipSize": "2.07 KB"
+    },
+    ".html": {
+      "count": 1,
+      "totalSize": "871.00 B",
+      "totalGzipSize": "402.00 B"
+    }
+  }
+}

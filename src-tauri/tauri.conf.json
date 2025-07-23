@@ -27,12 +27,64 @@
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
     "publisher": "Kit",
     "createUpdaterArtifacts": true,
+    "resources": [],
+    "externalBin": [],
+    "copyright": "Copyright © 2024 Kit. All rights reserved.",
+    "category": "DeveloperTool",
+    "shortDescription": "A powerful developer toolkit",
+    "longDescription": "Kit is a comprehensive desktop application that provides various developer tools for text processing, color design, image processing, and more.",
     "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "",
+      "tsp": false,
       "webviewInstallMode": {
-        "type": "skip"
+        "type": "downloadBootstrapper",
+        "silent": true
       },
+      "allowDowngrades": false,
+      "wix": null,
       "nsis": {
-        "compression": "none"
+        "template": null,
+        "headerImage": null,
+        "sidebarImage": null,
+        "installerIcon": null,
+        "installMode": "currentUser",
+        "languages": ["English", "SimpChinese"],
+        "displayLanguageSelector": true,
+        "compression": "lzma"
+      }
+    },
+    "macOS": {
+      "frameworks": [],
+      "minimumSystemVersion": "10.13",
+      "exceptionDomain": "",
+      "signingIdentity": null,
+      "providerShortName": null,
+      "entitlements": null,
+      "dmg": {
+        "appPosition": {
+          "x": 180,
+          "y": 170
+        },
+        "applicationFolderPosition": {
+          "x": 480,
+          "y": 170
+        },
+        "windowSize": {
+          "width": 660,
+          "height": 400
+        }
+      }
+    },
+    "linux": {
+      "deb": {
+        "depends": [],
+        "priority": "optional",
+        "section": "utils"
+      },
+      "appimage": {
+        "bundleMediaFramework": false
       }
     }
   },
@@ -40,11 +92,20 @@
     "updater": {
       "dialog": true,
       "active": true,
-      "endpoints": ["https://github.com/aafnnp/kit/releases/latest/download/latest.json"],
+      "endpoints": [
+        "https://github.com/aafnnp/kit/releases/latest/download/latest.json",
+        "https://api.github.com/repos/aafnnp/kit/releases/latest"
+      ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNFM0ZFMjEyQzJBQTQ3QzMKUldURFI2ckNFdUkvUGg4Z2FlYUZ5ZGVYaE0xSkZtdmFBYmlCQkNLUUJuZUdOUFkyb3ZJYXdQczYK",
       "windows": {
-        "installMode": "quiet",
-        "installerArgs": ["/NS"]
+        "installMode": "passive",
+        "installerArgs": ["/SILENT", "/SUPPRESSMSGBOXES"]
+      },
+      "macOS": {
+        "installMode": "passive"
+      },
+      "linux": {
+        "installMode": "passive"
       }
     }
   }
