@@ -244,17 +244,6 @@ export default [
       { slug: 'url-parser', name: 'URL Inspector', desc: { zh: 'URL 解析', en: 'URL inspector' }, icon: 'UrlParser' },
     ],
   },
-  // {
-  //   "type": "PDF/文档",
-  //   "tools": [
-  //     { "slug": "merge-pdf", "name": "PDF Merger", "desc": "PDF 合并" },
-  //     { "slug": "split-pdf", "name": "PDF Split", "desc": "PDF 拆分" },
-  //     { "slug": "image-to-pdf", "name": "Img→PDF", "desc": "图片转 PDF" },
-  //     { "slug": "text-to-pdf", "name": "Text→PDF", "desc": "文本转 PDF" },
-  //     { "slug": "csv-preview", "name": "CSV Viewer", "desc": "CSV 预览" },
-  //     { "slug": "zip-extract", "name": "ZIP Extract", "desc": "ZIP 解压" }
-  //   ]
-  // },
   {
     id: 'random-generator',
     type: { zh: '随机/生成器', en: 'Random/Generator' },
@@ -319,13 +308,49 @@ export default [
         slug: 'currency-convert',
         name: 'Currency FX',
         desc: { zh: '静态汇率换算', en: 'Static currency converter' },
-        icon: 'CurrencyConvert',
+        icon: 'CircleDollarSign',
       },
       {
         slug: 'roman-numeral',
         name: 'Roman↔Arab',
         desc: { zh: '罗马数字转换', en: 'Roman to Arabic / Arabic to Roman' },
         icon: 'RomanNumeral',
+      },
+    ],
+  },
+  {
+    id: 'developer-tools',
+    type: { zh: '开发者工具', en: 'Developer Tools' },
+    tools: [
+      {
+        slug: 'code-formatter',
+        name: 'Code Formatter',
+        desc: { zh: '代码格式化 (JS/TS/CSS/HTML)', en: 'Code formatter (JS/TS/CSS/HTML)' },
+        icon: 'Code',
+      },
+      {
+        slug: 'api-tester',
+        name: 'API Tester',
+        desc: { zh: 'HTTP API 测试工具', en: 'HTTP API testing tool' },
+        icon: 'Globe',
+      },
+      {
+        slug: 'performance-analyzer',
+        name: 'Performance Analyzer',
+        desc: { zh: '性能分析工具', en: 'Performance analysis tool' },
+        icon: 'Activity',
+      },
+      {
+        slug: 'git-helper',
+        name: 'Git Helper',
+        desc: { zh: 'Git 操作助手', en: 'Git operations helper' },
+        icon: 'GitBranch',
+      },
+      {
+        slug: 'password-strength',
+        name: 'Password Strength',
+        desc: { zh: '密码强度检测', en: 'Password strength checker' },
+        icon: 'Shield',
       },
     ],
   },

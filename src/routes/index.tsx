@@ -8,10 +8,12 @@ import { SearchBar } from '@/components/search-bar'
 import { ToolCard } from '@/components/tool-card'
 import { useFavorites, useRecentTools, useToolSearch } from '@/lib/favorites'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Heart, Clock, Grid3X3, Trash2, Activity } from 'lucide-react'
+import { Heart, Clock, Grid3X3, Trash2, Activity, Settings } from 'lucide-react'
 import { usePreload, useSmartPreload } from '@/lib/preloader'
 import { useResourcePreload } from '@/lib/resource-optimizer'
 import { PerformanceMonitor } from '@/components/performance-monitor'
+import { CategoryManager } from '@/components/category-manager'
+import { useCustomCategories } from '@/lib/custom-categories'
 
 export const Route = createFileRoute('/')({
   component: () => {
@@ -22,6 +24,7 @@ export const Route = createFileRoute('/')({
     const { favorites } = useFavorites()
     const { recentTools, clearRecent } = useRecentTools()
     const { searchQuery, setSearchQuery, filteredTools } = useToolSearch(tools)
+    const { } = useCustomCategories()
 
     // 扁平化所有工具
     const allTools = useMemo(() => tools.flatMap(category => category.tools), [tools])
@@ -100,7 +103,7 @@ export const Route = createFileRoute('/')({
 
       if (activeTab === 'favorites' || activeTab === 'recent') {
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
             {toolsToRender.map((tool, index) => (
               <motion.div
                 key={tool.slug}
@@ -117,7 +120,7 @@ export const Route = createFileRoute('/')({
       }
 
       return (
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           {toolsToRender.map((category, categoryIndex) => (
             <motion.div
               key={category.type.zh}
@@ -125,8 +128,8 @@ export const Route = createFileRoute('/')({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
             >
-              <h2 className="text-2xl font-semibold mb-4 text-foreground">{category.type[locale]}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-foreground px-1 sm:px-0">{category.type[locale]}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
                 {category.tools.map((tool: any, toolIndex: number) => (
                   <motion.div
                     key={tool.slug}
@@ -150,37 +153,50 @@ export const Route = createFileRoute('/')({
     }
 
     return (
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-8"
+          className="text-center mb-6 sm:mb-8"
         >
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent leading-tight">
             {t('app.title')}
           </h1>
-          <p className="text-lg text-muted-foreground mb-6">{t('app.description')}</p>
+          <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-4 sm:mb-6 px-2 sm:px-0">{t('app.description')}</p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
-            <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder={t('search.placeholder')} />
-
-            <div className="flex items-center space-x-2">
+          <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6">
+            {/* 搜索栏 - 移动端全宽 */}
+            <div className="w-full max-w-md mx-auto">
+              <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder={t('search.placeholder')} />
+            </div>
+            
+            {/* 控制按钮 - 移动端堆叠布局 */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
                 onClick={() => setShowPerformanceMonitor(true)}
-                className="shrink-0"
-                title="性能监控"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                aria-label={t('performance.monitor', '打开性能监控')}
               >
-                <Activity className="w-4 h-4" />
+                <Activity className="w-4 h-4" aria-hidden="true" />
+                <span className="sm:hidden">{t('performance.title', '性能监控')}</span>
               </Button>
-              <div className="inline-flex items-center rounded-lg border border-border bg-background p-1">
+              
+              {/* 语言切换 - 移动端更紧凑 */}
+              <div 
+                className="inline-flex items-center rounded-lg border border-border bg-background p-0.5 sm:p-1 w-full sm:w-auto"
+                role="group"
+                aria-label={t('language.switch', '语言切换')}
+              >
                 <Button
                   variant={locale === 'zh' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => locale !== 'zh' && toggleLanguage()}
-                  className="rounded-md px-3 py-1.5 text-sm font-medium transition-all"
+                  className="rounded-md px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all flex-1 sm:flex-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+                  aria-pressed={locale === 'zh'}
+                  aria-label={t('language.chinese', '切换到中文')}
                 >
                   中文
                 </Button>
@@ -188,7 +204,9 @@ export const Route = createFileRoute('/')({
                   variant={locale === 'en' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => locale !== 'en' && toggleLanguage()}
-                  className="rounded-md px-3 py-1.5 text-sm font-medium transition-all"
+                  className="rounded-md px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all flex-1 sm:flex-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+                  aria-pressed={locale === 'en'}
+                  aria-label={t('language.english', '切换到英文')}
                 >
                   English
                 </Button>
@@ -198,47 +216,120 @@ export const Route = createFileRoute('/')({
         </motion.div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
-            <TabsTrigger value="all" className="flex items-center gap-2">
-              <Grid3X3 className="h-4 w-4" />
-              {t('app.all-tools', '所有工具')}
+          <TabsList 
+            className="grid w-full grid-cols-5 h-auto p-1 mb-6"
+            role="tablist"
+            aria-label={t('tabs.navigation', '工具分类导航')}
+          >
+            <TabsTrigger 
+              value="all" 
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 px-2 sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+              role="tab"
+              aria-selected={activeTab === 'all'}
+              aria-controls="tabpanel-all"
+            >
+              <Grid3X3 className="h-4 w-4" aria-hidden="true" />
+              <span className="text-xs sm:text-sm">{t('app.all-tools', '所有工具')}</span>
             </TabsTrigger>
-            <TabsTrigger value="recent" className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              {t('recent.title')}
-              {recentTools.length > 0 && (
-                <span className="ml-1 text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">
-                  {recentTools.length}
-                </span>
-              )}
+            <TabsTrigger 
+              value="recent" 
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 px-2 sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+              role="tab"
+              aria-selected={activeTab === 'recent'}
+              aria-controls="tabpanel-recent"
+              aria-label={`${t('recent.title')} (${recentTools.length} ${t('tools.count', '个工具')})`}
+            >
+              <div className="flex items-center gap-1">
+                <Clock className="h-4 w-4" aria-hidden="true" />
+                {recentTools.length > 0 && (
+                  <span 
+                    className="rounded-full bg-primary/20 text-primary px-1 py-0.5 text-xs font-medium min-w-[16px] h-4 flex items-center justify-center"
+                    aria-label={`${recentTools.length} ${t('tools.count', '个工具')}`}
+                  >
+                    {recentTools.length}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs sm:text-sm">{t('recent.title')}</span>
             </TabsTrigger>
-            <TabsTrigger value="favorites" className="flex items-center gap-2">
-              <Heart className="h-4 w-4" />
-              {t('favorites.title')}
-              {favorites.length > 0 && (
-                <span className="ml-1 text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">
-                  {favorites.length}
-                </span>
-              )}
+            <TabsTrigger 
+              value="favorites" 
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 px-2 sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+              role="tab"
+              aria-selected={activeTab === 'favorites'}
+              aria-controls="tabpanel-favorites"
+              aria-label={`${t('favorites.title')} (${favorites.length} ${t('tools.count', '个工具')})`}
+            >
+              <div className="flex items-center gap-1">
+                <Heart className="h-4 w-4" aria-hidden="true" />
+                {favorites.length > 0 && (
+                  <span 
+                    className="rounded-full bg-primary/20 text-primary px-1 py-0.5 text-xs font-medium min-w-[16px] h-4 flex items-center justify-center"
+                    aria-label={`${favorites.length} ${t('tools.count', '个工具')}`}
+                  >
+                    {favorites.length}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs sm:text-sm">{t('favorites.title')}</span>
             </TabsTrigger>
-            <TabsTrigger value="search" className="flex items-center gap-2" disabled={!searchQuery}>
-              搜索结果
+            <TabsTrigger 
+              value="search" 
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 px-2 sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset" 
+              disabled={!searchQuery}
+              role="tab"
+              aria-selected={activeTab === 'search'}
+              aria-controls="tabpanel-search"
+              aria-label={searchQuery ? `${t('search.results', '搜索结果')} "${searchQuery}" (${filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)} ${t('tools.count', '个工具')})` : t('search.disabled', '搜索结果（需要输入搜索词）')}
+            >
+              <span className="text-xs sm:text-sm">{t('search.results', '搜索结果')}</span>
               {searchQuery && (
-                <span className="ml-1 text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">
+                <span 
+                  className="rounded-full bg-primary/20 text-primary px-1 py-0.5 text-xs font-medium min-w-[16px] h-4 flex items-center justify-center"
+                  aria-label={`${filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)} ${t('tools.count', '个工具')}`}
+                >
                   {filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)}
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger 
+              value="categories" 
+              className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 px-2 sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+              role="tab"
+              aria-selected={activeTab === 'categories'}
+              aria-controls="tabpanel-categories"
+            >
+              <Settings className="h-4 w-4" aria-hidden="true" />
+              <span className="text-xs sm:text-sm">{t('categories.manage', '分类管理')}</span>
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all">{renderToolGrid(tools)}</TabsContent>
+          <TabsContent 
+            value="all" 
+            id="tabpanel-all"
+            role="tabpanel"
+            aria-labelledby="tab-all"
+          >
+            {renderToolGrid(tools)}
+          </TabsContent>
 
-          <TabsContent value="recent">
+          <TabsContent 
+            value="recent" 
+            id="tabpanel-recent"
+            role="tabpanel"
+            aria-labelledby="tab-recent"
+          >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">{t('recent.title')}</h2>
               {recentTools.length > 0 && (
-                <Button variant="outline" size="sm" onClick={clearRecent} className="flex items-center gap-2">
-                  <Trash2 className="h-4 w-4" />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={clearRecent} 
+                  className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                  aria-label={t('recent.clear.confirm', '清空最近使用的工具')}
+                >
+                  <Trash2 className="h-4 w-4" aria-hidden="true" />
                   {t('recent.clear')}
                 </Button>
               )}
@@ -246,19 +337,38 @@ export const Route = createFileRoute('/')({
             {renderToolGrid(recentToolsData, false)}
           </TabsContent>
 
-          <TabsContent value="favorites">
+          <TabsContent 
+            value="favorites" 
+            id="tabpanel-favorites"
+            role="tabpanel"
+            aria-labelledby="tab-favorites"
+          >
             <div className="mb-4">
               <h2 className="text-xl font-semibold">{t('favorites.title')}</h2>
             </div>
             {renderToolGrid(favoriteTools, false)}
           </TabsContent>
 
-          <TabsContent value="search">
+          <TabsContent 
+            value="search" 
+            id="tabpanel-search"
+            role="tabpanel"
+            aria-labelledby="tab-search"
+          >
             <div className="mb-4">
-              <h2 className="text-xl font-semibold">搜索结果: "{searchQuery}"</h2>
+              <h2 className="text-xl font-semibold">{t('search.results.title', '搜索结果')}: "{searchQuery}"</h2>
             </div>
             {renderToolGrid(filteredTools)}
           </TabsContent>
+
+          <TabsContent 
+             value="categories" 
+             id="tabpanel-categories"
+             role="tabpanel"
+             aria-labelledby="tab-categories"
+           >
+             <CategoryManager allTools={allTools} />
+           </TabsContent>
         </Tabs>
 
         {showPerformanceMonitor && (

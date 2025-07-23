@@ -39,18 +39,18 @@ export function NavMain({ items }: { items: typeof tools }) {
   }
   return (
     <SidebarGroup>
-      <SidebarGroupContent className="flex flex-col gap-2">
-        <SidebarMenu>
+      <SidebarGroupContent className="flex flex-col gap-1 sm:gap-2">
+        <SidebarMenu className="space-y-1">
           {items.map((item) => {
             const isOpen = !!openMap[item.id]
             return (
               <SidebarGroup key={item.id}>
                 <div
-                  className="flex items-center gap-2 mb-2 justify-between cursor-pointer select-none"
+                  className="flex items-center gap-2 mb-1 sm:mb-2 justify-between cursor-pointer select-none px-2 py-1.5 rounded-md hover:bg-accent/50 transition-colors touch-manipulation"
                   onClick={() => toggleGroup(item.id)}
                 >
-                  <span className="text-sm font-medium">{item.type.zh}</span>
-                  <IconChevronRight className={`!size-4 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+                  <span className="text-xs sm:text-sm font-medium truncate">{item.type.zh}</span>
+                  <IconChevronRight className={`!size-3.5 sm:!size-4 transition-transform shrink-0 ${isOpen ? 'rotate-90' : ''}`} />
                 </div>
                 <AnimatePresence initial={false}>
                   {isOpen && (
@@ -77,13 +77,13 @@ export function NavMain({ items }: { items: typeof tools }) {
                           >
                             <SidebarMenuButton
                               tooltip={tool.desc[locale]}
-                              className={`${isSelected ? 'bg-accent text-accent-foreground' : ''} transition-colors hover:bg-primary/10 dark:hover:bg-primary/20`}
+                              className={`${isSelected ? 'bg-accent text-accent-foreground' : ''} transition-colors hover:bg-primary/10 dark:hover:bg-primary/20 h-8 sm:h-9 px-2 text-xs sm:text-sm touch-manipulation`}
                             >
                               {tool.icon && typeof tool.icon === 'string' && Icons[tool.icon as keyof typeof Icons] ? 
-                                React.createElement(Icons[tool.icon as keyof typeof Icons] as React.ComponentType<any>, { className: "size-4 mr-2 text-primary" }) : 
+                                React.createElement(Icons[tool.icon as keyof typeof Icons] as React.ComponentType<any>, { className: "size-3.5 sm:size-4 mr-1.5 sm:mr-2 text-primary shrink-0" }) : 
                                 null
                               }
-                              <span>{tool.name}</span>
+                              <span className="truncate">{tool.name}</span>
                             </SidebarMenuButton>
                           </SidebarMenuItem>
                         )

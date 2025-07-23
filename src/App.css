@@ -77,37 +77,58 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  /* 优化背景和前景色对比度 */
+  --background: oklch(0.12 0 0);
+  --foreground: oklch(0.98 0 0);
+  
+  /* 优化卡片对比度和可读性 */
+  --card: oklch(0.18 0 0);
+  --card-foreground: oklch(0.95 0 0);
+  
+  /* 优化弹出层对比度 */
+  --popover: oklch(0.18 0 0);
+  --popover-foreground: oklch(0.95 0 0);
+  
+  /* 优化主色调，提高可见性 */
+  --primary: oklch(0.85 0.1 220);
+  --primary-foreground: oklch(0.15 0 0);
+  
+  /* 优化次要色调 */
+  --secondary: oklch(0.25 0 0);
+  --secondary-foreground: oklch(0.9 0 0);
+  
+  /* 优化静音色调，提高可读性 */
+  --muted: oklch(0.22 0 0);
+  --muted-foreground: oklch(0.75 0 0);
+  
+  /* 优化强调色 */
+  --accent: oklch(0.25 0 0);
+  --accent-foreground: oklch(0.9 0 0);
+  
+  /* 保持破坏性颜色 */
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  
+  /* 优化边框和输入框对比度 */
+  --border: oklch(1 0 0 / 15%);
+  --input: oklch(1 0 0 / 20%);
+  --ring: oklch(0.6 0 0);
+  
+  /* 优化图表颜色 */
+  --chart-1: oklch(0.55 0.25 260);
+  --chart-2: oklch(0.7 0.18 160);
+  --chart-3: oklch(0.75 0.2 70);
+  --chart-4: oklch(0.65 0.27 300);
+  --chart-5: oklch(0.68 0.25 20);
+  
+  /* 优化侧边栏对比度 */
+  --sidebar: oklch(0.16 0 0);
+  --sidebar-foreground: oklch(0.92 0 0);
+  --sidebar-primary: oklch(0.55 0.25 260);
+  --sidebar-primary-foreground: oklch(0.95 0 0);
+  --sidebar-accent: oklch(0.22 0 0);
+  --sidebar-accent-foreground: oklch(0.88 0 0);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.6 0 0);
 }
 
 @layer base {
@@ -116,5 +137,216 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* 深色模式优化样式 */
+@layer components {
+  /* 优化卡片在深色模式下的视觉效果 */
+  .dark .group:hover {
+    @apply ring-1 ring-primary/20;
+  }
+  
+  /* 优化图标在深色模式下的可见性 */
+  .dark .lucide {
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.1));
+  }
+  
+  /* 优化按钮在深色模式下的交互效果 */
+  .dark .group:hover button {
+    @apply shadow-sm shadow-primary/10;
+  }
+  
+  /* 优化文本在深色模式下的可读性 */
+  .dark .text-muted-foreground {
+    color: oklch(0.75 0 0);
+  }
+  
+  /* 优化边框在深色模式下的可见性 */
+  .dark .border {
+    border-color: oklch(1 0 0 / 15%);
+  }
+  
+  /* 优化输入框在深色模式下的对比度 */
+  .dark input, .dark textarea, .dark select {
+    background-color: oklch(0.18 0 0);
+    border-color: oklch(1 0 0 / 20%);
+  }
+  
+  .dark input:focus, .dark textarea:focus, .dark select:focus {
+    background-color: oklch(0.2 0 0);
+    border-color: oklch(0.85 0.1 220);
+    box-shadow: 0 0 0 2px oklch(0.85 0.1 220 / 20%);
+  }
+  
+  /* 优化滚动条在深色模式下的样式 */
+  .dark ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .dark ::-webkit-scrollbar-track {
+    background: oklch(0.16 0 0);
+    border-radius: 4px;
+  }
+  
+  .dark ::-webkit-scrollbar-thumb {
+    background: oklch(0.3 0 0);
+    border-radius: 4px;
+  }
+  
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.4 0 0);
+  }
+}
+
+/* 移动端响应式优化 */
+@media (max-width: 768px) {
+  /* 优化触摸目标大小 */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  /* 优化移动端字体渲染 */
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  /* 优化移动端输入框 */
+  input, textarea, select {
+    font-size: 16px; /* 防止iOS缩放 */
+  }
+  
+  /* 优化移动端按钮 */
+  button {
+    min-height: 44px; /* iOS推荐的最小触摸目标 */
+  }
+  
+  /* 优化移动端卡片间距 */
+  .grid {
+    gap: 0.75rem;
+  }
+  
+  /* 优化移动端容器内边距 */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* 小屏幕设备优化 */
+@media (max-width: 640px) {
+  /* 进一步减少间距 */
+  .space-y-6 > * + * {
+    margin-top: 1rem;
+  }
+  
+  .space-y-4 > * + * {
+    margin-top: 0.75rem;
+  }
+  
+  /* 优化标题大小 */
+  h1 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+/* 无障碍性增强 */
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  :root {
+    --border: hsl(0 0% 20%);
+    --input: hsl(0 0% 95%);
+    --ring: hsl(0 0% 10%);
+  }
+  
+  [data-theme="dark"] {
+    --border: hsl(0 0% 80%);
+    --input: hsl(0 0% 10%);
+    --ring: hsl(0 0% 90%);
+  }
+}
+
+/* 减少动画偏好支持 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 焦点可见性增强 */
+.focus-visible:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* 跳过链接 */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* 屏幕阅读器专用文本 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 键盘导航增强 */
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  button:hover {
+    background-color: initial;
+  }
+  
+  .hover\:scale-105:hover {
+    transform: none;
+  }
+}
+
+/* 超小屏幕设备优化 */
+@media (max-width: 480px) {
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  /* 进一步优化网格间距 */
+  .grid {
+    gap: 0.5rem;
   }
 }
