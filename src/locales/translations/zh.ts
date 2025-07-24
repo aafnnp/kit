@@ -36,6 +36,11 @@ export default {
   app: {
     title: 'Kit',
     description: '一系列有用的工具',
+    allTools: '所有工具',
+    searchResults: '搜索结果',
+    favorites: '收藏',
+    recent: '最近使用',
+    categories: '分类管理',
   },
   search: {
     placeholder: '搜索工具...',

@@ -169,7 +169,7 @@ export const Route = createFileRoute('/')({
             {t('app.description')}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6 search-mobile">
+          <div className="flex flex-col  gap-3 sm:gap-4 mb-4 sm:mb-6 search-mobile">
             {/* 搜索栏 - 移动端全宽 */}
             <div className="w-full max-w-md mx-auto">
               <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder={t('search.placeholder')} />
@@ -233,7 +233,7 @@ export const Route = createFileRoute('/')({
               aria-controls="tabpanel-all"
             >
               <Grid3X3 className="h-4 w-4" aria-hidden="true" />
-              <span className="text-xs sm:text-sm">{t('app.all-tools', '所有工具')}</span>
+              <span className="text-xs sm:text-sm">{t('app.allTools')}</span>
             </TabsTrigger>
             <TabsTrigger
               value="recent"
@@ -241,7 +241,7 @@ export const Route = createFileRoute('/')({
               role="tab"
               aria-selected={activeTab === 'recent'}
               aria-controls="tabpanel-recent"
-              aria-label={`${t('recent.title')} (${recentTools.length} ${t('tools.count', '个工具')})`}
+              aria-label={`${t('app.recent')} (${recentTools.length} ${t('tools.count')})`}
             >
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" aria-hidden="true" />
@@ -254,7 +254,7 @@ export const Route = createFileRoute('/')({
                   </span>
                 )}
               </div>
-              <span className="text-xs sm:text-sm">{t('recent.title')}</span>
+              <span className="text-xs sm:text-sm">{t('app.recent')}</span>
             </TabsTrigger>
             <TabsTrigger
               value="favorites"
@@ -262,7 +262,7 @@ export const Route = createFileRoute('/')({
               role="tab"
               aria-selected={activeTab === 'favorites'}
               aria-controls="tabpanel-favorites"
-              aria-label={`${t('favorites.title')} (${favorites.length} ${t('tools.count', '个工具')})`}
+              aria-label={`${t('app.favorites')} (${favorites.length} ${t('tools.count', '个工具')})`}
             >
               <div className="flex items-center gap-1">
                 <Heart className="h-4 w-4" aria-hidden="true" />
@@ -286,11 +286,11 @@ export const Route = createFileRoute('/')({
               aria-controls="tabpanel-search"
               aria-label={
                 searchQuery
-                  ? `${t('search.results', '搜索结果')} "${searchQuery}" (${filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)} ${t('tools.count', '个工具')})`
+                  ? `${t('app.searchResults')} "${searchQuery}" (${filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)} ${t('tools.count', '个工具')})`
                   : t('search.disabled', '搜索结果（需要输入搜索词）')
               }
             >
-              <span className="text-xs sm:text-sm">{t('search.results', '搜索结果')}</span>
+              <span className="text-xs sm:text-sm">{t('app.searchResults')}</span>
               {searchQuery && (
                 <span
                   className="rounded-full bg-primary/20 text-primary px-1 py-0.5 text-xs font-medium min-w-[16px] h-4 flex items-center justify-center"
@@ -308,7 +308,7 @@ export const Route = createFileRoute('/')({
               aria-controls="tabpanel-categories"
             >
               <Settings className="h-4 w-4" aria-hidden="true" />
-              <span className="text-xs sm:text-sm">{t('categories.manage', '分类管理')}</span>
+              <span className="text-xs sm:text-sm">{t('app.categories')}</span>
             </TabsTrigger>
           </TabsList>
 

@@ -35,6 +35,11 @@ export default {
   app: {
     title: 'Kit',
     description: 'A collection of useful tools',
+    allTools: 'All Tools',
+    searchResults: 'Search Results',
+    favorites: 'Favorites',
+    recent: 'Recent Used',
+    categories: 'Categories',
   },
   search: {
     placeholder: 'Search tools...',
