@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -80,46 +80,46 @@
   /* 优化背景和前景色对比度 */
   --background: oklch(0.12 0 0);
   --foreground: oklch(0.98 0 0);
-  
+
   /* 优化卡片对比度和可读性 */
   --card: oklch(0.18 0 0);
   --card-foreground: oklch(0.95 0 0);
-  
+
   /* 优化弹出层对比度 */
   --popover: oklch(0.18 0 0);
   --popover-foreground: oklch(0.95 0 0);
-  
+
   /* 优化主色调，提高可见性 */
   --primary: oklch(0.85 0.1 220);
   --primary-foreground: oklch(0.15 0 0);
-  
+
   /* 优化次要色调 */
   --secondary: oklch(0.25 0 0);
   --secondary-foreground: oklch(0.9 0 0);
-  
+
   /* 优化静音色调，提高可读性 */
   --muted: oklch(0.22 0 0);
   --muted-foreground: oklch(0.75 0 0);
-  
+
   /* 优化强调色 */
   --accent: oklch(0.25 0 0);
   --accent-foreground: oklch(0.9 0 0);
-  
+
   /* 保持破坏性颜色 */
   --destructive: oklch(0.704 0.191 22.216);
-  
+
   /* 优化边框和输入框对比度 */
   --border: oklch(1 0 0 / 15%);
   --input: oklch(1 0 0 / 20%);
   --ring: oklch(0.6 0 0);
-  
+
   /* 优化图表颜色 */
   --chart-1: oklch(0.55 0.25 260);
   --chart-2: oklch(0.7 0.18 160);
   --chart-3: oklch(0.75 0.2 70);
   --chart-4: oklch(0.65 0.27 300);
   --chart-5: oklch(0.68 0.25 20);
-  
+
   /* 优化侧边栏对比度 */
   --sidebar: oklch(0.16 0 0);
   --sidebar-foreground: oklch(0.92 0 0);
@@ -148,108 +148,119 @@
     background: linear-gradient(135deg, oklch(0.15 0.02 240) 0%, oklch(0.12 0.01 240) 100%);
     border-color: oklch(0.85 0.1 220 / 40%);
   }
-  
+
   /* 优化工具卡片的深色模式悬停效果 */
-  .dark .group[role="button"]:hover {
+  .dark .group[role='button']:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 20px 25px -5px oklch(0 0 0 / 40%), 0 10px 10px -5px oklch(0 0 0 / 20%), 0 0 0 1px oklch(0.85 0.1 220 / 30%);
+    box-shadow:
+      0 20px 25px -5px oklch(0 0 0 / 40%),
+      0 10px 10px -5px oklch(0 0 0 / 20%),
+      0 0 0 1px oklch(0.85 0.1 220 / 30%);
     background: linear-gradient(135deg, oklch(0.16 0.02 240) 0%, oklch(0.13 0.01 240) 100%);
   }
-  
+
   /* 优化图标在深色模式下的可见性和动画效果 */
   .dark .lucide {
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3)) brightness(1.1) contrast(1.05);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  
+
   .dark .group:hover .lucide {
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4)) brightness(1.2) contrast(1.1);
     transform: scale(1.05);
   }
-  
+
   /* 优化工具卡片图标容器的深色模式效果 */
   .dark .group:hover .bg-primary\/10 {
     background: linear-gradient(135deg, oklch(0.85 0.1 220 / 25%) 0%, oklch(0.85 0.1 220 / 35%) 100%);
-    box-shadow: 0 4px 8px oklch(0.85 0.1 220 / 20%), inset 0 1px 0 oklch(1 0 0 / 10%);
+    box-shadow:
+      0 4px 8px oklch(0.85 0.1 220 / 20%),
+      inset 0 1px 0 oklch(1 0 0 / 10%);
   }
-  
+
   /* 优化按钮在深色模式下的交互效果 */
-  .dark .group:hover button {
+  .dark .tool-card.group:hover button {
     @apply shadow-md shadow-primary/20;
     background: linear-gradient(135deg, oklch(0.85 0.1 220) 0%, oklch(0.8 0.12 220) 100%);
   }
-  
+
   /* 优化文本在深色模式下的可读性 */
   .dark .text-muted-foreground {
     color: oklch(0.78 0.02 240);
   }
-  
+
   .dark .group:hover .text-muted-foreground {
     color: oklch(0.85 0.03 240);
   }
-  
+
   /* 优化标题文本在深色模式下的对比度 */
   .dark .font-semibold {
     color: oklch(0.95 0.02 240);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
-  
+
   /* 优化边框在深色模式下的可见性 */
   .dark .border {
     border-color: oklch(1 0 0 / 18%);
   }
-  
+
   .dark .group:hover .border {
     border-color: oklch(0.85 0.1 220 / 40%);
   }
-  
+
   /* 优化输入框在深色模式下的对比度 */
-  .dark input, .dark textarea, .dark select {
+  .dark input,
+  .dark textarea,
+  .dark select {
     background-color: oklch(0.16 0.01 240);
     border-color: oklch(1 0 0 / 22%);
     color: oklch(0.9 0.02 240);
   }
-  
-  .dark input:focus, .dark textarea:focus, .dark select:focus {
+
+  .dark input:focus,
+  .dark textarea:focus,
+  .dark select:focus {
     background-color: oklch(0.18 0.01 240);
     border-color: oklch(0.85 0.1 220);
-    box-shadow: 0 0 0 3px oklch(0.85 0.1 220 / 25%), 0 4px 6px -1px oklch(0 0 0 / 20%);
+    box-shadow:
+      0 0 0 3px oklch(0.85 0.1 220 / 25%),
+      0 4px 6px -1px oklch(0 0 0 / 20%);
   }
-  
+
   /* 优化滚动条在深色模式下的样式 */
   .dark ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
-  
+
   .dark ::-webkit-scrollbar-track {
     background: oklch(0.14 0.01 240);
     border-radius: 6px;
     border: 1px solid oklch(1 0 0 / 8%);
   }
-  
+
   .dark ::-webkit-scrollbar-thumb {
     background: linear-gradient(135deg, oklch(0.32 0.02 240) 0%, oklch(0.28 0.01 240) 100%);
     border-radius: 6px;
     border: 1px solid oklch(1 0 0 / 15%);
   }
-  
+
   .dark ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(135deg, oklch(0.42 0.03 240) 0%, oklch(0.38 0.02 240) 100%);
   }
-  
+
   /* 优化卡片内容区域的深色模式效果 */
   .dark .bg-card {
     background: linear-gradient(135deg, oklch(0.14 0.01 240) 0%, oklch(0.12 0.005 240) 100%);
     border-color: oklch(1 0 0 / 15%);
   }
-  
+
   /* 优化收藏按钮的深色模式效果 */
-  .dark .group:hover [aria-label*="收藏"] {
+  .dark .group:hover [aria-label*='收藏'] {
     background: oklch(0.85 0.1 220 / 15%);
     border-color: oklch(0.85 0.1 220 / 30%);
   }
-  
+
   /* 优化焦点状态的深色模式效果 */
   .dark .focus-visible\:ring-primary {
     --tw-ring-color: oklch(0.85 0.1 220 / 60%);
@@ -263,67 +274,69 @@
   .touch-manipulation {
     touch-action: manipulation;
   }
-  
+
   /* 优化移动端字体渲染 */
   body {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
-  
+
   /* 优化移动端输入框 */
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     font-size: 16px; /* 防止iOS缩放 */
   }
-  
+
   /* 优化移动端按钮 */
   button {
     min-height: 44px; /* iOS推荐的最小触摸目标 */
   }
-  
+
   /* 优化移动端卡片间距 */
   .grid {
     gap: 0.75rem;
   }
-  
+
   /* 优化移动端容器内边距 */
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
+
   /* 移动端侧边栏优化 */
-  [data-mobile="true"] {
+  [data-mobile='true'] {
     width: 85vw !important;
     max-width: 320px;
   }
-  
+
   /* 移动端工具卡片优化 */
   .tool-card-mobile {
     padding: 0.75rem;
   }
-  
+
   /* 移动端标签页优化 */
   .tabs-mobile {
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
-  
+
   .tabs-mobile::-webkit-scrollbar {
     display: none;
   }
-  
+
   /* 移动端搜索栏优化 */
   .search-mobile {
     width: 100%;
     margin-bottom: 1rem;
   }
-  
+
   /* 移动端网格布局优化 */
   .grid-mobile-1 {
     grid-template-columns: 1fr;
   }
-  
+
   .grid-mobile-2 {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -335,17 +348,17 @@
   .space-y-6 > * + * {
     margin-top: 1rem;
   }
-  
+
   .space-y-4 > * + * {
     margin-top: 0.75rem;
   }
-  
+
   /* 优化标题大小 */
   h1 {
     font-size: 1.5rem;
     line-height: 2rem;
   }
-  
+
   h2 {
     font-size: 1.25rem;
     line-height: 1.75rem;
@@ -359,13 +372,14 @@
   .hover-effect {
     transform: none !important;
   }
-  
+
   /* 增大触摸目标 */
-  button, .clickable {
+  button,
+  .clickable {
     min-height: 48px;
     min-width: 48px;
   }
-  
+
   /* 优化触摸反馈 */
   .touch-feedback:active {
     transform: scale(0.95);
@@ -379,7 +393,7 @@
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
   }
-  
+
   .sidebar-landscape {
     width: 200px;
   }
@@ -392,17 +406,17 @@
     --input: hsl(0 0% 95%);
     --ring: hsl(0 0% 10%);
   }
-  
-  [data-theme="dark"] {
+
+  [data-theme='dark'] {
     --border: hsl(0 0% 80%);
     --input: hsl(0 0% 10%);
     --ring: hsl(0 0% 90%);
   }
-  
+
   .card {
     border-width: 2px;
   }
-  
+
   .button {
     border-width: 2px;
   }
@@ -418,7 +432,7 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
   /* 保留必要的变换但移除动画 */
   .reduced-motion {
     transition: none !important;
@@ -462,7 +476,7 @@
 }
 
 /* 键盘导航增强 */
-[tabindex="-1"]:focus {
+[tabindex='-1']:focus {
   outline: none;
 }
 
@@ -471,7 +485,7 @@
   button:hover {
     background-color: initial;
   }
-  
+
   .hover\:scale-105:hover {
     transform: none;
   }
@@ -483,12 +497,12 @@
   .grid-tablet-3 {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   /* 平板端侧边栏优化 */
   .sidebar-tablet {
     width: 240px;
   }
-  
+
   /* 平板端工具卡片优化 */
   .tool-card-tablet {
     padding: 1rem;
@@ -501,15 +515,15 @@
   .grid-desktop-4 {
     grid-template-columns: repeat(4, 1fr);
   }
-  
+
   .grid-desktop-5 {
     grid-template-columns: repeat(5, 1fr);
   }
-  
+
   .grid-desktop-6 {
     grid-template-columns: repeat(6, 1fr);
   }
-  
+
   /* 大屏幕容器优化 */
   .container-desktop {
     max-width: 1400px;
@@ -521,7 +535,7 @@
   .grid-ultrawide-6 {
     grid-template-columns: repeat(6, 1fr);
   }
-  
+
   .grid-ultrawide-7 {
     grid-template-columns: repeat(7, 1fr);
   }
@@ -533,23 +547,23 @@
     padding-left: 0.75rem;
     padding-right: 0.75rem;
   }
-  
+
   /* 进一步优化网格间距 */
   .grid {
     gap: 0.5rem;
   }
-  
+
   /* 超小屏幕工具卡片优化 */
   .tool-card-xs {
     padding: 0.5rem;
   }
-  
+
   /* 超小屏幕字体优化 */
   .text-xs-mobile {
     font-size: 0.75rem;
     line-height: 1rem;
   }
-  
+
   /* 超小屏幕按钮优化 */
   .btn-xs-mobile {
     padding: 0.5rem 0.75rem;

@@ -404,7 +404,7 @@ const useTextExport = () => {
  * Enhanced Word Count Tool
  * Features: Batch processing, multiple file formats, comprehensive text analysis, real-time processing
  */
-const WordCountCore = () => {
+const WordCount = () => {
   const [files, setFiles] = useState<TextFile[]>([])
   const [manualText, setManualText] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
@@ -1095,10 +1095,4 @@ const WordCountCore = () => {
     </div>
   )
 }
-
-// Main component with error boundary
-const WordCount = () => {
-  return <WordCountCore />
-}
-
 export default WordCount

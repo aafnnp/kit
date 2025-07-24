@@ -168,7 +168,7 @@ function RouteComponent() {
   return (
     <div className="max-w-4xl mx-auto py-10 px-4">
       <h1 className="text-2xl font-bold mb-6">{t('设置')}</h1>
-      
+
       <Tabs defaultValue="general" className="space-y-6">
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="general" className="flex items-center gap-2">
@@ -216,9 +216,9 @@ function RouteComponent() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <Separator />
-              
+
               <div>
                 <div className="font-medium mb-2">{t('语言')}</div>
                 <div className="flex gap-2">
@@ -238,9 +238,9 @@ function RouteComponent() {
                   </Button>
                 </div>
               </div>
-              
+
               <Separator />
-              
+
               <div>
                 <div className="font-medium mb-2">{t('当前版本')}</div>
                 <div className="flex items-center gap-4">
@@ -276,9 +276,7 @@ function RouteComponent() {
                       <Download className="w-4 h-4 mr-2" />
                       {t('导出数据')}
                     </Button>
-                    <p className="text-sm text-muted-foreground">
-                      {t('导出所有设置、历史记录和偏好配置')}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t('导出所有设置、历史记录和偏好配置')}</p>
                   </div>
                   <div className="space-y-2">
                     <div>
@@ -296,15 +294,13 @@ function RouteComponent() {
                         </Label>
                       </Button>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {t('从文件导入之前导出的数据')}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t('从文件导入之前导出的数据')}</p>
                   </div>
                 </div>
               </div>
-              
+
               <Separator />
-              
+
               <div>
                 <h3 className="text-lg font-medium mb-4">{t('数据统计')}</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -322,22 +318,18 @@ function RouteComponent() {
                   </div>
                   <div className="text-center p-4 bg-muted rounded-lg">
                     <div className="text-2xl font-bold">
-                      {Math.round((localStorage.getItem('kit-favorites')?.length || 2) / 1024 * 100) / 100}KB
+                      {Math.round(((localStorage.getItem('kit-favorites')?.length || 2) / 1024) * 100) / 100}KB
                     </div>
                     <div className="text-sm text-muted-foreground">{t('存储大小')}</div>
                   </div>
                 </div>
               </div>
-              
+
               <Separator />
-              
+
               <div>
                 <h3 className="text-lg font-medium mb-4 text-destructive">{t('危险操作')}</h3>
-                <Button 
-                  onClick={() => setClearDataDialog(true)} 
-                  variant="destructive"
-                  className="w-full md:w-auto"
-                >
+                <Button onClick={() => setClearDataDialog(true)} variant="destructive" className="w-full md:w-auto">
                   <Trash2 className="w-4 h-4 mr-2" />
                   {t('清空所有数据')}
                 </Button>
@@ -355,9 +347,9 @@ function RouteComponent() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium">{t('使用历史记录')}</h3>
-                <Button 
-                  onClick={history.clearHistory} 
-                  variant="outline" 
+                <Button
+                  onClick={history.clearHistory}
+                  variant="outline"
                   size="sm"
                   disabled={history.history.length === 0}
                 >
@@ -365,12 +357,10 @@ function RouteComponent() {
                   {t('清空历史')}
                 </Button>
               </div>
-              
+
               <ScrollArea className="h-96">
                 {history.history.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    {t('暂无使用历史')}
-                  </div>
+                  <div className="text-center py-8 text-muted-foreground">{t('暂无使用历史')}</div>
                 ) : (
                   <div className="space-y-2">
                     {history.history.map((item) => (
@@ -385,11 +375,7 @@ function RouteComponent() {
                           <Badge variant={item.success ? 'default' : 'destructive'}>
                             {item.success ? t('成功') : t('失败')}
                           </Badge>
-                          {item.duration && (
-                            <span className="text-sm text-muted-foreground">
-                              {item.duration}ms
-                            </span>
-                          )}
+                          {item.duration && <span className="text-sm text-muted-foreground">{item.duration}ms</span>}
                         </div>
                       </div>
                     ))}
@@ -405,14 +391,12 @@ function RouteComponent() {
           <Card className="p-6">
             <div className="space-y-6">
               <h3 className="text-lg font-medium">{t('应用偏好设置')}</h3>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="auto-save">{t('自动保存')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('自动保存工具配置和输入数据')}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t('自动保存工具配置和输入数据')}</p>
                   </div>
                   <Switch
                     id="auto-save"
@@ -420,15 +404,13 @@ function RouteComponent() {
                     onCheckedChange={(checked) => preferences.updatePreference('autoSave', checked)}
                   />
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="show-tips">{t('显示提示')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('在工具页面显示使用提示和帮助信息')}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t('在工具页面显示使用提示和帮助信息')}</p>
                   </div>
                   <Switch
                     id="show-tips"
@@ -436,15 +418,13 @@ function RouteComponent() {
                     onCheckedChange={(checked) => preferences.updatePreference('showTips', checked)}
                   />
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="compact-mode">{t('紧凑模式')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('使用更紧凑的界面布局')}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t('使用更紧凑的界面布局')}</p>
                   </div>
                   <Switch
                     id="compact-mode"
@@ -452,15 +432,13 @@ function RouteComponent() {
                     onCheckedChange={(checked) => preferences.updatePreference('compactMode', checked)}
                   />
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="notifications">{t('通知')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('显示操作完成和错误通知')}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t('显示操作完成和错误通知')}</p>
                   </div>
                   <Switch
                     id="notifications"
@@ -468,16 +446,14 @@ function RouteComponent() {
                     onCheckedChange={(checked) => preferences.updatePreference('notifications', checked)}
                   />
                 </div>
-                
+
                 <Separator />
-                
+
                 <div>
                   <Label htmlFor="history-limit">{t('历史记录限制')}</Label>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {t('最多保存的历史记录条数')}
-                  </p>
-                  <Select 
-                    value={preferences.preferences.historyLimit.toString()} 
+                  <p className="text-sm text-muted-foreground mb-2">{t('最多保存的历史记录条数')}</p>
+                  <Select
+                    value={preferences.preferences.historyLimit.toString()}
                     onValueChange={(value) => preferences.updatePreference('historyLimit', parseInt(value))}
                   >
                     <SelectTrigger className="w-32">
@@ -491,14 +467,11 @@ function RouteComponent() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="pt-4">
-                  <Button 
-                    onClick={preferences.resetPreferences} 
-                    variant="outline"
-                  >
+                  <Button onClick={preferences.resetPreferences} variant="outline">
                     {t('重置为默认设置')}
                   </Button>
                 </div>
@@ -507,10 +480,8 @@ function RouteComponent() {
           </Card>
         </TabsContent>
       </Tabs>
-      
-      <div className="text-muted-foreground text-xs text-center mt-8">
-        Kit © {new Date().getFullYear()}
-      </div>
+
+      <div className="text-muted-foreground text-xs text-center mt-8">Kit © {new Date().getFullYear()}</div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent showCloseButton={step !== 'downloading'}>
@@ -568,19 +539,13 @@ function RouteComponent() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{t('导入数据')}</DialogTitle>
-            <DialogDescription>
-              {t('请确认要导入的数据内容，此操作将覆盖当前所有数据')}
-            </DialogDescription>
+            <DialogDescription>{t('请确认要导入的数据内容，此操作将覆盖当前所有数据')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <ScrollArea className="h-32 w-full border rounded p-2">
               <pre className="text-xs">{importData.slice(0, 500)}...</pre>
             </ScrollArea>
-            {importError && (
-              <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
-                {importError}
-              </div>
-            )}
+            {importError && <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">{importError}</div>}
           </div>
           <DialogFooter>
             <Button onClick={() => setImportDialog(false)} variant="outline">
@@ -604,7 +569,10 @@ function RouteComponent() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('取消')}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleClearAllData} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={handleClearAllData}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               {t('确认清空')}
             </AlertDialogAction>
           </AlertDialogFooter>

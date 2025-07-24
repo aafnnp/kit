@@ -17,7 +17,7 @@ export function NavMain({ items }: { items: typeof tools }) {
   const router = useRouter()
   const { i18n } = useTranslation()
   const locale = i18n.language.startsWith('en') ? 'en' : 'zh'
-  
+
   // 获取当前 url 的 slug
   const pathname = useLocation({ select: (l) => l.pathname })
   const match = pathname.match(/^\/tool\/([^\/]+)/)
@@ -46,11 +46,13 @@ export function NavMain({ items }: { items: typeof tools }) {
             return (
               <SidebarGroup key={item.id}>
                 <div
-                  className="flex items-center gap-2 mb-1 sm:mb-2 justify-between cursor-pointer select-none px-2 py-1.5 rounded-md hover:bg-accent/50 transition-colors touch-manipulation"
+                  className="flex items-center gap-2 mb-1 sm:mb-2 justify-between cursor-pointer select-none px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors touch-manipulation"
                   onClick={() => toggleGroup(item.id)}
                 >
                   <span className="text-xs sm:text-sm font-medium truncate">{item.type.zh}</span>
-                  <IconChevronRight className={`!size-3.5 sm:!size-4 transition-transform shrink-0 ${isOpen ? 'rotate-90' : ''}`} />
+                  <IconChevronRight
+                    className={`!size-3.5 sm:!size-4 transition-transform shrink-0 ${isOpen ? 'rotate-90' : ''}`}
+                  />
                 </div>
                 <AnimatePresence initial={false}>
                   {isOpen && (
@@ -65,24 +67,24 @@ export function NavMain({ items }: { items: typeof tools }) {
                       {item.tools.map((tool: any) => {
                         const isSelected = tool.slug === currentSlug
                         return (
-                          <SidebarMenuItem
-                            key={tool.slug}
-                            onClick={() => {
-                              if (tool.href) {
-                                window.open(tool.href, '_blank')
-                                return
-                              }
-                              router.navigate({ to: `/tool/${tool.slug}` })
-                            }}
-                          >
+                          <SidebarMenuItem key={tool.slug}>
                             <SidebarMenuButton
+                              isActive={isSelected}
                               tooltip={tool.desc[locale]}
-                              className={`${isSelected ? 'bg-accent text-accent-foreground' : ''} transition-colors hover:bg-primary/10 dark:hover:bg-primary/20 h-8 sm:h-9 px-2 text-xs sm:text-sm touch-manipulation`}
+                              onClick={() => {
+                                if (tool.href) {
+                                  window.open(tool.href, '_blank')
+                                  return
+                                }
+                                router.navigate({ to: `/tool/${tool.slug}` })
+                              }}
                             >
-                              {tool.icon && typeof tool.icon === 'string' && Icons[tool.icon as keyof typeof Icons] ? 
-                                React.createElement(Icons[tool.icon as keyof typeof Icons] as React.ComponentType<any>, { className: "size-3.5 sm:size-4 mr-1.5 sm:mr-2 text-primary shrink-0" }) : 
-                                null
-                              }
+                              {tool.icon && typeof tool.icon === 'string' && Icons[tool.icon as keyof typeof Icons]
+                                ? React.createElement(
+                                    Icons[tool.icon as keyof typeof Icons] as React.ComponentType<any>,
+                                    { className: 'size-3.5 sm:size-4 mr-1.5 sm:mr-2 text-primary shrink-0' }
+                                  )
+                                : null}
                               <span className="truncate">{tool.name}</span>
                             </SidebarMenuButton>
                           </SidebarMenuItem>

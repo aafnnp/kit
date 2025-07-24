@@ -4,35 +4,14 @@ import { AppSidebar } from '@/components/app-sidebar'
 import { SiteHeader } from '@/components/site-header'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { PerformanceMonitor } from '@/components/performance-monitor'
-import { codeSplittingManager } from '@/lib/code-splitting'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 export const Route = createRootRoute({
   component: () => {
     const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false)
 
-    useEffect(() => {
-      // 初始化代码分割系统
-      if (typeof window !== 'undefined') {
-        codeSplittingManager.setupLazyLoading()
-        
-        // 智能预加载常用工具
-        const initializeCodeSplitting = async () => {
-          try {
-            const recentTools = JSON.parse(localStorage.getItem('recent_tools') || '[]')
-            const favoriteTools = JSON.parse(localStorage.getItem('favorite_tools') || '[]')
-            
-            await codeSplittingManager.smartPreload(recentTools, favoriteTools)
-          } catch (error) {
-            console.warn('Failed to initialize code splitting:', error)
-          }
-        }
+    // 移除 codeSplittingManager 相关逻辑
 
-        // 延迟初始化，避免影响初始页面加载
-        setTimeout(initializeCodeSplitting, 1000)
-      }
-    }, [])
-    
     return (
       <>
         <SidebarProvider>
@@ -44,12 +23,9 @@ export const Route = createRootRoute({
             </main>
           </SidebarInset>
         </SidebarProvider>
-        
-        <PerformanceMonitor 
-          isOpen={showPerformanceMonitor} 
-          onClose={() => setShowPerformanceMonitor(false)} 
-        />
-        
+
+        <PerformanceMonitor isOpen={showPerformanceMonitor} onClose={() => setShowPerformanceMonitor(false)} />
+
         {/* 性能监控切换按钮 */}
         {!showPerformanceMonitor && (
           <button

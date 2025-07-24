@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Activity, Zap, Database, Clock, TrendingUp, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { useCodeSplitting } from '@/lib/code-splitting'
 import { resourceOptimizer } from '@/lib/resource-optimizer'
 import { cache } from '@/lib/cache'
 import { preloader } from '@/lib/preloader'
@@ -16,7 +15,7 @@ interface PerformanceStats {
   loadedChunks: number
   failedChunks: number
   loadingChunks: number
-  
+
   // 缓存统计
   cacheHits: number
   cacheMisses: number
@@ -47,7 +46,6 @@ interface PerformanceMonitorProps {
 }
 
 export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps) {
-  const { getStats } = useCodeSplitting()
   const [stats, setStats] = useState<PerformanceStats>({
     totalChunks: 0,
     loadedChunks: 0,
@@ -73,7 +71,6 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
   // 获取性能统计数据
   const updateStats = () => {
     try {
-      const splittingStats = getStats()
       const resourceStats = resourceOptimizer.getStats()
       const cacheStats = cache.getStats()
       const preloaderStats = preloader.getStats()
@@ -86,10 +83,10 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
       }
 
       setStats({
-        totalChunks: splittingStats.totalChunks,
-        loadedChunks: splittingStats.loadedChunks,
-        failedChunks: splittingStats.failedChunks,
-        loadingChunks: splittingStats.loadingChunks,
+        totalChunks: 0, // No longer tracking total chunks
+        loadedChunks: 0, // No longer tracking loaded chunks
+        failedChunks: 0, // No longer tracking failed chunks
+        loadingChunks: 0, // No longer tracking loading chunks
         cacheHits: cacheStats.hits,
         cacheMisses: cacheStats.misses,
         cacheSize: cacheStats.size,
@@ -101,8 +98,8 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
         preloadedModules: preloaderStats.preloadedModules,
         preloadHits: preloaderStats.hits,
         totalPreloaded: preloaderStats.total,
-         successfulPreloads: preloaderStats.loaded,
-         failedPreloads: preloaderStats.total - preloaderStats.loaded,
+        successfulPreloads: preloaderStats.loaded,
+        failedPreloads: preloaderStats.total - preloaderStats.loaded,
         averageLoadTime: preloaderStats.averageLoadTime,
         totalLoadTime: preloaderStats.totalLoadTime,
         memoryUsage,
@@ -201,7 +198,10 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
                   <div className="text-2xl font-bold">
                     {stats.totalChunks > 0 ? ((stats.loadedChunks / stats.totalChunks) * 100).toFixed(1) : '0'}%
                   </div>
-                  <Progress value={stats.totalChunks > 0 ? (stats.loadedChunks / stats.totalChunks) * 100 : 0} className="mt-2" />
+                  <Progress
+                    value={stats.totalChunks > 0 ? (stats.loadedChunks / stats.totalChunks) * 100 : 0}
+                    className="mt-2"
+                  />
                 </CardContent>
               </Card>
 

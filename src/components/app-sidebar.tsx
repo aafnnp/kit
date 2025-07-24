@@ -9,9 +9,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from '@/components/ui/sidebar'
-import { Link, useNavigate, useLocation } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import tools from '@/lib/data'
 import { useTranslation } from 'react-i18next'
 
@@ -26,7 +25,6 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { t } = useTranslation()
-  const { setOpen, isMobile } = useSidebar()
   
   return (
     <Sidebar 
@@ -35,7 +33,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       role="navigation"
       aria-label={t('sidebar.navigation', '主导航')}
       className="sidebar-tablet lg:sidebar-desktop"
-      data-mobile={isMobile}
     >
       <SidebarHeader className="p-3 sm:p-4" role="banner">
         <SidebarMenu className="flex flex-row justify-between">
