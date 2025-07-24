@@ -4,7 +4,6 @@
 
 import React from 'react'
 import { resourceOptimizer } from '@/lib/resource-optimizer'
-import type { LucideIcon } from 'lucide-react'
 
 interface IconProps {
   name: string
@@ -20,15 +19,8 @@ interface IconProps {
  */
 export function Icon({ name, size = 16, className = '', style, ...props }: IconProps) {
   const IconComponent = resourceOptimizer.getIcon(name)
-  
-  return (
-    <IconComponent
-      size={size}
-      className={className}
-      style={style}
-      {...props}
-    />
-  )
+
+  return <IconComponent size={size} className={className} style={style} {...props} />
 }
 
 /**
@@ -43,22 +35,14 @@ export function useIconPreload(iconNames: string[]) {
 /**
  * 批量图标组件
  */
-export function IconBatch({ icons, ...commonProps }: {
-  icons: string[]
-  size?: number | string
-  className?: string
-}) {
+export function IconBatch({ icons, ...commonProps }: { icons: string[]; size?: number | string; className?: string }) {
   // 预加载所有图标
   useIconPreload(icons)
-  
+
   return (
     <>
       {icons.map((iconName, index) => (
-        <Icon
-          key={`${iconName}-${index}`}
-          name={iconName}
-          {...commonProps}
-        />
+        <Icon key={`${iconName}-${index}`} name={iconName} {...commonProps} />
       ))}
     </>
   )
@@ -70,7 +54,7 @@ export function IconBatch({ icons, ...commonProps }: {
 export function IconMappingDebug() {
   const stats = resourceOptimizer.getStats()
   const suggestions = resourceOptimizer.getOptimizationSuggestions()
-  
+
   return (
     <div className="p-4 border rounded-lg bg-muted/50">
       <h3 className="font-semibold mb-2">图标优化统计</h3>
@@ -84,7 +68,7 @@ export function IconMappingDebug() {
           <p>可优化依赖: {stats.dependencyAnalysis.optimizable}</p>
         </div>
       </div>
-      
+
       {suggestions.length > 0 && (
         <div className="mt-4">
           <h4 className="font-medium mb-2">优化建议:</h4>

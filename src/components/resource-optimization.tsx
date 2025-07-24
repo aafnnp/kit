@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -24,7 +24,7 @@ export function ResourceOptimization() {
     resourcesPreloaded: 0,
     dependenciesAnalyzed: 0,
     potentialSavings: '0 KB',
-    optimizationScore: 0
+    optimizationScore: 0,
   })
   const [isOptimizing, setIsOptimizing] = useState(false)
   const [optimizationProgress, setOptimizationProgress] = useState(0)
@@ -36,14 +36,17 @@ export function ResourceOptimization() {
   const loadStats = async () => {
     try {
       const resourceStats = resourceOptimizer.getStats()
-      const totalDeps = resourceStats.dependencyAnalysis.heavy + resourceStats.dependencyAnalysis.optimizable + resourceStats.dependencyAnalysis.light
+      const totalDeps =
+        resourceStats.dependencyAnalysis.heavy +
+        resourceStats.dependencyAnalysis.optimizable +
+        resourceStats.dependencyAnalysis.light
       setStats({
         iconsLoaded: resourceStats.loadedResources,
         iconsCached: resourceStats.cachedIcons,
         resourcesPreloaded: resourceStats.cachedResources,
         dependenciesAnalyzed: totalDeps,
         potentialSavings: `${resourceStats.dependencyAnalysis.optimizable * 50}KB`,
-        optimizationScore: Math.round((resourceStats.cachedIcons / Math.max(resourceStats.loadedResources, 1)) * 100)
+        optimizationScore: Math.round((resourceStats.cachedIcons / Math.max(resourceStats.loadedResources, 1)) * 100),
       })
     } catch (error) {
       console.error('Failed to load optimization stats:', error)
@@ -61,11 +64,11 @@ export function ResourceOptimization() {
         { name: '分析依赖关系', progress: 40 },
         { name: '优化资源加载', progress: 60 },
         { name: '清理缓存', progress: 80 },
-        { name: '完成优化', progress: 100 }
+        { name: '完成优化', progress: 100 },
       ]
 
       for (const step of steps) {
-        await new Promise(resolve => setTimeout(resolve, 800))
+        await new Promise((resolve) => setTimeout(resolve, 800))
         setOptimizationProgress(step.progress)
       }
 
@@ -73,7 +76,7 @@ export function ResourceOptimization() {
       resourceOptimizer.preloadIcons(['Home', 'Settings', 'User', 'Search', 'Heart'])
       await resourceOptimizer.lazyLoadResource('/static/js/common.js', 'script').catch(() => {})
       await resourceOptimizer.lazyLoadResource('/static/css/common.css', 'style').catch(() => {})
-      
+
       await loadStats()
     } catch (error) {
       console.error('Optimization failed:', error)
@@ -98,7 +101,7 @@ export function ResourceOptimization() {
     return 'text-red-600'
   }
 
-  const getScoreBadgeVariant = (score: number): "default" | "secondary" | "destructive" | "outline" => {
+  const getScoreBadgeVariant = (score: number): 'default' | 'secondary' | 'destructive' | 'outline' => {
     if (score >= 80) return 'default'
     if (score >= 60) return 'secondary'
     return 'destructive'
@@ -113,9 +116,7 @@ export function ResourceOptimization() {
             <Icon name="Zap" className="h-5 w-5" />
             资源优化概览
           </CardTitle>
-          <CardDescription>
-            监控和优化应用程序的资源使用情况
-          </CardDescription>
+          <CardDescription>监控和优化应用程序的资源使用情况</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -141,9 +142,7 @@ export function ResourceOptimization() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">优化评分:</span>
               <Badge variant={getScoreBadgeVariant(stats.optimizationScore)}>
-                <span className={getScoreColor(stats.optimizationScore)}>
-                  {stats.optimizationScore}%
-                </span>
+                <span className={getScoreColor(stats.optimizationScore)}>{stats.optimizationScore}%</span>
               </Badge>
             </div>
             <div className="text-sm text-muted-foreground">
@@ -162,27 +161,15 @@ export function ResourceOptimization() {
           )}
 
           <div className="flex gap-2">
-            <Button 
-              onClick={runOptimization} 
-              disabled={isOptimizing}
-              className="flex items-center gap-2"
-            >
+            <Button onClick={runOptimization} disabled={isOptimizing} className="flex items-center gap-2">
               <Icon name="Play" className="h-4 w-4" />
               {isOptimizing ? '优化中...' : '开始优化'}
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={clearCache}
-              className="flex items-center gap-2"
-            >
+            <Button variant="outline" onClick={clearCache} className="flex items-center gap-2">
               <Icon name="Trash2" className="h-4 w-4" />
               清理缓存
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={loadStats}
-              className="flex items-center gap-2"
-            >
+            <Button variant="outline" onClick={loadStats} className="flex items-center gap-2">
               <Icon name="RefreshCw" className="h-4 w-4" />
               刷新统计
             </Button>
@@ -206,9 +193,7 @@ export function ResourceOptimization() {
           <Card>
             <CardHeader>
               <CardTitle>图标优化</CardTitle>
-              <CardDescription>
-                管理和优化项目中的图标使用
-              </CardDescription>
+              <CardDescription>管理和优化项目中的图标使用</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -228,13 +213,11 @@ export function ResourceOptimization() {
                       <Icon name="Zap" className="h-4 w-4" />
                       智能预加载
                     </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      预加载常用图标，提升用户体验
-                    </p>
+                    <p className="text-sm text-muted-foreground mb-3">预加载常用图标，提升用户体验</p>
                     <Badge variant="outline">已实现</Badge>
                   </div>
                 </div>
-                
+
                 <div className="p-4 bg-muted rounded-lg">
                   <h4 className="font-medium mb-2">优化效果</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
@@ -252,9 +235,7 @@ export function ResourceOptimization() {
           <Card>
             <CardHeader>
               <CardTitle>资源管理</CardTitle>
-              <CardDescription>
-                监控和优化应用程序资源的加载策略
-              </CardDescription>
+              <CardDescription>监控和优化应用程序资源的加载策略</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -264,27 +245,21 @@ export function ResourceOptimization() {
                       <Icon name="Download" className="h-4 w-4" />
                       按需加载
                     </h4>
-                    <p className="text-sm text-muted-foreground">
-                      只在需要时加载资源，减少初始 bundle 大小
-                    </p>
+                    <p className="text-sm text-muted-foreground">只在需要时加载资源，减少初始 bundle 大小</p>
                   </div>
                   <div className="p-4 border rounded-lg">
                     <h4 className="font-medium mb-2 flex items-center gap-2">
                       <Icon name="Clock" className="h-4 w-4" />
                       智能预加载
                     </h4>
-                    <p className="text-sm text-muted-foreground">
-                      预测用户行为，提前加载可能需要的资源
-                    </p>
+                    <p className="text-sm text-muted-foreground">预测用户行为，提前加载可能需要的资源</p>
                   </div>
                   <div className="p-4 border rounded-lg">
                     <h4 className="font-medium mb-2 flex items-center gap-2">
                       <Icon name="Database" className="h-4 w-4" />
                       缓存策略
                     </h4>
-                    <p className="text-sm text-muted-foreground">
-                      智能缓存常用资源，提升重复访问速度
-                    </p>
+                    <p className="text-sm text-muted-foreground">智能缓存常用资源，提升重复访问速度</p>
                   </div>
                 </div>
 

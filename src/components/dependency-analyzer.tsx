@@ -2,7 +2,7 @@
  * 依赖分析器组件 - 分析和优化项目依赖
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -42,28 +42,28 @@ export function DependencyAnalyzer() {
     setIsAnalyzing(true)
     try {
       // 模拟分析过程
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
       const analysisResult = resourceOptimizer.analyzeDependencies()
       setAnalysis(analysisResult)
-      
+
       // 计算统计信息
       const totalDeps = analysisResult.heavy.length + analysisResult.optimizable.length + analysisResult.light.length
       const heavyCount = analysisResult.heavy.length
       const optimizableCount = analysisResult.optimizable.length
       const lightCount = analysisResult.light.length
-      
+
       // 估算潜在节省空间
       const potentialSavings = calculatePotentialSavings(analysisResult)
-      
+
       setStats({
         totalDependencies: totalDeps,
         heavyDependencies: heavyCount,
         optimizableDependencies: optimizableCount,
         lightDependencies: lightCount,
-        potentialSavings
+        potentialSavings,
       })
-      
+
       toast.success('依赖分析完成')
     } catch (error) {
       toast.error('分析失败')
@@ -78,7 +78,7 @@ export function DependencyAnalyzer() {
     const heavySavings = analysis.heavy.length * 500 // 平均每个重量级依赖可节省500KB
     const optimizableSavings = analysis.optimizable.length * 100 // 平均每个可优化依赖可节省100KB
     const totalSavings = heavySavings + optimizableSavings
-    
+
     if (totalSavings > 1000) {
       return `~${(totalSavings / 1000).toFixed(1)}MB`
     }
@@ -92,19 +92,27 @@ export function DependencyAnalyzer() {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'heavy': return 'destructive'
-      case 'optimizable': return 'secondary'
-      case 'light': return 'default'
-      default: return 'default'
+      case 'heavy':
+        return 'destructive'
+      case 'optimizable':
+        return 'secondary'
+      case 'light':
+        return 'default'
+      default:
+        return 'default'
     }
   }
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'heavy': return 'AlertTriangle'
-      case 'optimizable': return 'Zap'
-      case 'light': return 'Check'
-      default: return 'Package'
+      case 'heavy':
+        return 'AlertTriangle'
+      case 'optimizable':
+        return 'Zap'
+      case 'light':
+        return 'Check'
+      default:
+        return 'Package'
     }
   }
 
@@ -116,9 +124,7 @@ export function DependencyAnalyzer() {
             <Icon name="Package" className="h-5 w-5" />
             依赖分析器
           </CardTitle>
-          <CardDescription>
-            分析项目依赖并提供优化建议
-          </CardDescription>
+          <CardDescription>分析项目依赖并提供优化建议</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
@@ -154,7 +160,7 @@ export function DependencyAnalyzer() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -166,7 +172,7 @@ export function DependencyAnalyzer() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -178,7 +184,7 @@ export function DependencyAnalyzer() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -219,7 +225,7 @@ export function DependencyAnalyzer() {
                 轻量级 ({stats.lightDependencies})
               </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value={selectedCategory} className="mt-4">
               <div className="space-y-2">
                 {getDependencyList().map((dep, index) => (
@@ -228,12 +234,10 @@ export function DependencyAnalyzer() {
                       <Icon name={getCategoryIcon(selectedCategory)} className="h-4 w-4" />
                       <span className="font-medium">{dep}</span>
                     </div>
-                    <Badge variant={getCategoryColor(selectedCategory) as any}>
-                      {selectedCategory}
-                    </Badge>
+                    <Badge variant={getCategoryColor(selectedCategory) as any}>{selectedCategory}</Badge>
                   </div>
                 ))}
-                
+
                 {getDependencyList().length === 0 && (
                   <div className="text-center py-8 text-muted-foreground">
                     <Icon name="Package" className="h-12 w-12 mx-auto mb-2 opacity-50" />
@@ -258,7 +262,10 @@ export function DependencyAnalyzer() {
           <CardContent>
             <div className="space-y-3">
               {analysis.recommendations.map((recommendation, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 border rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                <div
+                  key={index}
+                  className="flex items-start gap-3 p-3 border rounded-lg bg-blue-50 dark:bg-blue-950/20"
+                >
                   <Icon name="Info" className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-blue-800 dark:text-blue-200">{recommendation}</p>
                 </div>
@@ -272,9 +279,7 @@ export function DependencyAnalyzer() {
       <Card>
         <CardHeader>
           <CardTitle>优化进度</CardTitle>
-          <CardDescription>
-            基于轻量级依赖占比计算的优化程度
-          </CardDescription>
+          <CardDescription>基于轻量级依赖占比计算的优化程度</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -282,10 +287,7 @@ export function DependencyAnalyzer() {
               <span>优化程度</span>
               <span>{Math.round((stats.lightDependencies / stats.totalDependencies) * 100)}%</span>
             </div>
-            <Progress 
-              value={(stats.lightDependencies / stats.totalDependencies) * 100} 
-              className="h-2"
-            />
+            <Progress value={(stats.lightDependencies / stats.totalDependencies) * 100} className="h-2" />
             <p className="text-xs text-muted-foreground">
               {stats.lightDependencies} / {stats.totalDependencies} 个依赖已优化
             </p>

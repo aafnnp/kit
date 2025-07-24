@@ -7,27 +7,23 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { 
-  GitBranch, 
-  Terminal, 
-  Copy, 
-  Play, 
-  Star, 
+import {
+  GitBranch,
+  Terminal,
+  Copy,
+  Star,
   StarOff,
   History,
   BookOpen,
   Search,
-  Filter,
   Download,
-  Upload,
-  RefreshCw,
   CheckCircle,
   AlertCircle,
   Trash2,
-  Plus
+  Plus,
 } from 'lucide-react'
 import { useCopyToClipboard } from '@/hooks/use-clipboard'
-import { 
+import {
   GitHelperState,
   GitCommand,
   GitCommandExecution,
@@ -35,7 +31,7 @@ import {
   GIT_COMMAND_CATEGORIES,
   GIT_WORKFLOW_TEMPLATES,
   formatGitCommand,
-  validateGitParameters
+  validateGitParameters,
 } from '@/types/git-helper'
 import { ToolBase } from '@/components/ui/tool-base'
 import { nanoid } from 'nanoid'
@@ -43,44 +39,46 @@ import { nanoid } from 'nanoid'
 export function GitHelper() {
   const { t } = useTranslation()
   const { copyToClipboard } = useCopyToClipboard()
-  
+
   const [state, setState] = useState<GitHelperState>({
     repositories: [],
     commands: GIT_COMMAND_TEMPLATES,
     commandHistory: [],
     favorites: [],
-    isExecuting: false
+    isExecuting: false,
   })
-  
+
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedCommand, setSelectedCommand] = useState<GitCommand | null>(null)
   const [commandParameters, setCommandParameters] = useState<Record<string, any>>({})
   const [customCommand, setCustomCommand] = useState('')
-  
+
   // 过滤命令
   const filteredCommands = useMemo(() => {
-    return state.commands.filter(command => {
-      const matchesSearch = command.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           command.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           command.command.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      const matchesCategory = selectedCategory === 'all' || 
-                             selectedCategory === 'favorites' && state.favorites.includes(command.id) ||
-                             command.category === selectedCategory
-      
+    return state.commands.filter((command) => {
+      const matchesSearch =
+        command.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        command.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        command.command.toLowerCase().includes(searchTerm.toLowerCase())
+
+      const matchesCategory =
+        selectedCategory === 'all' ||
+        (selectedCategory === 'favorites' && state.favorites.includes(command.id)) ||
+        command.category === selectedCategory
+
       return matchesSearch && matchesCategory
     })
   }, [state.commands, state.favorites, searchTerm, selectedCategory])
-  
+
   // 选择命令
   const selectCommand = useCallback((command: GitCommand) => {
     setSelectedCommand(command)
-    
+
     // 初始化参数默认值
     const defaultParams: Record<string, any> = {}
     if (command.parameters) {
-      command.parameters.forEach(param => {
+      command.parameters.forEach((param) => {
         if (param.defaultValue !== undefined) {
           defaultParams[param.name] = param.defaultValue
         }
@@ -88,78 +86,81 @@ export function GitHelper() {
     }
     setCommandParameters(defaultParams)
   }, [])
-  
+
   // 更新参数
   const updateParameter = useCallback((paramName: string, value: any) => {
-    setCommandParameters(prev => ({
+    setCommandParameters((prev) => ({
       ...prev,
-      [paramName]: value
+      [paramName]: value,
     }))
   }, [])
-  
+
   // 执行命令
-  const executeCommand = useCallback((command: string) => {
-    const execution: GitCommandExecution = {
-      id: nanoid(),
-      command,
-      parameters: commandParameters,
-      output: `$ ${command}\n\n# This is a simulation. In a real environment, this would execute the Git command.\n# Output would appear here...`,
-      exitCode: 0,
-      timestamp: Date.now(),
-      duration: Math.random() * 1000 + 500 // 模拟执行时间
-    }
-    
-    setState(prev => ({
-      ...prev,
-      commandHistory: [execution, ...prev.commandHistory.slice(0, 49)] // 保留最近50条记录
-    }))
-    
-    copyToClipboard(command, 'Git command')
-  }, [commandParameters, copyToClipboard])
-  
+  const executeCommand = useCallback(
+    (command: string) => {
+      const execution: GitCommandExecution = {
+        id: nanoid(),
+        command,
+        parameters: commandParameters,
+        output: `$ ${command}\n\n# This is a simulation. In a real environment, this would execute the Git command.\n# Output would appear here...`,
+        exitCode: 0,
+        timestamp: Date.now(),
+        duration: Math.random() * 1000 + 500, // 模拟执行时间
+      }
+
+      setState((prev) => ({
+        ...prev,
+        commandHistory: [execution, ...prev.commandHistory.slice(0, 49)], // 保留最近50条记录
+      }))
+
+      copyToClipboard(command, 'Git command')
+    },
+    [commandParameters, copyToClipboard]
+  )
+
   // 生成命令
   const generateCommand = useCallback(() => {
     if (!selectedCommand) return ''
-    
+
     const errors = validateGitParameters(selectedCommand, commandParameters)
     if (errors.length > 0) {
-      setState(prev => ({ ...prev, error: errors.join('; ') }))
+      setState((prev) => ({ ...prev, error: errors.join('; ') }))
       return ''
     }
-    
-    setState(prev => ({ ...prev, error: undefined }))
+
+    setState((prev) => ({ ...prev, error: undefined }))
     return formatGitCommand(selectedCommand, commandParameters)
   }, [selectedCommand, commandParameters])
-  
+
   // 切换收藏
   const toggleFavorite = useCallback((commandId: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       favorites: prev.favorites.includes(commandId)
-        ? prev.favorites.filter(id => id !== commandId)
-        : [...prev.favorites, commandId]
+        ? prev.favorites.filter((id) => id !== commandId)
+        : [...prev.favorites, commandId],
     }))
   }, [])
-  
+
   // 加载工作流模板
-  const loadWorkflow = useCallback((workflow: typeof GIT_WORKFLOW_TEMPLATES[0]) => {
+  const loadWorkflow = useCallback((workflow: (typeof GIT_WORKFLOW_TEMPLATES)[0]) => {
     const workflowText = workflow.commands.join('\n')
     setCustomCommand(workflowText)
   }, [])
-  
+
   // 清空历史
   const clearHistory = useCallback(() => {
-    setState(prev => ({ ...prev, commandHistory: [] }))
+    setState((prev) => ({ ...prev, commandHistory: [] }))
   }, [])
-  
+
   // 导出历史
   const exportHistory = useCallback(() => {
     const data = {
       history: state.commandHistory,
       favorites: state.favorites,
-      exportedAt: new Date().toISOString()
+      exportedAt: new Date().toISOString(),
     }
-    
+
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -170,9 +171,9 @@ export function GitHelper() {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }, [state.commandHistory, state.favorites])
-  
+
   const currentCommand = generateCommand()
-  
+
   return (
     <ToolBase
       toolName={t('tools.git-helper.title', 'Git Helper')}
@@ -199,7 +200,7 @@ export function GitHelper() {
               {t('tools.git-helper.history', 'History')}
             </TabsTrigger>
           </TabsList>
-          
+
           {/* 命令浏览器 */}
           <TabsContent value="commands" className="space-y-4">
             {/* 搜索和过滤 */}
@@ -217,7 +218,7 @@ export function GitHelper() {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="w-48">
                     <select
                       value={selectedCategory}
@@ -234,7 +235,7 @@ export function GitHelper() {
                     </select>
                   </div>
                 </div>
-                
+
                 {/* 命令列表 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {filteredCommands.map((command) => (
@@ -253,14 +254,10 @@ export function GitHelper() {
                               {GIT_COMMAND_CATEGORIES[command.category]?.icon} {command.category}
                             </Badge>
                           </div>
-                          <p className="text-xs text-muted-foreground mb-2">
-                            {command.description}
-                          </p>
-                          <code className="text-xs bg-muted px-2 py-1 rounded">
-                            {command.command}
-                          </code>
+                          <p className="text-xs text-muted-foreground mb-2">{command.description}</p>
+                          <code className="text-xs bg-muted px-2 py-1 rounded">{command.command}</code>
                         </div>
-                        
+
                         <Button
                           size="sm"
                           variant="ghost"
@@ -281,7 +278,7 @@ export function GitHelper() {
                 </div>
               </CardContent>
             </Card>
-            
+
             {/* 命令构建器 */}
             {selectedCommand && (
               <Card>
@@ -292,10 +289,8 @@ export function GitHelper() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    {selectedCommand.description}
-                  </p>
-                  
+                  <p className="text-sm text-muted-foreground">{selectedCommand.description}</p>
+
                   {/* 参数输入 */}
                   {selectedCommand.parameters && selectedCommand.parameters.length > 0 && (
                     <div className="space-y-3">
@@ -307,7 +302,7 @@ export function GitHelper() {
                             {param.required && <span className="text-red-500">*</span>}
                             <span className="text-xs text-muted-foreground">({param.type})</span>
                           </Label>
-                          
+
                           {param.type === 'select' ? (
                             <select
                               value={commandParameters[param.name] || param.defaultValue || ''}
@@ -316,7 +311,9 @@ export function GitHelper() {
                             >
                               {!param.required && <option value="">-- Optional --</option>}
                               {param.options?.map((option) => (
-                                <option key={option} value={option}>{option}</option>
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
                               ))}
                             </select>
                           ) : param.type === 'boolean' ? (
@@ -334,34 +331,25 @@ export function GitHelper() {
                               placeholder={param.placeholder}
                             />
                           )}
-                          
-                          <p className="text-xs text-muted-foreground">
-                            {param.description}
-                          </p>
+
+                          <p className="text-xs text-muted-foreground">{param.description}</p>
                         </div>
                       ))}
                     </div>
                   )}
-                  
+
                   {/* 生成的命令 */}
                   <div className="space-y-2">
                     <Label>{t('tools.git-helper.generated-command', 'Generated Command')}</Label>
                     <div className="flex gap-2">
-                      <Input
-                        value={currentCommand}
-                        readOnly
-                        className="font-mono text-sm"
-                      />
-                      <Button
-                        onClick={() => executeCommand(currentCommand)}
-                        disabled={!currentCommand}
-                      >
+                      <Input value={currentCommand} readOnly className="font-mono text-sm" />
+                      <Button onClick={() => executeCommand(currentCommand)} disabled={!currentCommand}>
                         <Copy className="w-4 h-4 mr-2" />
                         {t('common.copy', 'Copy')}
                       </Button>
                     </div>
                   </div>
-                  
+
                   {/* 错误信息 */}
                   {state.error && (
                     <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
@@ -369,7 +357,7 @@ export function GitHelper() {
                       {state.error}
                     </div>
                   )}
-                  
+
                   {/* 示例 */}
                   {selectedCommand.examples && selectedCommand.examples.length > 0 && (
                     <div className="space-y-2">
@@ -387,7 +375,7 @@ export function GitHelper() {
               </Card>
             )}
           </TabsContent>
-          
+
           {/* 工作流模板 */}
           <TabsContent value="workflows" className="space-y-4">
             <Card>
@@ -402,14 +390,8 @@ export function GitHelper() {
                   {GIT_WORKFLOW_TEMPLATES.map((workflow, index) => (
                     <div key={index} className="border rounded-lg p-4">
                       <h4 className="font-medium mb-2">{workflow.name}</h4>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        {workflow.description}
-                      </p>
-                      <Button
-                        size="sm"
-                        onClick={() => loadWorkflow(workflow)}
-                        className="w-full"
-                      >
+                      <p className="text-sm text-muted-foreground mb-3">{workflow.description}</p>
+                      <Button size="sm" onClick={() => loadWorkflow(workflow)} className="w-full">
                         <Download className="w-4 h-4 mr-2" />
                         {t('tools.git-helper.load-workflow', 'Load Workflow')}
                       </Button>
@@ -419,7 +401,7 @@ export function GitHelper() {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           {/* 自定义命令 */}
           <TabsContent value="custom" className="space-y-4">
             <Card>
@@ -439,7 +421,7 @@ export function GitHelper() {
                     className="min-h-[200px] font-mono text-sm"
                   />
                 </div>
-                
+
                 <div className="flex gap-2">
                   <Button
                     onClick={() => copyToClipboard(customCommand, 'Custom commands')}
@@ -448,11 +430,8 @@ export function GitHelper() {
                     <Copy className="w-4 h-4 mr-2" />
                     {t('common.copy', 'Copy')}
                   </Button>
-                  
-                  <Button
-                    variant="outline"
-                    onClick={() => setCustomCommand('')}
-                  >
+
+                  <Button variant="outline" onClick={() => setCustomCommand('')}>
                     <Trash2 className="w-4 h-4 mr-2" />
                     {t('common.clear', 'Clear')}
                   </Button>
@@ -460,7 +439,7 @@ export function GitHelper() {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           {/* 命令历史 */}
           <TabsContent value="history" className="space-y-4">
             <Card>
@@ -492,9 +471,7 @@ export function GitHelper() {
                     {state.commandHistory.map((execution) => (
                       <div key={execution.id} className="border rounded-lg p-3">
                         <div className="flex items-center justify-between mb-2">
-                          <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                            {execution.command}
-                          </code>
+                          <code className="text-sm font-mono bg-muted px-2 py-1 rounded">{execution.command}</code>
                           <div className="flex items-center gap-2">
                             <Badge variant={execution.exitCode === 0 ? 'default' : 'destructive'}>
                               {execution.exitCode === 0 ? (
@@ -513,10 +490,9 @@ export function GitHelper() {
                             </Button>
                           </div>
                         </div>
-                        
+
                         <div className="text-xs text-muted-foreground">
-                          {new Date(execution.timestamp).toLocaleString()} • 
-                          {execution.duration.toFixed(0)}ms
+                          {new Date(execution.timestamp).toLocaleString()} •{execution.duration.toFixed(0)}ms
                         </div>
                       </div>
                     ))}

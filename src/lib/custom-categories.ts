@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Tool } from '@/types/tool'
 
 interface CustomCategory {
   id: string
@@ -83,7 +82,7 @@ export function useCustomCategories() {
       name,
       tools: [],
       order: customCategories.length,
-      color
+      color,
     }
     const updatedCategories = [...customCategories, newCategory]
     saveCustomCategories(updatedCategories)
@@ -92,25 +91,23 @@ export function useCustomCategories() {
 
   // 删除分类
   const deleteCategory = (categoryId: string) => {
-    const updatedCategories = customCategories.filter(cat => cat.id !== categoryId)
+    const updatedCategories = customCategories.filter((cat) => cat.id !== categoryId)
     saveCustomCategories(updatedCategories)
-    
+
     // 同时更新分类顺序
-    const updatedOrder = categoryOrder.filter(id => id !== categoryId)
+    const updatedOrder = categoryOrder.filter((id) => id !== categoryId)
     saveCategoryOrder(updatedOrder)
   }
 
   // 更新分类
   const updateCategory = (categoryId: string, updates: Partial<CustomCategory>) => {
-    const updatedCategories = customCategories.map(cat => 
-      cat.id === categoryId ? { ...cat, ...updates } : cat
-    )
+    const updatedCategories = customCategories.map((cat) => (cat.id === categoryId ? { ...cat, ...updates } : cat))
     saveCustomCategories(updatedCategories)
   }
 
   // 添加工具到分类
   const addToolToCategory = (categoryId: string, toolSlug: string) => {
-    const updatedCategories = customCategories.map(cat => {
+    const updatedCategories = customCategories.map((cat) => {
       if (cat.id === categoryId && !cat.tools.includes(toolSlug)) {
         return { ...cat, tools: [...cat.tools, toolSlug] }
       }
@@ -121,9 +118,9 @@ export function useCustomCategories() {
 
   // 从分类中移除工具
   const removeToolFromCategory = (categoryId: string, toolSlug: string) => {
-    const updatedCategories = customCategories.map(cat => {
+    const updatedCategories = customCategories.map((cat) => {
       if (cat.id === categoryId) {
-        return { ...cat, tools: cat.tools.filter(slug => slug !== toolSlug) }
+        return { ...cat, tools: cat.tools.filter((slug) => slug !== toolSlug) }
       }
       return cat
     })
@@ -138,48 +135,42 @@ export function useCustomCategories() {
   // 根据排序选项对工具进行排序
   const sortTools = (tools: any[], recentTools: string[], favorites: string[]) => {
     const sortedTools = [...tools]
-    
+
     switch (sortOption.key) {
       case 'name':
         sortedTools.sort((a, b) => {
           const nameA = a.name.toLowerCase()
           const nameB = b.name.toLowerCase()
-          return sortOption.direction === 'asc' 
-            ? nameA.localeCompare(nameB)
-            : nameB.localeCompare(nameA)
+          return sortOption.direction === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA)
         })
         break
-        
+
       case 'recent':
         sortedTools.sort((a, b) => {
           const aIndex = recentTools.indexOf(a.slug)
           const bIndex = recentTools.indexOf(b.slug)
           const aRecent = aIndex >= 0 ? aIndex : Infinity
           const bRecent = bIndex >= 0 ? bIndex : Infinity
-          
-          return sortOption.direction === 'asc'
-            ? aRecent - bRecent
-            : bRecent - aRecent
+
+          return sortOption.direction === 'asc' ? aRecent - bRecent : bRecent - aRecent
         })
         break
-        
+
       case 'favorite':
         sortedTools.sort((a, b) => {
           const aFav = favorites.includes(a.slug) ? 1 : 0
           const bFav = favorites.includes(b.slug) ? 1 : 0
-          
-          return sortOption.direction === 'asc'
-            ? bFav - aFav
-            : aFav - bFav
+
+          return sortOption.direction === 'asc' ? bFav - aFav : aFav - bFav
         })
         break
-        
+
       case 'custom':
       default:
         // 保持原有顺序
         break
     }
-    
+
     return sortedTools
   }
 
@@ -188,10 +179,10 @@ export function useCustomCategories() {
     if (categoryOrder.length === 0) {
       return originalCategories
     }
-    
+
     const orderedCategories = []
-    const categoryMap = new Map(originalCategories.map(cat => [cat.id, cat]))
-    
+    const categoryMap = new Map(originalCategories.map((cat) => [cat.id, cat]))
+
     // 按照保存的顺序添加分类
     for (const categoryId of categoryOrder) {
       const category = categoryMap.get(categoryId)
@@ -200,10 +191,10 @@ export function useCustomCategories() {
         categoryMap.delete(categoryId)
       }
     }
-    
+
     // 添加剩余的分类（新增的或未在顺序中的）
     orderedCategories.push(...Array.from(categoryMap.values()))
-    
+
     return orderedCategories
   }
 
@@ -219,7 +210,7 @@ export function useCustomCategories() {
     reorderCategories,
     setSortOption: saveSortOption,
     sortTools,
-    getOrderedCategories
+    getOrderedCategories,
   }
 }
 
@@ -228,5 +219,5 @@ export const SORT_OPTIONS: { key: SortOption['key']; label: { zh: string; en: st
   { key: 'custom', label: { zh: '自定义顺序', en: 'Custom Order' } },
   { key: 'name', label: { zh: '按名称', en: 'By Name' } },
   { key: 'recent', label: { zh: '按使用频率', en: 'By Usage' } },
-  { key: 'favorite', label: { zh: '按收藏', en: 'By Favorites' } }
+  { key: 'favorite', label: { zh: '按收藏', en: 'By Favorites' } },
 ]

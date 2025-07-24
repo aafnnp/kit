@@ -2,7 +2,7 @@
  * 文件处理工具内存优化器 - 专门优化文件处理工具的内存使用
  */
 import React from 'react'
-import { cacheStrategy, memoryOptimized } from './cache-strategy'
+import { cacheStrategy } from './cache-strategy'
 
 interface FileProcessingStats {
   totalFilesProcessed: number
@@ -107,7 +107,7 @@ class FileMemoryOptimizer {
     // 触发垃圾回收
     if (this.config.autoGarbageCollection && 'gc' in window) {
       try {
-        (window as any).gc()
+        ;(window as any).gc()
         this.stats.gcTriggered++
       } catch (error) {
         console.warn('Manual garbage collection failed:', error)
@@ -126,14 +126,14 @@ class FileMemoryOptimizer {
     if (fileSizeMB > this.config.maxFileSize) {
       return {
         valid: false,
-        reason: `文件大小 ${fileSizeMB.toFixed(1)}MB 超过限制 ${this.config.maxFileSize}MB`
+        reason: `文件大小 ${fileSizeMB.toFixed(1)}MB 超过限制 ${this.config.maxFileSize}MB`,
       }
     }
 
     if (this.activeProcessing.size >= this.config.maxConcurrentFiles) {
       return {
         valid: false,
-        reason: `并发处理文件数量已达上限 ${this.config.maxConcurrentFiles}`
+        reason: `并发处理文件数量已达上限 ${this.config.maxConcurrentFiles}`,
       }
     }
 
@@ -201,18 +201,15 @@ class FileMemoryOptimizer {
 
       // 检查是否需要分块处理
       const fileSizeMB = file.size / 1024 / 1024
-      const shouldChunk = options.enableChunking && 
-                         this.config.enableChunkedProcessing && 
-                         fileSizeMB > this.config.chunkSize &&
-                         options.chunkProcessor &&
-                         options.chunkCombiner
+      const shouldChunk =
+        options.enableChunking &&
+        this.config.enableChunkedProcessing &&
+        fileSizeMB > this.config.chunkSize &&
+        options.chunkProcessor &&
+        options.chunkCombiner
 
       if (shouldChunk) {
-        result = await this.processFileInChunks(
-          file,
-          options.chunkProcessor!,
-          options.chunkCombiner!
-        )
+        result = await this.processFileInChunks(file, options.chunkProcessor!, options.chunkCombiner!)
       } else {
         result = await processor(file)
       }
@@ -250,11 +247,11 @@ class FileMemoryOptimizer {
     // 分批处理
     for (let i = 0; i < files.length; i += maxConcurrent) {
       const batch = files.slice(i, i + maxConcurrent)
-      
+
       const batchPromises = batch.map(async (file) => {
         try {
           const result = await this.processFile(file, processor, {
-            enableChunking: options.enableChunking
+            enableChunking: options.enableChunking,
           })
           completed++
           options.onProgress?.(completed, files.length)
@@ -267,7 +264,7 @@ class FileMemoryOptimizer {
       })
 
       const batchResults = await Promise.allSettled(batchPromises)
-      
+
       for (const result of batchResults) {
         if (result.status === 'fulfilled') {
           results.push(result.value)
@@ -295,16 +292,13 @@ class FileMemoryOptimizer {
     readAsDataURL: (file: File) => Promise<string>
     readAsArrayBuffer: (file: File) => Promise<ArrayBuffer>
   } {
-    const readFile = <T>(
-      file: File,
-      method: 'readAsText' | 'readAsDataURL' | 'readAsArrayBuffer'
-    ): Promise<T> => {
+    const readFile = <T>(file: File, method: 'readAsText' | 'readAsDataURL' | 'readAsArrayBuffer'): Promise<T> => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader()
-        
+
         reader.onload = () => resolve(reader.result as T)
         reader.onerror = () => reject(new Error('文件读取失败'))
-        
+
         // 检查内存使用
         const memoryStats = cacheStrategy.getStats().memoryStats
         if (memoryStats.usedMemory > this.config.memoryThreshold) {
@@ -342,7 +336,7 @@ class FileMemoryOptimizer {
    */
   updateConfig(newConfig: Partial<FileMemoryConfig>): void {
     this.config = { ...this.config, ...newConfig }
-    
+
     // 重新初始化内存监控
     if (newConfig.enableMemoryMonitoring !== undefined) {
       if (this.memoryMonitorInterval) {
@@ -396,7 +390,7 @@ class FileMemoryOptimizer {
       clearInterval(this.memoryMonitorInterval)
       this.memoryMonitorInterval = null
     }
-    
+
     this.processingQueue.length = 0
     this.activeProcessing.clear()
   }
@@ -430,22 +424,19 @@ export function optimizedFileProcessing<T extends (...args: any[]) => Promise<an
   } = {}
 ) {
   return function (_target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    console.log(propertyKey, 'propertyKey')
     const originalMethod = descriptor.value
 
     descriptor.value = async function (...args: Parameters<T>): Promise<any> {
-      const file = args.find(arg => arg instanceof File)
-      
+      const file = args.find((arg) => arg instanceof File)
+
       if (!file) {
         return originalMethod.apply(this, args)
       }
 
-      return fileMemoryOptimizer.processFile(
-        file,
-        () => originalMethod.apply(this, args),
-        {
-          enableChunking: options.enableChunking
-        }
-      )
+      return fileMemoryOptimizer.processFile(file, () => originalMethod.apply(this, args), {
+        enableChunking: options.enableChunking,
+      })
     }
 
     return descriptor
@@ -454,30 +445,36 @@ export function optimizedFileProcessing<T extends (...args: any[]) => Promise<an
 
 // React Hook - 使用优化的文件处理
 export function useOptimizedFileProcessing() {
-  const processFile = React.useCallback(async <T>(
-    file: File,
-    processor: (file: File) => Promise<T>,
-    options?: {
-      enableChunking?: boolean
-      onProgress?: (progress: number) => void
-    }
-  ): Promise<T> => {
-    return fileMemoryOptimizer.processFile(file, processor, {
-      enableChunking: options?.enableChunking
-    })
-  }, [])
+  const processFile = React.useCallback(
+    async <T>(
+      file: File,
+      processor: (file: File) => Promise<T>,
+      options?: {
+        enableChunking?: boolean
+        onProgress?: (progress: number) => void
+      }
+    ): Promise<T> => {
+      return fileMemoryOptimizer.processFile(file, processor, {
+        enableChunking: options?.enableChunking,
+      })
+    },
+    []
+  )
 
-  const processBatch = React.useCallback(async <T>(
-    files: File[],
-    processor: (file: File) => Promise<T>,
-    options?: {
-      maxConcurrent?: number
-      onProgress?: (completed: number, total: number) => void
-      enableChunking?: boolean
-    }
-  ): Promise<T[]> => {
-    return fileMemoryOptimizer.processBatch(files, processor, options)
-  }, [])
+  const processBatch = React.useCallback(
+    async <T>(
+      files: File[],
+      processor: (file: File) => Promise<T>,
+      options?: {
+        maxConcurrent?: number
+        onProgress?: (completed: number, total: number) => void
+        enableChunking?: boolean
+      }
+    ): Promise<T[]> => {
+      return fileMemoryOptimizer.processBatch(files, processor, options)
+    },
+    []
+  )
 
   const getStats = React.useCallback(() => {
     return fileMemoryOptimizer.getStats()
@@ -492,7 +489,7 @@ export function useOptimizedFileProcessing() {
     processBatch,
     getStats,
     getOptimizationSuggestions,
-    fileReader: fileMemoryOptimizer.createOptimizedFileReader()
+    fileReader: fileMemoryOptimizer.createOptimizedFileReader(),
   }
 }
 

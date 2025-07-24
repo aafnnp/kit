@@ -9,7 +9,6 @@ import { useToolState } from '@/hooks/use-tool-state'
 import { useTemplateManager, BaseTemplate } from '@/hooks/use-template-manager'
 import { useSettingsManager, SettingGroup } from '@/hooks/use-settings-manager'
 import { Settings, FileText, History, Info, Zap } from 'lucide-react'
-import { toast } from 'sonner'
 
 // 工具标签页类型
 export interface ToolTab {
@@ -36,39 +35,39 @@ export interface ToolAction {
 export interface EnhancedToolBaseProps<
   TData = any,
   TTemplate extends BaseTemplate = BaseTemplate,
-  TSettings extends Record<string, any> = Record<string, any>
+  TSettings extends Record<string, any> = Record<string, any>,
 > {
   // 基础信息
   toolName: string
   icon: React.ReactNode
   description: string
   version?: string
-  
+
   // 内容
   children: React.ReactNode
   tabs?: ToolTab[]
   actions?: ToolAction[]
-  
+
   // 状态管理
   initialData?: TData
   onDataChange?: (data: TData) => void
-  
+
   // 模板管理
   templates?: TTemplate[]
   onTemplateApply?: (template: TTemplate) => void
   templateStorageKey?: string
-  
+
   // 设置管理
   settingGroups?: SettingGroup[]
   onSettingsChange?: (settings: TSettings) => void
   settingsStorageKey?: string
-  
+
   // 功能开关
   enableTemplates?: boolean
   enableSettings?: boolean
   enableHistory?: boolean
   enableProgress?: boolean
-  
+
   // 样式
   className?: string
   headerClassName?: string
@@ -79,7 +78,7 @@ export interface EnhancedToolBaseProps<
 export function EnhancedToolBase<
   TData = any,
   TTemplate extends BaseTemplate = BaseTemplate,
-  TSettings extends Record<string, any> = Record<string, any>
+  TSettings extends Record<string, any> = Record<string, any>,
 >({
   toolName,
   icon,
@@ -89,7 +88,6 @@ export function EnhancedToolBase<
   tabs,
   actions,
   initialData,
-  onDataChange,
   templates = [],
   onTemplateApply,
   templateStorageKey,
@@ -102,107 +100,92 @@ export function EnhancedToolBase<
   enableProgress = false,
   className = '',
   headerClassName = '',
-  contentClassName = ''
+  contentClassName = '',
 }: EnhancedToolBaseProps<TData, TTemplate, TSettings>) {
-  
   // 状态管理
   const toolState = useToolState(initialData)
-  
+
   // 模板管理
   const templateManager = useTemplateManager(templates, {
     storageKey: templateStorageKey || `${toolName.toLowerCase().replace(/\s+/g, '-')}-templates`,
-    enableLocalStorage: enableTemplates
+    enableLocalStorage: enableTemplates,
   })
-  
+
   // 设置管理
   const settingsManager = useSettingsManager<TSettings>(settingGroups, {
     storageKey: settingsStorageKey || `${toolName.toLowerCase().replace(/\s+/g, '-')}-settings`,
-    enableLocalStorage: enableSettings
+    enableLocalStorage: enableSettings,
   })
-  
+
   // 活动标签页
   const [activeTab, setActiveTab] = useState(() => {
     if (tabs && tabs.length > 0) {
-      return tabs.find(tab => !tab.disabled)?.id || tabs[0].id
+      return tabs.find((tab) => !tab.disabled)?.id || tabs[0].id
     }
     return 'main'
   })
-  
+
   // 系统标签页
   const systemTabs = useMemo(() => {
     const sysTabs: ToolTab[] = []
-    
+
     if (enableTemplates && templates.length > 0) {
       sysTabs.push({
         id: 'templates',
         label: 'Templates',
         icon: <FileText className="h-4 w-4" />,
-        content: (
-          <TemplatePanel
-            templateManager={templateManager}
-            onTemplateApply={onTemplateApply}
-          />
-        ),
-        badge: templateManager.stats.custom > 0 ? templateManager.stats.custom : undefined
+        content: <TemplatePanel templateManager={templateManager} onTemplateApply={onTemplateApply} />,
+        badge: templateManager.stats.custom > 0 ? templateManager.stats.custom : undefined,
       })
     }
-    
+
     if (enableSettings && settingGroups.length > 0) {
       sysTabs.push({
         id: 'settings',
         label: 'Settings',
         icon: <Settings className="h-4 w-4" />,
-        content: (
-          <SettingsPanel
-            settingsManager={settingsManager}
-            onSettingsChange={onSettingsChange}
-          />
-        ),
-        badge: settingsManager.isDirty ? '•' : undefined
+        content: <SettingsPanel settingsManager={settingsManager} onSettingsChange={onSettingsChange} />,
+        badge: settingsManager.isDirty ? '•' : undefined,
       })
     }
-    
+
     if (enableHistory) {
       sysTabs.push({
         id: 'history',
         label: 'History',
         icon: <History className="h-4 w-4" />,
-        content: <HistoryPanel toolName={toolName} />
+        content: <HistoryPanel toolName={toolName} />,
       })
     }
-    
+
     return sysTabs
-  }, [enableTemplates, enableSettings, enableHistory, templates.length, settingGroups.length, templateManager, settingsManager, onTemplateApply, onSettingsChange, toolName])
-  
+  }, [
+    enableTemplates,
+    enableSettings,
+    enableHistory,
+    templates.length,
+    settingGroups.length,
+    templateManager,
+    settingsManager,
+    onTemplateApply,
+    onSettingsChange,
+    toolName,
+  ])
+
   // 所有标签页
   const allTabs = useMemo(() => {
-    const mainTabs: ToolTab[] = tabs || [{
-      id: 'main',
-      label: 'Main',
-      icon: <Zap className="h-4 w-4" />,
-      content: children
-    }]
-    
+    const mainTabs: ToolTab[] = tabs || [
+      {
+        id: 'main',
+        label: 'Main',
+        icon: <Zap className="h-4 w-4" />,
+        content: children,
+      },
+    ]
+
     return [...mainTabs, ...systemTabs]
   }, [tabs, children, systemTabs])
-  
-  // 处理数据变化
-  const handleDataChange = useCallback((newData: TData) => {
-    toolState.setData(newData)
-    onDataChange?.(newData)
-  }, [toolState, onDataChange])
-  
-  // 处理模板应用
-  const handleTemplateApply = useCallback((template: TTemplate) => {
-    onTemplateApply?.(template)
-    setActiveTab('main') // 切换回主标签页
-  }, [onTemplateApply])
-  
-  // 处理设置变化
-  const handleSettingsChange = useCallback((settings: TSettings) => {
-    onSettingsChange?.(settings)
-  }, [onSettingsChange])
-  
+
   return (
     <ToolErrorBoundary toolName={toolName}>
       <div className={`w-full max-w-7xl mx-auto space-y-6 ${className}`}>
@@ -229,7 +212,7 @@ export function EnhancedToolBase<
                       </Badge>
                     )}
                   </div>
-                  
+
                   {/* 状态指示器 */}
                   <div className="flex items-center gap-2">
                     {toolState.isLoading && (
@@ -242,18 +225,14 @@ export function EnhancedToolBase<
                         Processing...
                       </Badge>
                     )}
-                    {toolState.error && (
-                      <Badge variant="destructive">
-                        Error
-                      </Badge>
-                    )}
+                    {toolState.error && <Badge variant="destructive">Error</Badge>}
                   </div>
                 </div>
-                
+
                 {/* 操作按钮 */}
                 {actions && actions.length > 0 && (
                   <div className="flex items-center gap-2">
-                    {actions.map(action => (
+                    {actions.map((action) => (
                       <Button
                         key={action.id}
                         variant={action.variant || 'outline'}
@@ -273,9 +252,9 @@ export function EnhancedToolBase<
                   </div>
                 )}
               </div>
-              
+
               <CardDescription>{description}</CardDescription>
-              
+
               {/* 进度条 */}
               {enableProgress && toolState.isProcessing && (
                 <div className="space-y-2">
@@ -286,7 +265,7 @@ export function EnhancedToolBase<
                   <Progress value={toolState.progress} className="h-2" />
                 </div>
               )}
-              
+
               {/* 错误信息 */}
               {toolState.error && (
                 <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
@@ -301,10 +280,10 @@ export function EnhancedToolBase<
             {allTabs.length > 1 ? (
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className={`grid w-full grid-cols-${Math.min(allTabs.length, 6)}`}>
-                  {allTabs.map(tab => (
-                    <TabsTrigger 
-                      key={tab.id} 
-                      value={tab.id} 
+                  {allTabs.map((tab) => (
+                    <TabsTrigger
+                      key={tab.id}
+                      value={tab.id}
                       disabled={tab.disabled}
                       className="flex items-center gap-2"
                     >
@@ -319,7 +298,7 @@ export function EnhancedToolBase<
                   ))}
                 </TabsList>
 
-                {allTabs.map(tab => (
+                {allTabs.map((tab) => (
                   <TabsContent key={tab.id} value={tab.id} className="space-y-6">
                     {tab.content}
                   </TabsContent>
@@ -341,37 +320,31 @@ interface TemplatePanelProps<T extends BaseTemplate> {
   onTemplateApply?: (template: T) => void
 }
 
-function TemplatePanel<T extends BaseTemplate>({
-  templateManager,
-  onTemplateApply
-}: TemplatePanelProps<T>) {
-  const handleTemplateSelect = useCallback((template: T) => {
-    templateManager.applyTemplate(template.id, onTemplateApply)
-  }, [templateManager, onTemplateApply])
+function TemplatePanel<T extends BaseTemplate>({ templateManager, onTemplateApply }: TemplatePanelProps<T>) {
+  const handleTemplateSelect = useCallback(
+    (template: T) => {
+      templateManager.applyTemplate(template.id, onTemplateApply)
+    },
+    [templateManager, onTemplateApply]
+  )
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Templates</h3>
         <div className="flex items-center gap-2">
-          <Badge variant="outline">
-            {templateManager.stats.total} total
-          </Badge>
-          {templateManager.stats.custom > 0 && (
-            <Badge variant="secondary">
-              {templateManager.stats.custom} custom
-            </Badge>
-          )}
+          <Badge variant="outline">{templateManager.stats.total} total</Badge>
+          {templateManager.stats.custom > 0 && <Badge variant="secondary">{templateManager.stats.custom} custom</Badge>}
         </div>
       </div>
-      
+
       {Object.entries(templateManager.groupedTemplates).map(([category, templates]) => (
         <div key={category} className="space-y-2">
           <h4 className="font-medium text-muted-foreground">{category}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {templates.map(template => (
-              <Card 
-                key={template.id} 
+            {templates.map((template) => (
+              <Card
+                key={template.id}
                 className={`cursor-pointer transition-colors hover:bg-muted/50 ${
                   templateManager.selectedTemplate === template.id ? 'ring-2 ring-primary' : ''
                 }`}
@@ -386,9 +359,7 @@ function TemplatePanel<T extends BaseTemplate>({
                       </Badge>
                     )}
                   </div>
-                  <CardDescription className="text-xs">
-                    {template.description}
-                  </CardDescription>
+                  <CardDescription className="text-xs">{template.description}</CardDescription>
                 </CardHeader>
               </Card>
             ))}
@@ -405,64 +376,42 @@ interface SettingsPanelProps<T extends Record<string, any>> {
   onSettingsChange?: (settings: T) => void
 }
 
-function SettingsPanel<T extends Record<string, any>>({
-  settingsManager,
-  onSettingsChange
-}: SettingsPanelProps<T>) {
-  const handleSettingChange = useCallback((key: string, value: any) => {
-    settingsManager.updateSetting(key as keyof T, value)
-    onSettingsChange?.(settingsManager.settings)
-  }, [settingsManager, onSettingsChange])
-
+function SettingsPanel<T extends Record<string, any>>({ settingsManager }: SettingsPanelProps<T>) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Settings</h3>
         <div className="flex items-center gap-2">
-          {settingsManager.isDirty && (
-            <Badge variant="secondary">Unsaved changes</Badge>
-          )}
-          {!settingsManager.isValid && (
-            <Badge variant="destructive">Validation errors</Badge>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={settingsManager.resetSettings}
-          >
+          {settingsManager.isDirty && <Badge variant="secondary">Unsaved changes</Badge>}
+          {!settingsManager.isValid && <Badge variant="destructive">Validation errors</Badge>}
+          <Button variant="outline" size="sm" onClick={settingsManager.resetSettings}>
             Reset
           </Button>
         </div>
       </div>
-      
-      {settingsManager.settingGroups.map(group => (
+
+      {settingsManager.settingGroups.map((group) => (
         <Card key={group.key}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {group.icon}
               {group.label}
             </CardTitle>
-            {group.description && (
-              <CardDescription>{group.description}</CardDescription>
-            )}
+            {group.description && <CardDescription>{group.description}</CardDescription>}
           </CardHeader>
           <div className="p-6 pt-0 space-y-4">
-            {settingsManager.getVisibleFields(group).map(field => (
+            {settingsManager.getVisibleFields(group).map((field) => (
               <div key={field.key} className="space-y-2">
                 <label className="text-sm font-medium">
                   {field.label}
-                  {field.description && (
-                    <span className="text-muted-foreground ml-1">({field.description})</span>
-                  )}
+                  {field.description && <span className="text-muted-foreground ml-1">({field.description})</span>}
                 </label>
                 {/* 这里需要根据 field.type 渲染不同的输入组件 */}
                 <div className="text-xs text-muted-foreground">
                   Current: {JSON.stringify(settingsManager.settings[field.key])}
                 </div>
                 {settingsManager.hasFieldError(field.key) && (
-                  <p className="text-xs text-destructive">
-                    {settingsManager.getFieldError(field.key)}
-                  </p>
+                  <p className="text-xs text-destructive">{settingsManager.getFieldError(field.key)}</p>
                 )}
               </div>
             ))}
@@ -485,16 +434,14 @@ function HistoryPanel({ toolName }: HistoryPanelProps) {
         <h3 className="text-lg font-semibold">History</h3>
         <Badge variant="outline">Coming soon</Badge>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Info className="h-5 w-5" />
             History Feature
           </CardTitle>
-          <CardDescription>
-            History tracking for {toolName} will be available in a future update.
-          </CardDescription>
+          <CardDescription>History tracking for {toolName} will be available in a future update.</CardDescription>
         </CardHeader>
       </Card>
     </div>

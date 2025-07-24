@@ -1,7 +1,7 @@
 /**
  * 缓存策略管理组件 - 提供缓存配置和监控界面
  */
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -72,29 +72,22 @@ export function CacheStrategyManager({ className }: CacheStrategyManagerProps) {
     }
   }
 
-  // 格式化字节数
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return '0 B'
-    const k = 1024
-    const sizes = ['B', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-  }
-
   // 格式化时间
   const formatTime = (timestamp: number): string => {
     return new Date(timestamp).toLocaleString()
   }
 
   // 计算缓存命中率
-  const hitRate = memoryStats.hits + memoryStats.misses > 0 
-    ? (memoryStats.hits / (memoryStats.hits + memoryStats.misses) * 100).toFixed(1)
-    : '0'
+  const hitRate =
+    memoryStats.hits + memoryStats.misses > 0
+      ? ((memoryStats.hits / (memoryStats.hits + memoryStats.misses)) * 100).toFixed(1)
+      : '0'
 
   // 计算持久化缓存命中率
-  const persistentHitRate = stats.persistentCacheHits + stats.persistentCacheMisses > 0
-    ? (stats.persistentCacheHits / (stats.persistentCacheHits + stats.persistentCacheMisses) * 100).toFixed(1)
-    : '0'
+  const persistentHitRate =
+    stats.persistentCacheHits + stats.persistentCacheMisses > 0
+      ? ((stats.persistentCacheHits / (stats.persistentCacheHits + stats.persistentCacheMisses)) * 100).toFixed(1)
+      : '0'
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -106,16 +99,9 @@ export function CacheStrategyManager({ className }: CacheStrategyManagerProps) {
             <MemoryStick className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {stats.memoryStats.usedMemory.toFixed(1)} MB
-            </div>
-            <Progress 
-              value={(stats.memoryStats.usedMemory / config.maxMemoryUsage) * 100} 
-              className="mt-2"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              限制: {config.maxMemoryUsage} MB
-            </p>
+            <div className="text-2xl font-bold">{stats.memoryStats.usedMemory.toFixed(1)} MB</div>
+            <Progress value={(stats.memoryStats.usedMemory / config.maxMemoryUsage) * 100} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-1">限制: {config.maxMemoryUsage} MB</p>
           </CardContent>
         </Card>
 
@@ -125,16 +111,9 @@ export function CacheStrategyManager({ className }: CacheStrategyManagerProps) {
             <HardDrive className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {stats.diskCacheSize.toFixed(1)} MB
-            </div>
-            <Progress 
-              value={(stats.diskCacheSize / config.maxDiskUsage) * 100} 
-              className="mt-2"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              限制: {config.maxDiskUsage} MB
-            </p>
+            <div className="text-2xl font-bold">{stats.diskCacheSize.toFixed(1)} MB</div>
+            <Progress value={(stats.diskCacheSize / config.maxDiskUsage) * 100} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-1">限制: {config.maxDiskUsage} MB</p>
           </CardContent>
         </Card>
 
@@ -158,9 +137,7 @@ export function CacheStrategyManager({ className }: CacheStrategyManagerProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{memoryStats.size}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              最大: {memoryStats.maxSize}
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">最大: {memoryStats.maxSize}</p>
           </CardContent>
         </Card>
       </div>
@@ -178,7 +155,9 @@ export function CacheStrategyManager({ className }: CacheStrategyManagerProps) {
             <div className="space-y-2">
               {suggestions.map((suggestion, index) => (
                 <div key={index} className="flex items-start gap-2">
-                  <Badge variant="outline" className="mt-0.5">建议</Badge>
+                  <Badge variant="outline" className="mt-0.5">
+                    建议
+                  </Badge>
                   <p className="text-sm text-muted-foreground">{suggestion}</p>
                 </div>
               ))}
@@ -202,9 +181,7 @@ export function CacheStrategyManager({ className }: CacheStrategyManagerProps) {
                 <Settings className="h-5 w-5" />
                 缓存策略配置
               </CardTitle>
-              <CardDescription>
-                调整缓存策略以优化应用性能
-              </CardDescription>
+              <CardDescription>调整缓存策略以优化应用性能</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -249,9 +226,7 @@ export function CacheStrategyManager({ className }: CacheStrategyManagerProps) {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>启用压缩</Label>
-                    <p className="text-sm text-muted-foreground">
-                      压缩缓存数据以节省磁盘空间
-                    </p>
+                    <p className="text-sm text-muted-foreground">压缩缓存数据以节省磁盘空间</p>
                   </div>
                   <Switch
                     checked={config.compressionEnabled}
@@ -262,9 +237,7 @@ export function CacheStrategyManager({ className }: CacheStrategyManagerProps) {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>启用持久化缓存</Label>
-                    <p className="text-sm text-muted-foreground">
-                      将缓存数据保存到本地存储
-                    </p>
+                    <p className="text-sm text-muted-foreground">将缓存数据保存到本地存储</p>
                   </div>
                   <Switch
                     checked={config.persistentCacheEnabled}
@@ -332,37 +305,21 @@ export function CacheStrategyManager({ className }: CacheStrategyManagerProps) {
           <Card>
             <CardHeader>
               <CardTitle>缓存操作</CardTitle>
-              <CardDescription>
-                管理和优化缓存数据
-              </CardDescription>
+              <CardDescription>管理和优化缓存数据</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button
-                  onClick={updateStats}
-                  variant="outline"
-                  className="w-full"
-                >
+                <Button onClick={updateStats} variant="outline" className="w-full">
                   <RefreshCw className="h-4 w-4 mr-2" />
                   刷新统计
                 </Button>
 
-                <Button
-                  onClick={handleManualCleanup}
-                  variant="outline"
-                  className="w-full"
-                  disabled={isLoading}
-                >
+                <Button onClick={handleManualCleanup} variant="outline" className="w-full" disabled={isLoading}>
                   <Trash2 className="h-4 w-4 mr-2" />
                   清理过期缓存
                 </Button>
 
-                <Button
-                  onClick={handleClearAll}
-                  variant="destructive"
-                  className="w-full"
-                  disabled={isLoading}
-                >
+                <Button onClick={handleClearAll} variant="destructive" className="w-full" disabled={isLoading}>
                   <Trash2 className="h-4 w-4 mr-2" />
                   清空所有缓存
                 </Button>
