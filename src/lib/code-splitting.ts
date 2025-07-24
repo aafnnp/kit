@@ -85,7 +85,7 @@ class CodeSplittingManager {
     // 检查缓存
     const cached = cache.get(cacheKey)
     if (cached) {
-      return cached.default || cached
+      return (cached as any).default || cached
     }
 
     // 检查是否正在加载
@@ -131,7 +131,7 @@ class CodeSplittingManager {
         })
 
         // 动态导入
-        const importPromise = import(`@/components/tools/${toolSlug}.tsx`)
+        const importPromise = import(`@/components/tools/${toolSlug}/index.tsx`)
         
         const module = await Promise.race([importPromise, timeoutPromise])
         
@@ -346,7 +346,12 @@ export function useLazyTool(toolSlug: string) {
         const Component = await codeSplittingManager.importTool(toolSlug)
         
         if (mounted) {
-          setComponent(() => Component)
+          // Validate that we have a proper React component
+          if (typeof Component === 'function') {
+            setComponent(Component)
+          } else {
+            throw new Error(`Invalid component type for tool: ${toolSlug}. Expected function component, got: ${typeof Component}`)
+          }
         }
       } catch (err) {
         if (mounted) {
@@ -371,7 +376,11 @@ export function useLazyTool(toolSlug: string) {
     setLoading(true)
     codeSplittingManager.importTool(toolSlug)
       .then(Component => {
-        setComponent(() => Component)
+        if (typeof Component === 'function') {
+          setComponent(Component)
+        } else {
+          throw new Error(`Invalid component type for tool: ${toolSlug}. Expected function component, got: ${typeof Component}`)
+        }
         setLoading(false)
       })
       .catch(err => {

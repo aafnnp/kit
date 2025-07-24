@@ -26,16 +26,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
-  const location = useLocation()
   const { setOpen, isMobile } = useSidebar()
-
-  const handleNavigation = (path: string) => {
-    navigate({ to: path })
-    if (isMobile) {
-      setOpen(false) // Close sidebar on mobile after navigation
-    }
-  }
   
   return (
     <Sidebar 

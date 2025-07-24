@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ToolErrorBoundary } from '@/components/common/tool-error-boundary'
+import { ToolErrorBoundary } from '@/components/error-boundary'
 
 interface ToolBaseProps {
   toolName: string

@@ -141,11 +141,11 @@ class PreloadManager {
    */
   preloadCommonTools(): void {
     const commonTools = [
-      '/src/components/tools/json-pretty.tsx',
-      '/src/components/tools/base64-encode.tsx',
-      '/src/components/tools/url-encode.tsx',
-      '/src/components/tools/color-picker.tsx',
-      '/src/components/tools/uuid-generator.tsx'
+      '/src/components/tools/json-pretty/index.tsx',
+      '/src/components/tools/base64-encode/index.tsx',
+      '/src/components/tools/url-encode/index.tsx',
+      '/src/components/tools/color-picker/index.tsx',
+      '/src/components/tools/uuid-generator/index.tsx'
     ]
 
     commonTools.forEach(tool => {
@@ -163,13 +163,13 @@ class PreloadManager {
   smartPreload(recentTools: string[], favoriteTools: string[]): void {
     // 预加载最近使用的工具
     recentTools.slice(0, 5).forEach(tool => {
-      const modulePath = `/src/components/tools/${tool}.tsx`
+      const modulePath = `/src/components/tools/${tool}/index.tsx`
       this.register(modulePath, { priority: 'high' })
     })
 
     // 预加载收藏的工具
     favoriteTools.slice(0, 3).forEach(tool => {
-      const modulePath = `/src/components/tools/${tool}.tsx`
+      const modulePath = `/src/components/tools/${tool}/index.tsx`
       this.register(modulePath, { priority: 'medium' })
     })
 
