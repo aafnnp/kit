@@ -1,15 +1,22 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Activity, Zap, Database, Clock, TrendingUp, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { useCodeSplitting } from '@/lib/code-splitting'
 import { resourceOptimizer } from '@/lib/resource-optimizer'
 import { cache } from '@/lib/cache'
 import { preloader } from '@/lib/preloader'
 
 interface PerformanceStats {
+  // 代码分割统计
+  totalChunks: number
+  loadedChunks: number
+  failedChunks: number
+  loadingChunks: number
+  
   // 缓存统计
   cacheHits: number
   cacheMisses: number
@@ -24,6 +31,9 @@ interface PerformanceStats {
   // 预加载统计
   preloadedModules: number
   preloadHits: number
+  totalPreloaded: number
+  successfulPreloads: number
+  failedPreloads: number
 
   // 性能指标
   averageLoadTime: number
@@ -37,7 +47,12 @@ interface PerformanceMonitorProps {
 }
 
 export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps) {
+  const { getStats } = useCodeSplitting()
   const [stats, setStats] = useState<PerformanceStats>({
+    totalChunks: 0,
+    loadedChunks: 0,
+    failedChunks: 0,
+    loadingChunks: 0,
     cacheHits: 0,
     cacheMisses: 0,
     cacheSize: 0,
@@ -47,6 +62,9 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
     cachedIcons: 0,
     preloadedModules: 0,
     preloadHits: 0,
+    totalPreloaded: 0,
+    successfulPreloads: 0,
+    failedPreloads: 0,
     averageLoadTime: 0,
     totalLoadTime: 0,
   })
@@ -55,6 +73,7 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
   // 获取性能统计数据
   const updateStats = () => {
     try {
+      const splittingStats = getStats()
       const resourceStats = resourceOptimizer.getStats()
       const cacheStats = cache.getStats()
       const preloaderStats = preloader.getStats()
@@ -67,6 +86,10 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
       }
 
       setStats({
+        totalChunks: splittingStats.totalChunks,
+        loadedChunks: splittingStats.loadedChunks,
+        failedChunks: splittingStats.failedChunks,
+        loadingChunks: splittingStats.loadingChunks,
         cacheHits: cacheStats.hits,
         cacheMisses: cacheStats.misses,
         cacheSize: cacheStats.size,
@@ -77,6 +100,9 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
         cachedIcons: resourceStats.cachedIcons,
         preloadedModules: preloaderStats.preloadedModules,
         preloadHits: preloaderStats.hits,
+        totalPreloaded: preloaderStats.total,
+         successfulPreloads: preloaderStats.loaded,
+         failedPreloads: preloaderStats.total - preloaderStats.loaded,
         averageLoadTime: preloaderStats.averageLoadTime,
         totalLoadTime: preloaderStats.totalLoadTime,
         memoryUsage,
@@ -165,7 +191,20 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
           {/* 内容 */}
           <div className="p-6 space-y-6">
             {/* 概览卡片 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">代码分割成功率</CardTitle>
+                  <Zap className="w-4 h-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {stats.totalChunks > 0 ? ((stats.loadedChunks / stats.totalChunks) * 100).toFixed(1) : '0'}%
+                  </div>
+                  <Progress value={stats.totalChunks > 0 ? (stats.loadedChunks / stats.totalChunks) * 100 : 0} className="mt-2" />
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">缓存命中率</CardTitle>
@@ -214,7 +253,35 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
             </div>
 
             {/* 详细统计 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* 代码分割统计 */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Zap className="w-5 h-5" />
+                    <span>代码分割统计</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">已加载块</span>
+                    <Badge variant="secondary">{stats.loadedChunks}</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">加载中块</span>
+                    <Badge variant="outline">{stats.loadingChunks}</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">失败块</span>
+                    <Badge variant="destructive">{stats.failedChunks}</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">总块数</span>
+                    <Badge variant="secondary">{stats.totalChunks}</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* 缓存统计 */}
               <Card>
                 <CardHeader>
@@ -248,7 +315,7 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <Zap className="w-5 h-5" />
+                    <Activity className="w-5 h-5" />
                     <span>资源统计</span>
                   </CardTitle>
                 </CardHeader>
@@ -280,6 +347,12 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm">
+                  {stats.totalChunks > 0 && stats.loadedChunks / stats.totalChunks < 0.8 && (
+                    <div className="flex items-center space-x-2 text-yellow-600">
+                      <span>⚠️</span>
+                      <span>代码分割成功率较低，建议检查网络连接</span>
+                    </div>
+                  )}
                   {stats.cacheHitRate < 50 && (
                     <div className="flex items-center space-x-2 text-yellow-600">
                       <span>⚠️</span>
@@ -298,7 +371,13 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
                       <span>内存使用较高，建议清理不必要的缓存</span>
                     </div>
                   )}
-                  {stats.cacheHitRate >= 80 && stats.averageLoadTime < 200 && (
+                  {stats.failedChunks > 0 && (
+                    <div className="flex items-center space-x-2 text-red-600">
+                      <span>❌</span>
+                      <span>有代码块加载失败，建议检查网络或重试</span>
+                    </div>
+                  )}
+                  {stats.cacheHitRate >= 80 && stats.averageLoadTime < 200 && stats.failedChunks === 0 && (
                     <div className="flex items-center space-x-2 text-green-600">
                       <span>✅</span>
                       <span>性能表现优秀！</span>

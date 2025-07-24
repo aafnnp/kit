@@ -43,6 +43,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
       role="navigation"
       aria-label={t('sidebar.navigation', '主导航')}
+      className="sidebar-tablet lg:sidebar-desktop"
+      data-mobile={isMobile}
     >
       <SidebarHeader className="p-3 sm:p-4" role="banner">
         <SidebarMenu className="flex flex-row justify-between">

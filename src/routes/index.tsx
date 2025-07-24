@@ -103,7 +103,7 @@ export const Route = createFileRoute('/')({
 
       if (activeTab === 'favorites' || activeTab === 'recent') {
         return (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 grid-mobile-1 sm:grid-mobile-2 md:grid-tablet-3 lg:grid-desktop-4 xl:grid-desktop-5 2xl:grid-ultrawide-6">
             {toolsToRender.map((tool, index) => (
               <motion.div
                 key={tool.slug}
@@ -129,7 +129,7 @@ export const Route = createFileRoute('/')({
               transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
             >
               <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-foreground px-1 sm:px-0">{category.type[locale]}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 grid-mobile-1 sm:grid-mobile-2 md:grid-tablet-3 lg:grid-desktop-4 xl:grid-desktop-5 2xl:grid-ultrawide-6">
                 {category.tools.map((tool: any, toolIndex: number) => (
                   <motion.div
                     key={tool.slug}
@@ -165,7 +165,7 @@ export const Route = createFileRoute('/')({
           </h1>
           <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-4 sm:mb-6 px-2 sm:px-0">{t('app.description')}</p>
 
-          <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6 search-mobile">
             {/* 搜索栏 - 移动端全宽 */}
             <div className="w-full max-w-md mx-auto">
               <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder={t('search.placeholder')} />
@@ -215,7 +215,7 @@ export const Route = createFileRoute('/')({
           </div>
         </motion.div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full tabs-mobile">
           <TabsList 
             className="grid w-full grid-cols-5 h-auto p-1 mb-6"
             role="tablist"

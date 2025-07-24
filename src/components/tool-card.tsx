@@ -64,7 +64,7 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
 
   return (
     <Card
-      className="group cursor-pointer transition-all duration-300 ease-out hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.03] border-border/50 hover:border-primary/30 dark:hover:border-primary/40 dark:hover:shadow-primary/20 backdrop-blur-sm touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="group cursor-pointer transition-all duration-500 ease-out hover:shadow-xl hover:shadow-primary/15 hover:scale-[1.02] border-border/50 hover:border-primary/40 dark:hover:border-primary/50 dark:hover:shadow-primary/25 backdrop-blur-sm touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:-translate-y-1 active:scale-[0.98] active:translate-y-0 will-change-transform tool-card-xs sm:tool-card-mobile md:tool-card-tablet lg:tool-card-desktop"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
@@ -76,17 +76,17 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
             {IconComponent && (
-              <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 dark:group-hover:bg-primary/25 transition-all duration-300 group-hover:scale-110 dark:text-primary-foreground/90 shrink-0">
+              <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 dark:group-hover:bg-primary/30 transition-all duration-500 group-hover:scale-110 dark:text-primary-foreground/90 shrink-0 group-hover:shadow-lg group-hover:shadow-primary/20 dark:group-hover:shadow-primary/30">
                 {React.createElement(IconComponent as React.ComponentType<any>, { 
-                  className: 'h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300 group-hover:rotate-3 dark:drop-shadow-sm' 
+                  className: 'h-4 w-4 sm:h-5 sm:w-5 transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 dark:drop-shadow-md' 
                 })}
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-sm sm:text-base font-medium group-hover:text-primary dark:group-hover:text-primary/90 transition-colors duration-300 flex items-center gap-2 line-clamp-1">
+              <CardTitle className="text-sm sm:text-base font-medium group-hover:text-primary dark:group-hover:text-primary/95 transition-all duration-500 flex items-center gap-2 line-clamp-1 group-hover:font-semibold">
                 {tool.name}
                 {tool.href && (
-                  <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-80 dark:opacity-70 dark:group-hover:opacity-90 transition-opacity duration-300 shrink-0" />
+                  <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-90 dark:opacity-70 dark:group-hover:opacity-100 transition-all duration-500 shrink-0 group-hover:scale-110" />
                 )}
               </CardTitle>
             </div>
@@ -97,16 +97,16 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
               size="sm"
               onClick={handleFavoriteClick}
               onKeyDown={handleFavoriteKeyDown}
-              className={`h-7 w-7 sm:h-8 sm:w-8 p-0 opacity-60 sm:opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-300 hover:scale-110 focus-visible:scale-110 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+              className={`h-7 w-7 sm:h-8 sm:w-8 p-0 opacity-60 sm:opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-500 hover:scale-125 focus-visible:scale-125 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:bg-red-50 dark:hover:bg-red-950/30 hover:shadow-lg hover:shadow-red-500/20 dark:hover:shadow-red-400/20 ${
                 isFavorite(tool.slug) 
-                  ? 'text-red-500 dark:text-red-400 opacity-100' 
+                  ? 'text-red-500 dark:text-red-400 opacity-100 bg-red-50 dark:bg-red-950/20' 
                   : 'text-muted-foreground hover:text-red-500 dark:hover:text-red-400'
               }`}
               aria-label={isFavorite(tool.slug) ? t('favorites.remove') : t('favorites.add')}
               tabIndex={0}
             >
-              <Heart className={`h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-300 hover:scale-110 ${
-                isFavorite(tool.slug) ? 'fill-current' : ''
+              <Heart className={`h-3.5 w-3.5 sm:h-4 sm:w-4 transition-all duration-500 hover:scale-110 hover:rotate-12 ${
+                isFavorite(tool.slug) ? 'fill-current animate-pulse' : ''
               }`} />
             </Button>
           )}
@@ -115,7 +115,7 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
       <CardContent className="pt-0 p-3 sm:px-6 sm:pb-6">
         <CardDescription 
           id={`tool-desc-${tool.slug}`}
-          className="text-xs sm:text-sm text-muted-foreground dark:text-muted-foreground/90 leading-relaxed group-hover:text-foreground/80 dark:group-hover:text-foreground/70 transition-colors duration-300 line-clamp-2"
+          className="text-xs sm:text-sm text-muted-foreground dark:text-muted-foreground/90 leading-relaxed group-hover:text-foreground/90 dark:group-hover:text-foreground/85 transition-all duration-500 line-clamp-2 group-hover:font-medium"
         >
           {tool.desc[locale]}
         </CardDescription>

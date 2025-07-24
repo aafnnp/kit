@@ -1,113 +1,78 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
-import { ToolErrorBoundary } from '@/components/error-boundary'
-import { preloader } from '@/lib/preloader'
+import { Suspense, useEffect, useState } from 'react'
 import { cache } from '@/lib/cache'
-import { motion } from 'motion/react'
+import { preloader } from '@/lib/preloader'
+import { codeSplittingManager, useLazyTool, useCodeSplitting } from '@/lib/code-splitting'
+import tools from '@/lib/data'
+import ToolNotFound from '@/components/tools/404'
+import { ToolLoading } from '@/components/ui/loading'
 
-// 加载状态组件
-const LoadingSpinner = () => (
-  <div className="flex items-center justify-center min-h-[400px]">
-    <motion.div
-      className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full"
-      animate={{ rotate: 360 }}
-      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-    />
-  </div>
-)
+export const Route = createFileRoute('/tool/$tool')({
+  component: RouteComponent,
+})
 
-// 错误状态组件
-const ErrorFallback = ({ error, retry }: { error: Error; retry: () => void }) => (
-  <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-    <div className="text-center">
-      <h2 className="text-xl font-semibold text-foreground mb-2">加载失败</h2>
-      <p className="text-muted-foreground mb-4">{error.message}</p>
-      <button
-        onClick={retry}
-        className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-      >
-        重试
-      </button>
-    </div>
-  </div>
-)
-
-const Tool = () => {
-  const { tool } = Route.useParams()
-  const [DynamicTool, setDynamicTool] = useState<React.ComponentType | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
-
-  const loadTool = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      const modulePath = `/src/components/tools/${tool}.tsx`
-      const cacheKey = `tool_${tool}`
-      
-      // 尝试从缓存获取
-      let toolModule = cache.get(cacheKey)
-      
-      if (!toolModule) {
-        // 尝试从预加载器获取
-        try {
-          toolModule = await preloader.preload(modulePath)
-        } catch {
-          // 如果预加载失败，使用动态导入
-          toolModule = await import(`@/components/tools/${tool}.tsx`)
-        }
-        
-        // 缓存模块
-        cache.set(cacheKey, toolModule, 30 * 60 * 1000) // 缓存30分钟
-      }
-      
-      setDynamicTool(() => (toolModule as any).default)
-    } catch (err) {
-      setError(err as Error)
-    } finally {
-      setLoading(false)
-    }
-  }
+function RouteComponent() {
+  const { tool: toolSlug } = Route.useParams()
+  const { component: ToolComponent, loading, error, retry } = useLazyTool(toolSlug)
+  const { smartPreload, getStats } = useCodeSplitting()
+  
+  // 查找工具信息
+  const toolInfo = tools.flatMap((category: any) => category.tools).find((t: any) => t.slug === toolSlug)
 
   useEffect(() => {
-    loadTool()
-  }, [tool])
+    if (!toolInfo) return
 
-  const retry = () => {
-    loadTool()
+    // 智能预加载相关工具
+    const recentTools = JSON.parse(localStorage.getItem('recent_tools') || '[]')
+    const favoriteTools = JSON.parse(localStorage.getItem('favorite_tools') || '[]')
+    
+    // 找到当前工具所属分类
+    const currentCategory = toolInfo.category || 'text-processing'
+    
+    smartPreload(recentTools, favoriteTools, currentCategory)
+
+    // 记录工具使用历史
+    const updatedRecent = [toolSlug, ...recentTools.filter((t: string) => t !== toolSlug)].slice(0, 10)
+    localStorage.setItem('recent_tools', JSON.stringify(updatedRecent))
+  }, [toolSlug, toolInfo, smartPreload])
+
+  // 性能监控
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.performance) {
+      const stats = getStats()
+      console.log('Code splitting stats:', stats)
+    }
+  }, [getStats])
+
+  if (!toolInfo) {
+    return <ToolNotFound toolSlug={toolSlug} />
   }
 
   if (loading) {
-    return <LoadingSpinner />
+    return <ToolLoading toolName={toolInfo.name} />
   }
 
   if (error) {
-    return <ErrorFallback error={error} retry={retry} />
-  }
-
-  if (!DynamicTool) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">工具未找到</p>
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <p className="text-destructive">加载失败: {error.message}</p>
+        <button 
+          onClick={retry}
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+        >
+          重试
+        </button>
       </div>
     )
   }
 
+  if (!ToolComponent) {
+    return <ToolNotFound toolSlug={toolSlug} />
+  }
+
   return (
-    <ToolErrorBoundary toolName={tool}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="px-4"
-      >
-        <DynamicTool />
-      </motion.div>
-    </ToolErrorBoundary>
+    <Suspense fallback={<ToolLoading toolName={toolInfo.name} />}>
+      <ToolComponent />
+    </Suspense>
   )
 }
-
-export const Route = createFileRoute('/tool/$tool')({
-  component: Tool,
-})

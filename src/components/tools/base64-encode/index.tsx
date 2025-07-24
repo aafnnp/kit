@@ -514,9 +514,4 @@ const Base64EncodeCore = () => {
   )
 }
 
-// Main component with error boundary
-const Base64Encode = () => {
-  return <Base64EncodeCore />
-}
-
-export default Base64Encode
+export default Base64EncodeCore

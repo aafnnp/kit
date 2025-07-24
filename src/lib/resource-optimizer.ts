@@ -3,12 +3,29 @@
  */
 
 import { cache } from './cache'
-import * as Icons from 'lucide-react'
+import * as LucideIcons from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import React from 'react'
 
 // 图标缓存映射
 const iconCache = new Map<string, LucideIcon>()
+const resourceCache = new Map<string, any>()
+
+// 图标映射表 - 将@tabler/icons-react映射到lucide-react
+const ICON_MAPPING: Record<string, string> = {
+  // Tabler图标名 -> Lucide图标名
+  'IconMoon': 'Moon',
+  'IconSun': 'Sun',
+  'IconDeviceDesktop': 'Monitor',
+  'IconChevronRight': 'ChevronRight',
+  'IconDots': 'MoreHorizontal',
+  'IconFolder': 'Folder',
+  'IconShare3': 'Share',
+  'IconTrash': 'Trash2',
+  'IconTrendingDown': 'TrendingDown',
+  'IconTrendingUp': 'TrendingUp',
+  // 添加更多映射...
+}
 
 // 常用图标列表（预加载）
 const COMMON_ICONS = [
@@ -41,7 +58,49 @@ const COMMON_ICONS = [
   'Mail',
   'Phone',
   'Calendar',
+  'Moon',
+  'Sun',
+  'Monitor',
+  'MoreHorizontal',
+  'Folder',
+  'Share',
+  'TrendingDown',
+  'TrendingUp',
 ]
+
+// 依赖配置类型定义
+interface DependencyConfig {
+  size: string
+  alternatives?: string[]
+  treeshaking?: boolean
+}
+
+interface DependencyConfigs {
+  [key: string]: DependencyConfig
+}
+
+// 第三方依赖优化配置
+const DEPENDENCY_CONFIG = {
+  // 重量级依赖
+  heavy: {
+    '@ffmpeg/ffmpeg': { size: '~2MB', alternatives: ['browser-image-compression'] },
+    'mermaid': { size: '~800KB', alternatives: ['lightweight-charts'] },
+    'xlsx': { size: '~600KB', alternatives: ['papaparse'] },
+    'pdf-lib': { size: '~400KB', alternatives: ['jspdf'] },
+  } as DependencyConfigs,
+  // 可优化依赖
+  optimizable: {
+    'recharts': { size: '~300KB', treeshaking: true },
+    'motion': { size: '~200KB', treeshaking: true },
+    'jszip': { size: '~150KB', alternatives: ['fflate'] },
+  } as DependencyConfigs,
+  // 轻量级依赖
+  light: {
+    'nanoid': { size: '~2KB' },
+    'clsx': { size: '~1KB' },
+    'zod': { size: '~50KB' },
+  } as DependencyConfigs
+}
 
 class ResourceOptimizer {
   private loadedResources = new Set<string>()
@@ -57,7 +116,7 @@ class ResourceOptimizer {
    */
   private preloadCommonIcons(): void {
     COMMON_ICONS.forEach((iconName) => {
-      const icon = (Icons as any)[iconName]
+      const icon = (LucideIcons as any)[iconName]
       if (icon) {
         iconCache.set(iconName, icon)
       }
@@ -70,20 +129,23 @@ class ResourceOptimizer {
    * @returns 图标组件或默认图标
    */
   getIcon(iconName: string): LucideIcon {
+    // 检查是否是Tabler图标，进行映射
+    const mappedName = ICON_MAPPING[iconName] || iconName
+    
     // 首先检查缓存
-    if (iconCache.has(iconName)) {
-      return iconCache.get(iconName)!
+    if (iconCache.has(mappedName)) {
+      return iconCache.get(mappedName)!
     }
 
-    // 尝试从Icons中获取
-    const icon = (Icons as any)[iconName]
+    // 尝试从LucideIcons中获取
+    const icon = (LucideIcons as any)[mappedName]
     if (icon) {
-      iconCache.set(iconName, icon)
+      iconCache.set(mappedName, icon)
       return icon
     }
 
     // 返回默认图标
-    return Icons.HelpCircle
+    return LucideIcons.HelpCircle
   }
 
   /**
@@ -92,12 +154,132 @@ class ResourceOptimizer {
    */
   preloadIcons(iconNames: string[]): void {
     iconNames.forEach((iconName) => {
-      if (!iconCache.has(iconName)) {
-        const icon = (Icons as any)[iconName]
+      const mappedName = ICON_MAPPING[iconName] || iconName
+      if (!iconCache.has(mappedName)) {
+        const icon = (LucideIcons as any)[mappedName]
         if (icon) {
-          iconCache.set(iconName, icon)
+          iconCache.set(mappedName, icon)
         }
       }
+    })
+  }
+
+  /**
+   * 分析依赖使用情况
+   */
+  analyzeDependencies(): {
+    heavy: string[]
+    optimizable: string[]
+    light: string[]
+    recommendations: string[]
+  } {
+    const recommendations: string[] = []
+    
+    // 检查重量级依赖
+    const heavyDeps = Object.keys(DEPENDENCY_CONFIG.heavy)
+    const optimizableDeps = Object.keys(DEPENDENCY_CONFIG.optimizable)
+    const lightDeps = Object.keys(DEPENDENCY_CONFIG.light)
+    
+    // 生成优化建议
+    heavyDeps.forEach(dep => {
+      const config = DEPENDENCY_CONFIG.heavy[dep]
+      if (config.alternatives) {
+        recommendations.push(`考虑将 ${dep} (${config.size}) 替换为更轻量的 ${config.alternatives.join(' 或 ')}`)
+      }
+    })
+    
+    optimizableDeps.forEach(dep => {
+      const config = DEPENDENCY_CONFIG.optimizable[dep]
+      if (config.treeshaking) {
+        recommendations.push(`${dep} 支持 tree-shaking，确保只导入需要的模块`)
+      }
+      if (config.alternatives) {
+        recommendations.push(`可考虑将 ${dep} 替换为 ${config.alternatives.join(' 或 ')}`)
+      }
+    })
+    
+    return {
+      heavy: heavyDeps,
+      optimizable: optimizableDeps,
+      light: lightDeps,
+      recommendations
+    }
+  }
+
+  /**
+   * 优化资源加载
+   * @param resourceType 资源类型
+   * @param resourcePath 资源路径
+   */
+  async optimizeResourceLoading(resourceType: 'image' | 'font' | 'script', resourcePath: string): Promise<void> {
+    const cacheKey = `${resourceType}_${resourcePath}`
+    
+    if (resourceCache.has(cacheKey)) {
+      return resourceCache.get(cacheKey)
+    }
+    
+    const promise = this.loadOptimizedResource(resourceType, resourcePath)
+    resourceCache.set(cacheKey, promise)
+    
+    return promise
+  }
+
+  /**
+   * 加载优化后的资源
+   */
+  private async loadOptimizedResource(resourceType: 'image' | 'font' | 'script', resourcePath: string): Promise<void> {
+    switch (resourceType) {
+      case 'image':
+        return this.preloadImage(resourcePath)
+      case 'font':
+        return this.preloadFont(resourcePath)
+      case 'script':
+        return this.loadScript(resourcePath)
+      default:
+        throw new Error(`Unsupported resource type: ${resourceType}`)
+    }
+  }
+
+  /**
+   * 预加载图片
+   */
+  private preloadImage(src: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      img.onload = () => resolve()
+      img.onerror = () => reject(new Error(`Failed to load image: ${src}`))
+      img.src = src
+    })
+  }
+
+  /**
+   * 预加载字体
+   */
+  private preloadFont(fontUrl: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'preload'
+      link.as = 'font'
+      link.type = 'font/woff2'
+      link.crossOrigin = 'anonymous'
+      link.href = fontUrl
+      link.onload = () => resolve()
+      link.onerror = () => reject(new Error(`Failed to load font: ${fontUrl}`))
+      document.head.appendChild(link)
+    })
+  }
+
+  /**
+   * 加载脚本
+   */
+  private loadScript(src: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = src
+      script.async = true
+      script.onload = () => resolve()
+      script.onerror = () => reject(new Error(`Failed to load script: ${src}`))
+      document.head.appendChild(script)
     })
   }
 
@@ -308,12 +490,55 @@ class ResourceOptimizer {
     loadedResources: number
     loadingResources: number
     cachedIcons: number
+    cachedResources: number
+    dependencyAnalysis: {
+      heavy: number
+      optimizable: number
+      light: number
+    }
   } {
+    const analysis = this.analyzeDependencies()
     return {
       loadedResources: this.loadedResources.size,
       loadingResources: this.loadingPromises.size,
       cachedIcons: iconCache.size,
+      cachedResources: resourceCache.size,
+      dependencyAnalysis: {
+        heavy: analysis.heavy.length,
+        optimizable: analysis.optimizable.length,
+        light: analysis.light.length,
+      }
     }
+  }
+
+  /**
+   * 清理缓存
+   */
+  clearCache(): void {
+    iconCache.clear()
+    resourceCache.clear()
+    this.loadedResources.clear()
+    this.loadingPromises.clear()
+  }
+
+  /**
+   * 获取优化建议
+   */
+  getOptimizationSuggestions(): string[] {
+    const analysis = this.analyzeDependencies()
+    const suggestions = [...analysis.recommendations]
+    
+    // 添加图标优化建议
+    if (iconCache.size > 100) {
+      suggestions.push('图标缓存过大，考虑实现图标按需加载')
+    }
+    
+    // 添加资源优化建议
+    if (resourceCache.size > 50) {
+      suggestions.push('资源缓存过大，考虑实现LRU缓存策略')
+    }
+    
+    return suggestions
   }
 
   /**
