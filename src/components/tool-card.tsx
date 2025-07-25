@@ -59,8 +59,8 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
     }
   }
 
-  const IconComponent =
-    tool.icon && Icons[tool.icon as keyof typeof Icons] ? Icons[tool.icon as keyof typeof Icons] : Icons.HelpCircle
+  const IconComponent = tool.icon && Icons[tool.icon as keyof typeof Icons] ? Icons[tool.icon as keyof typeof Icons] : null
+  const firstLetter = tool.name.charAt(0).toUpperCase()
 
   return (
     <Card
@@ -75,13 +75,17 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
       <CardHeader className="pb-3 p-3 sm:p-6">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
-            {IconComponent && (
-              <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 dark:group-hover:bg-primary/30 transition-all duration-500 group-hover:scale-110 dark:text-primary-foreground/90 shrink-0 group-hover:shadow-lg group-hover:shadow-primary/20 dark:group-hover:shadow-primary/30">
-                {React.createElement(IconComponent as React.ComponentType<any>, { 
+            <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 dark:group-hover:bg-primary/30 transition-all duration-500 group-hover:scale-110 dark:text-primary-foreground/90 shrink-0 group-hover:shadow-lg group-hover:shadow-primary/20 dark:group-hover:shadow-primary/30">
+              {IconComponent ? (
+                React.createElement(IconComponent as React.ComponentType<any>, { 
                   className: 'h-4 w-4 sm:h-5 sm:w-5 transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 dark:drop-shadow-md' 
-                })}
-              </div>
-            )}
+                })
+              ) : (
+                <div className="h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-semibold text-xs sm:text-sm transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 dark:drop-shadow-md">
+                  {firstLetter}
+                </div>
+              )}
+            </div>
             <div className="flex-1 min-w-0">
               <CardTitle className="text-sm sm:text-base font-medium group-hover:text-primary dark:group-hover:text-primary/95 transition-all duration-500 flex items-center gap-2 line-clamp-1 group-hover:font-semibold">
                 {tool.name}

@@ -32,19 +32,16 @@ export default [
         slug: 'color-picker',
         name: 'Color Picker',
         desc: { zh: '取色并复制十六进制', en: 'Pick color and copy hex' },
-        icon: 'ColorPicker',
       },
       {
         slug: 'hex-rgb',
         name: 'HEX↔RGB',
         desc: { zh: '颜色格式互转', en: 'Hex to RGB / RGB to Hex' },
-        icon: 'HexRGB',
       },
       {
         slug: 'gradient-maker',
         name: 'Gradient Maker',
         desc: { zh: 'CSS 渐变生成', en: 'CSS gradient generator' },
-        icon: 'Gradient',
       },
       {
         slug: 'shadow-generator',
@@ -56,21 +53,18 @@ export default [
         slug: 'border-radius',
         name: 'Radius Maker',
         desc: { zh: '圆角可视化', en: 'Border radius visualizer' },
-        icon: 'Radius',
       },
       {
         slug: 'favicon-generator',
         name: 'Favicon Maker',
         desc: { zh: '生成多尺寸 ICO', en: 'Favicon generator' },
-        icon: 'Favicon',
       },
       {
         slug: 'css-clamp',
         name: 'CSS Clamp',
         desc: { zh: 'Fluid size 计算', en: 'CSS clamp calculator' },
-        icon: 'Clamp',
       },
-      { slug: 'random-color', name: 'Random Color', desc: { zh: '随机颜色', en: 'Random color' }, icon: 'Random' },
+      { slug: 'random-color', name: 'Random Color', desc: { zh: '随机颜色', en: 'Random color' } },
     ],
   },
   {
@@ -81,52 +75,44 @@ export default [
         slug: 'image-compress',
         name: 'Image Compressor',
         desc: { zh: '客户端压缩 JPG/PNG/WebP', en: 'Image compressor (JPG/PNG/WebP)' },
-        icon: 'ImageCompress',
       },
       {
         slug: 'image-resize',
         name: 'Resize Image',
         desc: { zh: '图像等比缩放', en: 'Image resize' },
-        icon: 'ImageResize',
       },
       {
         slug: 'image-convert',
         name: 'Format Convert',
         desc: { zh: 'PNG↔WebP↔JPG', en: 'PNG to WebP / WebP to JPG' },
-        icon: 'ImageConvert',
       },
       {
         slug: 'image-crop',
         name: 'Crop Image',
         desc: { zh: '裁剪并导出', en: 'Image crop and export' },
-        icon: 'ImageCrop',
       },
       {
         slug: 'exif-viewer',
         name: 'EXIF Viewer',
         desc: { zh: '查看 / 去除元数据', en: 'EXIF viewer / metadata remover' },
-        icon: 'Exif',
       },
-      { slug: 'svg-minify', name: 'SVG Minifier', desc: { zh: '压缩 SVG', en: 'SVG minifier' }, icon: 'SvgMinify' },
-      { slug: 'gif-split', name: 'GIF Splitter', desc: { zh: 'GIF 帧拆分', en: 'GIF splitter' }, icon: 'GifSplit' },
-      { slug: 'video-trim', name: 'Video Trim', desc: { zh: '浏览器端剪辑', en: 'Video trim' }, icon: 'VideoTrim' },
+      { slug: 'svg-minify', name: 'SVG Minifier', desc: { zh: '压缩 SVG', en: 'SVG minifier' } },
+      { slug: 'gif-split', name: 'GIF Splitter', desc: { zh: 'GIF 帧拆分', en: 'GIF splitter' } },
+      { slug: 'video-trim', name: 'Video Trim', desc: { zh: '浏览器端剪辑', en: 'Video trim' } },
       {
         slug: 'audio-convert',
         name: 'Audio Convert',
         desc: { zh: '音频格式转换', en: 'Audio format converter' },
-        icon: 'AudioConvert',
       },
       {
         slug: 'icon-spriter',
         name: 'SVG Sprite Gen',
         desc: { zh: '生成雪碧图', en: 'SVG sprite generator' },
-        icon: 'IconSpriter',
       },
       {
         slug: 'lorem-image',
         name: 'Placeholder Img',
         desc: { zh: '占位图生成', en: 'Placeholder image generator' },
-        icon: 'ImagePlaceholder',
       },
       { slug: 'image-to-pdf', name: 'Img→PDF', desc: { zh: '图片转 PDF', en: 'Image to PDF' } },
     ],
@@ -135,20 +121,20 @@ export default [
     id: 'encryption-hashing',
     type: { zh: '加解密/哈希', en: 'Encryption/Hashing' },
     tools: [
-      { slug: 'md5-hash', name: 'MD5 Hash', desc: { zh: '计算摘要', en: 'MD5 hash' }, icon: 'Md5Hash' },
+      { slug: 'md5-hash', name: 'MD5 Hash', desc: { zh: '计算摘要', en: 'MD5 hash' } },
       {
         slug: 'sha256-hash',
         name: 'SHA-256 Hash',
         desc: { zh: 'SHA-256 摘要', en: 'SHA-256 hash' },
-        icon: 'Sha256Hash',
+
       },
-      { slug: 'bcrypt-hash', name: 'Bcrypt Hash', desc: { zh: 'Bcrypt 哈希', en: 'Bcrypt hash' }, icon: 'BcryptHash' },
-      { slug: 'file-hash', name: 'File Checksum', desc: { zh: '文件校验码', en: 'File checksum' }, icon: 'FileHash' },
+      { slug: 'bcrypt-hash', name: 'Bcrypt Hash', desc: { zh: 'Bcrypt 哈希', en: 'Bcrypt hash' } },
+      { slug: 'file-hash', name: 'File Checksum', desc: { zh: '文件校验码', en: 'File checksum' } },
       {
         slug: 'password-generator',
         name: 'Password Gen',
         desc: { zh: '密码生成', en: 'Password generator' },
-        icon: 'Password',
+
       },
     ],
   },
@@ -160,15 +146,15 @@ export default [
         slug: 'unix-timestamp',
         name: 'Timestamp↔Date',
         desc: { zh: '时间戳互转', en: 'Timestamp to date / date to timestamp' },
-        icon: 'Timestamp',
+
       },
-      { slug: 'cron-parser', name: 'Cron Parser', desc: { zh: '解析 Cron 表达式', en: 'Cron parser' }, icon: 'Cron' },
-      { slug: 'time-diff', name: 'Time Diff', desc: { zh: '日期间隔', en: 'Time difference' }, icon: 'TimeDiff' },
+      { slug: 'cron-parser', name: 'Cron Parser', desc: { zh: '解析 Cron 表达式', en: 'Cron parser' } },
+      { slug: 'time-diff', name: 'Time Diff', desc: { zh: '日期间隔', en: 'Time difference' } },
       {
         slug: 'timezone-convert',
         name: 'TZ Convert',
         desc: { zh: '时区换算', en: 'Timezone converter' },
-        icon: 'Timezone',
+
       },
     ],
   },
@@ -180,45 +166,45 @@ export default [
         slug: 'json-pretty',
         name: 'JSON Formatter',
         desc: { zh: 'JSON 美化 / 压缩', en: 'JSON formatter / compressor' },
-        icon: 'JsonPretty',
+
       },
-      { slug: 'yaml-to-json', name: 'YAML→JSON', desc: { zh: '格式互转', en: 'YAML to JSON' }, icon: 'YamlToJson' },
+      { slug: 'yaml-to-json', name: 'YAML→JSON', desc: { zh: '格式互转', en: 'YAML to JSON' } },
       {
         slug: 'base64-encode',
         name: 'Base64⇄Text',
         desc: { zh: 'Base64 编解码', en: 'Base64 encode / decode' },
-        icon: 'Base64',
+
       },
       {
         slug: 'url-encode',
         name: 'URL Encode / Decode',
         desc: { zh: 'URL 编解码', en: 'URL encode / decode' },
-        icon: 'UrlEncode',
+
       },
       {
         slug: 'json-to-ts',
         name: 'JSON→TS Interface',
         desc: { zh: 'JSON 转 TS 接口', en: 'JSON to TS interface' },
-        icon: 'JsonToTs',
+
       },
-      { slug: 'csv-to-json', name: 'CSV→JSON', desc: { zh: 'CSV 转 JSON', en: 'CSV to JSON' }, icon: 'CsvToJson' },
+      { slug: 'csv-to-json', name: 'CSV→JSON', desc: { zh: 'CSV 转 JSON', en: 'CSV to JSON' } },
       {
         slug: 'excel-to-json',
         name: 'XLSX→JSON',
         desc: { zh: 'Excel 转 JSON', en: 'Excel to JSON' },
-        icon: 'ExcelToJson',
+
       },
       {
         slug: 'base64-image',
         name: 'Base64 Img Preview',
         desc: { zh: 'Base64 图片预览', en: 'Base64 image preview' },
-        icon: 'Base64Image',
+
       },
       {
         slug: 'html-preview',
         name: 'Live HTML',
         desc: { zh: 'HTML 预览', en: 'Live HTML preview' },
-        icon: 'HtmlPreview',
+
       },
     ],
   },
@@ -232,89 +218,85 @@ export default [
         desc: { zh: 'HTTP 状态码查询', en: 'HTTP status code lookup' },
         href: 'https://manon.icu/http-status',
       },
-      { slug: 'user-agent', name: 'UA Parser', desc: { zh: 'UA 解析', en: 'UA parser' }, icon: 'UserAgent' },
+      { slug: 'user-agent', name: 'UA Parser', desc: { zh: 'UA 解析', en: 'UA parser' } },
       {
         slug: 'mime-search',
         name: 'MIME Type Search',
         desc: { zh: 'MIME 查询', en: 'MIME type search' },
-        icon: 'MimeSearch',
+
       },
-      { slug: 'dns-lookup', name: 'DNS Lookup', desc: { zh: 'DNS 查询', en: 'DNS lookup' }, icon: 'DnsLookup' },
-      { slug: 'ip-info', name: 'IP Info', desc: { zh: '公网 IP & whois', en: 'Public IP & whois' }, icon: 'IpInfo' },
-      { slug: 'url-parser', name: 'URL Inspector', desc: { zh: 'URL 解析', en: 'URL inspector' }, icon: 'UrlParser' },
+      { slug: 'dns-lookup', name: 'DNS Lookup', desc: { zh: 'DNS 查询', en: 'DNS lookup' } },
+      { slug: 'ip-info', name: 'IP Info', desc: { zh: '公网 IP & whois', en: 'Public IP & whois' } },
+      { slug: 'url-parser', name: 'URL Inspector', desc: { zh: 'URL 解析', en: 'URL inspector' } },
     ],
   },
   {
     id: 'random-generator',
     type: { zh: '随机/生成器', en: 'Random/Generator' },
     tools: [
-      { slug: 'uuid-generator', name: 'UUID v4', desc: { zh: 'UUID v4 生成', en: 'UUID v4 generator' }, icon: 'Uuid' },
-      { slug: 'uuid-batch', name: 'UUID Batch', desc: { zh: '批量 UUID', en: 'UUID batch' }, icon: 'UuidBatch' },
-      { slug: 'qr-generator', name: 'QR Maker', desc: { zh: '二维码生成', en: 'QR code generator' }, icon: 'QrCode' },
+      { slug: 'uuid-generator', name: 'UUID v4', desc: { zh: 'UUID v4 生成', en: 'UUID v4 generator' } },
+      { slug: 'uuid-batch', name: 'UUID Batch', desc: { zh: '批量 UUID', en: 'UUID batch' } },
+      { slug: 'qr-generator', name: 'QR Maker', desc: { zh: '二维码生成', en: 'QR code generator' } },
       {
         slug: 'barcode-generator',
         name: 'Barcode Maker',
         desc: { zh: '条形码生成', en: 'Barcode generator' },
-        icon: 'Barcode',
+
       },
-      { slug: 'fake-user', name: 'Fake User', desc: { zh: '虚拟人资料', en: 'Fake user data' }, icon: 'FakeUser' },
-      { slug: 'lottery-picker', name: 'Lottery Pick', desc: { zh: '抽奖器', en: 'Lottery picker' }, icon: 'Lottery' },
+      { slug: 'fake-user', name: 'Fake User', desc: { zh: '虚拟人资料', en: 'Fake user data' } },
+      { slug: 'lottery-picker', name: 'Lottery Pick', desc: { zh: '抽奖器', en: 'Lottery picker' } },
     ],
   },
   {
     id: 'other-development-tools',
     type: { zh: '其它/开发辅助', en: 'Other/Development Tools' },
     tools: [
-      { slug: 'jwt-decode', name: 'JWT Decoder', desc: { zh: '解析 JWT', en: 'JWT decoder' }, icon: 'JwtDecode' },
-      { slug: 'jwt-generator', name: 'JWT Signer', desc: { zh: '本地 HS256', en: 'Local HS256' }, icon: 'JwtSigner' },
+      { slug: 'jwt-decode', name: 'JWT Decoder', desc: { zh: '解析 JWT', en: 'JWT decoder' } },
+      { slug: 'jwt-generator', name: 'JWT Signer', desc: { zh: '本地 HS256', en: 'Local HS256' } },
       {
         slug: 'regex-cheatsheet',
         name: 'RegEx 速查',
         desc: { zh: '正则速查', en: 'Regex cheatsheet' },
-        icon: 'RegexCheatsheet',
+
       },
       {
         slug: 'json-diff',
         name: 'JSON Diff Viewer',
         desc: { zh: 'JSON 差异对比', en: 'JSON diff viewer' },
-        icon: 'JsonDiff',
+
       },
-      { slug: 'json-plot', name: 'JSON Plot', desc: { zh: 'JSON 可视化', en: 'JSON plot' }, icon: 'JsonPlot' },
+      { slug: 'json-plot', name: 'JSON Plot', desc: { zh: 'JSON 可视化', en: 'JSON plot' },  },
       {
         slug: 'markdown-mermaid',
         name: 'Mermaid Preview',
         desc: { zh: 'Mermaid 预览', en: 'Mermaid preview' },
-        icon: 'Mermaid',
+
       },
       {
         slug: 'prime-checker',
         name: 'Prime Check',
         desc: { zh: '判断质数', en: 'Prime checker' },
-        icon: 'PrimeChecker',
+
       },
       {
         slug: 'quadratic-solver',
         name: 'Quadratic',
         desc: { zh: '解一元二次方程', en: 'Quadratic solver' },
-        icon: 'Quadratic',
       },
       {
         slug: 'matrix-math',
         name: 'Matrix Ops',
         desc: { zh: '矩阵运算', en: 'Matrix operations' },
-        icon: 'MatrixMath',
       },
       {
         slug: 'currency-convert',
         name: 'Currency FX',
         desc: { zh: '静态汇率换算', en: 'Static currency converter' },
-        icon: 'CircleDollarSign',
       },
       {
         slug: 'roman-numeral',
         name: 'Roman↔Arab',
         desc: { zh: '罗马数字转换', en: 'Roman to Arabic / Arabic to Roman' },
-        icon: 'RomanNumeral',
       },
     ],
   },
@@ -325,7 +307,7 @@ export default [
       {
         slug: 'code-formatter',
         name: 'Code Formatter',
-        desc: { zh: '代码格式化 (JS/TS/CSS/HTML)', en: 'Code formatter (JS/TS/CSS/HTML)' },
+        desc: { zh: '代码格式化', en: 'Code formatter (JS/TS/CSS/HTML)' },
         icon: 'Code',
       },
       {
