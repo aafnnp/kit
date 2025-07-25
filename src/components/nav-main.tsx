@@ -15,7 +15,7 @@ import * as Icons from 'lucide-react'
 
 export function NavMain({ items }: { items: typeof tools }) {
   const router = useRouter()
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation()
   const locale = i18n.language.startsWith('en') ? 'en' : 'zh'
 
   // 获取当前 url 的 slug
@@ -49,7 +49,7 @@ export function NavMain({ items }: { items: typeof tools }) {
                   className="flex items-center gap-2 mb-1 sm:mb-2 justify-between cursor-pointer select-none px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors touch-manipulation"
                   onClick={() => toggleGroup(item.id)}
                 >
-                  <span className="text-xs sm:text-sm font-medium truncate">{item.type.zh}</span>
+                  <span className="text-xs sm:text-sm font-medium truncate">{t(`tools.${item.id}.title`)}</span>
                   <IconChevronRight
                     className={`!size-3.5 sm:!size-4 transition-transform shrink-0 ${isOpen ? 'rotate-90' : ''}`}
                   />
@@ -79,13 +79,17 @@ export function NavMain({ items }: { items: typeof tools }) {
                                 router.navigate({ to: `/tool/${tool.slug}` })
                               }}
                             >
-                              {tool.icon && typeof tool.icon === 'string' && Icons[tool.icon as keyof typeof Icons]
-                                ? React.createElement(
-                                    Icons[tool.icon as keyof typeof Icons] as React.ComponentType<any>,
-                                    { className: 'size-3.5 sm:size-4 mr-1.5 sm:mr-2 text-primary shrink-0' }
-                                  )
-                                : null}
-                              <span className="truncate">{tool.name}</span>
+                              {tool.icon && typeof tool.icon === 'string' && Icons[tool.icon as keyof typeof Icons] ? (
+                                React.createElement(
+                                  Icons[tool.icon as keyof typeof Icons] as React.ComponentType<any>,
+                                  { className: 'size-3.5 sm:size-4 mr-1.5 sm:mr-2 text-primary shrink-0' }
+                                )
+                              ) : (
+                                <div className="size-3.5 sm:size-4 mr-1.5 sm:mr-2 text-primary shrink-0">
+                                  {tool.name?.charAt(0).toUpperCase() || ''}
+                                </div>
+                              )}
+                              <span className="truncate">{t(`tools.${item.id}.${tool.slug}.name`)}</span>
                             </SidebarMenuButton>
                           </SidebarMenuItem>
                         )

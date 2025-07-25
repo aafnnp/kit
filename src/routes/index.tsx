@@ -8,10 +8,9 @@ import { SearchBar } from '@/components/search-bar'
 import { ToolCard } from '@/components/tool-card'
 import { useFavorites, useRecentTools, useToolSearch } from '@/lib/favorites'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Heart, Clock, Grid3X3, Trash2, Activity, Settings } from 'lucide-react'
+import { Heart, Clock, Grid3X3, Trash2, Settings } from 'lucide-react'
 import { usePreload, useSmartPreload } from '@/lib/preloader'
 import { useResourcePreload } from '@/lib/resource-optimizer'
-import { PerformanceMonitor } from '@/components/performance-monitor'
 import { CategoryManager } from '@/components/category-manager'
 import { useCustomCategories } from '@/lib/custom-categories'
 
@@ -51,8 +50,6 @@ export const Route = createFileRoute('/')({
       trackToolUsage(tool.slug)
       preloadTool(tool.slug)
     }
-
-    const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false)
 
     // 使用缓存优化工具过滤
     const favoriteTools = useMemo(() => {
@@ -173,48 +170,6 @@ export const Route = createFileRoute('/')({
             {/* 搜索栏 - 移动端全宽 */}
             <div className="w-full max-w-md mx-auto">
               <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder={t('search.placeholder')} />
-            </div>
-
-            {/* 控制按钮 - 移动端堆叠布局 */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowPerformanceMonitor(true)}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                aria-label={t('performance.monitor', '打开性能监控')}
-              >
-                <Activity className="w-4 h-4" aria-hidden="true" />
-                <span className="sm:hidden">{t('performance.title', '性能监控')}</span>
-              </Button>
-
-              {/* 语言切换 - 移动端更紧凑 */}
-              <div
-                className="inline-flex items-center rounded-lg border border-border bg-background p-0.5 sm:p-1 w-full sm:w-auto"
-                role="group"
-                aria-label={t('language.switch', '语言切换')}
-              >
-                <Button
-                  variant={locale === 'zh' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => locale !== 'zh' && toggleLanguage()}
-                  className="rounded-md px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all flex-1 sm:flex-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
-                  aria-pressed={locale === 'zh'}
-                  aria-label={t('language.chinese', '切换到中文')}
-                >
-                  中文
-                </Button>
-                <Button
-                  variant={locale === 'en' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => locale !== 'en' && toggleLanguage()}
-                  className="rounded-md px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all flex-1 sm:flex-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
-                  aria-pressed={locale === 'en'}
-                  aria-label={t('language.english', '切换到英文')}
-                >
-                  English
-                </Button>
-              </div>
             </div>
           </div>
         </motion.div>
@@ -355,10 +310,6 @@ export const Route = createFileRoute('/')({
             <CategoryManager allTools={allTools} />
           </TabsContent>
         </Tabs>
-
-        {showPerformanceMonitor && (
-          <PerformanceMonitor isOpen={showPerformanceMonitor} onClose={() => setShowPerformanceMonitor(false)} />
-        )}
       </div>
     )
   },
