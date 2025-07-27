@@ -1,0 +1,188 @@
+{
+  "timestamp": "2025-07-27T12:21:54.627Z",
+  "summary": {
+    "totalFiles": 4195,
+    "totalSize": "1.21 GB",
+    "totalGzipSize": "438.85 MB",
+    "compressionRatio": "64.6%"
+  },
+  "frontend": {
+    "files": 251,
+    "size": "6.99 MB",
+    "gzipSize": "2.04 MB"
+  },
+  "backend": {
+    "files": 3944,
+    "size": "1.20 GB",
+    "gzipSize": "436.80 MB"
+  },
+  "largestFiles": [
+    {
+      "path": "src-tauri/target/release/deps/libkit_lib.a",
+      "size": "133.54 MB",
+      "gzipSize": "40.79 MB",
+      "compression": "69.5%"
+    },
+    {
+      "path": "src-tauri/target/release/deps/libobjc2_app_kit-efed0d115a15a5e7.rlib",
+      "size": "93.17 MB",
+      "gzipSize": "30.13 MB",
+      "compression": "67.7%"
+    },
+    {
+      "path": "src-tauri/target/release/deps/libobjc2_app_kit-efed0d115a15a5e7.rmeta",
+      "size": "76.51 MB",
+      "gzipSize": "26.55 MB",
+      "compression": "65.3%"
+    },
+    {
+      "path": "src-tauri/target/release/deps/libkit_lib.rlib",
+      "size": "46.93 MB",
+      "gzipSize": "13.74 MB",
+      "compression": "70.7%"
+    },
+    {
+      "path": "src-tauri/target/release/deps/libobjc2_foundation-59db5a8cbe4ab2e8.rlib",
+      "size": "42.53 MB",
+      "gzipSize": "13.58 MB",
+      "compression": "68.1%"
+    },
+    {
+      "path": "src-tauri/target/release/deps/libobjc2_foundation-59db5a8cbe4ab2e8.rmeta",
+      "size": "32.43 MB",
+      "gzipSize": "11.46 MB",
+      "compression": "64.6%"
+    },
+    {
+      "path": "src-tauri/target/release/deps/libtauri_utils-dead9f3d13480857.rlib",
+      "size": "25.08 MB",
+      "gzipSize": "6.40 MB",
+      "compression": "74.5%"
+    },
+    {
+      "path": "src-tauri/target/release/deps/libtauri_utils-9018651e2027a339.rlib",
+      "size": "15.33 MB",
+      "gzipSize": "4.90 MB",
+      "compression": "68.1%"
+    },
+    {
+      "path": "src-tauri/target/release/deps/libtauri_macros-c60c08e23b5222ab.dylib",
+      "size": "13.14 MB",
+      "gzipSize": "4.63 MB",
+      "compression": "64.8%"
+    },
+    {
+      "path": "src-tauri/target/release/build/kit-4261594df216896c/build-script-build",
+      "size": "10.09 MB",
+      "gzipSize": "3.34 MB",
+      "compression": "66.9%"
+    }
+  ],
+  "fileTypes": {
+    ".a": {
+      "count": 4,
+      "totalSize": "134.06 MB",
+      "totalGzipSize": "41.09 MB"
+    },
+    ".rlib": {
+      "count": 382,
+      "totalSize": "560.29 MB",
+      "totalGzipSize": "189.60 MB"
+    },
+    ".rmeta": {
+      "count": 381,
+      "totalSize": "340.85 MB",
+      "totalGzipSize": "127.50 MB"
+    },
+    ".dylib": {
+      "count": 24,
+      "totalSize": "57.07 MB",
+      "totalGzipSize": "20.42 MB"
+    },
+    "no-extension": {
+      "count": 1227,
+      "totalSize": "128.31 MB",
+      "totalGzipSize": "50.96 MB"
+    },
+    ".dmg": {
+      "count": 1,
+      "totalSize": "4.26 MB",
+      "totalGzipSize": "4.25 MB"
+    },
+    ".js": {
+      "count": 503,
+      "totalSize": "8.76 MB",
+      "totalGzipSize": "3.89 MB"
+    },
+    ".rs": {
+      "count": 5,
+      "totalSize": "1.24 MB",
+      "totalGzipSize": "128.43 KB"
+    },
+    ".d": {
+      "count": 452,
+      "totalSize": "2.68 MB",
+      "totalGzipSize": "238.10 KB"
+    },
+    ".icns": {
+      "count": 1,
+      "totalSize": "169.25 KB",
+      "totalGzipSize": "145.20 KB"
+    },
+    ".o": {
+      "count": 25,
+      "totalSize": "530.98 KB",
+      "totalGzipSize": "313.44 KB"
+    },
+    ".css": {
+      "count": 2,
+      "totalSize": "104.23 KB",
+      "totalGzipSize": "28.62 KB"
+    },
+    ".json": {
+      "count": 508,
+      "totalSize": "392.99 KB",
+      "totalGzipSize": "202.55 KB"
+    },
+    ".sh": {
+      "count": 1,
+      "totalSize": "18.85 KB",
+      "totalGzipSize": "6.70 KB"
+    },
+    ".png": {
+      "count": 2,
+      "totalSize": "15.32 KB",
+      "totalGzipSize": "15.37 KB"
+    },
+    ".svg": {
+      "count": 4,
+      "totalSize": "5.95 KB",
+      "totalGzipSize": "4.02 KB"
+    },
+    ".xml": {
+      "count": 1,
+      "totalSize": "2.32 KB",
+      "totalGzipSize": "790.00 B"
+    },
+    ".applescript": {
+      "count": 1,
+      "totalSize": "1.79 KB",
+      "totalGzipSize": "703.00 B"
+    },
+    ".toml": {
+      "count": 164,
+      "totalSize": "81.69 KB",
+      "totalGzipSize": "44.11 KB"
+    },
+    ".html": {
+      "count": 2,
+      "totalSize": "675.00 B",
+      "totalGzipSize": "539.00 B"
+    },
+    ".timestamp": {
+      "count": 505,
+      "totalSize": "23.67 KB",
+      "totalGzipSize": "32.55 KB"
+    }
+  }
+}

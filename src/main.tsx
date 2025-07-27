@@ -4,6 +4,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { routeTree } from './routeTree.gen'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import './locales'
 
 const router = createRouter({ routeTree })
 const queryClient = new QueryClient()

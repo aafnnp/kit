@@ -1,0 +1,9 @@
+---
+globs: src/components/**
+description: 组件目录结构说明
+---
+
+- 每个工具组件放在 [src/components/tools/](mdc:src/components/tools/) 下
+- 通用 UI 组件放在 [src/components/ui/](mdc:src/components/ui/) 下
+- 组件应尽量无状态，状态提升到父组件
+- 组件 props 类型定义在同文件或 [src/types/](mdc:src/types/) 下
