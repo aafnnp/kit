@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress'
 import { resourceOptimizer } from '@/lib/resource-optimizer'
 import { cache } from '@/lib/cache'
 import { preloader } from '@/lib/preloader'
+import { useTranslation } from 'react-i18next'
 
 interface PerformanceStats {
   // 代码分割统计
@@ -46,6 +47,7 @@ interface PerformanceMonitorProps {
 }
 
 export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps) {
+  const { t } = useTranslation()
   const [stats, setStats] = useState<PerformanceStats>({
     totalChunks: 0,
     loadedChunks: 0,
@@ -157,7 +159,7 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-background border rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-auto"
+          className="bg-background border rounded-lg shadow-lg max-w-6xl w-full max-h-[90vh] overflow-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* 头部 */}
@@ -165,19 +167,19 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
             <div className="flex items-center space-x-3">
               <Activity className="w-6 h-6 text-primary" />
               <div>
-                <h2 className="text-xl font-semibold">性能监控</h2>
-                <p className="text-sm text-muted-foreground">实时监控应用性能和资源使用情况</p>
+                <h2 className="text-xl font-semibold">{t('performance.title')}</h2>
+                <p className="text-sm text-muted-foreground">{t('performance.desc')}</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className={`${performanceGrade.color} border-current`}>
-                性能等级: {performanceGrade.grade}
+                {t('performance.level', { level: performanceGrade.grade })}
               </Badge>
               <Button variant="ghost" size="sm" onClick={() => setIsRealTime(!isRealTime)}>
-                {isRealTime ? '暂停' : '开始'}
+                {isRealTime ? t('performance.stop') : t('performance.start')}
               </Button>
               <Button variant="ghost" size="sm" onClick={handleRefresh}>
-                刷新
+                {t('performance.refresh')}
               </Button>
               <Button variant="ghost" size="icon" onClick={onClose}>
                 <X className="w-4 h-4" />
@@ -191,7 +193,7 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">代码分割成功率</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('performance.splitSuccessRate')}</CardTitle>
                   <Zap className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -207,7 +209,7 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">缓存命中率</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('performance.storageRate')}</CardTitle>
                   <Database className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -218,36 +220,42 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">平均加载时间</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('performance.averageLoadTime')}</CardTitle>
                   <Clock className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.averageLoadTime.toFixed(0)}ms</div>
-                  <p className="text-xs text-muted-foreground mt-1">总计: {stats.totalLoadTime.toFixed(0)}ms</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t('performance.totalLoadTime')}: {stats.totalLoadTime.toFixed(0)}ms
+                  </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">预加载命中</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('performance.preloadCount')}</CardTitle>
                   <Zap className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.preloadHits}</div>
-                  <p className="text-xs text-muted-foreground mt-1">已预加载: {stats.preloadedModules}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t('performance.preloadedModules')}: {stats.preloadedModules}
+                  </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">内存使用</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('performance.memoryUsage')}</CardTitle>
                   <TrendingUp className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
                     {stats.memoryUsage ? `${stats.memoryUsage.toFixed(1)}MB` : 'N/A'}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">缓存大小: {stats.cacheSize}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t('performance.cacheSize')}: {stats.cacheSize}
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -259,24 +267,24 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Zap className="w-5 h-5" />
-                    <span>代码分割统计</span>
+                    <span>{t('performance.codeSplitStats')}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">已加载块</span>
+                    <span className="text-sm">{t('performance.codeLoaded')}</span>
                     <Badge variant="secondary">{stats.loadedChunks}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">加载中块</span>
+                    <span className="text-sm">{t('performance.codeLoading')}</span>
                     <Badge variant="outline">{stats.loadingChunks}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">失败块</span>
+                    <span className="text-sm">{t('performance.codeFailed')}</span>
                     <Badge variant="destructive">{stats.failedChunks}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">总块数</span>
+                    <span className="text-sm">{t('performance.codeTotal')}</span>
                     <Badge variant="secondary">{stats.totalChunks}</Badge>
                   </div>
                 </CardContent>
@@ -287,25 +295,25 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Database className="w-5 h-5" />
-                    <span>缓存统计</span>
+                    <span>{t('performance.storageStats')}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">缓存命中</span>
+                    <span className="text-sm">{t('performance.storageHits')}</span>
                     <Badge variant="secondary">{stats.cacheHits}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">缓存未命中</span>
+                    <span className="text-sm">{t('performance.storageMisses')}</span>
                     <Badge variant="outline">{stats.cacheMisses}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">缓存条目数</span>
+                    <span className="text-sm">{t('performance.storageTotal')}</span>
                     <Badge variant="secondary">{stats.cacheSize}</Badge>
                   </div>
                   <div className="pt-2">
                     <Button variant="destructive" size="sm" onClick={handleClearCache} className="w-full">
-                      清理缓存
+                      {t('performance.clearCache')}
                     </Button>
                   </div>
                 </CardContent>
@@ -316,24 +324,24 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Activity className="w-5 h-5" />
-                    <span>资源统计</span>
+                    <span>{t('performance.resourceStats')}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">已加载资源</span>
+                    <span className="text-sm">{t('performance.resourceLoaded')}</span>
                     <Badge variant="secondary">{stats.loadedResources}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">加载中资源</span>
+                    <span className="text-sm">{t('performance.resourceLoading')}</span>
                     <Badge variant="outline">{stats.loadingResources}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">缓存图标</span>
+                    <span className="text-sm">{t('performance.storageIcons')}</span>
                     <Badge variant="secondary">{stats.cachedIcons}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">预加载模块</span>
+                    <span className="text-sm">{t('performance.preloadedModules')}</span>
                     <Badge variant="secondary">{stats.preloadedModules}</Badge>
                   </div>
                 </CardContent>
@@ -343,44 +351,44 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
             {/* 性能建议 */}
             <Card>
               <CardHeader>
-                <CardTitle>性能建议</CardTitle>
+                <CardTitle>{t('performance.recommended')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm">
                   {stats.totalChunks > 0 && stats.loadedChunks / stats.totalChunks < 0.8 && (
                     <div className="flex items-center space-x-2 text-yellow-600">
                       <span>⚠️</span>
-                      <span>代码分割成功率较低，建议检查网络连接</span>
+                      <span>{t('performance.performanceLow')}</span>
                     </div>
                   )}
                   {stats.cacheHitRate < 50 && (
                     <div className="flex items-center space-x-2 text-yellow-600">
                       <span>⚠️</span>
-                      <span>缓存命中率较低，建议优化缓存策略</span>
+                      <span>{t('performance.performanceLow')}</span>
                     </div>
                   )}
                   {stats.averageLoadTime > 500 && (
                     <div className="flex items-center space-x-2 text-red-600">
                       <span>🚨</span>
-                      <span>平均加载时间过长，建议启用更多预加载</span>
+                      <span>{t('performance.performanceLow')}</span>
                     </div>
                   )}
                   {stats.memoryUsage && stats.memoryUsage > 100 && (
                     <div className="flex items-center space-x-2 text-orange-600">
                       <span>💾</span>
-                      <span>内存使用较高，建议清理不必要的缓存</span>
+                      <span>{t('performance.performanceLow')}</span>
                     </div>
                   )}
                   {stats.failedChunks > 0 && (
                     <div className="flex items-center space-x-2 text-red-600">
                       <span>❌</span>
-                      <span>有代码块加载失败，建议检查网络或重试</span>
+                      <span>{t('performance.performanceLow')}</span>
                     </div>
                   )}
                   {stats.cacheHitRate >= 80 && stats.averageLoadTime < 200 && stats.failedChunks === 0 && (
                     <div className="flex items-center space-x-2 text-green-600">
                       <span>✅</span>
-                      <span>性能表现优秀！</span>
+                      <span>{t('performance.performanceHight')}</span>
                     </div>
                   )}
                 </div>
