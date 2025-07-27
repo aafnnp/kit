@@ -7,19 +7,15 @@ import {
 } from '@/components/ui/sidebar'
 import tools from '@/lib/data'
 import { IconChevronRight } from '@tabler/icons-react'
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useRouter, useLocation } from '@tanstack/react-router'
-import { useTranslation } from 'react-i18next'
-import * as Icons from 'lucide-react'
 
 export function NavMain({ items }: { items: typeof tools }) {
   const router = useRouter()
-  const { t } = useTranslation()
-
   // 获取当前 url 的 slug
   const pathname = useLocation({ select: (l) => l.pathname })
-  const match = pathname.match(/^\/tool\/([^\/]+)/)
+  const match = pathname.match(/^\/tool\/([^/]+)/)
   const currentSlug = match ? match[1] : null
   // 用对象存储每个 group 的展开状态
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({})
@@ -28,31 +24,28 @@ export function NavMain({ items }: { items: typeof tools }) {
   useEffect(() => {
     if (!currentSlug) return
     const group = items.find((item) => item.tools.some((tool) => tool.slug === currentSlug))
-    if (group && !openMap[group.id]) {
-      setOpenMap((prev) => ({ ...prev, [group.id]: true }))
+    if (group && !openMap[group.type]) {
+      setOpenMap((prev) => ({ ...prev, [group.type]: true }))
     }
-  }, [currentSlug, items, openMap])
+  }, [currentSlug, items])
 
-  const toggleGroup = (id: string) => {
-    setOpenMap((prev) => ({ ...prev, [id]: !prev[id] }))
+  const toggleGroup = (type: string) => {
+    setOpenMap((prev) => ({ ...prev, [type]: !prev[type] }))
   }
   return (
     <SidebarGroup>
-      <SidebarGroupContent className="flex flex-col gap-1 sm:gap-2">
-        <SidebarMenu className="space-y-1">
+      <SidebarGroupContent className="flex flex-col gap-2">
+        <SidebarMenu>
           {items.map((item) => {
-            console.log(item, 'item')
-            const isOpen = !!openMap[item.id]
+            const isOpen = !!openMap[item.type]
             return (
-              <SidebarGroup key={item.id}>
+              <SidebarGroup key={item.type}>
                 <div
-                  className="flex items-center gap-2 mb-1 sm:mb-2 justify-between cursor-pointer select-none px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors touch-manipulation"
-                  onClick={() => toggleGroup(item.id)}
+                  className="flex items-center gap-2 mb-2 justify-between cursor-pointer select-none"
+                  onClick={() => toggleGroup(item.type)}
                 >
-                  <span className="text-xs sm:text-sm font-medium truncate">{t(`tools.${item.id}`)}</span>
-                  <IconChevronRight
-                    className={`!size-3.5 sm:!size-4 transition-transform shrink-0 ${isOpen ? 'rotate-90' : ''}`}
-                  />
+                  <span className="text-sm font-medium">{item.type}</span>
+                  <IconChevronRight className={`!size-4 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
                 </div>
                 <AnimatePresence initial={false}>
                   {isOpen && (
@@ -67,29 +60,20 @@ export function NavMain({ items }: { items: typeof tools }) {
                       {item.tools.map((tool: any) => {
                         const isSelected = tool.slug === currentSlug
                         return (
-                          <SidebarMenuItem key={tool.slug}>
-                            <SidebarMenuButton
-                              isActive={isSelected}
-                              tooltip={t(`tools.${tool.slug}-desc`)}
-                              onClick={() => {
-                                if (tool.href) {
-                                  window.open(tool.href, '_blank')
-                                  return
-                                }
+                          <SidebarMenuItem
+                            key={tool.slug}
+                            className={`${isSelected ? 'bg-accent text-accent-foreground' : ''}`}
+                            onClick={() => {
+                              if (tool.href) {
+                                window.open(tool.href, '_blank')
+                                return
+                              }
                                 router.navigate({ to: `/tool/${tool.slug}` })
-                              }}
-                            >
-                              {tool.icon && typeof tool.icon === 'string' && Icons[tool.icon as keyof typeof Icons] ? (
-                                React.createElement(
-                                  Icons[tool.icon as keyof typeof Icons] as React.ComponentType<any>,
-                                  { className: 'size-3.5 sm:size-4 mr-1.5 sm:mr-2 text-primary shrink-0' }
-                                )
-                              ) : (
-                                <div className="size-3.5 sm:size-4 mr-1.5 sm:mr-2 text-primary shrink-0">
-                                  {tool.name?.charAt(0).toUpperCase() || ''}
-                                </div>
-                              )}
-                              <span className="truncate">{t(`tools.${tool.slug}`)}</span>
+                            }}
+                          >
+                            <SidebarMenuButton tooltip={tool.name}>
+                              <span>{tool.name}</span>
+                              <span className="text-xs text-muted-foreground">{tool.status}</span>
                             </SidebarMenuButton>
                           </SidebarMenuItem>
                         )

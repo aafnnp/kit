@@ -1,36 +1,16 @@
 [profile.dev]
 incremental = true
-# 开发环境优化，平衡编译速度和运行性能
-opt-level = 1
-debug = true
-overflow-checks = true
 
 [profile.release]
-# 生产环境优化，优先考虑二进制文件大小和性能
-codegen-units = 1        # 允许 LLVM 执行更好的优化
-lto = "fat"              # 启用完整链接时优化
-opt-level = "z"          # 最大化优化二进制文件大小
-panic = "abort"          # 通过禁用 panic 处理程序来提高性能
-strip = "symbols"        # 移除调试符号和其他元数据
-debug = false            # 禁用调试信息
-overflow-checks = false  # 禁用溢出检查以提高性能
-
-# 针对特定目标的优化配置
-[profile.release-with-debug]
-inherits = "release"
-debug = true
-strip = "none"
-
-# 快速发布配置（用于测试）
-[profile.fast-release]
-inherits = "release"
-codegen-units = 16
-lto = "thin"
-opt-level = 3
+codegen-units = 1 # 允许 LLVM 执行更好的优化。
+lto = true # 启用链接时优化。
+opt-level = "s" # 优先考虑小的二进制文件大小。如果您更喜欢速度，请使用 `3`。
+panic = "abort" # 通过禁用 panic 处理程序来提高性能。
+strip = true # 确保移除调试符号。
 
 [package]
 name = "kit"
-version = "0.0.1"
+version = "0.1.0"
 description = "Developers Tool"
 authors = ["manon"]
 edition = "2021"
@@ -52,7 +32,6 @@ tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tauri-plugin-process = "2"
-tauri-plugin-dialog = "2"
 
 [target.'cfg(any(target_os = "macos", windows, target_os = "linux"))'.dependencies]
 tauri-plugin-updater = "2.9.0"

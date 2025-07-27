@@ -2,16 +2,12 @@
  * 404 Tool Not Found
  * 未找到工具页面
  */
-interface ToolNotFoundProps {
-  toolSlug?: string
-}
-
-export default function ToolNotFound({ toolSlug }: ToolNotFoundProps) {
+export default function ToolNotFound() {
   return (
     <div className="text-center text-red-500 text-xl mt-20">
-      工具未找到: {toolSlug}
+      工具未找到
       <br />
-      Tool Not Found: {toolSlug}
+      Tool Not Found
     </div>
   )
 }
