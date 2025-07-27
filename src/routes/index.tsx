@@ -72,10 +72,6 @@ export const Route = createFileRoute('/')({
       return allTools.filter((tool) => recentSlugs.includes(tool.slug))
     }, [allTools, recentTools])
 
-    const toggleLanguage = () => {
-      const newLang = i18n.language.startsWith('en') ? 'zh' : 'en'
-      i18n.changeLanguage(newLang)
-    }
     const renderToolGrid = (toolsToRender: any[], showFavoriteButton = true) => {
       if (toolsToRender.length === 0) {
         return (
@@ -103,7 +99,7 @@ export const Route = createFileRoute('/')({
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 grid-mobile-1 sm:grid-mobile-2 md:grid-tablet-3 lg:grid-desktop-4 xl:grid-desktop-5 2xl:grid-ultrawide-6">
             {toolsToRender.map((tool, index) => (
               <motion.div
-                key={tool.slug}
+                key={tool.slug + index}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -131,7 +127,7 @@ export const Route = createFileRoute('/')({
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 grid-mobile-1 sm:grid-mobile-2 md:grid-tablet-3 lg:grid-desktop-4 xl:grid-desktop-5 2xl:grid-ultrawide-6">
                 {category.tools?.map((tool: any, toolIndex: number) => (
                   <motion.div
-                    key={tool.slug}
+                    key={tool.slug + toolIndex}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.3, delay: categoryIndex * 0.1 + toolIndex * 0.05 }}

@@ -15,8 +15,7 @@ import * as Icons from 'lucide-react'
 
 export function NavMain({ items }: { items: typeof tools }) {
   const router = useRouter()
-  const { i18n, t } = useTranslation()
-  const locale = i18n.language.startsWith('en') ? 'en' : 'zh'
+  const { t } = useTranslation()
 
   // 获取当前 url 的 slug
   const pathname = useLocation({ select: (l) => l.pathname })
@@ -42,6 +41,7 @@ export function NavMain({ items }: { items: typeof tools }) {
       <SidebarGroupContent className="flex flex-col gap-1 sm:gap-2">
         <SidebarMenu className="space-y-1">
           {items.map((item) => {
+            console.log(item, 'item')
             const isOpen = !!openMap[item.id]
             return (
               <SidebarGroup key={item.id}>
@@ -49,7 +49,7 @@ export function NavMain({ items }: { items: typeof tools }) {
                   className="flex items-center gap-2 mb-1 sm:mb-2 justify-between cursor-pointer select-none px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors touch-manipulation"
                   onClick={() => toggleGroup(item.id)}
                 >
-                  <span className="text-xs sm:text-sm font-medium truncate">{t(`tools.${item.id}.title`)}</span>
+                  <span className="text-xs sm:text-sm font-medium truncate">{t(`tools.${item.id}`)}</span>
                   <IconChevronRight
                     className={`!size-3.5 sm:!size-4 transition-transform shrink-0 ${isOpen ? 'rotate-90' : ''}`}
                   />
@@ -70,7 +70,7 @@ export function NavMain({ items }: { items: typeof tools }) {
                           <SidebarMenuItem key={tool.slug}>
                             <SidebarMenuButton
                               isActive={isSelected}
-                              tooltip={tool.desc[locale]}
+                              tooltip={t(`tools.${tool.slug}-desc`)}
                               onClick={() => {
                                 if (tool.href) {
                                   window.open(tool.href, '_blank')
@@ -89,7 +89,7 @@ export function NavMain({ items }: { items: typeof tools }) {
                                   {tool.name?.charAt(0).toUpperCase() || ''}
                                 </div>
                               )}
-                              <span className="truncate">{t(`tools.${item.id}.${tool.slug}.name`)}</span>
+                              <span className="truncate">{t(`tools.${tool.slug}`)}</span>
                             </SidebarMenuButton>
                           </SidebarMenuItem>
                         )

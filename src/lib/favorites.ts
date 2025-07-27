@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 interface Tool {
   slug: string
   name: string
-  desc: { zh: string; en: string }
+  desc: string
   icon?: string
   href?: string
 }
@@ -38,13 +38,13 @@ export function useFavorites() {
   }
 
   const removeFromFavorites = (slug: string) => {
-    const newFavorites = favorites.filter(tool => tool.slug !== slug)
+    const newFavorites = favorites.filter((tool) => tool.slug !== slug)
     setFavorites(newFavorites)
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(newFavorites))
   }
 
   const isFavorite = (slug: string) => {
-    return favorites.some(tool => tool.slug === slug)
+    return favorites.some((tool) => tool.slug === slug)
   }
 
   const toggleFavorite = (tool: Tool) => {
@@ -60,7 +60,7 @@ export function useFavorites() {
     addToFavorites,
     removeFromFavorites,
     isFavorite,
-    toggleFavorite
+    toggleFavorite,
   }
 }
 
@@ -81,10 +81,10 @@ export function useRecentTools() {
 
   const addToRecent = (tool: Tool) => {
     const now = Date.now()
-    const existingIndex = recentTools.findIndex(t => t.slug === tool.slug)
-    
+    const existingIndex = recentTools.findIndex((t) => t.slug === tool.slug)
+
     let newRecentTools: RecentTool[]
-    
+
     if (existingIndex >= 0) {
       // 如果已存在，更新时间并移到最前面
       newRecentTools = [...recentTools]
@@ -95,7 +95,7 @@ export function useRecentTools() {
       const recentTool: RecentTool = { ...tool, lastUsed: now }
       newRecentTools = [recentTool, ...recentTools].slice(0, MAX_RECENT)
     }
-    
+
     setRecentTools(newRecentTools)
     localStorage.setItem(RECENT_KEY, JSON.stringify(newRecentTools))
   }
@@ -108,7 +108,7 @@ export function useRecentTools() {
   return {
     recentTools,
     addToRecent,
-    clearRecent
+    clearRecent,
   }
 }
 
@@ -124,15 +124,17 @@ export function useToolSearch(tools: any[]) {
     }
 
     const query = searchQuery.toLowerCase()
-    const filtered = tools.map(category => ({
-      ...category,
-      tools: category.tools.filter((tool: Tool) => 
-        tool.name.toLowerCase().includes(query) ||
-        tool.desc.zh.toLowerCase().includes(query) ||
-        tool.desc.en.toLowerCase().includes(query) ||
-        tool.slug.toLowerCase().includes(query)
-      )
-    })).filter(category => category.tools.length > 0)
+    const filtered = tools
+      .map((category) => ({
+        ...category,
+        tools: category.tools.filter(
+          (tool: Tool) =>
+            tool.name.toLowerCase().includes(query) ||
+            tool.desc.toLowerCase().includes(query) ||
+            tool.slug.toLowerCase().includes(query)
+        ),
+      }))
+      .filter((category) => category.tools.length > 0)
 
     setFilteredTools(filtered)
   }, [searchQuery, tools])
@@ -140,6 +142,6 @@ export function useToolSearch(tools: any[]) {
   return {
     searchQuery,
     setSearchQuery,
-    filteredTools
+    filteredTools,
   }
 }

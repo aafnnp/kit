@@ -55,335 +55,187 @@ export default {
     'start-using': 'Start using tools to see recent history',
   },
   tools: {
-    'text-processing': {
-      title: 'Text Processing',
-      'word-count': {
-        name: 'Word Count',
-        desc: 'Real-time word count',
-      },
-      'char-case': {
-        name: 'Case Converter',
-        desc: 'Case converter',
-      },
-      'lorem-ipsum': {
-        name: 'Lorem Ipsum',
-        desc: 'Lorem Ipsum generator',
-      },
-      'markdown-preview': {
-        name: 'Markdown Preview',
-        desc: 'Markdown to HTML preview',
-      },
-      'regex-tester': {
-        name: 'RegEx Tester',
-        desc: 'Regex real-time tester',
-      },
-      'diff-viewer': {
-        name: 'Text Diff',
-        desc: 'Text diff viewer',
-      },
-      'table-sorter': {
-        name: 'Table Sorter / Filter',
-        desc: 'Table sorter/filter',
-      },
-      'text-to-pdf': {
-        name: 'Text→PDF',
-        desc: 'Text to PDF',
-      },
-    },
-    'color-design': {
-      title: 'Color Design',
-      'color-picker': {
-        name: 'Color Picker',
-        desc: 'Pick color and copy hex',
-      },
-      'hex-rgb': {
-        name: 'HEX↔RGB',
-        desc: 'Hex to RGB / RGB to Hex',
-      },
-      'gradient-maker': {
-        name: 'Gradient Maker',
-        desc: 'CSS gradient generator',
-      },
-      'shadow-generator': {
-        name: 'Shadow Maker',
-        desc: 'Box shadow generator',
-      },
-      'border-radius': {
-        name: 'Radius Maker',
-        desc: 'Border radius visualizer',
-      },
-      'css-gradient': {
-        name: 'CSS Gradient',
-        desc: 'CSS gradient generator',
-      },
-      'favicon-generator': {
-        name: 'Favicon Maker',
-        desc: 'Favicon generator',
-      },
-      'css-clamp': {
-        name: 'CSS Clamp',
-        desc: 'CSS clamp calculator',
-      },
-      'random-color': {
-        name: 'Random Color',
-        desc: 'Random color generator',
-      },
-    },
-    'image-audio-video': {
-      title: 'Image/Audio/Video',
-      'image-compress': {
-        name: 'Image Compress',
-        desc: 'Image compress',
-      },
-      'image-resize': {
-        name: 'Resize Image',
-        desc: 'Image resize',
-      },
-      'image-convert': {
-        name: 'Format Convert',
-        desc: 'PNG↔WebP↔JPG',
-      },
-      'image-crop': {
-        name: 'Crop Image',
-        desc: 'Image crop and export',
-      },
-      'exif-viewer': {
-        name: 'EXIF Viewer',
-        desc: 'EXIF viewer / metadata remover',
-      },
-      'svg-minify': {
-        name: 'SVG Minifier',
-        desc: 'SVG minifier',
-      },
-      'gif-split': {
-        name: 'GIF Splitter',
-        desc: 'GIF splitter',
-      },
-      'video-trim': {
-        name: 'Video Trimmer',
-        desc: 'Video trimmer',
-      },
-      'lorem-image': {
-        name: 'Placeholder Img',
-        desc: 'Placeholder image generator',
-      },
-      'image-to-pdf': {
-        name: 'Img→PDF',
-        desc: 'Image to PDF',
-      },
-      'audio-convert': {
-        name: 'Audio Convert',
-        desc: 'Audio convert',
-      },
-      'icon-spriter': {
-        name: 'Icon Spriter',
-        desc: 'Icon spriter',
-      },
-    },
-    'encryption-hashing': {
-      title: 'Encryption/Hashing',
-      'md5-hash': {
-        name: 'MD5 Hash',
-        desc: 'MD5 hash',
-      },
-      'sha256-hash': {
-        name: 'SHA-256 Hash',
-        desc: 'SHA-256 hash',
-      },
-      'bcrypt-hash': {
-        name: 'Bcrypt Hash',
-        desc: 'Bcrypt hash',
-      },
-      'file-hash': {
-        name: 'File Checksum',
-        desc: 'File checksum',
-      },
-      'password-generator': {
-        name: 'Password Gen',
-        desc: 'Password generator',
-      },
-    },
-    'date-time': {
-      title: 'Date/Time',
-      'unix-timestamp': {
-        name: 'Timestamp↔Date',
-        desc: 'Timestamp to date / date to timestamp',
-      },
-      'cron-parser': {
-        name: 'Cron Parser',
-        desc: 'Cron parser',
-      },
-      'timezone-convert': {
-        name: 'TZ Convert',
-        desc: 'Timezone converter',
-      },
-      'time-diff': {
-        name: 'Time Diff',
-        desc: 'Time difference',
-      },
-    },
-    'data-format-conversion': {
-      title: 'Data Format Conversion',
-      'json-pretty': {
-        name: 'JSON Formatter',
-        desc: 'JSON formatter / compressor',
-      },
-      'yaml-to-json': {
-        name: 'YAML→JSON',
-        desc: 'YAML to JSON',
-      },
-      'base64-encode': {
-        name: 'Base64⇄Text',
-        desc: 'Base64 encode / decode',
-      },
-      'url-encode': {
-        name: 'URL Encode / Decode',
-        desc: 'URL encode / decode',
-      },
-      'json-to-ts': {
-        name: 'JSON→TS Interface',
-        desc: 'JSON to TS interface',
-      },
-      'csv-to-json': {
-        name: 'CSV→JSON',
-        desc: 'CSV to JSON',
-      },
-      'excel-to-json': {
-        name: 'XLSX→JSON',
-        desc: 'Excel to JSON',
-      },
-      'base64-image': {
-        name: 'Base64 Img Preview',
-        desc: 'Base64 image preview',
-      },
-      'html-preview': {
-        name: 'Live HTML',
-        desc: 'Live HTML preview',
-      },
-    },
-    'network-tools': {
-      title: 'Network Tools',
-      'http-status': {
-        name: 'HTTP Status Lookup',
-        desc: 'HTTP status code lookup',
-      },
-      'user-agent': {
-        name: 'UA Parser',
-        desc: 'UA parser',
-      },
-      'mime-search': {
-        name: 'MIME Type Search',
-        desc: 'MIME type search',
-      },
-      'dns-lookup': {
-        name: 'DNS Lookup',
-        desc: 'DNS lookup',
-      },
-      'ip-info': {
-        name: 'IP Info',
-        desc: 'Public IP & whois',
-      },
-      'url-parser': {
-        name: 'URL Inspector',
-        desc: 'URL inspector',
-      },
-    },
-    'random-generator': {
-      title: 'Random Generator',
-      'uuid-generator': {
-        name: 'UUID v4',
-        desc: 'UUID v4 generator',
-      },
-      'uuid-batch': {
-        name: 'UUID Batch',
-        desc: 'UUID batch generator',
-      },
-      'qr-generator': {
-        name: 'QR Maker',
-        desc: 'QR code generator',
-      },
-      'barcode-generator': {
-        name: 'Barcode Maker',
-        desc: 'Barcode generator',
-      },
-      'fake-user': {
-        name: 'Fake User',
-        desc: 'Fake user data',
-      },
-      'lottery-picker': {
-        name: 'Lottery Pick',
-        desc: 'Lottery picker',
-      },
-    },
-    'other-development-tools': {
-      title: 'Other Development Tools',
-      'jwt-decode': {
-        name: 'JWT Decoder',
-        desc: 'JWT decoder',
-      },
-      'jwt-generator': {
-        name: 'JWT Signer',
-        desc: 'Local HS256',
-      },
-      'regex-cheatsheet': {
-        name: 'RegEx CheatSheet',
-        desc: 'Regex cheatsheet',
-      },
-      'json-diff': {
-        name: 'JSON Diff Viewer',
-        desc: 'JSON diff viewer',
-      },
-      'json-plot': {
-        name: 'JSON Plot',
-        desc: 'JSON plot',
-      },
-      'markdown-mermaid': {
-        name: 'Mermaid Preview',
-        desc: 'Mermaid preview',
-      },
-      'prime-checker': {
-        name: 'Prime Check',
-        desc: 'Prime checker',
-      },
-      'quadratic-solver': {
-        name: 'Quadratic',
-        desc: 'Quadratic solver',
-      },
-      'matrix-math': {
-        name: 'Matrix Ops',
-        desc: 'Matrix operations',
-      },
-      'currency-convert': {
-        name: 'Currency FX',
-        desc: 'Static currency converter',
-      },
-      'roman-numeral': {
-        name: 'Roman↔Arab',
-        desc: 'Roman to Arabic / Arabic to Roman',
-      },
-    },
-    'developer-tools': {
-      title: 'Developer Tools',
-      'code-formatter': {
-        name: 'Code Formatter',
-        desc: 'Code formatter (JS/TS/CSS/HTML)',
-      },
-      'api-tester': {
-        name: 'API Tester',
-        desc: 'HTTP API testing tool',
-      },
-      'performance-analyzer': {
-        name: 'Performance Analyzer',
-        desc: 'Performance analysis tool',
-      },
-      'git-helper': {
-        name: 'Git Helper',
-        desc: 'Git operations helper',
-      },
-      'password-strength': {
-        name: 'Password Strength',
-        desc: 'Password strength checker',
-      },
-    },
+    'text-processing': 'Text Processing',
+    'color-design': 'Color Design',
+    'image-audio-video': 'Image, Audio, Video',
+    'encryption-hashing': 'Encryption & Hashing',
+    'date-time': 'Date & Time',
+    'data-format-conversion': 'Data Format Conversion',
+    'network-tools': 'Network Tools',
+    'random-generator': 'Random Generator',
+    'other-development-tools': 'Other Development Tools',
+    'developer-tools': 'Developer Tools',
+
+    // text-processing
+    'word-count': 'Word Count',
+    'word-count-desc': 'Real-time word count',
+    'char-case': 'Case Converter',
+    'char-case-desc': 'Case converter',
+    'lorem-ipsum': 'Lorem Ipsum',
+    'lorem-ipsum-desc': 'Lorem Ipsum generator',
+    'markdown-preview': 'Markdown Preview',
+    'markdown-preview-desc': 'Markdown to HTML preview',
+    'regex-tester': 'RegEx Tester',
+    'regex-tester-desc': 'Regex real-time tester',
+    'diff-viewer': 'Text Diff',
+    'diff-viewer-desc': 'Text diff viewer',
+    'table-sorter': 'Table Sorter / Filter',
+    'table-sorter-desc': 'Table sorter/filter',
+    'text-to-pdf': 'Text→PDF',
+    'text-to-pdf-desc': 'Text to PDF',
+    'markdown-toc': 'Markdown TOC',
+    'markdown-toc-desc': 'Markdown TOC generator',
+
+    // color-design
+    'color-picker': 'Color Picker',
+    'color-picker-desc': 'Pick color and copy hex',
+    'hex-rgb': 'HEX↔RGB',
+    'hex-rgb-desc': 'Hex to RGB / RGB to Hex',
+    'gradient-maker': 'Gradient Maker',
+    'gradient-maker-desc': 'CSS gradient generator',
+    'shadow-generator': 'Shadow Maker',
+    'shadow-generator-desc': 'Box shadow generator',
+    'border-radius': 'Radius Maker',
+    'border-radius-desc': 'Border radius visualizer',
+    'css-gradient': 'CSS Gradient',
+    'css-gradient-desc': 'CSS gradient generator',
+    'favicon-generator': 'Favicon Maker',
+    'favicon-generator-desc': 'Favicon generator',
+    'css-clamp': 'CSS Clamp',
+    'css-clamp-desc': 'CSS clamp calculator',
+    'random-color': 'Random Color',
+    'random-color-desc': 'Random color generator',
+
+    // image-audio-video
+    'image-compress': 'Image Compress',
+    'image-compress-desc': 'Image compress',
+    'image-resize': 'Resize Image',
+    'image-resize-desc': 'Image resize',
+    'image-convert': 'Format Convert',
+    'image-convert-desc': 'PNG↔WebP↔JPG',
+    'image-crop': 'Crop Image',
+    'image-crop-desc': 'Image crop and export',
+    'exif-viewer': 'EXIF Viewer',
+    'exif-viewer-desc': 'EXIF viewer / metadata remover',
+    'svg-minify': 'SVG Minifier',
+    'svg-minify-desc': 'SVG minifier',
+    'gif-split': 'GIF Splitter',
+    'gif-split-desc': 'GIF splitter',
+    'video-trim': 'Video Trimmer',
+    'video-trim-desc': 'Video trimmer',
+    'lorem-image': 'Placeholder Img',
+    'lorem-image-desc': 'Placeholder image generator',
+    'image-to-pdf': 'Img→PDF',
+    'image-to-pdf-desc': 'Image to PDF',
+    'audio-convert': 'Audio Convert',
+    'audio-convert-desc': 'Audio convert',
+    'icon-spriter': 'Icon Spriter',
+    'icon-spriter-desc': 'Icon spriter',
+
+    // encryption-hashing
+    'md5-hash': 'MD5 Hash',
+    'md5-hash-desc': 'MD5 hash',
+    'sha256-hash': 'SHA-256 Hash',
+    'sha256-hash-desc': 'SHA-256 hash',
+    'bcrypt-hash': 'Bcrypt Hash',
+    'bcrypt-hash-desc': 'Bcrypt hash',
+    'file-hash': 'File Checksum',
+    'file-hash-desc': 'File checksum',
+    'password-generator': 'Password Gen',
+    'password-generator-desc': 'Password generator',
+
+    // date-time
+    'unix-timestamp': 'Timestamp↔Date',
+    'unix-timestamp-desc': 'Timestamp to date / date to timestamp',
+    'cron-parser': 'Cron Parser',
+    'cron-parser-desc': 'Cron parser',
+    'timezone-convert': 'TZ Convert',
+    'timezone-convert-desc': 'Timezone converter',
+    'time-diff': 'Time Diff',
+    'time-diff-desc': 'Time difference',
+
+    // data-format-conversion
+    'json-pretty': 'JSON Formatter',
+    'json-pretty-desc': 'JSON formatter / compressor',
+    'yaml-to-json': 'YAML→JSON',
+    'yaml-to-json-desc': 'YAML to JSON',
+    'base64-encode': 'Base64⇄Text',
+    'base64-encode-desc': 'Base64 encode / decode',
+    'url-encode': 'URL Encode / Decode',
+    'url-encode-desc': 'URL encode / decode',
+    'json-to-ts': 'JSON→TS Interface',
+    'json-to-ts-desc': 'JSON to TS interface',
+    'csv-to-json': 'CSV→JSON',
+    'csv-to-json-desc': 'CSV to JSON',
+    'excel-to-json': 'XLSX→JSON',
+    'excel-to-json-desc': 'Excel to JSON',
+    'base64-image': 'Base64 Img Preview',
+    'base64-image-desc': 'Base64 image preview',
+    'html-preview': 'Live HTML',
+    'html-preview-desc': 'Live HTML preview',
+
+    // network-tools
+    'http-status': 'HTTP Status Lookup',
+    'http-status-desc': 'HTTP status code lookup',
+    'user-agent': 'UA Parser',
+    'user-agent-desc': 'UA parser',
+    'mime-search': 'MIME Type Search',
+    'mime-search-desc': 'MIME type search',
+    'dns-lookup': 'DNS Lookup',
+    'dns-lookup-desc': 'DNS lookup',
+    'ip-info': 'IP Info',
+    'ip-info-desc': 'Public IP & whois',
+    'url-parser': 'URL Parser',
+    'url-parser-desc': 'URL parser',
+
+    // random-generator
+    'uuid-generator': 'UUID v4',
+    'uuid-generator-desc': 'UUID v4 generator',
+    'uuid-batch': 'UUID Batch',
+    'uuid-batch-desc': 'UUID batch generator',
+    'qr-generator': 'QR Maker',
+    'qr-generator-desc': 'QR code generator',
+    'barcode-generator': 'Barcode Maker',
+    'barcode-generator-desc': 'Barcode generator',
+    'fake-user': 'Fake User',
+    'fake-user-desc': 'Fake user data',
+    'lottery-picker': 'Lottery Pick',
+    'lottery-picker-desc': 'Lottery picker',
+
+    // other-development-tools
+    'jwt-decode': 'JWT Decoder',
+    'jwt-decode-desc': 'JWT decoder',
+    'jwt-generator': 'JWT Signer',
+    'jwt-generator-desc': 'Local HS256',
+    'regex-cheatsheet': 'RegEx CheatSheet',
+    'regex-cheatsheet-desc': 'Regex cheatsheet',
+    'json-diff': 'JSON Diff Viewer',
+    'json-diff-desc': 'JSON diff viewer',
+    'json-plot': 'JSON Plot',
+    'json-plot-desc': 'JSON plot',
+    'markdown-mermaid': 'Mermaid Preview',
+    'markdown-mermaid-desc': 'Mermaid preview',
+    'prime-checker': 'Prime Check',
+    'prime-checker-desc': 'Prime checker',
+    'quadratic-solver': 'Quadratic',
+    'quadratic-solver-desc': 'Quadratic solver',
+    'matrix-math': 'Matrix Ops',
+    'matrix-math-desc': 'Matrix operations',
+    'currency-convert': 'Currency FX',
+    'currency-convert-desc': 'Static currency converter',
+    'roman-numeral': 'Roman↔Arab',
+    'roman-numeral-desc': 'Roman to Arabic / Arabic to Roman',
+
+    // developer-tools
+    'code-formatter': 'Code Formatter',
+    'code-formatter-desc': 'Code formatter (JS/TS/CSS/HTML)',
+    'api-tester': 'API Tester',
+    'api-tester-desc': 'HTTP API testing tool',
+    'performance-analyzer': 'Performance Analyzer',
+    'performance-analyzer-desc': 'Performance analysis tool',
+    'git-helper': 'Git Helper',
+    'git-helper-desc': 'Git operations helper',
+    'password-strength': 'Password Strength',
+    'password-strength-desc': 'Password strength checker',
   },
 }
