@@ -12,18 +12,15 @@ import { Heart, Clock, Grid3X3, Trash2, Settings } from 'lucide-react'
 import { usePreload, useSmartPreload } from '@/lib/preloader'
 import { useResourcePreload } from '@/lib/resource-optimizer'
 import { CategoryManager } from '@/components/category-manager'
-import { useCustomCategories } from '@/lib/custom-categories'
 
 export const Route = createFileRoute('/')({
   component: () => {
-    const { t, i18n } = useTranslation()
-    const locale = i18n.language.startsWith('en') ? 'en' : 'zh'
+    const { t } = useTranslation()
     const [activeTab, setActiveTab] = useState('all')
 
     const { favorites } = useFavorites()
     const { recentTools, clearRecent } = useRecentTools()
     const { searchQuery, setSearchQuery, filteredTools } = useToolSearch(tools)
-    const {} = useCustomCategories()
 
     // 扁平化所有工具
     const allTools = useMemo(() => tools.flatMap((category) => category.tools), [tools])
@@ -103,7 +100,8 @@ export const Route = createFileRoute('/')({
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
-                onMouseEnter={() => preloadTool(tool.slug)}
+                // 暂时移除预加载，与 tanstack-router 懒加载冲突
+                // onMouseEnter={() => preloadTool(tool.slug)}
               >
                 <ToolCard tool={tool} showFavoriteButton={showFavoriteButton} onClick={() => handleToolClick(tool)} />
               </motion.div>
@@ -122,7 +120,7 @@ export const Route = createFileRoute('/')({
               transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
             >
               <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-foreground px-1 sm:px-0">
-                {category.type?.[locale] || category.type?.zh || category.type?.en || '未命名分类'}
+                {t(`tools.${category.id}`)}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 grid-mobile-1 sm:grid-mobile-2 md:grid-tablet-3 lg:grid-desktop-4 xl:grid-desktop-5 2xl:grid-ultrawide-6">
                 {category.tools?.map((tool: any, toolIndex: number) => (
@@ -131,7 +129,8 @@ export const Route = createFileRoute('/')({
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.3, delay: categoryIndex * 0.1 + toolIndex * 0.05 }}
-                    onMouseEnter={() => preloadTool(tool.slug)}
+                    // 暂时移除预加载，与 tanstack-router 懒加载冲突
+                    // onMouseEnter={() => preloadTool(tool.slug)}
                   >
                     <ToolCard
                       tool={tool}
@@ -184,7 +183,7 @@ export const Route = createFileRoute('/')({
               aria-controls="tabpanel-all"
             >
               <Grid3X3 className="h-4 w-4" aria-hidden="true" />
-              <span className="text-xs sm:text-sm">{t('app.all-tools', '所有工具')}</span>
+              <span className="text-xs sm:text-sm">{t('allTools')}</span>
             </TabsTrigger>
             <TabsTrigger
               value="recent"
@@ -237,7 +236,7 @@ export const Route = createFileRoute('/')({
               aria-controls="tabpanel-search"
               aria-label={
                 searchQuery
-                  ? `${t('search.results', '搜索结果')} "${searchQuery}" (${filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)} ${t('tools.count', '个工具')})`
+                  ? `${t('search.results')} "${searchQuery}" (${filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)} ${t('tools.count', '个工具')})`
                   : t('search.disabled', '搜索结果（需要输入搜索词）')
               }
             >
@@ -259,7 +258,7 @@ export const Route = createFileRoute('/')({
               aria-controls="tabpanel-categories"
             >
               <Settings className="h-4 w-4" aria-hidden="true" />
-              <span className="text-xs sm:text-sm">{t('categories.manage', '分类管理')}</span>
+              <span className="text-xs sm:text-sm">{t('categories')}</span>
             </TabsTrigger>
           </TabsList>
 

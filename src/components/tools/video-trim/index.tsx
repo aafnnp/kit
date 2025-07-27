@@ -6,8 +6,8 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { Upload, Download, Loader2, FileVideo2, Trash2, BarChart3, Video, Scissors } from 'lucide-react'
+import { zipSync } from 'fflate'
 // @ts-ignore
-import JSZip from 'jszip'
 import { nanoid } from 'nanoid'
 import type { VideoFile, VideoStats, TrimSettings, TrimResult } from '@/types/video-trim'
 import { formatFileSize } from '@/lib/utils'
@@ -193,16 +193,18 @@ const VideoTrim = () => {
 
   // 批量导出 zip
   const handleExportAll = async () => {
-    const zip = new JSZip()
-    videos.forEach((video) => {
+    const zipData: Record<string, Uint8Array> = {}
+
+    for (const video of videos) {
       if (video.trimmedUrl) {
-        zip.file(
-          `${video.name.replace(/\.[^/.]+$/, '')}_trimmed.${trimSettings.format}`,
-          fetch(video.trimmedUrl).then((r) => r.arrayBuffer())
-        )
+        const response = await fetch(video.trimmedUrl)
+        const arrayBuffer = await response.arrayBuffer()
+        zipData[`${video.name.replace(/\.[^/.]+$/, '')}_trimmed.${trimSettings.format}`] = new Uint8Array(arrayBuffer)
       }
-    })
-    const blob = await zip.generateAsync({ type: 'blob' })
+    }
+
+    const zipped = zipSync(zipData)
+    const blob = new Blob([zipped], { type: 'application/zip' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url

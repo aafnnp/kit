@@ -40,6 +40,7 @@ export default {
     placeholder: 'Search tools...',
     'no-results': 'No tools found',
     'clear-search': 'Clear search',
+    results: 'Results',
   },
   favorites: {
     title: 'Favorites',
@@ -54,6 +55,8 @@ export default {
     empty: 'No recent tools',
     'start-using': 'Start using tools to see recent history',
   },
+  allTools: 'All Tools',
+  categories: 'Categories',
   tools: {
     'text-processing': 'Text Processing',
     'color-design': 'Color Design',

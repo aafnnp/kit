@@ -39,12 +39,14 @@ export function DependencyAnalyzer() {
   }, [])
 
   const performAnalysis = async () => {
+    console.log('performAnalysis')
     setIsAnalyzing(true)
     try {
       // 模拟分析过程
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       const analysisResult = resourceOptimizer.analyzeDependencies()
+      console.log('analysisResult', analysisResult)
       setAnalysis(analysisResult)
 
       // 计算统计信息

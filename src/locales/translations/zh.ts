@@ -41,6 +41,7 @@ export default {
     placeholder: '搜索工具...',
     'no-results': '未找到相关工具',
     'clear-search': '清除搜索',
+    results: '搜索结果',
   },
   favorites: {
     title: '收藏',
@@ -55,6 +56,8 @@ export default {
     empty: '暂无使用记录',
     'start-using': '开始使用工具来查看最近记录',
   },
+  allTools: '所有工具',
+  categories: '分类管理',
   tools: {
     'text-processing': '文本处理',
     'color-design': '颜色设计',

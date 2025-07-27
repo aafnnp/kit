@@ -127,12 +127,9 @@ export function useToolSearch(tools: any[]) {
     const filtered = tools
       .map((category) => ({
         ...category,
-        tools: category.tools.filter(
-          (tool: Tool) =>
-            tool.name.toLowerCase().includes(query) ||
-            tool.desc.toLowerCase().includes(query) ||
-            tool.slug.toLowerCase().includes(query)
-        ),
+        tools: category.tools.filter((tool: Tool) => {
+          return tool.name.toLowerCase().includes(query) || tool.slug.toLowerCase().includes(query)
+        }),
       }))
       .filter((category) => category.tools.length > 0)
 

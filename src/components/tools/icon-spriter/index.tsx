@@ -8,10 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner'
 import { Upload, Download, Loader2, FileImage, Trash2, BarChart3, Layers, Grid, Code2 } from 'lucide-react'
 // @ts-ignore
-import JSZip from 'jszip'
 import { nanoid } from 'nanoid'
 import type { IconFile, SpriteSettings, SpriteStats } from '@/types/icon-spriter'
 import { formatFileSize } from '@/lib/utils'
+import { zipSync } from 'fflate'
 
 // 工具函数
 
@@ -182,15 +182,25 @@ const IconSpriter = () => {
 
   // 批量导出 ZIP
   const handleExportAll = async () => {
-    const zip = new JSZip()
-    icons.forEach((icon) => {
+    const zipData: Record<string, Uint8Array> = {}
+
+    for (const icon of icons) {
       if (icon.content) {
-        if (icon.type === 'image/svg+xml') zip.file(icon.name, icon.content)
-        else zip.file(icon.name, icon.file)
+        if (icon.type === 'image/svg+xml') {
+          zipData[icon.name] = new TextEncoder().encode(icon.content)
+        } else {
+          const arrayBuffer = await icon.file.arrayBuffer()
+          zipData[icon.name] = new Uint8Array(arrayBuffer)
+        }
       }
-    })
-    if (sprite) zip.file('sprite.svg', sprite)
-    const blob = await zip.generateAsync({ type: 'blob' })
+    }
+
+    if (sprite) {
+      zipData['sprite.svg'] = new TextEncoder().encode(sprite)
+    }
+
+    const zipped = zipSync(zipData)
+    const blob = new Blob([zipped], { type: 'application/zip' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
