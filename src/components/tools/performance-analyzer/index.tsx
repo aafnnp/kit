@@ -151,7 +151,7 @@ const calculateStats = (results: PerformanceResult[]) => {
   }
 }
 
-export function PerformanceAnalyzer() {
+const PerformanceAnalyzer = () => {
   const { t } = useTranslation()
   const { copyToClipboard } = useCopyToClipboard()
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -584,3 +584,5 @@ export function PerformanceAnalyzer() {
     </ToolBase>
   )
 }
+
+export default PerformanceAnalyzer

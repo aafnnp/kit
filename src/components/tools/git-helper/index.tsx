@@ -36,7 +36,7 @@ import {
 import { ToolBase } from '@/components/ui/tool-base'
 import { nanoid } from 'nanoid'
 
-export function GitHelper() {
+export default function GitHelper() {
   const { t } = useTranslation()
   const { copyToClipboard } = useCopyToClipboard()
 

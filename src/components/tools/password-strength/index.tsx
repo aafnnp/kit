@@ -156,7 +156,7 @@ const analyzePasswordStrength = (password: string): PasswordStrengthResult => {
   }
 }
 
-export function PasswordStrength() {
+export default function PasswordStrength() {
   const { t } = useTranslation()
   const { copyToClipboard } = useCopyToClipboard()
 
