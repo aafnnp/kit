@@ -1,6 +1,6 @@
-use tauri_plugin_updater;
 use tauri_plugin_dialog;
 use tauri_plugin_process;
+use tauri_plugin_updater;
 
 pub fn run() {
     tauri::Builder::default()
