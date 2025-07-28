@@ -1,7 +1,3 @@
-use tauri_plugin_dialog;
-use tauri_plugin_process;
-use tauri_plugin_updater;
-
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())

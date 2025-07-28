@@ -9,15 +9,13 @@ const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
 
 const host = process.env.TAURI_DEV_HOST
 
-export default defineConfig(async () => ({
+export default defineConfig( () => ({
   plugins: [
     tanstackRouter({
       target: 'react',
       autoCodeSplitting: true,
     }),
     react({
-      // 启用React Fast Refresh优化
-      fastRefresh: true,
       // 优化JSX运行时
       jsxRuntime: 'automatic',
     }),
