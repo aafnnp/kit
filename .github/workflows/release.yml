@@ -211,18 +211,3 @@ jobs:
           includeRelease: true
           args: ${{ matrix.args }}
       
-      - name: Upload build artifacts
-        if: matrix.platform == 'ubuntu-22.04'
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts-${{ steps.version.outputs.version }}
-          path: |
-            src-tauri/target/release/bundle/
-            latest.json
-          retention-days: 30
-      
-      - name: Update release info
-        if: matrix.platform == 'ubuntu-22.04' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        run: npm run publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
