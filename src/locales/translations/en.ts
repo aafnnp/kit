@@ -85,6 +85,7 @@ export default {
     storageIcons: 'Cached Icons',
     preloadedModules: 'Preloaded Modules',
     recommended: 'Performance Suggestions',
+    clearCache: 'Clear Cache',
     performanceLow: 'Cache hit rate is low, consider optimizing cache strategy',
     performanceHight: 'Memory usage is high, consider cleaning up unnecessary cache',
   },

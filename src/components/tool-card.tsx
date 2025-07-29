@@ -122,7 +122,7 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
       <CardContent className="pt-0 p-3 sm:px-6 sm:pb-6">
         <CardDescription
           id={`tool-desc-${tool.slug}`}
-          className="text-xs sm:text-sm text-muted-foreground dark:text-muted-foreground/90 leading-relaxed group-hover:text-foreground/90 dark:group-hover:text-foreground/85 transition-all duration-500 line-clamp-2 group-hover:font-medium"
+          className="text-xs sm:text-sm text-muted-foreground dark:text-muted-foreground/90 leading-relaxed group-hover:text-foreground/90 dark:group-hover:text-foreground/85 transition-all duration-500 line-clamp-1 group-hover:font-medium"
         >
           {t(`tools.${tool.slug}-desc`)}
         </CardDescription>

@@ -4,13 +4,10 @@ import { Button } from '@/components/ui/button'
 import { IconSettings } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { SettingsDialog } from './settings-dialog'
-import { PerformanceMonitor } from './performance-monitor'
-import { Activity } from 'lucide-react'
 
 export function SiteHeader() {
   const { t } = useTranslation()
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false)
 
   return (
     <>
@@ -20,16 +17,6 @@ export function SiteHeader() {
             <SidebarTrigger className="-ml-1" />
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowPerformanceMonitor(true)}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-              aria-label={t('performance.monitor', '打开性能监控')}
-            >
-              <Activity className="w-4 h-4" aria-hidden="true" />
-              <span className="sm:hidden">{t('performance.title', '性能监控')}</span>
-            </Button>
 
             <Button
               variant="ghost"
@@ -46,9 +33,6 @@ export function SiteHeader() {
       </header>
 
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
-      {showPerformanceMonitor && (
-        <PerformanceMonitor isOpen={showPerformanceMonitor} onClose={() => setShowPerformanceMonitor(false)} />
-      )}
     </>
   )
 }

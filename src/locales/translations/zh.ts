@@ -85,6 +85,7 @@ export default {
     storageIcons: '缓存图标',
     preloadedModules: '预加载模块',
     recommended: '性能建议',
+    clearCache: '清除缓存',
     performanceLow: '缓存命中率较低，建议优化缓存策略',
     performanceHight: '内存使用较高，建议清理不必要的缓存',
   },
