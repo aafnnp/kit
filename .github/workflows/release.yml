@@ -13,20 +13,8 @@ on:
         type: boolean
         default: false
   push:
-    branches:
-      - release/*
     tags:
       - 'v*'
-  pull_request:
-    branches:
-      - main
-      - develop
-    paths:
-      - 'src/**'
-      - 'src-tauri/**'
-      - 'package.json'
-      - 'vite.config.ts'
-      - 'tsconfig.json'
 
 env:
   CARGO_TERM_COLOR: always
@@ -159,6 +147,25 @@ jobs:
         run: |
           npm version ${{ steps.version.outputs.version }} --no-git-tag-version
       
+      - name: Generate changelog and release notes
+        id: changelog
+        shell: bash
+        run: |
+          # 生成完整更新日志
+          npm run changelog:generate
+          
+          # 生成当前版本的发布说明
+          RELEASE_NOTES=$(npm run changelog:release ${{ steps.version.outputs.version }} --silent)
+          
+          # 将发布说明保存到环境变量（处理多行文本）
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # 输出预览
+          echo "📋 生成的发布说明:"
+          echo "$RELEASE_NOTES"
+      
       - name: Build frontend with optimizations
         run: |
           npm run build
@@ -185,7 +192,7 @@ jobs:
           tagName: ${{ steps.version.outputs.version }}
           releaseName: 'Kit ${{ steps.version.outputs.version }}'
           releaseBody: |
-            ## 🚀 Kit ${{ steps.version.outputs.version }}
+            ${{ steps.changelog.outputs.RELEASE_NOTES }}
             
             ### 📦 安装说明
             - **Windows**: 下载 `.msi` 文件并运行安装
@@ -195,8 +202,8 @@ jobs:
             ### 🔄 自动更新
             应用内置自动更新功能，会在有新版本时提示更新。
             
-            ### 📋 更新内容
-            请查看 [更新日志](https://github.com/aafnnp/kit/releases) 了解详细更新内容。
+            ### 📋 完整更新日志
+            查看 [CHANGELOG.md](https://github.com/aafnnp/kit/blob/main/CHANGELOG.md) 了解所有版本的详细更新内容。
             
             ---
             
