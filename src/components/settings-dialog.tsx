@@ -35,8 +35,7 @@ import { Download, Upload, Trash2, History, Settings2, Database, Zap } from 'luc
 import { ResourceOptimization } from '@/components/resource-optimization'
 import { CacheStrategyManager } from '@/components/cache-strategy-manager'
 import type { SettingsStep, UpdateInfo } from '@/types/settings'
-
-const VERSION = import.meta.env.VITE_APP_VERSION || '0.0.1'
+import { version } from '../../package.json'
 
 interface SettingsDialogProps {
   open: boolean
@@ -47,6 +46,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { t, i18n } = useTranslation()
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'system')
   const locale = i18n.language.startsWith('en') ? 'en' : 'zh'
+  
+  // 判断是否为桌面版（Tauri应用）
+  const isDesktop = typeof window !== 'undefined' && (window as any).__TAURI__
 
   // 数据持久化相关
   const { history, configs, preferences, exportImport } = usePersistence()
@@ -250,10 +252,12 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       <div>
                         <div className="font-medium mb-2">{t('当前版本')}</div>
                         <div className="flex items-center gap-4">
-                          <span className="text-base font-mono">v{VERSION}</span>
-                          <Button variant="outline" onClick={checkForUpdates}>
-                            {t('检查更新')}
-                          </Button>
+                          <span className="text-base font-mono">v{version}</span>
+                          {isDesktop && (
+                            <Button variant="outline" onClick={checkForUpdates}>
+                              {t('检查更新')}
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
