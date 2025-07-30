@@ -7,11 +7,29 @@ import { PerformanceMonitor } from '@/components/performance-monitor'
 import { useState } from 'react'
 
 export const Route = createRootRoute({
+  head: () => ({
+    meta: [
+      {
+        name: 'keywords',
+        content: 'AI 工具箱，提供各种 AI 工具和资源，帮助你提高工作效率。',
+      },
+      {
+        name: 'description',
+        content: 'AI 工具箱，提供各种 AI 工具和资源，帮助你提高工作效率。',
+      },
+      { title: 'Kit | Tools' },
+    ],
+    scripts: [
+      {
+        async: true,
+        src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3854566314387093',
+        crossOrigin: 'anonymous',
+        defer: true,
+      },
+    ],
+  }),
   component: () => {
     const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false)
-
-    // 移除 codeSplittingManager 相关逻辑
-
     return (
       <>
         <SidebarProvider>

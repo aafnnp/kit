@@ -22,7 +22,7 @@ class PreloadManager {
     misses: 0,
     totalLoadTime: 0,
     averageLoadTime: 0,
-    loadCount: 0
+    loadCount: 0,
   }
 
   /**
@@ -40,7 +40,7 @@ class PreloadManager {
    */
   async preload(modulePath: string): Promise<any> {
     const startTime = performance.now()
-    
+
     if (this.loadedModules.has(modulePath) || this.loadingModules.has(modulePath)) {
       if (this.loadedModules.has(modulePath)) {
         this.stats.hits++
@@ -63,20 +63,20 @@ class PreloadManager {
 
       // 动态导入模块
       const module = await import(/* @vite-ignore */ modulePath)
-      
+
       // 缓存模块
       cache.set(cacheKey, module, 30 * 60 * 1000) // 缓存30分钟
-      
+
       this.loadedModules.add(modulePath)
       this.loadingModules.delete(modulePath)
-      
+
       // 更新统计
       const loadTime = performance.now() - startTime
       this.stats.preloadedModules++
       this.stats.loadCount++
       this.stats.totalLoadTime += loadTime
       this.stats.averageLoadTime = this.stats.totalLoadTime / this.stats.loadCount
-      
+
       return module
     } catch (error) {
       console.warn(`Failed to preload module: ${modulePath}`, error)
@@ -91,7 +91,7 @@ class PreloadManager {
    * @param modulePaths 模块路径数组
    */
   async preloadBatch(modulePaths: string[]): Promise<void> {
-    const promises = modulePaths.map(path => this.preload(path))
+    const promises = modulePaths.map((path) => this.preload(path))
     await Promise.allSettled(promises)
   }
 
@@ -124,12 +124,12 @@ class PreloadManager {
 
     // 按优先级顺序预加载
     await this.preloadBatch(highPriority)
-    
+
     // 延迟加载中等优先级
     setTimeout(() => {
       this.preloadBatch(mediumPriority)
     }, 1000)
-    
+
     // 延迟加载低优先级
     setTimeout(() => {
       this.preloadBatch(lowPriority)
@@ -140,17 +140,17 @@ class PreloadManager {
    * 预加载常用工具
    */
   preloadCommonTools(): void {
-    const commonTools = [
-      '/src/components/tools/json-pretty/index.tsx',
-      '/src/components/tools/base64-encode/index.tsx',
-      '/src/components/tools/url-encode/index.tsx',
-      '/src/components/tools/color-picker/index.tsx',
-      '/src/components/tools/uuid-generator/index.tsx'
-    ]
+    // const commonTools = [
+    //   '/src/components/tools/json-pretty/index.tsx',
+    //   '/src/components/tools/base64-encode/index.tsx',
+    //   '/src/components/tools/url-encode/index.tsx',
+    //   '/src/components/tools/color-picker/index.tsx',
+    //   '/src/components/tools/uuid-generator/index.tsx',
+    // ]
 
-    commonTools.forEach(tool => {
-      this.register(tool, { priority: 'high' })
-    })
+    // commonTools.forEach((tool) => {
+    //   this.register(tool, { priority: 'high' })
+    // })
 
     this.preloadByPriority()
   }
@@ -162,13 +162,13 @@ class PreloadManager {
    */
   smartPreload(recentTools: string[], favoriteTools: string[]): void {
     // 预加载最近使用的工具
-    recentTools.slice(0, 5).forEach(tool => {
+    recentTools.slice(0, 5).forEach((tool) => {
       const modulePath = `/src/components/tools/${tool}/index.tsx`
       this.register(modulePath, { priority: 'high' })
     })
 
     // 预加载收藏的工具
-    favoriteTools.slice(0, 3).forEach(tool => {
+    favoriteTools.slice(0, 3).forEach((tool) => {
       const modulePath = `/src/components/tools/${tool}/index.tsx`
       this.register(modulePath, { priority: 'medium' })
     })
@@ -184,7 +184,7 @@ class PreloadManager {
   preloadOnVisible(element: Element, modulePath: string): void {
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
             this.preload(modulePath)
             observer.unobserve(entry.target)
@@ -192,7 +192,7 @@ class PreloadManager {
         })
       },
       {
-        rootMargin: '50px' // 提前50px开始预加载
+        rootMargin: '50px', // 提前50px开始预加载
       }
     )
 
@@ -224,8 +224,6 @@ class PreloadManager {
     element.addEventListener('mouseleave', handleMouseLeave)
   }
 
-
-
   /**
    * 重置统计信息
    */
@@ -236,60 +234,61 @@ class PreloadManager {
       misses: 0,
       totalLoadTime: 0,
       averageLoadTime: 0,
-      loadCount: 0
+      loadCount: 0,
     }
   }
 
   /**
-    * 清理所有观察者
-    */
-   cleanup(): void {
-     this.observers.forEach(observer => observer.disconnect())
-     this.observers.clear()
-     this.preloadQueue.clear()
-     this.loadedModules.clear()
-     this.loadingModules.clear()
-     this.resetStats()
-   }
+   * 清理所有观察者
+   */
+  cleanup(): void {
+    this.observers.forEach((observer) => observer.disconnect())
+    this.observers.clear()
+    this.preloadQueue.clear()
+    this.loadedModules.clear()
+    this.loadingModules.clear()
+    this.resetStats()
+  }
 
   /**
    * 获取统计信息
    */
-  getStats = (): { 
-    preloadedModules: number;
-    hits: number;
-    misses: number;
-    totalLoadTime: number;
-    averageLoadTime: number;
-    loadCount: number;
-    total: number;
-    loaded: number;
-    loading: number;
-    pending: number;
+  getStats = (): {
+    preloadedModules: number
+    hits: number
+    misses: number
+    totalLoadTime: number
+    averageLoadTime: number
+    loadCount: number
+    total: number
+    loaded: number
+    loading: number
+    pending: number
   } => {
     return {
       ...this.stats,
       total: this.preloadQueue.size,
       loaded: this.loadedModules.size,
       loading: this.loadingModules.size,
-      pending: this.preloadQueue.size - this.loadedModules.size - this.loadingModules.size
+      pending: this.preloadQueue.size - this.loadedModules.size - this.loadingModules.size,
     }
   }
- }
+}
 
 // 创建全局预加载管理器实例
 export const preloader = new PreloadManager()
 
 // 在应用启动时预加载常用工具
 if (typeof window !== 'undefined') {
+  // 暂时禁用预加载，与 tanstack-router 懒加载冲突
   // 等待页面加载完成后再开始预加载
-  if (document.readyState === 'complete') {
-    preloader.preloadCommonTools()
-  } else {
-    window.addEventListener('load', () => {
-      preloader.preloadCommonTools()
-    })
-  }
+  // if (document.readyState === 'complete') {
+  //   preloader.preloadCommonTools()
+  // } else {
+  //   window.addEventListener('load', () => {
+  //     preloader.preloadCommonTools()
+  //   })
+  // }
 }
 
 /**
@@ -297,7 +296,7 @@ if (typeof window !== 'undefined') {
  */
 export function usePreload() {
   const preloadTool = React.useCallback((toolSlug: string) => {
-    const modulePath = `/src/components/tools/${toolSlug}.tsx`
+    const modulePath = `/src/components/tools/${toolSlug}/index.tsx`
     preloader.register(modulePath, { priority: 'high' })
     preloader.preload(modulePath).catch(console.warn)
   }, [])
@@ -308,7 +307,7 @@ export function usePreload() {
 
   return {
     preloadTool,
-    preloadCommonTools
+    preloadCommonTools,
   }
 }
 
@@ -322,6 +321,6 @@ export function useSmartPreload() {
   }, [])
 
   return {
-    trackToolUsage
+    trackToolUsage,
   }
 }

@@ -14,16 +14,16 @@ const resourceCache = new Map<string, any>()
 // 图标映射表 - 将@tabler/icons-react映射到lucide-react
 const ICON_MAPPING: Record<string, string> = {
   // Tabler图标名 -> Lucide图标名
-  'IconMoon': 'Moon',
-  'IconSun': 'Sun',
-  'IconDeviceDesktop': 'Monitor',
-  'IconChevronRight': 'ChevronRight',
-  'IconDots': 'MoreHorizontal',
-  'IconFolder': 'Folder',
-  'IconShare3': 'Share',
-  'IconTrash': 'Trash2',
-  'IconTrendingDown': 'TrendingDown',
-  'IconTrendingUp': 'TrendingUp',
+  IconMoon: 'Moon',
+  IconSun: 'Sun',
+  IconDeviceDesktop: 'Monitor',
+  IconChevronRight: 'ChevronRight',
+  IconDots: 'MoreHorizontal',
+  IconFolder: 'Folder',
+  IconShare3: 'Share',
+  IconTrash: 'Trash2',
+  IconTrendingDown: 'TrendingDown',
+  IconTrendingUp: 'TrendingUp',
   // 添加更多映射...
 }
 
@@ -84,22 +84,24 @@ const DEPENDENCY_CONFIG = {
   // 重量级依赖
   heavy: {
     '@ffmpeg/ffmpeg': { size: '~2MB', alternatives: ['browser-image-compression'] },
-    'mermaid': { size: '~800KB', alternatives: ['lightweight-charts'] },
-    'xlsx': { size: '~600KB', alternatives: ['papaparse'] },
-    'pdf-lib': { size: '~400KB', alternatives: ['jspdf'] },
+    mermaid: { size: '~800KB', alternatives: ['lightweight-charts'] },
+    xlsx: { size: '~600KB', alternatives: ['papaparse'] },
+    'gifuct-js': { size: '~50KB', alternatives: ['gif.js'] },
+    fflate: { size: '~30KB', alternatives: ['jszip'] },
+    'pdf-lib': { size: '~200KB', alternatives: ['jspdf'] },
   } as DependencyConfigs,
   // 可优化依赖
   optimizable: {
-    'recharts': { size: '~300KB', treeshaking: true },
-    'motion': { size: '~200KB', treeshaking: true },
-    'jszip': { size: '~150KB', alternatives: ['fflate'] },
+    recharts: { size: '~300KB', treeshaking: true },
+    motion: { size: '~200KB', treeshaking: true },
+    jszip: { size: '~150KB', alternatives: ['fflate'] },
   } as DependencyConfigs,
   // 轻量级依赖
   light: {
-    'nanoid': { size: '~2KB' },
-    'clsx': { size: '~1KB' },
-    'zod': { size: '~50KB' },
-  } as DependencyConfigs
+    nanoid: { size: '~2KB' },
+    clsx: { size: '~1KB' },
+    zod: { size: '~50KB' },
+  } as DependencyConfigs,
 }
 
 class ResourceOptimizer {
@@ -131,7 +133,7 @@ class ResourceOptimizer {
   getIcon(iconName: string): LucideIcon {
     // 检查是否是Tabler图标，进行映射
     const mappedName = ICON_MAPPING[iconName] || iconName
-    
+
     // 首先检查缓存
     if (iconCache.has(mappedName)) {
       return iconCache.get(mappedName)!
@@ -174,21 +176,21 @@ class ResourceOptimizer {
     recommendations: string[]
   } {
     const recommendations: string[] = []
-    
+
     // 检查重量级依赖
     const heavyDeps = Object.keys(DEPENDENCY_CONFIG.heavy)
     const optimizableDeps = Object.keys(DEPENDENCY_CONFIG.optimizable)
     const lightDeps = Object.keys(DEPENDENCY_CONFIG.light)
-    
+
     // 生成优化建议
-    heavyDeps.forEach(dep => {
+    heavyDeps.forEach((dep) => {
       const config = DEPENDENCY_CONFIG.heavy[dep]
       if (config.alternatives) {
         recommendations.push(`考虑将 ${dep} (${config.size}) 替换为更轻量的 ${config.alternatives.join(' 或 ')}`)
       }
     })
-    
-    optimizableDeps.forEach(dep => {
+
+    optimizableDeps.forEach((dep) => {
       const config = DEPENDENCY_CONFIG.optimizable[dep]
       if (config.treeshaking) {
         recommendations.push(`${dep} 支持 tree-shaking，确保只导入需要的模块`)
@@ -197,12 +199,12 @@ class ResourceOptimizer {
         recommendations.push(`可考虑将 ${dep} 替换为 ${config.alternatives.join(' 或 ')}`)
       }
     })
-    
+
     return {
       heavy: heavyDeps,
       optimizable: optimizableDeps,
       light: lightDeps,
-      recommendations
+      recommendations,
     }
   }
 
@@ -213,14 +215,14 @@ class ResourceOptimizer {
    */
   async optimizeResourceLoading(resourceType: 'image' | 'font' | 'script', resourcePath: string): Promise<void> {
     const cacheKey = `${resourceType}_${resourcePath}`
-    
+
     if (resourceCache.has(cacheKey)) {
       return resourceCache.get(cacheKey)
     }
-    
+
     const promise = this.loadOptimizedResource(resourceType, resourcePath)
     resourceCache.set(cacheKey, promise)
-    
+
     return promise
   }
 
@@ -507,7 +509,7 @@ class ResourceOptimizer {
         heavy: analysis.heavy.length,
         optimizable: analysis.optimizable.length,
         light: analysis.light.length,
-      }
+      },
     }
   }
 
@@ -527,17 +529,17 @@ class ResourceOptimizer {
   getOptimizationSuggestions(): string[] {
     const analysis = this.analyzeDependencies()
     const suggestions = [...analysis.recommendations]
-    
+
     // 添加图标优化建议
     if (iconCache.size > 100) {
       suggestions.push('图标缓存过大，考虑实现图标按需加载')
     }
-    
+
     // 添加资源优化建议
     if (resourceCache.size > 50) {
       suggestions.push('资源缓存过大，考虑实现LRU缓存策略')
     }
-    
+
     return suggestions
   }
 

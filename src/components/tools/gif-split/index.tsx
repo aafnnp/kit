@@ -8,6 +8,7 @@ import { parseGIF, decompressFrames } from 'gifuct-js'
 import { nanoid } from 'nanoid'
 import type { GifFile, GifFrame, GifStats } from '@/types/gif-split'
 import { formatFileSize } from '@/lib/utils'
+import { zipSync } from 'fflate'
 
 // 工具函数
 
@@ -155,14 +156,21 @@ const GifSplit = () => {
   // 导出所有帧为 zip
   const handleExportAllFrames = async (gif: GifFile, format: 'png' | 'jpeg') => {
     if (!gif.frames) return
-    // 动态导入 jszip
-    const JSZip = (await import('jszip')).default
-    const zip = new JSZip()
+
+    const zipData: Record<string, Uint8Array> = {}
+
     gif.frames.forEach((frame) => {
       const base64 = frame.imageDataUrl.split(',')[1]
-      zip.file(`${gif.name}_frame${frame.index + 1}.${format}`, base64, { base64: true })
+      const binaryString = atob(base64)
+      const bytes = new Uint8Array(binaryString.length)
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i)
+      }
+      zipData[`${gif.name}_frame${frame.index + 1}.${format}`] = bytes
     })
-    const blob = await zip.generateAsync({ type: 'blob' })
+
+    const zipped = zipSync(zipData)
+    const blob = new Blob([zipped], { type: 'application/zip' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url

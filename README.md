@@ -158,6 +158,27 @@ npm run tauri build
 
 ## 📦 发布
 
+### 自动更新日志
+
+项目集成了自动更新日志生成功能：
+
+```bash
+# 生成完整更新日志
+npm run changelog:generate
+
+# 生成特定版本发布说明
+npm run changelog:release v1.0.0
+
+# 发布新版本（自动生成更新日志）
+npm run release:patch   # 补丁版本
+npm run release:minor   # 次要版本
+npm run release:major   # 主要版本
+```
+
+详细使用说明请查看 [更新日志指南](./docs/CHANGELOG_GUIDE.md)。
+
+### 构建产物
+
 - Web 端构建产物位于 `dist/`
 - 桌面端产物见 `src-tauri/target/`，支持 Windows/macOS/Linux
 

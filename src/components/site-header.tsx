@@ -17,6 +17,7 @@ export function SiteHeader() {
             <SidebarTrigger className="-ml-1" />
           </div>
           <div className="flex items-center gap-2">
+
             <Button
               variant="ghost"
               size="sm"
@@ -30,7 +31,7 @@ export function SiteHeader() {
           </div>
         </div>
       </header>
-      
+
       <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </>
   )

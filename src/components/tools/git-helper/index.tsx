@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,7 +36,7 @@ import {
 import { ToolBase } from '@/components/ui/tool-base'
 import { nanoid } from 'nanoid'
 
-export function GitHelper() {
+export default function GitHelper() {
   const { t } = useTranslation()
   const { copyToClipboard } = useCopyToClipboard()
 
@@ -124,13 +124,30 @@ export function GitHelper() {
 
     const errors = validateGitParameters(selectedCommand, commandParameters)
     if (errors.length > 0) {
-      setState((prev) => ({ ...prev, error: errors.join('; ') }))
       return ''
     }
 
-    setState((prev) => ({ ...prev, error: undefined }))
     return formatGitCommand(selectedCommand, commandParameters)
   }, [selectedCommand, commandParameters])
+
+  // 验证参数并设置错误状态
+  const validateAndSetError = useCallback(() => {
+    if (!selectedCommand) {
+      setState((prev) => ({ ...prev, error: undefined }))
+      return
+    }
+
+    const errors = validateGitParameters(selectedCommand, commandParameters)
+    setState((prev) => ({ 
+      ...prev, 
+      error: errors.length > 0 ? errors.join('; ') : undefined 
+    }))
+  }, [selectedCommand, commandParameters])
+
+  // 当选中的命令或参数改变时验证
+  useEffect(() => {
+    validateAndSetError()
+  }, [validateAndSetError])
 
   // 切换收藏
   const toggleFavorite = useCallback((commandId: string) => {

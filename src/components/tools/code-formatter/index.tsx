@@ -453,3 +453,5 @@ export function CodeFormatter() {
     </ToolBase>
   )
 }
+
+export default CodeFormatter

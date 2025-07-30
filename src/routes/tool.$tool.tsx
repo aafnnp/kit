@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 import tools from '@/lib/data'
 import ToolNotFound from '@/components/tools/404'
 import { ToolLoading } from '@/components/ui/loading'
+import { AdSenseAd } from '@/components/adsense-ad'
 
 export const Route = createFileRoute('/tool/$tool')({
   component: RouteComponent,
@@ -30,8 +31,13 @@ function RouteComponent() {
   }
 
   return (
-    <Suspense fallback={<ToolLoading toolName={toolInfo.name} />}>
-      <ToolComponent />
-    </Suspense>
+    <>
+      <Suspense fallback={<ToolLoading toolName={toolInfo.name} />}>
+        <ToolComponent />
+      </Suspense>
+
+      {/* 广告位移到 Suspense 外部 */}
+      <AdSenseAd adClient="ca-pub-3854566314387093" adSlot="5958414350" />
+    </>
   )
 }
