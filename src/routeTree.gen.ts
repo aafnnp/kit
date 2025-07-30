@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TestAdRouteImport } from './routes/test-ad'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ToolToolRouteImport } from './routes/tool.$tool'
 
+const TestAdRoute = TestAdRouteImport.update({
+  id: '/test-ad',
+  path: '/test-ad',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -32,35 +38,46 @@ const ToolToolRoute = ToolToolRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRoute
+  '/test-ad': typeof TestAdRoute
   '/tool/$tool': typeof ToolToolRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRoute
+  '/test-ad': typeof TestAdRoute
   '/tool/$tool': typeof ToolToolRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/settings': typeof SettingsRoute
+  '/test-ad': typeof TestAdRoute
   '/tool/$tool': typeof ToolToolRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/settings' | '/tool/$tool'
+  fullPaths: '/' | '/settings' | '/test-ad' | '/tool/$tool'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/settings' | '/tool/$tool'
-  id: '__root__' | '/' | '/settings' | '/tool/$tool'
+  to: '/' | '/settings' | '/test-ad' | '/tool/$tool'
+  id: '__root__' | '/' | '/settings' | '/test-ad' | '/tool/$tool'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SettingsRoute: typeof SettingsRoute
+  TestAdRoute: typeof TestAdRoute
   ToolToolRoute: typeof ToolToolRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/test-ad': {
+      id: '/test-ad'
+      path: '/test-ad'
+      fullPath: '/test-ad'
+      preLoaderRoute: typeof TestAdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SettingsRoute: SettingsRoute,
+  TestAdRoute: TestAdRoute,
   ToolToolRoute: ToolToolRoute,
 }
 export const routeTree = rootRouteImport

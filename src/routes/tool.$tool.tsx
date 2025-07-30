@@ -1,8 +1,9 @@
 import { createFileRoute, lazyRouteComponent } from '@tanstack/react-router'
-import { Suspense, useEffect } from 'react'
+import { Suspense } from 'react'
 import tools from '@/lib/data'
 import ToolNotFound from '@/components/tools/404'
 import { ToolLoading } from '@/components/ui/loading'
+import { AdSenseAd } from '@/components/adsense-ad'
 
 export const Route = createFileRoute('/tool/$tool')({
   component: RouteComponent,
@@ -29,24 +30,14 @@ function RouteComponent() {
     return <ToolNotFound toolSlug={toolSlug} />
   }
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      ;(window as any).adsbygoogle = (window as any).adsbygoogle || []
-      ;(window as any).adsbygoogle.push({})
-    }
-  }, [])
-
   return (
-    <Suspense fallback={<ToolLoading toolName={toolInfo.name} />}>
-      <ToolComponent />
-      <div
-        className="adsbygoogle"
-        style={{ display: 'block' }}
-        data-ad-client="ca-pub-3854566314387093"
-        data-ad-slot="9901453595"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      />
-    </Suspense>
+    <>
+      <Suspense fallback={<ToolLoading toolName={toolInfo.name} />}>
+        <ToolComponent />
+      </Suspense>
+
+      {/* 广告位移到 Suspense 外部 */}
+      <AdSenseAd adClient="ca-pub-3854566314387093" adSlot="7071900062" />
+    </>
   )
 }

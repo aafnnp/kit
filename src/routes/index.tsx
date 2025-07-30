@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useState, useMemo, useEffect } from 'react'
 import { SearchBar } from '@/components/search-bar'
 import { ToolCard } from '@/components/tool-card'
+import { AdSenseAd } from '@/components/adsense-ad'
 import { useFavorites, useRecentTools, useToolSearch } from '@/lib/favorites'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Heart, Clock, Grid3X3, Trash2, Settings } from 'lucide-react'
@@ -38,10 +39,6 @@ export const Route = createFileRoute('/')({
 
     // 性能优化初始化
     useEffect(() => {
-      if (typeof window !== 'undefined') {
-        ;(window as any).adsbygoogle = (window as any).adsbygoogle || []
-        ;(window as any).adsbygoogle.push({})
-      }
       // 预加载常用工具
       preloadCommonTools()
     }, [])
@@ -152,14 +149,7 @@ export const Route = createFileRoute('/')({
 
     return (
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-7xl">
-        <div
-          className="adsbygoogle"
-          style={{ display: 'block' }}
-          data-ad-client="ca-pub-3854566314387093"
-          data-ad-slot="9901453595"
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        />
+        <AdSenseAd adClient="ca-pub-3854566314387093" adSlot="7071900062" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
