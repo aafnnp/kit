@@ -140,17 +140,17 @@ class PreloadManager {
    * 预加载常用工具
    */
   preloadCommonTools(): void {
-    const commonTools = [
-      '/src/components/tools/json-pretty/index.tsx',
-      '/src/components/tools/base64-encode/index.tsx',
-      '/src/components/tools/url-encode/index.tsx',
-      '/src/components/tools/color-picker/index.tsx',
-      '/src/components/tools/uuid-generator/index.tsx',
-    ]
+    // const commonTools = [
+    //   '/src/components/tools/json-pretty/index.tsx',
+    //   '/src/components/tools/base64-encode/index.tsx',
+    //   '/src/components/tools/url-encode/index.tsx',
+    //   '/src/components/tools/color-picker/index.tsx',
+    //   '/src/components/tools/uuid-generator/index.tsx',
+    // ]
 
-    commonTools.forEach((tool) => {
-      this.register(tool, { priority: 'high' })
-    })
+    // commonTools.forEach((tool) => {
+    //   this.register(tool, { priority: 'high' })
+    // })
 
     this.preloadByPriority()
   }
