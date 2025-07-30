@@ -3,6 +3,7 @@
  */
 import React from 'react'
 import { cache } from './cache'
+import i18n from '@/locales'
 
 interface CacheConfig {
   maxMemoryUsage: number // MB
@@ -72,9 +73,12 @@ class CacheStrategyManager {
       clearInterval(this.cleanupTimer)
     }
 
-    this.cleanupTimer = setInterval(() => {
-      this.performAutoCleanup()
-    }, this.config.autoCleanupInterval * 60 * 1000)
+    this.cleanupTimer = setInterval(
+      () => {
+        this.performAutoCleanup()
+      },
+      this.config.autoCleanupInterval * 60 * 1000
+    )
   }
 
   /**
@@ -107,7 +111,7 @@ class CacheStrategyManager {
         timestamp: Date.now(),
       }
       const serialized = JSON.stringify(data)
-      
+
       // 检查大小限制
       const size = new Blob([serialized]).size / 1024 / 1024 // MB
       if (size > this.config.maxDiskUsage) {
@@ -133,9 +137,9 @@ class CacheStrategyManager {
       const compressed = btoa(data)
       const originalSize = data.length
       const compressedSize = compressed.length
-      
+
       this.stats.compressionRatio = originalSize > 0 ? compressedSize / originalSize : 1
-      
+
       return compressed
     } catch (error) {
       console.warn('Compression failed:', error)
@@ -190,7 +194,7 @@ class CacheStrategyManager {
    */
   private async performAutoCleanup(): Promise<void> {
     const memoryStats = this.getMemoryStats()
-    
+
     // 检查内存使用是否超限
     if (memoryStats.usedMemory > this.config.maxMemoryUsage) {
       await this.cleanupMemoryCache()
@@ -216,10 +220,10 @@ class CacheStrategyManager {
     const cacheStats = cache.getStats()
     const targetSize = Math.floor(cacheStats.maxSize * 0.5)
     cache.setMaxSize(targetSize)
-    
+
     // 强制垃圾回收（如果支持）
     if ('gc' in window && typeof (window as any).gc === 'function') {
-      (window as any).gc()
+      ;(window as any).gc()
     }
   }
 
@@ -230,7 +234,7 @@ class CacheStrategyManager {
     // 删除最旧的一半缓存项
     const entries = Array.from(this.persistentCache.entries())
     const toDelete = Math.floor(entries.length * 0.5)
-    
+
     for (let i = 0; i < toDelete; i++) {
       this.persistentCache.delete(entries[i][0])
     }
@@ -250,7 +254,7 @@ class CacheStrategyManager {
 
     const serialized = JSON.stringify(item)
     const compressed = this.compressData(serialized)
-    
+
     this.persistentCache.set(key, compressed)
     await this.savePersistentCache()
   }
@@ -305,7 +309,7 @@ class CacheStrategyManager {
     cache.clear()
     this.persistentCache.clear()
     this.compressionCache.clear()
-    
+
     try {
       localStorage.removeItem('kit_persistent_cache')
     } catch (error) {
@@ -334,7 +338,7 @@ class CacheStrategyManager {
    */
   updateConfig(newConfig: Partial<CacheConfig>): void {
     this.config = { ...this.config, ...newConfig }
-    
+
     // 重新初始化自动清理
     if (newConfig.autoCleanupInterval !== undefined) {
       this.initializeAutoCleanup()
@@ -368,28 +372,28 @@ class CacheStrategyManager {
 
     // 内存使用建议
     if (memoryStats.usedMemory > this.config.maxMemoryUsage * 0.8) {
-      suggestions.push('内存使用率较高，建议清理缓存或增加内存限制')
+      suggestions.push(i18n.t('settings.cacheStrategy.optimizeSuggestions.lowMemoryUsage'))
     }
 
     // 缓存命中率建议
-    const hitRate = cacheStats.hits / (cacheStats.hits + cacheStats.misses) * 100
+    const hitRate = (cacheStats.hits / (cacheStats.hits + cacheStats.misses)) * 100
     if (hitRate < 50) {
-      suggestions.push('缓存命中率较低，建议增加缓存时间或优化缓存策略')
+      suggestions.push(i18n.t('settings.cacheStrategy.optimizeSuggestions.lowCacheHitRate'))
     }
 
     // 磁盘缓存建议
     if (this.stats.diskCacheSize > this.config.maxDiskUsage * 0.8) {
-      suggestions.push('磁盘缓存使用率较高，建议清理或增加磁盘限制')
+      suggestions.push(i18n.t('settings.cacheStrategy.optimizeSuggestions.highDiskUsage'))
     }
 
     // 压缩建议
     if (!this.config.compressionEnabled && this.stats.diskCacheSize > 50) {
-      suggestions.push('建议启用压缩以减少磁盘使用')
+      suggestions.push(i18n.t('settings.cacheStrategy.optimizeSuggestions.enableCompression'))
     }
 
     // 自动清理建议
     if (this.config.autoCleanupInterval > 60) {
-      suggestions.push('自动清理间隔较长，建议缩短以保持性能')
+      suggestions.push(i18n.t('settings.cacheStrategy.optimizeSuggestions.shortAutoClearInterval'))
     }
 
     return suggestions
@@ -418,19 +422,19 @@ export function memoryOptimized<T extends (...args: any[]) => any>(
 
     descriptor.value = async function (...args: Parameters<T>): Promise<ReturnType<T>> {
       const memoryBefore = cacheStrategy.getStats().memoryStats.usedMemory
-      
+
       try {
         const result = await originalMethod.apply(this, args)
-        
+
         const memoryAfter = cacheStrategy.getStats().memoryStats.usedMemory
         const memoryUsed = memoryAfter - memoryBefore
-        
+
         // 如果内存使用超过限制，触发清理
         if (memoryUsed > maxMemoryUsage) {
           console.warn(`Method ${propertyKey} used ${memoryUsed}MB memory, triggering cleanup`)
           await cacheStrategy.clearAll()
         }
-        
+
         return result
       } catch (error) {
         // 发生错误时也要检查内存

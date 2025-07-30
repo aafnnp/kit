@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { DependencyAnalyzer } from './dependency-analyzer'
 import { Icon } from '@/components/ui/icon-compat'
 import { resourceOptimizer } from '@/lib/resource-optimizer'
+import { useTranslation } from 'react-i18next'
 
 interface OptimizationStats {
   iconsLoaded: number
@@ -18,6 +19,7 @@ interface OptimizationStats {
 }
 
 export function ResourceOptimization() {
+  const { t } = useTranslation()
   const [stats, setStats] = useState<OptimizationStats>({
     iconsLoaded: 0,
     iconsCached: 0,
@@ -60,11 +62,11 @@ export function ResourceOptimization() {
     try {
       // 模拟优化过程
       const steps = [
-        { name: '预加载常用图标', progress: 20 },
-        { name: '分析依赖关系', progress: 40 },
-        { name: '优化资源加载', progress: 60 },
-        { name: '清理缓存', progress: 80 },
-        { name: '完成优化', progress: 100 },
+        { name: t('settings.resourceOptimization.preloadIcons'), progress: 20 },
+        { name: t('settings.resourceOptimization.analyzeDeps'), progress: 40 },
+        { name: t('settings.resourceOptimization.optimizeResources'), progress: 60 },
+        { name: t('settings.resourceOptimization.clearCache'), progress: 80 },
+        { name: t('settings.resourceOptimization.finishOptimize'), progress: 100 },
       ]
 
       for (const step of steps) {
@@ -114,46 +116,47 @@ export function ResourceOptimization() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Icon name="Zap" className="h-5 w-5" />
-            资源优化概览
+            {t('settings.resourceOptimization.subTitle')}
           </CardTitle>
-          <CardDescription>监控和优化应用程序的资源使用情况</CardDescription>
+          <CardDescription>{t('settings.resourceOptimization.subTitleDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{stats.iconsLoaded}</div>
-              <div className="text-sm text-muted-foreground">已加载图标</div>
+              <div className="text-sm text-muted-foreground">{t('settings.resourceOptimization.loadedIcons')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">{stats.iconsCached}</div>
-              <div className="text-sm text-muted-foreground">缓存图标</div>
+              <div className="text-sm text-muted-foreground">{t('settings.resourceOptimization.cachedIcons')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">{stats.resourcesPreloaded}</div>
-              <div className="text-sm text-muted-foreground">预加载资源</div>
+              <div className="text-sm text-muted-foreground">{t('settings.resourceOptimization.preloadResources')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-600">{stats.dependenciesAnalyzed}</div>
-              <div className="text-sm text-muted-foreground">分析依赖</div>
+              <div className="text-sm text-muted-foreground">{t('settings.resourceOptimization.analyzeDeps')}</div>
             </div>
           </div>
 
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">优化评分:</span>
+              <span className="text-sm font-medium">{t('settings.resourceOptimization.optimizeScore')}:</span>
               <Badge variant={getScoreBadgeVariant(stats.optimizationScore)}>
                 <span className={getScoreColor(stats.optimizationScore)}>{stats.optimizationScore}%</span>
               </Badge>
             </div>
             <div className="text-sm text-muted-foreground">
-              潜在节省: <span className="font-medium text-green-600">{stats.potentialSavings}</span>
+              {t('settings.resourceOptimization.potentialSavings')}:{' '}
+              <span className="font-medium text-green-600">{stats.potentialSavings}</span>
             </div>
           </div>
 
           {isOptimizing && (
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">优化进度</span>
+                <span className="text-sm font-medium">{t('settings.resourceOptimization.optimizeProgress')}</span>
                 <span className="text-sm text-muted-foreground">{optimizationProgress}%</span>
               </div>
               <Progress value={optimizationProgress} className="h-2" />
@@ -163,132 +166,146 @@ export function ResourceOptimization() {
           <div className="flex gap-2">
             <Button onClick={runOptimization} disabled={isOptimizing} className="flex items-center gap-2">
               <Icon name="Play" className="h-4 w-4" />
-              {isOptimizing ? '优化中...' : '开始优化'}
+              {isOptimizing
+                ? t('settings.resourceOptimization.optimizing')
+                : t('settings.resourceOptimization.startOptimize')}
             </Button>
             <Button variant="outline" onClick={clearCache} className="flex items-center gap-2">
               <Icon name="Trash2" className="h-4 w-4" />
-              清理缓存
+              {t('settings.resourceOptimization.clearCache')}
             </Button>
             <Button variant="outline" onClick={loadStats} className="flex items-center gap-2">
               <Icon name="RefreshCw" className="h-4 w-4" />
-              刷新统计
+              {t('settings.resourceOptimization.refreshStats')}
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* 详细分析 */}
-      <Tabs defaultValue="dependencies" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="dependencies">依赖分析</TabsTrigger>
-          <TabsTrigger value="icons">图标优化</TabsTrigger>
-          <TabsTrigger value="resources">资源管理</TabsTrigger>
-        </TabsList>
+      {/* 详细分析 - production 不展示以下内容 */}
+      {process.env.NODE_ENV !== 'production' && (
+        <Tabs defaultValue="dependencies" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="dependencies">{t('settings.resourceOptimization.analyzeDeps')}</TabsTrigger>
+            <TabsTrigger value="icons">{t('settings.resourceOptimization.optimizeIcons')}</TabsTrigger>
+            <TabsTrigger value="resources">{t('settings.resourceOptimization.optimizeResources')}</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="dependencies" className="space-y-4">
-          <DependencyAnalyzer />
-        </TabsContent>
+          <TabsContent value="dependencies" className="space-y-4">
+            <DependencyAnalyzer />
+          </TabsContent>
 
-        <TabsContent value="icons" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>图标优化</CardTitle>
-              <CardDescription>管理和优化项目中的图标使用</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2 flex items-center gap-2">
-                      <Icon name="Package" className="h-4 w-4" />
-                      图标库统一
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      将 @tabler/icons-react 映射到 lucide-react，减少 bundle 大小
-                    </p>
-                    <Badge variant="outline">已实现</Badge>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2 flex items-center gap-2">
-                      <Icon name="Zap" className="h-4 w-4" />
-                      智能预加载
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">预加载常用图标，提升用户体验</p>
-                    <Badge variant="outline">已实现</Badge>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-muted rounded-lg">
-                  <h4 className="font-medium mb-2">优化效果</h4>
-                  <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li>• 减少图标库重复，节省约 50KB bundle 大小</li>
-                    <li>• 实现图标缓存，提升 30% 加载速度</li>
-                    <li>• 统一图标接口，提升开发体验</li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="resources" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>资源管理</CardTitle>
-              <CardDescription>监控和优化应用程序资源的加载策略</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2 flex items-center gap-2">
-                      <Icon name="Download" className="h-4 w-4" />
-                      按需加载
-                    </h4>
-                    <p className="text-sm text-muted-foreground">只在需要时加载资源，减少初始 bundle 大小</p>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2 flex items-center gap-2">
-                      <Icon name="Clock" className="h-4 w-4" />
-                      智能预加载
-                    </h4>
-                    <p className="text-sm text-muted-foreground">预测用户行为，提前加载可能需要的资源</p>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2 flex items-center gap-2">
-                      <Icon name="Database" className="h-4 w-4" />
-                      缓存策略
-                    </h4>
-                    <p className="text-sm text-muted-foreground">智能缓存常用资源，提升重复访问速度</p>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-muted rounded-lg">
-                  <h4 className="font-medium mb-2">资源优化策略</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <h5 className="font-medium mb-1">轻量级替代</h5>
-                      <ul className="text-muted-foreground space-y-1">
-                        <li>• 使用 date-fns 替代 moment.js</li>
-                        <li>• 使用 lucide-react 统一图标</li>
-                        <li>• 按需导入第三方库功能</li>
-                      </ul>
+          <TabsContent value="icons" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('settings.resourceOptimization.optimizeIcons')}</CardTitle>
+                <CardDescription>{t('settings.resourceOptimization.optimizeIconsDesc')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <Icon name="Package" className="h-4 w-4" />
+                        {t('settings.resourceOptimization.iconLibraryUniform')}
+                      </h4>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        {t('settings.resourceOptimization.iconLibraryUniformDesc')}
+                      </p>
+                      <Badge variant="outline">{t('settings.resourceOptimization.iconLibraryUniformStatus')}</Badge>
                     </div>
-                    <div>
-                      <h5 className="font-medium mb-1">加载优化</h5>
-                      <ul className="text-muted-foreground space-y-1">
-                        <li>• 代码分割和懒加载</li>
-                        <li>• 资源预加载和缓存</li>
-                        <li>• 依赖分析和优化建议</li>
-                      </ul>
+                    <div className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <Icon name="Zap" className="h-4 w-4" />
+                        {t('settings.resourceOptimization.smartPreload')}
+                      </h4>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        {t('settings.resourceOptimization.smartPreloadDesc')}
+                      </p>
+                      <Badge variant="outline">{t('settings.resourceOptimization.smartPreloadStatus')}</Badge>
                     </div>
                   </div>
+
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">{t('settings.resourceOptimization.optimizeEffect')}</h4>
+                    <ul className="text-sm space-y-1 text-muted-foreground">
+                      <li>• {t('settings.resourceOptimization.optimizeEffectDesc1')}</li>
+                      <li>• {t('settings.resourceOptimization.optimizeEffectDesc2')}</li>
+                      <li>• {t('settings.resourceOptimization.optimizeEffectDesc3')}</li>
+                    </ul>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="resources" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('settings.resourceOptimization.resourceManagement')}</CardTitle>
+                <CardDescription>{t('settings.resourceOptimization.resourceManagementDesc')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <Icon name="Download" className="h-4 w-4" />
+                        {t('settings.resourceOptimization.lazyLoad')}
+                      </h4>
+                      <p className="text-sm text-muted-foreground">{t('settings.resourceOptimization.lazyLoadDesc')}</p>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <Icon name="Clock" className="h-4 w-4" />
+                        {t('settings.resourceOptimization.smartPreload')}
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {t('settings.resourceOptimization.smartPreloadDesc')}
+                      </p>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <Icon name="Database" className="h-4 w-4" />
+                        {t('settings.resourceOptimization.cacheStrategy')}
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {t('settings.resourceOptimization.cacheStrategyDesc')}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">
+                      {t('settings.resourceOptimization.resourceOptimizationStrategy')}
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <h5 className="font-medium mb-1">
+                          {t('settings.resourceOptimization.lightweightReplacement')}
+                        </h5>
+                        <ul className="text-muted-foreground space-y-1">
+                          <li>• {t('settings.resourceOptimization.lightweightReplacementDesc1')}</li>
+                          <li>• {t('settings.resourceOptimization.lightweightReplacementDesc2')}</li>
+                          <li>• {t('settings.resourceOptimization.lightweightReplacementDesc3')}</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h5 className="font-medium mb-1">{t('settings.resourceOptimization.loadOptimization')}</h5>
+                        <ul className="text-muted-foreground space-y-1">
+                          <li>• {t('settings.resourceOptimization.loadOptimizationDesc1')}</li>
+                          <li>• {t('settings.resourceOptimization.loadOptimizationDesc2')}</li>
+                          <li>• {t('settings.resourceOptimization.loadOptimizationDesc3')}</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useEffect, useState, useMemo } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Select, SelectGroup, SelectItem, SelectTrigger, SelectValue, SelectContent } from '@/components/ui/select'
@@ -8,14 +9,6 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,7 +24,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { check } from '@tauri-apps/plugin-updater'
 import { relaunch } from '@tauri-apps/plugin-process'
 import { usePersistence } from '@/lib/persistence'
-import { Download, Upload, Trash2, History, Settings2, Database, Zap } from 'lucide-react'
+import { Download, Upload, Trash2, History, Settings2, Database, Zap, X } from 'lucide-react'
 import { ResourceOptimization } from '@/components/resource-optimization'
 import { CacheStrategyManager } from '@/components/cache-strategy-manager'
 import type { SettingsStep, UpdateInfo } from '@/types/settings'
@@ -46,7 +39,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { t, i18n } = useTranslation()
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'system')
   const locale = i18n.language.startsWith('en') ? 'en' : 'zh'
-  
+
   // 判断是否为桌面版（Tauri应用）
   const isDesktop = typeof window !== 'undefined' && (window as any).__TAURI__
 
@@ -167,40 +160,64 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     localStorage.setItem('theme', theme)
   }, [theme])
 
-  return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-3xl sm:max-w-3xl md:max-w-3xl lg:max-w-3xl xl:max-w-3xl max-h-[90vh] overflow-hidden overflow-y-scroll scroll-smooth">
-          <DialogHeader>
-            <DialogTitle>{t('设置')}</DialogTitle>
-          </DialogHeader>
+  if (!open) return null
 
-          <div className="flex-1 overflow-hidden">
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        onClick={() => onOpenChange(false)}
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          className="bg-background border rounded-lg shadow-lg max-w-6xl w-full max-h-[90vh] overflow-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* 头部 */}
+          <div className="flex items-center justify-between p-6 border-b">
+            <div className="flex items-center space-x-3">
+              <Settings2 className="w-6 h-6 text-primary" />
+              <div>
+                <h2 className="text-xl font-semibold">{t('settings.title')}</h2>
+              </div>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* 内容 */}
+          <div className="p-6">
             <Tabs defaultValue="general" className="h-full flex flex-col">
               <TabsList className="grid w-full grid-cols-6 mb-4">
                 <TabsTrigger value="general" className="flex items-center gap-2">
                   <Settings2 className="w-4 h-4" />
-                  {t('通用设置')}
+                  {t('settings.general')}
                 </TabsTrigger>
                 <TabsTrigger value="optimization" className="flex items-center gap-2">
                   <Zap className="w-4 h-4" />
-                  资源优化
+                  {t('settings.resourceOptimization.title')}
                 </TabsTrigger>
                 <TabsTrigger value="cache-strategy" className="flex items-center gap-2">
                   <Database className="w-4 h-4" />
-                  缓存策略
+                  {t('settings.cacheStrategy.title')}
                 </TabsTrigger>
                 <TabsTrigger value="data" className="flex items-center gap-2">
                   <Database className="w-4 h-4" />
-                  {t('数据管理')}
+                  {t('settings.dataManagement.title')}
                 </TabsTrigger>
                 <TabsTrigger value="history" className="flex items-center gap-2">
                   <History className="w-4 h-4" />
-                  {t('使用历史')}
+                  {t('settings.useHistory.title')}
                 </TabsTrigger>
                 <TabsTrigger value="preferences" className="flex items-center gap-2">
                   <Settings2 className="w-4 h-4" />
-                  {t('偏好设置')}
+                  {t('settings.preferences.title')}
                 </TabsTrigger>
               </TabsList>
 
@@ -210,16 +227,16 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   <Card className="p-6">
                     <div className="space-y-6">
                       <div>
-                        <div className="font-medium mb-2">{t('主题')}</div>
+                        <div className="font-medium mb-2">{t('settings.theme')}</div>
                         <Select value={theme} onValueChange={setTheme}>
                           <SelectTrigger className="w-48">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
-                              <SelectItem value="light">{t('明亮')}</SelectItem>
-                              <SelectItem value="dark">{t('暗黑')}</SelectItem>
-                              <SelectItem value="system">{t('跟随系统')}</SelectItem>
+                              <SelectItem value="light">{t('settings.light')}</SelectItem>
+                              <SelectItem value="dark">{t('settings.dark')}</SelectItem>
+                              <SelectItem value="system">{t('settings.system')}</SelectItem>
                             </SelectGroup>
                           </SelectContent>
                         </Select>
@@ -228,21 +245,21 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       <Separator />
 
                       <div>
-                        <div className="font-medium mb-2">{t('语言')}</div>
+                        <div className="font-medium mb-2">{t('settings.language')}</div>
                         <div className="flex gap-2">
                           <Button
                             variant={locale === 'zh' ? 'default' : 'outline'}
                             onClick={() => i18n.changeLanguage('zh')}
                             disabled={locale === 'zh'}
                           >
-                            {t('中文')}
+                            {t('settings.chinese')}
                           </Button>
                           <Button
                             variant={locale === 'en' ? 'default' : 'outline'}
                             onClick={() => i18n.changeLanguage('en')}
                             disabled={locale === 'en'}
                           >
-                            {t('英文')}
+                            {t('settings.english')}
                           </Button>
                         </div>
                       </div>
@@ -250,12 +267,12 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       <Separator />
 
                       <div>
-                        <div className="font-medium mb-2">{t('当前版本')}</div>
+                        <div className="font-medium mb-2">{t('settings.currentVersion')}</div>
                         <div className="flex items-center gap-4">
                           <span className="text-base font-mono">v{version}</span>
                           {isDesktop && (
                             <Button variant="outline" onClick={checkForUpdates}>
-                              {t('检查更新')}
+                              {t('settings.checkForUpdates')}
                             </Button>
                           )}
                         </div>
@@ -279,14 +296,14 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   <Card className="p-6">
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-lg font-medium mb-4">{t('数据导出与导入')}</h3>
+                        <h3 className="text-lg font-medium mb-4">{t('settings.dataManagement.subTitle')}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Button onClick={handleExportData} className="w-full" variant="outline">
                               <Download className="w-4 h-4 mr-2" />
-                              {t('导出数据')}
+                              {t('settings.dataManagement.export')}
                             </Button>
-                            <p className="text-sm text-muted-foreground">{t('导出所有设置、历史记录和偏好配置')}</p>
+                            <p className="text-sm text-muted-foreground">{t('settings.dataManagement.exportDesc')}</p>
                           </div>
                           <div className="space-y-2">
                             <div>
@@ -300,11 +317,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                               <Button asChild className="w-full" variant="outline">
                                 <Label htmlFor="import-file" className="cursor-pointer">
                                   <Upload className="w-4 h-4 mr-2" />
-                                  {t('导入数据')}
+                                  {t('settings.dataManagement.import')}
                                 </Label>
                               </Button>
                             </div>
-                            <p className="text-sm text-muted-foreground">{t('从文件导入之前导出的数据')}</p>
+                            <p className="text-sm text-muted-foreground">{t('settings.dataManagement.importDesc')}</p>
                           </div>
                         </div>
                       </div>
@@ -312,25 +329,27 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       <Separator />
 
                       <div>
-                        <h3 className="text-lg font-medium mb-4">{t('数据统计')}</h3>
+                        <h3 className="text-lg font-medium mb-4">{t('settings.dataManagement.dataStatistics')}</h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                           <div className="text-center p-4 bg-muted rounded-lg">
                             <div className="text-2xl font-bold">{history.history.length}</div>
-                            <div className="text-sm text-muted-foreground">{t('历史记录')}</div>
+                            <div className="text-sm text-muted-foreground">{t('settings.dataManagement.history')}</div>
                           </div>
                           <div className="text-center p-4 bg-muted rounded-lg">
                             <div className="text-2xl font-bold">{configs.configs.length}</div>
-                            <div className="text-sm text-muted-foreground">{t('工具配置')}</div>
+                            <div className="text-sm text-muted-foreground">{t('settings.dataManagement.config')}</div>
                           </div>
                           <div className="text-center p-4 bg-muted rounded-lg">
                             <div className="text-2xl font-bold">{history.getRecentTools().length}</div>
-                            <div className="text-sm text-muted-foreground">{t('最近使用')}</div>
+                            <div className="text-sm text-muted-foreground">{t('settings.dataManagement.recent')}</div>
                           </div>
                           <div className="text-center p-4 bg-muted rounded-lg">
                             <div className="text-2xl font-bold">
                               {Math.round(((localStorage.getItem('kit-favorites')?.length || 2) / 1024) * 100) / 100}KB
                             </div>
-                            <div className="text-sm text-muted-foreground">{t('存储大小')}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {t('settings.dataManagement.storageSize')}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -338,17 +357,19 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       <Separator />
 
                       <div>
-                        <h3 className="text-lg font-medium mb-4 text-destructive">{t('危险操作')}</h3>
+                        <h3 className="text-lg font-medium mb-4 text-destructive">
+                          {t('settings.dataManagement.dangerOperation')}
+                        </h3>
                         <Button
                           onClick={() => setClearDataDialog(true)}
                           variant="destructive"
                           className="w-full md:w-auto"
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
-                          {t('清空所有数据')}
+                          {t('settings.dataManagement.dangerOperationDesc')}
                         </Button>
                         <p className="text-sm text-muted-foreground mt-2">
-                          {t('此操作将删除所有历史记录、配置和偏好设置，且无法恢复')}
+                          {t('settings.dataManagement.dangerOperationBrief')}
                         </p>
                       </div>
                     </div>
@@ -360,7 +381,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   <Card className="p-6">
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-medium">{t('使用历史记录')}</h3>
+                        <h3 className="text-lg font-medium">{t('settings.useHistory.title')}</h3>
                         <Button
                           onClick={history.clearHistory}
                           variant="outline"
@@ -368,13 +389,13 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                           disabled={history.history.length === 0}
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
-                          {t('清空历史')}
+                          {t('settings.useHistory.clear')}
                         </Button>
                       </div>
 
                       <ScrollArea className="h-96">
                         {history.history.length === 0 ? (
-                          <div className="text-center py-8 text-muted-foreground">{t('暂无使用历史')}</div>
+                          <div className="text-center py-8 text-muted-foreground">{t('settings.useHistory.empty')}</div>
                         ) : (
                           <div className="space-y-2">
                             {history.history.map((item) => (
@@ -387,7 +408,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Badge variant={item.success ? 'default' : 'destructive'}>
-                                    {item.success ? t('成功') : t('失败')}
+                                    {item.success ? t('settings.useHistory.success') : t('settings.useHistory.failed')}
                                   </Badge>
                                   {item.duration && (
                                     <span className="text-sm text-muted-foreground">{item.duration}ms</span>
@@ -406,13 +427,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 <TabsContent value="preferences">
                   <Card className="p-6">
                     <div className="space-y-6">
-                      <h3 className="text-lg font-medium">{t('应用偏好设置')}</h3>
-
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <Label htmlFor="auto-save">{t('自动保存')}</Label>
-                            <p className="text-sm text-muted-foreground">{t('自动保存工具配置和输入数据')}</p>
+                            <Label htmlFor="auto-save">{t('settings.preferences.autoSave')}</Label>
+                            <p className="text-sm text-muted-foreground">{t('settings.preferences.autoSaveDesc')}</p>
                           </div>
                           <Switch
                             id="auto-save"
@@ -425,8 +444,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
                         <div className="flex items-center justify-between">
                           <div>
-                            <Label htmlFor="show-tips">{t('显示提示')}</Label>
-                            <p className="text-sm text-muted-foreground">{t('在工具页面显示使用提示和帮助信息')}</p>
+                            <Label htmlFor="show-tips">{t('settings.preferences.displayPrompt')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                              {t('settings.preferences.displayPromptDesc')}
+                            </p>
                           </div>
                           <Switch
                             id="show-tips"
@@ -439,8 +460,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
                         <div className="flex items-center justify-between">
                           <div>
-                            <Label htmlFor="compact-mode">{t('紧凑模式')}</Label>
-                            <p className="text-sm text-muted-foreground">{t('使用更紧凑的界面布局')}</p>
+                            <Label htmlFor="compact-mode">{t('settings.preferences.compactMode')}</Label>
+                            <p className="text-sm text-muted-foreground">{t('settings.preferences.compactModeDesc')}</p>
                           </div>
                           <Switch
                             id="compact-mode"
@@ -453,8 +474,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
                         <div className="flex items-center justify-between">
                           <div>
-                            <Label htmlFor="notifications">{t('通知')}</Label>
-                            <p className="text-sm text-muted-foreground">{t('显示操作完成和错误通知')}</p>
+                            <Label htmlFor="notifications">{t('settings.preferences.notice')}</Label>
+                            <p className="text-sm text-muted-foreground">{t('settings.preferences.noticeDesc')}</p>
                           </div>
                           <Switch
                             id="notifications"
@@ -466,8 +487,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                         <Separator />
 
                         <div>
-                          <Label htmlFor="history-limit">{t('历史记录限制')}</Label>
-                          <p className="text-sm text-muted-foreground mb-2">{t('最多保存的历史记录条数')}</p>
+                          <Label htmlFor="history-limit">{t('settings.preferences.historyLimit')}</Label>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {t('settings.preferences.historyLimitDesc')}
+                          </p>
                           <Select
                             value={preferences.preferences.historyLimit.toString()}
                             onValueChange={(value) => preferences.updatePreference('historyLimit', parseInt(value))}
@@ -488,7 +511,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
                         <div className="pt-4">
                           <Button onClick={preferences.resetPreferences} variant="outline">
-                            {t('重置为默认设置')}
+                            {t('settings.preferences.resetToDefault')}
                           </Button>
                         </div>
                       </div>
@@ -498,32 +521,32 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               </ScrollArea>
             </Tabs>
           </div>
-        </DialogContent>
-      </Dialog>
+        </motion.div>
+      </motion.div>
 
       {/* 更新对话框 */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent showCloseButton={step !== 'downloading'}>
-          <DialogHeader>
-            <DialogTitle>
+      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               {step === 'confirm' && t('发现新版本')}
               {step === 'downloading' && t('正在下载更新')}
               {step === 'finished' && t('下载完成')}
-            </DialogTitle>
-            <DialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               {step === 'confirm' &&
                 `${t('检测到新版本')} ${updateInfo?.version}，${t('发布日期')}：${updateInfo?.date}。\n${t('更新内容')}：${updateInfo?.body}`}
               {step === 'downloading' && t('正在下载更新包，请稍候...')}
               {step === 'finished' && t('更新包已下载完成，点击下方按钮重启应用。')}
-            </DialogDescription>
-          </DialogHeader>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
           {step === 'confirm' && (
-            <DialogFooter>
+            <AlertDialogFooter>
               <Button onClick={() => setDialogOpen(false)} variant="secondary">
                 {t('取消')}
               </Button>
               <Button onClick={handleUpdate}>{t('更新')}</Button>
-            </DialogFooter>
+            </AlertDialogFooter>
           )}
           {step === 'downloading' && (
             <div className="w-full flex flex-col items-center gap-4">
@@ -534,49 +557,49 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             </div>
           )}
           {step === 'finished' && (
-            <DialogFooter>
+            <AlertDialogFooter>
               <Button onClick={handleRelaunch}>{t('重启应用')}</Button>
-            </DialogFooter>
+            </AlertDialogFooter>
           )}
-        </DialogContent>
-      </Dialog>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* 无更新对话框 */}
-      <Dialog open={noUpdateDialog} onOpenChange={setNoUpdateDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('检查更新')}</DialogTitle>
-            <DialogDescription>{t('没有检测到新版本')}</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
+      <AlertDialog open={noUpdateDialog} onOpenChange={setNoUpdateDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('检查更新')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('没有检测到新版本')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
             <Button onClick={() => setNoUpdateDialog(false)}>{t('取消')}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* 数据导入对话框 */}
-      <Dialog open={importDialog} onOpenChange={setImportDialog}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{t('导入数据')}</DialogTitle>
-            <DialogDescription>{t('请确认要导入的数据内容，此操作将覆盖当前所有数据')}</DialogDescription>
-          </DialogHeader>
+      <AlertDialog open={importDialog} onOpenChange={setImportDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('导入数据')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('请确认要导入的数据内容，此操作将覆盖当前所有数据')}</AlertDialogDescription>
+          </AlertDialogHeader>
           <div className="space-y-4">
             <ScrollArea className="h-32 w-full border rounded p-2">
               <pre className="text-xs">{importData.slice(0, 500)}...</pre>
             </ScrollArea>
             {importError && <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">{importError}</div>}
           </div>
-          <DialogFooter>
+          <AlertDialogFooter>
             <Button onClick={() => setImportDialog(false)} variant="outline">
               {t('取消')}
             </Button>
             <Button onClick={handleImportData} disabled={!importData}>
               {t('确认导入')}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* 清空数据确认对话框 */}
       <AlertDialog open={clearDataDialog} onOpenChange={setClearDataDialog}>
@@ -598,6 +621,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </AnimatePresence>
   )
 }
