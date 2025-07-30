@@ -149,7 +149,7 @@ export const Route = createFileRoute('/')({
 
     return (
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-7xl">
-        <AdSenseAd adClient="ca-pub-3854566314387093" adSlot="7071900062" />
+        <AdSenseAd adClient="ca-pub-3854566314387093" adSlot="5958414350" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
