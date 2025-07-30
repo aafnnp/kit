@@ -38,6 +38,10 @@ export const Route = createFileRoute('/')({
 
     // 性能优化初始化
     useEffect(() => {
+      if (typeof window !== 'undefined') {
+        ;(window as any).adsbygoogle = (window as any).adsbygoogle || []
+        ;(window as any).adsbygoogle.push({})
+      }
       // 预加载常用工具
       preloadCommonTools()
     }, [])
