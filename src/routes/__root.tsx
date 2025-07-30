@@ -36,6 +36,7 @@ export const Route = createRootRoute({
             📊
           </button>
         )}
+        <script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3854566314387093" />
       </>
     )
   },
