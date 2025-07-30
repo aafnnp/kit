@@ -37,7 +37,7 @@ function RouteComponent() {
       </Suspense>
 
       {/* 广告位移到 Suspense 外部 */}
-      <AdSenseAd adClient="ca-pub-3854566314387093" adSlot="7071900062" />
+      <AdSenseAd adClient="ca-pub-3854566314387093" adSlot="9351080057" />
     </>
   )
 }
