@@ -13,6 +13,7 @@ import { Heart, Clock, Grid3X3, Trash2, Settings } from 'lucide-react'
 import { usePreload, useSmartPreload } from '@/lib/preloader'
 import { useResourcePreload } from '@/lib/resource-optimizer'
 import { CategoryManager } from '@/components/category-manager'
+import { isSafari } from '@/lib/utils'
 
 export const Route = createFileRoute('/')({
   component: () => {
@@ -173,7 +174,7 @@ export const Route = createFileRoute('/')({
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full tabs-mobile">
           <TabsList
-            className="grid w-full grid-cols-5 h-auto p-1 mb-6"
+            className={`grid w-full grid-cols-5 h-auto p-1 mb-6 ${isSafari() ? 'flex' : ''}`}
             role="tablist"
             aria-label={t('tabs.navigation', '工具分类导航')}
           >
