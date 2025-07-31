@@ -7,6 +7,7 @@ interface AdSenseAdProps {
   adClient: string
   adFormat?: string
   fullWidthResponsive?: boolean
+  layout?: string
 }
 
 export function AdSenseAd({
@@ -14,28 +15,20 @@ export function AdSenseAd({
   style = {},
   adSlot,
   adClient,
-  adFormat = 'auto',
+  layout = 'in-article',
+  adFormat = 'fluid',
   fullWidthResponsive = true,
 }: AdSenseAdProps) {
   const adRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && adRef.current) {
-      // 确保 adsbygoogle 对象存在
-      ;(window as any).adsbygoogle = (window as any).adsbygoogle || []
-
-      // 延迟初始化，确保 DOM 已准备好
-      const timer = setTimeout(() => {
-        try {
-          ;(window as any).adsbygoogle.push({})
-        } catch (error) {
-          console.warn('AdSense initialization error:', error)
-        }
-      }, 100)
-
-      return () => clearTimeout(timer)
+    try {
+      // @ts-ignore
+      ;(window.adsbygoogle = window.adsbygoogle || []).push({})
+    } catch (e) {
+      console.error('AdSense error:', e)
     }
-  }, [])
+  }, [adSlot, adClient, layout, adFormat, fullWidthResponsive])
 
   return (
     <div
@@ -47,6 +40,7 @@ export function AdSenseAd({
         margin: '20px 0',
         ...style,
       }}
+      data-ad-layout={layout}
       data-ad-client={adClient}
       data-ad-slot={adSlot}
       data-ad-format={adFormat}
