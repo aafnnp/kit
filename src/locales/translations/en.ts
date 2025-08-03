@@ -45,6 +45,12 @@ export default {
     'no-results': 'No tools found',
     'clear-search': 'Clear search',
     results: 'Results',
+    label: 'Search',
+    clear: 'Clear',
+  },
+  sidebar: {
+    navigation: 'Navigation',
+    home: 'Home',
   },
   favorites: {
     title: 'Favorites',

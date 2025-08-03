@@ -46,6 +46,13 @@ export default {
     'no-results': '未找到相关工具',
     'clear-search': '清除搜索',
     results: '搜索结果',
+    label: '搜索工具',
+    clear: '清除搜索',
+  },
+  sidebar: {
+    navigation: '主导航',
+    home: '返回首页',
+    tools: '工具列表',
   },
   favorites: {
     title: '收藏',
@@ -59,6 +66,11 @@ export default {
     clear: '清除记录',
     empty: '暂无使用记录',
     'start-using': '开始使用工具来查看最近记录',
+  },
+  category: {
+    management: '分类管理',
+    create: '创建分类',
+    createDesc: '创建一个新的工具分类来组织你的工具',
   },
   allTools: '所有工具',
   categories: '分类管理',
