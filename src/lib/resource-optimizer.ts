@@ -3,13 +3,15 @@
  */
 
 import { cache } from './cache'
+import { LruCache } from './lru'
 import * as LucideIcons from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import React from 'react'
+import { idbGet, idbSet } from './indexeddb'
 
 // 图标缓存映射
-const iconCache = new Map<string, LucideIcon>()
-const resourceCache = new Map<string, any>()
+const iconCache = new LruCache<string, LucideIcon>(200)
+const resourceCache = new LruCache<string, any>(128)
 
 // 图标映射表 - 将@tabler/icons-react映射到lucide-react
 const ICON_MAPPING: Record<string, string> = {
@@ -135,8 +137,9 @@ class ResourceOptimizer {
     const mappedName = ICON_MAPPING[iconName] || iconName
 
     // 首先检查缓存
-    if (iconCache.has(mappedName)) {
-      return iconCache.get(mappedName)!
+    const hit = iconCache.get(mappedName)
+    if (hit) {
+      return hit
     }
 
     // 尝试从LucideIcons中获取
@@ -157,11 +160,10 @@ class ResourceOptimizer {
   preloadIcons(iconNames: string[]): void {
     iconNames.forEach((iconName) => {
       const mappedName = ICON_MAPPING[iconName] || iconName
-      if (!iconCache.has(mappedName)) {
+      const existing = iconCache.get(mappedName)
+      if (!existing) {
         const icon = (LucideIcons as any)[mappedName]
-        if (icon) {
-          iconCache.set(mappedName, icon)
-        }
+        if (icon) iconCache.set(mappedName, icon)
       }
     })
   }
@@ -216,13 +218,11 @@ class ResourceOptimizer {
   async optimizeResourceLoading(resourceType: 'image' | 'font' | 'script', resourcePath: string): Promise<void> {
     const cacheKey = `${resourceType}_${resourcePath}`
 
-    if (resourceCache.has(cacheKey)) {
-      return resourceCache.get(cacheKey)
-    }
+    const cached = resourceCache.get(cacheKey)
+    if (cached) return cached
 
     const promise = this.loadOptimizedResource(resourceType, resourcePath)
     resourceCache.set(cacheKey, promise)
-
     return promise
   }
 
@@ -300,6 +300,12 @@ class ResourceOptimizer {
       this.iconSprite = cached
       return cached
     }
+    const cachedIdb = await idbGet<string>(cacheKey)
+    if (cachedIdb) {
+      cache.set(cacheKey, cachedIdb, 60 * 60 * 1000)
+      this.iconSprite = cachedIdb
+      return cachedIdb
+    }
 
     try {
       // 这里可以实现SVG精灵的创建逻辑
@@ -307,6 +313,7 @@ class ResourceOptimizer {
       const sprite = `<!-- SVG Sprite for icons: ${iconNames.join(', ')} -->`
 
       cache.set(cacheKey, sprite, 60 * 60 * 1000) // 缓存1小时
+      idbSet(cacheKey, sprite).catch(() => {})
       this.iconSprite = sprite
 
       return sprite
@@ -327,7 +334,7 @@ class ResourceOptimizer {
     }
 
     if (this.loadingPromises.has(resourcePath)) {
-      return this.loadingPromises.get(resourcePath)
+      return this.loadingPromises.get(resourcePath)!
     }
 
     const loadPromise = this.loadResource(resourcePath, type)

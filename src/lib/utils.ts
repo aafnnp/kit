@@ -17,3 +17,11 @@ export function formatFileSize(bytes: number): string {
 export function isSafari() {
   return /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
 }
+
+export function isTauri() {
+  try {
+    return typeof (window as any).__TAURI__ !== 'undefined'
+  } catch {
+    return false
+  }
+}

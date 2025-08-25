@@ -4,6 +4,7 @@ import { AppSidebar } from '@/components/app-sidebar'
 import { SiteHeader } from '@/components/site-header'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { PerformanceMonitor } from '@/components/performance-monitor'
+import { isTauri } from '@/lib/utils'
 import { useState } from 'react'
 
 export const Route = createRootRoute({
@@ -18,15 +19,22 @@ export const Route = createRootRoute({
         content: 'AI 工具箱，提供各种 AI 工具和资源，帮助你提高工作效率。',
       },
       { title: 'Kit | Tools' },
+      { name: 'author', content: 'Kit' },
+      { property: 'og:site_name', content: 'Kit' },
+      { property: 'og:image', content: '/logo.png' },
+      { name: 'twitter:card', content: 'summary_large_image' },
     ],
-    scripts: [
-      {
-        async: true,
-        src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3854566314387093',
-        crossOrigin: 'anonymous',
-        defer: true,
-      },
-    ],
+    scripts:
+      typeof window !== 'undefined' && !isTauri()
+        ? [
+            {
+              async: true,
+              src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3854566314387093',
+              crossOrigin: 'anonymous',
+              defer: true,
+            },
+          ]
+        : [],
   }),
   component: () => {
     const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false)

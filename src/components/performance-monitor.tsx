@@ -84,11 +84,16 @@ export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps)
         memoryUsage = memory.usedJSHeapSize / 1024 / 1024 // MB
       }
 
+      // 以真实资源加载条目替代代码分割统计
+      const perfResources = performance.getEntriesByType('resource') as PerformanceResourceTiming[]
+      const jsResources = perfResources.filter((r) => r.initiatorType === 'script')
+      const failedChunks = 0 // 无直接失败指标，保持 0
+
       setStats({
-        totalChunks: 0, // No longer tracking total chunks
-        loadedChunks: 0, // No longer tracking loaded chunks
-        failedChunks: 0, // No longer tracking failed chunks
-        loadingChunks: 0, // No longer tracking loading chunks
+        totalChunks: jsResources.length,
+        loadedChunks: jsResources.length,
+        failedChunks,
+        loadingChunks: 0,
         cacheHits: cacheStats.hits,
         cacheMisses: cacheStats.misses,
         cacheSize: cacheStats.size,

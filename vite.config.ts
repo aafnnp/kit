@@ -4,12 +4,18 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import fs from 'fs'
+// 可选体积可视化插件，按需加载避免类型报错
+let visualizer: any
+try {
+  // @ts-ignore
+  visualizer = (await import('rollup-plugin-visualizer')).visualizer
+} catch {}
 
 const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
 
 const host = process.env.TAURI_DEV_HOST
 
-export default defineConfig( () => ({
+export default defineConfig(() => ({
   plugins: [
     tanstackRouter({
       target: 'react',
@@ -48,6 +54,19 @@ export default defineConfig( () => ({
   build: {
     // 启用代码分割优化
     rollupOptions: {
+      plugins:
+        visualizer && process.env.ANALYZE
+          ? [
+              visualizer({
+                filename: 'stats.html',
+                title: 'Bundle Visualizer',
+                template: 'treemap',
+                gzipSize: true,
+                brotliSize: true,
+                open: false,
+              }),
+            ]
+          : [],
       output: {
         // 手动分割代码块
         manualChunks: {

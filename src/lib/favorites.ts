@@ -32,7 +32,8 @@ export function useFavorites() {
   }, [])
 
   const addToFavorites = (tool: Tool) => {
-    const newFavorites = [...favorites, tool]
+    const exists = favorites.some((t) => t.slug === tool.slug)
+    const newFavorites = exists ? favorites : [...favorites, tool]
     setFavorites(newFavorites)
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(newFavorites))
   }

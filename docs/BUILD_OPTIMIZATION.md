@@ -50,6 +50,7 @@ npm run clean:all             # 完全清理
 我们在 `src-tauri/Cargo.toml` 中配置了多个构建配置文件：
 
 #### 发布配置 (release)
+
 ```toml
 [profile.release]
 codegen-units = 1        # 最大化 LLVM 优化
@@ -62,6 +63,7 @@ overflow-checks = false  # 禁用运行时检查
 ```
 
 #### 调试发布配置 (release-with-debug)
+
 ```toml
 [profile.release-with-debug]
 inherits = "release"
@@ -70,6 +72,7 @@ strip = "none"           # 保留符号表
 ```
 
 #### 快速发布配置 (fast-release)
+
 ```toml
 [profile.fast-release]
 inherits = "release"
@@ -87,17 +90,18 @@ opt-level = 3            # 优化性能而非大小
   "bundle": {
     "windows": {
       "nsis": {
-        "compression": "lzma",           // 最高压缩率
-        "installMode": "currentUser"     // 减少权限要求
+        "compression": "lzma", // 最高压缩率
+        "installMode": "currentUser" // 减少权限要求
       }
     },
     "macOS": {
-      "minimumSystemVersion": "10.13"   // 支持更多设备
+      "minimumSystemVersion": "10.13" // 支持更多设备
     }
   },
   "plugins": {
     "updater": {
-      "endpoints": [                     // 多端点支持
+      "endpoints": [
+        // 多端点支持
         "https://github.com/aafnnp/kit/releases/latest/download/latest.json",
         "https://api.github.com/repos/aafnnp/kit/releases/latest"
       ]
@@ -113,6 +117,7 @@ opt-level = 3            # 优化性能而非大小
 在 `vite.config.ts` 中的关键优化：
 
 #### 代码分割
+
 ```typescript
 build: {
   rollupOptions: {
@@ -130,6 +135,7 @@ build: {
 ```
 
 #### 压缩优化
+
 ```typescript
 build: {
   minify: 'terser',
@@ -144,6 +150,7 @@ build: {
 ```
 
 #### 依赖预构建
+
 ```typescript
 optimizeDeps: {
   include: [
@@ -162,6 +169,7 @@ optimizeDeps: {
 我们的 `.github/workflows/release.yml` 包含以下优化：
 
 #### 多平台并行构建
+
 ```yaml
 strategy:
   matrix:
@@ -177,6 +185,7 @@ strategy:
 ```
 
 #### 缓存优化
+
 ```yaml
 - name: Setup Rust cache
   uses: swatinem/rust-cache@v2
@@ -193,6 +202,7 @@ strategy:
 ```
 
 #### 自动版本管理
+
 ```yaml
 - name: Get version
   id: version
@@ -234,6 +244,9 @@ npm run build:analyze
 
 # 仅分析现有构建
 npm run optimize
+
+# 生成可视化报告（stats.html）
+ANALYZE=1 npm run build
 ```
 
 ### 分析报告内容
@@ -243,6 +256,7 @@ npm run optimize
 - **最大文件列表**：识别需要优化的大文件
 - **优化建议**：自动生成优化建议
 - **压缩率分析**：评估压缩效果
+  \- **可视化图**：`stats.html` treemap 展示各 chunk 与依赖体积
 
 ### 示例输出
 
@@ -258,6 +272,14 @@ npm run optimize
    - dist/assets/main-abc123.js
    - dist/assets/vendor-def456.js
 ```
+
+## 🔎 一致性校验（工具声明 vs 目录）
+
+```bash
+npm run ci:check-tools
+```
+
+说明：校验 `src/lib/data.ts` 中的 `slug` 与 `src/components/tools/<slug>/index.tsx` 目录文件一致，不一致时以非零码退出。
 
 ## 🎯 最佳实践
 
@@ -294,6 +316,7 @@ npm run optimize
 ### 常见问题
 
 #### 构建失败
+
 ```bash
 # 清理并重新构建
 npm run clean:all
@@ -302,6 +325,7 @@ npm run build
 ```
 
 #### 体积过大
+
 ```bash
 # 分析构建产物
 npm run build:analyze
@@ -310,6 +334,7 @@ cat build-report.json
 ```
 
 #### 更新失败
+
 - 检查网络连接
 - 验证更新端点可访问性
 - 查看应用日志

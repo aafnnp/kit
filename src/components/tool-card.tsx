@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next'
 import { useRouter } from '@tanstack/react-router'
 import { useFavorites, useRecentTools } from '@/lib/favorites'
 import * as Icons from 'lucide-react'
+import { isTauri } from '@/lib/utils'
+import * as Opener from '@tauri-apps/plugin-opener'
 
 interface Tool {
   slug: string
@@ -32,7 +34,11 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
     onClick?.()
 
     if (tool.href) {
-      window.open(tool.href, '_blank')
+      if (isTauri()) {
+        ;(Opener as any).open?.(tool.href)?.catch?.(console.error)
+      } else {
+        window.open(tool.href, '_blank')
+      }
     } else {
       router.navigate({ to: `/tool/${tool.slug}` })
     }
@@ -89,7 +95,7 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
             </div>
             <div className="flex-1 min-w-0">
               <CardTitle className="text-sm font-medium group-hover:text-primary dark:group-hover:text-primary/95 transition-all duration-500 flex items-center gap-2 group-hover:font-semibold">
-                {tool.name}
+                {t(`tools.${tool.slug}`, tool.name)}
                 {tool.href && (
                   <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-90 dark:opacity-70 dark:group-hover:opacity-100 transition-all duration-500 shrink-0 group-hover:scale-110" />
                 )}

@@ -4,10 +4,17 @@ import { Button } from '@/components/ui/button'
 import { IconSettings } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { SettingsDialog } from './settings-dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { ThemeToggle } from './theme-toggle'
 
 export function SiteHeader() {
   const { t } = useTranslation()
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const changeLanguage = (lng: 'zh' | 'en') => {
+    // i18next 会自动持久化 localStorage
+    // @ts-ignore
+    import('i18next').then((i18next) => i18next.default.changeLanguage(lng))
+  }
 
   return (
     <>
@@ -17,6 +24,19 @@ export function SiteHeader() {
             <SidebarTrigger className="-ml-1" />
           </div>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" aria-label={t('navigation.language', '语言')}>
+                  {t('navigation.language', '语言')}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => changeLanguage('zh')}>简体中文</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => changeLanguage('en')}>English</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <Button
               variant="ghost"
