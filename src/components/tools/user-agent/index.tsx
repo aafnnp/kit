@@ -1019,7 +1019,7 @@ const UserAgentCore = () => {
   }, [userAgent, userAgentValidation.isValid, settings.realTimeProcessing, handleProcessSingle])
 
   return (
-    <div className="w-full mx-auto space-y-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6">
       {/* Skip link for keyboard users */}
       <a
         href="#main-content"

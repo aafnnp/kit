@@ -303,11 +303,11 @@ export default [
         name: 'Git Helper',
         icon: 'GitBranch',
       },
-      {
-        slug: 'password-strength',
-        name: 'Password Strength',
-        icon: 'Shield',
-      },
+      // {
+      //   slug: 'password-strength',
+      //   name: 'Password Strength',
+      //   icon: 'Shield',
+      // },
     ],
   },
 ]

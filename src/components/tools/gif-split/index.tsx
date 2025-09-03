@@ -194,7 +194,7 @@ const GifSplit = () => {
   }
 
   return (
-    <div className="w-full mx-auto space-y-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6">
       {/* 跳转主内容（无障碍） */}
       <a
         href="#main-content"

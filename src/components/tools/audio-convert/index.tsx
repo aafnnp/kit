@@ -364,7 +364,7 @@ const AudioConvert = () => {
   }, [audios])
 
   return (
-    <div className="w-full mx-auto space-y-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6">
       {/* Skip link for accessibility */}
       <a
         href="#main-content"
