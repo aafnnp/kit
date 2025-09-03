@@ -415,5 +415,9 @@ export default {
     'git-helper-desc': 'Git 操作助手',
     'password-strength': '密码强度',
     'password-strength-desc': '密码强度检查器',
+    'benchmark-tester': '基准测试器',
+    'benchmark-tester-desc': '基准测试工具',
+    'performance-tester': '性能测试器',
+    'performance-tester-desc': '性能测试工具',
   },
 }

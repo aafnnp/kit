@@ -40,13 +40,7 @@ import {
   ExportFormat,
 } from '@/types/base64-image'
 import { formatFileSize } from '@/lib/utils'
-import {
-  imageTemplates,
-  useImageProcessing,
-  useRealTimeValidation,
-  useCopyToClipboard,
-  useImageExport
-} from './hooks'
+import { imageTemplates, useImageProcessing, useRealTimeValidation, useCopyToClipboard, useImageExport } from './hooks'
 
 /**
  * Enhanced Base64 ⇄ Image Bidirectional Converter
@@ -206,7 +200,7 @@ const Base64ImageCore = () => {
   }, [input, inputValidation.isValid, settings.realTimeProcessing, direction, handleProcessSingle])
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6">
+    <div className="w-full mx-auto space-y-6">
       {/* Skip link for keyboard users */}
       <a
         href="#main-content"

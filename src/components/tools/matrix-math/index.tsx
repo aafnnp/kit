@@ -37,6 +37,7 @@ import type {
   OperationType,
   ExportFormat,
 } from '@/types/matrix-math'
+import { useMatrixOperations as useMatrixOperationsWorker } from './hooks'
 
 // Utility functions
 
@@ -965,20 +966,42 @@ const matrixTemplates: MatrixTemplate[] = [
 // Custom hooks
 const useMatrixOperations = () => {
   const [operations, setOperations] = useState<MatrixOperation[]>([])
-  const [isProcessing, setIsProcessing] = useState(false)
+  const [progress, setProgress] = useState(0)
+
+  const {
+    executeOperation: executeWorkerOperation,
+    isProcessing,
+    progress: workerProgress,
+    cancelProcessing,
+  } = useMatrixOperationsWorker(
+    (progress, message) => {
+      setProgress(progress)
+      if (message) {
+        toast.info(message)
+      }
+    },
+    (result) => {
+      setOperations((prev) => [result, ...prev.slice(0, 99)]) // Keep last 100 operations
+      toast.success(`Operation '${result.operation}' completed successfully`)
+    },
+    (error) => {
+      toast.error(`Operation failed: ${error}`)
+    }
+  )
 
   const executeOperation = useCallback(
     async (operation: OperationType, matrices: Matrix[], params?: any): Promise<MatrixOperation> => {
-      setIsProcessing(true)
       try {
+        return await executeWorkerOperation(operation, matrices, params)
+      } catch (error) {
+        // 如果Web Worker失败，回退到本地计算
+        console.warn('Web Worker failed, falling back to local computation:', error)
         const result = executeMatrixOperation(operation, matrices, params)
-        setOperations((prev) => [result, ...prev.slice(0, 99)]) // Keep last 100 operations
+        setOperations((prev) => [result, ...prev.slice(0, 99)])
         return result
-      } finally {
-        setIsProcessing(false)
       }
     },
-    []
+    [executeWorkerOperation]
   )
 
   const clearOperations = useCallback(() => {
@@ -992,9 +1015,11 @@ const useMatrixOperations = () => {
   return {
     operations,
     isProcessing,
+    progress: workerProgress,
     executeOperation,
     clearOperations,
     removeOperation,
+    cancelProcessing,
   }
 }
 
@@ -1396,7 +1421,7 @@ const MatrixMathCore = () => {
   }, [])
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6">
+    <div className="w-full mx-auto space-y-6">
       {/* Skip link for keyboard users */}
       <a
         href="#main-content"

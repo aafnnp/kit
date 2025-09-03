@@ -66,14 +66,17 @@ const Base64EncodeCore = () => {
   const { copyToClipboard, copiedText } = useCopyToClipboard()
 
   const groupedTemplates: Record<string, EncodingTemplate[]> = useMemo(() => {
-    return encodingTemplates.reduce((acc, template) => {
-      const category = template.category || 'General'
-      if (!acc[category]) {
-        acc[category] = []
-      }
-      acc[category].push(template)
-      return acc
-    }, {} as Record<string, EncodingTemplate[]>)
+    return encodingTemplates.reduce(
+      (acc, template) => {
+        const category = template.category || 'General'
+        if (!acc[category]) {
+          acc[category] = []
+        }
+        acc[category].push(template)
+        return acc
+      },
+      {} as Record<string, EncodingTemplate[]>
+    )
   }, [])
 
   // Real-time encoding
@@ -117,7 +120,7 @@ const Base64EncodeCore = () => {
   }, [encodingResult.result, operation, inputFormat, outputFormat])
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6">
+    <div className="w-full mx-auto space-y-6">
       {/* Skip link for keyboard users */}
       <a
         href="#main-content"
