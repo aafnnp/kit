@@ -23,6 +23,7 @@ import {
   Image,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import QRCode from 'qrcode'
 import type {
   QRCodeResult,
   QRMetadata,
@@ -45,58 +46,36 @@ import type {
 
 // Utility functions
 
-// QR Code generation functions (using a simple implementation since we don't have qrcode library)
+// QR Code generation functions (using standard 'qrcode' library)
 const generateQRCode = async (settings: QRSettings): Promise<QRCodeResult> => {
   try {
-    // Simulate QR code generation with canvas
+    // Create a canvas and draw QR using 'qrcode' to ensure standards compliance
     const canvas = document.createElement('canvas')
+    const marginModules = Math.max(0, Math.round(settings.margin / 8))
+
+    await QRCode.toCanvas(canvas, settings.content, {
+      errorCorrectionLevel: settings.errorCorrection,
+      width: settings.size,
+      margin: marginModules,
+      color: {
+        dark: settings.foregroundColor,
+        light: settings.backgroundColor,
+      },
+    })
+
     const ctx = canvas.getContext('2d')
     if (!ctx) throw new Error('Canvas context not available')
 
-    canvas.width = settings.size
-    canvas.height = settings.size
-
-    // Fill background
-    ctx.fillStyle = settings.backgroundColor
-    ctx.fillRect(0, 0, settings.size, settings.size)
-
-    // Create a simple pattern to simulate QR code
-    const moduleSize = Math.floor(settings.size / 25) // 25x25 modules
-    const margin = settings.margin
-
-    ctx.fillStyle = settings.foregroundColor
-
-    // Generate a pseudo-random pattern based on content
-    const seed = hashCode(settings.content)
-    const random = seededRandom(seed)
-
-    for (let row = 0; row < 25; row++) {
-      for (let col = 0; col < 25; col++) {
-        // Create finder patterns (corners)
-        if (isFinderPattern(row, col)) {
-          drawFinderPattern(ctx, col * moduleSize + margin, row * moduleSize + margin, moduleSize)
-        } else if (random() > 0.5) {
-          // Random modules for data
-          drawModule(
-            ctx,
-            col * moduleSize + margin,
-            row * moduleSize + margin,
-            moduleSize,
-            settings.customization.moduleStyle
-          )
-        }
-      }
-    }
-
-    // Add logo if specified
+    // Add logo overlay if requested
     if (settings.logoUrl && settings.logoSize) {
-      await addLogo(ctx, settings.logoUrl, settings.size, settings.logoSize)
+      await addLogo(ctx, settings.logoUrl, canvas.width, settings.logoSize)
     }
 
-    const dataUrl = canvas.toDataURL(`image/${settings.format}`, 0.9)
+    const mime = settings.format === 'svg' ? 'image/png' : `image/${settings.format}`
+    const dataUrl = canvas.toDataURL(mime, 0.92)
 
-    // Generate SVG version
-    const svgString = generateSVGQRCode(settings)
+    // Generate SVG version using 'qrcode'
+    const svgString = await generateSVGQRCode(settings)
 
     // Calculate metadata
     const metadata = calculateQRMetadata(settings)
@@ -135,71 +114,6 @@ const generateQRCode = async (settings: QRSettings): Promise<QRCodeResult> => {
   }
 }
 
-// Helper functions for QR generation
-const hashCode = (str: string): number => {
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i)
-    hash = (hash << 5) - hash + char
-    hash = hash & hash // Convert to 32bit integer
-  }
-  return Math.abs(hash)
-}
-
-const seededRandom = (seed: number) => {
-  let value = seed
-  return () => {
-    value = (value * 9301 + 49297) % 233280
-    return value / 233280
-  }
-}
-
-const isFinderPattern = (row: number, col: number): boolean => {
-  // Top-left finder pattern
-  if (row < 7 && col < 7) return true
-  // Top-right finder pattern
-  if (row < 7 && col >= 18) return true
-  // Bottom-left finder pattern
-  if (row >= 18 && col < 7) return true
-  return false
-}
-
-const drawFinderPattern = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => {
-  // Draw 7x7 finder pattern
-  ctx.fillRect(x, y, size * 7, size * 7)
-  ctx.fillStyle = '#ffffff'
-  ctx.fillRect(x + size, y + size, size * 5, size * 5)
-  ctx.fillStyle = '#000000'
-  ctx.fillRect(x + size * 2, y + size * 2, size * 3, size * 3)
-}
-
-const drawModule = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, style: string) => {
-  switch (style) {
-    case 'rounded':
-      ctx.beginPath()
-      ctx.roundRect(x, y, size, size, size * 0.2)
-      ctx.fill()
-      break
-    case 'circle':
-      ctx.beginPath()
-      ctx.arc(x + size / 2, y + size / 2, size / 2, 0, 2 * Math.PI)
-      ctx.fill()
-      break
-    case 'diamond':
-      ctx.beginPath()
-      ctx.moveTo(x + size / 2, y)
-      ctx.lineTo(x + size, y + size / 2)
-      ctx.lineTo(x + size / 2, y + size)
-      ctx.lineTo(x, y + size / 2)
-      ctx.closePath()
-      ctx.fill()
-      break
-    default: // square
-      ctx.fillRect(x, y, size, size)
-      break
-  }
-}
-
 const addLogo = async (
   ctx: CanvasRenderingContext2D,
   logoUrl: string,
@@ -218,39 +132,18 @@ const addLogo = async (
   })
 }
 
-const generateSVGQRCode = (settings: QRSettings): string => {
-  const moduleSize = settings.size / 25
-  const margin = settings.margin
-
-  let svg = `<svg width="${settings.size}" height="${settings.size}" xmlns="http://www.w3.org/2000/svg">`
-  svg += `<rect width="${settings.size}" height="${settings.size}" fill="${settings.backgroundColor}"/>`
-
-  // Generate pattern
-  const seed = hashCode(settings.content)
-  const random = seededRandom(seed)
-
-  for (let row = 0; row < 25; row++) {
-    for (let col = 0; col < 25; col++) {
-      if (isFinderPattern(row, col) || random() > 0.5) {
-        const x = col * moduleSize + margin
-        const y = row * moduleSize + margin
-
-        switch (settings.customization.moduleStyle) {
-          case 'circle':
-            svg += `<circle cx="${x + moduleSize / 2}" cy="${y + moduleSize / 2}" r="${moduleSize / 2}" fill="${settings.foregroundColor}"/>`
-            break
-          case 'rounded':
-            svg += `<rect x="${x}" y="${y}" width="${moduleSize}" height="${moduleSize}" rx="${moduleSize * 0.2}" fill="${settings.foregroundColor}"/>`
-            break
-          default:
-            svg += `<rect x="${x}" y="${y}" width="${moduleSize}" height="${moduleSize}" fill="${settings.foregroundColor}"/>`
-            break
-        }
-      }
-    }
-  }
-
-  svg += '</svg>'
+const generateSVGQRCode = async (settings: QRSettings): Promise<string> => {
+  const marginModules = Math.max(0, Math.round(settings.margin / 8))
+  const svg = await QRCode.toString(settings.content, {
+    type: 'svg',
+    errorCorrectionLevel: settings.errorCorrection,
+    width: settings.size,
+    margin: marginModules,
+    color: {
+      dark: settings.foregroundColor,
+      light: settings.backgroundColor,
+    },
+  })
   return svg
 }
 
@@ -905,14 +798,35 @@ const useCopyToClipboard = () => {
       setCopiedText(label || 'text')
       toast.success(`${label || 'Text'} copied to clipboard`)
 
-      // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
       toast.error('Failed to copy to clipboard')
     }
   }, [])
 
-  return { copyToClipboard, copiedText }
+  const copyImageToClipboard = useCallback(async (dataUrl?: string, svgString?: string, label?: string) => {
+    try {
+      let blob: Blob
+      if (dataUrl) {
+        const res = await fetch(dataUrl)
+        blob = await res.blob()
+      } else if (svgString) {
+        blob = new Blob([svgString], { type: 'image/svg+xml' })
+      } else {
+        throw new Error('No image data to copy')
+      }
+
+      const item = new (window as any).ClipboardItem({ [blob.type]: blob })
+      await navigator.clipboard.write([item])
+      setCopiedText(label || 'image')
+      toast.success(`${label || 'Image'} copied to clipboard`)
+      setTimeout(() => setCopiedText(null), 2000)
+    } catch (error) {
+      toast.error('Failed to copy image to clipboard')
+    }
+  }, [])
+
+  return { copyToClipboard, copyImageToClipboard, copiedText }
 }
 
 // Export functionality
@@ -988,7 +902,7 @@ const QRGeneratorCore = () => {
 
   const { qrCodes, isGenerating, generateQR, removeQR } = useQRGenerator()
   const { downloadQR, downloadSVG } = useQRExport()
-  const { copyToClipboard, copiedText } = useCopyToClipboard()
+  const { copyImageToClipboard, copiedText } = useCopyToClipboard()
 
   // Apply template
   const applyTemplate = useCallback((templateId: string) => {
@@ -1382,7 +1296,12 @@ const QRGeneratorCore = () => {
                               src={currentQR.dataUrl}
                               alt="Generated QR Code"
                               className="max-w-full h-auto"
-                              style={{ maxWidth: '300px', maxHeight: '300px' }}
+                              style={{
+                                width: '100%',
+                                maxWidth: '300px',
+                                maxHeight: '300px',
+                                imageRendering: 'pixelated',
+                              }}
                             />
                           ) : (
                             <div className="w-64 h-64 bg-gray-200 rounded flex items-center justify-center">
@@ -1543,8 +1462,11 @@ const QRGeneratorCore = () => {
                             <Download className="mr-2 h-4 w-4" />
                             Download SVG
                           </Button>
-                          <Button onClick={() => copyToClipboard(currentQR.content, 'QR Content')} variant="outline">
-                            {copiedText === 'QR Content' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          <Button
+                            onClick={() => copyImageToClipboard(currentQR.dataUrl, currentQR.svgString, 'QR Image')}
+                            variant="outline"
+                          >
+                            {copiedText === 'QR Image' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                           </Button>
                         </div>
                       )}

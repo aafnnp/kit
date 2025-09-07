@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
-import Barcode, { BarcodeProps } from 'react-barcode'
 import {
   Download,
   Trash2,
@@ -22,13 +21,8 @@ import {
   Image,
   Barcode as BarcodeIcon,
 } from 'lucide-react'
-import {
-  useBarcodeGenerator,
-  useCopyToClipboard,
-  useBarcodeExport,
-  validateBarcodeSettings,
-  barcodeTemplates,
-} from './hooks'
+import { useBarcodeGenerator, useBarcodeExport, validateBarcodeSettings, barcodeTemplates } from './hooks'
+import { useCopyToClipboard } from '@/hooks/use-clipboard'
 import { BarcodeResult, BarcodeSettings, BarcodeFormat } from '@/types/barcode-generator'
 
 /**
@@ -67,7 +61,11 @@ const BarcodeGeneratorCore = () => {
 
   const { barcodes, isGenerating, generateBarcode, removeBarcode } = useBarcodeGenerator()
   const { downloadBarcode, downloadSVG } = useBarcodeExport()
-  const { copyToClipboard, copiedText } = useCopyToClipboard()
+  const { copyImageToClipboard, copiedText } = useCopyToClipboard()
+
+  // Preview size based on current settings
+  const previewHeight =
+    settings.height + settings.margin * 2 + (settings.displayValue ? settings.fontSize + settings.textMargin : 0)
 
   // Apply template
   const applyTemplate = useCallback((templateId: string) => {
@@ -412,37 +410,28 @@ const BarcodeGeneratorCore = () => {
                     <div className="space-y-4">
                       {/* Barcode Display */}
                       <div className="flex justify-center">
-                        <div className="p-4 border rounded-lg bg-muted/50">
-                          {currentBarcode.dataUrl ? (
-                            <img
-                              src={currentBarcode.dataUrl}
-                              alt="Generated Barcode"
-                              className="max-w-full h-auto"
-                              style={{ maxWidth: '400px', maxHeight: '200px' }}
-                            />
-                          ) : currentBarcode.isValid ? (
-                            <div className="flex justify-center">
-                              <Barcode
-                                value={currentBarcode.content}
-                                format={currentBarcode.format as BarcodeProps['format']}
-                                width={currentBarcode.width}
-                                height={currentBarcode.height}
-                                displayValue={currentBarcode.displayValue}
-                                background={currentBarcode.backgroundColor}
-                                lineColor={currentBarcode.lineColor}
-                                fontSize={currentBarcode.fontSize}
-                                fontOptions={currentBarcode.settings.customization.fontWeight}
-                                textAlign={currentBarcode.textAlign}
-                                textPosition={currentBarcode.textPosition}
-                                textMargin={currentBarcode.textMargin}
-                                margin={currentBarcode.margin}
+                        <div className="p-4 border rounded-lg bg-muted/50 w-full">
+                          <div className="w-full justify-center" style={{ height: previewHeight }}>
+                            {currentBarcode.svgString ? (
+                              <div
+                                className="w-full h-full"
+                                dangerouslySetInnerHTML={{
+                                  __html: currentBarcode.svgString.replace(
+                                    '<svg ',
+                                    '<svg preserveAspectRatio="none" width="100%" height="100%" '
+                                  ),
+                                }}
                               />
-                            </div>
-                          ) : (
-                            <div className="w-64 h-32 bg-gray-200 rounded flex items-center justify-center">
-                              <BarcodeIcon className="h-16 w-16 text-gray-400" />
-                            </div>
-                          )}
+                            ) : currentBarcode.dataUrl ? (
+                              <img src={currentBarcode.dataUrl} alt="Generated Barcode" className="w-full h-full" />
+                            ) : currentBarcode.isValid ? (
+                              <div className="w-full h-full" />
+                            ) : (
+                              <div className="w-64 h-32 bg-gray-200 rounded flex items-center justify-center">
+                                <BarcodeIcon className="h-16 w-16 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
 
@@ -600,10 +589,14 @@ const BarcodeGeneratorCore = () => {
                             Download SVG
                           </Button>
                           <Button
-                            onClick={() => copyToClipboard(currentBarcode.content, 'Barcode Content')}
+                            onClick={() =>
+                              currentBarcode.dataUrl
+                                ? copyImageToClipboard(currentBarcode.dataUrl, 'Barcode Image')
+                                : toast.error('No image to copy')
+                            }
                             variant="outline"
                           >
-                            {copiedText === 'Barcode Content' ? (
+                            {copiedText === 'Barcode Image' ? (
                               <Check className="h-4 w-4" />
                             ) : (
                               <Copy className="h-4 w-4" />
@@ -663,15 +656,7 @@ const BarcodeGeneratorCore = () => {
                               style={{ maxHeight: '80px' }}
                             />
                           ) : barcode.isValid ? (
-                            <Barcode
-                              value={barcode.content}
-                              format={barcode.format as BarcodeProps['format']}
-                              width={1}
-                              height={40}
-                              displayValue={false}
-                              background={barcode.backgroundColor}
-                              lineColor={barcode.lineColor}
-                            />
+                            <div className="w-full" dangerouslySetInnerHTML={{ __html: barcode.svgString || '' }} />
                           ) : (
                             <div className="w-24 h-12 bg-gray-200 rounded flex items-center justify-center">
                               <BarcodeIcon className="h-6 w-6 text-gray-400" />

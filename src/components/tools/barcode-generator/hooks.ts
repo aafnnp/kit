@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import JsBarcode from 'jsbarcode'
 import { toast } from 'sonner'
 import { nanoid } from 'nanoid'
 import {
@@ -21,98 +22,54 @@ import {
   ExportFormat,
 } from '@/types/barcode-generator'
 
-// Barcode generation functions
+// Barcode generation functions (using JsBarcode)
 const generateBarcode = async (settings: BarcodeSettings): Promise<BarcodeResult> => {
   try {
-    // Create a temporary container for the barcode
-    const container = document.createElement('div')
-    container.style.position = 'absolute'
-    container.style.left = '-9999px'
-    container.style.top = '-9999px'
-    document.body.appendChild(container)
-
-    // Create barcode element
-    const barcodeElement = document.createElement('div')
-    container.appendChild(barcodeElement)
-
-    // Generate barcode using react-barcode (simulate)
+    // Generate PNG via canvas
     const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    if (!ctx) throw new Error('Canvas context not available')
-
-    // Calculate dimensions
-    const totalWidth = settings.width * settings.content.length + settings.margin * 2
-    const totalHeight =
-      settings.height + settings.margin * 2 + (settings.displayValue ? settings.fontSize + settings.textMargin : 0)
-
-    canvas.width = totalWidth
-    canvas.height = totalHeight
-
-    // Fill background
-    ctx.fillStyle = settings.backgroundColor
-    ctx.fillRect(0, 0, totalWidth, totalHeight)
-
-    // Draw barcode bars (simplified simulation)
-    ctx.fillStyle = settings.lineColor
-    const barWidth = settings.width
-    const barHeight = settings.height
-    const startX = settings.margin
-    const startY = settings.margin
-
-    // Generate pattern based on content and format
-    const pattern = generateBarcodePattern(settings.content, settings.format)
-
-    for (let i = 0; i < pattern.length; i++) {
-      if (pattern[i] === '1') {
-        ctx.fillRect(startX + i * barWidth, startY, barWidth, barHeight)
-      }
-    }
-
-    // Add text if enabled
-    if (settings.displayValue) {
-      ctx.fillStyle = settings.lineColor
-      ctx.font = `${settings.customization.fontWeight === 'bold' ? 'bold ' : ''}${settings.fontSize}px ${settings.fontFamily}`
-      ctx.textAlign = settings.textAlign
-
-      const textY =
-        settings.textPosition === 'top'
-          ? settings.margin - settings.textMargin
-          : settings.margin + settings.height + settings.textMargin + settings.fontSize
-
-      let displayText = settings.content
-      if (settings.customization.textCase === 'uppercase') displayText = displayText.toUpperCase()
-      if (settings.customization.textCase === 'lowercase') displayText = displayText.toLowerCase()
-
-      const textX =
-        settings.textAlign === 'center'
-          ? totalWidth / 2
-          : settings.textAlign === 'right'
-            ? totalWidth - settings.margin
-            : settings.margin
-
-      ctx.fillText(displayText, textX, textY)
-    }
-
-    // Add border if enabled
-    if (settings.customization.showBorder) {
-      ctx.strokeStyle = settings.customization.borderColor
-      ctx.lineWidth = settings.customization.borderWidth
-      ctx.strokeRect(0, 0, totalWidth, totalHeight)
-    }
-
+    JsBarcode(canvas, settings.content, {
+      format: settings.format,
+      width: settings.width,
+      height: settings.height,
+      displayValue: settings.displayValue,
+      background: settings.backgroundColor,
+      lineColor: settings.lineColor,
+      font: settings.fontFamily,
+      fontOptions: settings.customization.fontWeight === 'bold' ? 'bold' : undefined,
+      fontSize: settings.fontSize,
+      textAlign: settings.textAlign,
+      textPosition: settings.textPosition,
+      textMargin: settings.textMargin,
+      margin: settings.margin,
+      ean128: false,
+    })
     const dataUrl = canvas.toDataURL('image/png', 0.9)
 
     // Generate SVG version
-    const svgString = generateSVGBarcode(settings)
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    JsBarcode(svg as unknown as SVGElement, settings.content, {
+      format: settings.format,
+      width: settings.width,
+      height: settings.height,
+      displayValue: settings.displayValue,
+      background: settings.backgroundColor,
+      lineColor: settings.lineColor,
+      font: settings.fontFamily,
+      fontOptions: settings.customization.fontWeight === 'bold' ? 'bold' : undefined,
+      fontSize: settings.fontSize,
+      textAlign: settings.textAlign,
+      textPosition: settings.textPosition,
+      textMargin: settings.textMargin,
+      margin: settings.margin,
+      ean128: false,
+    })
+    const svgString = new XMLSerializer().serializeToString(svg)
 
     // Calculate metadata
     const metadata = calculateBarcodeMetadata(settings)
 
     // Perform analysis
     const analysis = analyzeBarcode(settings, metadata)
-
-    // Cleanup
-    document.body.removeChild(container)
 
     return {
       id: nanoid(),
