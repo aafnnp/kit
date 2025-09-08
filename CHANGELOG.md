@@ -5,7 +5,7 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased]
+## v0.1.3
 
 *发布日期: 2025-09-08*
 
@@ -39,6 +39,10 @@
 - comment out common tools preloading logic in PreloadManager ([9f59548](../../commit/9f59548))
 - remove TestAd and Settings routes, update routeTree structure ([53ecf30](../../commit/53ecf30))
 
+### 📚 Documentation
+
+- update changelog ([e841fe6](../../commit/e841fe6))
+
 ### 👷 Build System
 
 - 添加 rollup-plugin-visualizer 依赖用于分析打包体积 ([0872573](../../commit/0872573))
@@ -46,6 +50,8 @@
 
 ### 🔧 Chores
 
+- 0.1.3 ([bdbf432](../../commit/bdbf432))
+- 更新版本号至0.1.2 ([ebce932](../../commit/ebce932))
 - 0.0.2 ([6d3b034](../../commit/6d3b034))
 - modify dependency installation in GitHub Actions workflow ([3990376](../../commit/3990376))
 - update GitHub Actions workflow for improved dependency management and build process ([7141eac](../../commit/7141eac))
@@ -53,11 +59,11 @@
 
 ### 📊 统计信息
 
-- 总提交数: 27
+- 总提交数: 30
 - 参与开发者: 1
 - 新功能: 15
 - 问题修复: 1
-- 对比版本: [v0.1.2...[Unreleased]](../../compare/v0.1.2...[Unreleased])
+- 对比版本: [v0.1.2...v0.1.3](../../compare/v0.1.2...v0.1.3)
 
 ---
 
@@ -103,35 +109,14 @@
 
 ## v0.1.0
 
-*暂无更新内容*
-
-## v0.0.2
-
-*发布日期: 2025-09-08*
+*发布日期: 2025-07-29*
 
 ### ✨ Features
 
-- add wrangler configuration for Cloudflare Workers ([b0aa058](../../commit/b0aa058))
-- **资源优化**: 实现依赖替换脚本和SVG雪碧图支持 ([0335f24](../../commit/0335f24))
-- integrate qrcode library for QR code generation and update barcode generation logic ([60b81e9](../../commit/60b81e9))
-- add performance and benchmark testing tools with web worker support ([b35ca96](../../commit/b35ca96))
-- enhance build process and add new tools management features ([58405f0](../../commit/58405f0))
-- **i18n**: 添加搜索和侧边栏的翻译文本 ([1c28762](../../commit/1c28762))
-- enhance AdSenseAd component with layout support and update adSlot ([25eedfa](../../commit/25eedfa))
-- add Safari detection utility and update tab styling ([8dde66c](../../commit/8dde66c))
-- add Vercel configuration for URL rewrites ([4833567](../../commit/4833567))
-- add TestAd route and AdSense component integration ([614155a](../../commit/614155a))
-- update root route for enhanced Google Ads integration ([aa35c19](../../commit/aa35c19))
-- integrate Google Ads into tool routes ([c9cadc4](../../commit/c9cadc4))
-- add Google Ads script to root route ([2f08a14](../../commit/2f08a14))
-- add ads.txt file for ad network configuration ([291077b](../../commit/291077b))
-- enhance settings and optimization components with internationalization support ([33ecb23](../../commit/33ecb23))
-- 添加清除缓存翻译并优化界面 ([4cf9d86](../../commit/4cf9d86))
 - **changelog**: 添加自动更新日志生成功能 ([1145a03](../../commit/1145a03))
 - **performance-monitor**: enhance performance monitor with internationalization support ([19860eb](../../commit/19860eb))
 - 更新构建报告和依赖管理 ([ff434ae](../../commit/ff434ae))
 - **tools**: 添加工具图标和国际化支持 ([2064da2](../../commit/2064da2))
-- 添加应用导航栏的翻译文本和更新引用 ([caeab0a](../../commit/caeab0a))
 - **settings**: 实现设置对话框功能并重构站点头部 ([34e65aa](../../commit/34e65aa))
 - **tools**: 新增多个工具组件并重构工具模块结构 ([9f00238](../../commit/9f00238))
 - 重构工具加载逻辑并添加性能监控组件 ([91a8b6b](../../commit/91a8b6b))
@@ -155,7 +140,6 @@
 
 ### 🐛 Bug Fixes
 
-- update AdSense adSlot for consistency across routes ([0dc5276](../../commit/0dc5276))
 - resolve merge conflicts ([7321b5a](../../commit/7321b5a))
 - enhance site header and navigation for update handling ([d89d3e4](../../commit/d89d3e4))
 - update versioning and add dialog plugin support ([f7a8045](../../commit/f7a8045))
@@ -172,11 +156,6 @@
 
 ### ♻️ Code Refactoring
 
-- 移除冗余的条形码生成辅助函数 ([74a87d5](../../commit/74a87d5))
-- improve audio conversion hooks and worker management ([0362e02](../../commit/0362e02))
-- update layout for tool components to improve responsiveness ([82e0553](../../commit/82e0553))
-- comment out common tools preloading logic in PreloadManager ([9f59548](../../commit/9f59548))
-- remove TestAd and Settings routes, update routeTree structure ([53ecf30](../../commit/53ecf30))
 - **git-helper**: 提取参数验证逻辑并添加实时验证 ([d42dad5](../../commit/d42dad5))
 - **components**: 统一导出组件为默认导出 ([59405a5](../../commit/59405a5))
 - 移除未使用的导入和冗余配置 ([8f950f8](../../commit/8f950f8))
@@ -195,32 +174,22 @@
 
 - **todo**: 更新项目待办事项列表 ([b9ab9e0](../../commit/b9ab9e0))
 
-### 👷 Build System
-
-- 添加 rollup-plugin-visualizer 依赖用于分析打包体积 ([0872573](../../commit/0872573))
-- 添加wrangler.toml配置文件用于部署 ([04281b8](../../commit/04281b8))
-
 ### 💚 Continuous Integration
 
-- **workflow**: 更新 macOS 平台版本至 15 feat(settings): 从 package.json 获取版本号并添加桌面版检查 ([6e21319](../../commit/6e21319))
 - 移除构建产物上传和发布信息更新步骤 ([4d7537a](../../commit/4d7537a))
 
 ### 🔧 Chores
 
-- 0.0.2 ([6d3b034](../../commit/6d3b034))
-- modify dependency installation in GitHub Actions workflow ([3990376](../../commit/3990376))
-- update GitHub Actions workflow for improved dependency management and build process ([7141eac](../../commit/7141eac))
-- 启用日志观察功能 ([22c3fdb](../../commit/22c3fdb))
 - update app and icon assets ([69e5ea9](../../commit/69e5ea9))
 - init ([ae40587](../../commit/ae40587))
 - Initial commit ([31e5e58](../../commit/31e5e58))
 
 ### 📊 统计信息
 
-- 总提交数: 85
+- 总提交数: 55
 - 参与开发者: 2
-- 新功能: 41
-- 问题修复: 14
+- 新功能: 24
+- 问题修复: 13
 
 ---
 
