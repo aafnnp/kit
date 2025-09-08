@@ -289,15 +289,25 @@ export default [
         icon: 'Activity',
       },
       {
+        slug: 'performance-tester',
+        name: 'Performance Tester',
+        icon: 'Activity',
+      },
+      {
+        slug: 'benchmark-tester',
+        name: 'Benchmark Tester',
+        icon: 'BarChart3',
+      },
+      {
         slug: 'git-helper',
         name: 'Git Helper',
         icon: 'GitBranch',
       },
-      {
-        slug: 'password-strength',
-        name: 'Password Strength',
-        icon: 'Shield',
-      },
+      // {
+      //   slug: 'password-strength',
+      //   name: 'Password Strength',
+      //   icon: 'Shield',
+      // },
     ],
   },
 ]

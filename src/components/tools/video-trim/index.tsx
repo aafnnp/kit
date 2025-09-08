@@ -6,28 +6,10 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { Upload, Download, Loader2, FileVideo2, Trash2, BarChart3, Video, Scissors } from 'lucide-react'
-import { zipSync } from 'fflate'
-// @ts-ignore
-import { nanoid } from 'nanoid'
-import type { VideoFile, VideoStats, TrimSettings, TrimResult } from '@/types/video-trim'
+import type { VideoFile, TrimSettings } from '@/types/video-trim'
 import { formatFileSize } from '@/lib/utils'
+import { useVideoTrim, validateVideoFile, generateId, downloadAsZip, getVideoStats } from './hooks'
 // 工具函数
-
-const validateVideoFile = (file: File): { isValid: boolean; error?: string } => {
-  const maxSize = 500 * 1024 * 1024 // 500MB
-  const allowedTypes = [
-    'video/mp4',
-    'video/webm',
-    'video/ogg',
-    'video/quicktime',
-    'video/x-matroska',
-    'video/avi',
-    'video/mov',
-  ]
-  if (!allowedTypes.includes(file.type)) return { isValid: false, error: '不支持的格式' }
-  if (file.size > maxSize) return { isValid: false, error: '文件过大，最大 500MB' }
-  return { isValid: true }
-}
 
 // 拖拽/文件选择 hook
 const useDragAndDrop = (onFiles: (files: File[]) => void) => {
@@ -61,84 +43,13 @@ const useDragAndDrop = (onFiles: (files: File[]) => void) => {
   return { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput }
 }
 
-// 视频元数据分析 hook
-const useVideoStats = () => {
-  const getStats = useCallback((file: File): Promise<VideoStats> => {
-    return new Promise((resolve, reject) => {
-      const url = URL.createObjectURL(file)
-      const video = document.createElement('video')
-      video.preload = 'metadata'
-      video.src = url
-      video.onloadedmetadata = () => {
-        resolve({
-          duration: video.duration,
-          width: video.videoWidth,
-          height: video.videoHeight,
-          bitrate: Math.round((file.size * 8) / video.duration),
-          fileSize: file.size,
-          format: file.type.split('/')[1] || 'unknown',
-        })
-        URL.revokeObjectURL(url)
-      }
-      video.onerror = () => {
-        reject(new Error('无法读取视频元数据'))
-        URL.revokeObjectURL(url)
-      }
-    })
-  }, [])
-  return { getStats }
-}
-
-// 视频裁剪 hook（ffmpeg.wasm 动态加载）
-const useVideoTrim = () => {
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const trim = useCallback(async (file: File, settings: TrimSettings): Promise<TrimResult> => {
-    setIsProcessing(true)
-    setProgress(0)
-    // 动态加载 ffmpeg
-    const ffmpegModule = await import('@ffmpeg/ffmpeg')
-    const { createFFmpeg, fetchFile } = ffmpegModule.default as any
-    const ffmpeg = createFFmpeg({ log: false, progress: ({ ratio }: any) => setProgress(Math.round(ratio * 100)) })
-    if (!ffmpeg.isLoaded()) await ffmpeg.load()
-    const ext = settings.format
-    const inputName = `input.${file.name.split('.').pop()}`
-    const outputName = `output.${ext}`
-    ffmpeg.FS('writeFile', inputName, await fetchFile(file))
-    await ffmpeg.run(
-      '-ss',
-      settings.start.toString(),
-      '-to',
-      settings.end.toString(),
-      '-i',
-      inputName,
-      '-c:v',
-      'copy',
-      '-c:a',
-      'copy',
-      outputName
-    )
-    const data = ffmpeg.FS('readFile', outputName)
-    const blob = new Blob([data.buffer], { type: `video/${ext}` })
-    const url = URL.createObjectURL(blob)
-    setIsProcessing(false)
-    setProgress(100)
-    return {
-      url,
-      size: blob.size,
-      format: ext,
-      duration: settings.end - settings.start,
-    }
-  }, [])
-  return { isProcessing, progress, trim }
-}
+// 视频元数据分析和裁剪功能现在通过hooks提供
 
 // 主组件
 const VideoTrim = () => {
   const [videos, setVideos] = useState<VideoFile[]>([])
   const [trimSettings, setTrimSettings] = useState<TrimSettings>({ start: 0, end: 10, format: 'mp4' })
   const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(async (files) => {
-    const { getStats } = useVideoStats()
     const newVideos: VideoFile[] = []
     for (const file of files) {
       const valid = validateVideoFile(file)
@@ -147,8 +58,8 @@ const VideoTrim = () => {
         continue
       }
       try {
-        const stats = await getStats(file)
-        const id = nanoid()
+        const stats = await getVideoStats(file)
+        const id = generateId()
         const url = URL.createObjectURL(file)
         newVideos.push({ id, file, name: file.name, size: file.size, type: file.type, status: 'pending', url, stats })
       } catch (e: any) {
@@ -157,7 +68,32 @@ const VideoTrim = () => {
     }
     if (newVideos.length) setVideos((prev) => [...prev, ...newVideos])
   })
-  const { isProcessing, progress, trim } = useVideoTrim()
+  const { trimVideos, isProcessing, progress } = useVideoTrim(
+    (videoId, progress) => {
+      // 更新单个视频的进度
+      setVideos((prev) => prev.map((v) => (v.id === videoId ? { ...v, progress } : v)))
+    },
+    (videoId, result) => {
+      // 视频处理完成
+      setVideos((prev) =>
+        prev.map((v) =>
+          v.id === videoId
+            ? {
+                ...v,
+                status: 'completed',
+                trimmedUrl: result.url,
+                trimmedSize: result.size,
+              }
+            : v
+        )
+      )
+    },
+    (videoId, error) => {
+      // 处理错误
+      setVideos((prev) => prev.map((v) => (v.id === videoId ? { ...v, status: 'error', error } : v)))
+      toast.error(`视频 ${videoId} 处理失败: ${error}`)
+    }
+  )
 
   // 批量裁剪
   const handleBatchTrim = async () => {
@@ -165,16 +101,10 @@ const VideoTrim = () => {
       if (video.status !== 'pending') continue
       setVideos((prev) => prev.map((v) => (v.id === video.id ? { ...v, status: 'processing', error: undefined } : v)))
       try {
-        const result = await trim(video.file, trimSettings)
-        setVideos((prev) =>
-          prev.map((v) =>
-            v.id === video.id ? { ...v, status: 'completed', trimmedUrl: result.url, trimResult: result } : v
-          )
-        )
-        toast.success(`${video.name} 裁剪成功`)
+        await trimVideos([video], trimSettings)
       } catch (e: any) {
-        setVideos((prev) => prev.map((v) => (v.id === video.id ? { ...v, status: 'error', error: e.message } : v)))
-        toast.error(`${video.name} 裁剪失败: ${e.message}`)
+        // 错误已通过onError回调处理
+        console.error('Trim video error:', e)
       }
     }
   }
@@ -193,26 +123,20 @@ const VideoTrim = () => {
 
   // 批量导出 zip
   const handleExportAll = async () => {
-    const zipData: Record<string, Uint8Array> = {}
+    const files: { blob: Blob; filename: string }[] = []
 
     for (const video of videos) {
       if (video.trimmedUrl) {
         const response = await fetch(video.trimmedUrl)
-        const arrayBuffer = await response.arrayBuffer()
-        zipData[`${video.name.replace(/\.[^/.]+$/, '')}_trimmed.${trimSettings.format}`] = new Uint8Array(arrayBuffer)
+        const blob = await response.blob()
+        files.push({
+          blob,
+          filename: `${video.name.replace(/\.[^/.]+$/, '')}_trimmed.${trimSettings.format}`,
+        })
       }
     }
 
-    const zipped = zipSync(zipData)
-    const blob = new Blob([zipped], { type: 'application/zip' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'trimmed_videos.zip'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    await downloadAsZip(files, 'trimmed_videos.zip')
     toast.success('所有裁剪视频已打包导出')
   }
 
@@ -236,7 +160,7 @@ const VideoTrim = () => {
   ]
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6">
       {/* 跳转主内容（无障碍） */}
       <a
         href="#main-content"

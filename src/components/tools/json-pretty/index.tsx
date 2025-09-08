@@ -899,7 +899,7 @@ const JSONPrettyCore = () => {
               {i18n.language.startsWith('en') ? 'JSON Formatter & Analyzer' : 'JSON 格式化与分析工具'}
             </CardTitle>
             <CardDescription>
-              {i18n.language.startsWith('en') 
+              {i18n.language.startsWith('en')
                 ? 'Advanced JSON processing tool with formatting, validation, analysis, and batch processing capabilities. Format, minify, validate, and analyze JSON with comprehensive error reporting and statistics. Use keyboard navigation: Tab to move between controls, Enter or Space to activate buttons.'
                 : '高级 JSON 处理工具，具有格式化、验证、分析和批处理功能。格式化、压缩、验证和分析 JSON，提供全面的错误报告和统计信息。使用键盘导航：Tab 键在控件之间移动，Enter 或空格键激活按钮。'}
             </CardDescription>
@@ -950,9 +950,13 @@ const JSONPrettyCore = () => {
                       id="json-input"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      placeholder={i18n.language.startsWith('en') ? "Enter or paste your JSON here..." : "在此输入或粘贴您的 JSON..."}
+                      placeholder={
+                        i18n.language.startsWith('en')
+                          ? 'Enter or paste your JSON here...'
+                          : '在此输入或粘贴您的 JSON...'
+                      }
                       className="mt-2 min-h-[200px] font-mono"
-                      aria-label={i18n.language.startsWith('en') ? "JSON input for processing" : "用于处理的 JSON 输入"}
+                      aria-label={i18n.language.startsWith('en') ? 'JSON input for processing' : '用于处理的 JSON 输入'}
                     />
                     {settings.realTimeProcessing && input && (
                       <div className="mt-2 text-sm">
@@ -964,7 +968,11 @@ const JSONPrettyCore = () => {
                         ) : realTimeValidation.error ? (
                           <div className="text-red-600 flex items-center gap-1">
                             <AlertCircle className="h-4 w-4" />
-                            {i18n.language.startsWith('en') ? realTimeValidation.error : realTimeValidation.error.replace('JSON input cannot be empty', 'JSON 输入不能为空').replace('Unknown JSON parsing error', '未知的 JSON 解析错误')}
+                            {i18n.language.startsWith('en')
+                              ? realTimeValidation.error
+                              : realTimeValidation.error
+                                  .replace('JSON input cannot be empty', 'JSON 输入不能为空')
+                                  .replace('Unknown JSON parsing error', '未知的 JSON 解析错误')}
                           </div>
                         ) : null}
                       </div>
@@ -1014,7 +1022,9 @@ const JSONPrettyCore = () => {
 
                   <div>
                     <Label htmlFor="indent-size" className="text-sm font-medium">
-                      {i18n.language.startsWith('en') ? `Indent Size: ${settings.indentSize}` : `缩进大小: ${settings.indentSize}`}
+                      {i18n.language.startsWith('en')
+                        ? `Indent Size: ${settings.indentSize}`
+                        : `缩进大小: ${settings.indentSize}`}
                     </Label>
                     <div className="mt-2 flex items-center gap-4">
                       <input
@@ -1106,22 +1116,30 @@ const JSONPrettyCore = () => {
                   {currentResult ? (
                     <div className="space-y-4">
                       <div className="p-3 border rounded-lg">
-                        <div className="text-sm font-medium mb-2">{i18n.language.startsWith('en') ? 'Operation' : '操作'}: {currentResult.operation}</div>
+                        <div className="text-sm font-medium mb-2">
+                          {i18n.language.startsWith('en') ? 'Operation' : '操作'}: {currentResult.operation}
+                        </div>
                         <div className="text-sm">
                           <div>
-                            <strong>{i18n.language.startsWith('en') ? 'Status' : '状态'}:</strong> {currentResult.isValid ? (i18n.language.startsWith('en') ? 'Success' : '成功') : (i18n.language.startsWith('en') ? 'Failed' : '失败')}
+                            <strong>{i18n.language.startsWith('en') ? 'Status' : '状态'}:</strong>{' '}
+                            {currentResult.isValid
+                              ? i18n.language.startsWith('en')
+                                ? 'Success'
+                                : '成功'
+                              : i18n.language.startsWith('en')
+                                ? 'Failed'
+                                : '失败'}
                           </div>
                           {currentResult.error && (
                             <div className="text-red-600 mt-1">
-                              <strong>{i18n.language.startsWith('en') ? 'Error' : '错误'}:</strong> 
-                              {i18n.language.startsWith('en') 
-                                ? currentResult.error 
-                                : (typeof currentResult.error === 'string' 
+                              <strong>{i18n.language.startsWith('en') ? 'Error' : '错误'}:</strong>
+                              {i18n.language.startsWith('en')
+                                ? currentResult.error
+                                : typeof currentResult.error === 'string'
                                   ? currentResult.error
-                                    .replace('JSON input cannot be empty', 'JSON 输入不能为空')
-                                    .replace('Unknown JSON parsing error', '未知的 JSON 解析错误')
-                                  : currentResult.error
-                                )}
+                                      .replace('JSON input cannot be empty', 'JSON 输入不能为空')
+                                      .replace('Unknown JSON parsing error', '未知的 JSON 解析错误')
+                                  : currentResult.error}
                             </div>
                           )}
                         </div>
@@ -1132,7 +1150,9 @@ const JSONPrettyCore = () => {
                           {/* Output */}
                           <div className="border rounded-lg p-3">
                             <div className="flex items-center justify-between mb-2">
-                              <Label className="font-medium text-sm">{i18n.language.startsWith('en') ? 'Output' : '输出'}</Label>
+                              <Label className="font-medium text-sm">
+                                {i18n.language.startsWith('en') ? 'Output' : '输出'}
+                              </Label>
                               <div className="flex gap-2">
                                 <Button
                                   size="sm"
@@ -1160,53 +1180,66 @@ const JSONPrettyCore = () => {
                           {/* Statistics */}
                           {settings.showStatistics && showStatistics && (
                             <div className="border rounded-lg p-3">
-                              <Label className="font-medium text-sm mb-3 block">{i18n.language.startsWith('en') ? 'JSON Statistics' : 'JSON 统计信息'}</Label>
+                              <Label className="font-medium text-sm mb-3 block">
+                                {i18n.language.startsWith('en') ? 'JSON Statistics' : 'JSON 统计信息'}
+                              </Label>
                               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                                 <div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Size' : '大小'}:</strong> {formatFileSize(currentResult.statistics.size)}
+                                    <strong>{i18n.language.startsWith('en') ? 'Size' : '大小'}:</strong>{' '}
+                                    {formatFileSize(currentResult.statistics.size)}
                                   </div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Lines' : '行数'}:</strong> {currentResult.statistics.lines}
+                                    <strong>{i18n.language.startsWith('en') ? 'Lines' : '行数'}:</strong>{' '}
+                                    {currentResult.statistics.lines}
                                   </div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Depth' : '深度'}:</strong> {currentResult.statistics.depth}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Objects' : '对象'}:</strong> {currentResult.statistics.objects}
-                                  </div>
-                                  <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Arrays' : '数组'}:</strong> {currentResult.statistics.arrays}
-                                  </div>
-                                  <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Keys' : '键'}:</strong> {currentResult.statistics.keys}
+                                    <strong>{i18n.language.startsWith('en') ? 'Depth' : '深度'}:</strong>{' '}
+                                    {currentResult.statistics.depth}
                                   </div>
                                 </div>
                                 <div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Strings' : '字符串'}:</strong> {currentResult.statistics.strings}
+                                    <strong>{i18n.language.startsWith('en') ? 'Objects' : '对象'}:</strong>{' '}
+                                    {currentResult.statistics.objects}
                                   </div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Numbers' : '数字'}:</strong> {currentResult.statistics.numbers}
+                                    <strong>{i18n.language.startsWith('en') ? 'Arrays' : '数组'}:</strong>{' '}
+                                    {currentResult.statistics.arrays}
                                   </div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Booleans' : '布尔值'}:</strong> {currentResult.statistics.booleans}
+                                    <strong>{i18n.language.startsWith('en') ? 'Keys' : '键'}:</strong>{' '}
+                                    {currentResult.statistics.keys}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div>
+                                    <strong>{i18n.language.startsWith('en') ? 'Strings' : '字符串'}:</strong>{' '}
+                                    {currentResult.statistics.strings}
+                                  </div>
+                                  <div>
+                                    <strong>{i18n.language.startsWith('en') ? 'Numbers' : '数字'}:</strong>{' '}
+                                    {currentResult.statistics.numbers}
+                                  </div>
+                                  <div>
+                                    <strong>{i18n.language.startsWith('en') ? 'Booleans' : '布尔值'}:</strong>{' '}
+                                    {currentResult.statistics.booleans}
                                   </div>
                                 </div>
                               </div>
                               {currentResult.statistics.duplicateKeys.length > 0 && (
                                 <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
                                   <div className="text-sm text-yellow-800">
-                                    <strong>{i18n.language.startsWith('en') ? 'Duplicate Keys' : '重复键'}:</strong> {currentResult.statistics.duplicateKeys.join(', ')}
+                                    <strong>{i18n.language.startsWith('en') ? 'Duplicate Keys' : '重复键'}:</strong>{' '}
+                                    {currentResult.statistics.duplicateKeys.join(', ')}
                                   </div>
                                 </div>
                               )}
                               {currentResult.statistics.circularReferences && (
                                 <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded">
                                   <div className="text-sm text-red-800">
-                                    <strong>{i18n.language.startsWith('en') ? 'Warning' : '警告'}:</strong> {i18n.language.startsWith('en') ? 'Circular references detected' : '检测到循环引用'}
+                                    <strong>{i18n.language.startsWith('en') ? 'Warning' : '警告'}:</strong>{' '}
+                                    {i18n.language.startsWith('en') ? 'Circular references detected' : '检测到循环引用'}
                                   </div>
                                 </div>
                               )}
@@ -1215,26 +1248,38 @@ const JSONPrettyCore = () => {
 
                           {/* Search */}
                           <div className="border rounded-lg p-3">
-                            <Label className="font-medium text-sm mb-2 block">{i18n.language.startsWith('en') ? 'Search in JSON' : '在 JSON 中搜索'}</Label>
+                            <Label className="font-medium text-sm mb-2 block">
+                              {i18n.language.startsWith('en') ? 'Search in JSON' : '在 JSON 中搜索'}
+                            </Label>
                             <Input
                               value={searchTerm}
                               onChange={(e) => setSearchTerm(e.target.value)}
-                              placeholder={i18n.language.startsWith('en') ? "Search for keys or values..." : "搜索键或值..."}
+                              placeholder={
+                                i18n.language.startsWith('en') ? 'Search for keys or values...' : '搜索键或值...'
+                              }
                               className="mb-2"
                             />
                             {searchResults.matches.length > 0 && (
                               <div className="text-sm">
-                                <div className="font-medium mb-2">{i18n.language.startsWith('en') ? `Found ${searchResults.matches.length} matches:` : `找到 ${searchResults.matches.length} 个匹配项：`}</div>
+                                <div className="font-medium mb-2">
+                                  {i18n.language.startsWith('en')
+                                    ? `Found ${searchResults.matches.length} matches:`
+                                    : `找到 ${searchResults.matches.length} 个匹配项：`}
+                                </div>
                                 <div className="space-y-1 max-h-32 overflow-y-auto">
                                   {searchResults.matches.slice(0, 10).map((match, index) => (
                                     <div key={index} className="text-xs bg-muted p-1 rounded">
-                                      <strong>{i18n.language.startsWith('en') ? 'Path' : '路径'}:</strong> {match.path || (i18n.language.startsWith('en') ? 'root' : '根')} → <strong>{i18n.language.startsWith('en') ? 'Value' : '值'}:</strong>{' '}
+                                      <strong>{i18n.language.startsWith('en') ? 'Path' : '路径'}:</strong>{' '}
+                                      {match.path || (i18n.language.startsWith('en') ? 'root' : '根')} →{' '}
+                                      <strong>{i18n.language.startsWith('en') ? 'Value' : '值'}:</strong>{' '}
                                       {JSON.stringify(match.value)}
                                     </div>
                                   ))}
                                   {searchResults.matches.length > 10 && (
                                     <div className="text-xs text-muted-foreground">
-                                      {i18n.language.startsWith('en') ? `... and ${searchResults.matches.length - 10} more matches` : `... 还有 ${searchResults.matches.length - 10} 个更多匹配项`}
+                                      {i18n.language.startsWith('en')
+                                        ? `... and ${searchResults.matches.length - 10} more matches`
+                                        : `... 还有 ${searchResults.matches.length - 10} 个更多匹配项`}
                                     </div>
                                   )}
                                 </div>
@@ -1246,15 +1291,17 @@ const JSONPrettyCore = () => {
                         <div className="border border-red-200 bg-red-50 rounded-lg p-4">
                           <div className="flex items-center gap-2 text-red-800">
                             <AlertCircle className="h-4 w-4" />
-                            <span className="font-medium">{i18n.language.startsWith('en') ? 'Processing Error' : '处理错误'}</span>
+                            <span className="font-medium">
+                              {i18n.language.startsWith('en') ? 'Processing Error' : '处理错误'}
+                            </span>
                           </div>
                           <div className="text-red-700 text-sm mt-1">
-                            {currentResult.error && (i18n.language.startsWith('en') 
-                              ? currentResult.error 
-                              : currentResult.error
-                                .replace('JSON input cannot be empty', 'JSON 输入不能为空')
-                                .replace('Unknown JSON parsing error', '未知的 JSON 解析错误')
-                            )}
+                            {currentResult.error &&
+                              (i18n.language.startsWith('en')
+                                ? currentResult.error
+                                : currentResult.error
+                                    .replace('JSON input cannot be empty', 'JSON 输入不能为空')
+                                    .replace('Unknown JSON parsing error', '未知的 JSON 解析错误'))}
                           </div>
                         </div>
                       )}
@@ -1275,9 +1322,13 @@ const JSONPrettyCore = () => {
                   ) : (
                     <div className="text-center py-8">
                       <Code className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">{i18n.language.startsWith('en') ? 'No JSON Processed' : '未处理 JSON'}</h3>
+                      <h3 className="text-lg font-semibold mb-2">
+                        {i18n.language.startsWith('en') ? 'No JSON Processed' : '未处理 JSON'}
+                      </h3>
                       <p className="text-muted-foreground mb-4">
-                        {i18n.language.startsWith('en') ? 'Enter JSON content and select an operation to see results' : '输入 JSON 内容并选择一个操作以查看结果'}
+                        {i18n.language.startsWith('en')
+                          ? 'Enter JSON content and select an operation to see results'
+                          : '输入 JSON 内容并选择一个操作以查看结果'}
                       </p>
                     </div>
                   )}
@@ -1294,7 +1345,11 @@ const JSONPrettyCore = () => {
                   <Shuffle className="h-5 w-5" />
                   {i18n.language.startsWith('en') ? 'Batch JSON Processing' : '批量 JSON 处理'}
                 </CardTitle>
-                <CardDescription>{i18n.language.startsWith('en') ? 'Process multiple JSON items at once (one per line)' : '一次处理多个 JSON 项（每行一个）'}</CardDescription>
+                <CardDescription>
+                  {i18n.language.startsWith('en')
+                    ? 'Process multiple JSON items at once (one per line)'
+                    : '一次处理多个 JSON 项（每行一个）'}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -1308,7 +1363,7 @@ const JSONPrettyCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder='{"name": "Item 1"}&#10;{"name": "Item 2"}&#10;{"name": "Item 3"}'
                       className="mt-2 min-h-[120px] font-mono"
-                      aria-label={i18n.language.startsWith('en') ? "Batch JSON input" : "批量 JSON 输入"}
+                      aria-label={i18n.language.startsWith('en') ? 'Batch JSON input' : '批量 JSON 输入'}
                     />
                   </div>
 
@@ -1334,7 +1389,11 @@ const JSONPrettyCore = () => {
             {batches.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">{i18n.language.startsWith('en') ? `Batch Results (${batches.length})` : `批量结果 (${batches.length})`}</CardTitle>
+                  <CardTitle className="text-lg">
+                    {i18n.language.startsWith('en')
+                      ? `Batch Results (${batches.length})`
+                      : `批量结果 (${batches.length})`}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -1342,9 +1401,16 @@ const JSONPrettyCore = () => {
                       <div key={batch.id} className="border rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
                           <div>
-                            <h4 className="font-medium">{i18n.language.startsWith('en') ? `${batch.count} items processed` : `已处理 ${batch.count} 个项目`}</h4>
+                            <h4 className="font-medium">
+                              {i18n.language.startsWith('en')
+                                ? `${batch.count} items processed`
+                                : `已处理 ${batch.count} 个项目`}
+                            </h4>
                             <div className="text-sm text-muted-foreground">
-                              {batch.createdAt.toLocaleString()} • {i18n.language.startsWith('en') ? `${batch.statistics.successRate.toFixed(1)}% success rate` : `${batch.statistics.successRate.toFixed(1)}% 成功率`}
+                              {batch.createdAt.toLocaleString()} •{' '}
+                              {i18n.language.startsWith('en')
+                                ? `${batch.statistics.successRate.toFixed(1)}% success rate`
+                                : `${batch.statistics.successRate.toFixed(1)}% 成功率`}
                             </div>
                           </div>
                           <div className="flex gap-2">
@@ -1364,13 +1430,17 @@ const JSONPrettyCore = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-3">
                           <div>
-                            <span className="font-medium">{i18n.language.startsWith('en') ? 'Valid' : '有效'}:</span> {batch.statistics.validCount}
+                            <span className="font-medium">{i18n.language.startsWith('en') ? 'Valid' : '有效'}:</span>{' '}
+                            {batch.statistics.validCount}
                           </div>
                           <div>
-                            <span className="font-medium">{i18n.language.startsWith('en') ? 'Invalid' : '无效'}:</span> {batch.statistics.invalidCount}
+                            <span className="font-medium">{i18n.language.startsWith('en') ? 'Invalid' : '无效'}:</span>{' '}
+                            {batch.statistics.invalidCount}
                           </div>
                           <div>
-                            <span className="font-medium">{i18n.language.startsWith('en') ? 'Avg Size' : '平均大小'}:</span>{' '}
+                            <span className="font-medium">
+                              {i18n.language.startsWith('en') ? 'Avg Size' : '平均大小'}:
+                            </span>{' '}
                             {formatFileSize(batch.statistics.averageSize)}
                           </div>
                         </div>
@@ -1388,36 +1458,41 @@ const JSONPrettyCore = () => {
                                       result.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                     }`}
                                   >
-                                    {result.isValid 
-                                      ? (i18n.language.startsWith('en') ? 'Valid' : '有效') 
-                                      : (i18n.language.startsWith('en') ? 'Invalid' : '无效')
-                                    }
+                                    {result.isValid
+                                      ? i18n.language.startsWith('en')
+                                        ? 'Valid'
+                                        : '有效'
+                                      : i18n.language.startsWith('en')
+                                        ? 'Invalid'
+                                        : '无效'}
                                   </span>
                                 </div>
                                 {result.isValid && (
                                   <div className="text-muted-foreground mt-1">
-                                    {i18n.language.startsWith('en') ? 'Size' : '大小'}: {formatFileSize(result.statistics.size)} • 
-                                    {i18n.language.startsWith('en') ? 'Objects' : '对象'}: {result.statistics.objects} • 
+                                    {i18n.language.startsWith('en') ? 'Size' : '大小'}:{' '}
+                                    {formatFileSize(result.statistics.size)} •
+                                    {i18n.language.startsWith('en') ? 'Objects' : '对象'}: {result.statistics.objects} •
                                     {i18n.language.startsWith('en') ? 'Arrays' : '数组'}: {result.statistics.arrays}
                                   </div>
                                 )}
-                                {result.error && <div className="text-red-600 mt-1">
-                                  {i18n.language.startsWith('en')
-                                    ? result.error
-                                    : (typeof result.error === 'string'
+                                {result.error && (
+                                  <div className="text-red-600 mt-1">
+                                    {i18n.language.startsWith('en')
                                       ? result.error
-                                        .replace('JSON input cannot be empty', 'JSON 输入不能为空')
-                                        .replace('Unknown JSON parsing error', '未知的 JSON 解析错误')
-                                      : result.error
-                                    )
-                                  }
-                                </div>}
+                                      : typeof result.error === 'string'
+                                        ? result.error
+                                            .replace('JSON input cannot be empty', 'JSON 输入不能为空')
+                                            .replace('Unknown JSON parsing error', '未知的 JSON 解析错误')
+                                        : result.error}
+                                  </div>
+                                )}
                               </div>
                             ))}
                             {batch.results.length > 5 && (
                               <div className="text-xs text-muted-foreground text-center">
-                                ... {i18n.language.startsWith('en') 
-                                  ? `and ${batch.results.length - 5} more items` 
+                                ...{' '}
+                                {i18n.language.startsWith('en')
+                                  ? `and ${batch.results.length - 5} more items`
                                   : `还有 ${batch.results.length - 5} 个项目`}
                               </div>
                             )}
@@ -1440,7 +1515,9 @@ const JSONPrettyCore = () => {
                   {i18n.language.startsWith('en') ? 'JSON Structure Analyzer' : 'JSON结构分析器'}
                 </CardTitle>
                 <CardDescription>
-                  {i18n.language.startsWith('en') ? 'Detailed analysis of JSON structure and content' : 'JSON结构和内容的详细分析'}
+                  {i18n.language.startsWith('en')
+                    ? 'Detailed analysis of JSON structure and content'
+                    : 'JSON结构和内容的详细分析'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1449,36 +1526,67 @@ const JSONPrettyCore = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <Card>
                         <CardHeader className="pb-2">
-                          <CardTitle className="text-sm">{i18n.language.startsWith('en') ? 'Structure' : '结构'}</CardTitle>
+                          <CardTitle className="text-sm">
+                            {i18n.language.startsWith('en') ? 'Structure' : '结构'}
+                          </CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
-                          <div>{i18n.language.startsWith('en') ? 'Size' : '大小'}: {formatFileSize(currentResult.statistics.size)}</div>
-                          <div>{i18n.language.startsWith('en') ? 'Lines' : '行数'}: {currentResult.statistics.lines}</div>
-                          <div>{i18n.language.startsWith('en') ? 'Depth' : '深度'}: {currentResult.statistics.depth}</div>
-                          <div>{i18n.language.startsWith('en') ? 'Keys' : '键'}: {currentResult.statistics.keys}</div>
+                          <div>
+                            {i18n.language.startsWith('en') ? 'Size' : '大小'}:{' '}
+                            {formatFileSize(currentResult.statistics.size)}
+                          </div>
+                          <div>
+                            {i18n.language.startsWith('en') ? 'Lines' : '行数'}: {currentResult.statistics.lines}
+                          </div>
+                          <div>
+                            {i18n.language.startsWith('en') ? 'Depth' : '深度'}: {currentResult.statistics.depth}
+                          </div>
+                          <div>
+                            {i18n.language.startsWith('en') ? 'Keys' : '键'}: {currentResult.statistics.keys}
+                          </div>
                         </CardContent>
                       </Card>
 
                       <Card>
                         <CardHeader className="pb-2">
-                          <CardTitle className="text-sm">{i18n.language.startsWith('en') ? 'Objects & Arrays' : '对象和数组'}</CardTitle>
+                          <CardTitle className="text-sm">
+                            {i18n.language.startsWith('en') ? 'Objects & Arrays' : '对象和数组'}
+                          </CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
-                          <div>{i18n.language.startsWith('en') ? 'Objects' : '对象'}: {currentResult.statistics.objects}</div>
-                          <div>{i18n.language.startsWith('en') ? 'Arrays' : '数组'}: {currentResult.statistics.arrays}</div>
-                          <div>{i18n.language.startsWith('en') ? 'Primitives' : '基本类型'}: {currentResult.statistics.primitives}</div>
+                          <div>
+                            {i18n.language.startsWith('en') ? 'Objects' : '对象'}: {currentResult.statistics.objects}
+                          </div>
+                          <div>
+                            {i18n.language.startsWith('en') ? 'Arrays' : '数组'}: {currentResult.statistics.arrays}
+                          </div>
+                          <div>
+                            {i18n.language.startsWith('en') ? 'Primitives' : '基本类型'}:{' '}
+                            {currentResult.statistics.primitives}
+                          </div>
                         </CardContent>
                       </Card>
 
                       <Card>
                         <CardHeader className="pb-2">
-                          <CardTitle className="text-sm">{i18n.language.startsWith('en') ? 'Data Types' : '数据类型'}</CardTitle>
+                          <CardTitle className="text-sm">
+                            {i18n.language.startsWith('en') ? 'Data Types' : '数据类型'}
+                          </CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
-                          <div>{i18n.language.startsWith('en') ? 'Strings' : '字符串'}: {currentResult.statistics.strings}</div>
-                          <div>{i18n.language.startsWith('en') ? 'Numbers' : '数字'}: {currentResult.statistics.numbers}</div>
-                          <div>{i18n.language.startsWith('en') ? 'Booleans' : '布尔值'}: {currentResult.statistics.booleans}</div>
-                          <div>{i18n.language.startsWith('en') ? 'Nulls' : '空值'}: {currentResult.statistics.nullValues}</div>
+                          <div>
+                            {i18n.language.startsWith('en') ? 'Strings' : '字符串'}: {currentResult.statistics.strings}
+                          </div>
+                          <div>
+                            {i18n.language.startsWith('en') ? 'Numbers' : '数字'}: {currentResult.statistics.numbers}
+                          </div>
+                          <div>
+                            {i18n.language.startsWith('en') ? 'Booleans' : '布尔值'}:{' '}
+                            {currentResult.statistics.booleans}
+                          </div>
+                          <div>
+                            {i18n.language.startsWith('en') ? 'Nulls' : '空值'}: {currentResult.statistics.nullValues}
+                          </div>
                         </CardContent>
                       </Card>
                     </div>
@@ -1495,15 +1603,18 @@ const JSONPrettyCore = () => {
                           {currentResult.statistics.duplicateKeys.length > 0 && (
                             <div className="p-2 bg-yellow-50 border border-yellow-200 rounded">
                               <div className="text-sm text-yellow-800">
-                                <strong>{i18n.language.startsWith('en') ? 'Duplicate Keys' : '重复键'}:</strong> {currentResult.statistics.duplicateKeys.join(', ')}
+                                <strong>{i18n.language.startsWith('en') ? 'Duplicate Keys' : '重复键'}:</strong>{' '}
+                                {currentResult.statistics.duplicateKeys.join(', ')}
                               </div>
                             </div>
                           )}
                           {currentResult.statistics.circularReferences && (
                             <div className="p-2 bg-red-50 border border-red-200 rounded">
                               <div className="text-sm text-red-800">
-                                <strong>{i18n.language.startsWith('en') ? 'Circular References' : '循环引用'}:</strong> 
-                                {i18n.language.startsWith('en') ? 'Detected in the JSON structure' : '在JSON结构中检测到'}
+                                <strong>{i18n.language.startsWith('en') ? 'Circular References' : '循环引用'}:</strong>
+                                {i18n.language.startsWith('en')
+                                  ? 'Detected in the JSON structure'
+                                  : '在JSON结构中检测到'}
                               </div>
                             </div>
                           )}
@@ -1518,8 +1629,8 @@ const JSONPrettyCore = () => {
                       {i18n.language.startsWith('en') ? 'No Analysis Available' : '无可用分析'}
                     </h3>
                     <p className="text-muted-foreground mb-4">
-                      {i18n.language.startsWith('en') 
-                        ? 'Process valid JSON in the Processor tab to see detailed analysis' 
+                      {i18n.language.startsWith('en')
+                        ? 'Process valid JSON in the Processor tab to see detailed analysis'
                         : '在处理器选项卡中处理有效的JSON以查看详细分析'}
                     </p>
                   </div>
@@ -1537,7 +1648,9 @@ const JSONPrettyCore = () => {
                   {i18n.language.startsWith('en') ? 'JSON Templates' : 'JSON模板'}
                 </CardTitle>
                 <CardDescription>
-                  {i18n.language.startsWith('en') ? 'Common JSON structures for various use cases' : '适用于各种用例的常见JSON结构'}
+                  {i18n.language.startsWith('en')
+                    ? 'Common JSON structures for various use cases'
+                    : '适用于各种用例的常见JSON结构'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1567,7 +1680,8 @@ const JSONPrettyCore = () => {
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>{i18n.language.startsWith('en') ? 'Use cases' : '用例'}:</strong> {template.useCase.join(', ')}
+                            <strong>{i18n.language.startsWith('en') ? 'Use cases' : '用例'}:</strong>{' '}
+                            {template.useCase.join(', ')}
                           </div>
                         )}
                       </div>
@@ -1610,7 +1724,9 @@ const JSONPrettyCore = () => {
 
                 <div>
                   <Label htmlFor="max-depth" className="text-sm font-medium">
-                    {i18n.language.startsWith('en') ? `Max Depth: ${settings.maxDepth}` : `最大深度: ${settings.maxDepth}`}
+                    {i18n.language.startsWith('en')
+                      ? `Max Depth: ${settings.maxDepth}`
+                      : `最大深度: ${settings.maxDepth}`}
                   </Label>
                   <div className="mt-2 flex items-center gap-4">
                     <input

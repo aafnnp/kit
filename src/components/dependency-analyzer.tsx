@@ -12,6 +12,7 @@ import { Progress } from '@/components/ui/progress'
 import { resourceOptimizer } from '@/lib/resource-optimizer'
 import { Icon } from '@/components/ui/icon-compat'
 import { toast } from 'sonner'
+import { Input } from '@/components/ui/input'
 
 interface DependencyAnalysis {
   heavy: string[]
@@ -33,6 +34,17 @@ export function DependencyAnalyzer() {
   const [stats, setStats] = useState<OptimizationStats | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<'heavy' | 'optimizable' | 'light'>('heavy')
+  const [auditTotals, setAuditTotals] = useState<{
+    low: number
+    moderate: number
+    high: number
+    critical: number
+    total: number
+  } | null>(null)
+  const [auditIssuesByPkg, setAuditIssuesByPkg] = useState<
+    Record<string, { highestSeverity: 'low' | 'moderate' | 'high' | 'critical'; count: number; titles: string[] }>
+  >({})
+  const [generatedScript, setGeneratedScript] = useState<string>('')
 
   useEffect(() => {
     performAnalysis()
@@ -103,6 +115,72 @@ export function DependencyAnalyzer() {
       default:
         return 'default'
     }
+  }
+
+  const handleAuditUpload = async (file: File | null) => {
+    if (!file) return
+    try {
+      const text = await file.text()
+      const json = JSON.parse(text)
+      const { issuesByPackage, totals } = resourceOptimizer.analyzeNpmAudit(json)
+      setAuditIssuesByPkg(issuesByPackage)
+      setAuditTotals(totals)
+      toast.success('安全审计数据已导入')
+    } catch (e) {
+      toast.error('解析审计文件失败，请确认为 npm audit --json 输出')
+    }
+  }
+
+  const severityOrder: Array<'low' | 'moderate' | 'high' | 'critical'> = ['low', 'moderate', 'high', 'critical']
+
+  const buildReplacementPlan = () => {
+    if (!analysis) return [] as Array<{ from: string; to: string; reason: string; severity?: string }>
+    return resourceOptimizer
+      .generateReplacementPlan({ heavy: analysis.heavy, optimizable: analysis.optimizable }, auditIssuesByPkg)
+      .sort((a, b) => {
+        const ai = a.severity ? severityOrder.indexOf(a.severity as any) : -1
+        const bi = b.severity ? severityOrder.indexOf(b.severity as any) : -1
+        return bi - ai // critical 优先
+      })
+  }
+
+  const generateAndStoreScript = () => {
+    const plan = buildReplacementPlan().map((p) => ({ from: p.from, to: p.to }))
+    if (plan.length === 0) {
+      toast.info('暂无可生成的替换计划')
+      return
+    }
+    const script = resourceOptimizer.generateReplacementScript(plan, 'npm')
+    setGeneratedScript(script)
+    // 触发下载
+    const blob = new Blob([script], { type: 'text/x-sh' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'apply-deps-replacements.sh'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+    toast.success('替换脚本已生成并下载')
+  }
+
+  const exportPlanJson = () => {
+    const plan = buildReplacementPlan().map((p) => ({ from: p.from, to: p.to, reason: p.reason, severity: p.severity }))
+    if (plan.length === 0) {
+      toast.info('暂无可导出的替换计划')
+      return
+    }
+    const blob = new Blob([JSON.stringify(plan, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'deps-plan.json'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+    toast.success('替换计划 JSON 已导出')
   }
 
   const getCategoryIcon = (category: string) => {
@@ -205,10 +283,12 @@ export function DependencyAnalyzer() {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>依赖详情</span>
-            <Button variant="outline" size="sm" onClick={performAnalysis}>
-              <Icon name="RefreshCw" className="h-4 w-4 mr-2" />
-              重新分析
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={performAnalysis}>
+                <Icon name="RefreshCw" className="h-4 w-4 mr-2" />
+                重新分析
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -249,6 +329,120 @@ export function DependencyAnalyzer() {
               </div>
             </TabsContent>
           </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* 安全审计 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Icon name="ShieldAlert" className="h-5 w-5" />
+            依赖安全扫描
+          </CardTitle>
+          <CardDescription>导入 npm audit --json 输出以显示漏洞统计并优先替换高风险依赖</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-3 md:items-center">
+            <div className="flex items-center gap-2">
+              <Input
+                type="file"
+                accept="application/json,.json"
+                onChange={(e) => handleAuditUpload(e.target.files?.[0] || null)}
+              />
+            </div>
+            {auditTotals && (
+              <div className="flex flex-wrap gap-2 text-sm">
+                <Badge variant="default">总计 {auditTotals.total}</Badge>
+                <Badge variant="secondary">Low {auditTotals.low}</Badge>
+                <Badge variant="secondary">Moderate {auditTotals.moderate}</Badge>
+                <Badge variant="destructive">High {auditTotals.high}</Badge>
+                <Badge variant="destructive">Critical {auditTotals.critical}</Badge>
+              </div>
+            )}
+          </div>
+
+          {/* 高风险包列表（Top 10） */}
+          {auditTotals && (
+            <div className="mt-4 space-y-2">
+              <div className="text-sm text-muted-foreground">高风险包（按严重程度排序，最多显示10项）</div>
+              {Object.entries(auditIssuesByPkg)
+                .sort(
+                  (a, b) => severityOrder.indexOf(b[1].highestSeverity) - severityOrder.indexOf(a[1].highestSeverity)
+                )
+                .slice(0, 10)
+                .map(([pkg, info]) => (
+                  <div key={pkg} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Icon name="AlertTriangle" className="h-4 w-4" />
+                      <span className="font-medium">{pkg}</span>
+                      <span className="text-xs text-muted-foreground">{info.titles?.[0] || ''}</span>
+                    </div>
+                    <Badge
+                      variant={
+                        info.highestSeverity === 'low'
+                          ? 'default'
+                          : info.highestSeverity === 'moderate'
+                            ? 'secondary'
+                            : 'destructive'
+                      }
+                    >
+                      {info.highestSeverity} × {info.count}
+                    </Badge>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button onClick={generateAndStoreScript} disabled={!analysis}>
+              <Icon name="Replace" className="h-4 w-4 mr-2" />
+              基于审计生成替换脚本
+            </Button>
+            <Button variant="outline" onClick={exportPlanJson} disabled={!analysis}>
+              <Icon name="Download" className="h-4 w-4 mr-2" />
+              导出替换计划 JSON
+            </Button>
+            {generatedScript && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  navigator.clipboard.writeText(generatedScript).then(
+                    () => toast.success('脚本内容已复制到剪贴板'),
+                    () => toast.error('复制失败')
+                  )
+                }}
+              >
+                <Icon name="Clipboard" className="h-4 w-4 mr-2" />
+                复制脚本
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              onClick={() => {
+                const cmd = 'npm run deps:apply'
+                navigator.clipboard.writeText(cmd).then(
+                  () => toast.success('已复制命令：npm run deps:apply'),
+                  () => toast.error('复制失败')
+                )
+              }}
+            >
+              <Icon name="Terminal" className="h-4 w-4 mr-2" />
+              复制应用命令
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                const cmd = 'npm run deps:pr'
+                navigator.clipboard.writeText(cmd).then(
+                  () => toast.success('已复制命令：npm run deps:pr'),
+                  () => toast.error('复制失败')
+                )
+              }}
+            >
+              <Icon name="GitPullRequest" className="h-4 w-4 mr-2" />
+              复制创建 PR 命令
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

@@ -11,7 +11,7 @@ import { useFavorites, useRecentTools, useToolSearch } from '@/lib/favorites'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Heart, Clock, Grid3X3, Trash2, Settings } from 'lucide-react'
 import { usePreload, useSmartPreload } from '@/lib/preloader'
-import { useResourcePreload } from '@/lib/resource-optimizer'
+import { useResourcePreload, resourceOptimizer } from '@/lib/resource-optimizer'
 import { CategoryManager } from '@/components/category-manager'
 import { isSafari } from '@/lib/utils'
 
@@ -44,6 +44,8 @@ export const Route = createFileRoute('/')({
     useEffect(() => {
       // 预加载常用工具
       preloadCommonTools()
+      // 拉取并挂载公共 SVG 雪碧图（若存在）
+      resourceOptimizer.mountSpriteFromUrl('/sprite.svg').catch(() => {})
     }, [])
 
     // 工具交互事件处理

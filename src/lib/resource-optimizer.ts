@@ -91,6 +91,8 @@ const DEPENDENCY_CONFIG = {
     'gifuct-js': { size: '~50KB', alternatives: ['gif.js'] },
     fflate: { size: '~30KB', alternatives: ['jszip'] },
     'pdf-lib': { size: '~200KB', alternatives: ['jspdf'] },
+    // 补充常见可替换项
+    moment: { size: '~200KB', alternatives: ['date-fns', 'dayjs'] },
   } as DependencyConfigs,
   // 可优化依赖
   optimizable: {
@@ -110,6 +112,9 @@ class ResourceOptimizer {
   private loadedResources = new Set<string>()
   private loadingPromises = new Map<string, Promise<any>>()
   private iconSprite: string | null = null
+  private mountedSprites = new Set<string>()
+  private spriteIconMap = new Map<string, string>() // 逻辑名 -> sprite 符号 id
+  private spriteSymbolIds = new Set<string>() // 已挂载的符号 id 集
 
   constructor() {
     this.preloadCommonIcons()
@@ -321,6 +326,103 @@ class ResourceOptimizer {
       console.warn('Failed to create icon sprite:', error)
       return ''
     }
+  }
+
+  /**
+   * 将 SVG 雪碧图字符串挂载到文档（去重）
+   * @param spriteText 完整 <svg>...</svg> 精灵内容
+   * @param key 唯一键（默认使用内容哈希的简化版本）
+   */
+  mountSprite(spriteText: string, key?: string): void {
+    if (typeof document === 'undefined') return
+    const computedKey = key || `sprite_${this.hash(spriteText)}`
+    if (this.mountedSprites.has(computedKey)) return
+
+    const container = document.createElement('div')
+    container.setAttribute('data-sprite-key', computedKey)
+    container.style.display = 'none'
+    container.innerHTML = spriteText
+    document.body.prepend(container)
+
+    this.mountedSprites.add(computedKey)
+
+    // 建立符号缓存
+    try {
+      const symbols = container.querySelectorAll('symbol[id]')
+      symbols.forEach((s) => {
+        const id = s.getAttribute('id')
+        if (id) this.spriteSymbolIds.add(id)
+      })
+    } catch {}
+  }
+
+  /**
+   * 从 URL 拉取并挂载雪碧图（带缓存）
+   */
+  async mountSpriteFromUrl(url: string): Promise<void> {
+    const cacheKey = `sprite_url_${url}`
+    const cached = cache.get<string>(cacheKey)
+    if (cached) {
+      this.mountSprite(cached, cacheKey)
+      return
+    }
+
+    const cachedIdb = await idbGet<string>(cacheKey)
+    if (cachedIdb) {
+      cache.set(cacheKey, cachedIdb, 24 * 60 * 60 * 1000)
+      this.mountSprite(cachedIdb, cacheKey)
+      return
+    }
+
+    const res = await fetch(url).catch(() => null)
+    if (!res || !res.ok) return
+    const text = await res.text()
+    cache.set(cacheKey, text, 24 * 60 * 60 * 1000)
+    idbSet(cacheKey, text).catch(() => {})
+    this.mountSprite(text, cacheKey)
+  }
+
+  /**
+   * 从 URL 加载 sprite 图标映射（例如 public/sprite.map.json）
+   */
+  async loadSpriteMapFromUrl(url: string): Promise<void> {
+    const res = await fetch(url).catch(() => null)
+    if (!res || !res.ok) return
+    const data = (await res.json().catch(() => ({}))) as Record<string, string>
+    Object.entries(data).forEach(([name, id]) => this.spriteIconMap.set(name, id))
+  }
+
+  /**
+   * 是否存在某个符号 id
+   */
+  hasSpriteSymbol(id: string): boolean {
+    if (this.spriteSymbolIds.has(id)) return true
+    if (typeof document === 'undefined') return false
+    const el = document.getElementById(id)
+    if (el) {
+      this.spriteSymbolIds.add(id)
+      return true
+    }
+    return false
+  }
+
+  /**
+   * 将逻辑图标名映射为 sprite 符号 id（优先使用映射文件，其次尝试同名）
+   */
+  getSpriteIdForIcon(iconName: string): string | null {
+    const mapped = this.spriteIconMap.get(iconName)
+    if (mapped && this.hasSpriteSymbol(mapped)) return mapped
+    if (this.hasSpriteSymbol(iconName)) return iconName
+    return null
+  }
+
+  private hash(input: string): string {
+    let h = 0
+    for (let i = 0; i < input.length; i++) {
+      h = (h << 5) - h + input.charCodeAt(i)
+      h |= 0
+    }
+    return Math.abs(h).toString(36)
   }
 
   /**
@@ -558,6 +660,139 @@ class ResourceOptimizer {
     this.loadingPromises.clear()
     iconCache.clear()
     this.iconSprite = null
+  }
+
+  /**
+   * 解析 npm audit --json 的结果，兼容不同 npm 版本结构
+   */
+  analyzeNpmAudit(auditJson: any): {
+    issuesByPackage: Record<
+      string,
+      { highestSeverity: 'low' | 'moderate' | 'high' | 'critical'; count: number; titles: string[] }
+    >
+    totals: { low: number; moderate: number; high: number; critical: number; total: number }
+  } {
+    const severityOrder = ['low', 'moderate', 'high', 'critical'] as const
+    const pickHigher = (a: any, b: any) => (severityOrder.indexOf(a) > severityOrder.indexOf(b) ? a : b)
+
+    const byPkg: Record<
+      string,
+      { highestSeverity: 'low' | 'moderate' | 'high' | 'critical'; count: number; titles: string[] }
+    > = {}
+    let totals = { low: 0, moderate: 0, high: 0, critical: 0, total: 0 }
+
+    if (!auditJson || typeof auditJson !== 'object') {
+      return { issuesByPackage: byPkg, totals }
+    }
+
+    // npm v7+ 格式: vulnerabilities: { pkg: { severity, via: [...], ... } }, metadata: { vulnerabilities: { low, ... } }
+    if (auditJson.vulnerabilities && typeof auditJson.vulnerabilities === 'object') {
+      Object.entries(auditJson.vulnerabilities as Record<string, any>).forEach(([pkg, info]) => {
+        const severity = (info.severity || 'low') as 'low' | 'moderate' | 'high' | 'critical'
+        const via = Array.isArray(info.via) ? info.via : []
+        const titles = via.map((v: any) => (typeof v === 'string' ? v : v?.title)).filter(Boolean)
+        byPkg[pkg] = {
+          highestSeverity: severity,
+          count: info.effects?.length || via.length || 1,
+          titles,
+        }
+      })
+
+      const meta = auditJson.metadata?.vulnerabilities
+      if (meta) {
+        totals = {
+          low: meta.low || 0,
+          moderate: meta.moderate || 0,
+          high: meta.high || 0,
+          critical: meta.critical || 0,
+          total: (meta.low || 0) + (meta.moderate || 0) + (meta.high || 0) + (meta.critical || 0),
+        }
+      } else {
+        // 回退：按包聚合
+        Object.values(byPkg).forEach((v) => {
+          totals[v.highestSeverity] += v.count
+          totals.total += v.count
+        })
+      }
+    } else if (auditJson.advisories && typeof auditJson.advisories === 'object') {
+      // 旧格式: advisories 映射
+      Object.values(auditJson.advisories as Record<string, any>).forEach((adv: any) => {
+        const pkg = adv.module_name as string
+        const severity = (adv.severity || 'low') as 'low' | 'moderate' | 'high' | 'critical'
+        const title = adv.title as string
+        if (!byPkg[pkg]) {
+          byPkg[pkg] = { highestSeverity: severity, count: 1, titles: title ? [title] : [] }
+        } else {
+          byPkg[pkg].highestSeverity = pickHigher(byPkg[pkg].highestSeverity, severity)
+          byPkg[pkg].count += 1
+          if (title) byPkg[pkg].titles.push(title)
+        }
+        totals[severity] += 1
+        totals.total += 1
+      })
+    }
+
+    return { issuesByPackage: byPkg, totals }
+  }
+
+  /**
+   * 基于分析结果和审计信息生成替换计划（优先高风险）
+   */
+  generateReplacementPlan(
+    analysis: { heavy: string[]; optimizable: string[] },
+    issuesByPackage: Record<
+      string,
+      { highestSeverity: 'low' | 'moderate' | 'high' | 'critical'; count: number; titles: string[] }
+    >
+  ): Array<{ from: string; to: string; reason: string; severity?: string }> {
+    const candidates = new Set<string>([...analysis.heavy, ...analysis.optimizable])
+    const result: Array<{ from: string; to: string; reason: string; severity?: string }> = []
+
+    const pushAlts = (fromPkg: string, alts: string[], severity?: string, reason?: string) => {
+      if (!alts || alts.length === 0) return
+      // 优先首个替代（可在 UI 中允许切换）
+      result.push({ from: fromPkg, to: alts[0], reason: reason || '体积优化/生态建议', severity })
+    }
+
+    candidates.forEach((pkg) => {
+      const conf = (DEPENDENCY_CONFIG.heavy as any)[pkg] || (DEPENDENCY_CONFIG.optimizable as any)[pkg]
+      const issue = issuesByPackage[pkg]
+      const reason = issue
+        ? `安全风险 ${issue.highestSeverity}（${issue.count}）`
+        : conf?.treeshaking
+          ? '可 tree-shaking 优化'
+          : '体积较大'
+      pushAlts(pkg, conf?.alternatives || [], issue?.highestSeverity, reason)
+    })
+
+    return result
+  }
+
+  /**
+   * 生成依赖替换脚本（默认 npm）。返回纯文本脚本内容。
+   */
+  generateReplacementScript(
+    plan: Array<{ from: string; to: string }>,
+    manager: 'npm' | 'pnpm' | 'yarn' = 'npm'
+  ): string {
+    const lines: string[] = [
+      '#!/usr/bin/env bash',
+      'set -euo pipefail',
+      '',
+      'echo "Applying dependency replacements..."',
+    ]
+
+    const rmCmd = manager === 'pnpm' ? 'pnpm remove' : manager === 'yarn' ? 'yarn remove' : 'npm uninstall'
+    const addCmd = manager === 'pnpm' ? 'pnpm add' : manager === 'yarn' ? 'yarn add' : 'npm install'
+
+    plan.forEach(({ from, to }) => {
+      lines.push(`echo "Replace: ${from} -> ${to}"`)
+      lines.push(`${rmCmd} ${from}`)
+      lines.push(`${addCmd} ${to}`)
+    })
+
+    lines.push('', 'echo "Done."')
+    return lines.join('\n')
   }
 }
 

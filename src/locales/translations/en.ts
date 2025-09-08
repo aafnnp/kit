@@ -415,5 +415,7 @@ export default {
     'git-helper-desc': 'Git operations helper',
     'password-strength': 'Password Strength',
     'password-strength-desc': 'Password strength checker',
+    'benchmark-tester': 'Benchmark Tester',
+    'performance-tester': 'Performance Tester',
   },
 }

@@ -41,6 +41,7 @@ import type {
   HistoryEntry,
 } from '@/types/image-compress'
 import { formatFileSize } from '@/lib/utils'
+import { useImageCompression, validateImageFile, calculateCompressionRatio } from './hooks'
 // Enhanced Types
 
 // Utility functions
@@ -165,158 +166,7 @@ const COMPRESSION_TEMPLATES: CompressionTemplate[] = [
   },
 ]
 
-const validateImageFile = (file: File): { isValid: boolean; error?: string } => {
-  const maxSize = 50 * 1024 * 1024 // 50MB
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp']
-
-  if (!allowedTypes.includes(file.type)) {
-    return { isValid: false, error: 'Unsupported file format. Please use JPEG, PNG, WebP, GIF, or BMP.' }
-  }
-
-  if (file.size > maxSize) {
-    return { isValid: false, error: 'File size too large. Maximum size is 50MB.' }
-  }
-
-  return { isValid: true }
-}
-
 // Custom hooks
-const useImageCompression = () => {
-  const compressImage = useCallback(
-    async (file: File, settings: CompressionSettings): Promise<{ blob: Blob; url: string; size: number }> => {
-      return new Promise((resolve, reject) => {
-        // Validate file size before processing
-        const maxProcessingSize = 100 * 1024 * 1024 // 100MB
-        if (file.size > maxProcessingSize) {
-          reject(new Error('Image too large for processing. Please use an image smaller than 100MB.'))
-          return
-        }
-
-        const img = new Image()
-        let objectUrl: string | null = null
-
-        const cleanup = () => {
-          if (objectUrl) {
-            URL.revokeObjectURL(objectUrl)
-          }
-        }
-
-        img.onload = () => {
-          try {
-            // Check image dimensions
-            const maxDimension = 8192 // Maximum safe canvas dimension
-            if (img.width > maxDimension || img.height > maxDimension) {
-              cleanup()
-              reject(
-                new Error(
-                  `Image dimensions too large. Maximum supported size is ${maxDimension}x${maxDimension} pixels.`
-                )
-              )
-              return
-            }
-
-            const canvas = document.createElement('canvas')
-            const ctx = canvas.getContext('2d', { alpha: settings.format === 'png' })
-
-            if (!ctx) {
-              cleanup()
-              reject(new Error('Failed to get canvas context. Your browser may not support this feature.'))
-              return
-            }
-
-            // Calculate dimensions with better aspect ratio handling
-            let { width, height } = img
-            const originalAspectRatio = width / height
-
-            if (settings.maxWidth && width > settings.maxWidth) {
-              width = settings.maxWidth
-              if (settings.maintainAspectRatio) {
-                height = width / originalAspectRatio
-              }
-            }
-
-            if (settings.maxHeight && height > settings.maxHeight) {
-              height = settings.maxHeight
-              if (settings.maintainAspectRatio) {
-                width = height * originalAspectRatio
-              }
-            }
-
-            // Ensure dimensions are integers and within bounds
-            width = Math.max(1, Math.min(maxDimension, Math.round(width)))
-            height = Math.max(1, Math.min(maxDimension, Math.round(height)))
-
-            canvas.width = width
-            canvas.height = height
-
-            // Configure canvas for better quality
-            ctx.imageSmoothingEnabled = true
-            ctx.imageSmoothingQuality = 'high'
-
-            // For PNG with transparency, ensure proper alpha handling
-            if (settings.format === 'png') {
-              ctx.globalCompositeOperation = 'source-over'
-            }
-
-            // Draw image with error handling
-            try {
-              ctx.drawImage(img, 0, 0, width, height)
-            } catch (drawError) {
-              cleanup()
-              reject(new Error('Failed to draw image to canvas. The image may be corrupted.'))
-              return
-            }
-
-            // Convert to blob with format-specific options
-            const mimeType = `image/${settings.format}`
-            const quality = settings.format === 'png' ? undefined : Math.max(0.1, Math.min(1, settings.quality / 100))
-
-            canvas.toBlob(
-              (blob) => {
-                cleanup()
-
-                if (!blob) {
-                  reject(new Error('Failed to compress image. Please try a different format or quality setting.'))
-                  return
-                }
-
-                // Validate output size
-                if (blob.size === 0) {
-                  reject(new Error('Compression resulted in empty file. Please try different settings.'))
-                  return
-                }
-
-                const url = URL.createObjectURL(blob)
-                resolve({ blob, url, size: blob.size })
-              },
-              mimeType,
-              quality
-            )
-          } catch (error) {
-            cleanup()
-            reject(error instanceof Error ? error : new Error('Unknown compression error'))
-          }
-        }
-
-        img.onerror = () => {
-          cleanup()
-          reject(new Error('Failed to load image. Please ensure the file is a valid image format.'))
-        }
-
-        // Create object URL and load image
-        try {
-          objectUrl = URL.createObjectURL(file)
-          img.src = objectUrl
-        } catch (error) {
-          reject(new Error('Failed to read image file. The file may be corrupted.'))
-        }
-      })
-    },
-    []
-  )
-
-  return { compressImage }
-}
 
 /**
  * Enhanced Image Compression Tool
@@ -325,7 +175,7 @@ const useImageCompression = () => {
 const ImageCompressCore = () => {
   // Enhanced State Management
   const [images, setImages] = useState<ImageFile[]>([])
-  const [isProcessing, setIsProcessing] = useState(false)
+  const [isProcessing] = useState(false)
   const [settings, setSettings] = useState<CompressionSettings>({
     quality: 80,
     format: 'jpeg',
@@ -345,7 +195,46 @@ const ImageCompressCore = () => {
   const [sortBy] = useState<'name' | 'size' | 'ratio' | 'time'>('name')
 
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { compressImage } = useImageCompression()
+  const { compressImages: compressImagesWorker } = useImageCompression(
+    // onProgress callback
+    (imageId: string) => {
+      setImages((prev) => prev.map((img) => (img.id === imageId ? { ...img, status: 'processing' as const } : img)))
+    },
+    // onComplete callback
+    (imageId: string, result: Blob, originalSize: number, compressedSize: number) => {
+      const url = URL.createObjectURL(result)
+      const compressionRatio = calculateCompressionRatio(originalSize, compressedSize)
+
+      setImages((prev) =>
+        prev.map((img) =>
+          img.id === imageId
+            ? {
+                ...img,
+                status: 'completed' as const,
+                compressedUrl: url,
+                compressedSize,
+                compressionRatio,
+                processingTime: (Date.now() - img.timestamp) / 1000,
+              }
+            : img
+        )
+      )
+    },
+    // onError callback
+    (imageId: string, error: string) => {
+      setImages((prev) =>
+        prev.map((img) =>
+          img.id === imageId
+            ? {
+                ...img,
+                status: 'error' as const,
+                error,
+              }
+            : img
+        )
+      )
+    }
+  )
 
   // Enhanced Keyboard Shortcuts
   useEffect(() => {
@@ -535,83 +424,55 @@ const ImageCompressCore = () => {
       return
     }
 
-    setIsProcessing(true)
     const startTime = Date.now()
 
-    for (const image of pendingImages) {
-      try {
-        const imageStartTime = Date.now()
+    try {
+      // Convert ImageFile[] to the format expected by the worker
+      const workerImages = pendingImages.map((img) => ({
+        id: img.id,
+        file: img.file,
+        status: 'pending' as const,
+        progress: 0,
+        originalSize: img.originalSize,
+      }))
 
-        // Update status to processing
-        setImages((prev) => prev.map((img) => (img.id === image.id ? { ...img, status: 'processing' } : img)))
+      await compressImagesWorker(workerImages, settings)
 
-        const result = await compressImage(image.file, settings)
-        const processingTime = (Date.now() - imageStartTime) / 1000
+      const totalTime = (Date.now() - startTime) / 1000
+      const completedCount = images.filter((img) => img.status === 'completed').length
+      const message = `Compression completed! ${completedCount} image${completedCount > 1 ? 's' : ''} processed in ${totalTime.toFixed(1)}s.`
+      toast.success(message)
 
-        // Update with compressed result
-        setImages((prev) =>
-          prev.map((img) =>
-            img.id === image.id
-              ? {
-                  ...img,
-                  status: 'completed',
-                  compressedUrl: result.url,
-                  compressedSize: result.size,
-                  compressionRatio: ((image.originalSize - result.size) / image.originalSize) * 100,
-                  processingTime,
-                  format: settings.format,
-                }
-              : img
-          )
-        )
-      } catch (error) {
-        console.error('Compression failed:', error)
-        setImages((prev) =>
-          prev.map((img) =>
-            img.id === image.id
-              ? {
-                  ...img,
-                  status: 'error',
-                  error: error instanceof Error ? error.message : 'Compression failed',
-                }
-              : img
-          )
-        )
-      }
+      // Save to history
+      setTimeout(() => {
+        const currentStats = {
+          totalOriginalSize: images.reduce((sum, img) => sum + img.originalSize, 0),
+          totalCompressedSize: images.reduce((sum, img) => sum + (img.compressedSize || 0), 0),
+          totalSavings: 0,
+          averageCompressionRatio: 0,
+          processingTime: totalTime,
+          imagesProcessed: completedCount,
+          averageFileSize: 0,
+          largestReduction: 0,
+          smallestReduction: 0,
+        }
+        currentStats.totalSavings = currentStats.totalOriginalSize - currentStats.totalCompressedSize
+        saveToHistory(currentStats)
+      }, 100)
+
+      // Announce completion to screen readers
+      const announcement = document.createElement('div')
+      announcement.setAttribute('aria-live', 'assertive')
+      announcement.setAttribute('aria-atomic', 'true')
+      announcement.className = 'sr-only'
+      announcement.textContent = message
+      document.body.appendChild(announcement)
+      setTimeout(() => document.body.removeChild(announcement), 2000)
+    } catch (error) {
+      console.error('Batch compression failed:', error)
+      toast.error('Compression failed. Please try again.')
     }
-
-    setIsProcessing(false)
-    const totalTime = (Date.now() - startTime) / 1000
-    const completedCount = images.filter((img) => img.status === 'completed').length
-    const message = `Compression completed! ${completedCount} image${completedCount > 1 ? 's' : ''} processed in ${totalTime.toFixed(1)}s.`
-    toast.success(message)
-
-    // Save to history
-    setTimeout(() => {
-      const currentStats = {
-        totalOriginalSize: images.reduce((sum, img) => sum + img.originalSize, 0),
-        totalCompressedSize: images.reduce((sum, img) => sum + (img.compressedSize || 0), 0),
-        totalSavings: 0,
-        averageCompressionRatio: 0,
-        processingTime: totalTime,
-        imagesProcessed: completedCount,
-        averageFileSize: 0,
-        largestReduction: 0,
-        smallestReduction: 0,
-      }
-      currentStats.totalSavings = currentStats.totalOriginalSize - currentStats.totalCompressedSize
-      saveToHistory(currentStats)
-    }, 100)
-
-    // Announce completion to screen readers
-    const announcement = document.createElement('div')
-    announcement.setAttribute('aria-live', 'assertive')
-    announcement.setAttribute('aria-atomic', 'true')
-    announcement.className = 'sr-only'
-    announcement.textContent = message
-    document.body.appendChild(announcement)
-    setTimeout(() => document.body.removeChild(announcement), 2000)
-  }, [images, settings, compressImage])
+  }, [images, settings, compressImagesWorker])
 
   const clearAll = useCallback(() => {
     images.forEach((img) => {
@@ -694,7 +555,7 @@ const ImageCompressCore = () => {
   }, [])
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6">
       {/* Skip link for keyboard users */}
       <a
         href="#main-content"

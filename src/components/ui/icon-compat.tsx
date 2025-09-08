@@ -18,8 +18,29 @@ interface IconProps {
  * 自动处理@tabler/icons-react到lucide-react的映射
  */
 export function Icon({ name, size = 16, className = '', style, ...props }: IconProps) {
-  const IconComponent = resourceOptimizer.getIcon(name)
+  // 支持 sprite:icon-id 语法，通过 <use> 引用雪碧图
+  if (name.startsWith('sprite:')) {
+    const id = name.slice('sprite:'.length)
+    const computedSize = typeof size === 'number' ? `${size}` : size
+    return (
+      <svg width={computedSize} height={computedSize} className={className} style={style} aria-hidden="true" {...props}>
+        <use href={`#${id}`} />
+      </svg>
+    )
+  }
 
+  // 自动探测是否存在同名 sprite 符号，存在则优先使用
+  const spriteId = resourceOptimizer.getSpriteIdForIcon(name)
+  if (spriteId) {
+    const computedSize = typeof size === 'number' ? `${size}` : size
+    return (
+      <svg width={computedSize} height={computedSize} className={className} style={style} aria-hidden="true" {...props}>
+        <use href={`#${spriteId}`} />
+      </svg>
+    )
+  }
+
+  const IconComponent = resourceOptimizer.getIcon(name)
   return <IconComponent size={size} className={className} style={style} {...props} />
 }
 
