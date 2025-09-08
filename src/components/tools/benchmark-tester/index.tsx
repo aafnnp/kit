@@ -1,11 +1,7 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -18,15 +14,9 @@ import {
   Upload,
   Trash2,
   Clock,
-  Zap,
   TrendingUp,
   TrendingDown,
-  AlertTriangle,
-  CheckCircle,
-  Activity,
-  BarChart3,
   Settings,
-  FileText,
   GitCompare,
   Target,
   Award,
@@ -35,7 +25,6 @@ import {
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
 import { ToolBase } from '@/components/ui/tool-base'
-import { useTranslation } from 'react-i18next'
 import type { TestResult, TestConfig, BenchmarkResult } from '@/types/performance-tester'
 
 interface BenchmarkComparison {
@@ -182,7 +171,6 @@ const defaultBenchmarkSuites: BenchmarkSuite[] = [
 ]
 
 const BenchmarkTester = () => {
-  const { t } = useTranslation()
   const [benchmarkSuites, setBenchmarkSuites] = useState<BenchmarkSuite[]>(defaultBenchmarkSuites)
   const [comparisons, setComparisons] = useState<BenchmarkComparison[]>([])
   const [isRunning, setIsRunning] = useState(false)
@@ -241,119 +229,118 @@ const BenchmarkTester = () => {
   }, [])
 
   // 运行单个测试
-  const runSingleTest = useCallback(async (config: TestConfig) => {
-    const testData = generateTestData(config.testType, config.dataSize)
-    
-    // 模拟Web Worker测试
-    const workerStartTime = performance.now()
-    const workerStartMemory = (performance as any).memory?.usedJSHeapSize || 0
-    
-    const taskId = nanoid()
-    await new Promise(resolve => {
-      const worker = new Worker('/workers/processing-worker.js')
-      
-      // 将抽象测试类型映射为具体 Worker 任务；避免依赖文件型输入，非矩阵任务使用 regex 占位
-      let message: any
-      if (config.testType === 'matrix-math') {
-        const n = (testData as any)?.size || 100
-        const makeMatrix = (size: number) =>
-          Array.from({ length: size }, () => Array.from({ length: size }, () => Math.random()))
-        const A = makeMatrix(n)
-        const B = makeMatrix(n)
-        message = {
-          taskId,
-          type: 'matrix-multiply',
-          data: {
-            matrices: [
-              { data: A, rows: n, cols: n },
-              { data: B, rows: n, cols: n },
-            ],
-          },
-          iterations: config.iterations,
-        }
-      } else {
-        const repeats = (testData as any)?.duration ? Math.max(1, Math.floor(((testData as any).duration as number) / 10)) : 50
-        const chunk = 'lorem ipsum dolor sit amet consectetur adipiscing elit '
-        const bigText = chunk.repeat(repeats * (config.dataSize === 'large' ? 400 : config.dataSize === 'medium' ? 200 : 100))
-        message = {
-          taskId,
-          type: 'regex-match',
-          data: {
-            pattern: '\\b[a-z]{3,}\\b',
-            flags: 'gi',
-            text: bigText,
-          },
-          iterations: config.iterations,
-        }
-      }
+  const runSingleTest = useCallback(
+    async (config: TestConfig) => {
+      const testData = generateTestData(config.testType, config.dataSize)
 
-      worker.postMessage(message)
+      // 模拟Web Worker测试
+      const workerStartTime = performance.now()
+      const workerStartMemory = (performance as any).memory?.usedJSHeapSize || 0
 
-      worker.onmessage = (e) => {
-        if (e.data?.type === 'complete') {
-          worker.terminate()
-          resolve(e.data.data ?? e.data.result)
-        } else if (e.data?.type === 'error') {
-          worker.terminate()
+      const taskId = nanoid()
+      await new Promise((resolve) => {
+        const worker = new Worker('/workers/processing-worker.js')
+
+        // 将抽象测试类型映射为具体 Worker 任务；避免依赖文件型输入，非矩阵任务使用 regex 占位
+        let message: any
+        if (config.testType === 'matrix-math') {
+          const n = (testData as any)?.size || 100
+          const makeMatrix = (size: number) =>
+            Array.from({ length: size }, () => Array.from({ length: size }, () => Math.random()))
+          const A = makeMatrix(n)
+          const B = makeMatrix(n)
+          message = {
+            taskId,
+            type: 'matrix-multiply',
+            data: {
+              matrices: [
+                { data: A, rows: n, cols: n },
+                { data: B, rows: n, cols: n },
+              ],
+            },
+            iterations: config.iterations,
+          }
+        } else {
+          const repeats = (testData as any)?.duration
+            ? Math.max(1, Math.floor(((testData as any).duration as number) / 10))
+            : 50
+          const chunk = 'lorem ipsum dolor sit amet consectetur adipiscing elit '
+          const bigText = chunk.repeat(
+            repeats * (config.dataSize === 'large' ? 400 : config.dataSize === 'medium' ? 200 : 100)
+          )
+          message = {
+            taskId,
+            type: 'regex-match',
+            data: {
+              pattern: '\\b[a-z]{3,}\\b',
+              flags: 'gi',
+              text: bigText,
+            },
+            iterations: config.iterations,
+          }
+        }
+
+        worker.postMessage(message)
+
+        worker.onmessage = (e) => {
+          if (e.data?.type === 'complete') {
+            worker.terminate()
+            resolve(e.data.data ?? e.data.result)
+          } else if (e.data?.type === 'error') {
+            worker.terminate()
+            resolve(null)
+          }
+        }
+
+        setTimeout(() => {
+          try {
+            worker.terminate()
+          } catch {}
           resolve(null)
+        }, 30000)
+      })
+
+      const workerEndTime = performance.now()
+      const workerEndMemory = (performance as any).memory?.usedJSHeapSize || 0
+
+      // 模拟主线程测试
+      const mainStartTime = performance.now()
+      const mainStartMemory = (performance as any).memory?.usedJSHeapSize || 0
+
+      for (let i = 0; i < config.iterations; i++) {
+        if (i % 5 === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 0))
         }
       }
 
-      setTimeout(() => {
-        try { worker.terminate() } catch {}
-        resolve(null)
-      }, 30000)
-    })
-    
-    const workerEndTime = performance.now()
-    const workerEndMemory = (performance as any).memory?.usedJSHeapSize || 0
-    
-    // 模拟主线程测试
-    const mainStartTime = performance.now()
-    const mainStartMemory = (performance as any).memory?.usedJSHeapSize || 0
-    
-    for (let i = 0; i < config.iterations; i++) {
-      const matrix = Array((testData as any).size || 100).fill(0).map(() => 
-        Array((testData as any).size || 100).fill(0).map(() => Math.random())
-      )
-      
-      const result = matrix.map(row => 
-        row.map((_, j) => 
-          row.reduce((sum, val, k) => sum + val * matrix[k][j], 0)
-        )
-      )
-      
-      if (i % 5 === 0) {
-        await new Promise(resolve => setTimeout(resolve, 0))
+      const mainEndTime = performance.now()
+      const mainEndMemory = (performance as any).memory?.usedJSHeapSize || 0
+
+      const workerTime = workerEndTime - workerStartTime
+      const mainThreadTime = mainEndTime - mainStartTime
+      const improvement = ((mainThreadTime - workerTime) / mainThreadTime) * 100
+
+      return {
+        id: nanoid(),
+        testName: `${config.testType} - ${config.dataSize} (${config.iterations} iterations)`,
+        testType: config.testType,
+        workerTime,
+        mainThreadTime,
+        improvement,
+        memoryUsage: {
+          worker: Math.max(0, workerEndMemory - workerStartMemory) / 1024 / 1024,
+          mainThread: Math.max(0, mainEndMemory - mainStartMemory) / 1024 / 1024,
+        },
+        throughput: {
+          worker: config.iterations / (workerTime / 1000),
+          mainThread: config.iterations / (mainThreadTime / 1000),
+        },
+        timestamp: Date.now(),
+        status: 'completed' as const,
       }
-    }
-    
-    const mainEndTime = performance.now()
-    const mainEndMemory = (performance as any).memory?.usedJSHeapSize || 0
-    
-    const workerTime = workerEndTime - workerStartTime
-    const mainThreadTime = mainEndTime - mainStartTime
-    const improvement = ((mainThreadTime - workerTime) / mainThreadTime) * 100
-    
-    return {
-      id: nanoid(),
-      testName: `${config.testType} - ${config.dataSize} (${config.iterations} iterations)`,
-      testType: config.testType,
-      workerTime,
-      mainThreadTime,
-      improvement,
-      memoryUsage: {
-        worker: Math.max(0, workerEndMemory - workerStartMemory) / 1024 / 1024,
-        mainThread: Math.max(0, mainEndMemory - mainStartMemory) / 1024 / 1024,
-      },
-      throughput: {
-        worker: config.iterations / (workerTime / 1000),
-        mainThread: config.iterations / (mainThreadTime / 1000),
-      },
-      timestamp: Date.now(),
-      status: 'completed' as const,
-    }
-  }, [generateTestData])
+    },
+    [generateTestData]
+  )
 
   // 运行基准测试套件
   const runBenchmarkSuite = useCallback(async () => {
@@ -361,22 +348,22 @@ const BenchmarkTester = () => {
 
     setIsRunning(true)
     setCurrentProgress(0)
-    
+
     abortControllerRef.current = new AbortController()
 
     try {
-      const enabledSuites = benchmarkSuites.filter(suite => suite.enabled)
-      const allTests = enabledSuites.flatMap(suite => suite.tests)
+      const enabledSuites = benchmarkSuites.filter((suite) => suite.enabled)
+      const allTests = enabledSuites.flatMap((suite) => suite.tests)
       const totalTests = allTests.length
-      
+
       const results: TestResult[] = []
-      
+
       for (let i = 0; i < allTests.length; i++) {
         if (abortControllerRef.current?.signal.aborted) break
-        
+
         const test = allTests[i]
         setCurrentTest(`${test.testType} - ${test.dataSize}`)
-        
+
         try {
           const result = await runSingleTest(test)
           results.push(result)
@@ -396,35 +383,34 @@ const BenchmarkTester = () => {
             error: error instanceof Error ? error.message : 'Unknown error',
           })
         }
-        
+
         setCurrentProgress(((i + 1) / totalTests) * 100)
       }
-      
+
       const benchmarkResult: BenchmarkResult = {
         timestamp: new Date().toISOString(),
         results,
         summary: {
           totalTests: results.length,
-          successfulTests: results.filter(r => r.status === 'completed').length,
-          failedTests: results.filter(r => r.status === 'failed').length,
-          averageImprovement: results
-            .filter(r => r.status === 'completed')
-            .reduce((sum, r) => sum + r.improvement, 0) / results.filter(r => r.status === 'completed').length || 0,
-          bestImprovement: Math.max(...results.filter(r => r.status === 'completed').map(r => r.improvement), 0),
+          successfulTests: results.filter((r) => r.status === 'completed').length,
+          failedTests: results.filter((r) => r.status === 'failed').length,
+          averageImprovement:
+            results.filter((r) => r.status === 'completed').reduce((sum, r) => sum + r.improvement, 0) /
+              results.filter((r) => r.status === 'completed').length || 0,
+          bestImprovement: Math.max(...results.filter((r) => r.status === 'completed').map((r) => r.improvement), 0),
         },
         environment: getSystemInfo(),
       }
-      
+
       if (!baselineResults) {
         setBaselineResults(benchmarkResult)
         toast.success('Baseline benchmark completed! Run another benchmark to compare.')
       } else {
         // 创建对比
         const comparison = createComparison(baselineResults, benchmarkResult)
-        setComparisons(prev => [comparison, ...prev])
+        setComparisons((prev) => [comparison, ...prev])
         toast.success(`Benchmark comparison completed! Overall score: ${comparison.overallScore.toFixed(1)}`)
       }
-      
     } catch (error) {
       toast.error(`Benchmark failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
@@ -437,24 +423,25 @@ const BenchmarkTester = () => {
   // 创建性能对比
   const createComparison = useCallback((baseline: BenchmarkResult, current: BenchmarkResult): BenchmarkComparison => {
     const improvements: { [key: string]: any } = {}
-    
+
     // 按测试类型分组计算改进
     const testTypes = ['image-compress', 'audio-convert', 'video-trim', 'matrix-math']
-    
-    testTypes.forEach(testType => {
-      const baselineTests = baseline.results.filter(r => r.testType === testType && r.status === 'completed')
-      const currentTests = current.results.filter(r => r.testType === testType && r.status === 'completed')
-      
+
+    testTypes.forEach((testType) => {
+      const baselineTests = baseline.results.filter((r) => r.testType === testType && r.status === 'completed')
+      const currentTests = current.results.filter((r) => r.testType === testType && r.status === 'completed')
+
       if (baselineTests.length > 0 && currentTests.length > 0) {
         const baselineAvgTime = baselineTests.reduce((sum, r) => sum + r.workerTime, 0) / baselineTests.length
         const currentAvgTime = currentTests.reduce((sum, r) => sum + r.workerTime, 0) / currentTests.length
-        
+
         const baselineAvgMemory = baselineTests.reduce((sum, r) => sum + r.memoryUsage.worker, 0) / baselineTests.length
         const currentAvgMemory = currentTests.reduce((sum, r) => sum + r.memoryUsage.worker, 0) / currentTests.length
-        
-        const baselineAvgThroughput = baselineTests.reduce((sum, r) => sum + r.throughput.worker, 0) / baselineTests.length
+
+        const baselineAvgThroughput =
+          baselineTests.reduce((sum, r) => sum + r.throughput.worker, 0) / baselineTests.length
         const currentAvgThroughput = currentTests.reduce((sum, r) => sum + r.throughput.worker, 0) / currentTests.length
-        
+
         improvements[testType] = {
           timeImprovement: ((baselineAvgTime - currentAvgTime) / baselineAvgTime) * 100,
           memoryImprovement: ((baselineAvgMemory - currentAvgMemory) / baselineAvgMemory) * 100,
@@ -462,18 +449,19 @@ const BenchmarkTester = () => {
         }
       }
     })
-    
+
     // 计算总体评分
     const improvementValues = Object.values(improvements).flatMap((imp: any) => [
       imp.timeImprovement,
       imp.memoryImprovement,
       imp.throughputImprovement,
     ])
-    
-    const overallScore = improvementValues.length > 0 
-      ? improvementValues.reduce((sum: number, val: number) => sum + val, 0) / improvementValues.length
-      : 0
-    
+
+    const overallScore =
+      improvementValues.length > 0
+        ? improvementValues.reduce((sum: number, val: number) => sum + val, 0) / improvementValues.length
+        : 0
+
     return {
       id: nanoid(),
       name: `Comparison ${new Date().toLocaleDateString()}`,
@@ -534,10 +522,8 @@ const BenchmarkTester = () => {
 
   // 切换测试套件启用状态
   const toggleSuite = useCallback((suiteId: string) => {
-    setBenchmarkSuites(prev => 
-      prev.map(suite => 
-        suite.id === suiteId ? { ...suite, enabled: !suite.enabled } : suite
-      )
+    setBenchmarkSuites((prev) =>
+      prev.map((suite) => (suite.id === suiteId ? { ...suite, enabled: !suite.enabled } : suite))
     )
   }, [])
 
@@ -555,9 +541,7 @@ const BenchmarkTester = () => {
               <Settings className="w-5 h-5" />
               Benchmark Configuration
             </CardTitle>
-            <CardDescription>
-              Configure benchmark test suites and parameters
-            </CardDescription>
+            <CardDescription>Configure benchmark test suites and parameters</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -565,60 +549,42 @@ const BenchmarkTester = () => {
                 <div key={suite.id} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={suite.id}
-                        checked={suite.enabled}
-                        onCheckedChange={() => toggleSuite(suite.id)}
-                      />
+                      <Checkbox id={suite.id} checked={suite.enabled} onCheckedChange={() => toggleSuite(suite.id)} />
                       <Label htmlFor={suite.id} className="font-medium">
                         {suite.name}
                       </Label>
                     </div>
-                    <Badge variant="outline">
-                      {suite.tests.length} tests
-                    </Badge>
+                    <Badge variant="outline">{suite.tests.length} tests</Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {suite.description}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{suite.description}</p>
                   <div className="text-xs text-muted-foreground">
-                    Tests: {suite.tests.map(t => `${t.testType}(${t.dataSize})`).join(', ')}
+                    Tests: {suite.tests.map((t) => `${t.testType}(${t.dataSize})`).join(', ')}
                   </div>
                 </div>
               ))}
             </div>
-            
+
             <div className="flex items-center justify-between pt-4 border-t">
               <div className="flex items-center gap-4">
                 <Button
                   onClick={runBenchmarkSuite}
-                  disabled={isRunning || benchmarkSuites.filter(s => s.enabled).length === 0}
+                  disabled={isRunning || benchmarkSuites.filter((s) => s.enabled).length === 0}
                   className="flex items-center gap-2"
                 >
                   <Play className="w-4 h-4" />
                   {isRunning ? 'Running Benchmark...' : baselineResults ? 'Run Comparison' : 'Run Baseline'}
                 </Button>
-                
+
                 {isRunning && (
-                  <Button
-                    onClick={stopBenchmark}
-                    variant="destructive"
-                    className="flex items-center gap-2"
-                  >
+                  <Button onClick={stopBenchmark} variant="destructive" className="flex items-center gap-2">
                     <Square className="w-4 h-4" />
                     Stop Benchmark
                   </Button>
                 )}
               </div>
-              
+
               <div className="flex items-center gap-2">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".json"
-                  onChange={importBenchmark}
-                  className="hidden"
-                />
+                <input ref={fileInputRef} type="file" accept=".json" onChange={importBenchmark} className="hidden" />
                 <Button
                   onClick={() => fileInputRef.current?.click()}
                   variant="outline"
@@ -628,7 +594,7 @@ const BenchmarkTester = () => {
                   <Upload className="w-4 h-4" />
                   Import Baseline
                 </Button>
-                
+
                 {baselineResults && (
                   <>
                     <Button
@@ -640,12 +606,7 @@ const BenchmarkTester = () => {
                       <Download className="w-4 h-4" />
                       Export Baseline
                     </Button>
-                    <Button
-                      onClick={resetBaseline}
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-2"
-                    >
+                    <Button onClick={resetBaseline} variant="outline" size="sm" className="flex items-center gap-2">
                       <RotateCcw className="w-4 h-4" />
                       Reset
                     </Button>
@@ -653,7 +614,7 @@ const BenchmarkTester = () => {
                 )}
               </div>
             </div>
-            
+
             {isRunning && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
@@ -674,22 +635,16 @@ const BenchmarkTester = () => {
                 <Target className="w-5 h-5" />
                 Baseline Results
               </CardTitle>
-              <CardDescription>
-                Current baseline for performance comparison
-              </CardDescription>
+              <CardDescription>Current baseline for performance comparison</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {baselineResults.summary.totalTests}
-                  </div>
+                  <div className="text-2xl font-bold text-blue-600">{baselineResults.summary.totalTests}</div>
                   <div className="text-sm text-muted-foreground">Total Tests</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {baselineResults.summary.successfulTests}
-                  </div>
+                  <div className="text-2xl font-bold text-green-600">{baselineResults.summary.successfulTests}</div>
                   <div className="text-sm text-muted-foreground">Successful</div>
                 </div>
                 <div className="text-center">
@@ -718,11 +673,9 @@ const BenchmarkTester = () => {
                   <GitCompare className="w-5 h-5" />
                   Performance Comparisons
                 </CardTitle>
-                <CardDescription>
-                  Before and after optimization comparisons
-                </CardDescription>
+                <CardDescription>Before and after optimization comparisons</CardDescription>
               </div>
-              
+
               {comparisons.length > 0 && (
                 <Button
                   onClick={() => setComparisons([])}
@@ -756,7 +709,9 @@ const BenchmarkTester = () => {
                       <div className="flex items-center gap-2">
                         <Badge
                           variant={comparison.overallScore > 0 ? 'default' : 'secondary'}
-                          className={comparison.overallScore > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}
+                          className={
+                            comparison.overallScore > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }
                         >
                           {comparison.overallScore > 0 ? (
                             <TrendingUp className="w-3 h-3 mr-1" />
@@ -773,49 +728,53 @@ const BenchmarkTester = () => {
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {Object.entries(comparison.improvements).map(([testType, improvements]) => (
                         <div key={testType} className="border rounded-lg p-4 space-y-3">
-                          <h5 className="font-medium capitalize">
-                            {testType.replace('-', ' ')}
-                          </h5>
-                          
+                          <h5 className="font-medium capitalize">{testType.replace('-', ' ')}</h5>
+
                           <div className="space-y-2 text-sm">
                             <div className="flex items-center justify-between">
                               <span className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
                                 Time
                               </span>
-                              <span className={`font-mono ${
-                                improvements.timeImprovement > 0 ? 'text-green-600' : 'text-red-600'
-                              }`}>
+                              <span
+                                className={`font-mono ${
+                                  improvements.timeImprovement > 0 ? 'text-green-600' : 'text-red-600'
+                                }`}
+                              >
                                 {improvements.timeImprovement > 0 ? '+' : ''}
                                 {improvements.timeImprovement.toFixed(1)}%
                               </span>
                             </div>
-                            
+
                             <div className="flex items-center justify-between">
                               <span className="flex items-center gap-1">
                                 <MemoryStick className="w-3 h-3" />
                                 Memory
                               </span>
-                              <span className={`font-mono ${
-                                improvements.memoryImprovement > 0 ? 'text-green-600' : 'text-red-600'
-                              }`}>
+                              <span
+                                className={`font-mono ${
+                                  improvements.memoryImprovement > 0 ? 'text-green-600' : 'text-red-600'
+                                }`}
+                              >
                                 {improvements.memoryImprovement > 0 ? '+' : ''}
                                 {improvements.memoryImprovement.toFixed(1)}%
                               </span>
                             </div>
-                            
+
                             <div className="flex items-center justify-between">
                               <span className="flex items-center gap-1">
                                 <Cpu className="w-3 h-3" />
                                 Throughput
                               </span>
-                              <span className={`font-mono ${
-                                improvements.throughputImprovement > 0 ? 'text-green-600' : 'text-red-600'
-                              }`}>
+                              <span
+                                className={`font-mono ${
+                                  improvements.throughputImprovement > 0 ? 'text-green-600' : 'text-red-600'
+                                }`}
+                              >
                                 {improvements.throughputImprovement > 0 ? '+' : ''}
                                 {improvements.throughputImprovement.toFixed(1)}%
                               </span>
@@ -824,11 +783,11 @@ const BenchmarkTester = () => {
                         </div>
                       ))}
                     </div>
-                    
+
                     <div className="flex items-center justify-between pt-4 border-t">
                       <div className="text-sm text-muted-foreground">
-                        Baseline: {comparison.baseline.summary.totalTests} tests • 
-                        Current: {comparison.current.summary.totalTests} tests
+                        Baseline: {comparison.baseline.summary.totalTests} tests • Current:{' '}
+                        {comparison.current.summary.totalTests} tests
                       </div>
                       <div className="flex items-center gap-2">
                         <Button

@@ -966,7 +966,7 @@ const matrixTemplates: MatrixTemplate[] = [
 // Custom hooks
 const useMatrixOperations = () => {
   const [operations, setOperations] = useState<MatrixOperation[]>([])
-  const [progress, setProgress] = useState(0)
+  const [_, setProgress] = useState(0)
 
   const {
     executeOperation: executeWorkerOperation,

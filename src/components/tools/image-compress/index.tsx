@@ -175,7 +175,7 @@ const COMPRESSION_TEMPLATES: CompressionTemplate[] = [
 const ImageCompressCore = () => {
   // Enhanced State Management
   const [images, setImages] = useState<ImageFile[]>([])
-  const [isProcessing, setIsProcessing] = useState(false)
+  const [isProcessing] = useState(false)
   const [settings, setSettings] = useState<CompressionSettings>({
     quality: 80,
     format: 'jpeg',
@@ -195,14 +195,9 @@ const ImageCompressCore = () => {
   const [sortBy] = useState<'name' | 'size' | 'ratio' | 'time'>('name')
 
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const {
-    compressImages: compressImagesWorker,
-    isCompressing,
-    progress,
-    cancelCompression,
-  } = useImageCompression(
+  const { compressImages: compressImagesWorker } = useImageCompression(
     // onProgress callback
-    (imageId: string, progress: number) => {
+    (imageId: string) => {
       setImages((prev) => prev.map((img) => (img.id === imageId ? { ...img, status: 'processing' as const } : img)))
     },
     // onComplete callback

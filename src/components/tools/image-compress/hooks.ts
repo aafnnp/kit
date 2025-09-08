@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import { getWorkerManager } from '@/lib/worker-manager'
-import type { ImageFile, CompressionSettings } from './types'
+import type { ImageFile, CompressionSettings, WorkerImageData, WorkerCompressionResult } from './types'
 
 export interface UseImageCompressionReturn {
   compressImages: (images: ImageFile[], settings: CompressionSettings) => Promise<void>
@@ -22,89 +22,88 @@ export function useImageCompression(
   const workerManager = useRef(getWorkerManager())
   const activeTaskIds = useRef<Set<string>>(new Set())
 
-  const compressImages = useCallback(async (
-    images: ImageFile[],
-    settings: CompressionSettings
-  ) => {
-    if (images.length === 0) return
+  const compressImages = useCallback(
+    async (images: ImageFile[], settings: CompressionSettings) => {
+      if (images.length === 0) return
 
-    setIsCompressing(true)
-    setProgress(0)
-    
-    const completedCount = { value: 0 }
-    const totalImages = images.length
+      setIsCompressing(true)
+      setProgress(0)
 
-    try {
-      // 为每个图片创建压缩任务
-      const tasks = images.map(async (image) => {
-        const taskId = `compress-${image.id}-${Date.now()}`
-        activeTaskIds.current.add(taskId)
+      const completedCount = { value: 0 }
+      const totalImages = images.length
 
-        try {
-          // 将文件转换为ArrayBuffer
-          const arrayBuffer = await image.file.arrayBuffer()
-          
-          const result = await workerManager.current.addTask({
-            id: taskId,
-            type: 'compress-image',
-            data: {
-              imageData: arrayBuffer,
-              fileName: image.file.name,
-              settings: settings
-            },
-            priority: 'high',
-            onProgress: (progress) => {
-              onProgress?.(image.id, progress)
-            },
-            onComplete: (result) => {
-              const { compressedBlob, originalSize, compressedSize } = result
-              onComplete?.(image.id, compressedBlob, originalSize, compressedSize)
-              
-              completedCount.value++
-              const overallProgress = (completedCount.value / totalImages) * 100
-              setProgress(overallProgress)
-              
-              activeTaskIds.current.delete(taskId)
-            },
-            onError: (error) => {
-              onError?.(image.id, error)
-              completedCount.value++
-              const overallProgress = (completedCount.value / totalImages) * 100
-              setProgress(overallProgress)
-              
-              activeTaskIds.current.delete(taskId)
-            }
-          })
+      try {
+        // 为每个图片创建压缩任务
+        const tasks = images.map(async (image) => {
+          const taskId = `compress-${image.id}-${Date.now()}`
+          activeTaskIds.current.add(taskId)
 
-          return result
-        } catch (error) {
-          activeTaskIds.current.delete(taskId)
-          onError?.(image.id, error instanceof Error ? error.message : 'Unknown error')
-          completedCount.value++
-          const overallProgress = (completedCount.value / totalImages) * 100
-          setProgress(overallProgress)
-          throw error
-        }
-      })
+          try {
+            // 将文件转换为ArrayBuffer
+            const arrayBuffer = await image.file.arrayBuffer()
 
-      // 等待所有任务完成
-      await Promise.allSettled(tasks)
-      
-    } catch (error) {
-      console.error('Batch compression error:', error)
-    } finally {
-      setIsCompressing(false)
-      setProgress(100)
-    }
-  }, [onProgress, onComplete, onError])
+            const result = await workerManager.current.addTask<WorkerImageData, WorkerCompressionResult>({
+              id: taskId,
+              type: 'compress-image',
+              data: {
+                imageData: arrayBuffer,
+                fileName: image.file.name,
+                settings: settings,
+              },
+              priority: 'high',
+              onProgress: (progress) => {
+                onProgress?.(image.id, progress)
+              },
+              onComplete: (result: WorkerCompressionResult) => {
+                const { compressedBlob, originalSize, compressedSize } = result
+                onComplete?.(image.id, compressedBlob, originalSize, compressedSize)
+
+                completedCount.value++
+                const overallProgress = (completedCount.value / totalImages) * 100
+                setProgress(overallProgress)
+
+                activeTaskIds.current.delete(taskId)
+              },
+              onError: (error: Error) => {
+                onError?.(image.id, error.message)
+                completedCount.value++
+                const overallProgress = (completedCount.value / totalImages) * 100
+                setProgress(overallProgress)
+
+                activeTaskIds.current.delete(taskId)
+              },
+            })
+
+            return result
+          } catch (error) {
+            activeTaskIds.current.delete(taskId)
+            onError?.(image.id, error instanceof Error ? error.message : 'Unknown error')
+            completedCount.value++
+            const overallProgress = (completedCount.value / totalImages) * 100
+            setProgress(overallProgress)
+            throw error
+          }
+        })
+
+        // 等待所有任务完成
+        await Promise.allSettled(tasks)
+      } catch (error) {
+        console.error('Batch compression error:', error)
+      } finally {
+        setIsCompressing(false)
+        setProgress(100)
+      }
+    },
+    [onProgress, onComplete, onError]
+  )
 
   const cancelCompression = useCallback(() => {
     // 取消所有活跃的任务
-    activeTaskIds.current.forEach(taskId => {
+    activeTaskIds.current.forEach((taskId) => {
       workerManager.current.cancelTask(taskId)
     })
     activeTaskIds.current.clear()
-    
+
     setIsCompressing(false)
     setProgress(0)
   }, [])
@@ -113,7 +112,7 @@ export function useImageCompression(
     compressImages,
     isCompressing,
     progress,
-    cancelCompression
+    cancelCompression,
   }
 }
 
@@ -153,11 +152,11 @@ export function generateId(): string {
  */
 export function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes'
-  
+
   const k = 1024
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  
+
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
@@ -191,16 +190,15 @@ export async function downloadAsZip(files: { blob: Blob; filename: string }[], z
     // 动态导入JSZip
     const JSZip = (await import('jszip')).default
     const zip = new JSZip()
-    
+
     // 添加文件到ZIP
     files.forEach(({ blob, filename }) => {
       zip.file(filename, blob)
     })
-    
+
     // 生成ZIP文件
     const zipBlob = await zip.generateAsync({ type: 'blob' })
     downloadFile(zipBlob, zipName)
-    
   } catch (error) {
     console.error('Failed to create ZIP file:', error)
     throw new Error('Failed to create ZIP file')

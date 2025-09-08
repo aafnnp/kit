@@ -40,13 +40,7 @@ import { useHistory } from '@/hooks/use-history'
 import { formatFileSize } from '@/lib/utils'
 
 // 导入类型
-import {
-  AudioFile,
-  ConvertSettings,
-  ConvertResult,
-  AudioConversionStats,
-  AudioHistoryEntry,
-} from '@/types/audio-convert'
+import { AudioFile, ConvertSettings, AudioConversionStats, AudioHistoryEntry } from '@/types/audio-convert'
 import {
   audioFormats,
   audioTemplates,
@@ -75,7 +69,7 @@ const AudioConvert = () => {
 
   // Hooks
   const { analyzeAudio, isAnalyzing } = useAudioAnalysis()
-  const { convertAudios, isProcessing, progress, cancelProcessing } = useAudioConversion(
+  const { convertAudios, isProcessing, progress } = useAudioConversion(
     (audioId, progress, message) => {
       // 更新单个音频的进度
       setAudios((prev) => prev.map((a) => (a.id === audioId ? { ...a, progress, progressMessage: message } : a)))
@@ -293,14 +287,6 @@ const AudioConvert = () => {
     setConvertSettings((prev) => ({ ...prev, ...updates }))
     setSelectedTemplate('') // 清除模板选择
   }, [])
-
-  // 辅助函数
-  const calculateQualityScore = (original: AudioFile, result: ConvertResult): number => {
-    // 简化的质量评分算法
-    const sizeRatio = result.size / original.size
-    const bitrateRatio = (result.bitrate || 0) / (original.stats?.bitrate || 1)
-    return Math.min(100, Math.round((bitrateRatio * 0.7 + (1 - sizeRatio) * 0.3) * 100))
-  }
 
   const calculateConversionStats = (files: AudioFile[], totalTime: number): AudioConversionStats => {
     const completedFiles = files.filter((f) => f.status === 'completed')

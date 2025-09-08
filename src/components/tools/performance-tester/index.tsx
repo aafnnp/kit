@@ -3,9 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
@@ -23,11 +21,9 @@ import {
   Activity,
   BarChart3,
   Settings,
-  FileText,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
 import { ToolBase } from '@/components/ui/tool-base'
-import { useTranslation } from 'react-i18next'
 
 interface TestResult {
   id: string
@@ -89,7 +85,6 @@ const defaultTestConfigs: Record<string, TestConfig> = {
 }
 
 const PerformanceTester = () => {
-  const { t } = useTranslation()
   const [results, setResults] = useState<TestResult[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [currentProgress, setCurrentProgress] = useState(0)
@@ -143,7 +138,7 @@ const PerformanceTester = () => {
     const taskId = nanoid()
 
     // 使用通用处理 Worker 执行实际计算任务
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       const worker = new Worker('/workers/processing-worker.js')
 
       // 将抽象的测试类型映射为具体的 Worker 任务类型与数据
@@ -169,7 +164,9 @@ const PerformanceTester = () => {
         // 对于非矩阵类任务，使用 regex-match 作为通用的计算密集型占位测试
         const repeats = testData?.duration ? Math.max(1, Math.floor((testData.duration as number) / 10)) : 50
         const chunk = 'lorem ipsum dolor sit amet consectetur adipiscing elit '
-        const bigText = chunk.repeat(repeats * (config.dataSize === 'large' ? 400 : config.dataSize === 'medium' ? 200 : 100))
+        const bigText = chunk.repeat(
+          repeats * (config.dataSize === 'large' ? 400 : config.dataSize === 'medium' ? 200 : 100)
+        )
         message = {
           taskId,
           type: 'regex-match',
@@ -196,7 +193,9 @@ const PerformanceTester = () => {
 
       // 超时处理
       setTimeout(() => {
-        try { worker.terminate() } catch {}
+        try {
+          worker.terminate()
+        } catch {}
         resolve(null)
       }, 30000)
     })
@@ -212,27 +211,15 @@ const PerformanceTester = () => {
   }, [])
 
   // 执行主线程测试
-  const runMainThreadTest = useCallback(async (config: TestConfig, testData: any) => {
+  const runMainThreadTest = useCallback(async (config: TestConfig) => {
     const startTime = performance.now()
     const startMemory = (performance as any).memory?.usedJSHeapSize || 0
 
     // 模拟主线程处理（阻塞式）
     for (let i = 0; i < config.iterations; i++) {
-      // 模拟计算密集型任务
-      const matrix = Array(testData.size || 100).fill(0).map(() => 
-        Array(testData.size || 100).fill(0).map(() => Math.random())
-      )
-      
-      // 简单矩阵乘法
-      const result = matrix.map(row => 
-        row.map((_, j) => 
-          row.reduce((sum, val, k) => sum + val * matrix[k][j], 0)
-        )
-      )
-      
       // 让出控制权，避免完全阻塞UI
       if (i % 5 === 0) {
-        await new Promise(resolve => setTimeout(resolve, 0))
+        await new Promise((resolve) => setTimeout(resolve, 0))
       }
     }
 
@@ -253,27 +240,27 @@ const PerformanceTester = () => {
     setIsRunning(true)
     setCurrentProgress(0)
     setCurrentTest(testConfig.testType)
-    
+
     abortControllerRef.current = new AbortController()
 
     try {
       const testData = generateTestData(testConfig.testType, testConfig.dataSize)
-      
+
       // 运行Web Worker测试
       setCurrentProgress(25)
       const workerResult = await runWorkerTest(testConfig, testData)
-      
+
       if (abortControllerRef.current?.signal.aborted) return
-      
+
       // 运行主线程测试
       setCurrentProgress(75)
-      const mainThreadResult = await runMainThreadTest(testConfig, testData)
-      
+      const mainThreadResult = await runMainThreadTest(testConfig)
+
       if (abortControllerRef.current?.signal.aborted) return
-      
+
       // 计算性能提升
       const improvement = ((mainThreadResult.time - workerResult.time) / mainThreadResult.time) * 100
-      
+
       const result: TestResult = {
         id: nanoid(),
         testName: `${testConfig.testType} - ${testConfig.dataSize} (${testConfig.iterations} iterations)`,
@@ -292,12 +279,13 @@ const PerformanceTester = () => {
         timestamp: Date.now(),
         status: 'completed',
       }
-      
-      setResults(prev => [result, ...prev])
+
+      setResults((prev) => [result, ...prev])
       setCurrentProgress(100)
-      
-      toast.success(`Performance test completed! ${improvement > 0 ? `${improvement.toFixed(1)}% improvement` : 'No improvement'} with Web Workers`)
-      
+
+      toast.success(
+        `Performance test completed! ${improvement > 0 ? `${improvement.toFixed(1)}% improvement` : 'No improvement'} with Web Workers`
+      )
     } catch (error) {
       const failedResult: TestResult = {
         id: nanoid(),
@@ -312,8 +300,8 @@ const PerformanceTester = () => {
         status: 'failed',
         error: error instanceof Error ? error.message : 'Unknown error',
       }
-      
-      setResults(prev => [failedResult, ...prev])
+
+      setResults((prev) => [failedResult, ...prev])
       toast.error(`Performance test failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsRunning(false)
@@ -344,13 +332,13 @@ const PerformanceTester = () => {
       results,
       summary: {
         totalTests: results.length,
-        successfulTests: results.filter(r => r.status === 'completed').length,
-        averageImprovement: results
-          .filter(r => r.status === 'completed')
-          .reduce((sum, r) => sum + r.improvement, 0) / results.filter(r => r.status === 'completed').length || 0,
+        successfulTests: results.filter((r) => r.status === 'completed').length,
+        averageImprovement:
+          results.filter((r) => r.status === 'completed').reduce((sum, r) => sum + r.improvement, 0) /
+            results.filter((r) => r.status === 'completed').length || 0,
       },
     }
-    
+
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -365,12 +353,12 @@ const PerformanceTester = () => {
   // 计算统计数据
   const stats = {
     totalTests: results.length,
-    successfulTests: results.filter(r => r.status === 'completed').length,
-    failedTests: results.filter(r => r.status === 'failed').length,
-    averageImprovement: results
-      .filter(r => r.status === 'completed')
-      .reduce((sum, r) => sum + r.improvement, 0) / results.filter(r => r.status === 'completed').length || 0,
-    bestImprovement: Math.max(...results.filter(r => r.status === 'completed').map(r => r.improvement), 0),
+    successfulTests: results.filter((r) => r.status === 'completed').length,
+    failedTests: results.filter((r) => r.status === 'failed').length,
+    averageImprovement:
+      results.filter((r) => r.status === 'completed').reduce((sum, r) => sum + r.improvement, 0) /
+        results.filter((r) => r.status === 'completed').length || 0,
+    bestImprovement: Math.max(...results.filter((r) => r.status === 'completed').map((r) => r.improvement), 0),
   }
 
   return (
@@ -387,9 +375,7 @@ const PerformanceTester = () => {
               <Settings className="w-5 h-5" />
               Test Configuration
             </CardTitle>
-            <CardDescription>
-              Configure performance test parameters
-            </CardDescription>
+            <CardDescription>Configure performance test parameters</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -397,7 +383,7 @@ const PerformanceTester = () => {
                 <Label htmlFor="test-type">Test Type</Label>
                 <Select
                   value={testConfig.testType}
-                  onValueChange={(value: any) => setTestConfig(prev => ({ ...prev, testType: value }))}
+                  onValueChange={(value: any) => setTestConfig((prev) => ({ ...prev, testType: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -410,12 +396,12 @@ const PerformanceTester = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="data-size">Data Size</Label>
                 <Select
                   value={testConfig.dataSize}
-                  onValueChange={(value: any) => setTestConfig(prev => ({ ...prev, dataSize: value }))}
+                  onValueChange={(value: any) => setTestConfig((prev) => ({ ...prev, dataSize: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -427,7 +413,7 @@ const PerformanceTester = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="iterations">Iterations</Label>
                 <Input
@@ -436,10 +422,10 @@ const PerformanceTester = () => {
                   min="1"
                   max="100"
                   value={testConfig.iterations}
-                  onChange={(e) => setTestConfig(prev => ({ ...prev, iterations: parseInt(e.target.value) || 1 }))}
+                  onChange={(e) => setTestConfig((prev) => ({ ...prev, iterations: parseInt(e.target.value) || 1 }))}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="concurrency">Concurrency</Label>
                 <Input
@@ -448,34 +434,26 @@ const PerformanceTester = () => {
                   min="1"
                   max="16"
                   value={testConfig.concurrency}
-                  onChange={(e) => setTestConfig(prev => ({ ...prev, concurrency: parseInt(e.target.value) || 1 }))}
+                  onChange={(e) => setTestConfig((prev) => ({ ...prev, concurrency: parseInt(e.target.value) || 1 }))}
                 />
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Button
-                  onClick={runPerformanceTest}
-                  disabled={isRunning}
-                  className="flex items-center gap-2"
-                >
+                <Button onClick={runPerformanceTest} disabled={isRunning} className="flex items-center gap-2">
                   <Play className="w-4 h-4" />
                   {isRunning ? 'Running Test...' : 'Run Performance Test'}
                 </Button>
-                
+
                 {isRunning && (
-                  <Button
-                    onClick={stopTest}
-                    variant="destructive"
-                    className="flex items-center gap-2"
-                  >
+                  <Button onClick={stopTest} variant="destructive" className="flex items-center gap-2">
                     <Square className="w-4 h-4" />
                     Stop Test
                   </Button>
                 )}
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <Button
                   onClick={() => setTestConfig(defaultTestConfigs[testConfig.testType])}
@@ -487,7 +465,7 @@ const PerformanceTester = () => {
                 </Button>
               </div>
             </div>
-            
+
             {isRunning && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
@@ -514,7 +492,7 @@ const PerformanceTester = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
@@ -526,7 +504,7 @@ const PerformanceTester = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
@@ -538,29 +516,25 @@ const PerformanceTester = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Avg Improvement</p>
-                    <p className="text-2xl font-bold text-purple-600">
-                      {stats.averageImprovement.toFixed(1)}%
-                    </p>
+                    <p className="text-2xl font-bold text-purple-600">{stats.averageImprovement.toFixed(1)}%</p>
                   </div>
                   <TrendingUp className="w-8 h-8 text-purple-500" />
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Best Result</p>
-                    <p className="text-2xl font-bold text-orange-600">
-                      {stats.bestImprovement.toFixed(1)}%
-                    </p>
+                    <p className="text-2xl font-bold text-orange-600">{stats.bestImprovement.toFixed(1)}%</p>
                   </div>
                   <Zap className="w-8 h-8 text-orange-500" />
                 </div>
@@ -578,28 +552,16 @@ const PerformanceTester = () => {
                   <Activity className="w-5 h-5" />
                   Test Results
                 </CardTitle>
-                <CardDescription>
-                  Performance comparison between Web Workers and main thread
-                </CardDescription>
+                <CardDescription>Performance comparison between Web Workers and main thread</CardDescription>
               </div>
-              
+
               {results.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <Button
-                    onClick={exportResults}
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
+                  <Button onClick={exportResults} variant="outline" size="sm" className="flex items-center gap-2">
                     <Download className="w-4 h-4" />
                     Export
                   </Button>
-                  <Button
-                    onClick={clearResults}
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
+                  <Button onClick={clearResults} variant="outline" size="sm" className="flex items-center gap-2">
                     <Trash2 className="w-4 h-4" />
                     Clear
                   </Button>
@@ -616,21 +578,14 @@ const PerformanceTester = () => {
             ) : (
               <div className="space-y-4">
                 {results.map((result) => (
-                  <div
-                    key={result.id}
-                    className="border rounded-lg p-4 space-y-3"
-                  >
+                  <div key={result.id} className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-medium">{result.testName}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(result.timestamp).toLocaleString()}
-                        </p>
+                        <p className="text-sm text-muted-foreground">{new Date(result.timestamp).toLocaleString()}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge
-                          variant={result.status === 'completed' ? 'default' : 'destructive'}
-                        >
+                        <Badge variant={result.status === 'completed' ? 'default' : 'destructive'}>
                           {result.status}
                         </Badge>
                         {result.status === 'completed' && (
@@ -638,12 +593,13 @@ const PerformanceTester = () => {
                             variant={result.improvement > 0 ? 'default' : 'secondary'}
                             className={result.improvement > 0 ? 'bg-green-100 text-green-800' : ''}
                           >
-                            {result.improvement > 0 ? '+' : ''}{result.improvement.toFixed(1)}%
+                            {result.improvement > 0 ? '+' : ''}
+                            {result.improvement.toFixed(1)}%
                           </Badge>
                         )}
                       </div>
                     </div>
-                    
+
                     {result.status === 'completed' ? (
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                         <div className="space-y-2">
@@ -662,7 +618,7 @@ const PerformanceTester = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="space-y-2">
                           <h5 className="font-medium flex items-center gap-2">
                             <Activity className="w-4 h-4" />
@@ -679,7 +635,7 @@ const PerformanceTester = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="space-y-2">
                           <h5 className="font-medium flex items-center gap-2">
                             <TrendingUp className="w-4 h-4" />

@@ -22,82 +22,82 @@ export function useVideoTrim(
   const workerManager = useRef(getWorkerManager())
   const activeTaskIds = useRef<Set<string>>(new Set())
 
-  const trimVideos = useCallback(async (
-    videos: VideoFile[],
-    settings: TrimSettings
-  ) => {
-    if (videos.length === 0) return
+  const trimVideos = useCallback(
+    async (videos: VideoFile[], settings: TrimSettings) => {
+      if (videos.length === 0) return
 
-    setIsProcessing(true)
-    setProgress(0)
-    
-    const completedCount = { value: 0 }
-    const totalVideos = videos.length
+      setIsProcessing(true)
+      setProgress(0)
 
-    try {
-      // 为每个视频创建裁剪任务
-      const tasks = videos.map(async (video) => {
-        const taskId = `trim-${video.id}-${Date.now()}`
-        activeTaskIds.current.add(taskId)
+      const completedCount = { value: 0 }
+      const totalVideos = videos.length
 
-        try {
-          // 将文件转换为ArrayBuffer
-          const arrayBuffer = await video.file.arrayBuffer()
-          
-          const result = await workerManager.current.addTask({
-            id: taskId,
-            type: 'trim-video',
-            data: {
-              fileBuffer: arrayBuffer,
-              fileName: video.file.name,
-              settings
-            },
-            priority: 'high',
-            timeout: 300000, // 5分钟超时
-            onProgress: (progressValue: number, message?: string) => {
-              onProgress?.(video.id, progressValue, message)
+      try {
+        // 为每个视频创建裁剪任务
+        const tasks = videos.map(async (video) => {
+          const taskId = `trim-${video.id}-${Date.now()}`
+          activeTaskIds.current.add(taskId)
+
+          try {
+            // 将文件转换为ArrayBuffer
+            const arrayBuffer = await video.file.arrayBuffer()
+
+            const result = await workerManager.current.addTask<
+              { fileBuffer: ArrayBuffer; fileName: string; settings: TrimSettings },
+              { buffer: ArrayBuffer; size: number; format: string; duration: number }
+            >({
+              id: taskId,
+              type: 'trim-video',
+              data: {
+                fileBuffer: arrayBuffer,
+                fileName: video.file.name,
+                settings,
+              },
+              priority: 'high',
+              onProgress: (progressValue: number, message?: string) => {
+                onProgress?.(video.id, progressValue, message)
+              },
+            })
+
+            // 创建结果Blob
+            const blob = new Blob([result.buffer], { type: `video/${result.format}` })
+            const url = URL.createObjectURL(blob)
+
+            const trimResult: TrimResult = {
+              url,
+              size: result.size,
+              format: result.format,
+              duration: result.duration,
             }
-          })
 
-          // 创建结果Blob
-          const blob = new Blob([result.buffer], { type: `video/${result.format}` })
-          const url = URL.createObjectURL(blob)
+            onComplete?.(video.id, trimResult)
 
-          const trimResult: TrimResult = {
-            url,
-            size: result.size,
-            format: result.format,
-            duration: result.duration
+            completedCount.value++
+            setProgress(Math.round((completedCount.value / totalVideos) * 100))
+          } catch (error) {
+            console.error(`Video trim failed for ${video.id}:`, error)
+            onError?.(video.id, error instanceof Error ? error.message : 'Video trim failed')
+          } finally {
+            activeTaskIds.current.delete(taskId)
           }
+        })
 
-          onComplete?.(video.id, trimResult)
-          
-          completedCount.value++
-          setProgress(Math.round((completedCount.value / totalVideos) * 100))
-          
-        } catch (error) {
-          console.error(`Video trim failed for ${video.id}:`, error)
-          onError?.(video.id, error instanceof Error ? error.message : 'Video trim failed')
-        } finally {
-          activeTaskIds.current.delete(taskId)
-        }
-      })
-
-      // 等待所有任务完成
-      await Promise.allSettled(tasks)
-      
-    } catch (error) {
-      console.error('Batch video trim failed:', error)
-      throw error
-    } finally {
-      setIsProcessing(false)
-      setProgress(100)
-    }
-  }, [onProgress, onComplete, onError])
+        // 等待所有任务完成
+        await Promise.allSettled(tasks)
+      } catch (error) {
+        console.error('Batch video trim failed:', error)
+        throw error
+      } finally {
+        setIsProcessing(false)
+        setProgress(100)
+      }
+    },
+    [onProgress, onComplete, onError]
+  )
 
   const cancelProcessing = useCallback(() => {
     // 取消所有活跃任务
-    activeTaskIds.current.forEach(taskId => {
+    activeTaskIds.current.forEach((taskId) => {
       workerManager.current.cancelTask(taskId)
     })
     activeTaskIds.current.clear()
@@ -109,7 +109,7 @@ export function useVideoTrim(
     trimVideos,
     isProcessing,
     progress,
-    cancelProcessing
+    cancelProcessing,
   }
 }
 
@@ -127,15 +127,15 @@ export function validateVideoFile(file: File): { isValid: boolean; error?: strin
     'video/avi',
     'video/mov',
   ]
-  
+
   if (!allowedTypes.includes(file.type)) {
     return { isValid: false, error: '不支持的格式' }
   }
-  
+
   if (file.size > maxSize) {
     return { isValid: false, error: '文件过大，最大 500MB' }
   }
-  
+
   return { isValid: true }
 }
 
@@ -185,17 +185,17 @@ export function downloadFile(blob: Blob, filename: string): void {
  */
 export async function downloadAsZip(files: { blob: Blob; filename: string }[], zipName: string): Promise<void> {
   const { zipSync } = await import('fflate')
-  
+
   const zipData: Record<string, Uint8Array> = {}
-  
+
   for (const file of files) {
     const arrayBuffer = await file.blob.arrayBuffer()
     zipData[file.filename] = new Uint8Array(arrayBuffer)
   }
-  
+
   const zipped = zipSync(zipData)
   const zipBlob = new Blob([zipped], { type: 'application/zip' })
-  
+
   downloadFile(zipBlob, zipName)
 }
 
@@ -206,10 +206,10 @@ export function getVideoStats(file: File): Promise<VideoStats> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file)
     const video = document.createElement('video')
-    
+
     video.preload = 'metadata'
     video.src = url
-    
+
     video.onloadedmetadata = () => {
       const stats: VideoStats = {
         duration: video.duration,
@@ -219,11 +219,11 @@ export function getVideoStats(file: File): Promise<VideoStats> {
         fileSize: file.size,
         format: file.type.split('/')[1] || 'unknown',
       }
-      
+
       resolve(stats)
       URL.revokeObjectURL(url)
     }
-    
+
     video.onerror = () => {
       reject(new Error('无法读取视频元数据'))
       URL.revokeObjectURL(url)

@@ -68,8 +68,8 @@ const VideoTrim = () => {
     }
     if (newVideos.length) setVideos((prev) => [...prev, ...newVideos])
   })
-  const { trimVideos, isProcessing, progress, cancelProcessing } = useVideoTrim(
-    (videoId, progress, message) => {
+  const { trimVideos, isProcessing, progress } = useVideoTrim(
+    (videoId, progress) => {
       // 更新单个视频的进度
       setVideos((prev) => prev.map((v) => (v.id === videoId ? { ...v, progress } : v)))
     },
