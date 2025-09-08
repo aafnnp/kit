@@ -18,9 +18,10 @@ export function isSafari() {
   return /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
 }
 
-export function isTauri() {
+// 检测是否在Chrome扩展环境中
+export function isExtension() {
   try {
-    return typeof (window as any).__TAURI__ !== 'undefined'
+    return typeof window !== 'undefined' && typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id
   } catch {
     return false
   }

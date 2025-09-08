@@ -4,7 +4,7 @@ import { AppSidebar } from '@/components/app-sidebar'
 import { SiteHeader } from '@/components/site-header'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { PerformanceMonitor } from '@/components/performance-monitor'
-import { isTauri } from '@/lib/utils'
+import { isExtension } from '@/lib/utils'
 import { useState } from 'react'
 
 export const Route = createRootRoute({
@@ -25,7 +25,7 @@ export const Route = createRootRoute({
       { name: 'twitter:card', content: 'summary_large_image' },
     ],
     scripts:
-      typeof window !== 'undefined' && !isTauri()
+      typeof window !== 'undefined' && !isExtension()
         ? [
             {
               async: true,

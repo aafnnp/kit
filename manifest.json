@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "Kit - 多功能工具箱",
+  "version": "0.0.1",
+  "description": "现代化、开箱即用的多功能工具箱，包含80+实用工具，支持文本处理、颜色设计、图片处理、加解密等功能",
+  "author": "Kit Team",
+
+  "permissions": ["storage", "activeTab", "contextMenus", "clipboardWrite", "notifications"],
+
+  "host_permissions": ["<all_urls>"],
+
+  "action": {
+    "default_title": "Kit 工具箱 - 点击在新标签页打开",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' blob:; style-src 'self' 'unsafe-inline';"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*", "workers/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+  "minimum_chrome_version": "88"
+}

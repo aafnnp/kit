@@ -5,8 +5,8 @@ import { Heart, ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from '@tanstack/react-router'
 import { useFavorites, useRecentTools } from '@/lib/favorites'
-import { isTauri } from '@/lib/utils'
-import * as Opener from '@tauri-apps/plugin-opener'
+import { isExtension } from '@/lib/utils'
+// 移除Tauri依赖
 import { Icon } from '@/components/ui/icon-compat'
 import { preloader } from '@/lib/preloader'
 
@@ -35,13 +35,20 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
     onClick?.()
 
     if (tool.href) {
-      if (isTauri()) {
-        ;(Opener as any).open?.(tool.href)?.catch?.(console.error)
+      if (isExtension()) {
+        // 在扩展环境中打开新标签页
+        chrome.tabs.create({ url: tool.href })
       } else {
         window.open(tool.href, '_blank')
       }
     } else {
-      router.navigate({ to: `/tool/${tool.slug}` })
+      if (isExtension()) {
+        // 在扩展环境中，在新标签页打开工具页面
+        const webAppUrl = `https://kit.manon.icu/tool/${tool.slug}`
+        chrome.tabs.create({ url: webAppUrl })
+      } else {
+        router.navigate({ to: `/tool/${tool.slug}` })
+      }
     }
   }
 

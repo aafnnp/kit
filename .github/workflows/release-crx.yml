@@ -1,0 +1,249 @@
+name: 🚀 Build and Release Chrome Extension
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # 触发条件：推送版本标签 (例如 v1.0.0)
+  workflow_dispatch: # 允许手动触发
+    inputs:
+      version:
+        description: '扩展版本号 (例如: 1.0.0)'
+        required: true
+        default: '0.0.1'
+      create_release:
+        description: '是否创建GitHub Release'
+        required: true
+        default: true
+        type: boolean
+
+env:
+  NODE_VERSION: '18'
+  EXTENSION_NAME: 'kit-extension'
+
+jobs:
+  build-extension:
+    name: 📦 构建Chrome扩展
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      extension-zip: ${{ steps.build.outputs.zip-file }}
+
+    steps:
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📋 设置版本号
+        id: version
+        run: |
+          if [[ ${{ github.event_name }} == 'push' ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION=${{ github.event.inputs.version }}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📌 扩展版本: $VERSION"
+
+      - name: 🔧 设置Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 安装依赖
+        run: |
+          npm ci --prefer-offline --no-audit
+
+      - name: 🔄 更新manifest版本
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          echo "更新manifest.json版本到: $VERSION"
+          sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" manifest.json
+          cat manifest.json | grep version
+
+      - name: 🏗️ 构建扩展
+        id: build
+        run: |
+          echo "🚀 开始构建Chrome扩展..."
+          npm run build:extension
+
+          # 检查构建结果
+          if [ ! -d "dist-extension" ]; then
+            echo "❌ 构建失败：dist-extension目录不存在"
+            exit 1
+          fi
+
+          # 验证必要文件
+          required_files=("manifest.json" "background.js" "content.js")
+          for file in "${required_files[@]}"; do
+            if [ ! -f "dist-extension/$file" ]; then
+              echo "❌ 缺少必要文件: $file"
+              exit 1
+            fi
+          done
+
+          echo "✅ 扩展构建完成"
+          ls -la dist-extension/
+
+          # 设置输出
+          echo "zip-file=kit-extension.zip" >> $GITHUB_OUTPUT
+
+      - name: 📊 构建信息
+        run: |
+          echo "### 📦 扩展构建信息" >> $GITHUB_STEP_SUMMARY
+          echo "- **版本**: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **构建时间**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+          echo "- **Node.js版本**: $(node --version)" >> $GITHUB_STEP_SUMMARY
+          echo "- **扩展包大小**: $(du -h kit-extension.zip | cut -f1)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📁 构建文件" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          ls -la dist-extension/ >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🔍 扩展验证
+        run: |
+          echo "🔍 验证扩展包..."
+
+          # 检查ZIP文件
+          if [ ! -f "kit-extension.zip" ]; then
+            echo "❌ 扩展包不存在"
+            exit 1
+          fi
+
+          # 检查ZIP文件内容
+          echo "📋 扩展包内容:"
+          unzip -l kit-extension.zip
+
+          # 验证manifest.json格式
+          if ! jq empty dist-extension/manifest.json 2>/dev/null; then
+            echo "❌ manifest.json格式错误"
+            exit 1
+          fi
+
+          echo "✅ 扩展验证通过"
+
+      - name: 📤 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-extension-${{ steps.version.outputs.version }}
+          path: |
+            kit-extension.zip
+            dist-extension/
+          retention-days: 30
+
+  create-release:
+    name: 🎉 创建GitHub Release
+    needs: build-extension
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
+
+    steps:
+      - name: 📥 检出代码
+        uses: actions/checkout@v4
+
+      - name: 📥 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: chrome-extension-${{ needs.build-extension.outputs.version }}
+
+      - name: 📝 生成Release说明
+        id: release-notes
+        run: |
+          VERSION=${{ needs.build-extension.outputs.version }}
+          cat > release-notes.md << EOF
+          # 🎉 Kit Chrome扩展 v$VERSION
+
+          ## 📦 安装方法
+
+          ### 方式一：开发者模式安装
+          1. 下载下方的 \`kit-extension.zip\` 文件
+          2. 解压到本地文件夹
+          3. 打开Chrome浏览器，访问 \`chrome://extensions/\`
+          4. 启用右上角的"开发者模式"
+          5. 点击"加载已解压的扩展程序"，选择解压后的文件夹
+
+          ### 方式二：直接安装扩展包
+          1. 下载 \`kit-extension.zip\` 文件
+          2. 将文件拖拽到Chrome扩展管理页面
+
+          ## ✨ 功能特性
+
+          - **🎯 新标签页模式**: 点击扩展图标在新标签页打开完整工具箱
+          - **⚡ 80+实用工具**: 文本处理、颜色设计、图片处理、加解密等
+          - **🎨 右键菜单**: 快速访问常用工具
+          - **⌨️ 键盘快捷键**: Ctrl+K 快速唤起工具箱
+          - **🌈 主题支持**: 默认亮色主题，支持暗色和系统主题
+          - **🏠 主页设置**: 一键将工具箱设为浏览器主页
+          - **💾 数据同步**: 收藏、最近使用等数据云端同步
+
+          ## 🔧 技术规格
+
+          - **Manifest版本**: V3
+          - **最低Chrome版本**: 88+
+          - **扩展包大小**: ~50KB
+          - **权限**: storage, activeTab, contextMenus, clipboardWrite, notifications
+
+          ## 📋 更新日志
+
+          - 完整的Chrome扩展功能实现
+          - 新标签页模式提供完整体验
+          - 优化的用户界面和交互
+          - 完善的数据存储和同步机制
+
+          ## 🐛 问题反馈
+
+          如遇到问题，请在 [GitHub Issues](https://github.com/yourusername/kit/issues) 中反馈。
+          EOF
+
+      - name: 🎉 创建Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.build-extension.outputs.version }}
+          name: Kit Chrome Extension v${{ needs.build-extension.outputs.version }}
+          body_path: release-notes.md
+          files: |
+            kit-extension.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify-completion:
+    name: 📢 构建完成通知
+    needs: [build-extension, create-release]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: 📊 构建结果总结
+        run: |
+          echo "## 🚀 Kit Chrome扩展构建完成" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 构建信息" >> $GITHUB_STEP_SUMMARY
+          echo "- **版本**: ${{ needs.build-extension.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **构建状态**: ${{ needs.build-extension.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **发布状态**: ${{ needs.create-release.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **触发方式**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.build-extension.result }}" == "success" ]]; then
+            echo "### ✅ 构建成功" >> $GITHUB_STEP_SUMMARY
+            echo "扩展包已成功构建并可在Artifacts中下载。" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ 构建失败" >> $GITHUB_STEP_SUMMARY
+            echo "请查看构建日志获取详细错误信息。" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [[ "${{ needs.create-release.result }}" == "success" ]]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 🎉 Release已创建" >> $GITHUB_STEP_SUMMARY
+            echo "Release已成功创建，用户可以直接下载安装。" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 📈 使用统计
+        run: |
+          echo "📊 工作流执行统计已记录"

@@ -37,7 +37,7 @@ interface SettingsDialogProps {
 
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { t, i18n } = useTranslation()
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'system')
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light')
   const locale = i18n.language.startsWith('en') ? 'en' : 'zh'
 
   // 判断是否为桌面版（Tauri应用）
@@ -260,6 +260,39 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                             disabled={locale === 'en'}
                           >
                             {t('settings.english')}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      <div>
+                        <div className="font-medium mb-2">设置为主页</div>
+                        <div className="space-y-2">
+                          <p className="text-sm text-muted-foreground">
+                            将Kit工具箱设置为浏览器主页，方便快速访问各种工具
+                          </p>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              // 在扩展环境中，打开Chrome设置页面的主页设置
+                              if (typeof chrome !== 'undefined' && chrome.tabs) {
+                                chrome.tabs.create({ url: 'chrome://settings/onStartup' })
+                              } else {
+                                // 在Web环境中，尝试设置主页（现代浏览器中可能需要用户手动操作）
+                                const currentUrl = window.location.origin
+                                navigator.clipboard
+                                  ?.writeText(currentUrl)
+                                  .then(() => {
+                                    alert('网址已复制到剪贴板！请在浏览器设置中手动设置为主页。')
+                                  })
+                                  .catch(() => {
+                                    alert(`请将以下网址设置为主页：\n${currentUrl}`)
+                                  })
+                              }
+                            }}
+                          >
+                            设置为主页
                           </Button>
                         </div>
                       </div>

@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { extensionStorage } from '../extension/storage'
+import { isExtension } from './utils'
 
 interface Tool {
   slug: string
@@ -21,27 +23,57 @@ export function useFavorites() {
   const [favorites, setFavorites] = useState<Tool[]>([])
 
   useEffect(() => {
-    const stored = localStorage.getItem(FAVORITES_KEY)
-    if (stored) {
+    const loadFavorites = async () => {
       try {
-        setFavorites(JSON.parse(stored))
+        if (isExtension()) {
+          const favoritesList = await extensionStorage.favorites.getFavorites()
+          // 将slug列表转换为Tool对象（这里需要从工具数据中查找）
+          // 暂时使用简单格式，后续可能需要调整
+          const toolObjects = favoritesList.map((slug) => ({ slug, name: slug, desc: '' }))
+          setFavorites(toolObjects)
+        } else {
+          const stored = localStorage.getItem(FAVORITES_KEY)
+          if (stored) {
+            setFavorites(JSON.parse(stored))
+          }
+        }
       } catch (error) {
-        console.error('Failed to parse favorites:', error)
+        console.error('Failed to load favorites:', error)
       }
     }
+
+    loadFavorites()
   }, [])
 
-  const addToFavorites = (tool: Tool) => {
+  const addToFavorites = async (tool: Tool) => {
     const exists = favorites.some((t) => t.slug === tool.slug)
     const newFavorites = exists ? favorites : [...favorites, tool]
     setFavorites(newFavorites)
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(newFavorites))
+
+    try {
+      if (isExtension()) {
+        await extensionStorage.favorites.addFavorite(tool.slug)
+      } else {
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(newFavorites))
+      }
+    } catch (error) {
+      console.error('Failed to save favorite:', error)
+    }
   }
 
-  const removeFromFavorites = (slug: string) => {
+  const removeFromFavorites = async (slug: string) => {
     const newFavorites = favorites.filter((tool) => tool.slug !== slug)
     setFavorites(newFavorites)
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(newFavorites))
+
+    try {
+      if (isExtension()) {
+        await extensionStorage.favorites.removeFavorite(slug)
+      } else {
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(newFavorites))
+      }
+    } catch (error) {
+      console.error('Failed to remove favorite:', error)
+    }
   }
 
   const isFavorite = (slug: string) => {
@@ -70,17 +102,33 @@ export function useRecentTools() {
   const [recentTools, setRecentTools] = useState<RecentTool[]>([])
 
   useEffect(() => {
-    const stored = localStorage.getItem(RECENT_KEY)
-    if (stored) {
+    const loadRecentTools = async () => {
       try {
-        setRecentTools(JSON.parse(stored))
+        if (isExtension()) {
+          const recentList = await extensionStorage.recentTools.getRecentTools()
+          // 将slug列表转换为RecentTool对象
+          const toolObjects = recentList.map((slug) => ({
+            slug,
+            name: slug,
+            desc: '',
+            lastUsed: Date.now(),
+          }))
+          setRecentTools(toolObjects)
+        } else {
+          const stored = localStorage.getItem(RECENT_KEY)
+          if (stored) {
+            setRecentTools(JSON.parse(stored))
+          }
+        }
       } catch (error) {
-        console.error('Failed to parse recent tools:', error)
+        console.error('Failed to load recent tools:', error)
       }
     }
+
+    loadRecentTools()
   }, [])
 
-  const addToRecent = (tool: Tool) => {
+  const addToRecent = async (tool: Tool) => {
     const now = Date.now()
     const existingIndex = recentTools.findIndex((t) => t.slug === tool.slug)
 
@@ -98,12 +146,30 @@ export function useRecentTools() {
     }
 
     setRecentTools(newRecentTools)
-    localStorage.setItem(RECENT_KEY, JSON.stringify(newRecentTools))
+
+    try {
+      if (isExtension()) {
+        await extensionStorage.recentTools.addRecentTool(tool.slug)
+      } else {
+        localStorage.setItem(RECENT_KEY, JSON.stringify(newRecentTools))
+      }
+    } catch (error) {
+      console.error('Failed to save recent tool:', error)
+    }
   }
 
-  const clearRecent = () => {
+  const clearRecent = async () => {
     setRecentTools([])
-    localStorage.removeItem(RECENT_KEY)
+
+    try {
+      if (isExtension()) {
+        await extensionStorage.recentTools.clearRecentTools()
+      } else {
+        localStorage.removeItem(RECENT_KEY)
+      }
+    } catch (error) {
+      console.error('Failed to clear recent tools:', error)
+    }
   }
 
   return {

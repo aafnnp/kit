@@ -6,19 +6,19 @@ export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {
     // 从本地存储获取主题设置
     const storedTheme = localStorage.getItem('theme') as Theme | null
-    return storedTheme || 'system'
+    return storedTheme || 'light'
   })
 
   // 监听系统主题变化
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    
+
     const handleChange = () => {
       if (theme === 'system') {
         updateTheme('system')
       }
     }
-    
+
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [theme])
@@ -31,9 +31,8 @@ export function useTheme() {
   // 更新主题
   function updateTheme(newTheme: Theme) {
     const root = document.documentElement
-    const isDark = 
-      newTheme === 'dark' || 
-      (newTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    const isDark =
+      newTheme === 'dark' || (newTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
     // 更新 DOM 类名
     if (isDark) {

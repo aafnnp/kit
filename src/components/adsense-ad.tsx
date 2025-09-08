@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { isTauri } from '@/lib/utils'
+import { isExtension } from '@/lib/utils'
 
 interface AdSenseAdProps {
   className?: string
@@ -23,7 +23,7 @@ export function AdSenseAd({
   const adRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (isTauri()) return
+    if (isExtension()) return
     try {
       // @ts-ignore
       ;(window.adsbygoogle = window.adsbygoogle || []).push({})
@@ -32,7 +32,7 @@ export function AdSenseAd({
     }
   }, [adSlot, adClient, layout, adFormat, fullWidthResponsive])
 
-  if (isTauri()) return null
+  if (isExtension()) return null
 
   return (
     <div
