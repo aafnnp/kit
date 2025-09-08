@@ -28,43 +28,43 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           cache: 'npm'
-      
+
       - name: Install dependencies
-        run: npm ci
-      
+        run: npm install
+
       - name: Type check
         run: npx tsc --noEmit
-      
+
       - name: Lint
         run: npm run lint || echo "Lint script not found, skipping..."
-      
+
       - name: Build frontend
         run: npm run build
-      
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
-      
+
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: './src-tauri -> target'
-      
+
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-      
+
       - name: Build Tauri app (check only)
         run: |
           cd src-tauri
           cargo check
-  
+
   # 构建和发布
   publish-tauri:
     name: Build and Release (${{ matrix.platform }})
@@ -100,7 +100,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Get version
         id: version
         shell: bash
@@ -112,71 +112,71 @@ jobs:
           else
             echo "version=v$(date +'%Y.%m.%d')-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Install dependencies (Ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
-      
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
           components: rustfmt, clippy
-      
+
       - name: Setup Rust cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: './src-tauri -> target'
           cache-on-failure: true
           key: ${{ matrix.target }}
-      
+
       - name: Install frontend dependencies
         run: npm ci --prefer-offline --no-audit
-      
+
       - name: Update version in package.json
         shell: bash
         run: |
           npm version ${{ steps.version.outputs.version }} --no-git-tag-version
-      
+
       - name: Generate changelog and release notes
         id: changelog
         shell: bash
         run: |
           # 生成完整更新日志
           npm run changelog:generate
-          
+
           # 生成当前版本的发布说明
           RELEASE_NOTES=$(npm run changelog:release ${{ steps.version.outputs.version }} --silent)
-          
+
           # 将发布说明保存到环境变量（处理多行文本）
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
           echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          
+
           # 输出预览
           echo "📋 生成的发布说明:"
           echo "$RELEASE_NOTES"
-      
+
       - name: Build frontend with optimizations
         run: |
           npm run build
         env:
           NODE_ENV: production
           VITE_APP_VERSION: ${{ steps.version.outputs.version }}
-      
+
       - name: Rust format check
         working-directory: src-tauri
         run: cargo fmt --all -- --check
-      
+
       - name: Rust clippy check
         working-directory: src-tauri
         run: cargo clippy --all-targets --all-features -- -D warnings
@@ -193,20 +193,20 @@ jobs:
           releaseName: 'Kit ${{ steps.version.outputs.version }}'
           releaseBody: |
             ${{ steps.changelog.outputs.RELEASE_NOTES }}
-            
+
             ### 📦 安装说明
             - **Windows**: 下载 `.msi` 文件并运行安装
             - **macOS**: 下载 `.dmg` 文件，拖拽到应用程序文件夹
             - **Linux**: 下载 `.AppImage` 文件，添加执行权限后运行
-            
+
             ### 🔄 自动更新
             应用内置自动更新功能，会在有新版本时提示更新。
-            
+
             ### 📋 完整更新日志
             查看 [CHANGELOG.md](https://github.com/aafnnp/kit/blob/main/CHANGELOG.md) 了解所有版本的详细更新内容。
-            
+
             ---
-            
+
             **构建信息**:
             - 构建时间: ${{ github.run_id }}
             - 提交哈希: ${{ github.sha }}
@@ -217,4 +217,3 @@ jobs:
           includeDebug: false
           includeRelease: true
           args: ${{ matrix.args }}
-      
