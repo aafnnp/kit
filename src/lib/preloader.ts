@@ -17,6 +17,10 @@ class PreloadManager {
   private loadedModules = new Set<string>()
   private loadingModules = new Set<string>()
   private observers = new Set<IntersectionObserver>()
+  // 使用频次与关联矩阵（有向图，带权重）
+  private usageCounts = new Map<string, number>()
+  private associationMatrix = new Map<string, Map<string, number>>()
+  private lastUsedSlug: string | null = null
   private stats = {
     preloadedModules: 0,
     hits: 0,
@@ -24,6 +28,11 @@ class PreloadManager {
     totalLoadTime: 0,
     averageLoadTime: 0,
     loadCount: 0,
+  }
+
+  constructor() {
+    this.hydrateBehaviorData()
+    this.seedDefaultAssociations()
   }
 
   /**
@@ -141,8 +150,19 @@ class PreloadManager {
    * 预加载常用工具
    */
   preloadCommonTools(): void {
-    const highPrioritySlugs = ['json-pretty', 'base64-encode', 'url-encode', 'color-picker', 'uuid-generator']
+    // 条件：仅在网络良好且未开启省流时执行
+    const anyNav: any = typeof navigator !== 'undefined' ? navigator : null
+    const connection = anyNav?.connection || anyNav?.mozConnection || anyNav?.webkitConnection
+    const effectiveType = connection?.effectiveType
+    const saveData = Boolean(connection?.saveData)
+    const goodNetwork = effectiveType ? effectiveType === '4g' : true
+    const isSaveData = saveData === true
+    if (!goodNetwork || isSaveData) {
+      // 跳过预加载，保持更细粒度的按需加载
+      return
+    }
 
+    const highPrioritySlugs = ['json-pretty', 'base64-encode', 'url-encode', 'color-picker', 'uuid-generator']
     const mediumPrioritySlugs = ['word-count', 'qr-generator', 'hex-rgb']
 
     highPrioritySlugs.forEach((slug) => {
@@ -159,7 +179,15 @@ class PreloadManager {
       }
     })
 
-    this.preloadByPriority()
+    const schedule = (cb: () => void) => {
+      if (typeof (window as any).requestIdleCallback === 'function') {
+        ;(window as any).requestIdleCallback(cb, { timeout: 3000 })
+      } else {
+        setTimeout(cb, 1000)
+      }
+    }
+
+    schedule(() => this.preloadByPriority())
   }
 
   /**
@@ -185,6 +213,140 @@ class PreloadManager {
     })
 
     this.preloadByPriority()
+  }
+
+  /**
+   * 记录一次工具使用，并更新关联关系
+   */
+  recordUsage(current: string): void {
+    // 使用计数
+    const count = (this.usageCounts.get(current) || 0) + 1
+    this.usageCounts.set(current, count)
+
+    // 关联：上一个 -> 当前
+    if (this.lastUsedSlug && this.lastUsedSlug !== current) {
+      const from = this.lastUsedSlug
+      const row = this.associationMatrix.get(from) || new Map<string, number>()
+      row.set(current, (row.get(current) || 0) + 1)
+      this.associationMatrix.set(from, row)
+    }
+
+    this.lastUsedSlug = current
+    this.persistBehaviorData()
+  }
+
+  /**
+   * 为某个工具增加静态的先验关联（可多次调用做补充）
+   */
+  addAssociations(from: string, tos: string[], weight: number = 1): void {
+    const row = this.associationMatrix.get(from) || new Map<string, number>()
+    tos.forEach((to) => row.set(to, (row.get(to) || 0) + weight))
+    this.associationMatrix.set(from, row)
+    this.persistBehaviorData()
+  }
+
+  /**
+   * 基于最近一次使用的工具，预加载其强关联工具
+   */
+  preloadRelated(from: string, topN: number = 3): void {
+    const related = this.predictRelated(from, topN)
+    const modulePaths: string[] = []
+    related.forEach((slug, index) => {
+      if (hasTool(slug)) {
+        const modulePath = `/src/components/tools/${slug}/index.tsx`
+        this.register(modulePath, { priority: index === 0 ? 'high' : 'medium' })
+        modulePaths.push(modulePath)
+      }
+    })
+    if (modulePaths.length) {
+      this.preloadByPriority()
+    }
+  }
+
+  /**
+   * 预测与某工具强相关的工具（按权重降序）
+   */
+  predictRelated(from: string, topN: number = 3): string[] {
+    const row = this.associationMatrix.get(from)
+    if (!row) return []
+    return Array.from(row.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, topN)
+      .map(([slug]) => slug)
+  }
+
+  /**
+   * 将一批工具按动态优先级加入队列并执行
+   */
+  scheduleToolsWithDynamicPriority(toolSlugs: string[]): void {
+    // 动态评分：usage 权重 + 与 lastUsed 的关联权重
+    const scored = toolSlugs.map((slug) => {
+      const usage = this.usageCounts.get(slug) || 0
+      const assoc = this.lastUsedSlug ? this.associationMatrix.get(this.lastUsedSlug)?.get(slug) || 0 : 0
+      const score = usage * 1.0 + assoc * 2.0
+      return { slug, score }
+    })
+
+    scored
+      .sort((a, b) => b.score - a.score)
+      .forEach((item, index) => {
+        if (!hasTool(item.slug)) return
+        const modulePath = `/src/components/tools/${item.slug}/index.tsx`
+        const priority: PreloadConfig['priority'] = index < 2 ? 'high' : index < 5 ? 'medium' : 'low'
+        this.register(modulePath, { priority })
+      })
+
+    this.preloadByPriority()
+  }
+
+  /**
+   * 恢复/持久化 用户行为数据
+   */
+  private hydrateBehaviorData(): void {
+    try {
+      const usageRaw = localStorage.getItem('preload_usage')
+      const assocRaw = localStorage.getItem('preload_assoc')
+      if (usageRaw) {
+        const obj = JSON.parse(usageRaw) as Record<string, number>
+        this.usageCounts = new Map(Object.entries(obj))
+      }
+      if (assocRaw) {
+        const obj = JSON.parse(assocRaw) as Record<string, Record<string, number>>
+        const matrix = new Map<string, Map<string, number>>()
+        Object.entries(obj).forEach(([from, row]) => {
+          matrix.set(from, new Map(Object.entries(row)))
+        })
+        this.associationMatrix = matrix
+      }
+    } catch {}
+  }
+
+  private persistBehaviorData(): void {
+    try {
+      const usageObj = Object.fromEntries(this.usageCounts.entries())
+      const assocObj: Record<string, Record<string, number>> = {}
+      this.associationMatrix.forEach((row, from) => {
+        assocObj[from] = Object.fromEntries(row.entries())
+      })
+      localStorage.setItem('preload_usage', JSON.stringify(usageObj))
+      localStorage.setItem('preload_assoc', JSON.stringify(assocObj))
+    } catch {}
+  }
+
+  /**
+   * 预置一些常见的业务关联，提供冷启动效果
+   */
+  private seedDefaultAssociations(): void {
+    const add = (from: string, tos: string[]) => this.addAssociations(from, tos, 2)
+    // 示例：二维码生成后常见图片处理
+    add('qr-generator', ['image-compress', 'image-resize'])
+    // 图像类互相关联
+    add('image-compress', ['image-resize', 'image-convert'])
+    add('image-resize', ['image-compress', 'image-convert'])
+    // SVG 相关工具联动
+    add('svg-minify', ['icon-spriter'])
+    // 生成 favicon 常搭配格式转换
+    add('favicon-generator', ['image-convert'])
   }
 
   /**
@@ -328,8 +490,9 @@ export function usePreload() {
  */
 export function useSmartPreload() {
   const trackToolUsage = React.useCallback((toolSlug: string) => {
-    // 这里可以添加用户行为跟踪逻辑
-    console.log(`Tool used: ${toolSlug}`)
+    preloader.recordUsage(toolSlug)
+    // 使用后主动预热其关联工具
+    preloader.preloadRelated(toolSlug)
   }, [])
 
   return {

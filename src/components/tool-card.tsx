@@ -5,9 +5,10 @@ import { Heart, ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from '@tanstack/react-router'
 import { useFavorites, useRecentTools } from '@/lib/favorites'
-import * as Icons from 'lucide-react'
 import { isTauri } from '@/lib/utils'
 import * as Opener from '@tauri-apps/plugin-opener'
+import { Icon } from '@/components/ui/icon-compat'
+import { preloader } from '@/lib/preloader'
 
 interface Tool {
   slug: string
@@ -64,8 +65,6 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
     }
   }
 
-  const IconComponent =
-    tool.icon && Icons[tool.icon as keyof typeof Icons] ? Icons[tool.icon as keyof typeof Icons] : null
   const firstLetter = tool.name?.charAt(0).toUpperCase() || ''
 
   return (
@@ -73,6 +72,10 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
       className="group cursor-pointer transition-all duration-500 ease-out hover:shadow-xl hover:shadow-primary/15 hover:scale-[1.02] border-border/50 hover:border-primary/40 dark:hover:border-primary/50 dark:hover:shadow-primary/25 backdrop-blur-sm touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:-translate-y-1 active:scale-[0.98] active:translate-y-0 will-change-transform tool-card-xs sm:tool-card-mobile md:tool-card-tablet lg:tool-card-desktop"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
+      onMouseEnter={() => {
+        const modulePath = `/src/components/tools/${tool.slug}/index.tsx`
+        preloader.preload(modulePath).catch(() => {})
+      }}
       tabIndex={0}
       role="button"
       aria-label={tool.name}
@@ -82,11 +85,13 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
             <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 dark:group-hover:bg-primary/30 transition-all duration-500 group-hover:scale-110 dark:text-primary-foreground/90 shrink-0 group-hover:shadow-lg group-hover:shadow-primary/20 dark:group-hover:shadow-primary/30">
-              {IconComponent ? (
-                React.createElement(IconComponent as React.ComponentType<any>, {
-                  className:
-                    'h-4 w-4 sm:h-5 sm:w-5 transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 dark:drop-shadow-md',
-                })
+              {tool.icon ? (
+                // 优先尝试 sprite 或映射，同名 lucide 作为回退
+                <Icon
+                  name={tool.icon}
+                  className="h-4 w-4 sm:h-5 sm:w-5 transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 dark:drop-shadow-md"
+                  aria-hidden="true"
+                />
               ) : (
                 <div className="h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-semibold text-xs sm:text-sm transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 dark:drop-shadow-md">
                   {firstLetter}
