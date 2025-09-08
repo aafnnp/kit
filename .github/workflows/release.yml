@@ -145,7 +145,14 @@ jobs:
       - name: Update version in package.json
         shell: bash
         run: |
-          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+          VERSION="${{ steps.version.outputs.version }}"
+          VERSION="${VERSION#v}"
+          CURRENT=$(node -p "require('./package.json').version")
+          if [ "$CURRENT" = "$VERSION" ]; then
+            echo "Version unchanged ($CURRENT), skip."
+            exit 0
+          fi
+          npm version "$VERSION" --no-git-tag-version
 
       - name: Generate changelog and release notes
         id: changelog
