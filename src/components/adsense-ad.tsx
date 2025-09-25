@@ -1,23 +1,23 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { isTauri } from '@/lib/utils'
+import { useLocation } from '@tanstack/react-router'
 
 export function AdSenseAd() {
-  const adRef = useRef<HTMLDivElement>(null)
+  const location = useLocation()
 
   useEffect(() => {
     if (isTauri()) return
     try {
-      // @ts-ignore
       ;(window.adsbygoogle = window.adsbygoogle || []).push({})
     } catch (e) {
       console.error('AdSense error:', e)
     }
-  }, [])
+  }, [location.pathname])
 
   if (isTauri()) return null
 
   return (
-    <div ref={adRef} className="my-8">
+    <div className="my-8">
       <ins
         className="adsbygoogle"
         style={{ display: 'block' }}
@@ -25,7 +25,6 @@ export function AdSenseAd() {
         data-ad-slot="9901453595"
         data-ad-format="auto"
         data-full-width-responsive="true"
-        // data-adtest={process.env.NODE_ENV === "development" ? "on" : "off"}
       />
     </div>
   )
