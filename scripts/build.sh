@@ -97,7 +97,7 @@ clean_build() {
 install_dependencies() {
     if [[ ! -d "node_modules" ]]; then
         log_info "安装前端依赖..."
-        npm ci --prefer-offline --no-audit
+        npm install --prefer-offline --no-audit
         log_success "前端依赖安装完成"
     fi
 }
