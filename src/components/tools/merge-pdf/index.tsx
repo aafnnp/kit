@@ -489,7 +489,10 @@ const usePDFMerger = () => {
         }
 
         const pdfBytes = await mergedPdf.save()
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' })
+        // Copy into a fresh Uint8Array to guarantee ArrayBuffer (not SharedArrayBuffer)
+        const bytesCopy = new Uint8Array(pdfBytes.byteLength)
+        bytesCopy.set(pdfBytes)
+        const blob = new Blob([bytesCopy.buffer], { type: 'application/pdf' })
         const downloadUrl = URL.createObjectURL(blob)
 
         setOperations((prev) =>

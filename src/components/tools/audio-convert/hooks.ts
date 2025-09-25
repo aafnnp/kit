@@ -72,8 +72,10 @@ export function useAudioConversion(
                 sampleRate?: number
                 channels?: number
               }) => {
-                // 创建 Blob URL
-                const blob = new Blob([result.buffer], {
+                // 创建 Blob URL（确保使用 ArrayBuffer，避免 SharedArrayBuffer 类型不兼容）
+                const blobSource: ArrayBuffer =
+                  result.buffer instanceof ArrayBuffer ? result.buffer : result.buffer.slice().buffer
+                const blob = new Blob([blobSource], {
                   type: `audio/${result.format}`,
                 })
                 const url = URL.createObjectURL(blob)

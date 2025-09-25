@@ -143,7 +143,10 @@ const ImageToPdf = () => {
       const t0 = performance.now()
       const pdfBytes = await imagesToPdf(files, settings, setProgress)
       const t1 = performance.now()
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' })
+      // 将 Uint8Array 安全复制到新的 ArrayBuffer，确保类型为 ArrayBuffer
+      const ab = new ArrayBuffer(pdfBytes.byteLength)
+      new Uint8Array(ab).set(pdfBytes)
+      const blob = new Blob([ab], { type: 'application/pdf' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url

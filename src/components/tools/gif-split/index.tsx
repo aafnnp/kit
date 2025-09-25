@@ -170,7 +170,10 @@ const GifSplit = () => {
     })
 
     const zipped = zipSync(zipData)
-    const blob = new Blob([zipped], { type: 'application/zip' })
+    // 将 Uint8Array 安全复制到新的 ArrayBuffer，确保类型为 ArrayBuffer
+    const ab = new ArrayBuffer(zipped.byteLength)
+    new Uint8Array(ab).set(zipped)
+    const blob = new Blob([ab], { type: 'application/zip' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
