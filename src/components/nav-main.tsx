@@ -11,20 +11,41 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useRouter, useLocation } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import * as Icons from 'lucide-react'
+import { loadIconComponent, getLoadedIconComponent, preloadIcons } from '@/lib/icon-loader'
 
 export function NavMain({ items }: { items: typeof tools }) {
   const router = useRouter()
   const { t } = useTranslation()
 
-  // 获取当前 url 的 slug
   const pathname = useLocation({ select: (l) => l.pathname })
   const match = pathname.match(/^\/tool\/([^\/]+)/)
   const currentSlug = match ? match[1] : null
-  // 用对象存储每个 group 的展开状态
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({})
+  const [iconComponents, setIconComponents] = useState<Record<string, React.ComponentType<any> | null>>({})
 
-  // 自动展开包含当前 slug 的 group
+  useEffect(() => {
+    const uniqueIconNames = new Set<string>()
+    items.forEach((group) => {
+      group.tools.forEach((tool: any) => {
+        if (tool.icon) {
+          uniqueIconNames.add(tool.icon)
+        }
+      })
+    })
+
+    preloadIcons(Array.from(uniqueIconNames))
+
+    uniqueIconNames.forEach((iconName) => {
+      if (iconComponents[iconName] !== undefined) return
+      loadIconComponent(iconName).then((component) => {
+        setIconComponents((prev) => ({
+          ...prev,
+          [iconName]: component,
+        }))
+      })
+    })
+  }, [items, iconComponents])
+
   useEffect(() => {
     if (!currentSlug) return
     const group = items.find((item) => item.tools.some((tool) => tool.slug === currentSlug))
@@ -36,12 +57,12 @@ export function NavMain({ items }: { items: typeof tools }) {
   const toggleGroup = (id: string) => {
     setOpenMap((prev) => ({ ...prev, [id]: !prev[id] }))
   }
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-1 sm:gap-2">
         <SidebarMenu className="space-y-1">
           {items.map((item) => {
-            console.log(item, 'item')
             const isOpen = !!openMap[item.id]
             return (
               <SidebarGroup key={item.id}>
@@ -66,6 +87,10 @@ export function NavMain({ items }: { items: typeof tools }) {
                     >
                       {item.tools.map((tool: any) => {
                         const isSelected = tool.slug === currentSlug
+                        const iconName = tool.icon
+                        const IconComponent = iconName
+                          ? iconComponents[iconName] || getLoadedIconComponent(iconName)
+                          : null
                         return (
                           <SidebarMenuItem key={tool.slug}>
                             <SidebarMenuButton
@@ -79,11 +104,8 @@ export function NavMain({ items }: { items: typeof tools }) {
                                 router.navigate({ to: `/tool/${tool.slug}` })
                               }}
                             >
-                              {tool.icon && typeof tool.icon === 'string' && Icons[tool.icon as keyof typeof Icons] ? (
-                                React.createElement(
-                                  Icons[tool.icon as keyof typeof Icons] as React.ComponentType<any>,
-                                  { className: 'size-3.5 sm:size-4 mr-1.5 sm:mr-2 text-primary shrink-0' }
-                                )
+                              {IconComponent ? (
+                                <IconComponent className="size-3.5 sm:size-4 mr-1.5 sm:mr-2 text-primary shrink-0" />
                               ) : (
                                 <div className="size-3.5 sm:size-4 mr-1.5 sm:mr-2 text-primary shrink-0">
                                   {tool.name?.charAt(0).toUpperCase() || ''}

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Heart, ExternalLink } from 'lucide-react'
@@ -7,8 +7,8 @@ import { useRouter } from '@tanstack/react-router'
 import { useFavorites, useRecentTools } from '@/lib/favorites'
 import { isTauri } from '@/lib/utils'
 import * as Opener from '@tauri-apps/plugin-opener'
-import { Icon } from '@/components/ui/icon-compat'
 import { preloader } from '@/lib/preloader'
+import { loadIconComponent, getLoadedIconComponent } from '@/lib/icon-loader'
 
 interface Tool {
   slug: string
@@ -29,6 +29,26 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
   const router = useRouter()
   const { isFavorite, toggleFavorite } = useFavorites()
   const { addToRecent } = useRecentTools()
+
+  const [IconComponent, setIconComponent] = useState<React.ComponentType<any> | null>(null)
+  const iconName = tool.icon
+
+  useEffect(() => {
+    if (!iconName) return
+    const cached = getLoadedIconComponent(iconName)
+    if (cached) {
+      setIconComponent(cached)
+      return
+    }
+
+    loadIconComponent(iconName)
+      .then((component) => {
+        if (component) {
+          setIconComponent(() => component)
+        }
+      })
+      .catch(() => {})
+  }, [iconName])
 
   const handleClick = () => {
     addToRecent(tool)
@@ -65,7 +85,7 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
     }
   }
 
-  const firstLetter = tool.name?.charAt(0).toUpperCase() || ''
+  const firstLetter = useMemo(() => tool.name?.charAt(0).toUpperCase() || '', [tool.name])
 
   return (
     <Card
@@ -85,10 +105,8 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
             <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 dark:group-hover:bg-primary/30 transition-all duration-500 group-hover:scale-110 dark:text-primary-foreground/90 shrink-0 group-hover:shadow-lg group-hover:shadow-primary/20 dark:group-hover:shadow-primary/30">
-              {tool.icon ? (
-                // 优先尝试 sprite 或映射，同名 lucide 作为回退
-                <Icon
-                  name={tool.icon}
+              {IconComponent ? (
+                <IconComponent
                   className="h-4 w-4 sm:h-5 sm:w-5 transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 dark:drop-shadow-md"
                   aria-hidden="true"
                 />
