@@ -1,25 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { isTauri } from '@/lib/utils'
 
-interface AdSenseAdProps {
-  className?: string
-  style?: React.CSSProperties
-  adSlot: string
-  adClient: string
-  adFormat?: string
-  fullWidthResponsive?: boolean
-  layout?: string
-}
-
-export function AdSenseAd({
-  className = '',
-  style = {},
-  adSlot,
-  adClient,
-  layout = 'in-article',
-  adFormat = 'fluid',
-  fullWidthResponsive = true,
-}: AdSenseAdProps) {
+export function AdSenseAd() {
   const adRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -30,25 +12,21 @@ export function AdSenseAd({
     } catch (e) {
       console.error('AdSense error:', e)
     }
-  }, [adSlot, adClient, layout, adFormat, fullWidthResponsive])
+  }, [])
 
   if (isTauri()) return null
 
   return (
-    <div
-      ref={adRef}
-      className={`adsbygoogle ${className}`}
-      style={{
-        display: 'block',
-        textAlign: 'center',
-        margin: '20px 0',
-        ...style,
-      }}
-      data-ad-layout={layout}
-      data-ad-client={adClient}
-      data-ad-slot={adSlot}
-      data-ad-format={adFormat}
-      data-full-width-responsive={fullWidthResponsive ? 'true' : 'false'}
-    />
+    <div ref={adRef} className="my-8">
+      <ins
+        className="adsbygoogle"
+        style={{ display: 'block' }}
+        data-ad-client="ca-pub-3854566314387093"
+        data-ad-slot="9901453595"
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+        // data-adtest={process.env.NODE_ENV === "development" ? "on" : "off"}
+      />
+    </div>
   )
 }
