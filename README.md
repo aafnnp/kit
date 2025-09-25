@@ -6,6 +6,8 @@
 
 > 🧰 现代化、开箱即用的多功能工具箱，支持 Web 与桌面端（Tauri）。
 
+[中文](./README.md) | [English](./README_EN.md)
+
 ---
 
 ## ✨ 功能特性
