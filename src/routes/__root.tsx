@@ -24,20 +24,28 @@ export const Route = createRootRoute({
       { property: 'og:image', content: '/logo.png' },
       { name: 'twitter:card', content: 'summary_large_image' },
     ],
-    scripts: !isTauri()
-      ? [
-          {
-            async: true,
-            src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3854566314387093',
-            crossOrigin: 'anonymous',
-          },
-        ]
-      : [],
+    // scripts: !isTauri()
+    //   ? [
+    //       {
+    //         async: true,
+    //         src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3854566314387093',
+    //         crossOrigin: 'anonymous',
+    //       },
+    //     ]
+    //   : [],
   }),
   component: () => {
     const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false)
     return (
       <>
+        {!isTauri() && (
+          <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
+            crossOrigin="anonymous"
+          ></script>
+        )}
+
         <SidebarProvider>
           <AppSidebar />
           <SidebarInset>
