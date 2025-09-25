@@ -73,7 +73,10 @@ export const createZipFromFiles = async (
   }
 
   const zipped = zipSync(zipData)
-  return new Blob([zipped], { type: 'application/zip' })
+  // 复制到新的 Uint8Array，确保底层为明确的 ArrayBuffer（避免 SharedArrayBuffer）
+  const copied = new Uint8Array(zipped.byteLength)
+  copied.set(zipped)
+  return new Blob([copied.buffer], { type: 'application/zip' })
 }
 
 // ID 生成工具

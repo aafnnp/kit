@@ -194,7 +194,10 @@ export async function downloadAsZip(files: { blob: Blob; filename: string }[], z
   }
 
   const zipped = zipSync(zipData)
-  const zipBlob = new Blob([zipped], { type: 'application/zip' })
+  // 复制到新的 Uint8Array，确保底层为明确的 ArrayBuffer（避免 SharedArrayBuffer）
+  const copied = new Uint8Array(zipped.byteLength)
+  copied.set(zipped)
+  const zipBlob = new Blob([copied.buffer], { type: 'application/zip' })
 
   downloadFile(zipBlob, zipName)
 }

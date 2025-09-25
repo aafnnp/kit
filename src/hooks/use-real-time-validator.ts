@@ -88,7 +88,7 @@ export function useRealTimeValidator(config: ValidationConfig) {
     averageValidationTime: 0,
   })
 
-  const debounceRef = useRef<NodeJS.Timeout>()
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const validationTimesRef = useRef<number[]>([])
 
   // JSON 验证
