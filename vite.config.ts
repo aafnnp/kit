@@ -83,7 +83,7 @@ export default defineConfig(() => ({
           // 重型库独立分包，避免首屏拖拽
           'mermaid-chunk': ['mermaid'],
           'xlsx-chunk': ['xlsx'],
-          'ffmpeg-chunk': ['@ffmpeg/ffmpeg', '@ffmpeg/util', '@ffmpeg/core'],
+          'ffmpeg-chunk': ['@ffmpeg/ffmpeg', '@ffmpeg/core'],
           'pdf-chunk': ['pdf-lib'],
         },
         // 优化chunk文件名
