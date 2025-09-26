@@ -3,7 +3,7 @@ import tools from '@/lib/data'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'motion/react'
 import { Button } from '@/components/ui/button'
-import { useState, useMemo, useEffect, useRef, useCallback, forwardRef } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { SearchBar } from '@/components/search-bar'
 import { ToolCard } from '@/components/tool-card'
 import { AdSenseAd } from '@/components/adsense-ad'
@@ -13,11 +13,8 @@ import { Heart, Clock, Grid3X3, Trash2, Settings } from 'lucide-react'
 import { usePreload, useSmartPreload } from '@/lib/preloader'
 import { useResourcePreload, resourceOptimizer } from '@/lib/resource-optimizer'
 import { CategoryManager } from '@/components/category-manager'
+import { SmartToolGrid } from '@/components/smart-tool-grid'
 import { isSafari } from '@/lib/utils'
-import { TFunction } from 'i18next'
-
-const INITIAL_CATEGORY_COUNT = 2
-const ADDITIONAL_CATEGORY_BATCH = 2
 
 export const Route = createFileRoute('/')({
   component: () => {
@@ -79,36 +76,7 @@ export const Route = createFileRoute('/')({
       return allTools.filter((tool) => recentSlugs.includes(tool.slug))
     }, [allTools, recentTools])
 
-    const [visibleCategories, setVisibleCategories] = useState(INITIAL_CATEGORY_COUNT)
-    const lastCategoryRef = useRef<HTMLDivElement | null>(null)
-
-    useEffect(() => {
-      setVisibleCategories(INITIAL_CATEGORY_COUNT)
-    }, [activeTab, searchQuery])
-
-    useEffect(() => {
-      if (activeTab !== 'all' || visibleCategories >= tools.length) return
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setVisibleCategories((prev) => Math.min(prev + ADDITIONAL_CATEGORY_BATCH, tools.length))
-            }
-          })
-        },
-        {
-          rootMargin: '200px 0px 400px',
-          threshold: 0.1,
-        }
-      )
-
-      const element = lastCategoryRef.current
-      if (element) observer.observe(element)
-      return () => {
-        if (element) observer.unobserve(element)
-        observer.disconnect()
-      }
-    }, [activeTab, tools.length, visibleCategories])
+    // 移除旧的分类懒加载逻辑，现在由 SmartToolGrid 处理
 
     const renderToolGrid = useCallback(
       (toolsToRender: any[], showFavoriteButton = true) => {
@@ -133,6 +101,7 @@ export const Route = createFileRoute('/')({
           )
         }
 
+        // 对于收藏和最近使用的工具，使用传统网格布局（数量较少）
         if (activeTab === 'favorites' || activeTab === 'recent') {
           return (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 grid-mobile-1 sm:grid-mobile-2 md:grid-tablet-3 lg:grid-desktop-4 xl:grid-desktop-5 2xl:grid-ultrawide-6">
@@ -142,8 +111,6 @@ export const Route = createFileRoute('/')({
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
-                  // 暂时移除预加载，与 tanstack-router 懒加载冲突
-                  // onMouseEnter={() => preloadTool(tool.slug)}
                 >
                   <ToolCard tool={tool} showFavoriteButton={showFavoriteButton} onClick={() => handleToolClick(tool)} />
                 </motion.div>
@@ -152,37 +119,20 @@ export const Route = createFileRoute('/')({
           )
         }
 
+        // 对于所有工具和搜索结果，使用智能工具网格
         return (
-          <div className="space-y-6 sm:space-y-8">
-            {toolsToRender.map((category, categoryIndex) => {
-              const shouldRender = activeTab !== 'all' || categoryIndex < visibleCategories
-              const isSentinel = activeTab === 'all' && categoryIndex === visibleCategories - 1
-
-              if (!shouldRender) {
-                return (
-                  <div
-                    key={category.type?.zh || category.type?.en || categoryIndex}
-                    className="h-[120px] sm:h-[140px] bg-muted/30 rounded-lg animate-pulse"
-                  />
-                )
-              }
-
-              return (
-                <CategorySection
-                  key={category.type?.zh || category.type?.en || categoryIndex}
-                  category={category}
-                  categoryIndex={categoryIndex}
-                  showFavoriteButton={showFavoriteButton}
-                  onToolClick={handleToolClick}
-                  t={t}
-                  ref={isSentinel ? lastCategoryRef : undefined}
-                />
-              )
-            })}
-          </div>
+          <SmartToolGrid
+            categories={toolsToRender}
+            showFavoriteButton={showFavoriteButton}
+            onToolClick={handleToolClick}
+            t={t}
+            forceRenderStrategy="auto"
+            virtualThreshold={50}
+            mobileThreshold={30}
+          />
         )
       },
-      [activeTab, handleToolClick, t, visibleCategories]
+      [activeTab, handleToolClick, t]
     )
 
     return (
@@ -350,42 +300,3 @@ export const Route = createFileRoute('/')({
     )
   },
 })
-
-interface CategorySectionProps {
-  category: any
-  categoryIndex: number
-  showFavoriteButton: boolean
-  onToolClick: (tool: any) => void
-  t: TFunction
-}
-
-const CategorySection = forwardRef<HTMLDivElement, CategorySectionProps>(
-  ({ category, categoryIndex, showFavoriteButton, onToolClick, t }, ref) => {
-    return (
-      <motion.div
-        ref={ref}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
-      >
-        <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-foreground px-1 sm:px-0">
-          {t(`tools.${category.id}`)}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 grid-mobile-1 sm:grid-mobile-2 md:grid-tablet-3 lg:grid-desktop-4 xl:grid-desktop-5 2xl:grid-ultrawide-6">
-          {category.tools?.map((tool: any, toolIndex: number) => (
-            <motion.div
-              key={tool.slug + toolIndex}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: categoryIndex * 0.1 + toolIndex * 0.05 }}
-            >
-              <ToolCard tool={tool} showFavoriteButton={showFavoriteButton} onClick={() => onToolClick(tool)} />
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-    )
-  }
-)
-
-CategorySection.displayName = 'CategorySection'

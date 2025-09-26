@@ -56,7 +56,7 @@ export const Route = createRootRoute({
           </SidebarInset>
         </SidebarProvider>
 
-        <PerformanceMonitor isOpen={showPerformanceMonitor} onClose={() => setShowPerformanceMonitor(false)} />
+        <PerformanceMonitor isVisible={showPerformanceMonitor} onToggle={() => setShowPerformanceMonitor(false)} />
 
         {/* 性能监控切换按钮 */}
         {!showPerformanceMonitor && (

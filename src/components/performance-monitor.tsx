@@ -1,409 +1,304 @@
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
-import { Activity, Zap, Database, Clock, TrendingUp, X } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { motion } from 'motion/react'
+import { Activity, Monitor, Zap, Smartphone, Wifi, WifiOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { resourceOptimizer } from '@/lib/resource-optimizer'
-import { cache } from '@/lib/cache'
-import { preloader } from '@/lib/preloader'
-import { useTranslation } from 'react-i18next'
 
-interface PerformanceStats {
-  // 代码分割统计
-  totalChunks: number
-  loadedChunks: number
-  failedChunks: number
-  loadingChunks: number
+interface PerformanceMetrics {
+  renderTime: number
+  memoryUsage: number
+  itemCount: number
+  strategy: string
+  timestamp: number
+}
 
-  // 缓存统计
-  cacheHits: number
-  cacheMisses: number
-  cacheSize: number
-  cacheHitRate: number
+interface NetworkInfo {
+  effectiveType: string
+  downlink: number
+  rtt: number
+  saveData: boolean
+}
 
-  // 资源统计
-  loadedResources: number
-  loadingResources: number
-  cachedIcons: number
-
-  // 预加载统计
-  preloadedModules: number
-  preloadHits: number
-  totalPreloaded: number
-  successfulPreloads: number
-  failedPreloads: number
-
-  // 性能指标
-  averageLoadTime: number
-  totalLoadTime: number
-  memoryUsage?: number
+interface DeviceInfo {
+  isMobile: boolean
+  isTablet: boolean
+  isDesktop: boolean
+  userAgent: string
 }
 
 interface PerformanceMonitorProps {
-  isOpen: boolean
-  onClose: () => void
+  isVisible?: boolean
+  onToggle?: () => void
+  className?: string
 }
 
-export function PerformanceMonitor({ isOpen, onClose }: PerformanceMonitorProps) {
-  const { t } = useTranslation()
-  const [stats, setStats] = useState<PerformanceStats>({
-    totalChunks: 0,
-    loadedChunks: 0,
-    failedChunks: 0,
-    loadingChunks: 0,
-    cacheHits: 0,
-    cacheMisses: 0,
-    cacheSize: 0,
-    cacheHitRate: 0,
-    loadedResources: 0,
-    loadingResources: 0,
-    cachedIcons: 0,
-    preloadedModules: 0,
-    preloadHits: 0,
-    totalPreloaded: 0,
-    successfulPreloads: 0,
-    failedPreloads: 0,
-    averageLoadTime: 0,
-    totalLoadTime: 0,
-  })
-  const [isRealTime, setIsRealTime] = useState(true)
+export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
+  isVisible = false,
+  onToggle,
+  className = '',
+}) => {
+  const [metrics, setMetrics] = useState<PerformanceMetrics[]>([])
+  const [networkInfo, setNetworkInfo] = useState<NetworkInfo | null>(null)
+  const [deviceInfo, setDeviceInfo] = useState<DeviceInfo | null>(null)
+  const [isRecording, setIsRecording] = useState(false)
+  const observerRef = useRef<PerformanceObserver | null>(null)
 
-  // 获取性能统计数据
-  const updateStats = () => {
-    try {
-      const resourceStats = resourceOptimizer.getStats()
-      const cacheStats = cache.getStats()
-      const preloaderStats = preloader.getStats()
+  // 获取网络信息
+  useEffect(() => {
+    if (typeof navigator === 'undefined') return
 
-      // 获取内存使用情况（如果支持）
-      let memoryUsage: number | undefined
-      if ('memory' in performance) {
-        const memory = (performance as any).memory
-        memoryUsage = memory.usedJSHeapSize / 1024 / 1024 // MB
+    const updateNetworkInfo = () => {
+      const connection =
+        (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection
+
+      if (connection) {
+        setNetworkInfo({
+          effectiveType: connection.effectiveType || 'unknown',
+          downlink: connection.downlink || 0,
+          rtt: connection.rtt || 0,
+          saveData: connection.saveData || false,
+        })
       }
+    }
 
-      // 以真实资源加载条目替代代码分割统计
-      const perfResources = performance.getEntriesByType('resource') as PerformanceResourceTiming[]
-      const jsResources = perfResources.filter((r) => r.initiatorType === 'script')
-      const failedChunks = 0 // 无直接失败指标，保持 0
+    updateNetworkInfo()
 
-      setStats({
-        totalChunks: jsResources.length,
-        loadedChunks: jsResources.length,
-        failedChunks,
-        loadingChunks: 0,
-        cacheHits: cacheStats.hits,
-        cacheMisses: cacheStats.misses,
-        cacheSize: cacheStats.size,
-        cacheHitRate:
-          cacheStats.hits + cacheStats.misses > 0 ? (cacheStats.hits / (cacheStats.hits + cacheStats.misses)) * 100 : 0,
-        loadedResources: resourceStats.loadedResources,
-        loadingResources: resourceStats.loadingResources,
-        cachedIcons: resourceStats.cachedIcons,
-        preloadedModules: preloaderStats.preloadedModules,
-        preloadHits: preloaderStats.hits,
-        totalPreloaded: preloaderStats.total,
-        successfulPreloads: preloaderStats.loaded,
-        failedPreloads: preloaderStats.total - preloaderStats.loaded,
-        averageLoadTime: preloaderStats.averageLoadTime,
-        totalLoadTime: preloaderStats.totalLoadTime,
-        memoryUsage,
+    // 监听网络变化
+    const connection = (navigator as any).connection
+    if (connection && connection.addEventListener) {
+      connection.addEventListener('change', updateNetworkInfo)
+      return () => {
+        connection.removeEventListener('change', updateNetworkInfo)
+      }
+    }
+  }, [])
+
+  // 获取设备信息
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const width = window.innerWidth
+    const userAgent = navigator.userAgent
+
+    setDeviceInfo({
+      isMobile: width < 768 || /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent),
+      isTablet: (width >= 768 && width < 1024) || /ipad|android(?!.*mobile)/i.test(userAgent),
+      isDesktop: width >= 1024,
+      userAgent: userAgent.substring(0, 50) + '...',
+    })
+  }, [])
+
+  // 性能监控
+  useEffect(() => {
+    if (!isRecording) return
+
+    // 监控长任务
+    if ('PerformanceObserver' in window) {
+      observerRef.current = new PerformanceObserver((list) => {
+        const entries = list.getEntries()
+        entries.forEach((entry) => {
+          if (entry.entryType === 'longtask') {
+            console.warn('Long task detected:', entry.duration)
+          }
+        })
       })
-    } catch (error) {
-      console.warn('Failed to update performance stats:', error)
+
+      try {
+        observerRef.current.observe({ entryTypes: ['longtask'] })
+      } catch (e) {
+        console.warn('PerformanceObserver not supported:', e)
+      }
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+      }
+    }
+  }, [isRecording])
+
+  // 记录性能指标（内部使用）
+  // const recordMetrics = useCallback((newMetrics: Omit<PerformanceMetrics, 'timestamp'>) => {
+  //   const metric: PerformanceMetrics = {
+  //     ...newMetrics,
+  //     timestamp: Date.now(),
+  //   }
+
+  //   setMetrics((prev) => {
+  //     const updated = [...prev, metric].slice(-10) // 保留最近10条记录
+  //     return updated
+  //   })
+  // }, [])
+
+  // 清除记录
+  const clearMetrics = () => {
+    setMetrics([])
+  }
+
+  // 获取性能统计
+  const getStats = () => {
+    if (metrics.length === 0) return null
+
+    const renderTimes = metrics.map((m) => m.renderTime)
+    const memoryUsages = metrics.map((m) => m.memoryUsage)
+
+    return {
+      avgRenderTime: renderTimes.reduce((a, b) => a + b, 0) / renderTimes.length,
+      maxRenderTime: Math.max(...renderTimes),
+      minRenderTime: Math.min(...renderTimes),
+      avgMemoryUsage: memoryUsages.reduce((a, b) => a + b, 0) / memoryUsages.length,
+      maxMemoryUsage: Math.max(...memoryUsages),
+      totalRecords: metrics.length,
     }
   }
 
-  // 实时更新统计数据
-  useEffect(() => {
-    if (!isOpen || !isRealTime) return
+  const stats = getStats()
 
-    updateStats()
-    const interval = setInterval(updateStats, 1000)
-    return () => clearInterval(interval)
-  }, [isOpen, isRealTime])
-
-  // 手动刷新
-  const handleRefresh = () => {
-    updateStats()
+  if (!isVisible) {
+    return (
+      <Button
+        onClick={onToggle}
+        variant="outline"
+        size="sm"
+        className={`fixed bottom-4 right-4 z-50 ${className}`}
+        aria-label="打开性能监控"
+      >
+        <Monitor className="h-4 w-4" />
+      </Button>
+    )
   }
-
-  // 清理缓存
-  const handleClearCache = () => {
-    cache.clear()
-    resourceOptimizer.cleanup()
-    updateStats()
-  }
-
-  // 获取性能等级
-  const getPerformanceGrade = () => {
-    const { cacheHitRate, averageLoadTime } = stats
-
-    if (cacheHitRate >= 80 && averageLoadTime < 100) return { grade: 'A', color: 'text-green-500' }
-    if (cacheHitRate >= 60 && averageLoadTime < 200) return { grade: 'B', color: 'text-blue-500' }
-    if (cacheHitRate >= 40 && averageLoadTime < 500) return { grade: 'C', color: 'text-yellow-500' }
-    return { grade: 'D', color: 'text-red-500' }
-  }
-
-  const performanceGrade = getPerformanceGrade()
-
-  if (!isOpen) return null
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-        onClick={onClose}
-      >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-background border rounded-lg shadow-lg max-w-6xl w-full max-h-[90vh] overflow-auto"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* 头部 */}
-          <div className="flex items-center justify-between p-6 border-b">
-            <div className="flex items-center space-x-3">
-              <Activity className="w-6 h-6 text-primary" />
-              <div>
-                <h2 className="text-xl font-semibold">{t('performance.title')}</h2>
-                <p className="text-sm text-muted-foreground">{t('performance.desc')}</p>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      className={`fixed bottom-4 right-4 z-50 w-80 max-h-96 overflow-auto ${className}`}
+    >
+      <Card className="bg-background/95 backdrop-blur-sm border shadow-lg">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              性能监控
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setIsRecording(!isRecording)}
+                variant={isRecording ? 'destructive' : 'outline'}
+                size="sm"
+                className="h-6 px-2 text-xs"
+              >
+                {isRecording ? '停止' : '开始'}
+              </Button>
+              <Button onClick={onToggle} variant="ghost" size="sm" className="h-6 w-6 p-0">
+                ×
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-4 text-xs">
+          {/* 设备信息 */}
+          {deviceInfo && (
+            <div>
+              <h4 className="font-medium mb-2 flex items-center gap-1">
+                <Smartphone className="h-3 w-3" />
+                设备信息
+              </h4>
+              <div className="space-y-1 text-muted-foreground">
+                <div>类型: {deviceInfo.isMobile ? '移动' : deviceInfo.isTablet ? '平板' : '桌面'}</div>
+                <div>
+                  屏幕: {window.innerWidth}×{window.innerHeight}
+                </div>
+                <div className="truncate">UA: {deviceInfo.userAgent}</div>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Badge variant="outline" className={`${performanceGrade.color} border-current`}>
-                {t('performance.level', { level: performanceGrade.grade })}
-              </Badge>
-              <Button variant="ghost" size="sm" onClick={() => setIsRealTime(!isRealTime)}>
-                {isRealTime ? t('performance.stop') : t('performance.start')}
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleRefresh}>
-                {t('performance.refresh')}
-              </Button>
-              <Button variant="ghost" size="icon" onClick={onClose}>
-                <X className="w-4 h-4" />
-              </Button>
+          )}
+
+          {/* 网络信息 */}
+          {networkInfo && (
+            <div>
+              <h4 className="font-medium mb-2 flex items-center gap-1">
+                {networkInfo.saveData ? <WifiOff className="h-3 w-3" /> : <Wifi className="h-3 w-3" />}
+                网络状态
+              </h4>
+              <div className="space-y-1 text-muted-foreground">
+                <div>类型: {networkInfo.effectiveType}</div>
+                <div>下行: {networkInfo.downlink} Mbps</div>
+                <div>延迟: {networkInfo.rtt} ms</div>
+                <div>省流: {networkInfo.saveData ? '开启' : '关闭'}</div>
+              </div>
             </div>
+          )}
+
+          {/* 性能统计 */}
+          {stats && (
+            <div>
+              <h4 className="font-medium mb-2 flex items-center gap-1">
+                <Zap className="h-3 w-3" />
+                性能统计
+              </h4>
+              <div className="space-y-1 text-muted-foreground">
+                <div>平均渲染: {stats.avgRenderTime.toFixed(2)}ms</div>
+                <div>最大渲染: {stats.maxRenderTime.toFixed(2)}ms</div>
+                <div>平均内存: {(stats.avgMemoryUsage / 1024 / 1024).toFixed(2)}MB</div>
+                <div>记录数: {stats.totalRecords}</div>
+              </div>
+            </div>
+          )}
+
+          {/* 最近记录 */}
+          {metrics.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium">最近记录</h4>
+                <Button onClick={clearMetrics} variant="ghost" size="sm" className="h-5 px-2 text-xs">
+                  清除
+                </Button>
+              </div>
+              <div className="space-y-1 max-h-20 overflow-auto">
+                {metrics
+                  .slice(-5)
+                  .reverse()
+                  .map((metric) => (
+                    <div key={metric.timestamp} className="text-muted-foreground text-xs">
+                      {metric.strategy}: {metric.renderTime.toFixed(1)}ms |{metric.itemCount}项 |
+                      {(metric.memoryUsage / 1024 / 1024).toFixed(1)}MB
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* 使用说明 */}
+          <div className="text-muted-foreground text-xs border-t pt-2">
+            <div>• 点击"开始"开始监控性能</div>
+            <div>• 记录渲染时间和内存使用</div>
+            <div>• 仅在开发环境显示</div>
           </div>
-
-          {/* 内容 */}
-          <div className="p-6 space-y-6">
-            {/* 概览卡片 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{t('performance.splitSuccessRate')}</CardTitle>
-                  <Zap className="w-4 h-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {stats.totalChunks > 0 ? ((stats.loadedChunks / stats.totalChunks) * 100).toFixed(1) : '0'}%
-                  </div>
-                  <Progress
-                    value={stats.totalChunks > 0 ? (stats.loadedChunks / stats.totalChunks) * 100 : 0}
-                    className="mt-2"
-                  />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{t('performance.storageRate')}</CardTitle>
-                  <Database className="w-4 h-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.cacheHitRate.toFixed(1)}%</div>
-                  <Progress value={stats.cacheHitRate} className="mt-2" />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{t('performance.averageLoadTime')}</CardTitle>
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.averageLoadTime.toFixed(0)}ms</div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t('performance.totalLoadTime')}: {stats.totalLoadTime.toFixed(0)}ms
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{t('performance.preloadCount')}</CardTitle>
-                  <Zap className="w-4 h-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.preloadHits}</div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t('performance.preloadedModules')}: {stats.preloadedModules}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{t('performance.memoryUsage')}</CardTitle>
-                  <TrendingUp className="w-4 h-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {stats.memoryUsage ? `${stats.memoryUsage.toFixed(1)}MB` : 'N/A'}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t('performance.cacheSize')}: {stats.cacheSize}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* 详细统计 */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* 代码分割统计 */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Zap className="w-5 h-5" />
-                    <span>{t('performance.codeSplitStats')}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">{t('performance.codeLoaded')}</span>
-                    <Badge variant="secondary">{stats.loadedChunks}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">{t('performance.codeLoading')}</span>
-                    <Badge variant="outline">{stats.loadingChunks}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">{t('performance.codeFailed')}</span>
-                    <Badge variant="destructive">{stats.failedChunks}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">{t('performance.codeTotal')}</span>
-                    <Badge variant="secondary">{stats.totalChunks}</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* 缓存统计 */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Database className="w-5 h-5" />
-                    <span>{t('performance.storageStats')}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">{t('performance.storageHits')}</span>
-                    <Badge variant="secondary">{stats.cacheHits}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">{t('performance.storageMisses')}</span>
-                    <Badge variant="outline">{stats.cacheMisses}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">{t('performance.storageTotal')}</span>
-                    <Badge variant="secondary">{stats.cacheSize}</Badge>
-                  </div>
-                  <div className="pt-2">
-                    <Button variant="destructive" size="sm" onClick={handleClearCache} className="w-full">
-                      {t('performance.clearCache')}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* 资源统计 */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Activity className="w-5 h-5" />
-                    <span>{t('performance.resourceStats')}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">{t('performance.resourceLoaded')}</span>
-                    <Badge variant="secondary">{stats.loadedResources}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">{t('performance.resourceLoading')}</span>
-                    <Badge variant="outline">{stats.loadingResources}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">{t('performance.storageIcons')}</span>
-                    <Badge variant="secondary">{stats.cachedIcons}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">{t('performance.preloadedModules')}</span>
-                    <Badge variant="secondary">{stats.preloadedModules}</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* 性能建议 */}
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('performance.recommended')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  {stats.totalChunks > 0 && stats.loadedChunks / stats.totalChunks < 0.8 && (
-                    <div className="flex items-center space-x-2 text-yellow-600">
-                      <span>⚠️</span>
-                      <span>{t('performance.performanceLow')}</span>
-                    </div>
-                  )}
-                  {stats.cacheHitRate < 50 && (
-                    <div className="flex items-center space-x-2 text-yellow-600">
-                      <span>⚠️</span>
-                      <span>{t('performance.performanceLow')}</span>
-                    </div>
-                  )}
-                  {stats.averageLoadTime > 500 && (
-                    <div className="flex items-center space-x-2 text-red-600">
-                      <span>🚨</span>
-                      <span>{t('performance.performanceLow')}</span>
-                    </div>
-                  )}
-                  {stats.memoryUsage && stats.memoryUsage > 100 && (
-                    <div className="flex items-center space-x-2 text-orange-600">
-                      <span>💾</span>
-                      <span>{t('performance.performanceLow')}</span>
-                    </div>
-                  )}
-                  {stats.failedChunks > 0 && (
-                    <div className="flex items-center space-x-2 text-red-600">
-                      <span>❌</span>
-                      <span>{t('performance.performanceLow')}</span>
-                    </div>
-                  )}
-                  {stats.cacheHitRate >= 80 && stats.averageLoadTime < 200 && stats.failedChunks === 0 && (
-                    <div className="flex items-center space-x-2 text-green-600">
-                      <span>✅</span>
-                      <span>{t('performance.performanceHight')}</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        </CardContent>
+      </Card>
+    </motion.div>
   )
+}
+
+// 导出用于记录性能指标的函数
+export const recordPerformanceMetrics = (
+  renderTime: number,
+  memoryUsage: number,
+  itemCount: number,
+  strategy: string
+) => {
+  // 这个函数可以被其他组件调用来记录性能指标
+  if (typeof window !== 'undefined' && (window as any).__performanceMonitor) {
+    ;(window as any).__performanceMonitor.recordMetrics({
+      renderTime,
+      memoryUsage,
+      itemCount,
+      strategy,
+    })
+  }
 }
 
 export default PerformanceMonitor
