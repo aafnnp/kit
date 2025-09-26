@@ -17,7 +17,7 @@ class CacheManager {
     misses: 0,
     sets: 0,
     deletes: 0,
-    evictions: 0
+    evictions: 0,
   }
 
   /**
@@ -90,7 +90,7 @@ class CacheManager {
       misses: 0,
       sets: 0,
       deletes: 0,
-      evictions: 0
+      evictions: 0,
     }
   }
 
@@ -109,11 +109,19 @@ class CacheManager {
   /**
    * 获取缓存统计信息
    */
-  getStats(): { size: number; maxSize: number; hits: number; misses: number; sets: number; deletes: number; evictions: number } {
+  getStats(): {
+    size: number
+    maxSize: number
+    hits: number
+    misses: number
+    sets: number
+    deletes: number
+    evictions: number
+  } {
     return {
       size: this.cache.size,
       maxSize: this.maxSize,
-      ...this.stats
+      ...this.stats,
     }
   }
 
@@ -130,7 +138,7 @@ class CacheManager {
       if (oldestKey) {
         this.cache.delete(oldestKey)
       } else {
-        break; // 如果没有更多的键，退出循环
+        break // 如果没有更多的键，退出循环
       }
     }
   }
@@ -139,13 +147,35 @@ class CacheManager {
 // 创建全局缓存实例
 export const cache = new CacheManager()
 
-// 定期清理过期缓存（每5分钟）
-setInterval(
-  () => {
-    cache.cleanup()
-  },
-  5 * 60 * 1000
-)
+// 惰性清理守护：仅在有订阅者时启动，且可显式停止
+let cleanupTimer: ReturnType<typeof setInterval> | null = null
+let subscribers = 0
+
+export function startCacheCleanupGuard(): void {
+  if (cleanupTimer) return
+  cleanupTimer = setInterval(
+    () => {
+      cache.cleanup()
+    },
+    5 * 60 * 1000
+  )
+}
+
+export function stopCacheCleanupGuard(): void {
+  if (cleanupTimer) {
+    clearInterval(cleanupTimer)
+    cleanupTimer = null
+  }
+}
+
+export function subscribeCacheGuard(): () => void {
+  subscribers++
+  if (subscribers === 1) startCacheCleanupGuard()
+  return () => {
+    subscribers = Math.max(0, subscribers - 1)
+    if (subscribers === 0) stopCacheCleanupGuard()
+  }
+}
 
 /**
  * 缓存装饰器 - 用于函数结果缓存

@@ -46,7 +46,13 @@ export const Route = createFileRoute('/')({
       // 预加载常用工具
       preloadCommonTools()
       // 拉取并挂载公共 SVG 雪碧图（若存在）
-      resourceOptimizer.mountSpriteFromUrl('/sprite.svg').catch(() => {})
+      fetch('/sprite.svg', { method: 'HEAD' })
+        .then((res) => {
+          if (res.ok) {
+            resourceOptimizer.mountSpriteFromUrl('/sprite.svg').catch(() => {})
+          }
+        })
+        .catch(() => {})
     }, [])
 
     // 工具交互事件处理

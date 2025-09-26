@@ -5,7 +5,8 @@ import { SiteHeader } from '@/components/site-header'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { PerformanceMonitor } from '@/components/performance-monitor'
 import { isTauri } from '@/lib/utils'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { scheduleTTIMeasure, initWebVitals, initLongTaskObserver } from '@/lib/perf'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -36,6 +37,11 @@ export const Route = createRootRoute({
   }),
   component: () => {
     const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false)
+    useEffect(() => {
+      scheduleTTIMeasure()
+      initWebVitals()
+      initLongTaskObserver()
+    }, [])
     return (
       <>
         {!isTauri() && (

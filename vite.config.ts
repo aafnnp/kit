@@ -80,6 +80,11 @@ export default defineConfig(() => ({
           'utils-vendor': ['clsx', 'tailwind-merge'],
           // 将国际化库分离
           'i18n-vendor': ['react-i18next', 'i18next'],
+          // 重型库独立分包，避免首屏拖拽
+          'mermaid-chunk': ['mermaid'],
+          'xlsx-chunk': ['xlsx'],
+          'ffmpeg-chunk': ['@ffmpeg/ffmpeg', '@ffmpeg/util', '@ffmpeg/core'],
+          'pdf-chunk': ['pdf-lib'],
         },
         // 优化chunk文件名
         chunkFileNames: (chunkInfo) => {

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
+import { perfBus } from '@/lib/perf'
 import { motion } from 'motion/react'
 import { Activity, Monitor, Zap, Smartphone, Wifi, WifiOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -41,7 +42,63 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
   const [networkInfo, setNetworkInfo] = useState<NetworkInfo | null>(null)
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo | null>(null)
   const [isRecording, setIsRecording] = useState(false)
-  const observerRef = useRef<PerformanceObserver | null>(null)
+  // 由 perf.ts 统一上报长任务，无需本地 Observer
+
+  // 订阅 perf 事件（TTI/工具交互/Worker 任务/WebVitals/长任务）
+  useEffect(() => {
+    if (!isRecording) return
+    const offTTI = perfBus.on('tti', ({ ms }) => {
+      setMetrics((prev) => [
+        { renderTime: ms, memoryUsage: 0, itemCount: 0, strategy: 'TTI', timestamp: Date.now() },
+        ...prev,
+      ])
+    })
+    const offTool = perfBus.on('tool_interactive', ({ slug, ms }) => {
+      setMetrics((prev) => [
+        { renderTime: ms, memoryUsage: 0, itemCount: 0, strategy: `tool:${slug}`, timestamp: Date.now() },
+        ...prev,
+      ])
+    })
+    const offWorker = perfBus.on('worker_task', ({ type, ms }) => {
+      setMetrics((prev) => [
+        { renderTime: ms, memoryUsage: 0, itemCount: 0, strategy: `worker:${type}`, timestamp: Date.now() },
+        ...prev,
+      ])
+    })
+    const offLCP = perfBus.on('lcp', ({ value }) => {
+      setMetrics((prev) => [
+        { renderTime: value, memoryUsage: 0, itemCount: 0, strategy: 'LCP', timestamp: Date.now() },
+        ...prev,
+      ])
+    })
+    const offCLS = perfBus.on('cls', ({ value }) => {
+      setMetrics((prev) => [
+        { renderTime: value, memoryUsage: 0, itemCount: 0, strategy: 'CLS', timestamp: Date.now() },
+        ...prev,
+      ])
+    })
+    const offINP = perfBus.on('inp', ({ value }) => {
+      setMetrics((prev) => [
+        { renderTime: value, memoryUsage: 0, itemCount: 0, strategy: 'INP', timestamp: Date.now() },
+        ...prev,
+      ])
+    })
+    const offLong = perfBus.on('longtask', ({ duration }) => {
+      setMetrics((prev) => [
+        { renderTime: duration, memoryUsage: 0, itemCount: 0, strategy: 'longtask', timestamp: Date.now() },
+        ...prev,
+      ])
+    })
+    return () => {
+      offTTI()
+      offTool()
+      offWorker()
+      offLCP()
+      offCLS()
+      offINP()
+      offLong()
+    }
+  }, [isRecording])
 
   // 获取网络信息
   useEffect(() => {
@@ -88,34 +145,8 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
     })
   }, [])
 
-  // 性能监控
-  useEffect(() => {
-    if (!isRecording) return
-
-    // 监控长任务
-    if ('PerformanceObserver' in window) {
-      observerRef.current = new PerformanceObserver((list) => {
-        const entries = list.getEntries()
-        entries.forEach((entry) => {
-          if (entry.entryType === 'longtask') {
-            console.warn('Long task detected:', entry.duration)
-          }
-        })
-      })
-
-      try {
-        observerRef.current.observe({ entryTypes: ['longtask'] })
-      } catch (e) {
-        console.warn('PerformanceObserver not supported:', e)
-      }
-    }
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect()
-      }
-    }
-  }, [isRecording])
+  // 本地独立 PerformanceObserver 已由 perf.ts 统一上报，无需重复监听
+  // 保留 ref 以兼容早期实现，但不再使用
 
   // 记录性能指标（内部使用）
   // const recordMetrics = useCallback((newMetrics: Omit<PerformanceMetrics, 'timestamp'>) => {
@@ -273,7 +304,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
 
           {/* 使用说明 */}
           <div className="text-muted-foreground text-xs border-t pt-2">
-            <div>• 点击"开始"开始监控性能</div>
+            <div>• 点击"开始"订阅 TTI/工具交互/Worker 耗时</div>
             <div>• 记录渲染时间和内存使用</div>
             <div>• 仅在开发环境显示</div>
           </div>

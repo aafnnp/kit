@@ -7,13 +7,15 @@ import {
 } from '@/components/ui/sidebar'
 import tools from '@/lib/data'
 import { IconChevronRight } from '@tabler/icons-react'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, memo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useRouter, useLocation } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { loadIconComponent, getLoadedIconComponent, preloadIcons } from '@/lib/icon-loader'
+import { preloader } from '@/lib/preloader'
+import { getToolLoaderBySlug } from '@/lib/tools-map'
 
-export function NavMain({ items }: { items: typeof tools }) {
+function NavMainInner({ items }: { items: typeof tools }) {
   const router = useRouter()
   const { t } = useTranslation()
 
@@ -54,9 +56,9 @@ export function NavMain({ items }: { items: typeof tools }) {
     }
   }, [currentSlug, items, openMap])
 
-  const toggleGroup = (id: string) => {
+  const toggleGroup = useCallback((id: string) => {
     setOpenMap((prev) => ({ ...prev, [id]: !prev[id] }))
-  }
+  }, [])
 
   return (
     <SidebarGroup>
@@ -96,12 +98,32 @@ export function NavMain({ items }: { items: typeof tools }) {
                             <SidebarMenuButton
                               isActive={isSelected}
                               tooltip={t(`tools.${tool.slug}-desc`)}
+                              ref={(el) => {
+                                if (!el) return
+                                // 可视即预加载
+                                const modulePath = `/src/components/tools/${tool.slug}/index.tsx`
+                                preloader.preloadOnVisible(el, modulePath)
+                              }}
                               onClick={() => {
                                 if (tool.href) {
                                   window.open(tool.href, '_blank')
                                   return
                                 }
                                 router.navigate({ to: `/tool/${tool.slug}` })
+                              }}
+                              onMouseEnter={() => {
+                                // 悬停预加载
+                                const loader = getToolLoaderBySlug(tool.slug)
+                                if (loader) {
+                                  loader()
+                                }
+                              }}
+                              onFocus={() => {
+                                // 键盘可达性预加载
+                                const loader = getToolLoaderBySlug(tool.slug)
+                                if (loader) {
+                                  loader()
+                                }
                               }}
                             >
                               {IconComponent ? (
@@ -127,3 +149,5 @@ export function NavMain({ items }: { items: typeof tools }) {
     </SidebarGroup>
   )
 }
+
+export const NavMain = memo(NavMainInner)

@@ -56,19 +56,16 @@ class FileMemoryOptimizer {
   private activeProcessing = new Set<string>()
   private memoryMonitorInterval: NodeJS.Timeout | null = null
 
-  constructor() {
-    this.initializeMemoryMonitoring()
-  }
+  constructor() {}
 
   /**
    * 初始化内存监控
    */
   private initializeMemoryMonitoring(): void {
-    if (!this.config.enableMemoryMonitoring) return
-
+    if (this.memoryMonitorInterval || !this.config.enableMemoryMonitoring) return
     this.memoryMonitorInterval = setInterval(() => {
       this.checkMemoryUsage()
-    }, 5000) // 每5秒检查一次
+    }, 5000)
   }
 
   /**
@@ -339,11 +336,12 @@ class FileMemoryOptimizer {
 
     // 重新初始化内存监控
     if (newConfig.enableMemoryMonitoring !== undefined) {
-      if (this.memoryMonitorInterval) {
+      if (this.memoryMonitorInterval && !this.config.enableMemoryMonitoring) {
         clearInterval(this.memoryMonitorInterval)
         this.memoryMonitorInterval = null
+      } else if (!this.memoryMonitorInterval && this.config.enableMemoryMonitoring) {
+        this.initializeMemoryMonitoring()
       }
-      this.initializeMemoryMonitoring()
     }
   }
 
@@ -408,6 +406,17 @@ class FileMemoryOptimizer {
       memoryLeaks: 0,
       gcTriggered: 0,
       lastOptimization: Date.now(),
+    }
+  }
+
+  // 外部控制：当有订阅者时启动监控
+  startGuard(): void {
+    this.initializeMemoryMonitoring()
+  }
+  stopGuard(): void {
+    if (this.memoryMonitorInterval) {
+      clearInterval(this.memoryMonitorInterval)
+      this.memoryMonitorInterval = null
     }
   }
 }

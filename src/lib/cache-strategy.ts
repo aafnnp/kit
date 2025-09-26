@@ -61,7 +61,6 @@ class CacheStrategyManager {
   private cleanupTimer: NodeJS.Timeout | null = null
 
   constructor() {
-    this.initializeAutoCleanup()
     this.loadPersistentCache()
   }
 
@@ -69,10 +68,7 @@ class CacheStrategyManager {
    * 初始化自动清理
    */
   private initializeAutoCleanup(): void {
-    if (this.cleanupTimer) {
-      clearInterval(this.cleanupTimer)
-    }
-
+    if (this.cleanupTimer) return
     this.cleanupTimer = setInterval(
       () => {
         this.performAutoCleanup()
@@ -341,6 +337,10 @@ class CacheStrategyManager {
 
     // 重新初始化自动清理
     if (newConfig.autoCleanupInterval !== undefined) {
+      if (this.cleanupTimer) {
+        clearInterval(this.cleanupTimer)
+        this.cleanupTimer = null
+      }
       this.initializeAutoCleanup()
     }
 
@@ -403,6 +403,17 @@ class CacheStrategyManager {
    * 销毁管理器
    */
   destroy(): void {
+    if (this.cleanupTimer) {
+      clearInterval(this.cleanupTimer)
+      this.cleanupTimer = null
+    }
+  }
+
+  // 外部控制：按需启动/停止守护
+  startGuard(): void {
+    this.initializeAutoCleanup()
+  }
+  stopGuard(): void {
     if (this.cleanupTimer) {
       clearInterval(this.cleanupTimer)
       this.cleanupTimer = null

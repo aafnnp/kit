@@ -150,13 +150,20 @@ class PreloadManager {
    * 预加载常用工具
    */
   preloadCommonTools(): void {
-    // 条件：仅在网络良好且未开启省流时执行
+    // 条件：仅在网络良好且未开启省流时执行，并对 RTT/下行速率进行自适应判断
     const anyNav: any = typeof navigator !== 'undefined' ? navigator : null
     const connection = anyNav?.connection || anyNav?.mozConnection || anyNav?.webkitConnection
     const effectiveType = connection?.effectiveType
     const saveData = Boolean(connection?.saveData)
-    const goodNetwork = effectiveType ? effectiveType === '4g' : true
+    const rtt = typeof connection?.rtt === 'number' ? connection.rtt : undefined
+    const downlink = typeof connection?.downlink === 'number' ? connection.downlink : undefined
+
     const isSaveData = saveData === true
+    const isGoodEffective = effectiveType ? effectiveType === '4g' : true
+    const isGoodRtt = rtt !== undefined ? rtt < 250 : true // 小于250ms视为可接受
+    const isGoodDownlink = downlink !== undefined ? downlink >= 1.5 : true // 下行>=1.5Mbps
+    const goodNetwork = isGoodEffective && isGoodRtt && isGoodDownlink
+
     if (!goodNetwork || isSaveData) {
       // 跳过预加载，保持更细粒度的按需加载
       return
@@ -179,11 +186,38 @@ class PreloadManager {
       }
     })
 
+    // 并发限制 + 空闲调度
     const schedule = (cb: () => void) => {
       if (typeof (window as any).requestIdleCallback === 'function') {
         ;(window as any).requestIdleCallback(cb, { timeout: 3000 })
       } else {
         setTimeout(cb, 1000)
+      }
+    }
+
+    // 包装批量预加载以限制同时进行的模块数
+    const originalPreload = this.preload.bind(this)
+    const concurrency = 3
+    let running = 0
+    const queue: string[] = []
+
+    this.preload = async (modulePath: string) => {
+      if (running >= concurrency) {
+        queue.push(modulePath)
+        return
+      }
+      running++
+      try {
+        return await originalPreload(modulePath)
+      } finally {
+        running--
+        const next = queue.shift()
+        if (next) {
+          // 让出事件循环
+          setTimeout(() => {
+            this.preload(next)
+          }, 0)
+        }
       }
     }
 
@@ -460,6 +494,18 @@ if (typeof window !== 'undefined') {
     window.addEventListener('load', () => {
       preloader.preloadCommonTools()
     })
+  }
+
+  // 监听网络变化，动态收敛或恢复预加载策略
+  const anyNav: any = navigator as any
+  const connection = anyNav?.connection || anyNav?.mozConnection || anyNav?.webkitConnection
+  if (connection && typeof connection.addEventListener === 'function') {
+    const handler = () => {
+      // 在弱网或省流开启时，清空队列以避免带宽竞争；网络恢复后再尝试
+      preloader.cleanup()
+      preloader.preloadCommonTools()
+    }
+    connection.addEventListener('change', handler)
   }
 }
 

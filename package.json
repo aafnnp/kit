@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "build:analyze": "npm run build && node scripts/build-optimizer.mjs",
+    "build:base": "tsc && vite build",
+    "build": "NODE_ENV=production npm run build:base",
+    "build:analyze": "ANALYZE=1 npm run build && node scripts/build-optimizer.mjs",
     "analyze": "ANALYZE=1 npm run build",
-    "build:production": "NODE_ENV=production npm run build && npm run optimize",
+    "build:production": "npm run build && npm run optimize",
     "preview": "vite preview",
     "deps:apply": "node scripts/deps-replacer.mjs apply --plan ./deps-plan.json",
     "deps:pr": "node scripts/deps-replacer.mjs pr --plan ./deps-plan.json",
@@ -16,6 +17,8 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "tauri:build:debug": "tauri build --debug",
+    "tauri:clean": "cargo clean -p kit_lib --manifest-path src-tauri/Cargo.toml || true && cargo clean -p kit --manifest-path src-tauri/Cargo.toml || true",
+    "tauri:build:ci": "TAURI_BUILD_TARGET_DIR=${TAURI_BUILD_TARGET_DIR:-src-tauri/target} tauri build",
     "optimize": "node scripts/build-optimizer.mjs",
     "publish": "node scripts/updater.mjs",
     "changelog": "node scripts/changelog-generator.mjs",
@@ -26,6 +29,7 @@
     "release:minor": "npm version minor && npm run changelog:generate && git add CHANGELOG.md && git commit -m 'docs: update changelog' && git push --tags",
     "release:major": "npm version major && npm run changelog:generate && git add CHANGELOG.md && git commit -m 'docs: update changelog' && git push --tags",
     "clean": "rm -rf dist src-tauri/target node_modules/.vite",
+    "ci:build:analyze": "ANALYZE=1 npm run build && node scripts/build-optimizer.mjs",
     "clean:all": "npm run clean && rm -rf node_modules",
     "ci:check-tools": "node scripts/check-tools.mjs"
   },
@@ -86,6 +90,7 @@
     "tailwindcss": "^4.1.13",
     "vaul": "^1.1.2",
     "xlsx": "^0.18.5",
+    "web-vitals": "^4.2.3",
     "zod": "^4.1.11"
   },
   "devDependencies": {

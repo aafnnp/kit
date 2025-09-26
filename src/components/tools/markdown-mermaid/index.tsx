@@ -7,7 +7,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
-import mermaid from 'mermaid'
 import {
   Download,
   Trash2,
@@ -41,10 +40,22 @@ import { formatFileSize } from '@/lib/utils'
 // Utility functions
 
 // Mermaid analysis and rendering functions
-const initializeMermaid = (config: Partial<MermaidConfig> = {}) => {
+let mermaidModule: any | null = null
+
+const loadMermaid = async () => {
+  if (mermaidModule) return mermaidModule
+  const mod: any = await import('mermaid')
+  // mermaid v10/v11 可能导出在 default 上，统一兼容
+  const api = mod?.default ?? mod
+  mermaidModule = api
+  return api
+}
+
+const initializeMermaid = async (config: Partial<MermaidConfig> = {}) => {
   const defaultConfig = createDefaultMermaidConfig()
   const mergedConfig = { ...defaultConfig, ...config }
 
+  const mermaid = await loadMermaid()
   mermaid.initialize({
     startOnLoad: false,
     theme: mergedConfig.theme,
@@ -81,7 +92,7 @@ const renderMermaidDiagram = async (code: string, config: MermaidConfig): Promis
 
   try {
     // Initialize Mermaid with config
-    initializeMermaid(config)
+    await initializeMermaid(config)
 
     // Clean and validate code
     const cleanCode = code.trim()
@@ -93,6 +104,7 @@ const renderMermaidDiagram = async (code: string, config: MermaidConfig): Promis
     const diagramType = detectDiagramType(cleanCode)
 
     // Render the diagram
+    const mermaid = await loadMermaid()
     const { svg } = await mermaid.render(`mermaid-${id}`, cleanCode)
 
     const endTime = performance.now()

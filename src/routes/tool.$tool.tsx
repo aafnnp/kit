@@ -1,17 +1,33 @@
 import { createFileRoute, lazyRouteComponent } from '@tanstack/react-router'
 import { Suspense, useEffect } from 'react'
+import { perfBus, mark, measure } from '@/lib/perf'
 import tools from '@/lib/data'
 import { getToolLoaderBySlug, hasTool } from '@/lib/tools-map'
 import ToolNotFound from '@/components/tools/404'
 import { ToolLoading } from '@/components/ui/loading'
 import { AdSenseAd } from '@/components/adsense-ad'
+import { useSmartPreload } from '@/lib/preloader'
+import { QueryClient } from '@tanstack/react-query'
 
 export const Route = createFileRoute('/tool/$tool')({
+  loader: async ({ context, params }) => {
+    const { queryClient } = context as { queryClient: QueryClient }
+    const slug = params.tool
+    // 示例：若某些工具需要公共元信息，可在此预取（占位，避免真实网络依赖）
+    // 这里用一个稳定键做演示，真实项目可替换为需要的接口
+    await queryClient.prefetchQuery({
+      queryKey: ['tool-meta', slug],
+      queryFn: async () => ({ slug, ts: Date.now() }),
+      staleTime: 5 * 60 * 1000,
+    })
+    return null
+  },
   component: RouteComponent,
 })
 
 function RouteComponent() {
   const { tool: toolSlug } = Route.useParams()
+  const { trackToolUsage } = useSmartPreload()
 
   // 查找工具信息
   const toolInfo = tools.flatMap((category: any) => category.tools).find((t: any) => t.slug === toolSlug)
@@ -63,7 +79,24 @@ function RouteComponent() {
   return (
     <>
       <Suspense fallback={<ToolLoading toolName={toolInfo.name} />}>
-        <ToolComponent />
+        {(() => {
+          const Comp: any = ToolComponent
+          return (
+            <Comp
+              onReady={() => {
+                // 工具组件在 mount 后通过可选的 onReady 回调上报可交互
+                const startMark = `tool_${toolSlug}_start`
+                mark(startMark)
+                const ms = measure(`tool_${toolSlug}_interactive`, startMark)
+                if (ms != null) {
+                  perfBus.emit('tool_interactive', { slug: toolSlug, ms, ts: Date.now() })
+                }
+                // 记录工具使用，触发关联工具预热
+                trackToolUsage(toolSlug)
+              }}
+            />
+          )
+        })()}
       </Suspense>
 
       {/* 广告位移到 Suspense 外部 */}

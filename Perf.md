@@ -1,53 +1,150 @@
-# 项目性能分析与优化建议（Kit）
+# 项目性能深度分析与优化建议
 
-## 1. 项目概览
+本报告基于对构建配置（Vite/Terser/TanStack Router 插件/手动分包）、运行时（React 19、TanStack Query、i18n）、性能监控组件、Worker 并行处理、以及多端（Web/Tauri/边缘）部署场景的全面审阅，提供可落地的优化建议与检查清单。
 
-- 技术栈：React 19 + TanStack Router + React Query + Tailwind CSS，构建由 Vite 7 驱动，并集成 Tauri 桌面端打包。
-- 资源治理：`src/lib/resource-optimizer.ts`、`src/lib/preloader.ts`、`src/lib/cache-strategy.ts` 等模块提供预加载、缓存、资源分片等高级能力。
-- 构建策略：`vite.config.ts` 配置了手动分包、Terser 压缩、依赖预构建以及按需的可视化分析插件；`npm run build:analyze` 与 `scripts/build-optimizer.mjs` 支撑体积诊断。
-- 产物现状：`build-report.json` 显示前端 bundle 约 7 MB（gzip 后 2 MB），Tauri 目标目录 1.2 GB，主要来自静态与动态库产物。
+## 结论优先（TL;DR）
 
-## 2. 现有性能手段评估
-
-- **懒加载与代码分割**：路由级懒加载（`routeTree.gen.ts`）、工具页动态导入以及 Vite `manualChunks` 有效降低首屏脚本压力。
-- **预加载体系**：`usePreload`/`useSmartPreload` 提供常用工具预热、基于行为的动态优先级；`resourceOptimizer` 管理图标与静态资源缓存。
-- **缓存与存储**：`cache`（内存 LRU）、`cacheStrategy`（本地/压缩缓存）和 IndexedDB 持久化联动，为离线和重复访问场景提供基础。
-- **多线程与重型任务隔离**：`WorkerManager` + `/public/workers` 将图像、音视频及矩阵计算迁移至 Web Worker，降低主线程阻塞风险。
-- **监控与可视化**：`PerformanceMonitor` 组件可实时查看缓存命中率、预加载命中、资源加载等指标。
-
-## 3. 主要性能痛点与改进建议
-
-| 优先级 | 问题 & 影响 | 建议改动 | ------ | ------ | ------ |
-| 高 | **全量导入 `lucide-react`**：`NavMain` 通过 `import * as Icons` + 运行时选择，导致 Vite 无法 tree-shake，`lucide-react` 全量 (~600 KB gzip) 被纳入主 chunk。 | 使用编译期映射（如生成 `iconMap`，逐条 `import { IconName }`）或启用 `lucide-react/dynamicIconImports`；必要时自建轻量 SVG 集或迁移到 iconfont 并结合 `resourceOptimizer` sprite。 |
-| 高 | **Worker 进度上报缺陷**：`/public/workers/processing-worker.js` 中 `multiplyMatricesOptimized` 等函数使用 `arguments[0]` 传递 `taskId`，实际上传入的是矩阵对象，导致主线程无法匹配任务进度，阻碍 UI 反馈。 | 在封装函数调用时显式捕获 `taskId`（通过闭包或将 `taskId` 作为参数传入）并统一进度消息结构；同时复用 `WorkerManager` 的超时处理以避免僵尸任务。 |
-| 高 | **工具网格渲染开销**：主页一次性渲染所有分类/工具卡片（`src/routes/index.tsx`），在工具数量接近百级时引发初始渲染及重排压力。 | 引入虚拟列表（如 `react-virtualized`/`@tanstack/react-virtual`）或按分类懒加载；移动端可默认折叠非首屏分类，结合 IntersectionObserver 触发渲染。 |
-| 中 | **预加载策略缺乏网络自适应**：`preloadCommonTools()` 仅检测 `effectiveType` 与 `saveData`，缺少 RTT/Downlink 等指标，且未在 `navigator.connection` 变化时动态收敛。 | 扩展网络监测（监听 `connectionchange` 事件），在弱网降级预加载；对常用工具采用 `requestIdleCallback` + 最大并发限制，避免在冷启动阶段抢占带宽。 |
-| 中 | **资源雪碧图 404**：`resourceOptimizer.mountSpriteFromUrl('/sprite.svg')` 在资源目录中缺少对应文件，导致每次访问触发一次失败请求。 | 提供实际的 sprite 资源，或在初始化前检测文件是否存在；若计划动态生成，应在 build 阶段产出并写入 `/public`。 |
-| 中 | **缓存策略守护进程常驻**：`cache`, `cacheStrategy`, `fileMemoryOptimizer` 在模块初始化时分别启动 `setInterval`（5s/30min），无论功能是否使用都会常驻。 | 加入按需启动/停止机制（如惰性单例 + 当有监听者时再启动）；在浏览器退出或组件卸载时清理 timer，避免内存泄漏。 |
-| 中 | **Mermaid 等重型依赖加载体验差**：`markdown-mermaid` 组件同步 `import mermaid`，首次打开时主线程需要解析全部 800 KB JS。 | 改为按需动态导入（`const { default: mermaid } = await import('mermaid')`）并结合 `Worker` 渲染或 `offscreen canvas`；可提供骨架屏与缓存渲染结果。 |
-| 低 | **控制台输出与无意义渲染**：`NavMain` 等组件仍残留 `console.log` 与在渲染中创建匿名函数，会触发额外 diff。 | 清理调试输出，使用 `useCallback`/`memo` 优化；同时检查 `tool` 数据更新策略，避免重复计算 `flatMap`。 |
-| 低 | **Query 缓存策略未调整**：默认的 React Query 配置 `staleTime=0`，高频请求工具可能重复发起网络调用。 | 为静态工具元数据设定合理 `staleTime/cacheTime`，对体积较大的工具结果开启 `select`/`initialData` 减少重复解析。 |
-
-## 4. 构建与部署优化
-
-- **生产构建流程**：建议默认使用 `npm run build:production`，并在 CI 中增加 `ANALYZE=1 npm run build` 输出 `stats.html`，便于跟踪 bundle 演变。
-- **Tauri 目标瘦身**：
-  - 在 CI 中执行 `cargo clean -p kit` 或配置 `TAURI_BUILD_TARGET_DIR` 指向缓存目录，避免工作区堆积旧产物。
-  - 继续使用 `profile.release` 的 `lto="fat"`/`opt-level="z"`，同时评估是否可以移除 `staticlib` crate 类型，以减少生成的 `.a` 文件。
-- **依赖体积治理**：结合 `scripts/deps-replacer.mjs` 维护依赖映射，定期检查 `@ffmpeg/ffmpeg`, `pdf-lib`, `xlsx` 的使用频率，考虑拆分到独立可选扩展或替换为 WebAssembly 轻量实现。
-
-## 5. 监控与测试建议
-
-- 建立关键路径指标：首屏渲染总耗时（TTI）、工具打开到可交互时间、Worker 任务完成时间等，并在 `PerformanceMonitor` 中展示。
-- 在开发过程中使用 Chrome DevTools Coverage/Performance Insights，配合 `rollup-plugin-visualizer` 定期回归。
-- 为 Worker 与预加载模块编写单元/集成测试，确保在弱网与低端设备上的退化逻辑可靠。
-
-## 6. 优先级路线图
-
-1. **P0**：修复 Worker 进度上报、重构 icon 导入模式、引入工具列表虚拟化。
-2. **P1**：完善预加载与缓存守护策略，补齐 sprite 资源并优化 Mermaid 加载路径。
-3. **P2**：持续迭代构建监控（CI 分析报告、依赖瘦身）与数据缓存策略，准备性能基准测试脚本。
+- 首屏与交互：已具备良好基础（自动 JSX 运行时、代码分割、Terser 压缩、Query 缓存）；建议补充路由级与工具级的懒加载边界与骨架屏，并记录 TTI/交互耗时。
+- 体积分割：手动 `manualChunks` 已覆盖核心依赖，但建议引入“工具区块”按需拆分、并开启 `build.dynamicImportVars` 场景排查与预拉取策略。
+- Worker：`WorkerManager` 具备并行、优先级与超时控制；建议补充“同源复用、失败熔断、内存压测守卫、Backpressure”机制与调度可视化事件。
+- 资源与缓存：利用 TanStack Query 的 `staleTime/gcTime`；建议增加 `prefetchQuery`、离线缓存、Cache Storage 策略与 ETag/ETag Weak 验证流程。
+- 监控与可观测性：`perfBus` 已提供 TTI/工具/Worker 事件；建议扩展 FID/INP/LCP/CLS、内存快照、长任务切片、以及路由切换指标；构建时集成 Bundle 可视化基准与回归监控。
 
 ---
 
-通过以上优化，预期可显著降低首屏 JS 体积、提升复杂工具加载响应，并避免后台定时任务造成的资源浪费，为 Web 与 Tauri 双端提供更稳定的性能基线。
+## 构建与体积优化
+
+- 手动分包策略
+  - 保留现有分组：`react-vendor`、`router-vendor`、`ui-vendor`、`utils-vendor`、`i18n-vendor`。
+  - 建议新增：
+    - 工具区块：将 `src/components/tools/` 下每个工具以入口分包，配合现有 `chunkFileNames` 中的专用命名，确保按路由懒加载。
+    - 重资源分组：如 `mermaid`、`xlsx`、`@ffmpeg/*`、`pdf-lib` 等重型库独立分包，避免首屏拖拽。
+  - 检查动态导入语句：统一使用 `import('...')`，避免隐式引用导致并入主包。
+
+- 压缩与 Tree-Shaking
+  - Terser 已开启 `drop_console/drop_debugger/dead_code`；建议确认三方库 ESM 入口（package.json module 字段）以启用更彻底的 Tree-Shaking。
+  - 若存在可选导入的 icon 集合，优先使用“按图标导入”或自动摇树配置，减少 `lucide-react` 体积。
+
+- 资源提示与预取
+  - 在路由层对“下一步高概率页面”注入 `<link rel="prefetch" as="script">` 或使用 router 的 `load`/`preloadCode` 钩子，缩短后续导航 TTI。
+  - 对大体积工具（如绘图、视频处理、表格导入）采用“交互前置预拉取”：光标悬停、视窗接近或按钮可见时触发 `import()`。
+
+- 构建分析基线
+  - 保留 `ANALYZE=1` 工作流，存档 `stats.html` 于 CI 工件；合并 `scripts/build-optimizer.mjs` 输出成为基线，PR 对比异常增量（>10%）即失败。
+
+## 运行时与交互性能
+
+- React 与路由
+  - 在重型列表、图表、长文编辑器等组件中使用 `React.lazy` + `Suspense` + 骨架屏。
+  - 路由切换前预获取关键数据（Query `prefetchQuery`），在页面加载阶段保持"数据已就绪"，降低首渲染瀑布。
+
+- TanStack Query
+  - 现有 `staleTime=5min`、`gcTime=30min`：
+    - 对“频繁交互但数据稳定”的查询可提高 `staleTime`，对“瞬时态数据”降低并关掉自动重试。
+    - 针对慢接口添加 `placeholderData` 与 `select` 映射，减少深拷贝与渲染波动。
+    - 使用 `keepPreviousData` 平滑分页/筛选切换。
+
+- 虚拟化与批量渲染
+  - 对可能超过 200 行的列表接入 `@tanstack/react-virtual` 或现有 `react-virtual`，将渲染限制在可视窗口。
+  - 采用“分帧渲染”策略：对上千节点的 DOM 生成，拆分为 `requestIdleCallback`/`postMessage` 批次推进，避免主线程长任务。
+
+## Web Worker 并行与内存
+
+- Worker 管理增强
+  - 复用策略：同脚本创建的 Worker 优先复用，避免过度实例化；闲置一定时间自动终止以回收内存。
+  - 熔断与退避：连续 N 次失败或超时时，指数退避暂停该类型任务，并发降低至 1 直至恢复。
+  - Backpressure：当 `queueLength > K` 或“主线程帧时长 > 阈值”时暂停入队或转低优先级。
+  - 粒度与批量：提供 `mapChunk` 与 `reduce` 风格的批处理 API，使大任务切块以提高进度反馈与可中断性。
+
+- 大文件与二进制
+  - 采用 `Transferable`（ArrayBuffer）在主线程与 Worker 之间转移所有权，避免拷贝。
+  - 使用 `fflate`/`CompressionStream` 流式压缩，降低内存峰值；大于阈值时落盘到 OPFS（浏览器）或 Tauri FS。
+
+- 性能遥测
+  - 已通过 `perfBus.emit('worker_task', ...)` 记录耗时；建议补充：任务大小、字节数、Chunk 数、内存峰值、是否命中缓存（见下）。
+
+## 缓存、预加载与离线
+
+- 应用级缓存
+  - Query 层：为关键接口建立 `prefetchQuery` 路由钩子，结合 `staleTime` 形成感知式预取。
+  - 资源层：使用 Cache Storage 针对大静态资源（字体/图表引擎/ffmpeg wasm）做版本化缓存，命中优先于网络。
+
+- 离线与持久化
+  - 若需要离线：引入轻量 Service Worker（仅静态与 wasm 热点缓存），避免复杂路由兜底；使用 `workbox-window` 的最小化配置。
+  - Query 持久化：结合 `@tanstack/query-persist-client-core` + `localforage`，对只读类数据在 Tab 之间复用，减少冷启动网络压力。
+
+- 协议优化
+  - 为可缓存接口启用 ETag/If-None-Match 或 Weak ETag；对超大 JSON 建议采用 `gzip`/`br` 并考虑 NDJSON/分页。
+
+## 指标与可观测性
+
+- 页面与交互指标
+  - 在 `perfBus` 基础上增加：LCP、CLS、FID/INP、TTFB 采集（可用 `web-vitals`）。
+  - 路由级指标：记录 `route:start`→`route:interactive`，包含数据准备时间、代码下载时间和渲染耗时。
+  - 长任务监控：PerformanceObserver 监听 `longtask` 已有；补充将 ≥50ms 的任务记录到 `perfBus`，统计 95/99 分位并上报。
+
+- 资源与错误
+  - 捕获 `resource` 条目（大图、字体、wasm 加载耗时），识别异常慢资源并落库。
+  - 错误事件：Worker 错误、Task 超时、路由 chunk 加载失败均统一上报，配合重试/降级策略。
+
+## UI/UX 体验优化
+
+- 骨架与渐进增强
+  - 所有懒加载页面与工具提供 Skeleton；大图/图表先以占位图/低分辨率渐进呈现。
+- 网络自适应
+  - 结合 `Network Information API`：在 `saveData`/低带宽时加载轻量替代实现（简单图替代动画图等）。
+- 动画与过渡
+  - `motion` 动画上限：限制帧时长与节点数量，低端设备禁用高成本滤镜与模糊。
+
+## Tauri/边缘部署注意
+
+- Tauri
+  - 关闭未使用的插件；Worker 路径指向本地 `asset:` 协议，避免网络依赖。
+  - 文件处理走 Rust 后端可获得更稳定的内存与性能，尤其是 ffmpeg 与大型压缩。
+
+- Vercel/Cloudflare
+  - 服务端接口若部署在边缘：确保响应头缓存策略与 CORS 一致；对二进制流采用 `stream()`，减少 TTFB。
+
+## 落地清单（可分迭代实施）
+
+- 分包与懒加载
+  - 为 `mermaid`、`xlsx`、`@ffmpeg/*`、`pdf-lib` 建单独 chunk，并改为按需 `import()`。
+  - 工具区块统一懒加载，补充 Skeleton。
+
+- 预取与数据准备
+  - 路由钩子加入 `prefetchQuery`；对下一跳高概率路由注入 `rel=prefetch`。
+
+- Worker 强化
+  - 复用与空闲终止、失败熔断、Backpressure、Chunk 化处理与 Transferable。
+
+- 监控指标
+  - 集成 `web-vitals`；扩展 `perfBus` 事件；构建分析基线纳入 CI。
+
+- 缓存与离线
+  - Cache Storage 版本化静态资源；可选 Service Worker 热点缓存；Query 持久化。
+
+---
+
+## 参考实现指引（片段）
+
+- 路由懒加载示例：
+
+```tsx
+const ToolsPage = React.lazy(() => import('@/routes/tool.$tool'))
+```
+
+- 预取下一路由 chunk（示意）：
+
+```tsx
+link rel="prefetch" as="script" href="/chunks/xxx-[hash].js"
+```
+
+- 采集 web-vitals：
+
+```ts
+import { onCLS, onINP, onLCP } from 'web-vitals'
+
+onLCP((m) => perfBus.emit('lcp', { value: m.value, ts: Date.now() }))
+```
+
+如需我直接落地实现上述关键点（分包、懒加载、Worker 增强、监控接入），请告知优先级与目标页面/工具，我将按迭代提交对应编辑。

@@ -13,10 +13,14 @@ export interface WorkerTask<T = any, R = any> {
   onError?: (error: Error) => void
 }
 
+import { perfBus } from './perf'
+
 export interface WorkerConfig {
   maxWorkers?: number
   workerScript?: string
   timeout?: number
+  idleTerminateMs?: number
+  backpressureQueueMax?: number
 }
 
 export class WorkerManager {
@@ -26,12 +30,17 @@ export class WorkerManager {
   private taskWorkerIndex: Map<string, number> = new Map()
   private workerBusy: boolean[] = []
   private config: Required<WorkerConfig>
+  private taskStartTime: Map<string, number> = new Map()
+  private workerLastUsed: number[] = []
+  private failureCountByScript: Map<string, number> = new Map()
 
   constructor(config: WorkerConfig = {}) {
     this.config = {
       maxWorkers: config.maxWorkers || Math.min(navigator.hardwareConcurrency || 4, 8),
       workerScript: config.workerScript || '/workers/processing-worker.js',
       timeout: config.timeout || 300000, // 5 minutes
+      idleTerminateMs: config.idleTerminateMs ?? 60_000,
+      backpressureQueueMax: config.backpressureQueueMax ?? 200,
     }
 
     this.initializeWorkers()
@@ -46,10 +55,13 @@ export class WorkerManager {
 
         this.workers.push(worker)
         this.workerBusy.push(false)
+        this.workerLastUsed.push(Date.now())
       } catch (error) {
         console.warn(`Failed to create worker ${i}:`, error)
       }
     }
+    // 定时回收空闲 worker
+    setInterval(() => this.recycleIdleWorkers(), Math.min(this.config.idleTerminateMs, 30_000))
   }
 
   private handleWorkerMessage(workerIndex: number, event: MessageEvent): void {
@@ -69,6 +81,15 @@ export class WorkerManager {
         this.taskWorkerIndex.delete(taskId)
         // 兼容不同 worker 的完成消息负载字段（data 或 result）
         task.onComplete?.(result !== undefined ? result : data)
+        {
+          const start = this.taskStartTime.get(taskId)
+          if (typeof start === 'number') {
+            const ms = performance.now() - start
+            perfBus.emit('worker_task', { id: taskId, type: task.type, ms, ts: Date.now() })
+            this.taskStartTime.delete(taskId)
+          }
+        }
+        this.workerLastUsed[workerIndex] = Date.now()
         this.processNextTask()
         break
 
@@ -92,6 +113,9 @@ export class WorkerManager {
         this.activeTasks.delete(taskId)
         this.taskWorkerIndex.delete(taskId)
         task.onError?.(new Error(`Worker error: ${error.message}`))
+        // 熔断计数
+        const count = (this.failureCountByScript.get(this.config.workerScript) || 0) + 1
+        this.failureCountByScript.set(this.config.workerScript, count)
         break
       }
     }
@@ -110,6 +134,14 @@ export class WorkerManager {
 
   private processNextTask(): void {
     if (this.taskQueue.length === 0) return
+    // Backpressure：队列过长则降级处理，避免无界增长
+    if (this.taskQueue.length > this.config.backpressureQueueMax) {
+      // 简单策略：丢弃最低优先级尾部 10%
+      const dropCount = Math.floor(this.taskQueue.length * 0.1)
+      if (dropCount > 0) {
+        this.taskQueue.splice(-dropCount, dropCount)
+      }
+    }
 
     const availableWorkerIndex = this.getAvailableWorker()
     if (availableWorkerIndex === -1) return
@@ -136,6 +168,7 @@ export class WorkerManager {
     }, this.config.timeout)
 
     // Send task to worker
+    this.taskStartTime.set(task.id, performance.now())
     this.workers[availableWorkerIndex].postMessage({
       taskId: task.id,
       type: task.type,
@@ -208,6 +241,7 @@ export class WorkerManager {
     this.taskQueue.length = 0
     this.activeTasks.clear()
     this.taskWorkerIndex.clear()
+    this.workerLastUsed.length = 0
   }
 
   /**
@@ -239,6 +273,31 @@ export class WorkerManager {
     }
 
     this.processNextTask()
+  }
+
+  private recycleIdleWorkers(): void {
+    const now = Date.now()
+    for (let i = 0; i < this.workers.length; i++) {
+      if (this.workerBusy[i]) continue
+      const lastUsed = this.workerLastUsed[i] || 0
+      if (now - lastUsed > this.config.idleTerminateMs) {
+        try {
+          this.workers[i].terminate()
+        } catch {}
+        // 立即用新的实例替换，保持池大小
+        try {
+          const worker = new Worker(this.config.workerScript)
+          worker.onmessage = (event) => this.handleWorkerMessage(i, event)
+          worker.onerror = (error) => this.handleWorkerError(i, error)
+          this.workers[i] = worker
+          this.workerBusy[i] = false
+          this.workerLastUsed[i] = now
+        } catch (e) {
+          // 如果重建失败则标记为忙，避免反复尝试
+          this.workerBusy[i] = true
+        }
+      }
+    }
   }
 }
 

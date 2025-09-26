@@ -184,6 +184,27 @@ npm run release:major   # 主要版本
 - Web 端构建产物位于 `dist/`
 - 桌面端产物见 `src-tauri/target/`，支持 Windows/macOS/Linux
 
+### CI 构建与分析
+
+在 CI 中启用 bundle 可视化与报告：
+
+```bash
+# 生成生产构建并产出 stats.html 与体积优化报告
+npm run ci:build:analyze
+```
+
+### Tauri 构建目录与清理
+
+可通过环境变量定制 Tauri 目标目录（默认 `src-tauri/target`）：
+
+```bash
+# 使用自定义缓存目录（示例）
+TAURI_BUILD_TARGET_DIR=/tmp/tauri-cache npm run tauri:build:ci
+
+# 清理 Tauri 目标（选择性）
+npm run tauri:clean
+```
+
 ---
 
 ## 🤝 贡献
