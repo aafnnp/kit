@@ -132,9 +132,6 @@ export const Route = createFileRoute('/')({
             showFavoriteButton={showFavoriteButton}
             onToolClick={handleToolClick}
             t={t}
-            forceRenderStrategy="auto"
-            virtualThreshold={50}
-            mobileThreshold={30}
           />
         )
       },
