@@ -54,6 +54,8 @@ export default defineConfig(() => ({
   build: {
     // 启用代码分割优化
     rollupOptions: {
+      // 外部化 FFmpeg 相关模块，避免打包到构建产物中
+      external: ['@ffmpeg/ffmpeg', '@ffmpeg/core', '@ffmpeg/util'],
       plugins:
         visualizer && process.env.ANALYZE
           ? [
@@ -83,7 +85,7 @@ export default defineConfig(() => ({
           // 重型库独立分包，避免首屏拖拽
           'mermaid-chunk': ['mermaid'],
           'xlsx-chunk': ['xlsx'],
-          'ffmpeg-chunk': ['@ffmpeg/ffmpeg', '@ffmpeg/core'],
+          // 注意：FFmpeg 相关库已从构建中排除，改为运行时动态加载
           'pdf-chunk': ['pdf-lib'],
         },
         // 优化chunk文件名
