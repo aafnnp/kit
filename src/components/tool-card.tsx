@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { useRouter } from '@tanstack/react-router'
 import { useFavorites, useRecentTools } from '@/lib/favorites'
 import { isTauri } from '@/lib/utils'
-import * as Opener from '@tauri-apps/plugin-opener'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import { preloader } from '@/lib/preloader'
 import { loadIconComponent, getLoadedIconComponent } from '@/lib/icon-loader'
 
@@ -56,7 +56,7 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
 
     if (tool.href) {
       if (isTauri()) {
-        ;(Opener as any).open?.(tool.href)?.catch?.(console.error)
+        openUrl(tool.href).catch(console.error)
       } else {
         window.open(tool.href, '_blank')
       }
