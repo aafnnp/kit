@@ -69,9 +69,10 @@ function useBatchLoremImages(settings: LoremImageSettings) {
         })
       }
       setImages(batch)
-    } catch (e: any) {
-      setError(e.message || '生成失败')
-      toast.error(e.message || '生成失败')
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : '生成失败'
+      setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -117,7 +118,10 @@ const LoremImage = () => {
             aria-label="图片高度"
           />
           <Label htmlFor="format">格式</Label>
-          <Select value={settings.format} onValueChange={(v) => setSettings((s) => ({ ...s, format: v as any }))}>
+          <Select
+            value={settings.format}
+            onValueChange={(v) => setSettings((s) => ({ ...s, format: v as LoremImageSettings['format'] }))}
+          >
             <SelectTrigger id="format" aria-label="图片格式">
               <SelectValue>{settings.format}</SelectValue>
             </SelectTrigger>

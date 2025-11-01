@@ -14,8 +14,9 @@ import { usePreload, useSmartPreload } from '@/lib/preloader'
 import { useResourcePreload, resourceOptimizer } from '@/lib/resource-optimizer'
 import { useRoutePrefetch } from '@/lib/route-prefetch'
 import { CategoryManager } from '@/components/category-manager'
-import { SmartToolGrid } from '@/components/smart-tool-grid'
+import { VirtualToolGrid } from '@/components/virtual-tool-grid'
 import { isSafari } from '@/lib/utils'
+import type { Tool, ToolCategory } from '@/types/tool'
 
 export const Route = createFileRoute('/')({
   component: () => {
@@ -37,14 +38,26 @@ export const Route = createFileRoute('/')({
     // 预取收藏和最近使用的工具路由
     useEffect(() => {
       const favoriteSlugs = Array.isArray(favorites)
-        ? favorites.map((tool: any) => (typeof tool === 'string' ? tool : tool.slug))
+        ? favorites.map((tool): string => {
+            if (typeof tool === 'string') return tool
+            if (typeof tool === 'object' && tool !== null && 'slug' in tool && typeof tool.slug === 'string') {
+              return tool.slug
+            }
+            return ''
+          })
         : []
       const recentSlugs = Array.isArray(recentTools)
-        ? recentTools.map((tool: any) => (typeof tool === 'string' ? tool : tool.slug))
+        ? recentTools.map((tool): string => {
+            if (typeof tool === 'string') return tool
+            if (typeof tool === 'object' && tool !== null && 'slug' in tool && typeof tool.slug === 'string') {
+              return tool.slug
+            }
+            return ''
+          })
         : []
 
-      prefetchFavorites(favoriteSlugs)
-      prefetchRecent(recentSlugs)
+      prefetchFavorites(favoriteSlugs.filter(Boolean))
+      prefetchRecent(recentSlugs.filter(Boolean))
     }, [favorites, recentTools, prefetchFavorites, prefetchRecent])
 
     // 定义预加载资源
@@ -71,7 +84,7 @@ export const Route = createFileRoute('/')({
     }, [])
 
     // 工具交互事件处理
-    const handleToolClick = (tool: any) => {
+    const handleToolClick = (tool: Tool) => {
       trackToolUsage(tool.slug)
       preloadTool(tool.slug)
     }
@@ -80,27 +93,39 @@ export const Route = createFileRoute('/')({
     const favoriteTools = useMemo(() => {
       // 从favorites中提取slug数组
       const favoriteSlugs = Array.isArray(favorites)
-        ? favorites.map((tool: any) => (typeof tool === 'string' ? tool : tool.slug))
+        ? favorites.map((tool): string => {
+            if (typeof tool === 'string') return tool
+            if (typeof tool === 'object' && tool !== null && 'slug' in tool && typeof tool.slug === 'string') {
+              return tool.slug
+            }
+            return ''
+          })
         : []
 
       // 过滤出收藏的工具
-      return allTools.filter((tool) => favoriteSlugs.includes(tool.slug))
+      return allTools.filter((tool) => favoriteSlugs.filter(Boolean).includes(tool.slug))
     }, [allTools, favorites])
 
     const recentToolsData = useMemo(() => {
       // 从recentTools中提取slug数组
       const recentSlugs = Array.isArray(recentTools)
-        ? recentTools.map((tool: any) => (typeof tool === 'string' ? tool : tool.slug))
+        ? recentTools.map((tool): string => {
+            if (typeof tool === 'string') return tool
+            if (typeof tool === 'object' && tool !== null && 'slug' in tool && typeof tool.slug === 'string') {
+              return tool.slug
+            }
+            return ''
+          })
         : []
 
       // 过滤出最近使用的工具
-      return allTools.filter((tool) => recentSlugs.includes(tool.slug))
+      return allTools.filter((tool) => recentSlugs.filter(Boolean).includes(tool.slug))
     }, [allTools, recentTools])
 
     // 移除旧的分类懒加载逻辑，现在由 SmartToolGrid 处理
 
     const renderToolGrid = useCallback(
-      (toolsToRender: any[], showFavoriteButton = true) => {
+      (toolsToRender: ToolCategory[] | Tool[], showFavoriteButton = true) => {
         if (toolsToRender.length === 0) {
           return (
             <div className="text-center py-12">
@@ -124,9 +149,11 @@ export const Route = createFileRoute('/')({
 
         // 对于收藏和最近使用的工具，使用传统网格布局（数量较少）
         if (activeTab === 'favorites' || activeTab === 'recent') {
+          // toolsToRender 在这种情况下是 Tool[]
+          const tools = toolsToRender as Tool[]
           return (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 grid-mobile-1 sm:grid-mobile-2 md:grid-tablet-3 lg:grid-desktop-4 xl:grid-desktop-5 2xl:grid-ultrawide-6">
-              {toolsToRender.map((tool, index) => (
+              {tools.map((tool, index) => (
                 <motion.div
                   key={tool.slug + index}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -140,13 +167,16 @@ export const Route = createFileRoute('/')({
           )
         }
 
-        // 对于所有工具和搜索结果，使用智能工具网格
+        // 对于所有工具和搜索结果，使用虚拟工具网格（自动优化）
+        // toolsToRender 在这种情况下是 ToolCategory[]
+        const categories = toolsToRender as ToolCategory[]
         return (
-          <SmartToolGrid
-            categories={toolsToRender}
+          <VirtualToolGrid
+            categories={categories}
             showFavoriteButton={showFavoriteButton}
             onToolClick={handleToolClick}
             t={t}
+            threshold={50}
           />
         )
       },

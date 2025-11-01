@@ -9,14 +9,7 @@ import { isTauri } from '@/lib/utils'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { preloader } from '@/lib/preloader'
 import { loadIconComponent, getLoadedIconComponent } from '@/lib/icon-loader'
-
-interface Tool {
-  slug: string
-  name: string
-  desc: string
-  icon?: string
-  href?: string
-}
+import type { Tool } from '@/types/tool'
 
 interface ToolCardProps {
   tool: Tool

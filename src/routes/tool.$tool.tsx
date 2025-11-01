@@ -9,6 +9,25 @@ import { AdSenseAd } from '@/components/adsense-ad'
 import { useRoutePrefetch } from '@/lib/route-prefetch'
 import { useSmartPreload } from '@/lib/preloader'
 import { QueryClient } from '@tanstack/react-query'
+import type { Tool, ToolCategory } from '@/types/tool'
+
+// 类型守卫：检查是否为工具
+function isTool(obj: unknown): obj is Tool {
+  return (
+    typeof obj === 'object' && obj !== null && 'slug' in obj && 'name' in obj && typeof (obj as Tool).slug === 'string'
+  )
+}
+
+// 类型守卫：检查是否为工具分类
+function isToolCategory(obj: unknown): obj is ToolCategory {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'tools' in obj &&
+    Array.isArray((obj as ToolCategory).tools)
+  )
+}
 
 export const Route = createFileRoute('/tool/$tool')({
   loader: async ({ context, params }) => {
@@ -31,8 +50,10 @@ function RouteComponent() {
   const { trackToolUsage } = useSmartPreload()
   const { prefetchRelated } = useRoutePrefetch()
 
-  // 查找工具信息
-  const toolInfo = tools.flatMap((category: any) => category.tools).find((t: any) => t.slug === toolSlug)
+  // 查找工具信息（使用类型守卫）
+  const toolInfo = (tools as ToolCategory[])
+    .flatMap((category) => (isToolCategory(category) ? category.tools : []))
+    .find((t) => isTool(t) && t.slug === toolSlug)
 
   // 预取关联工具
   useEffect(() => {
@@ -44,7 +65,16 @@ function RouteComponent() {
   // 动态导入工具组件
   const ToolComponent =
     toolInfo && hasTool(toolSlug)
-      ? lazyRouteComponent(() => getToolLoaderBySlug(toolSlug)!().then((m: any) => ({ default: m.default || m })))
+      ? lazyRouteComponent(async () => {
+          const loader = getToolLoaderBySlug(toolSlug)
+          if (!loader) throw new Error(`Tool loader not found for ${toolSlug}`)
+          const m = await loader()
+          // 处理不同的导出格式
+          if (m && typeof m === 'object' && 'default' in m) {
+            return { default: m.default as React.ComponentType<{ onReady?: () => void }> }
+          }
+          return { default: m as React.ComponentType<{ onReady?: () => void }> }
+        })
       : null
 
   if (!toolInfo) {
@@ -89,7 +119,8 @@ function RouteComponent() {
     <>
       <Suspense fallback={<ToolLoading toolName={toolInfo.name} />}>
         {(() => {
-          const Comp: any = ToolComponent
+          // 使用 React.ComponentType 类型而不是 any
+          const Comp = ToolComponent as React.ComponentType<{ onReady?: () => void }>
           return (
             <Comp
               onReady={() => {

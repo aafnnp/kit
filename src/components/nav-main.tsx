@@ -14,10 +14,12 @@ import { useTranslation } from 'react-i18next'
 import { loadIconComponent, getLoadedIconComponent, preloadIcons } from '@/lib/icon-loader'
 import { preloader } from '@/lib/preloader'
 import { getToolLoaderBySlug } from '@/lib/tools-map'
+import { useRoutePrefetch } from '@/lib/route-prefetch'
 
 function NavMainInner({ items }: { items: typeof tools }) {
   const router = useRouter()
   const { t } = useTranslation()
+  const { prefetchOnHover } = useRoutePrefetch()
 
   const pathname = useLocation({ select: (l) => l.pathname })
   const match = pathname.match(/^\/tool\/([^\/]+)/)
@@ -112,11 +114,8 @@ function NavMainInner({ items }: { items: typeof tools }) {
                                 router.navigate({ to: `/tool/${tool.slug}` })
                               }}
                               onMouseEnter={() => {
-                                // 悬停预加载
-                                const loader = getToolLoaderBySlug(tool.slug)
-                                if (loader) {
-                                  loader()
-                                }
+                                // 悬停预加载（使用增强的预取功能）
+                                prefetchOnHover(tool.slug)
                               }}
                               onFocus={() => {
                                 // 键盘可达性预加载

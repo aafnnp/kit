@@ -2,22 +2,10 @@ import React, { useCallback } from 'react'
 import { motion } from 'motion/react'
 import { ToolCard } from '@/components/tool-card'
 import { TFunction } from 'i18next'
-
-interface Tool {
-  slug: string
-  name: string
-  icon: string
-  href?: string
-  desc: string
-}
-
-interface Category {
-  id: string
-  tools: Tool[]
-}
+import type { Tool, ToolCategory } from '@/types/tool'
 
 interface SmartToolGridProps {
-  categories: Category[]
+  categories: ToolCategory[]
   showFavoriteButton?: boolean
   onToolClick: (tool: Tool) => void
   t: TFunction
