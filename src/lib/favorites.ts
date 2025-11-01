@@ -1,12 +1,5 @@
 import { useState, useEffect } from 'react'
-
-interface Tool {
-  slug: string
-  name: string
-  desc: string
-  icon?: string
-  href?: string
-}
+import type { Tool } from '@/types/tool'
 
 interface RecentTool extends Tool {
   lastUsed: number

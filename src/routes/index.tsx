@@ -15,7 +15,6 @@ import { useResourcePreload, resourceOptimizer } from '@/lib/resource-optimizer'
 import { useRoutePrefetch } from '@/lib/route-prefetch'
 import { CategoryManager } from '@/components/category-manager'
 import { VirtualToolGrid } from '@/components/virtual-tool-grid'
-import { isSafari } from '@/lib/utils'
 import type { Tool, ToolCategory } from '@/types/tool'
 
 export const Route = createFileRoute('/')({
@@ -209,7 +208,7 @@ export const Route = createFileRoute('/')({
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full tabs-mobile">
           <TabsList
-            className={`grid w-full grid-cols-5 h-auto p-1 mb-6 ${isSafari() ? 'flex' : ''}`}
+            className="grid w-full grid-cols-5 h-auto p-1 mb-6"
             role="tablist"
             aria-label={t('tabs.navigation', '工具分类导航')}
           >
