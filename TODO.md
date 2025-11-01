@@ -24,6 +24,7 @@
 ## 📊 项目概览
 
 ### 技术栈
+
 - **前端框架**: React 19 + TypeScript 5
 - **构建工具**: Vite 7
 - **路由**: @tanstack/react-router
@@ -33,6 +34,7 @@
 - **工具数量**: 70+ 实用工具
 
 ### 代码统计
+
 - **组件数**: 140+ (133 TSX + 8 TS)
 - **工具组件**: 70+ 个独立工具
 - **类型定义**: 80+ 个类型文件
@@ -44,12 +46,14 @@
 ## ✅ 核心优势
 
 ### 1. 架构设计
+
 - ✅ 清晰的目录结构（组件、路由、类型分离）
 - ✅ 工具组件化设计，易于扩展
 - ✅ 统一的工具基类（ToolBase, EnhancedToolBase）
 - ✅ 良好的代码分割和懒加载策略
 
 ### 2. 性能优化
+
 - ✅ 手动分包策略（vendor chunks）
 - ✅ 工具级代码分割
 - ✅ Worker 并行处理支持
@@ -57,12 +61,14 @@
 - ✅ 预加载和资源优化策略
 
 ### 3. 工程实践
+
 - ✅ 自动化构建和发布流程
 - ✅ 版本管理和变更日志系统
 - ✅ 构建分析和优化工具
 - ✅ 多平台构建支持（Web + Tauri）
 
 ### 4. 用户体验
+
 - ✅ 国际化支持（i18next）
 - ✅ 深色模式支持
 - ✅ 响应式设计
@@ -73,6 +79,7 @@
 ## 🎯 改进优先级
 
 ### 优先级说明
+
 - **P0 (紧急)**: 影响核心功能或安全性，需立即处理
 - **P1 (高)**: 显著提升用户体验或代码质量，建议近期完成
 - **P2 (中)**: 优化和改进，可在后续迭代中完成
@@ -86,7 +93,8 @@
 
 **问题**: 项目缺少单元测试和集成测试，无法保证代码质量和回归预防。
 
-**影响**: 
+**影响**:
+
 - 无法自动检测回归问题
 - 重构风险高
 - 代码质量难以量化
@@ -94,12 +102,14 @@
 **改进方案**:
 
 #### 1.1 设置测试框架
+
 ```bash
 # 建议使用 Vitest (与 Vite 集成良好)
 npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event
 ```
 
 #### 1.2 核心模块测试优先级
+
 - [ ] **工具组件测试** (P0)
   - 为常用工具（如 JSON Formatter, Base64 Encode）添加单元测试
   - 测试输入输出转换逻辑
@@ -123,12 +133,14 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
   - 收藏和最近使用功能测试
 
 **实施步骤**:
+
 1. 创建 `vitest.config.ts` 配置文件
 2. 添加测试脚本到 `package.json`
 3. 在 CI 中集成测试流程
 4. 为现有工具逐步添加测试
 
 **预期收益**:
+
 - 提升代码质量
 - 降低回归风险
 - 提升重构信心
@@ -140,6 +152,7 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
 **问题**: 发现代码重复和可以优化的地方。
 
 **具体问题**:
+
 - [ ] **重复的错误边界组件** (P1)
   - `src/components/error-boundary.tsx` 和 `src/components/common/tool-error-boundary.tsx` 功能重复
   - 建议统一为一个组件，移除重复实现
@@ -154,6 +167,7 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
   - 建议统一工具组件基类，提升一致性
 
 **改进方案**:
+
 1. 合并重复的错误边界组件
 2. 审查并实现所有 TODO 注释
 3. 统一工具组件基类使用规范
@@ -182,6 +196,7 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
   - 添加错误恢复建议
 
 **实施步骤**:
+
 1. 创建 `src/lib/error-handler.ts`
 2. 创建 `src/lib/logger.ts`
 3. 集成错误上报服务（可选）
@@ -200,10 +215,10 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
   - 添加骨架屏（Skeleton）提升加载体验
   - 实现路由预取策略
 
-- [ ] **Worker 优化** (P1)
-  - 实现 Worker 复用策略
-  - 添加 Worker 失败熔断机制
-  - 实现 Backpressure 控制
+- [x] **Worker 优化** (P1)
+  - ✅ 实现 Worker 复用策略
+  - ✅ 添加 Worker 失败熔断机制
+  - ✅ 实现 Backpressure 控制
 
 - [ ] **资源预加载策略** (P1)
   - 基于用户行为预测预加载下一个工具
@@ -224,15 +239,15 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
 
 **改进方案**:
 
-- [ ] **消除 any 类型** (P1)
-  - 审查所有 `any` 类型使用
-  - 为工具组件 props 添加完整类型定义
-  - 为工具数据添加严格类型
+- [x] **消除 any 类型** (P1) - 进行中
+  - ✅ 创建统一的工具类型系统 (`src/types/tool-types.ts`)
+  - ✅ 修复 CSV to JSON 工具中的 `any` 类型
+  - ⏳ 审查并修复其他工具组件中的 `any` 类型使用
 
-- [ ] **工具类型系统** (P1)
-  - 创建统一的工具类型定义
-  - 为工具输入输出添加类型约束
-  - 使用 Zod 进行运行时类型验证
+- [x] **工具类型系统** (P1)
+  - ✅ 创建统一的工具类型定义 (`CSVRow`, `JSONArray`, `ToolInput`, `ToolOutput` 等)
+  - ✅ 为工具输入输出添加类型约束
+  - ⏳ 使用 Zod 进行运行时类型验证（可选，后续实现）
 
 - [ ] **类型生成** (P2)
   - 考虑从工具定义自动生成类型
@@ -411,11 +426,13 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
 ### 短期计划 (1-2 个月)
 
 **Sprint 1-2: 测试基础设施**
+
 - 设置测试框架
 - 为核心工具添加测试
 - 集成到 CI
 
 **Sprint 3-4: 代码质量**
+
 - 消除代码重复
 - 清理 TODO 注释
 - 增强类型安全
@@ -423,11 +440,13 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
 ### 中期计划 (3-6 个月)
 
 **Sprint 5-8: 性能和体验**
+
 - 深化性能优化
 - 完善错误处理
 - 增强可访问性
 
 **Sprint 9-12: 文档和工具**
+
 - 完善文档
 - 增强开发工具
 - 改进构建流程
@@ -443,16 +462,19 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
 ## 📈 成功指标
 
 ### 代码质量
+
 - [ ] 测试覆盖率 > 60%
 - [ ] TypeScript 严格模式通过率 100%
 - [ ] 代码重复率 < 5%
 
 ### 性能
+
 - [ ] 首屏加载时间 < 2s
 - [ ] Time to Interactive < 3s
 - [ ] Bundle 大小 < 2MB (gzip)
 
 ### 用户体验
+
 - [ ] Lighthouse 评分 > 90
 - [ ] 可访问性评分 > 95
 - [ ] 错误率 < 0.1%
@@ -462,12 +484,14 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
 ## 🔍 持续监控
 
 ### 推荐工具
+
 - **性能监控**: Web Vitals, Performance Monitor
 - **错误监控**: Sentry (可选)
 - **代码质量**: ESLint, TypeScript, SonarQube (可选)
 - **依赖安全**: npm audit, Dependabot
 
 ### 定期审查
+
 - **每周**: 代码审查、依赖更新
 - **每月**: 性能分析、安全审计
 - **每季度**: 架构审查、技术债务评估
@@ -477,16 +501,19 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
 ## 📝 备注
 
 ### 已知问题
+
 - Worker 复用策略需要实现
 - 部分工具缺少错误边界包裹
 - 类型定义可以更严格
 
 ### 技术债务
+
 - 代码重复（错误边界）
 - TODO 注释需要处理
 - 测试覆盖率低
 
 ### 依赖关系
+
 - 部分改进相互依赖，需要按顺序实施
 - 测试基础设施是其他改进的基础
 
@@ -495,6 +522,7 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
 ## 🤝 贡献指南
 
 欢迎贡献代码！在开始之前，请：
+
 1. 查看相关的 Issue 或创建新 Issue
 2. Fork 项目并创建功能分支
 3. 遵循项目的代码风格和提交规范
@@ -506,4 +534,3 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
 **文档维护**: 本文档应随项目进展定期更新  
 **最后审查**: 2025-01-XX  
 **下次审查**: 2025-04-XX
-

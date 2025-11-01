@@ -41,6 +41,7 @@ import {
   type ExportFormat,
   type CSVQuoting,
 } from '@/types/csv-to-json'
+import type { CSVRow, JSONArray } from '@/types/tool-types'
 import { formatFileSize } from '@/lib/utils'
 
 const detectDelimiter = (csvText: string): string => {
@@ -96,7 +97,7 @@ const parseCSVLine = (line: string, delimiter: string, quoteChar: string): strin
   return result
 }
 
-const csvToJson = (csvText: string, settings: ConversionSettings): any[] => {
+const csvToJson = (csvText: string, settings: ConversionSettings): CSVRow[] => {
   const lines = csvText.split(/\r?\n/).filter((line) => (settings.skipEmptyLines ? line.trim() : true))
 
   if (lines.length === 0) {
@@ -118,7 +119,7 @@ const csvToJson = (csvText: string, settings: ConversionSettings): any[] => {
 
   const result = dataLines.map((line, _lineIndex) => {
     const values = parseCSVLine(line, delimiter, settings.quoteChar)
-    const row: any = {}
+    const row: CSVRow = {}
 
     headers.forEach((header, index) => {
       let value = values[index] || ''
@@ -146,7 +147,7 @@ const csvToJson = (csvText: string, settings: ConversionSettings): any[] => {
 }
 
 // JSON to CSV functions
-const jsonToCsv = (jsonData: any[], settings: ConversionSettings): string => {
+const jsonToCsv = (jsonData: JSONArray, settings: ConversionSettings): string => {
   if (!Array.isArray(jsonData) || jsonData.length === 0) {
     throw new Error('JSON must be an array of objects')
   }
@@ -684,7 +685,7 @@ const useDataConversion = () => {
 }
 
 // Helper function to analyze data types
-const analyzeDataTypes = (data: any): DataTypeCount => {
+const analyzeDataTypes = (data: JSONArray | CSVRow[]): DataTypeCount => {
   const counts: DataTypeCount = {
     strings: 0,
     numbers: 0,
@@ -695,7 +696,7 @@ const analyzeDataTypes = (data: any): DataTypeCount => {
     arrays: 0,
   }
 
-  const analyzeValue = (value: any) => {
+  const analyzeValue = (value: unknown) => {
     if (value === null || value === undefined) {
       counts.nulls++
     } else if (typeof value === 'boolean') {

@@ -14,6 +14,7 @@ export interface WorkerTask<T = any, R = any> {
 }
 
 import { perfBus } from './perf'
+import { logger } from './logger'
 
 export interface WorkerConfig {
   maxWorkers?: number
@@ -21,6 +22,9 @@ export interface WorkerConfig {
   timeout?: number
   idleTerminateMs?: number
   backpressureQueueMax?: number
+  circuitBreakerThreshold?: number // 熔断阈值：连续失败次数
+  circuitBreakerTimeout?: number // 熔断恢复时间（毫秒）
+  backpressureThreshold?: number // Backpressure 阈值：队列长度
 }
 
 interface WorkerIdentifier {
@@ -43,6 +47,16 @@ export class WorkerManager {
   private workerPoolByScript: Map<string, Worker[]> = new Map()
   private workerBusyByScript: Map<string, boolean[]> = new Map()
   private workerLastUsedByScript: Map<string, number[]> = new Map()
+  // 熔断器：记录每个脚本的熔断状态
+  private circuitBreakerState: Map<string, { isOpen: boolean; failureCount: number; lastFailureTime: number }> =
+    new Map()
+  // Backpressure 状态
+  private backpressureActive: boolean = false
+  private frameTimeMonitor: { lastFrameTime: number; frameTimeHistory: number[] } = {
+    lastFrameTime: performance.now(),
+    frameTimeHistory: [],
+  }
+  private frameMonitoringId: number | null = null
 
   constructor(config: WorkerConfig = {}) {
     this.config = {
@@ -51,9 +65,13 @@ export class WorkerManager {
       timeout: config.timeout || 300000, // 5 minutes
       idleTerminateMs: config.idleTerminateMs ?? 60_000,
       backpressureQueueMax: config.backpressureQueueMax ?? 200,
+      circuitBreakerThreshold: config.circuitBreakerThreshold ?? 5, // 连续5次失败触发熔断
+      circuitBreakerTimeout: config.circuitBreakerTimeout ?? 30_000, // 30秒后尝试恢复
+      backpressureThreshold: config.backpressureThreshold ?? 50, // 队列超过50时触发
     }
 
     this.initializeWorkers()
+    this.startFrameTimeMonitoring()
   }
 
   private initializeWorkers(): void {
@@ -106,6 +124,8 @@ export class WorkerManager {
         this.taskWorkerInfo.delete(taskId)
         // 兼容不同 worker 的完成消息负载字段（data 或 result）
         task.onComplete?.(result !== undefined ? result : data)
+        // 记录成功，重置熔断器计数
+        this.recordSuccess(workerInfo.scriptPath)
         {
           const start = this.taskStartTime.get(taskId)
           if (typeof start === 'number') {
@@ -130,6 +150,8 @@ export class WorkerManager {
         this.taskWorkerIndex.delete(taskId)
         this.taskWorkerInfo.delete(taskId)
         task.onError?.(new Error(error))
+        // 记录失败并检查熔断
+        this.recordFailure(workerInfo.scriptPath)
         this.processNextTask()
         break
     }
@@ -165,9 +187,8 @@ export class WorkerManager {
         this.taskWorkerIndex.delete(taskId)
         this.taskWorkerInfo.delete(taskId)
         task.onError?.(new Error(`Worker error: ${error.message}`))
-        // 熔断计数
-        const count = (this.failureCountByScript.get(workerInfo.scriptPath) || 0) + 1
-        this.failureCountByScript.set(workerInfo.scriptPath, count)
+        // 记录失败并检查熔断
+        this.recordFailure(workerInfo.scriptPath)
         break
       }
     }
@@ -179,6 +200,13 @@ export class WorkerManager {
    * 获取可用的 Worker（优先复用同脚本的 Worker）
    */
   private getAvailableWorker(scriptPath?: string): WorkerIdentifier | null {
+    // 检查熔断器状态
+    const targetScript = scriptPath || this.config.workerScript
+    if (this.isCircuitBreakerOpen(targetScript)) {
+      logger.warn(`Circuit breaker is open for ${targetScript}, rejecting task`)
+      return null
+    }
+
     // 如果指定了脚本路径，尝试复用该脚本的 Worker 池
     if (scriptPath && scriptPath !== this.config.workerScript) {
       const pool = this.getOrCreateWorkerPool(scriptPath)
@@ -230,14 +258,139 @@ export class WorkerManager {
     return this.workerPoolByScript.get(scriptPath)!
   }
 
+  /**
+   * 记录失败并检查熔断器
+   */
+  private recordFailure(scriptPath: string): void {
+    const count = (this.failureCountByScript.get(scriptPath) || 0) + 1
+    this.failureCountByScript.set(scriptPath, count)
+
+    const state = this.circuitBreakerState.get(scriptPath) || {
+      isOpen: false,
+      failureCount: 0,
+      lastFailureTime: 0,
+    }
+
+    state.failureCount++
+    state.lastFailureTime = Date.now()
+
+    // 检查是否达到熔断阈值
+    if (state.failureCount >= this.config.circuitBreakerThreshold) {
+      state.isOpen = true
+      logger.warn(`Circuit breaker opened for ${scriptPath} after ${state.failureCount} failures`)
+    }
+
+    this.circuitBreakerState.set(scriptPath, state)
+  }
+
+  /**
+   * 检查熔断器状态
+   */
+  private isCircuitBreakerOpen(scriptPath: string): boolean {
+    const state = this.circuitBreakerState.get(scriptPath)
+    if (!state || !state.isOpen) return false
+
+    // 检查是否超过恢复时间
+    const now = Date.now()
+    if (now - state.lastFailureTime > this.config.circuitBreakerTimeout) {
+      // 尝试恢复：重置状态
+      state.isOpen = false
+      state.failureCount = 0
+      this.circuitBreakerState.set(scriptPath, state)
+      logger.info(`Circuit breaker closed for ${scriptPath} after recovery timeout`)
+      return false
+    }
+
+    return true
+  }
+
+  /**
+   * 记录成功，重置熔断器计数
+   */
+  private recordSuccess(scriptPath: string): void {
+    const state = this.circuitBreakerState.get(scriptPath)
+    if (state) {
+      state.failureCount = 0
+      this.circuitBreakerState.set(scriptPath, state)
+    }
+    this.failureCountByScript.set(scriptPath, 0)
+  }
+
+  /**
+   * 监控主线程帧时长
+   */
+  private startFrameTimeMonitoring(): void {
+    if (typeof window === 'undefined') return
+
+    const checkFrameTime = () => {
+      const now = performance.now()
+      const frameTime = now - this.frameTimeMonitor.lastFrameTime
+      this.frameTimeMonitor.lastFrameTime = now
+
+      this.frameTimeMonitor.frameTimeHistory.push(frameTime)
+      // 只保留最近100帧的数据
+      if (this.frameTimeMonitor.frameTimeHistory.length > 100) {
+        this.frameTimeMonitor.frameTimeHistory.shift()
+      }
+
+      // 计算平均帧时长
+      const avgFrameTime =
+        this.frameTimeMonitor.frameTimeHistory.reduce((a, b) => a + b, 0) /
+        this.frameTimeMonitor.frameTimeHistory.length
+
+      // 如果平均帧时长超过16.67ms（60fps），触发 Backpressure
+      this.backpressureActive = avgFrameTime > 16.67
+
+      // 保存 requestAnimationFrame ID 以便后续取消
+      this.frameMonitoringId = requestAnimationFrame(checkFrameTime)
+    }
+
+    this.frameMonitoringId = requestAnimationFrame(checkFrameTime)
+  }
+
+  /**
+   * 停止帧时长监控
+   */
+  private stopFrameTimeMonitoring(): void {
+    if (this.frameMonitoringId !== null) {
+      cancelAnimationFrame(this.frameMonitoringId)
+      this.frameMonitoringId = null
+    }
+  }
+
+  /**
+   * 检查 Backpressure 状态
+   */
+  private shouldApplyBackpressure(): boolean {
+    // 队列长度超过阈值
+    if (this.taskQueue.length > this.config.backpressureThreshold) {
+      return true
+    }
+
+    // 主线程帧时长过高
+    if (this.backpressureActive) {
+      return true
+    }
+
+    return false
+  }
+
   private processNextTask(): void {
     if (this.taskQueue.length === 0) return
-    // Backpressure：队列过长则降级处理，避免无界增长
-    if (this.taskQueue.length > this.config.backpressureQueueMax) {
-      // 简单策略：丢弃最低优先级尾部 10%
-      const dropCount = Math.floor(this.taskQueue.length * 0.1)
-      if (dropCount > 0) {
-        this.taskQueue.splice(-dropCount, dropCount)
+
+    // Backpressure：检查是否需要应用背压
+    if (this.shouldApplyBackpressure()) {
+      // 如果队列超过最大限制，丢弃最低优先级任务
+      if (this.taskQueue.length > this.config.backpressureQueueMax) {
+        const dropCount = Math.floor(this.taskQueue.length * 0.1)
+        if (dropCount > 0) {
+          this.taskQueue.splice(-dropCount, dropCount)
+          logger.warn(`Backpressure: Dropped ${dropCount} low-priority tasks`)
+        }
+      } else {
+        // 队列未超限但帧时长高，延迟处理
+        setTimeout(() => this.processNextTask(), 100)
+        return
       }
     }
 
@@ -366,6 +519,9 @@ export class WorkerManager {
    * Terminate all workers and clean up
    */
   terminate(): void {
+    // 停止帧时长监控
+    this.stopFrameTimeMonitoring()
+
     this.workers.forEach((worker) => worker.terminate())
     this.workers.length = 0
     this.workerBusy.length = 0
