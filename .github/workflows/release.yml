@@ -38,6 +38,19 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Run tests
+        run: npm test -- --run
+
+      - name: Generate test coverage
+        run: npm run test:coverage || echo "Coverage generation failed, continuing..."
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./coverage/coverage-final.json
+          fail_ci_if_error: false
+
       - name: Type check
         run: npx tsc --noEmit
 

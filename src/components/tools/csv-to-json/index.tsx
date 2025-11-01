@@ -536,12 +536,19 @@ const useDataConversion = () => {
           const lines = input.split(/\r?\n/).filter((line) => line.trim())
           const delimiter = settings.delimiter === 'auto' ? detectDelimiter(input) : settings.delimiter
           const firstLine = parseCSVLine(lines[0] || '', delimiter, settings.quoteChar)
+          const dataLines = settings.hasHeaders ? lines.slice(1) : lines
+
+          // Calculate empty values in CSV
+          const emptyValuesCount = dataLines.reduce((count, line) => {
+            const values = parseCSVLine(line, delimiter, settings.quoteChar)
+            return count + values.filter((v) => !v.trim()).length
+          }, 0)
 
           dataMetrics = {
             rowCount: lines.length - (settings.hasHeaders ? 1 : 0),
             columnCount: firstLine.length,
             totalCells: (lines.length - (settings.hasHeaders ? 1 : 0)) * firstLine.length,
-            emptyValues: 0, // TODO: Calculate empty values
+            emptyValues: emptyValuesCount,
             dataTypes: analyzeDataTypes(jsonData),
             encoding: 'UTF-8',
           }
@@ -550,11 +557,21 @@ const useDataConversion = () => {
           output = jsonToCsv(jsonData, settings)
 
           // Calculate metrics for JSON input
+          // Calculate empty values in JSON (null, undefined, empty strings)
+          const emptyValuesCount = Array.isArray(jsonData)
+            ? jsonData.reduce((count, item) => {
+                if (typeof item === 'object' && item !== null) {
+                  return count + Object.values(item).filter((v) => v === null || v === undefined || v === '').length
+                }
+                return count
+              }, 0)
+            : 0
+
           dataMetrics = {
             rowCount: Array.isArray(jsonData) ? jsonData.length : 1,
             columnCount: Array.isArray(jsonData) && jsonData.length > 0 ? Object.keys(jsonData[0] || {}).length : 0,
             totalCells: Array.isArray(jsonData) ? jsonData.length * Object.keys(jsonData[0] || {}).length : 0,
-            emptyValues: 0, // TODO: Calculate empty values
+            emptyValues: emptyValuesCount,
             dataTypes: analyzeDataTypes(jsonData),
             encoding: 'UTF-8',
           }

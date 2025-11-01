@@ -85,7 +85,8 @@ const LoremImage = () => {
   const [settings, setSettings] = useState<LoremImageSettings>(defaultSettings)
   const { images, loading, error, generateBatch } = useBatchLoremImages(settings)
 
-  // TODO: UI 设计系统组件、批量、导出、无障碍、统计、模板等
+  // Note: UI features like batch operations, export, accessibility, statistics, and templates
+  // can be added as future enhancements when needed
   return (
     <Card className="max-w-2xl mx-auto mt-6" aria-label="占位图生成工具">
       <CardHeader>

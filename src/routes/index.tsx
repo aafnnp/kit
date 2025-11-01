@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Heart, Clock, Grid3X3, Trash2, Settings } from 'lucide-react'
 import { usePreload, useSmartPreload } from '@/lib/preloader'
 import { useResourcePreload, resourceOptimizer } from '@/lib/resource-optimizer'
+import { useRoutePrefetch } from '@/lib/route-prefetch'
 import { CategoryManager } from '@/components/category-manager'
 import { SmartToolGrid } from '@/components/smart-tool-grid'
 import { isSafari } from '@/lib/utils'
@@ -31,6 +32,20 @@ export const Route = createFileRoute('/')({
     // 性能优化 hooks
     const { preloadTool, preloadCommonTools } = usePreload()
     const { trackToolUsage } = useSmartPreload()
+    const { prefetchFavorites, prefetchRecent } = useRoutePrefetch()
+
+    // 预取收藏和最近使用的工具路由
+    useEffect(() => {
+      const favoriteSlugs = Array.isArray(favorites)
+        ? favorites.map((tool: any) => (typeof tool === 'string' ? tool : tool.slug))
+        : []
+      const recentSlugs = Array.isArray(recentTools)
+        ? recentTools.map((tool: any) => (typeof tool === 'string' ? tool : tool.slug))
+        : []
+
+      prefetchFavorites(favoriteSlugs)
+      prefetchRecent(recentSlugs)
+    }, [favorites, recentTools, prefetchFavorites, prefetchRecent])
 
     // 定义预加载资源
     const resources = [

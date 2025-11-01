@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ToolErrorBoundary } from '@/components/error-boundary'
+import { ToolErrorBoundary } from '@/components/common/tool-error-boundary'
 
 interface ToolBaseProps {
   toolName: string
@@ -46,7 +46,7 @@ export function ToolBase({ toolName, icon, description, children, tabs }: ToolBa
           {tabs ? (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className={`grid w-full grid-cols-${tabs.length}`}>
-                {tabs.map(tab => (
+                {tabs.map((tab) => (
                   <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2">
                     {tab.icon}
                     {tab.label}
@@ -54,7 +54,7 @@ export function ToolBase({ toolName, icon, description, children, tabs }: ToolBa
                 ))}
               </TabsList>
 
-              {tabs.map(tab => (
+              {tabs.map((tab) => (
                 <TabsContent key={tab.id} value={tab.id} className="space-y-6">
                   {tab.content}
                 </TabsContent>

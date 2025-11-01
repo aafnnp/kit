@@ -38,7 +38,7 @@ function toolStateReducer<T>(state: ToolState<T>, action: ToolStateAction<T>): T
         isLoading: false,
         error: null,
         isProcessing: false,
-        progress: 0
+        progress: 0,
       }
     default:
       return state
@@ -52,7 +52,7 @@ export function useToolState<T>(initialData: T) {
     isLoading: false,
     error: null,
     isProcessing: false,
-    progress: 0
+    progress: 0,
   })
 
   const setData = useCallback((data: T) => {
@@ -83,41 +83,46 @@ export function useToolState<T>(initialData: T) {
   }, [])
 
   // 异步操作包装器
-  const executeAsync = useCallback(async <R>(operation: () => Promise<R>): Promise<R | null> => {
-    setLoading(true)
-    setError(null)
-    try {
-      const result = await operation()
-      return result
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
-      setError(errorMessage)
-      return null
-    } finally {
-      setLoading(false)
-    }
-  }, [setLoading, setError])
+  const executeAsync = useCallback(
+    async <R>(operation: () => Promise<R>): Promise<R | null> => {
+      setLoading(true)
+      setError(null)
+      try {
+        const result = await operation()
+        return result
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
+        setError(errorMessage)
+        return null
+      } finally {
+        setLoading(false)
+      }
+    },
+    [setLoading, setError]
+  )
 
   // 处理操作包装器
-  const executeProcessing = useCallback(async <R>(
-    operation: (updateProgress: (progress: number) => void) => Promise<R>
-  ): Promise<R | null> => {
-    setProcessing(true)
-    setError(null)
-    setProgress(0)
-    try {
-      const result = await operation(setProgress)
-      setProgress(100)
-      return result
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Processing failed'
-      setError(errorMessage)
-      return null
-    } finally {
-      setProcessing(false)
+  const executeProcessing = useCallback(
+    async <R>(operation: (updateProgress: (progress: number) => void) => Promise<R>): Promise<R | null> => {
+      setProcessing(true)
+      setError(null)
       setProgress(0)
-    }
-  }, [setProcessing, setError, setProgress])
+      try {
+        const result = await operation(setProgress)
+        setProgress(100)
+        return result
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Processing failed'
+        setError(errorMessage)
+        setProgress(0)
+        return null
+      } finally {
+        setProcessing(false)
+        // 保持最终进度，不重置为 0（成功时显示 100%）
+      }
+    },
+    [setProcessing, setError, setProgress]
+  )
 
   return {
     ...state,
@@ -128,7 +133,7 @@ export function useToolState<T>(initialData: T) {
     setProgress,
     reset,
     executeAsync,
-    executeProcessing
+    executeProcessing,
   }
 }
 
@@ -173,7 +178,7 @@ export function useSimpleState<T>(initialValue: T) {
     setIsLoading,
     setError,
     executeWithLoading,
-    reset
+    reset,
   }
 }
 
@@ -192,84 +197,84 @@ export function useBatchState<T extends { id: string }>(initialItems: T[] = []) 
     processing: new Set(),
     completed: new Set(),
     failed: new Set(),
-    progress: 0
+    progress: 0,
   })
 
   const addItems = useCallback((newItems: T[]) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      items: [...prev.items, ...newItems]
+      items: [...prev.items, ...newItems],
     }))
   }, [])
 
   const removeItem = useCallback((id: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      items: prev.items.filter(item => item.id !== id),
-      processing: new Set([...prev.processing].filter(pid => pid !== id)),
-      completed: new Set([...prev.completed].filter(pid => pid !== id)),
-      failed: new Set([...prev.failed].filter(pid => pid !== id))
+      items: prev.items.filter((item) => item.id !== id),
+      processing: new Set([...prev.processing].filter((pid) => pid !== id)),
+      completed: new Set([...prev.completed].filter((pid) => pid !== id)),
+      failed: new Set([...prev.failed].filter((pid) => pid !== id)),
     }))
   }, [])
 
   const setItemProcessing = useCallback((id: string) => {
-    setState(prev => {
+    setState((prev) => {
       const newProcessing = new Set(prev.processing)
       const newCompleted = new Set(prev.completed)
       const newFailed = new Set(prev.failed)
-      
+
       newProcessing.add(id)
       newCompleted.delete(id)
       newFailed.delete(id)
-      
-      return {
-        ...prev,
-        processing: newProcessing,
-        completed: newCompleted,
-        failed: newFailed
-      }
-    })
-  }, [])
 
-  const setItemCompleted = useCallback((id: string) => {
-    setState(prev => {
-      const newProcessing = new Set(prev.processing)
-      const newCompleted = new Set(prev.completed)
-      const newFailed = new Set(prev.failed)
-      
-      newProcessing.delete(id)
-      newCompleted.add(id)
-      newFailed.delete(id)
-      
-      const totalItems = prev.items.length
-      const completedCount = newCompleted.size
-      const progress = totalItems > 0 ? (completedCount / totalItems) * 100 : 0
-      
       return {
         ...prev,
         processing: newProcessing,
         completed: newCompleted,
         failed: newFailed,
-        progress
+      }
+    })
+  }, [])
+
+  const setItemCompleted = useCallback((id: string) => {
+    setState((prev) => {
+      const newProcessing = new Set(prev.processing)
+      const newCompleted = new Set(prev.completed)
+      const newFailed = new Set(prev.failed)
+
+      newProcessing.delete(id)
+      newCompleted.add(id)
+      newFailed.delete(id)
+
+      const totalItems = prev.items.length
+      const completedCount = newCompleted.size
+      const progress = totalItems > 0 ? (completedCount / totalItems) * 100 : 0
+
+      return {
+        ...prev,
+        processing: newProcessing,
+        completed: newCompleted,
+        failed: newFailed,
+        progress,
       }
     })
   }, [])
 
   const setItemFailed = useCallback((id: string) => {
-    setState(prev => {
+    setState((prev) => {
       const newProcessing = new Set(prev.processing)
       const newCompleted = new Set(prev.completed)
       const newFailed = new Set(prev.failed)
-      
+
       newProcessing.delete(id)
       newCompleted.delete(id)
       newFailed.add(id)
-      
+
       return {
         ...prev,
         processing: newProcessing,
         completed: newCompleted,
-        failed: newFailed
+        failed: newFailed,
       }
     })
   }, [])
@@ -280,17 +285,17 @@ export function useBatchState<T extends { id: string }>(initialItems: T[] = []) 
       processing: new Set(),
       completed: new Set(),
       failed: new Set(),
-      progress: 0
+      progress: 0,
     })
   }, [])
 
   const resetStatus = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       processing: new Set(),
       completed: new Set(),
       failed: new Set(),
-      progress: 0
+      progress: 0,
     }))
   }, [])
 
@@ -309,6 +314,6 @@ export function useBatchState<T extends { id: string }>(initialItems: T[] = []) 
     totalItems: state.items.length,
     completedCount: state.completed.size,
     failedCount: state.failed.size,
-    processingCount: state.processing.size
+    processingCount: state.processing.size,
   }
 }

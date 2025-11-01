@@ -6,6 +6,7 @@ import { getToolLoaderBySlug, hasTool } from '@/lib/tools-map'
 import ToolNotFound from '@/components/tools/404'
 import { ToolLoading } from '@/components/ui/loading'
 import { AdSenseAd } from '@/components/adsense-ad'
+import { useRoutePrefetch } from '@/lib/route-prefetch'
 import { useSmartPreload } from '@/lib/preloader'
 import { QueryClient } from '@tanstack/react-query'
 
@@ -28,9 +29,17 @@ export const Route = createFileRoute('/tool/$tool')({
 function RouteComponent() {
   const { tool: toolSlug } = Route.useParams()
   const { trackToolUsage } = useSmartPreload()
+  const { prefetchRelated } = useRoutePrefetch()
 
   // 查找工具信息
   const toolInfo = tools.flatMap((category: any) => category.tools).find((t: any) => t.slug === toolSlug)
+
+  // 预取关联工具
+  useEffect(() => {
+    if (toolSlug) {
+      prefetchRelated(toolSlug)
+    }
+  }, [toolSlug, prefetchRelated])
 
   // 动态导入工具组件
   const ToolComponent =

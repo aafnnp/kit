@@ -18,9 +18,13 @@ export function isSafari() {
   return /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
 }
 
-export function isTauri() {
+interface TauriWindow extends Window {
+  __TAURI__?: unknown
+}
+
+export function isTauri(): boolean {
   try {
-    return typeof (window as any).__TAURI__ !== 'undefined'
+    return typeof (window as TauriWindow).__TAURI__ !== 'undefined'
   } catch {
     return false
   }

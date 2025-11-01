@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
+import { errorHandler } from '@/lib/error-handler'
+import { logger } from '@/lib/logger'
 
 interface ToolErrorBoundaryProps {
   toolName: string
@@ -26,14 +28,24 @@ export class ToolErrorBoundary extends React.Component<ToolErrorBoundaryProps, T
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error(`${this.props.toolName} Error:`, error, errorInfo)
+    // 使用统一的错误处理系统
+    errorHandler.logError(error, {
+      component: 'ToolErrorBoundary',
+      action: 'ComponentError',
+      metadata: {
+        toolName: this.props.toolName,
+        errorInfo: {
+          componentStack: errorInfo.componentStack,
+        },
+      },
+    })
+
+    logger.error(`Error in ${this.props.toolName}`, error, {
+      toolName: this.props.toolName,
+      componentStack: errorInfo.componentStack,
+    })
+
     this.setState({ errorInfo })
-    
-    // 可以在这里上报错误到监控服务
-    if (process.env.NODE_ENV === 'production') {
-      // 上报错误逻辑
-    }
-    
     toast.error(`An error occurred in ${this.props.toolName}`)
   }
 
@@ -59,7 +71,7 @@ export class ToolErrorBoundary extends React.Component<ToolErrorBoundaryProps, T
             <p className="text-muted-foreground">
               The {this.props.toolName} tool encountered an error. You can try to recover or refresh the page.
             </p>
-            
+
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="bg-muted p-4 rounded-lg">
                 <summary className="cursor-pointer font-medium mb-2">Error Details</summary>
@@ -74,7 +86,7 @@ export class ToolErrorBoundary extends React.Component<ToolErrorBoundaryProps, T
                 </pre>
               </details>
             )}
-            
+
             <div className="flex gap-2">
               <Button onClick={this.handleReset} variant="outline">
                 Try Again
