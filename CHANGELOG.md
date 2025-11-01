@@ -5,6 +5,111 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## v0.1.6
+
+*发布日期: 2025-11-01*
+
+### ✨ Features
+
+- complete performance optimizations and type safety enhancements ([a29a114](../../commit/a29a114))
+- enhance testing coverage and improve error handling ([877215a](../../commit/877215a))
+- enhance testing infrastructure and error handling ([e45b58c](../../commit/e45b58c))
+
+### 🔧 Chores
+
+- 0.1.6 ([5c01aaf](../../commit/5c01aaf))
+- 0.1.5 ([21d812a](../../commit/21d812a))
+- 0.1.4 ([25dd471](../../commit/25dd471))
+- update dependencies and remove unused performance report ([db070ab](../../commit/db070ab))
+- update TODO.md and tsconfig.json for improved project structure ([94e44b9](../../commit/94e44b9))
+
+### 📊 统计信息
+
+- 总提交数: 8
+- 参与开发者: 1
+- 新功能: 3
+- 问题修复: 0
+- 对比版本: [v0.1.5...v0.1.6](../../compare/v0.1.5...v0.1.6)
+
+---
+
+## v0.1.5
+
+*发布日期: 2025-09-27*
+
+### 🐛 Bug Fixes
+
+- update lock json ([fc62561](../../commit/fc62561))
+
+### ♻️ Code Refactoring
+
+- remove unused props from Route component ([c30d3dd](../../commit/c30d3dd))
+- remove VirtualToolGrid and simplify SmartToolGrid component ([7965813](../../commit/7965813))
+
+### 📊 统计信息
+
+- 总提交数: 3
+- 参与开发者: 1
+- 新功能: 0
+- 问题修复: 1
+- 对比版本: [v0.1.4...v0.1.5](../../compare/v0.1.4...v0.1.5)
+
+---
+
+## v0.1.4
+
+*发布日期: 2025-09-27*
+
+### ✨ Features
+
+- enhance build and performance optimization features ([e997988](../../commit/e997988))
+- add @tanstack/react-virtual dependency to enhance virtual list functionality ([f4f7108](../../commit/f4f7108))
+- 添加性能分析文档并更新依赖项 ([b06e018](../../commit/b06e018))
+- add routing configuration for single-page application support ([b936097](../../commit/b936097))
+- add global adsbygoogle declaration and update AdSenseAd component ([85582c3](../../commit/85582c3))
+
+### 🐛 Bug Fixes
+
+- update ffmpeg chunk configuration in vite.config.ts ([f726d53](../../commit/f726d53))
+- improve Blob creation for zip files and update input handler hooks ([06f8dd7](../../commit/06f8dd7))
+
+### ♻️ Code Refactoring
+
+- simplify URL opening logic in ToolCard component ([03b5589](../../commit/03b5589))
+- update PerformanceMonitor and introduce SmartToolGrid component ([0ebea1d](../../commit/0ebea1d))
+- update script loading logic in root route for improved clarity ([2fc5e78](../../commit/2fc5e78))
+- streamline script loading logic in root route ([78648df](../../commit/78648df))
+- simplify AdSenseAd component by removing props and hardcoding values ([fb5e232](../../commit/fb5e232))
+- ensure safe Blob creation from ArrayBuffer in audio and file processing components ([49a57a2](../../commit/49a57a2))
+- 移除冗余的条形码生成辅助函数 ([74a87d5](../../commit/74a87d5))
+
+### 📚 Documentation
+
+- enhance introduction and add English README ([5e030e7](../../commit/5e030e7))
+- update changelog ([90f6c3f](../../commit/90f6c3f))
+- update changelog ([e841fe6](../../commit/e841fe6))
+
+### 🔧 Chores
+
+- update build scripts to use cross-env for environment variable management ([bfc5f05](../../commit/bfc5f05))
+- externalize FFmpeg modules in vite.config.ts ([1bc8604](../../commit/1bc8604))
+- update package-lock.json to include web-vitals dependency ([4cf5eb4](../../commit/4cf5eb4))
+- update dependencies and improve build scripts ([409f8c4](../../commit/409f8c4))
+- 更新发布工作流以避免重复版本号 ([3eb84ae](../../commit/3eb84ae))
+- 0.1.3 ([bdbf432](../../commit/bdbf432))
+- 更新版本号至0.1.2 ([ebce932](../../commit/ebce932))
+- 0.0.2 ([6d3b034](../../commit/6d3b034))
+
+### 📊 统计信息
+
+- 总提交数: 25
+- 参与开发者: 1
+- 新功能: 5
+- 问题修复: 2
+- 对比版本: [v0.1.3...v0.1.4](../../compare/v0.1.3...v0.1.4)
+
+---
+
 ## v0.1.3
 
 *发布日期: 2025-09-08*
@@ -33,15 +138,10 @@
 
 ### ♻️ Code Refactoring
 
-- 移除冗余的条形码生成辅助函数 ([74a87d5](../../commit/74a87d5))
 - improve audio conversion hooks and worker management ([0362e02](../../commit/0362e02))
 - update layout for tool components to improve responsiveness ([82e0553](../../commit/82e0553))
 - comment out common tools preloading logic in PreloadManager ([9f59548](../../commit/9f59548))
 - remove TestAd and Settings routes, update routeTree structure ([53ecf30](../../commit/53ecf30))
-
-### 📚 Documentation
-
-- update changelog ([e841fe6](../../commit/e841fe6))
 
 ### 👷 Build System
 
@@ -50,16 +150,13 @@
 
 ### 🔧 Chores
 
-- 0.1.3 ([bdbf432](../../commit/bdbf432))
-- 更新版本号至0.1.2 ([ebce932](../../commit/ebce932))
-- 0.0.2 ([6d3b034](../../commit/6d3b034))
 - modify dependency installation in GitHub Actions workflow ([3990376](../../commit/3990376))
 - update GitHub Actions workflow for improved dependency management and build process ([7141eac](../../commit/7141eac))
 - 启用日志观察功能 ([22c3fdb](../../commit/22c3fdb))
 
 ### 📊 统计信息
 
-- 总提交数: 30
+- 总提交数: 25
 - 参与开发者: 1
 - 新功能: 15
 - 问题修复: 1
