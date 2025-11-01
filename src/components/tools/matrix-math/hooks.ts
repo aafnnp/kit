@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react'
-import { getWorkerManager } from '@/lib/worker-manager'
+import { getWorkerManager } from '@/lib/workers'
 import type { Matrix, MatrixOperation, OperationType, MatrixAnalysis } from '@/types/matrix-math'
 
 export interface UseMatrixOperationsReturn {

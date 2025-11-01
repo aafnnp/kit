@@ -1,12 +1,11 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router'
 import '../App.css'
-import { AppSidebar } from '@/components/app-sidebar'
-import { SiteHeader } from '@/components/site-header'
+import { AppSidebar, SiteHeader } from '@/components/layout'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { PerformanceMonitor } from '@/components/performance-monitor'
+import { PerformanceMonitor } from '@/components/monitoring'
 import { isTauri } from '@/lib/utils'
 import { useState, useEffect } from 'react'
-import { scheduleTTIMeasure, initWebVitals, initLongTaskObserver } from '@/lib/perf'
+import { scheduleTTIMeasure, initWebVitals, initLongTaskObserver } from '@/lib/performance'
 
 export const Route = createRootRoute({
   head: () => ({

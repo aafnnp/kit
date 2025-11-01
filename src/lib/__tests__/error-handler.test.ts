@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { errorHandler, LogLevel } from '@/lib/error-handler'
+import { errorHandler, LogLevel } from '@/lib/data'
 
 describe('ErrorHandler', () => {
   beforeEach(() => {

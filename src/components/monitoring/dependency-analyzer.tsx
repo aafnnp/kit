@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 // Alert组件暂不可用，使用Card替代
-import { resourceOptimizer } from '@/lib/resource-optimizer'
+import { resourceOptimizer } from '@/lib/performance'
 import { Icon } from '@/components/ui/icon-compat'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'

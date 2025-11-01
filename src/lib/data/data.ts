@@ -1,4 +1,5 @@
-export default [
+import type { ToolsData } from '@/types/tool'
+const data: ToolsData = [
   {
     id: 'text-processing',
     tools: [
@@ -311,3 +312,5 @@ export default [
     ],
   },
 ]
+
+export default data

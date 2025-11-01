@@ -2,7 +2,7 @@
  * 文件处理工具内存优化器 - 专门优化文件处理工具的内存使用
  */
 import React from 'react'
-import { cacheStrategy } from './cache-strategy'
+import { cacheStrategy } from '@/lib/storage'
 
 interface FileProcessingStats {
   totalFilesProcessed: number

@@ -1,9 +1,9 @@
 import React, { useMemo, useRef, useEffect } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { motion } from 'motion/react'
-import { ToolCard } from '@/components/tool-card'
+import { ToolCard } from '@/components/features'
 import { TFunction } from 'i18next'
-import { useRoutePrefetch } from '@/lib/route-prefetch'
+import { useRoutePrefetch } from '@/lib/routing'
 import type { Tool, ToolCategory } from '@/types/tool'
 
 interface VirtualToolGridProps {

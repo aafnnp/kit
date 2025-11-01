@@ -11,10 +11,10 @@ import React, { useState, useEffect, useCallback, memo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useRouter, useLocation } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { loadIconComponent, getLoadedIconComponent, preloadIcons } from '@/lib/icon-loader'
-import { preloader } from '@/lib/preloader'
-import { getToolLoaderBySlug } from '@/lib/tools-map'
-import { useRoutePrefetch } from '@/lib/route-prefetch'
+import { loadIconComponent, getLoadedIconComponent, preloadIcons } from '@/lib/data'
+import { preloader } from '@/lib/data'
+import { getToolLoaderBySlug } from '@/lib/data'
+import { useRoutePrefetch } from '@/lib/routing'
 
 function NavMainInner({ items }: { items: typeof tools }) {
   const router = useRouter()

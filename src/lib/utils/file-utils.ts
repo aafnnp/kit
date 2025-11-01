@@ -210,5 +210,3 @@ export const processBatch = async <T, R>(
   return results
 }
 
-// 文件大小格式化（重新导出以保持兼容性）
-export { formatFileSize } from './utils'

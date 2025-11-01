@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, RefreshCw, Info, Lightbulb, Copy, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { errorHandler, ErrorSeverity } from '@/lib/error-handler'
-import { logger } from '@/lib/logger'
+import { errorHandler, ErrorSeverity } from '@/lib/data'
+import { logger } from '@/lib/data'
 
 interface ToolErrorBoundaryProps {
   toolName: string

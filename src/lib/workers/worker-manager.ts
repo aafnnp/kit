@@ -13,8 +13,8 @@ export interface WorkerTask<T = any, R = any> {
   onError?: (error: Error) => void
 }
 
-import { perfBus } from './perf'
-import { logger } from './logger'
+import { perfBus } from '@/lib/performance'
+import { logger } from '@/lib/data'
 
 export interface WorkerConfig {
   maxWorkers?: number

@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
-import { getWorkerManager } from '@/lib/worker-manager'
-import type { WorkerManager } from '@/lib/worker-manager'
+import { getWorkerManager } from '@/lib/workers'
+import type { WorkerManager } from '@/lib/workers'
 import type {
   AudioFile,
   ConvertSettings,

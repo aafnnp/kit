@@ -23,12 +23,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { check } from '@tauri-apps/plugin-updater'
 import { relaunch } from '@tauri-apps/plugin-process'
-import { usePersistence } from '@/lib/persistence'
+import { usePersistence } from '@/lib/storage'
 import { Download, Upload, Trash2, History, Settings2, Database, Zap, X } from 'lucide-react'
-import { ResourceOptimization } from '@/components/resource-optimization'
-import { CacheStrategyManager } from '@/components/cache-strategy-manager'
+import { ResourceOptimization } from '@/components/monitoring'
+import { CacheStrategyManager } from '@/components/monitoring'
 import type { SettingsStep, UpdateInfo } from '@/types/settings'
-import { version } from '../../package.json'
+import { version } from '../../../package.json'
 
 interface SettingsDialogProps {
   open: boolean

@@ -3,7 +3,7 @@
  */
 
 import React from 'react'
-import { cache } from './cache'
+import { cache } from '@/lib/storage'
 import { getToolLoaderBySlug, hasTool } from './tools-map'
 
 interface PreloadConfig {

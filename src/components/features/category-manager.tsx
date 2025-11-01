@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, Settings, Edit, Trash2, GripVertical, SortAsc, SortDesc } from 'lucide-react'
-import { useCustomCategories, SORT_OPTIONS } from '@/lib/custom-categories'
+import { useCustomCategories, SORT_OPTIONS } from '@/lib/data'
 import {
   DndContext,
   closestCenter,

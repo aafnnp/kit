@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { IconInnerShadowTop } from '@tabler/icons-react'
 
-import { NavMain } from '@/components/nav-main'
+import { NavMain } from '@/components/layout'
 import {
   Sidebar,
   SidebarContent,

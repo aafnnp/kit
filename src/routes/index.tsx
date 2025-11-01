@@ -4,17 +4,14 @@ import { useTranslation } from 'react-i18next'
 import { motion } from 'motion/react'
 import { Button } from '@/components/ui/button'
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { SearchBar } from '@/components/search-bar'
-import { ToolCard } from '@/components/tool-card'
-import { AdSenseAd } from '@/components/adsense-ad'
-import { useFavorites, useRecentTools, useToolSearch } from '@/lib/favorites'
+import { SearchBar, ToolCard, CategoryManager, VirtualToolGrid } from '@/components/features'
+import { AdSenseAd } from '@/components/ads'
+import { useFavorites, useRecentTools, useToolSearch } from '@/lib/storage'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Heart, Clock, Grid3X3, Trash2, Settings } from 'lucide-react'
-import { usePreload, useSmartPreload } from '@/lib/preloader'
-import { useResourcePreload, resourceOptimizer } from '@/lib/resource-optimizer'
-import { useRoutePrefetch } from '@/lib/route-prefetch'
-import { CategoryManager } from '@/components/category-manager'
-import { VirtualToolGrid } from '@/components/virtual-tool-grid'
+import { usePreload, useSmartPreload } from '@/lib/data'
+import { useResourcePreload, resourceOptimizer } from '@/lib/performance'
+import { useRoutePrefetch } from '@/lib/routing'
 import type { Tool, ToolCategory } from '@/types/tool'
 
 export const Route = createFileRoute('/')({
@@ -189,7 +186,7 @@ export const Route = createFileRoute('/')({
           transition={{ duration: 0.5 }}
           className="text-center mb-6 sm:mb-8"
         >
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent leading-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent leading-tight">
             {t('app.title')}
           </h1>
           <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-4 sm:mb-6 px-2 sm:px-0">

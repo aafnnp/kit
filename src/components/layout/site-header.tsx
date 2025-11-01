@@ -3,9 +3,9 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { IconSettings } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
-import { SettingsDialog } from './settings-dialog'
+import { SettingsDialog } from '../features/settings-dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { ThemeToggle } from './theme-toggle'
+import { ThemeToggle } from '../features/theme-toggle'
 
 export function SiteHeader() {
   const { t } = useTranslation()
@@ -45,7 +45,7 @@ export function SiteHeader() {
               aria-label={t('navigation.settings', '打开设置页面')}
               className="flex items-center justify-center p-2"
             >
-              <IconSettings className="!size-4 sm:!size-5 text-primary shrink-0" aria-hidden="true" />
+              <IconSettings className="size-4! sm:size-5! text-primary shrink-0" aria-hidden="true" />
               <span className="sr-only">{t('navigation.settings', '设置')}</span>
             </Button>
           </div>

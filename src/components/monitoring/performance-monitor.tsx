@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { perfBus } from '@/lib/perf'
+import { perfBus } from '@/lib/performance'
 import { motion } from 'motion/react'
 import { Activity, Monitor, Zap, Smartphone, Wifi, WifiOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'

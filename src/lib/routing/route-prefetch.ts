@@ -4,8 +4,7 @@
  * 增强版本：支持优先级队列、预取延迟、智能预测
  */
 
-import { getToolLoaderBySlug, hasTool } from '@/lib/tools-map'
-import { preloader } from './preloader'
+import { getToolLoaderBySlug, hasTool, preloader } from '@/lib/data'
 
 interface RoutePrefetchConfig {
   enabled: boolean

@@ -2,12 +2,12 @@
  * 资源优化管理器 - 优化图标加载和资源按需加载
  */
 
-import { cache } from './cache'
-import { LruCache } from './lru'
+import { cache } from '@/lib/storage'
+import { LruCache } from '@/lib/storage'
 import * as LucideIcons from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import React from 'react'
-import { idbGet, idbSet } from './indexeddb'
+import { idbGet, idbSet } from '@/lib/storage'
 
 // 图标缓存映射
 const iconCache = new LruCache<string, LucideIcon>(200)

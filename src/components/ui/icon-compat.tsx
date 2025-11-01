@@ -3,7 +3,7 @@
  */
 
 import React from 'react'
-import { resourceOptimizer } from '@/lib/resource-optimizer'
+import { resourceOptimizer } from '@/lib/performance'
 
 interface IconProps {
   name: string

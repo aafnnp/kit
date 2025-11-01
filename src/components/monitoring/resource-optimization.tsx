@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { DependencyAnalyzer } from './dependency-analyzer'
 import { Icon } from '@/components/ui/icon-compat'
-import { resourceOptimizer } from '@/lib/resource-optimizer'
+import { resourceOptimizer } from '@/lib/performance'
 import { useTranslation } from 'react-i18next'
 
 interface OptimizationStats {
