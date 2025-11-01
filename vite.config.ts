@@ -55,7 +55,7 @@ export default defineConfig(() => ({
     // 启用代码分割优化
     rollupOptions: {
       // 外部化 FFmpeg 相关模块，避免打包到构建产物中
-      external: ['@ffmpeg/ffmpeg', '@ffmpeg/core', '@ffmpeg/util'],
+      external: ['@ffmpeg/ffmpeg', '@ffmpeg/core', '@ffmpeg/util', '@sentry/react'],
       plugins:
         visualizer && process.env.ANALYZE
           ? [

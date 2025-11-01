@@ -1,6 +1,7 @@
 /**
  * 日志系统
  * 提供分级日志记录功能
+ * 支持生产环境敏感信息过滤和性能监控集成
  */
 
 export enum LogLevel {
@@ -18,11 +19,26 @@ export interface LogEntry {
   stack?: string
 }
 
+// 敏感信息关键词列表（用于过滤）
+const SENSITIVE_PATTERNS = [
+  /password/i,
+  /secret/i,
+  /api[_-]?key/i,
+  /token/i,
+  /auth/i,
+  /credential/i,
+  /bearer/i,
+  /authorization/i,
+  /cookie/i,
+  /session/i,
+]
+
 class Logger {
   private logs: LogEntry[] = []
   private maxLogs = 1000
   private logLevel: LogLevel = LogLevel.INFO
   private enabled = true
+  private isProduction = import.meta.env.PROD
 
   /**
    * 设置日志级别
@@ -36,6 +52,45 @@ class Logger {
    */
   setEnabled(enabled: boolean): void {
     this.enabled = enabled
+  }
+
+  /**
+   * 过滤敏感信息
+   */
+  private sanitizeData(data: unknown): unknown {
+    if (!this.isProduction) {
+      return data // 开发环境不过滤
+    }
+
+    if (typeof data === 'string') {
+      // 检查是否包含敏感关键词
+      for (const pattern of SENSITIVE_PATTERNS) {
+        if (pattern.test(data)) {
+          return '[REDACTED]'
+        }
+      }
+      return data
+    }
+
+    if (typeof data === 'object' && data !== null) {
+      if (Array.isArray(data)) {
+        return data.map((item) => this.sanitizeData(item))
+      }
+
+      const sanitized: Record<string, unknown> = {}
+      for (const [key, value] of Object.entries(data)) {
+        // 检查键名是否包含敏感关键词
+        const isSensitiveKey = SENSITIVE_PATTERNS.some((pattern) => pattern.test(key))
+        if (isSensitiveKey) {
+          sanitized[key] = '[REDACTED]'
+        } else {
+          sanitized[key] = this.sanitizeData(value)
+        }
+      }
+      return sanitized
+    }
+
+    return data
   }
 
   /**
@@ -86,6 +141,37 @@ class Logger {
       duration,
       unit: 'ms',
     })
+
+    // 如果性能指标超过阈值，记录警告
+    if (duration > 1000) {
+      this.warn(`Slow performance detected: ${label} took ${duration}ms`, context)
+    }
+  }
+
+  /**
+   * 记录 Web Vitals 指标（与性能监控集成）
+   */
+  webVitals(metric: {
+    name: string
+    value: number
+    rating?: 'good' | 'needs-improvement' | 'poor'
+    id?: string
+  }): void {
+    const context: Record<string, unknown> = {
+      value: metric.value,
+      id: metric.id,
+    }
+
+    if (metric.rating) {
+      context.rating = metric.rating
+      if (metric.rating !== 'good') {
+        this.warn(`Web Vital ${metric.name} is ${metric.rating}`, context)
+      } else {
+        this.info(`Web Vital ${metric.name}`, context)
+      }
+    } else {
+      this.info(`Web Vital ${metric.name}`, context)
+    }
   }
 
   /**
@@ -106,10 +192,14 @@ class Logger {
   }
 
   /**
-   * 导出日志
+   * 导出日志（已过滤敏感信息）
    */
   export(): string {
-    return JSON.stringify(this.logs, null, 2)
+    const sanitizedLogs = this.logs.map((log) => ({
+      ...log,
+      context: this.sanitizeData(log.context) as Record<string, unknown>,
+    }))
+    return JSON.stringify(sanitizedLogs, null, 2)
   }
 
   /**
@@ -120,11 +210,14 @@ class Logger {
       return
     }
 
+    // 生产环境过滤敏感信息
+    const sanitizedContext = this.isProduction ? this.sanitizeData(context) : context
+
     const entry: LogEntry = {
       level,
       message,
       timestamp: Date.now(),
-      context,
+      context: sanitizedContext as Record<string, unknown>,
       stack,
     }
 
@@ -140,8 +233,8 @@ class Logger {
     const consoleMethod = this.getConsoleMethod(level)
     const prefix = `[Logger:${levelName}]`
 
-    if (context || stack) {
-      consoleMethod(prefix, message, { context, stack })
+    if (sanitizedContext || stack) {
+      consoleMethod(prefix, message, { context: sanitizedContext, stack })
     } else {
       consoleMethod(prefix, message)
     }
@@ -176,9 +269,78 @@ if (import.meta.env.DEV) {
   logger.setLogLevel(LogLevel.WARN)
 }
 
-// 生产环境隐藏敏感信息
-if (import.meta.env.PROD) {
-  // 可以在这里添加敏感信息过滤逻辑
+// 集成 Web Vitals（如果可用）
+if (typeof window !== 'undefined') {
+  try {
+    import('web-vitals')
+      .then((webVitals: any) => {
+        // web-vitals v4 使用不同的 API
+        // 检查是否有 onCLS 等函数，如果没有则使用默认导出
+        const { onCLS, onLCP, onINP } = webVitals.default || webVitals
+
+        if (onCLS) {
+          onCLS((metric: any) =>
+            logger.webVitals({
+              name: 'CLS',
+              value: metric.value,
+              rating: metric.rating,
+              id: metric.id,
+            })
+          )
+        }
+
+        if (onLCP) {
+          onLCP((metric: any) =>
+            logger.webVitals({
+              name: 'LCP',
+              value: metric.value,
+              rating: metric.rating,
+              id: metric.id,
+            })
+          )
+        }
+
+        if (onINP) {
+          onINP((metric: any) =>
+            logger.webVitals({
+              name: 'INP',
+              value: metric.value,
+              rating: metric.rating,
+              id: metric.id,
+            })
+          )
+        }
+
+        // 尝试使用其他指标（如果可用）
+        const { onFCP, onTTFB } = webVitals.default || webVitals
+        if (onFCP) {
+          onFCP((metric: any) =>
+            logger.webVitals({
+              name: 'FCP',
+              value: metric.value,
+              rating: metric.rating,
+              id: metric.id,
+            })
+          )
+        }
+
+        if (onTTFB) {
+          onTTFB((metric: any) =>
+            logger.webVitals({
+              name: 'TTFB',
+              value: metric.value,
+              rating: metric.rating,
+              id: metric.id,
+            })
+          )
+        }
+      })
+      .catch(() => {
+        // web-vitals 未安装，静默失败
+      })
+  } catch {
+    // 忽略错误
+  }
 }
 
 export default logger
