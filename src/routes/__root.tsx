@@ -25,15 +25,6 @@ export const Route = createRootRoute({
       { property: 'og:image', content: '/logo.png' },
       { name: 'twitter:card', content: 'summary_large_image' },
     ],
-    // scripts: !isTauri()
-    //   ? [
-    //       {
-    //         async: true,
-    //         src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3854566314387093',
-    //         crossOrigin: 'anonymous',
-    //       },
-    //     ]
-    //   : [],
   }),
   component: () => {
     const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false)

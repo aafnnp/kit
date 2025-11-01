@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -9,39 +9,7 @@ import { Upload, Download, Loader2, FileVideo2, Trash2, BarChart3, Video, Scisso
 import type { VideoFile, TrimSettings } from '@/types/video-trim'
 import { formatFileSize } from '@/lib/utils'
 import { useVideoTrim, validateVideoFile, generateId, downloadAsZip, getVideoStats } from './hooks'
-// 工具函数
-
-// 拖拽/文件选择 hook
-const useDragAndDrop = (onFiles: (files: File[]) => void) => {
-  const [dragActive, setDragActive] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const handleDrag = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') setDragActive(true)
-    else if (e.type === 'dragleave') setDragActive(false)
-  }, [])
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      setDragActive(false)
-      const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('video/'))
-      if (files.length) onFiles(files)
-      else toast.error('请拖入视频文件')
-    },
-    [onFiles]
-  )
-  const handleFileInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files || [])
-      if (files.length) onFiles(files)
-      if (fileInputRef.current) fileInputRef.current.value = ''
-    },
-    [onFiles]
-  )
-  return { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput }
-}
+import { useDragAndDrop } from '@/hooks/use-drag-drop'
 
 // 视频元数据分析和裁剪功能现在通过hooks提供
 
@@ -49,25 +17,31 @@ const useDragAndDrop = (onFiles: (files: File[]) => void) => {
 const VideoTrim = () => {
   const [videos, setVideos] = useState<VideoFile[]>([])
   const [trimSettings, setTrimSettings] = useState<TrimSettings>({ start: 0, end: 10, format: 'mp4' })
-  const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(async (files) => {
-    const newVideos: VideoFile[] = []
-    for (const file of files) {
-      const valid = validateVideoFile(file)
-      if (!valid.isValid) {
-        toast.error(`${file.name}: ${valid.error}`)
-        continue
+  const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(
+    async (files) => {
+      const newVideos: VideoFile[] = []
+      for (const file of files) {
+        const valid = validateVideoFile(file)
+        if (!valid.isValid) {
+          toast.error(`${file.name}: ${valid.error}`)
+          continue
+        }
+        try {
+          const stats = await getVideoStats(file)
+          const id = generateId()
+          const url = URL.createObjectURL(file)
+          newVideos.push({ id, file, name: file.name, size: file.size, type: file.type, status: 'pending', url, stats })
+        } catch (e: any) {
+          toast.error(`${file.name}: 读取元数据失败`)
+        }
       }
-      try {
-        const stats = await getVideoStats(file)
-        const id = generateId()
-        const url = URL.createObjectURL(file)
-        newVideos.push({ id, file, name: file.name, size: file.size, type: file.type, status: 'pending', url, stats })
-      } catch (e: any) {
-        toast.error(`${file.name}: 读取元数据失败`)
-      }
+      if (newVideos.length) setVideos((prev) => [...prev, ...newVideos])
+    },
+    {
+      accept: 'video/*',
+      multiple: true,
     }
-    if (newVideos.length) setVideos((prev) => [...prev, ...newVideos])
-  })
+  )
   const { trimVideos, isProcessing, progress } = useVideoTrim(
     (videoId, progress) => {
       // 更新单个视频的进度

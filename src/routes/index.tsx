@@ -63,8 +63,6 @@ export const Route = createFileRoute('/')({
     const resources = [
       { path: '/logo.png', type: 'image' as const },
       { path: '/tauri.svg', type: 'image' as const },
-      // 关键字体/样式按需预加载（示例占位，若存在可替换实际文件）
-      // { path: '/fonts/Inter.var.woff2', type: 'font' as const },
     ]
     useResourcePreload(resources)
 

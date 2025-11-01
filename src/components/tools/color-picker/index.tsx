@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
+import { useCallback, useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -27,6 +27,7 @@ import {
   Layers,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
+import { useDragAndDrop } from '@/hooks/use-drag-drop'
 import type {
   RGB,
   HSL,
@@ -869,63 +870,6 @@ const useCopyToClipboard = () => {
   return { copyToClipboard, copyColorValue, copiedText }
 }
 
-// File drag and drop functionality
-const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
-  const [dragActive, setDragActive] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const handleDrag = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true)
-    } else if (e.type === 'dragleave') {
-      setDragActive(false)
-    }
-  }, [])
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      setDragActive(false)
-
-      const files = Array.from(e.dataTransfer.files).filter((file) =>
-        file.name.match(/\.(json|ase|aco|css|scss|txt)$/i)
-      )
-
-      if (files.length > 0) {
-        onFilesDropped(files)
-      } else {
-        toast.error('Please drop only JSON, ASE, ACO, CSS, SCSS, or TXT files')
-      }
-    },
-    [onFilesDropped]
-  )
-
-  const handleFileInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files || [])
-      if (files.length > 0) {
-        onFilesDropped(files)
-      }
-      // Reset input value to allow selecting the same file again
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
-    },
-    [onFilesDropped]
-  )
-
-  return {
-    dragActive,
-    fileInputRef,
-    handleDrag,
-    handleDrop,
-    handleFileInput,
-  }
-}
-
 /**
  * Enhanced Color Picker Tool
  * Features: Real-time color analysis, palette generation, batch processing, accessibility checking
@@ -966,7 +910,11 @@ const ColorPickerCore = () => {
       } finally {
         setIsProcessing(false)
       }
-    }, [])
+    }, []),
+    {
+      accept: ['.json', '.ase', '.aco', '.css', '.scss', '.txt'],
+      multiple: true,
+    }
   )
 
   // Apply template
