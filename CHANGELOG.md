@@ -5,6 +5,37 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## v0.1.7
+
+*发布日期: 2025-11-02*
+
+### ♻️ Code Refactoring
+
+- reorganize project structure and update component imports ([3c2c22a](../../commit/3c2c22a))
+
+### 📚 Documentation
+
+- update changelog ([cfe30e6](../../commit/cfe30e6))
+
+### 💚 Continuous Integration
+
+- **workflows**: 同步 Tauri 配置文件版本号与 package.json 一致 ([9e30b77](../../commit/9e30b77))
+
+### 🔧 Chores
+
+- 0.1.7 ([fd33f3f](../../commit/fd33f3f))
+- clean up unused components and dependencies ([9646043](../../commit/9646043))
+
+### 📊 统计信息
+
+- 总提交数: 5
+- 参与开发者: 1
+- 新功能: 0
+- 问题修复: 0
+- 对比版本: [v0.1.6...v0.1.7](../../compare/v0.1.6...v0.1.7)
+
+---
+
 ## v0.1.6
 
 *发布日期: 2025-11-01*
