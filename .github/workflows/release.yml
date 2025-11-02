@@ -167,6 +167,29 @@ jobs:
           fi
           npm version "$VERSION" --no-git-tag-version
 
+      - name: Sync Tauri version files
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const pkg = require(path.join(process.cwd(), "package.json"));
+            const version = pkg.version;
+            console.log("Syncing Tauri versions to", version);
+
+            // Update tauri.conf.json
+            const tauriConfPath = path.join(process.cwd(), "src-tauri/tauri.conf.json");
+            const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, "utf8"));
+            tauriConf.version = version;
+            fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2) + "\n");
+
+            // Update Cargo.toml [package] version
+            const cargoTomlPath = path.join(process.cwd(), "src-tauri/Cargo.toml");
+            let cargoToml = fs.readFileSync(cargoTomlPath, "utf8");
+            cargoToml = cargoToml.replace(/^version = \".*\"/m, `version = \"${version}\"`);
+            fs.writeFileSync(cargoTomlPath, cargoToml);
+          '
+
       - name: Generate changelog and release notes
         id: changelog
         shell: bash
@@ -223,7 +246,7 @@ jobs:
             应用内置自动更新功能，会在有新版本时提示更新。
 
             ### 📋 完整更新日志
-            查看 [CHANGELOG.md](https://github.com/aafnnp/kit/blob/main/CHANGELOG.md) 了解所有版本的详细更新内容。
+            查看 [CHANGELOG.md](https://github.com/aafnnp/kit/blob/master/CHANGELOG.md) 了解所有版本的详细更新内容。
 
             ---
 
