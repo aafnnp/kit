@@ -79,8 +79,7 @@ export function CustomTitleBar() {
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
         borderBottom: "1px solid var(--border)",
-        paddingLeft: isMac ? "80px" : "16px",
-        paddingRight: "16px",
+        padding: "0 16px",
       }}
     >
       {/* Left side - Window controls and app title */}
