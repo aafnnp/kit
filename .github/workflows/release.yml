@@ -15,7 +15,6 @@ on:
   push:
     tags:
       - "v*"
-      - feature-electron
 
 jobs:
   # 代码质量检查和测试
@@ -105,6 +104,9 @@ jobs:
 
       - name: Install frontend dependencies
         run: npm install --prefer-offline --no-audit
+
+      - name: Ensure preload renaming script works
+        run: node scripts/ensure-preload-cjs.mjs
 
       - name: Update version in package.json
         shell: bash

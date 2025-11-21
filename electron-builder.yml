@@ -37,7 +37,6 @@ nsis:
   installerHeaderIcon: build/icon.png
   menuCategory: DeveloperTool
   displayLanguageSelector: true
-  compression: maximum
 
 mac:
   category: public.app-category.developer-tools
