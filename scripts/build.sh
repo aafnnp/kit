@@ -42,15 +42,14 @@ show_help() {
     echo "  -a, --analyze           构建并分析产物"
     echo "  -f, --fast              快速构建（用于测试）"
     echo "  -c, --clean             构建前清理"
-    echo "  -t, --tauri             构建 Tauri 应用"
+    echo "  -e, --electron          构建 Electron 应用"
     echo "  -r, --release [type]    发布版本 (patch|minor|major)"
     echo "  --debug                 启用调试模式"
-    echo "  --profile [name]        使用指定的 Cargo 配置文件"
     echo ""
     echo "示例:"
     echo "  $0 --production         # 生产构建"
     echo "  $0 --analyze            # 构建并分析"
-    echo "  $0 --tauri --fast       # 快速 Tauri 构建"
+    echo "  $0 --electron --fast    # 快速 Electron 构建"
     echo "  $0 --release minor      # 发布次要版本"
 }
 
@@ -68,9 +67,8 @@ check_dependencies() {
         exit 1
     fi
     
-    if [[ "$BUILD_TAURI" == "true" ]] && ! command -v cargo &> /dev/null; then
-        log_error "Rust/Cargo 未安装"
-        exit 1
+    if [[ "$BUILD_ELECTRON" == "true" ]] && ! command -v electron-builder &> /dev/null && ! npm list -g electron-builder &> /dev/null; then
+        log_warning "electron-builder 未全局安装，将使用项目本地版本"
     fi
     
     log_success "依赖检查完成"
@@ -81,7 +79,8 @@ clean_build() {
     log_info "清理构建产物..."
     
     rm -rf dist
-    rm -rf src-tauri/target/release
+    rm -rf electron/dist-electron
+    rm -rf release
     rm -rf node_modules/.vite
     
     if [[ "$CLEAN_ALL" == "true" ]]; then
@@ -117,26 +116,26 @@ build_frontend() {
     log_success "前端构建完成"
 }
 
-# Tauri 构建
-build_tauri() {
-    log_info "构建 Tauri 应用..."
+# Electron 构建
+build_electron() {
+    log_info "构建 Electron 应用..."
     
-    cd src-tauri
+    # 编译 TypeScript
+    log_info "编译 Electron TypeScript 文件..."
+    npm run electron:compile
     
+    # 使用 electron-builder 构建
     if [[ "$BUILD_MODE" == "development" ]]; then
-        cargo build
+        npm run electron:build -- --dir
     elif [[ "$BUILD_MODE" == "fast" ]]; then
-        cargo build --profile fast-release
+        npm run electron:build -- --dir
     elif [[ "$DEBUG_MODE" == "true" ]]; then
-        cargo build --profile release-with-debug
-    elif [[ -n "$CARGO_PROFILE" ]]; then
-        cargo build --profile "$CARGO_PROFILE"
+        DEBUG=electron-builder npm run electron:build
     else
-        cargo build --release
+        npm run electron:build
     fi
     
-    cd ..
-    log_success "Tauri 构建完成"
+    log_success "Electron 构建完成"
 }
 
 # 分析构建产物
@@ -172,7 +171,7 @@ release_version() {
     
     # 提交更改
     local new_version=$(node -p "require('./package.json').version")
-    git add package.json src-tauri/Cargo.toml
+    git add package.json
     git commit -m "chore: bump version to v$new_version"
     
     # 创建标签
@@ -186,13 +185,10 @@ release_version() {
 show_build_info() {
     log_info "构建配置:"
     echo "  模式: $BUILD_MODE"
-    echo "  Tauri: $BUILD_TAURI"
+    echo "  Electron: $BUILD_ELECTRON"
     echo "  分析: $ANALYZE"
     echo "  清理: $CLEAN"
     echo "  调试: $DEBUG_MODE"
-    if [[ -n "$CARGO_PROFILE" ]]; then
-        echo "  Cargo 配置: $CARGO_PROFILE"
-    fi
     echo ""
 }
 
@@ -217,9 +213,9 @@ main() {
     # 构建前端
     build_frontend
     
-    # 构建 Tauri（如果需要）
-    if [[ "$BUILD_TAURI" == "true" ]]; then
-        build_tauri
+    # 构建 Electron（如果需要）
+    if [[ "$BUILD_ELECTRON" == "true" ]]; then
+        build_electron
     fi
     
     # 分析构建产物（如果需要）
@@ -240,13 +236,12 @@ main() {
 
 # 默认配置
 BUILD_MODE="production"
-BUILD_TAURI="false"
+BUILD_ELECTRON="false"
 ANALYZE="false"
 CLEAN="false"
 DEBUG_MODE="false"
 CLEAN_ALL="false"
 RELEASE_TYPE=""
-CARGO_PROFILE=""
 
 # 解析命令行参数
 while [[ $# -gt 0 ]]; do
@@ -280,8 +275,8 @@ while [[ $# -gt 0 ]]; do
             CLEAN_ALL="true"
             shift
             ;;
-        -t|--tauri)
-            BUILD_TAURI="true"
+        -e|--electron)
+            BUILD_ELECTRON="true"
             shift
             ;;
         -r|--release)
@@ -296,15 +291,6 @@ while [[ $# -gt 0 ]]; do
         --debug)
             DEBUG_MODE="true"
             shift
-            ;;
-        --profile)
-            if [[ -n "$2" && "$2" != -* ]]; then
-                CARGO_PROFILE="$2"
-                shift 2
-            else
-                log_error "--profile 需要指定配置文件名"
-                exit 1
-            fi
             ;;
         *)
             log_error "未知选项: $1"

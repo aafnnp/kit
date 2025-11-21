@@ -1,6 +1,6 @@
 /**
- * 404 Tool Not Found
- * 未找到工具页面
+ * Tool Not Found Component
+ * 工具未找到页面组件
  */
 interface ToolNotFoundProps {
   toolSlug?: string
@@ -15,3 +15,4 @@ export default function ToolNotFound({ toolSlug }: ToolNotFoundProps) {
     </div>
   )
 }
+

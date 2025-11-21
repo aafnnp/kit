@@ -1,3 +1,3 @@
-// 重新导出广告组件
+// Re-export ad components
 export * from './adsense-ad'
 

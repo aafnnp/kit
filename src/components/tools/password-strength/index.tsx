@@ -37,7 +37,7 @@ import {
   getStrengthColor,
   generatePassword,
 } from '@/types/password-strength'
-import { ToolBase } from '@/components/ui/tool-base'
+import { ToolBase } from '@/components/common/tool-base'
 import { nanoid } from 'nanoid'
 
 // 分析密码强度

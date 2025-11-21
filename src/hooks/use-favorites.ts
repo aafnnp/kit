@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react'
-import type { Tool } from '@/types/tool'
+import { useState, useEffect } from "react"
+import type { Tool } from "@/types/tool"
 
 interface RecentTool extends Tool {
   lastUsed: number
 }
 
-const FAVORITES_KEY = 'kit-favorites'
-const RECENT_KEY = 'kit-recent'
+const FAVORITES_KEY = "kit-favorites"
+const RECENT_KEY = "kit-recent"
 const MAX_RECENT = 10
 
 // 收藏功能
@@ -19,7 +19,7 @@ export function useFavorites() {
       try {
         setFavorites(JSON.parse(stored))
       } catch (error) {
-        console.error('Failed to parse favorites:', error)
+        console.error("Failed to parse favorites:", error)
       }
     }
   }, [])
@@ -68,7 +68,7 @@ export function useRecentTools() {
       try {
         setRecentTools(JSON.parse(stored))
       } catch (error) {
-        console.error('Failed to parse recent tools:', error)
+        console.error("Failed to parse recent tools:", error)
       }
     }
   }, [])
@@ -108,7 +108,7 @@ export function useRecentTools() {
 
 // 搜索功能
 export function useToolSearch(tools: any[]) {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState("")
   const [filteredTools, setFilteredTools] = useState(tools)
 
   useEffect(() => {

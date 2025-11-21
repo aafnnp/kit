@@ -22,7 +22,7 @@ import {
   getStatusCategory,
   COMMON_HEADERS,
 } from '@/types/api-tester'
-import { ToolBase } from '@/components/ui/tool-base'
+import { ToolBase } from '@/components/common/tool-base'
 import { nanoid } from 'nanoid'
 
 // 模拟 API 请求函数（在实际项目中可以使用 fetch 或 axios）

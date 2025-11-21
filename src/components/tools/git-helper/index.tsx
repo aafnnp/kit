@@ -33,7 +33,7 @@ import {
   formatGitCommand,
   validateGitParameters,
 } from '@/types/git-helper'
-import { ToolBase } from '@/components/ui/tool-base'
+import { ToolBase } from '@/components/common/tool-base'
 import { nanoid } from 'nanoid'
 
 export default function GitHelper() {

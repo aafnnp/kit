@@ -30,7 +30,7 @@ import {
   PERFORMANCE_TEMPLATES,
   formatPerformanceValue,
 } from '@/types/performance-analyzer'
-import { ToolBase } from '@/components/ui/tool-base'
+import { ToolBase } from '@/components/common/tool-base'
 import { nanoid } from 'nanoid'
 
 // 性能测试执行器

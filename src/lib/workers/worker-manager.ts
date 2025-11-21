@@ -7,14 +7,14 @@ export interface WorkerTask<T = any, R = any> {
   id: string
   type: string
   data: T
-  priority?: 'high' | 'medium' | 'low'
+  priority?: "high" | "medium" | "low"
   onProgress?: (progress: number, message?: string) => void
   onComplete?: (result: R) => void
   onError?: (error: Error) => void
 }
 
-import { perfBus } from '@/lib/performance'
-import { logger } from '@/lib/data'
+import { perfBus } from "@/lib/performance"
+import { logger } from "@/lib/data/logger"
 
 export interface WorkerConfig {
   maxWorkers?: number
@@ -61,7 +61,7 @@ export class WorkerManager {
   constructor(config: WorkerConfig = {}) {
     this.config = {
       maxWorkers: config.maxWorkers || Math.min(navigator.hardwareConcurrency || 4, 8),
-      workerScript: config.workerScript || '/workers/processing-worker.js',
+      workerScript: config.workerScript || "/workers/processing-worker.js",
       timeout: config.timeout || 300000, // 5 minutes
       idleTerminateMs: config.idleTerminateMs ?? 60_000,
       backpressureQueueMax: config.backpressureQueueMax ?? 200,
@@ -103,11 +103,11 @@ export class WorkerManager {
     const isDefaultPool = workerInfo.scriptPath === this.config.workerScript
 
     switch (type) {
-      case 'progress':
+      case "progress":
         task.onProgress?.(progress, message)
         break
 
-      case 'complete':
+      case "complete":
         if (isDefaultPool) {
           this.workerBusy[workerInfo.poolIndex] = false
           this.workerLastUsed[workerInfo.poolIndex] = Date.now()
@@ -128,16 +128,16 @@ export class WorkerManager {
         this.recordSuccess(workerInfo.scriptPath)
         {
           const start = this.taskStartTime.get(taskId)
-          if (typeof start === 'number') {
+          if (typeof start === "number") {
             const ms = performance.now() - start
-            perfBus.emit('worker_task', { id: taskId, type: task.type, ms, ts: Date.now() })
+            perfBus.emit("worker_task", { id: taskId, type: task.type, ms, ts: Date.now() })
             this.taskStartTime.delete(taskId)
           }
         }
         this.processNextTask()
         break
 
-      case 'error':
+      case "error":
         if (isDefaultPool) {
           this.workerBusy[workerInfo.poolIndex] = false
         } else {
@@ -320,7 +320,7 @@ export class WorkerManager {
    * 监控主线程帧时长
    */
   private startFrameTimeMonitoring(): void {
-    if (typeof window === 'undefined') return
+    if (typeof window === "undefined") return
 
     const checkFrameTime = () => {
       const now = performance.now()
@@ -400,7 +400,7 @@ export class WorkerManager {
     // Sort by priority
     this.taskQueue.sort((a, b) => {
       const priorityOrder = { high: 3, medium: 2, low: 1 }
-      return (priorityOrder[b.priority || 'medium'] || 2) - (priorityOrder[a.priority || 'medium'] || 2)
+      return (priorityOrder[b.priority || "medium"] || 2) - (priorityOrder[a.priority || "medium"] || 2)
     })
 
     const task = this.taskQueue.shift()!
@@ -435,7 +435,7 @@ export class WorkerManager {
             busy[availableWorkerInfo.poolIndex] = false
           }
         }
-        task.onError?.(new Error('Task timeout'))
+        task.onError?.(new Error("Task timeout"))
         this.processNextTask()
       }
     }, this.config.timeout)
@@ -453,7 +453,7 @@ export class WorkerManager {
         data: task.data,
       })
     } else {
-      task.onError?.(new Error('Worker not available'))
+      task.onError?.(new Error("Worker not available"))
       this.activeTasks.delete(task.id)
       this.taskWorkerIndex.delete(task.id)
       this.taskWorkerInfo.delete(task.id)
@@ -485,7 +485,7 @@ export class WorkerManager {
   /**
    * Process multiple tasks in parallel
    */
-  async processBatch<T, R>(tasks: Omit<WorkerTask<T, R>, 'id'>[]): Promise<R[]> {
+  async processBatch<T, R>(tasks: Omit<WorkerTask<T, R>, "id">[]): Promise<R[]> {
     const taskPromises = tasks.map((task, index) =>
       this.addTask({
         ...task,
@@ -564,7 +564,7 @@ export class WorkerManager {
       if (isDefaultPool) {
         this.workerBusy[workerInfo.poolIndex] = false
         try {
-          this.workers[workerInfo.poolIndex].postMessage({ type: 'cancel', taskId })
+          this.workers[workerInfo.poolIndex].postMessage({ type: "cancel", taskId })
         } catch {
           // ignore posting cancel errors
         }
@@ -577,7 +577,7 @@ export class WorkerManager {
           const pool = this.workerPoolByScript.get(workerInfo.scriptPath)
           const worker = pool?.[workerInfo.poolIndex]
           if (worker) {
-            worker.postMessage({ type: 'cancel', taskId })
+            worker.postMessage({ type: "cancel", taskId })
           }
         } catch {
           // ignore posting cancel errors

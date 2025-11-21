@@ -2,12 +2,11 @@
  * 资源优化管理器 - 优化图标加载和资源按需加载
  */
 
-import { cache } from '@/lib/storage'
-import { LruCache } from '@/lib/storage'
-import * as LucideIcons from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
-import React from 'react'
-import { idbGet, idbSet } from '@/lib/storage'
+import { cache } from "@/lib/storage"
+import { LruCache } from "@/lib/storage"
+import * as LucideIcons from "lucide-react"
+import type { LucideIcon } from "lucide-react"
+import { idbGet, idbSet } from "@/lib/storage"
 
 // 图标缓存映射
 const iconCache = new LruCache<string, LucideIcon>(200)
@@ -16,58 +15,58 @@ const resourceCache = new LruCache<string, any>(128)
 // 图标映射表 - 将@tabler/icons-react映射到lucide-react
 const ICON_MAPPING: Record<string, string> = {
   // Tabler图标名 -> Lucide图标名
-  IconMoon: 'Moon',
-  IconSun: 'Sun',
-  IconDeviceDesktop: 'Monitor',
-  IconChevronRight: 'ChevronRight',
-  IconDots: 'MoreHorizontal',
-  IconFolder: 'Folder',
-  IconShare3: 'Share',
-  IconTrash: 'Trash2',
-  IconTrendingDown: 'TrendingDown',
-  IconTrendingUp: 'TrendingUp',
+  IconMoon: "Moon",
+  IconSun: "Sun",
+  IconDeviceDesktop: "Monitor",
+  IconChevronRight: "ChevronRight",
+  IconDots: "MoreHorizontal",
+  IconFolder: "Folder",
+  IconShare3: "Share",
+  IconTrash: "Trash2",
+  IconTrendingDown: "TrendingDown",
+  IconTrendingUp: "TrendingUp",
   // 添加更多映射...
 }
 
 // 常用图标列表（预加载）
 const COMMON_ICONS = [
-  'Home',
-  'Settings',
-  'Search',
-  'Heart',
-  'Star',
-  'User',
-  'Menu',
-  'ChevronDown',
-  'ChevronUp',
-  'ChevronLeft',
-  'ChevronRight',
-  'Plus',
-  'Minus',
-  'X',
-  'Check',
-  'AlertCircle',
-  'Info',
-  'Download',
-  'Upload',
-  'Copy',
-  'Edit',
-  'Trash2',
-  'Eye',
-  'EyeOff',
-  'Lock',
-  'Unlock',
-  'Mail',
-  'Phone',
-  'Calendar',
-  'Moon',
-  'Sun',
-  'Monitor',
-  'MoreHorizontal',
-  'Folder',
-  'Share',
-  'TrendingDown',
-  'TrendingUp',
+  "Home",
+  "Settings",
+  "Search",
+  "Heart",
+  "Star",
+  "User",
+  "Menu",
+  "ChevronDown",
+  "ChevronUp",
+  "ChevronLeft",
+  "ChevronRight",
+  "Plus",
+  "Minus",
+  "X",
+  "Check",
+  "AlertCircle",
+  "Info",
+  "Download",
+  "Upload",
+  "Copy",
+  "Edit",
+  "Trash2",
+  "Eye",
+  "EyeOff",
+  "Lock",
+  "Unlock",
+  "Mail",
+  "Phone",
+  "Calendar",
+  "Moon",
+  "Sun",
+  "Monitor",
+  "MoreHorizontal",
+  "Folder",
+  "Share",
+  "TrendingDown",
+  "TrendingUp",
 ]
 
 // 依赖配置类型定义
@@ -85,23 +84,23 @@ interface DependencyConfigs {
 const DEPENDENCY_CONFIG = {
   // 重量级依赖
   heavy: {
-    '@ffmpeg/ffmpeg': { size: '~2MB', alternatives: ['browser-image-compression'] },
-    mermaid: { size: '~800KB', alternatives: ['lightweight-charts'] },
-    xlsx: { size: '~600KB', alternatives: ['papaparse'] },
-    'gifuct-js': { size: '~50KB', alternatives: ['gif.js'] },
-    'pdf-lib': { size: '~200KB', alternatives: ['jspdf'] },
+    "@ffmpeg/ffmpeg": { size: "~2MB", alternatives: ["browser-image-compression"] },
+    mermaid: { size: "~800KB", alternatives: ["lightweight-charts"] },
+    xlsx: { size: "~600KB", alternatives: ["papaparse"] },
+    "gifuct-js": { size: "~50KB", alternatives: ["gif.js"] },
+    "pdf-lib": { size: "~200KB", alternatives: ["jspdf"] },
     // 补充常见可替换项
-    moment: { size: '~200KB', alternatives: ['date-fns', 'dayjs'] },
+    moment: { size: "~200KB", alternatives: ["date-fns", "dayjs"] },
   } as DependencyConfigs,
   // 可优化依赖
   optimizable: {
-    motion: { size: '~200KB', treeshaking: true },
+    motion: { size: "~200KB", treeshaking: true },
   } as DependencyConfigs,
   // 轻量级依赖
   light: {
-    nanoid: { size: '~2KB' },
-    clsx: { size: '~1KB' },
-    zod: { size: '~50KB' },
+    nanoid: { size: "~2KB" },
+    clsx: { size: "~1KB" },
+    zod: { size: "~50KB" },
   } as DependencyConfigs,
 }
 
@@ -190,7 +189,7 @@ class ResourceOptimizer {
     heavyDeps.forEach((dep) => {
       const config = DEPENDENCY_CONFIG.heavy[dep]
       if (config.alternatives) {
-        recommendations.push(`考虑将 ${dep} (${config.size}) 替换为更轻量的 ${config.alternatives.join(' 或 ')}`)
+        recommendations.push(`考虑将 ${dep} (${config.size}) 替换为更轻量的 ${config.alternatives.join(" 或 ")}`)
       }
     })
 
@@ -200,7 +199,7 @@ class ResourceOptimizer {
         recommendations.push(`${dep} 支持 tree-shaking，确保只导入需要的模块`)
       }
       if (config.alternatives) {
-        recommendations.push(`可考虑将 ${dep} 替换为 ${config.alternatives.join(' 或 ')}`)
+        recommendations.push(`可考虑将 ${dep} 替换为 ${config.alternatives.join(" 或 ")}`)
       }
     })
 
@@ -217,7 +216,7 @@ class ResourceOptimizer {
    * @param resourceType 资源类型
    * @param resourcePath 资源路径
    */
-  async optimizeResourceLoading(resourceType: 'image' | 'font' | 'script', resourcePath: string): Promise<void> {
+  async optimizeResourceLoading(resourceType: "image" | "font" | "script", resourcePath: string): Promise<void> {
     const cacheKey = `${resourceType}_${resourcePath}`
 
     const cached = resourceCache.get(cacheKey)
@@ -231,13 +230,13 @@ class ResourceOptimizer {
   /**
    * 加载优化后的资源
    */
-  private async loadOptimizedResource(resourceType: 'image' | 'font' | 'script', resourcePath: string): Promise<void> {
+  private async loadOptimizedResource(resourceType: "image" | "font" | "script", resourcePath: string): Promise<void> {
     switch (resourceType) {
-      case 'image':
+      case "image":
         return this.preloadImage(resourcePath)
-      case 'font':
+      case "font":
         return this.preloadFont(resourcePath)
-      case 'script':
+      case "script":
         return this.loadScript(resourcePath)
       default:
         throw new Error(`Unsupported resource type: ${resourceType}`)
@@ -261,11 +260,11 @@ class ResourceOptimizer {
    */
   private preloadFont(fontUrl: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const link = document.createElement('link')
-      link.rel = 'preload'
-      link.as = 'font'
-      link.type = 'font/woff2'
-      link.crossOrigin = 'anonymous'
+      const link = document.createElement("link")
+      link.rel = "preload"
+      link.as = "font"
+      link.type = "font/woff2"
+      link.crossOrigin = "anonymous"
       link.href = fontUrl
       link.onload = () => resolve()
       link.onerror = () => reject(new Error(`Failed to load font: ${fontUrl}`))
@@ -278,7 +277,7 @@ class ResourceOptimizer {
    */
   private loadScript(src: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const script = document.createElement('script')
+      const script = document.createElement("script")
       script.src = src
       script.async = true
       script.onload = () => resolve()
@@ -296,7 +295,7 @@ class ResourceOptimizer {
       return this.iconSprite
     }
 
-    const cacheKey = `icon_sprite_${iconNames.join('_')}`
+    const cacheKey = `icon_sprite_${iconNames.join("_")}`
     const cached = cache.get<string>(cacheKey)
     if (cached) {
       this.iconSprite = cached
@@ -312,7 +311,7 @@ class ResourceOptimizer {
     try {
       // 这里可以实现SVG精灵的创建逻辑
       // 由于lucide-react是React组件，我们使用虚拟的精灵概念
-      const sprite = `<!-- SVG Sprite for icons: ${iconNames.join(', ')} -->`
+      const sprite = `<!-- SVG Sprite for icons: ${iconNames.join(", ")} -->`
 
       cache.set(cacheKey, sprite, 60 * 60 * 1000) // 缓存1小时
       idbSet(cacheKey, sprite).catch(() => {})
@@ -320,8 +319,8 @@ class ResourceOptimizer {
 
       return sprite
     } catch (error) {
-      console.warn('Failed to create icon sprite:', error)
-      return ''
+      console.warn("Failed to create icon sprite:", error)
+      return ""
     }
   }
 
@@ -331,13 +330,13 @@ class ResourceOptimizer {
    * @param key 唯一键（默认使用内容哈希的简化版本）
    */
   mountSprite(spriteText: string, key?: string): void {
-    if (typeof document === 'undefined') return
+    if (typeof document === "undefined") return
     const computedKey = key || `sprite_${this.hash(spriteText)}`
     if (this.mountedSprites.has(computedKey)) return
 
-    const container = document.createElement('div')
-    container.setAttribute('data-sprite-key', computedKey)
-    container.style.display = 'none'
+    const container = document.createElement("div")
+    container.setAttribute("data-sprite-key", computedKey)
+    container.style.display = "none"
     container.innerHTML = spriteText
     document.body.prepend(container)
 
@@ -345,9 +344,9 @@ class ResourceOptimizer {
 
     // 建立符号缓存
     try {
-      const symbols = container.querySelectorAll('symbol[id]')
+      const symbols = container.querySelectorAll("symbol[id]")
       symbols.forEach((s) => {
-        const id = s.getAttribute('id')
+        const id = s.getAttribute("id")
         if (id) this.spriteSymbolIds.add(id)
       })
     } catch {}
@@ -394,7 +393,7 @@ class ResourceOptimizer {
    */
   hasSpriteSymbol(id: string): boolean {
     if (this.spriteSymbolIds.has(id)) return true
-    if (typeof document === 'undefined') return false
+    if (typeof document === "undefined") return false
     const el = document.getElementById(id)
     if (el) {
       this.spriteSymbolIds.add(id)
@@ -427,7 +426,7 @@ class ResourceOptimizer {
    * @param resourcePath 资源路径
    * @param type 资源类型
    */
-  async lazyLoadResource(resourcePath: string, type: 'script' | 'style' | 'image' = 'script'): Promise<any> {
+  async lazyLoadResource(resourcePath: string, type: "script" | "style" | "image" = "script"): Promise<any> {
     if (this.loadedResources.has(resourcePath)) {
       return Promise.resolve()
     }
@@ -455,27 +454,27 @@ class ResourceOptimizer {
    * @param resourcePath 资源路径
    * @param type 资源类型
    */
-  private loadResource(resourcePath: string, type: 'script' | 'style' | 'image'): Promise<any> {
+  private loadResource(resourcePath: string, type: "script" | "style" | "image"): Promise<any> {
     return new Promise((resolve, reject) => {
       switch (type) {
-        case 'script': {
-          const script = document.createElement('script')
+        case "script": {
+          const script = document.createElement("script")
           script.src = resourcePath
           script.onload = () => resolve(script)
           script.onerror = () => reject(new Error(`Failed to load script: ${resourcePath}`))
           document.head.appendChild(script)
           break
         }
-        case 'style': {
-          const link = document.createElement('link')
-          link.rel = 'stylesheet'
+        case "style": {
+          const link = document.createElement("link")
+          link.rel = "stylesheet"
           link.href = resourcePath
           link.onload = () => resolve(link)
           link.onerror = () => reject(new Error(`Failed to load stylesheet: ${resourcePath}`))
           document.head.appendChild(link)
           break
         }
-        case 'image': {
+        case "image": {
           const img = new Image()
           img.onload = () => resolve(img)
           img.onerror = () => reject(new Error(`Failed to load image: ${resourcePath}`))
@@ -498,7 +497,7 @@ class ResourceOptimizer {
     ]
 
     criticalStyles.forEach((style) => {
-      this.lazyLoadResource(style, 'style').catch(console.warn)
+      this.lazyLoadResource(style, "style").catch(console.warn)
     })
   }
 
@@ -520,14 +519,14 @@ class ResourceOptimizer {
             const target = entry.target as HTMLImageElement
             target.src = src
             target.onload = () => {
-              target.classList.add('loaded')
+              target.classList.add("loaded")
             }
             observer.unobserve(target)
           }
         })
       },
       {
-        rootMargin: '50px',
+        rootMargin: "50px",
       }
     )
 
@@ -548,8 +547,8 @@ class ResourceOptimizer {
     maxHeight: number = 1080
   ): Promise<Blob> {
     return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
+      const canvas = document.createElement("canvas")
+      const ctx = canvas.getContext("2d")
       const img = new Image()
 
       img.onload = () => {
@@ -578,15 +577,15 @@ class ResourceOptimizer {
             if (blob) {
               resolve(blob)
             } else {
-              reject(new Error('Failed to optimize image'))
+              reject(new Error("Failed to optimize image"))
             }
           },
-          'image/jpeg',
+          "image/jpeg",
           quality
         )
       }
 
-      img.onerror = () => reject(new Error('Failed to load image'))
+      img.onerror = () => reject(new Error("Failed to load image"))
       img.src = URL.createObjectURL(file)
     })
   }
@@ -638,12 +637,12 @@ class ResourceOptimizer {
 
     // 添加图标优化建议
     if (iconCache.size > 100) {
-      suggestions.push('图标缓存过大，考虑实现图标按需加载')
+      suggestions.push("图标缓存过大，考虑实现图标按需加载")
     }
 
     // 添加资源优化建议
     if (resourceCache.size > 50) {
-      suggestions.push('资源缓存过大，考虑实现LRU缓存策略')
+      suggestions.push("资源缓存过大，考虑实现LRU缓存策略")
     }
 
     return suggestions
@@ -665,29 +664,29 @@ class ResourceOptimizer {
   analyzeNpmAudit(auditJson: any): {
     issuesByPackage: Record<
       string,
-      { highestSeverity: 'low' | 'moderate' | 'high' | 'critical'; count: number; titles: string[] }
+      { highestSeverity: "low" | "moderate" | "high" | "critical"; count: number; titles: string[] }
     >
     totals: { low: number; moderate: number; high: number; critical: number; total: number }
   } {
-    const severityOrder = ['low', 'moderate', 'high', 'critical'] as const
+    const severityOrder = ["low", "moderate", "high", "critical"] as const
     const pickHigher = (a: any, b: any) => (severityOrder.indexOf(a) > severityOrder.indexOf(b) ? a : b)
 
     const byPkg: Record<
       string,
-      { highestSeverity: 'low' | 'moderate' | 'high' | 'critical'; count: number; titles: string[] }
+      { highestSeverity: "low" | "moderate" | "high" | "critical"; count: number; titles: string[] }
     > = {}
     let totals = { low: 0, moderate: 0, high: 0, critical: 0, total: 0 }
 
-    if (!auditJson || typeof auditJson !== 'object') {
+    if (!auditJson || typeof auditJson !== "object") {
       return { issuesByPackage: byPkg, totals }
     }
 
     // npm v7+ 格式: vulnerabilities: { pkg: { severity, via: [...], ... } }, metadata: { vulnerabilities: { low, ... } }
-    if (auditJson.vulnerabilities && typeof auditJson.vulnerabilities === 'object') {
+    if (auditJson.vulnerabilities && typeof auditJson.vulnerabilities === "object") {
       Object.entries(auditJson.vulnerabilities as Record<string, any>).forEach(([pkg, info]) => {
-        const severity = (info.severity || 'low') as 'low' | 'moderate' | 'high' | 'critical'
+        const severity = (info.severity || "low") as "low" | "moderate" | "high" | "critical"
         const via = Array.isArray(info.via) ? info.via : []
-        const titles = via.map((v: any) => (typeof v === 'string' ? v : v?.title)).filter(Boolean)
+        const titles = via.map((v: any) => (typeof v === "string" ? v : v?.title)).filter(Boolean)
         byPkg[pkg] = {
           highestSeverity: severity,
           count: info.effects?.length || via.length || 1,
@@ -711,11 +710,11 @@ class ResourceOptimizer {
           totals.total += v.count
         })
       }
-    } else if (auditJson.advisories && typeof auditJson.advisories === 'object') {
+    } else if (auditJson.advisories && typeof auditJson.advisories === "object") {
       // 旧格式: advisories 映射
       Object.values(auditJson.advisories as Record<string, any>).forEach((adv: any) => {
         const pkg = adv.module_name as string
-        const severity = (adv.severity || 'low') as 'low' | 'moderate' | 'high' | 'critical'
+        const severity = (adv.severity || "low") as "low" | "moderate" | "high" | "critical"
         const title = adv.title as string
         if (!byPkg[pkg]) {
           byPkg[pkg] = { highestSeverity: severity, count: 1, titles: title ? [title] : [] }
@@ -739,7 +738,7 @@ class ResourceOptimizer {
     analysis: { heavy: string[]; optimizable: string[] },
     issuesByPackage: Record<
       string,
-      { highestSeverity: 'low' | 'moderate' | 'high' | 'critical'; count: number; titles: string[] }
+      { highestSeverity: "low" | "moderate" | "high" | "critical"; count: number; titles: string[] }
     >
   ): Array<{ from: string; to: string; reason: string; severity?: string }> {
     const candidates = new Set<string>([...analysis.heavy, ...analysis.optimizable])
@@ -748,7 +747,7 @@ class ResourceOptimizer {
     const pushAlts = (fromPkg: string, alts: string[], severity?: string, reason?: string) => {
       if (!alts || alts.length === 0) return
       // 优先首个替代（可在 UI 中允许切换）
-      result.push({ from: fromPkg, to: alts[0], reason: reason || '体积优化/生态建议', severity })
+      result.push({ from: fromPkg, to: alts[0], reason: reason || "体积优化/生态建议", severity })
     }
 
     candidates.forEach((pkg) => {
@@ -757,8 +756,8 @@ class ResourceOptimizer {
       const reason = issue
         ? `安全风险 ${issue.highestSeverity}（${issue.count}）`
         : conf?.treeshaking
-          ? '可 tree-shaking 优化'
-          : '体积较大'
+          ? "可 tree-shaking 优化"
+          : "体积较大"
       pushAlts(pkg, conf?.alternatives || [], issue?.highestSeverity, reason)
     })
 
@@ -770,17 +769,17 @@ class ResourceOptimizer {
    */
   generateReplacementScript(
     plan: Array<{ from: string; to: string }>,
-    manager: 'npm' | 'pnpm' | 'yarn' = 'npm'
+    manager: "npm" | "pnpm" | "yarn" = "npm"
   ): string {
     const lines: string[] = [
-      '#!/usr/bin/env bash',
-      'set -euo pipefail',
-      '',
+      "#!/usr/bin/env bash",
+      "set -euo pipefail",
+      "",
       'echo "Applying dependency replacements..."',
     ]
 
-    const rmCmd = manager === 'pnpm' ? 'pnpm remove' : manager === 'yarn' ? 'yarn remove' : 'npm uninstall'
-    const addCmd = manager === 'pnpm' ? 'pnpm add' : manager === 'yarn' ? 'yarn add' : 'npm install'
+    const rmCmd = manager === "pnpm" ? "pnpm remove" : manager === "yarn" ? "yarn remove" : "npm uninstall"
+    const addCmd = manager === "pnpm" ? "pnpm add" : manager === "yarn" ? "yarn add" : "npm install"
 
     plan.forEach(({ from, to }) => {
       lines.push(`echo "Replace: ${from} -> ${to}"`)
@@ -788,74 +787,10 @@ class ResourceOptimizer {
       lines.push(`${addCmd} ${to}`)
     })
 
-    lines.push('', 'echo "Done."')
-    return lines.join('\n')
+    lines.push("", 'echo "Done."')
+    return lines.join("\n")
   }
 }
 
 // 创建全局资源优化器实例
 export const resourceOptimizer = new ResourceOptimizer()
-
-/**
- * React Hook - 优化图标使用
- * @param iconName 图标名称
- */
-export function useOptimizedIcon(iconName: string): LucideIcon {
-  return React.useMemo(() => {
-    return resourceOptimizer.getIcon(iconName)
-  }, [iconName])
-}
-
-/**
- * React Hook - 图片懒加载
- * @param src 图片源
- * @param placeholder 占位符
- */
-export function useLazyImage(src: string, placeholder?: string) {
-  const [loaded, setLoaded] = React.useState(false)
-  const [error, setError] = React.useState(false)
-  const imgRef = React.useRef<HTMLImageElement>(null)
-
-  React.useEffect(() => {
-    const img = imgRef.current
-    if (!img) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const target = entry.target as HTMLImageElement
-            target.src = src
-            target.onload = () => setLoaded(true)
-            target.onerror = () => setError(true)
-            observer.unobserve(target)
-          }
-        })
-      },
-      { rootMargin: '50px' }
-    )
-
-    observer.observe(img)
-
-    return () => observer.disconnect()
-  }, [src])
-
-  return {
-    imgRef,
-    loaded,
-    error,
-    src: loaded ? src : placeholder,
-  }
-}
-
-/**
- * React Hook - 资源预加载
- * @param resources 资源列表
- */
-export function useResourcePreload(resources: Array<{ path: string; type: 'script' | 'style' | 'image' }>) {
-  React.useEffect(() => {
-    resources.forEach(({ path, type }) => {
-      resourceOptimizer.lazyLoadResource(path, type).catch(console.warn)
-    })
-  }, [resources])
-}

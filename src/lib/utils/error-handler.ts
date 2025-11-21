@@ -4,26 +4,21 @@
  * 支持 Sentry 集成（可选，通过环境变量配置）
  */
 
-export enum LogLevel {
-  DEBUG = 0,
-  INFO = 1,
-  WARN = 2,
-  ERROR = 3,
-}
+import { LogLevel } from "../data/logger"
 
 export enum ErrorSeverity {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  CRITICAL = 'critical',
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high",
+  CRITICAL = "critical",
 }
 
 export enum ErrorCategory {
-  NETWORK = 'network',
-  VALIDATION = 'validation',
-  RUNTIME = 'runtime',
-  SECURITY = 'security',
-  UNKNOWN = 'unknown',
+  NETWORK = "network",
+  VALIDATION = "validation",
+  RUNTIME = "runtime",
+  SECURITY = "security",
+  UNKNOWN = "unknown",
 }
 
 export interface ErrorContext {
@@ -89,7 +84,7 @@ class ErrorHandler {
 
     try {
       // 使用字符串字面量动态导入，避免 Vite 静态分析
-      const sentryModuleName = '@sentry/react'
+      const sentryModuleName = "@sentry/react"
       // @ts-ignore - Sentry 是可选的，可能未安装
       const Sentry = await import(/* @vite-ignore */ sentryModuleName).catch(() => null)
       if (Sentry && config.dsn) {
@@ -114,7 +109,7 @@ class ErrorHandler {
         this.sentryInitialized = true
       }
     } catch (error) {
-      console.warn('[ErrorHandler] Sentry not available:', error)
+      console.warn("[ErrorHandler] Sentry not available:", error)
     }
   }
 
@@ -127,15 +122,15 @@ class ErrorHandler {
     }
 
     // 使用字符串字面量动态导入，避免 Vite 静态分析
-    const sentryModuleName = '@sentry/react'
+    const sentryModuleName = "@sentry/react"
     // @ts-ignore - Sentry 是可选的，可能未安装
     import(/* @vite-ignore */ sentryModuleName)
       .then((Sentry: any) => {
         // @ts-ignore - Sentry 类型可能不存在
         Sentry.captureException(error, {
           tags: {
-            component: context?.component || 'Unknown',
-            action: context?.action || 'Unknown',
+            component: context?.component || "Unknown",
+            action: context?.action || "Unknown",
           },
           extra: context?.metadata,
         })
@@ -168,36 +163,36 @@ class ErrorHandler {
 
     switch (category) {
       case ErrorCategory.NETWORK:
-        suggestions.push('检查网络连接')
-        suggestions.push('稍后重试')
-        suggestions.push('检查防火墙设置')
+        suggestions.push("检查网络连接")
+        suggestions.push("稍后重试")
+        suggestions.push("检查防火墙设置")
         break
       case ErrorCategory.VALIDATION:
-        suggestions.push('检查输入数据格式')
-        suggestions.push('确保所有必填字段已填写')
-        suggestions.push('参考工具使用说明')
+        suggestions.push("检查输入数据格式")
+        suggestions.push("确保所有必填字段已填写")
+        suggestions.push("参考工具使用说明")
         break
       case ErrorCategory.RUNTIME:
-        suggestions.push('刷新页面重试')
-        suggestions.push('清除浏览器缓存')
-        suggestions.push('检查浏览器控制台获取更多信息')
+        suggestions.push("刷新页面重试")
+        suggestions.push("清除浏览器缓存")
+        suggestions.push("检查浏览器控制台获取更多信息")
         break
       case ErrorCategory.SECURITY:
-        suggestions.push('检查权限设置')
-        suggestions.push('确认操作权限')
+        suggestions.push("检查权限设置")
+        suggestions.push("确认操作权限")
         break
       default:
-        suggestions.push('刷新页面重试')
-        suggestions.push('如果问题持续，请联系技术支持')
+        suggestions.push("刷新页面重试")
+        suggestions.push("如果问题持续，请联系技术支持")
     }
 
     // 根据错误消息添加特定建议
-    if (error.message.includes('timeout')) {
-      suggestions.push('操作超时，请重试')
-    } else if (error.message.includes('memory')) {
-      suggestions.push('数据量过大，尝试分批处理')
-    } else if (error.message.includes('permission')) {
-      suggestions.push('检查文件或操作权限')
+    if (error.message.includes("timeout")) {
+      suggestions.push("操作超时，请重试")
+    } else if (error.message.includes("memory")) {
+      suggestions.push("数据量过大，尝试分批处理")
+    } else if (error.message.includes("permission")) {
+      suggestions.push("检查文件或操作权限")
     }
 
     return suggestions
@@ -208,18 +203,18 @@ class ErrorHandler {
    */
   private categorizeError(error: Error): ErrorCategory {
     const message = error.message.toLowerCase()
-    const stack = error.stack?.toLowerCase() || ''
+    const stack = error.stack?.toLowerCase() || ""
 
-    if (message.includes('network') || message.includes('fetch') || message.includes('request')) {
+    if (message.includes("network") || message.includes("fetch") || message.includes("request")) {
       return ErrorCategory.NETWORK
     }
-    if (message.includes('validation') || message.includes('invalid') || message.includes('required')) {
+    if (message.includes("validation") || message.includes("invalid") || message.includes("required")) {
       return ErrorCategory.VALIDATION
     }
-    if (message.includes('security') || message.includes('permission') || message.includes('unauthorized')) {
+    if (message.includes("security") || message.includes("permission") || message.includes("unauthorized")) {
       return ErrorCategory.SECURITY
     }
-    if (stack.includes('typeerror') || stack.includes('referenceerror') || stack.includes('syntaxerror')) {
+    if (stack.includes("typeerror") || stack.includes("referenceerror") || stack.includes("syntaxerror")) {
       return ErrorCategory.RUNTIME
     }
 
@@ -235,9 +230,9 @@ class ErrorHandler {
     // 关键错误
     if (
       category === ErrorCategory.SECURITY ||
-      message.includes('critical') ||
-      message.includes('fatal') ||
-      message.includes('corrupt')
+      message.includes("critical") ||
+      message.includes("fatal") ||
+      message.includes("corrupt")
     ) {
       return ErrorSeverity.CRITICAL
     }
@@ -245,15 +240,15 @@ class ErrorHandler {
     // 高严重性错误
     if (
       category === ErrorCategory.RUNTIME ||
-      message.includes('error') ||
-      message.includes('failed') ||
-      message.includes('exception')
+      message.includes("error") ||
+      message.includes("failed") ||
+      message.includes("exception")
     ) {
       return ErrorSeverity.HIGH
     }
 
     // 中等严重性错误
-    if (category === ErrorCategory.NETWORK || message.includes('timeout') || message.includes('retry')) {
+    if (category === ErrorCategory.NETWORK || message.includes("timeout") || message.includes("retry")) {
       return ErrorSeverity.MEDIUM
     }
 
@@ -282,8 +277,8 @@ class ErrorHandler {
       category,
       timestamp: Date.now(),
       context,
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
-      url: typeof window !== 'undefined' ? window.location.href : undefined,
+      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : undefined,
+      url: typeof window !== "undefined" ? window.location.href : undefined,
       recoverySuggestions,
     }
 
@@ -291,7 +286,7 @@ class ErrorHandler {
 
     // 控制台输出
     if (this.logLevel <= LogLevel.ERROR) {
-      console.error('[ErrorHandler]', message, {
+      console.error("[ErrorHandler]", message, {
         category,
         severity,
         context,
@@ -325,7 +320,7 @@ class ErrorHandler {
     this.addReport(report)
 
     if (this.logLevel <= LogLevel.WARN) {
-      console.warn('[ErrorHandler]', message, { context })
+      console.warn("[ErrorHandler]", message, { context })
     }
   }
 
@@ -334,7 +329,7 @@ class ErrorHandler {
    */
   logInfo(message: string, context?: ErrorContext): void {
     if (this.logLevel <= LogLevel.INFO) {
-      console.info('[ErrorHandler]', message, { context })
+      console.info("[ErrorHandler]", message, { context })
     }
   }
 
@@ -343,7 +338,7 @@ class ErrorHandler {
    */
   logDebug(message: string, context?: ErrorContext): void {
     if (this.logLevel <= LogLevel.DEBUG) {
-      console.debug('[ErrorHandler]', message, { context })
+      console.debug("[ErrorHandler]", message, { context })
     }
   }
 
@@ -425,15 +420,15 @@ class ErrorHandler {
 
     try {
       await fetch(this.errorReportingUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(report),
       })
     } catch (error) {
       // 静默失败，避免错误上报本身导致错误
-      console.warn('[ErrorHandler] Failed to report error:', error)
+      console.warn("[ErrorHandler] Failed to report error:", error)
     }
   }
 }
@@ -449,7 +444,7 @@ if (import.meta.env.DEV) {
 }
 
 // 配置 Sentry（如果环境变量中有配置）
-if (typeof window !== 'undefined' && import.meta.env.VITE_SENTRY_DSN) {
+if (typeof window !== "undefined" && import.meta.env.VITE_SENTRY_DSN) {
   errorHandler.configureSentry({
     dsn: import.meta.env.VITE_SENTRY_DSN,
     environment: import.meta.env.MODE,
@@ -459,20 +454,20 @@ if (typeof window !== 'undefined' && import.meta.env.VITE_SENTRY_DSN) {
 }
 
 // 全局错误处理
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   // 捕获未处理的错误
-  window.addEventListener('error', (event) => {
+  window.addEventListener("error", (event) => {
     errorHandler.logError(event.error || event.message, {
-      component: 'Global',
-      action: 'UnhandledError',
+      component: "Global",
+      action: "UnhandledError",
     })
   })
 
   // 捕获未处理的 Promise 拒绝
-  window.addEventListener('unhandledrejection', (event) => {
+  window.addEventListener("unhandledrejection", (event) => {
     errorHandler.handlePromiseRejection(event.reason, {
-      component: 'Global',
-      action: 'UnhandledRejection',
+      component: "Global",
+      action: "UnhandledRejection",
     })
   })
 }

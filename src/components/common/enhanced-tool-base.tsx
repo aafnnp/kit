@@ -10,6 +10,22 @@ import { useTemplateManager, BaseTemplate } from '@/hooks/use-template-manager'
 import { useSettingsManager, SettingGroup } from '@/hooks/use-settings-manager'
 import { Settings, FileText, History, Info, Zap } from 'lucide-react'
 
+// Grid columns mapping for Tailwind CSS
+const GRID_COLS_MAP: Record<number, string> = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-2',
+  3: 'grid-cols-3',
+  4: 'grid-cols-4',
+  5: 'grid-cols-5',
+  6: 'grid-cols-6',
+  7: 'grid-cols-7',
+  8: 'grid-cols-8',
+}
+
+const getGridColsClass = (count: number): string => {
+  return GRID_COLS_MAP[count] || 'grid-cols-1'
+}
+
 // 工具标签页类型
 export interface ToolTab {
   id: string
@@ -279,7 +295,7 @@ export function EnhancedToolBase<
           <div className={contentClassName}>
             {allTabs.length > 1 ? (
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className={`grid w-full grid-cols-${Math.min(allTabs.length, 6)}`}>
+                <TabsList className={`grid w-full ${getGridColsClass(Math.min(allTabs.length, 6))}`}>
                   {allTabs.map((tab) => (
                     <TabsTrigger
                       key={tab.id}

@@ -1,10 +1,10 @@
-import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { AlertCircle, RefreshCw, Info, Lightbulb, Copy, CheckCircle2 } from 'lucide-react'
-import { toast } from 'sonner'
-import { errorHandler, ErrorSeverity } from '@/lib/data'
-import { logger } from '@/lib/data'
+import React from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { AlertCircle, RefreshCw, Info, Lightbulb, Copy, CheckCircle2 } from "lucide-react"
+import { toast } from "sonner"
+import { errorHandler, ErrorSeverity } from "@/lib/utils/error-handler"
+import { logger } from "@/lib/data/logger"
 
 interface ToolErrorBoundaryProps {
   toolName: string
@@ -32,8 +32,8 @@ export class ToolErrorBoundary extends React.Component<ToolErrorBoundaryProps, T
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // 使用统一的错误处理系统
     errorHandler.logError(error, {
-      component: 'ToolErrorBoundary',
-      action: 'ComponentError',
+      component: "ToolErrorBoundary",
+      action: "ComponentError",
       metadata: {
         toolName: this.props.toolName,
         errorInfo: {
@@ -70,9 +70,9 @@ export class ToolErrorBoundary extends React.Component<ToolErrorBoundaryProps, T
   handleCopyError = () => {
     if (!this.state.error) return
 
-    const errorText = `Error: ${this.state.error.message}\n\nStack:\n${this.state.error.stack || 'No stack trace'}`
+    const errorText = `Error: ${this.state.error.message}\n\nStack:\n${this.state.error.stack || "No stack trace"}`
     navigator.clipboard.writeText(errorText).then(() => {
-      toast.success('Error details copied to clipboard')
+      toast.success("Error details copied to clipboard")
     })
   }
 
@@ -80,10 +80,10 @@ export class ToolErrorBoundary extends React.Component<ToolErrorBoundaryProps, T
     if (this.state.hasError) {
       const severityColor =
         this.state.errorSeverity === ErrorSeverity.CRITICAL
-          ? 'text-red-600'
+          ? "text-red-600"
           : this.state.errorSeverity === ErrorSeverity.HIGH
-            ? 'text-orange-600'
-            : 'text-yellow-600'
+            ? "text-orange-600"
+            : "text-yellow-600"
 
       return (
         <Card className="w-full max-w-2xl mx-auto">
@@ -114,7 +114,7 @@ export class ToolErrorBoundary extends React.Component<ToolErrorBoundaryProps, T
             )}
 
             {/* 错误详情（开发环境） */}
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {process.env.NODE_ENV === "development" && this.state.error && (
               <details className="bg-muted p-4 rounded-lg">
                 <summary className="cursor-pointer font-medium mb-2 flex items-center gap-2">
                   <Info className="h-4 w-4" />
@@ -155,11 +155,18 @@ export class ToolErrorBoundary extends React.Component<ToolErrorBoundaryProps, T
 
             {/* 操作按钮 */}
             <div className="flex gap-2 flex-wrap">
-              <Button onClick={this.handleReset} variant="outline" className="flex-1 min-w-[120px]">
+              <Button
+                onClick={this.handleReset}
+                variant="outline"
+                className="flex-1 min-w-[120px]"
+              >
                 <CheckCircle2 className="mr-2 h-4 w-4" />
                 Try Again
               </Button>
-              <Button onClick={this.handleRefresh} className="flex-1 min-w-[120px]">
+              <Button
+                onClick={this.handleRefresh}
+                className="flex-1 min-w-[120px]"
+              >
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Refresh Page
               </Button>

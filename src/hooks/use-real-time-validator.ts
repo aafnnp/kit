@@ -1,7 +1,7 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect } from "react"
 
 // 验证规则类型
-export type ValidationType = 'json' | 'xml' | 'yaml' | 'csv' | 'email' | 'url' | 'regex' | 'custom'
+export type ValidationType = "json" | "xml" | "yaml" | "csv" | "email" | "url" | "regex" | "custom"
 
 // 验证结果
 export interface ValidationResult {
@@ -18,7 +18,7 @@ export interface ValidationError {
   message: string
   line?: number
   column?: number
-  severity: 'error' | 'critical'
+  severity: "error" | "critical"
   code?: string
   context?: string
 }
@@ -91,6 +91,11 @@ export function useRealTimeValidator(config: ValidationConfig) {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const validationTimesRef = useRef<number[]>([])
 
+  // 空值检查的公共逻辑
+  const isEmptyValue = useCallback((value: string): boolean => {
+    return !value.trim()
+  }, [])
+
   // JSON 验证
   const validateJSON = useCallback(
     (value: string): ValidationResult => {
@@ -99,16 +104,16 @@ export function useRealTimeValidator(config: ValidationConfig) {
       const suggestions: ValidationSuggestion[] = []
       let metadata: Record<string, any> = {}
 
-      if (!value.trim()) {
+      if (isEmptyValue(value)) {
         return { isValid: true, errors, warnings, suggestions }
       }
 
       try {
         const parsed = JSON.parse(value)
         metadata = {
-          type: Array.isArray(parsed) ? 'array' : typeof parsed,
+          type: Array.isArray(parsed) ? "array" : typeof parsed,
           size: JSON.stringify(parsed).length,
-          keys: typeof parsed === 'object' && parsed !== null ? Object.keys(parsed).length : 0,
+          keys: typeof parsed === "object" && parsed !== null ? Object.keys(parsed).length : 0,
         }
 
         // 检查常见问题
@@ -116,18 +121,18 @@ export function useRealTimeValidator(config: ValidationConfig) {
           // 检查尾随逗号
           if (value.match(/,\s*[}\]]/)) {
             warnings.push({
-              id: 'trailing-comma',
-              message: 'Trailing comma detected (not allowed in strict JSON)',
-              code: 'JSON_TRAILING_COMMA',
+              id: "trailing-comma",
+              message: "Trailing comma detected (not allowed in strict JSON)",
+              code: "JSON_TRAILING_COMMA",
             })
           }
 
           // 检查单引号
           if (value.includes("'")) {
             warnings.push({
-              id: 'single-quotes',
-              message: 'Single quotes detected (use double quotes in JSON)',
-              code: 'JSON_SINGLE_QUOTES',
+              id: "single-quotes",
+              message: "Single quotes detected (use double quotes in JSON)",
+              code: "JSON_SINGLE_QUOTES",
             })
           }
         }
@@ -136,13 +141,13 @@ export function useRealTimeValidator(config: ValidationConfig) {
         if (metadata.size > 1024 * 1024) {
           // 1MB
           suggestions.push({
-            id: 'large-json',
-            message: 'Large JSON detected. Consider pagination or compression.',
-            fix: 'Split into smaller chunks or use compression',
+            id: "large-json",
+            message: "Large JSON detected. Consider pagination or compression.",
+            fix: "Split into smaller chunks or use compression",
           })
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Invalid JSON'
+        const errorMessage = error instanceof Error ? error.message : "Invalid JSON"
         const match = errorMessage.match(/position (\d+)/)
         const position = match ? parseInt(match[1]) : undefined
 
@@ -151,25 +156,25 @@ export function useRealTimeValidator(config: ValidationConfig) {
 
         if (position !== undefined) {
           const beforeError = value.substring(0, position)
-          line = beforeError.split('\n').length
-          column = beforeError.split('\n').pop()?.length || 0
+          line = beforeError.split("\n").length
+          column = beforeError.split("\n").pop()?.length || 0
         }
 
         errors.push({
-          id: 'json-parse-error',
+          id: "json-parse-error",
           message: errorMessage,
           line,
           column,
-          severity: 'error',
-          code: 'JSON_PARSE_ERROR',
+          severity: "error",
+          code: "JSON_PARSE_ERROR",
           context: position !== undefined ? value.substring(Math.max(0, position - 20), position + 20) : undefined,
         })
 
         // 提供修复建议
-        if (errorMessage.includes('Unexpected token')) {
+        if (errorMessage.includes("Unexpected token")) {
           suggestions.push({
-            id: 'syntax-fix',
-            message: 'Check for missing quotes, commas, or brackets',
+            id: "syntax-fix",
+            message: "Check for missing quotes, commas, or brackets",
             line,
             column,
           })
@@ -184,7 +189,7 @@ export function useRealTimeValidator(config: ValidationConfig) {
         metadata,
       }
     },
-    [strictMode, enableWarnings, enableSuggestions]
+    [strictMode, enableWarnings, enableSuggestions, isEmptyValue]
   )
 
   // XML 验证
@@ -194,47 +199,47 @@ export function useRealTimeValidator(config: ValidationConfig) {
       const warnings: ValidationWarning[] = []
       const suggestions: ValidationSuggestion[] = []
 
-      if (!value.trim()) {
+      if (isEmptyValue(value)) {
         return { isValid: true, errors, warnings, suggestions }
       }
 
       try {
         const parser = new DOMParser()
-        const doc = parser.parseFromString(value, 'application/xml')
-        const parseError = doc.querySelector('parsererror')
+        const doc = parser.parseFromString(value, "application/xml")
+        const parseError = doc.querySelector("parsererror")
 
         if (parseError) {
           errors.push({
-            id: 'xml-parse-error',
-            message: parseError.textContent || 'XML parsing error',
-            severity: 'error',
-            code: 'XML_PARSE_ERROR',
+            id: "xml-parse-error",
+            message: parseError.textContent || "XML parsing error",
+            severity: "error",
+            code: "XML_PARSE_ERROR",
           })
         } else {
           // 检查 XML 声明
-          if (!value.trim().startsWith('<?xml')) {
+          if (!value.trim().startsWith("<?xml")) {
             warnings.push({
-              id: 'missing-xml-declaration',
-              message: 'Missing XML declaration',
-              code: 'XML_NO_DECLARATION',
+              id: "missing-xml-declaration",
+              message: "Missing XML declaration",
+              code: "XML_NO_DECLARATION",
             })
           }
 
           // 检查根元素
           if (doc.documentElement.children.length === 0 && !doc.documentElement.textContent?.trim()) {
             warnings.push({
-              id: 'empty-root',
-              message: 'Root element is empty',
-              code: 'XML_EMPTY_ROOT',
+              id: "empty-root",
+              message: "Root element is empty",
+              code: "XML_EMPTY_ROOT",
             })
           }
         }
       } catch (error) {
         errors.push({
-          id: 'xml-error',
-          message: error instanceof Error ? error.message : 'XML validation error',
-          severity: 'error',
-          code: 'XML_ERROR',
+          id: "xml-error",
+          message: error instanceof Error ? error.message : "XML validation error",
+          severity: "error",
+          code: "XML_ERROR",
         })
       }
 
@@ -245,7 +250,7 @@ export function useRealTimeValidator(config: ValidationConfig) {
         suggestions: enableSuggestions ? suggestions : [],
       }
     },
-    [enableWarnings, enableSuggestions]
+    [enableWarnings, enableSuggestions, isEmptyValue]
   )
 
   // YAML 验证（简化版）
@@ -255,12 +260,12 @@ export function useRealTimeValidator(config: ValidationConfig) {
       const warnings: ValidationWarning[] = []
       const suggestions: ValidationSuggestion[] = []
 
-      if (!value.trim()) {
+      if (isEmptyValue(value)) {
         return { isValid: true, errors, warnings, suggestions }
       }
 
       // 基本 YAML 语法检查
-      const lines = value.split('\n')
+      const lines = value.split("\n")
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i]
@@ -271,34 +276,34 @@ export function useRealTimeValidator(config: ValidationConfig) {
         if (line.trim() && indent % 2 !== 0) {
           warnings.push({
             id: `odd-indent-${lineNumber}`,
-            message: 'Odd number of spaces for indentation (use 2 or 4 spaces)',
+            message: "Odd number of spaces for indentation (use 2 or 4 spaces)",
             line: lineNumber,
-            code: 'YAML_ODD_INDENT',
+            code: "YAML_ODD_INDENT",
           })
         }
 
         // 检查制表符
-        if (line.includes('\t')) {
+        if (line.includes("\t")) {
           errors.push({
             id: `tab-character-${lineNumber}`,
-            message: 'Tab characters are not allowed in YAML (use spaces)',
+            message: "Tab characters are not allowed in YAML (use spaces)",
             line: lineNumber,
-            severity: 'error',
-            code: 'YAML_TAB_CHARACTER',
+            severity: "error",
+            code: "YAML_TAB_CHARACTER",
           })
         }
 
         // 检查键值对格式
-        if (line.includes(':') && !line.trim().startsWith('#')) {
-          const colonIndex = line.indexOf(':')
+        if (line.includes(":") && !line.trim().startsWith("#")) {
+          const colonIndex = line.indexOf(":")
           const afterColon = line.substring(colonIndex + 1)
-          if (afterColon && !afterColon.startsWith(' ')) {
+          if (afterColon && !afterColon.startsWith(" ")) {
             warnings.push({
               id: `no-space-after-colon-${lineNumber}`,
-              message: 'Add space after colon in key-value pairs',
+              message: "Add space after colon in key-value pairs",
               line: lineNumber,
               column: colonIndex + 1,
-              code: 'YAML_NO_SPACE_AFTER_COLON',
+              code: "YAML_NO_SPACE_AFTER_COLON",
             })
           }
         }
@@ -311,7 +316,7 @@ export function useRealTimeValidator(config: ValidationConfig) {
         suggestions: enableSuggestions ? suggestions : [],
       }
     },
-    [enableWarnings, enableSuggestions]
+    [enableWarnings, enableSuggestions, isEmptyValue]
   )
 
   // CSV 验证
@@ -321,16 +326,16 @@ export function useRealTimeValidator(config: ValidationConfig) {
       const warnings: ValidationWarning[] = []
       const suggestions: ValidationSuggestion[] = []
 
-      if (!value.trim()) {
+      if (isEmptyValue(value)) {
         return { isValid: true, errors, warnings, suggestions }
       }
 
-      const lines = value.split('\n').filter((line) => line.trim())
+      const lines = value.split("\n").filter((line) => line.trim())
       if (lines.length === 0) {
         return { isValid: true, errors, warnings, suggestions }
       }
 
-      const delimiter = options.delimiter || ','
+      const delimiter = options.delimiter || ","
       const firstRowColumns = lines[0].split(delimiter).length
 
       // 检查列数一致性
@@ -341,23 +346,23 @@ export function useRealTimeValidator(config: ValidationConfig) {
             id: `inconsistent-columns-${i + 1}`,
             message: `Row ${i + 1} has ${columns} columns, expected ${firstRowColumns}`,
             line: i + 1,
-            severity: 'error',
-            code: 'CSV_INCONSISTENT_COLUMNS',
+            severity: "error",
+            code: "CSV_INCONSISTENT_COLUMNS",
           })
         }
       }
 
       // 检查空行
       const emptyLines = value
-        .split('\n')
+        .split("\n")
         .map((line, index) => ({ line, index: index + 1 }))
         .filter(({ line }) => !line.trim())
 
       if (emptyLines.length > 0) {
         warnings.push({
-          id: 'empty-lines',
+          id: "empty-lines",
           message: `Found ${emptyLines.length} empty lines`,
-          code: 'CSV_EMPTY_LINES',
+          code: "CSV_EMPTY_LINES",
         })
       }
 
@@ -373,7 +378,7 @@ export function useRealTimeValidator(config: ValidationConfig) {
         },
       }
     },
-    [enableWarnings, enableSuggestions, options.delimiter]
+    [enableWarnings, enableSuggestions, options.delimiter, isEmptyValue]
   )
 
   // Email 验证
@@ -383,7 +388,7 @@ export function useRealTimeValidator(config: ValidationConfig) {
       const warnings: ValidationWarning[] = []
       const suggestions: ValidationSuggestion[] = []
 
-      if (!value.trim()) {
+      if (isEmptyValue(value)) {
         return { isValid: true, errors, warnings, suggestions }
       }
 
@@ -391,26 +396,26 @@ export function useRealTimeValidator(config: ValidationConfig) {
 
       if (!emailRegex.test(value)) {
         errors.push({
-          id: 'invalid-email',
-          message: 'Invalid email format',
-          severity: 'error',
-          code: 'EMAIL_INVALID_FORMAT',
+          id: "invalid-email",
+          message: "Invalid email format",
+          severity: "error",
+          code: "EMAIL_INVALID_FORMAT",
         })
       } else {
         // 检查常见问题
-        if (value.includes('..')) {
+        if (value.includes("..")) {
           warnings.push({
-            id: 'consecutive-dots',
-            message: 'Consecutive dots in email address',
-            code: 'EMAIL_CONSECUTIVE_DOTS',
+            id: "consecutive-dots",
+            message: "Consecutive dots in email address",
+            code: "EMAIL_CONSECUTIVE_DOTS",
           })
         }
 
-        if (value.startsWith('.') || value.endsWith('.')) {
+        if (value.startsWith(".") || value.endsWith(".")) {
           warnings.push({
-            id: 'leading-trailing-dot',
-            message: 'Email starts or ends with a dot',
-            code: 'EMAIL_LEADING_TRAILING_DOT',
+            id: "leading-trailing-dot",
+            message: "Email starts or ends with a dot",
+            code: "EMAIL_LEADING_TRAILING_DOT",
           })
         }
       }
@@ -422,7 +427,7 @@ export function useRealTimeValidator(config: ValidationConfig) {
         suggestions: enableSuggestions ? suggestions : [],
       }
     },
-    [enableWarnings, enableSuggestions]
+    [enableWarnings, enableSuggestions, isEmptyValue]
   )
 
   // URL 验证
@@ -432,7 +437,7 @@ export function useRealTimeValidator(config: ValidationConfig) {
       const warnings: ValidationWarning[] = []
       const suggestions: ValidationSuggestion[] = []
 
-      if (!value.trim()) {
+      if (isEmptyValue(value)) {
         return { isValid: true, errors, warnings, suggestions }
       }
 
@@ -440,28 +445,28 @@ export function useRealTimeValidator(config: ValidationConfig) {
         const url = new URL(value)
 
         // 检查协议
-        if (!['http:', 'https:', 'ftp:', 'ftps:'].includes(url.protocol)) {
+        if (!["http:", "https:", "ftp:", "ftps:"].includes(url.protocol)) {
           warnings.push({
-            id: 'unusual-protocol',
+            id: "unusual-protocol",
             message: `Unusual protocol: ${url.protocol}`,
-            code: 'URL_UNUSUAL_PROTOCOL',
+            code: "URL_UNUSUAL_PROTOCOL",
           })
         }
 
         // 检查 localhost
-        if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+        if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
           warnings.push({
-            id: 'localhost-url',
-            message: 'URL points to localhost',
-            code: 'URL_LOCALHOST',
+            id: "localhost-url",
+            message: "URL points to localhost",
+            code: "URL_LOCALHOST",
           })
         }
       } catch (error) {
         errors.push({
-          id: 'invalid-url',
-          message: 'Invalid URL format',
-          severity: 'error',
-          code: 'URL_INVALID_FORMAT',
+          id: "invalid-url",
+          message: "Invalid URL format",
+          severity: "error",
+          code: "URL_INVALID_FORMAT",
         })
       }
 
@@ -472,7 +477,7 @@ export function useRealTimeValidator(config: ValidationConfig) {
         suggestions: enableSuggestions ? suggestions : [],
       }
     },
-    [enableWarnings, enableSuggestions]
+    [enableWarnings, enableSuggestions, isEmptyValue]
   )
 
   // 正则表达式验证
@@ -482,19 +487,19 @@ export function useRealTimeValidator(config: ValidationConfig) {
       const warnings: ValidationWarning[] = []
       const suggestions: ValidationSuggestion[] = []
 
-      if (!value.trim()) {
+      if (isEmptyValue(value)) {
         return { isValid: true, errors, warnings, suggestions }
       }
 
       const pattern = options.pattern as string
-      const flags = (options.flags as string) || ''
+      const flags = (options.flags as string) || ""
 
       if (!pattern) {
         errors.push({
-          id: 'no-pattern',
-          message: 'No regex pattern provided',
-          severity: 'error',
-          code: 'REGEX_NO_PATTERN',
+          id: "no-pattern",
+          message: "No regex pattern provided",
+          severity: "error",
+          code: "REGEX_NO_PATTERN",
         })
         return { isValid: false, errors, warnings, suggestions }
       }
@@ -504,18 +509,18 @@ export function useRealTimeValidator(config: ValidationConfig) {
 
         if (!regex.test(value)) {
           errors.push({
-            id: 'pattern-mismatch',
-            message: 'Value does not match the required pattern',
-            severity: 'error',
-            code: 'REGEX_PATTERN_MISMATCH',
+            id: "pattern-mismatch",
+            message: "Value does not match the required pattern",
+            severity: "error",
+            code: "REGEX_PATTERN_MISMATCH",
           })
         }
       } catch (error) {
         errors.push({
-          id: 'invalid-regex',
-          message: 'Invalid regular expression pattern',
-          severity: 'error',
-          code: 'REGEX_INVALID_PATTERN',
+          id: "invalid-regex",
+          message: "Invalid regular expression pattern",
+          severity: "error",
+          code: "REGEX_INVALID_PATTERN",
         })
       }
 
@@ -537,28 +542,28 @@ export function useRealTimeValidator(config: ValidationConfig) {
       let result: ValidationResult
 
       switch (type) {
-        case 'json':
+        case "json":
           result = validateJSON(value)
           break
-        case 'xml':
+        case "xml":
           result = validateXML(value)
           break
-        case 'yaml':
+        case "yaml":
           result = validateYAML(value)
           break
-        case 'csv':
+        case "csv":
           result = validateCSV(value)
           break
-        case 'email':
+        case "email":
           result = validateEmail(value)
           break
-        case 'url':
+        case "url":
           result = validateURL(value)
           break
-        case 'regex':
+        case "regex":
           result = validateRegex(value)
           break
-        case 'custom':
+        case "custom":
           result = customValidator
             ? customValidator(value)
             : { isValid: true, errors: [], warnings: [], suggestions: [] }
@@ -683,7 +688,7 @@ export function useJSONValidator(options?: {
   enableWarnings?: boolean
 }) {
   return useRealTimeValidator({
-    type: 'json',
+    type: "json",
     ...options,
   })
 }
@@ -695,7 +700,7 @@ export function useXMLValidator(options?: {
   enableWarnings?: boolean
 }) {
   return useRealTimeValidator({
-    type: 'xml',
+    type: "xml",
     ...options,
   })
 }
@@ -707,7 +712,7 @@ export function useEmailValidator(options?: {
   enableWarnings?: boolean
 }) {
   return useRealTimeValidator({
-    type: 'email',
+    type: "email",
     ...options,
   })
 }

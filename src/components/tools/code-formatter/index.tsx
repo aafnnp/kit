@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { Copy, Download, Upload, RotateCcw, Wand2 } from 'lucide-react'
 import { useCopyToClipboard } from '@/hooks/use-clipboard'
 import { CodeFormatterState, LANGUAGE_CONFIGS, FormatOptions } from '@/types/code-formatter'
-import { ToolBase } from '@/components/ui/tool-base'
+import { ToolBase } from '@/components/common/tool-base'
 
 // 简化的代码格式化函数（实际项目中可以使用 prettier 等库）
 const formatCode = async (code: string, options: FormatOptions): Promise<string> => {

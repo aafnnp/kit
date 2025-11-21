@@ -1,5 +1,5 @@
-import { useState, useCallback, useReducer } from 'react'
-import { toast } from 'sonner'
+import { useState, useCallback, useReducer } from "react"
+import { toast } from "sonner"
 
 // 通用工具状态接口
 export interface ToolState<T = any> {
@@ -12,27 +12,27 @@ export interface ToolState<T = any> {
 
 // 状态操作类型
 type ToolStateAction<T> =
-  | { type: 'SET_DATA'; payload: T }
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'SET_PROCESSING'; payload: boolean }
-  | { type: 'SET_PROGRESS'; payload: number }
-  | { type: 'RESET' }
+  | { type: "SET_DATA"; payload: T }
+  | { type: "SET_LOADING"; payload: boolean }
+  | { type: "SET_ERROR"; payload: string | null }
+  | { type: "SET_PROCESSING"; payload: boolean }
+  | { type: "SET_PROGRESS"; payload: number }
+  | { type: "RESET" }
 
 // 状态 reducer
 function toolStateReducer<T>(state: ToolState<T>, action: ToolStateAction<T>): ToolState<T> {
   switch (action.type) {
-    case 'SET_DATA':
+    case "SET_DATA":
       return { ...state, data: action.payload, error: null }
-    case 'SET_LOADING':
+    case "SET_LOADING":
       return { ...state, isLoading: action.payload }
-    case 'SET_ERROR':
+    case "SET_ERROR":
       return { ...state, error: action.payload, isLoading: false, isProcessing: false }
-    case 'SET_PROCESSING':
+    case "SET_PROCESSING":
       return { ...state, isProcessing: action.payload }
-    case 'SET_PROGRESS':
+    case "SET_PROGRESS":
       return { ...state, progress: action.payload }
-    case 'RESET':
+    case "RESET":
       return {
         data: state.data,
         isLoading: false,
@@ -56,30 +56,30 @@ export function useToolState<T>(initialData: T) {
   })
 
   const setData = useCallback((data: T) => {
-    dispatch({ type: 'SET_DATA', payload: data })
+    dispatch({ type: "SET_DATA", payload: data })
   }, [])
 
   const setLoading = useCallback((loading: boolean) => {
-    dispatch({ type: 'SET_LOADING', payload: loading })
+    dispatch({ type: "SET_LOADING", payload: loading })
   }, [])
 
   const setError = useCallback((error: string | null) => {
-    dispatch({ type: 'SET_ERROR', payload: error })
+    dispatch({ type: "SET_ERROR", payload: error })
     if (error) {
       toast.error(error)
     }
   }, [])
 
   const setProcessing = useCallback((processing: boolean) => {
-    dispatch({ type: 'SET_PROCESSING', payload: processing })
+    dispatch({ type: "SET_PROCESSING", payload: processing })
   }, [])
 
   const setProgress = useCallback((progress: number) => {
-    dispatch({ type: 'SET_PROGRESS', payload: progress })
+    dispatch({ type: "SET_PROGRESS", payload: progress })
   }, [])
 
   const reset = useCallback(() => {
-    dispatch({ type: 'RESET' })
+    dispatch({ type: "RESET" })
   }, [])
 
   // 异步操作包装器
@@ -91,7 +91,7 @@ export function useToolState<T>(initialData: T) {
         const result = await operation()
         return result
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred"
         setError(errorMessage)
         return null
       } finally {
@@ -112,7 +112,7 @@ export function useToolState<T>(initialData: T) {
         setProgress(100)
         return result
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Processing failed'
+        const errorMessage = error instanceof Error ? error.message : "Processing failed"
         setError(errorMessage)
         setProgress(0)
         return null
@@ -155,7 +155,7 @@ export function useSimpleState<T>(initialValue: T) {
       const result = await operation()
       return result
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Operation failed'
+      const errorMessage = error instanceof Error ? error.message : "Operation failed"
       setError(errorMessage)
       toast.error(errorMessage)
       return null
@@ -217,67 +217,63 @@ export function useBatchState<T extends { id: string }>(initialItems: T[] = []) 
     }))
   }, [])
 
-  const setItemProcessing = useCallback((id: string) => {
-    setState((prev) => {
-      const newProcessing = new Set(prev.processing)
-      const newCompleted = new Set(prev.completed)
-      const newFailed = new Set(prev.failed)
+  // 更新项目状态的通用逻辑
+  const updateItemStatus = useCallback(
+    (id: string, status: "processing" | "completed" | "failed", calculateProgress = false) => {
+      setState((prev) => {
+        const newProcessing = new Set(prev.processing)
+        const newCompleted = new Set(prev.completed)
+        const newFailed = new Set(prev.failed)
 
-      newProcessing.add(id)
-      newCompleted.delete(id)
-      newFailed.delete(id)
+        // 清除所有状态
+        newProcessing.delete(id)
+        newCompleted.delete(id)
+        newFailed.delete(id)
 
-      return {
-        ...prev,
-        processing: newProcessing,
-        completed: newCompleted,
-        failed: newFailed,
-      }
-    })
-  }, [])
+        // 设置新状态
+        if (status === "processing") {
+          newProcessing.add(id)
+        } else if (status === "completed") {
+          newCompleted.add(id)
+        } else if (status === "failed") {
+          newFailed.add(id)
+        }
 
-  const setItemCompleted = useCallback((id: string) => {
-    setState((prev) => {
-      const newProcessing = new Set(prev.processing)
-      const newCompleted = new Set(prev.completed)
-      const newFailed = new Set(prev.failed)
+        const progress =
+          calculateProgress && prev.items.length > 0 ? (newCompleted.size / prev.items.length) * 100 : prev.progress
 
-      newProcessing.delete(id)
-      newCompleted.add(id)
-      newFailed.delete(id)
+        return {
+          ...prev,
+          processing: newProcessing,
+          completed: newCompleted,
+          failed: newFailed,
+          progress,
+        }
+      })
+    },
+    []
+  )
 
-      const totalItems = prev.items.length
-      const completedCount = newCompleted.size
-      const progress = totalItems > 0 ? (completedCount / totalItems) * 100 : 0
+  const setItemProcessing = useCallback(
+    (id: string) => {
+      updateItemStatus(id, "processing")
+    },
+    [updateItemStatus]
+  )
 
-      return {
-        ...prev,
-        processing: newProcessing,
-        completed: newCompleted,
-        failed: newFailed,
-        progress,
-      }
-    })
-  }, [])
+  const setItemCompleted = useCallback(
+    (id: string) => {
+      updateItemStatus(id, "completed", true)
+    },
+    [updateItemStatus]
+  )
 
-  const setItemFailed = useCallback((id: string) => {
-    setState((prev) => {
-      const newProcessing = new Set(prev.processing)
-      const newCompleted = new Set(prev.completed)
-      const newFailed = new Set(prev.failed)
-
-      newProcessing.delete(id)
-      newCompleted.delete(id)
-      newFailed.add(id)
-
-      return {
-        ...prev,
-        processing: newProcessing,
-        completed: newCompleted,
-        failed: newFailed,
-      }
-    })
-  }, [])
+  const setItemFailed = useCallback(
+    (id: string) => {
+      updateItemStatus(id, "failed")
+    },
+    [updateItemStatus]
+  )
 
   const clearAll = useCallback(() => {
     setState({

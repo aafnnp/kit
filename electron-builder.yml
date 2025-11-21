@@ -9,7 +9,7 @@ directories:
 files:
   - dist/**/*
   - electron/dist-electron/main.js
-  - electron/dist-electron/preload.js
+  - electron/dist-electron/preload.cjs
   - package.json
 
 extraMetadata:

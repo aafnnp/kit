@@ -24,7 +24,7 @@ import {
   MemoryStick,
 } from 'lucide-react'
 import { nanoid } from 'nanoid'
-import { ToolBase } from '@/components/ui/tool-base'
+import { ToolBase } from '@/components/common/tool-base'
 import type { TestResult, TestConfig, BenchmarkResult } from '@/types/performance-tester'
 
 interface BenchmarkComparison {
