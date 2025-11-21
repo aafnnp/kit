@@ -1,6 +1,6 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router"
 import "../App.css"
-import { AppSidebar, SiteHeader, CustomTitleBar } from "@/components/layout"
+import { AppSidebar, CustomTitleBar } from "@/components/layout"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { PerformanceMonitor } from "@/components/monitoring"
 import { isDesktopApp } from "@/lib/utils"
@@ -49,8 +49,7 @@ export const Route = createRootRoute({
         <SidebarProvider>
           <AppSidebar />
           <SidebarInset className="flex flex-col">
-            {!isDesktopApp() && <SiteHeader />}
-            <main className="flex-1 p-4">
+            <main className="flex-1 px-4 py-12">
               <Outlet />
             </main>
           </SidebarInset>
