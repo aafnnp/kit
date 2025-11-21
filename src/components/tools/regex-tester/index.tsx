@@ -858,7 +858,7 @@ const RegexTesterCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5" aria-hidden="true" />
+              <Search className="h-5 w-5" />
               Regex Tester
             </CardTitle>
             <CardDescription>
@@ -926,7 +926,6 @@ const RegexTesterCore = () => {
                       onChange={(e) => setPattern(e.target.value)}
                       placeholder="Enter your regex pattern..."
                       className="font-mono"
-                      aria-label="Regex pattern input"
                     />
                     {pattern && (
                       <Button
@@ -1165,7 +1164,6 @@ const RegexTesterCore = () => {
                     onChange={(e) => setTestText(e.target.value)}
                     placeholder="Enter text to test against your regex pattern..."
                     className="min-h-[120px] font-mono"
-                    aria-label="Test text input"
                   />
                 </div>
               </CardContent>
@@ -1238,7 +1236,6 @@ const RegexTesterCore = () => {
                       dangerouslySetInnerHTML={{
                         __html: realtimeResult.highlightedText || testText,
                       }}
-                      aria-label="Text with highlighted matches"
                     />
                   </div>
                 )}
@@ -1371,7 +1368,6 @@ const RegexTesterCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop text files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1398,7 +1394,6 @@ const RegexTesterCore = () => {
                     accept=".txt,.log,.csv,.json,.md,.markdown"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select text files"
                   />
                 </div>
               </CardContent>
@@ -1585,8 +1580,7 @@ const RegexTesterCore = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => copyToClipboard(file.matches!.map((m) => m.match).join('\n'), file.id)}
-                                  aria-label={`Copy matches for ${file.name}`}
+                                  onClick={() => copyToClipboard(file.matches!.map((m) => m.match).join('\n'), file.id)}`}
                                 >
                                   {copiedText === file.id ? (
                                     <Check className="h-4 w-4" />
@@ -1600,8 +1594,7 @@ const RegexTesterCore = () => {
                                   variant="outline"
                                   onClick={() =>
                                     exportMatches(file.matches!, file.name.replace(/\.[^/.]+$/, '-matches.txt'))
-                                  }
-                                  aria-label={`Export matches for ${file.name}`}
+                                  }`}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1611,8 +1604,7 @@ const RegexTesterCore = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
+                              onClick={() => removeFile(file.id)}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

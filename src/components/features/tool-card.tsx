@@ -92,18 +92,13 @@ function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCar
       }}
       tabIndex={0}
       role="button"
-      aria-label={tool.name}
-      aria-describedby={`tool-desc-${tool.slug}`}
     >
       <CardHeader className="pb-3 p-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
             <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 dark:group-hover:bg-primary/30 transition-all duration-500 group-hover:scale-110 dark:text-primary-foreground/90 shrink-0 group-hover:shadow-lg group-hover:shadow-primary/20 dark:group-hover:shadow-primary/30">
               {IconComponent ? (
-                <IconComponent
-                  className="h-4 w-4 sm:h-5 sm:w-5 transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 dark:drop-shadow-md"
-                  aria-hidden="true"
-                />
+                <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 dark:drop-shadow-md" />
               ) : (
                 <div className="h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-semibold text-xs sm:text-sm transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 dark:drop-shadow-md">
                   {firstLetter}
@@ -130,7 +125,6 @@ function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCar
                   ? "text-red-500 dark:text-red-400 opacity-100 bg-red-50 dark:bg-red-950/20"
                   : "text-muted-foreground hover:text-red-500 dark:hover:text-red-400"
               }`}
-              aria-label={isFavorite(tool.slug) ? t("favorites.remove") : t("favorites.add")}
               tabIndex={0}
             >
               <Heart

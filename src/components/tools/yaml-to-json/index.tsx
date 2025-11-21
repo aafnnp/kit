@@ -1188,7 +1188,7 @@ const YAMLToJSONCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ArrowLeftRight className="h-5 w-5" aria-hidden="true" />
+              <ArrowLeftRight className="h-5 w-5" />
               YAML ⇄ JSON Converter
             </CardTitle>
             <CardDescription>
@@ -1238,7 +1238,6 @@ const YAMLToJSONCore = () => {
                       onChange={(e) => setYamlInput(e.target.value)}
                       placeholder="Enter or paste your YAML here..."
                       className="mt-2 min-h-[200px] font-mono"
-                      aria-label="YAML input for conversion"
                     />
                     {settings.realTimeConversion && yamlInput && (
                       <div className="mt-2 text-sm">
@@ -1310,7 +1309,6 @@ const YAMLToJSONCore = () => {
                       onChange={(e) => setJsonInput(e.target.value)}
                       placeholder="Enter or paste your JSON here..."
                       className="mt-2 min-h-[200px] font-mono"
-                      aria-label="JSON input for conversion"
                     />
                     {settings.realTimeConversion && jsonInput && (
                       <div className="mt-2 text-sm">
@@ -1461,7 +1459,6 @@ const YAMLToJSONCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder='yaml:name: John Doe&#10;json:{"name": "Jane Smith"}&#10;yaml:age: 30'
                       className="mt-2 min-h-[120px] font-mono"
-                      aria-label="Batch conversion input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
                       Format: <code>yaml:content</code> or <code>json:content</code> (one per line)

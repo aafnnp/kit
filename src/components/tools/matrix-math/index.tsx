@@ -1435,7 +1435,7 @@ const MatrixMathCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {/* <Matrix className="h-5 w-5" aria-hidden="true" /> */}
+              {/* <Matrix className="h-5 w-5" /> */}
               Matrix Math & Linear Algebra Tool
             </CardTitle>
             <CardDescription>

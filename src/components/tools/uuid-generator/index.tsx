@@ -1048,7 +1048,7 @@ const UUIDGeneratorCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Fingerprint className="h-5 w-5" aria-hidden="true" />
+              <Fingerprint className="h-5 w-5" />
               UUID Generator & Analysis Tool
             </CardTitle>
             <CardDescription>

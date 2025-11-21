@@ -942,7 +942,7 @@ const IPInfoCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Monitor className="h-5 w-5" aria-hidden="true" />
+              <Monitor className="h-5 w-5" />
               IP Info & Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -1000,7 +1000,6 @@ const IPInfoCore = () => {
                       onChange={(e) => setIP(e.target.value)}
                       placeholder="Enter IP address (e.g., 8.8.8.8 or 2001:4860:4860::8888)"
                       className="mt-2"
-                      aria-label="IP address for analysis"
                     />
                     {ip && (
                       <div className="mt-2 text-sm">
@@ -1769,7 +1768,6 @@ const IPInfoCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="8.8.8.8&#10;1.1.1.1&#10;192.168.1.1&#10;2001:4860:4860::8888"
                       className="mt-2 min-h-[200px] font-mono text-sm"
-                      aria-label="Batch IP analysis input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
                       Enter one IP address per line (supports both IPv4 and IPv6)

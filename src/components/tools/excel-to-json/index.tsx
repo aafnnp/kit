@@ -846,7 +846,7 @@ const ExcelToJSONCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileSpreadsheet className="h-5 w-5" aria-hidden="true" />
+              <FileSpreadsheet className="h-5 w-5" />
               Excel to JSON Converter
             </CardTitle>
             <CardDescription>
@@ -905,7 +905,6 @@ const ExcelToJSONCore = () => {
                         accept=".xlsx,.xls,.xlsm,.xlsb"
                         onChange={handleFileSelect}
                         className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                        aria-label="Select Excel file for conversion"
                       />
                     </div>
                     {selectedFile && (
@@ -1383,7 +1382,6 @@ const ExcelToJSONCore = () => {
                         multiple
                         onChange={handleBatchFileSelect}
                         className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                        aria-label="Select multiple Excel files for batch processing"
                       />
                     </div>
                     {selectedFiles.length > 0 && (

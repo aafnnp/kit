@@ -1,8 +1,8 @@
-import { Button } from '@/components/ui/button'
-import { Upload, FileImage } from 'lucide-react'
-import { useDragAndDrop } from '@/hooks/use-drag-drop'
-import { DragDropConfig } from '@/types/common'
-import { formatFileSize } from '@/lib/utils'
+import { Button } from "@/components/ui/button"
+import { Upload, FileImage } from "lucide-react"
+import { useDragAndDrop } from "@/hooks/use-drag-drop"
+import { DragDropConfig } from "@/types/common"
+import { formatFileSize } from "@/lib/utils"
 
 interface FileUploadAreaProps {
   onFilesSelected: (files: File[]) => void
@@ -20,19 +20,19 @@ interface FileUploadAreaProps {
 export function FileUploadArea({
   onFilesSelected,
   isProcessing = false,
-  accept = '*/*',
+  accept = "*/*",
   multiple = true,
-  title = 'Upload Files',
-  description = 'Drag and drop your files here, or click to select files',
-  buttonText = 'Choose Files',
+  title = "Upload Files",
+  description = "Drag and drop your files here, or click to select files",
+  buttonText = "Choose Files",
   supportedFormatsText,
   config = {},
-  icon
+  icon,
 }: FileUploadAreaProps) {
   const dragDropConfig = {
     accept,
     multiple,
-    ...config
+    ...config,
   }
 
   const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(
@@ -42,13 +42,13 @@ export function FileUploadArea({
 
   const getAcceptText = () => {
     if (supportedFormatsText) return supportedFormatsText
-    
-    if (accept === '*/*') return 'All file types supported'
-    if (accept.includes('image/')) return 'Image files supported'
-    if (accept.includes('audio/')) return 'Audio files supported'
-    if (accept.includes('video/')) return 'Video files supported'
-    if (accept.includes('text/')) return 'Text files supported'
-    
+
+    if (accept === "*/*") return "All file types supported"
+    if (accept.includes("image/")) return "Image files supported"
+    if (accept.includes("audio/")) return "Audio files supported"
+    if (accept.includes("video/")) return "Video files supported"
+    if (accept.includes("text/")) return "Text files supported"
+
     return `Supported formats: ${accept}`
   }
 
@@ -56,33 +56,30 @@ export function FileUploadArea({
     if (config.maxSize) {
       return ` • Max ${formatFileSize(config.maxSize)} per file`
     }
-    return ''
+    return ""
   }
 
   const getMaxFilesText = () => {
-    if (!multiple) return ' • Single file only'
+    if (!multiple) return " • Single file only"
     if (config.maxFiles) {
       return ` • Max ${config.maxFiles} files`
     }
-    return ''
+    return ""
   }
 
   return (
     <div
       className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-        dragActive
-          ? 'border-primary bg-primary/5'
-          : 'border-muted-foreground/25 hover:border-muted-foreground/50'
-      } ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
+        dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-muted-foreground/50"
+      } ${isProcessing ? "opacity-50 pointer-events-none" : ""}`}
       onDragEnter={handleDrag}
       onDragLeave={handleDrag}
       onDragOver={handleDrag}
       onDrop={handleDrop}
       role="button"
       tabIndex={0}
-      aria-label={description}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === "Enter" || e.key === " ") {
           e.preventDefault()
           fileInputRef.current?.click()
         }
@@ -101,7 +98,9 @@ export function FileUploadArea({
         {buttonText}
       </Button>
       <p className="text-xs text-muted-foreground">
-        {getAcceptText()}{getMaxSizeText()}{getMaxFilesText()}
+        {getAcceptText()}
+        {getMaxSizeText()}
+        {getMaxFilesText()}
       </p>
       <input
         ref={fileInputRef}
@@ -110,7 +109,6 @@ export function FileUploadArea({
         accept={accept}
         onChange={handleFileInput}
         className="hidden"
-        aria-label="Select files"
       />
     </div>
   )

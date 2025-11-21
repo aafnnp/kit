@@ -918,7 +918,7 @@ const MergePDFCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Combine className="h-5 w-5" aria-hidden="true" />
+              <Combine className="h-5 w-5" />
               PDF Merge & Processing Tool
             </CardTitle>
             <CardDescription>

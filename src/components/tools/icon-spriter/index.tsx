@@ -259,7 +259,7 @@ const IconSpriter = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Layers className="h-5 w-5" aria-hidden="true" />
+              <Layers className="h-5 w-5" />
               图标雪碧图生成/管理工具
             </CardTitle>
             <CardDescription>
@@ -278,7 +278,6 @@ const IconSpriter = () => {
               onDrop={handleDrop}
               role="button"
               tabIndex={0}
-              aria-label="拖拽图标文件到此或点击选择"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
@@ -301,7 +300,6 @@ const IconSpriter = () => {
                 accept="image/svg+xml,image/png,image/x-icon,image/vnd.microsoft.icon"
                 onChange={handleFileInput}
                 className="hidden"
-                aria-label="选择图标文件"
               />
             </div>
           </CardContent>
@@ -336,7 +334,7 @@ const IconSpriter = () => {
                     }))
                 }}
               >
-                <SelectTrigger id="preset" aria-label="选择雪碧图预设">
+                <SelectTrigger id="preset">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -354,7 +352,7 @@ const IconSpriter = () => {
                 value={settings.naming}
                 onValueChange={(v) => setSettings((s) => ({ ...s, naming: v as SpriteSettings['naming'] }))}
               >
-                <SelectTrigger id="naming" aria-label="选择命名方式">
+                <SelectTrigger id="naming">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -368,7 +366,6 @@ const IconSpriter = () => {
                   className="w-32 ml-2"
                   value={settings.customPrefix}
                   onChange={(e) => setSettings((s) => ({ ...s, customPrefix: e.target.value }))}
-                  aria-label="自定义前缀"
                 />
               )}
             </div>
@@ -434,8 +431,7 @@ const IconSpriter = () => {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => handleRemoveIcon(icon.id)}
-                      aria-label={`移除 ${icon.name}`}
+                      onClick={() => handleRemoveIcon(icon.id)}`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -459,7 +455,6 @@ const IconSpriter = () => {
                 className="w-full min-h-[80px] rounded border p-2 bg-muted text-foreground font-mono"
                 value={sprite}
                 readOnly
-                aria-label="SVG 雪碧图代码"
               />
               <div className="flex flex-col md:flex-row gap-4 mt-4 items-center">
                 <div className="flex-1 flex items-center gap-2">

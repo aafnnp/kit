@@ -861,7 +861,7 @@ const PasswordGeneratorCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Key className="h-5 w-5" aria-hidden="true" />
+              <Key className="h-5 w-5" />
               Password Generator & Security Analysis
             </CardTitle>
             <CardDescription>
@@ -1122,7 +1122,6 @@ const PasswordGeneratorCore = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => setShowPassword(!showPassword)}
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
@@ -1135,7 +1134,6 @@ const PasswordGeneratorCore = () => {
                         type={showPassword ? 'text' : 'password'}
                         className="font-mono text-lg pr-10"
                         placeholder="Click generate to create a password"
-                        aria-label="Generated password"
                       />
                       {currentPassword && (
                         <Button

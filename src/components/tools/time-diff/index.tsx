@@ -888,7 +888,7 @@ const TimeDiffCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Calculator className="h-5 w-5" aria-hidden="true" />
+              <Calculator className="h-5 w-5" />
               Time Difference Calculator & Analyzer
             </CardTitle>
             <CardDescription>
@@ -938,7 +938,6 @@ const TimeDiffCore = () => {
                       onChange={(e) => setStartInput(e.target.value)}
                       placeholder="Enter start date/time..."
                       className="mt-2"
-                      aria-label="Start date input"
                     />
                     {settings.realTimeCalculation && startInput && (
                       <div className="mt-2 text-sm">
@@ -967,7 +966,6 @@ const TimeDiffCore = () => {
                       onChange={(e) => setEndInput(e.target.value)}
                       placeholder="Enter end date/time..."
                       className="mt-2"
-                      aria-label="End date input"
                     />
                     {settings.realTimeCalculation && endInput && (
                       <div className="mt-2 text-sm">
@@ -1312,7 +1310,6 @@ const TimeDiffCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="2024-01-01,2024-01-15&#10;2023-12-01,2024-01-01&#10;1990-01-01,2024-01-01"
                       className="mt-2 min-h-[120px] font-mono"
-                      aria-label="Batch date pairs input"
                     />
                   </div>
 

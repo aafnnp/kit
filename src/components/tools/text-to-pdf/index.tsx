@@ -715,7 +715,7 @@ const TextToPDFCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileDown className="h-5 w-5" aria-hidden="true" />
+              <FileDown className="h-5 w-5" />
               Text to PDF Converter
             </CardTitle>
             <CardDescription>
@@ -1007,7 +1007,6 @@ const TextToPDFCore = () => {
                     onChange={(e) => setText(e.target.value)}
                     placeholder="Enter your text content here..."
                     className="min-h-[300px] font-mono"
-                    aria-label="Text content input"
                   />
                 </div>
               </CardContent>
@@ -1165,7 +1164,6 @@ const TextToPDFCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop text files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1192,7 +1190,6 @@ const TextToPDFCore = () => {
                     accept=".txt,.log,.csv,.json,.md,.markdown,.js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.h,.css,.html,.xml,.yaml,.yml"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select text files"
                   />
                 </div>
               </CardContent>
@@ -1340,8 +1337,7 @@ const TextToPDFCore = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => exportSingle(file.pdfResult!)}
-                                  aria-label={`Download PDF for ${file.name}`}
+                                  onClick={() => exportSingle(file.pdfResult!)}`}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1349,8 +1345,7 @@ const TextToPDFCore = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => copyToClipboard(file.content, file.id)}
-                                  aria-label={`Copy content of ${file.name}`}
+                                  onClick={() => copyToClipboard(file.content, file.id)}`}
                                 >
                                   {copiedText === file.id ? (
                                     <Check className="h-4 w-4" />
@@ -1364,8 +1359,7 @@ const TextToPDFCore = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
+                              onClick={() => removeFile(file.id)}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

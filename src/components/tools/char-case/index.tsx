@@ -545,8 +545,6 @@ const CaseConverterCore = () => {
 
       // Announce to screen readers
       const announcement = document.createElement('div')
-      announcement.setAttribute('aria-live', 'polite')
-      announcement.setAttribute('aria-atomic', 'true')
       announcement.className = 'sr-only'
       announcement.textContent = message
       document.body.appendChild(announcement)
@@ -648,8 +646,6 @@ const CaseConverterCore = () => {
 
     // Announce completion to screen readers
     const announcement = document.createElement('div')
-    announcement.setAttribute('aria-live', 'assertive')
-    announcement.setAttribute('aria-atomic', 'true')
     announcement.className = 'sr-only'
     announcement.textContent = message
     document.body.appendChild(announcement)
@@ -702,7 +698,7 @@ const CaseConverterCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Type className="h-5 w-5" aria-hidden="true" />
+              <Type className="h-5 w-5" />
               Character Case Converter
             </CardTitle>
             <CardDescription>
@@ -752,7 +748,7 @@ const CaseConverterCore = () => {
               <div className="space-y-2">
                 <Label htmlFor="caseType">Case Type</Label>
                 <Select value={selectedCaseType} onValueChange={(value: CaseType) => setSelectedCaseType(value)}>
-                  <SelectTrigger id="caseType" aria-label="Select case conversion type">
+                  <SelectTrigger id="caseType">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -776,8 +772,7 @@ const CaseConverterCore = () => {
                   min="50"
                   max="500"
                   value={settings.previewLength}
-                  onChange={(e) => setSettings((prev) => ({ ...prev, previewLength: Number(e.target.value) }))}
-                  aria-label={`Preview length: ${settings.previewLength} characters`}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, previewLength: Number(e.target.value) }))} characters`}
                 />
               </div>
             </div>
@@ -840,7 +835,6 @@ const CaseConverterCore = () => {
                   value={manualText}
                   onChange={(e) => setManualText(e.target.value)}
                   className="min-h-[150px] resize-y"
-                  aria-label="Text input for case conversion"
                 />
               </div>
 
@@ -876,8 +870,7 @@ const CaseConverterCore = () => {
                     <Textarea
                       value={convertedManualText}
                       readOnly
-                      className="min-h-[100px] bg-background"
-                      aria-label={`Converted text in ${selectedCaseType}`}
+                      className="min-h-[100px] bg-background"`}
                     />
                   </div>
 
@@ -964,7 +957,6 @@ const CaseConverterCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop text files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -991,7 +983,6 @@ const CaseConverterCore = () => {
                     accept=".txt,.md,.rtf,.csv,.doc,.docx,.json,.html,.xml"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select text files"
                   />
                 </div>
               </CardContent>
@@ -1133,8 +1124,7 @@ const CaseConverterCore = () => {
                             {file.status === 'completed' && file.conversions && (
                               <Button
                                 size="sm"
-                                onClick={() => exportAllConversions(file.conversions!, file.name)}
-                                aria-label={`Export all conversions for ${file.name}`}
+                                onClick={() => exportAllConversions(file.conversions!, file.name)}`}
                               >
                                 <Download className="h-4 w-4" />
                               </Button>
@@ -1143,8 +1133,7 @@ const CaseConverterCore = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
+                              onClick={() => removeFile(file.id)}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

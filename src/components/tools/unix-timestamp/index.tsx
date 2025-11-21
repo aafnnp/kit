@@ -830,7 +830,7 @@ const UnixTimestampCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" aria-hidden="true" />
+              <Clock className="h-5 w-5" />
               Unix Timestamp & Timezone Converter
             </CardTitle>
             <CardDescription>
@@ -1033,7 +1033,6 @@ const UnixTimestampCore = () => {
                       onChange={(e) => setCurrentInput(e.target.value)}
                       placeholder={`Enter ${settings.inputFormat} timestamp...`}
                       className="mt-2"
-                      aria-label="Timestamp input for conversion"
                     />
                   </div>
 
@@ -1174,7 +1173,6 @@ const UnixTimestampCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder={`Enter ${settings.inputFormat} timestamps, one per line...`}
                       className="mt-2 min-h-[120px] font-mono"
-                      aria-label="Batch timestamp input"
                     />
                   </div>
 

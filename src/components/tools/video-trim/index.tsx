@@ -147,7 +147,7 @@ const VideoTrim = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Scissors className="h-5 w-5" aria-hidden="true" />
+              <Scissors className="h-5 w-5" />
               视频裁剪/分析工具
             </CardTitle>
             <CardDescription>
@@ -166,7 +166,6 @@ const VideoTrim = () => {
               onDrop={handleDrop}
               role="button"
               tabIndex={0}
-              aria-label="拖拽视频文件到此或点击选择"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
@@ -189,7 +188,6 @@ const VideoTrim = () => {
                 accept="video/*"
                 onChange={handleFileInput}
                 className="hidden"
-                aria-label="选择视频文件"
               />
             </div>
           </CardContent>
@@ -217,7 +215,7 @@ const VideoTrim = () => {
                   if (preset && preset.value) setTrimSettings((s) => ({ ...s, ...preset.value }))
                 }}
               >
-                <SelectTrigger id="preset" aria-label="选择裁剪预设">
+                <SelectTrigger id="preset">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -238,7 +236,6 @@ const VideoTrim = () => {
                 value={trimSettings.start}
                 onChange={(e) => setTrimSettings((s) => ({ ...s, start: Number(e.target.value) }))}
                 className="w-24"
-                aria-label="裁剪起始秒"
               />
               <Label htmlFor="end" className="ml-4">
                 结束秒
@@ -250,7 +247,6 @@ const VideoTrim = () => {
                 value={trimSettings.end}
                 onChange={(e) => setTrimSettings((s) => ({ ...s, end: Number(e.target.value) }))}
                 className="w-24"
-                aria-label="裁剪结束秒"
               />
               <Label htmlFor="format" className="ml-4">
                 导出格式
@@ -259,7 +255,7 @@ const VideoTrim = () => {
                 value={trimSettings.format}
                 onValueChange={(f) => setTrimSettings((s) => ({ ...s, format: f as TrimSettings['format'] }))}
               >
-                <SelectTrigger id="format" aria-label="选择导出格式">
+                <SelectTrigger id="format">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -339,8 +335,7 @@ const VideoTrim = () => {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => handleRemoveVideo(video.id)}
-                    aria-label={`移除 ${video.name}`}
+                    onClick={() => handleRemoveVideo(video.id)}`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -351,8 +346,7 @@ const VideoTrim = () => {
                     <video
                       src={video.url}
                       controls
-                      className="w-48 h-32 border rounded"
-                      aria-label={`原始视频 ${video.name}`}
+                      className="w-48 h-32 border rounded"`}
                     />
                     <span className="text-xs text-muted-foreground">原始</span>
                   </div>
@@ -361,15 +355,13 @@ const VideoTrim = () => {
                       <video
                         src={video.trimmedUrl}
                         controls
-                        className="w-48 h-32 border rounded"
-                        aria-label={`裁剪后视频 ${video.name}`}
+                        className="w-48 h-32 border rounded"`}
                       />
                       <span className="text-xs text-green-600">裁剪后</span>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleExportTrimmed(video)}
-                        aria-label={`导出裁剪后视频 ${video.name}`}
+                        onClick={() => handleExportTrimmed(video)}`}
                       >
                         <Download className="h-4 w-4" />
                       </Button>

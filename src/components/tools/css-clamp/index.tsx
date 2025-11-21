@@ -751,7 +751,7 @@ const CssClampCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Ruler className="h-5 w-5" aria-hidden="true" />
+              <Ruler className="h-5 w-5" />
               CSS Clamp Generator
             </CardTitle>
             <CardDescription>
@@ -1257,7 +1257,6 @@ const CssClampCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop CSS files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1284,7 +1283,6 @@ const CssClampCore = () => {
                     accept=".css,.scss,.sass,.less,.txt"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select CSS files"
                   />
                 </div>
               </CardContent>

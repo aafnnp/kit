@@ -960,7 +960,7 @@ const QRGeneratorCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <QrCode className="h-5 w-5" aria-hidden="true" />
+              <QrCode className="h-5 w-5" />
               QR Code Generator & Management Tool
             </CardTitle>
             <CardDescription>

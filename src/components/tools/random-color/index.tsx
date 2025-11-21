@@ -1183,7 +1183,7 @@ const RandomColorCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Palette className="h-5 w-5" aria-hidden="true" />
+              <Palette className="h-5 w-5" />
               Random Color Generator
             </CardTitle>
             <CardDescription>
@@ -1256,8 +1256,7 @@ const RandomColorCore = () => {
                       <div className="flex items-center gap-4">
                         <div
                           className="w-24 h-24 rounded-lg border-2 border-border shadow-sm"
-                          style={{ backgroundColor: currentColor.hex }}
-                          aria-label={`Color preview: ${currentColor.hex}`}
+                          style={{ backgroundColor: currentColor.hex }}`}
                         />
                         <div className="space-y-2">
                           <div>
@@ -1465,8 +1464,7 @@ const RandomColorCore = () => {
                           <div
                             className="w-full h-20 rounded-lg border-2 border-border shadow-sm cursor-pointer"
                             style={{ backgroundColor: color.hex }}
-                            onClick={() => setCurrentColor(color)}
-                            aria-label={`Color ${index + 1}: ${color.hex}`}
+                            onClick={() => setCurrentColor(color)}: ${color.hex}`}
                           />
                           <div className="text-center">
                             <div className="font-mono text-sm">{color.hex}</div>
@@ -1650,7 +1648,6 @@ const RandomColorCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop color palette files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1677,7 +1674,6 @@ const RandomColorCore = () => {
                     accept=".json,.css,.scss,.ase,.gpl,.txt"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select color palette files"
                   />
                 </div>
               </CardContent>

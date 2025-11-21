@@ -709,7 +709,7 @@ const ShadowGeneratorCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Square className="h-5 w-5" aria-hidden="true" />
+              <Square className="h-5 w-5" />
               Shadow Generator
             </CardTitle>
             <CardDescription>
@@ -1190,7 +1190,6 @@ const ShadowGeneratorCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop shadow files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1217,7 +1216,6 @@ const ShadowGeneratorCore = () => {
                     accept=".json,.css,.scss,.txt"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select shadow files"
                   />
                 </div>
               </CardContent>

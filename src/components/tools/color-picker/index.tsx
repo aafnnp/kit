@@ -1019,7 +1019,7 @@ const ColorPickerCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Palette className="h-5 w-5" aria-hidden="true" />
+              <Palette className="h-5 w-5" />
               Color Picker & Palette Generator
             </CardTitle>
             <CardDescription>
@@ -1100,7 +1100,6 @@ const ColorPickerCore = () => {
                         value={currentColor}
                         onChange={(e) => setCurrentColor(e.target.value)}
                         className="w-32 h-32 border-2 border-gray-300 rounded-lg cursor-pointer"
-                        aria-label="Color picker"
                       />
                       <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-center">
                         <div className="font-mono text-sm font-medium">{currentColor}</div>
@@ -1485,7 +1484,6 @@ const ColorPickerCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop color palette files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1512,7 +1510,6 @@ const ColorPickerCore = () => {
                     accept=".json,.ase,.aco,.css,.scss,.txt"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select color palette files"
                   />
                 </div>
               </CardContent>
@@ -1686,8 +1683,7 @@ const ColorPickerCore = () => {
                                       'json',
                                       file.name.replace(/\.[^/.]+$/, '-palette.json')
                                     )
-                                  }
-                                  aria-label={`Export palette for ${file.name}`}
+                                  }`}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1697,8 +1693,7 @@ const ColorPickerCore = () => {
                                   variant="outline"
                                   onClick={() =>
                                     copyToClipboard(file.colorData!.colors.map((c) => c.hex).join(', '), file.id)
-                                  }
-                                  aria-label={`Copy colors from ${file.name}`}
+                                  }`}
                                 >
                                   {copiedText === file.id ? (
                                     <Check className="h-4 w-4" />
@@ -1712,8 +1707,7 @@ const ColorPickerCore = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
+                              onClick={() => removeFile(file.id)}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

@@ -134,7 +134,7 @@ const Base64EncodeCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5" aria-hidden="true" />
+              <Lock className="h-5 w-5" />
               Base64 Encoder/Decoder
             </CardTitle>
             <CardDescription>
@@ -434,7 +434,6 @@ const Base64EncodeCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop text files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -461,7 +460,6 @@ const Base64EncodeCore = () => {
                     accept=".txt,.json,.csv,.xml,.html,.js,.css"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select text files"
                   />
                 </div>
               </CardContent>

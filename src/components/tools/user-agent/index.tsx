@@ -1033,7 +1033,7 @@ const UserAgentCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5" aria-hidden="true" />
+              <Globe className="h-5 w-5" />
               User Agent Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -1091,7 +1091,6 @@ const UserAgentCore = () => {
                       onChange={(e) => setUserAgent(e.target.value)}
                       placeholder="Enter user agent string to analyze..."
                       className="mt-2 min-h-[120px] font-mono text-sm"
-                      aria-label="User agent string input for analysis"
                     />
                     {settings.realTimeProcessing && userAgent && (
                       <div className="mt-2 text-sm">
@@ -1645,7 +1644,6 @@ const UserAgentCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36&#10;Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15&#10;Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
                       className="mt-2 min-h-[200px] font-mono text-sm"
-                      aria-label="Batch user agent input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">Enter one user agent string per line</div>
                   </div>

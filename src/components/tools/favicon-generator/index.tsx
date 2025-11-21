@@ -826,7 +826,7 @@ const FaviconGeneratorCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5" aria-hidden="true" />
+              <Globe className="h-5 w-5" />
               Favicon Generator
             </CardTitle>
             <CardDescription>
@@ -900,7 +900,6 @@ const FaviconGeneratorCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop image here or click to select image"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -951,7 +950,6 @@ const FaviconGeneratorCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select source image"
                   />
                 </div>
               </CardContent>
@@ -1264,7 +1262,6 @@ const FaviconGeneratorCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop image files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1289,7 +1286,6 @@ const FaviconGeneratorCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select image files"
                   />
                 </div>
               </CardContent>

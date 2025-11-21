@@ -124,7 +124,7 @@ const BarcodeGeneratorCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarcodeIcon className="h-5 w-5" aria-hidden="true" />
+              <BarcodeIcon className="h-5 w-5" />
               Barcode Generator & Management Tool
             </CardTitle>
             <CardDescription>

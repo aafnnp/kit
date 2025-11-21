@@ -886,7 +886,7 @@ const FileHashCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <HardDrive className="h-5 w-5" aria-hidden="true" />
+              <HardDrive className="h-5 w-5" />
               File Hash & Integrity Verification
             </CardTitle>
             <CardDescription>
@@ -962,7 +962,6 @@ const FileHashCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -986,7 +985,6 @@ const FileHashCore = () => {
                     multiple
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select files for hash generation"
                   />
                 </div>
               </CardContent>
@@ -1114,7 +1112,6 @@ const FileHashCore = () => {
                         id="verify-file"
                         type="file"
                         onChange={(e) => setVerifyFile(e.target.files?.[0] || null)}
-                        aria-label="Select file for verification"
                       />
                     </div>
                   </div>
@@ -1130,7 +1127,6 @@ const FileHashCore = () => {
                       onChange={(e) => setExpectedHash(e.target.value)}
                       className="mt-2 font-mono text-sm"
                       rows={3}
-                      aria-label="Expected hash value for verification"
                     />
                   </div>
 

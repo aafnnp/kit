@@ -210,7 +210,7 @@ const GifSplit = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Layers className="h-5 w-5" aria-hidden="true" />
+              <Layers className="h-5 w-5" />
               GIF 拆分/帧提取工具
             </CardTitle>
             <CardDescription>
@@ -229,7 +229,6 @@ const GifSplit = () => {
               onDrop={handleDrop}
               role="button"
               tabIndex={0}
-              aria-label="拖拽 GIF 文件到此或点击选择"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault()
@@ -252,7 +251,6 @@ const GifSplit = () => {
                 accept="image/gif"
                 onChange={handleFileInput}
                 className="hidden"
-                aria-label="选择 GIF 文件"
               />
             </div>
           </CardContent>
@@ -317,8 +315,7 @@ const GifSplit = () => {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => handleRemoveGif(gif.id)}
-                    aria-label={`移除 ${gif.name}`}
+                    onClick={() => handleRemoveGif(gif.id)}`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -338,8 +335,7 @@ const GifSplit = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleExportFrame(frame, gif.name, 'png')}
-                            aria-label={`导出第${frame.index + 1}帧 PNG`}
+                            onClick={() => handleExportFrame(frame, gif.name, 'png')}帧 PNG`}
                           >
                             <Download className="h-4 w-4" />
                           </Button>

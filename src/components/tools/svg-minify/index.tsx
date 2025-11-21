@@ -851,7 +851,7 @@ const SvgMinifyCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Minimize2 className="h-5 w-5" aria-hidden="true" />
+              <Minimize2 className="h-5 w-5" />
               SVG Minify
             </CardTitle>
             <CardDescription>
@@ -923,7 +923,6 @@ const SvgMinifyCore = () => {
                       value={currentSvg}
                       onChange={(e) => setCurrentSvg(e.target.value)}
                       className="min-h-[300px] font-mono text-sm"
-                      aria-label="Original SVG code input"
                     />
 
                     <div className="flex gap-2">
@@ -951,7 +950,6 @@ const SvgMinifyCore = () => {
                       accept=".svg,image/svg+xml"
                       onChange={handleFileInput}
                       className="hidden"
-                      aria-label="Select SVG file"
                     />
                   </div>
                 </CardContent>
@@ -977,7 +975,6 @@ const SvgMinifyCore = () => {
                       readOnly
                       className="min-h-[300px] font-mono text-sm bg-muted/30"
                       placeholder="Optimized SVG will appear here..."
-                      aria-label="Optimized SVG code output"
                     />
 
                     {currentSvgData && (
@@ -1256,7 +1253,6 @@ const SvgMinifyCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop SVG files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1281,7 +1277,6 @@ const SvgMinifyCore = () => {
                     accept=".svg,image/svg+xml"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select SVG files"
                   />
                 </div>
               </CardContent>

@@ -988,8 +988,6 @@ const LoremIpsumCore = () => {
 
       // Announce to screen readers
       const announcement = document.createElement('div')
-      announcement.setAttribute('aria-live', 'polite')
-      announcement.setAttribute('aria-atomic', 'true')
       announcement.className = 'sr-only'
       announcement.textContent = `Generated ${generatedText.wordCount} words in ${generatedText.paragraphCount} paragraphs`
       document.body.appendChild(announcement)
@@ -1088,7 +1086,7 @@ const LoremIpsumCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" aria-hidden="true" />
+              <FileText className="h-5 w-5" />
               Lorem Ipsum Generator
             </CardTitle>
             <CardDescription>
@@ -1139,7 +1137,7 @@ const LoremIpsumCore = () => {
                   value={settings.textStyle}
                   onValueChange={(value: TextStyle) => setSettings((prev) => ({ ...prev, textStyle: value }))}
                 >
-                  <SelectTrigger id="textStyle" aria-label="Select text style">
+                  <SelectTrigger id="textStyle">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -1161,7 +1159,7 @@ const LoremIpsumCore = () => {
                   value={settings.outputFormat}
                   onValueChange={(value: OutputFormat) => setSettings((prev) => ({ ...prev, outputFormat: value }))}
                 >
-                  <SelectTrigger id="outputFormat" aria-label="Select output format">
+                  <SelectTrigger id="outputFormat">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -1181,8 +1179,7 @@ const LoremIpsumCore = () => {
                   min="1"
                   max="100"
                   value={settings.paragraphCount}
-                  onChange={(e) => setSettings((prev) => ({ ...prev, paragraphCount: Number(e.target.value) }))}
-                  aria-label={`Number of paragraphs: ${settings.paragraphCount}`}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, paragraphCount: Number(e.target.value) }))}`}
                 />
               </div>
             </div>
@@ -1196,8 +1193,7 @@ const LoremIpsumCore = () => {
                   min="1"
                   max="20"
                   value={settings.sentencesPerParagraph}
-                  onChange={(e) => setSettings((prev) => ({ ...prev, sentencesPerParagraph: Number(e.target.value) }))}
-                  aria-label={`Sentences per paragraph: ${settings.sentencesPerParagraph}`}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, sentencesPerParagraph: Number(e.target.value) }))}`}
                 />
               </div>
 
@@ -1209,8 +1205,7 @@ const LoremIpsumCore = () => {
                   min="3"
                   max="50"
                   value={settings.wordsPerSentence}
-                  onChange={(e) => setSettings((prev) => ({ ...prev, wordsPerSentence: Number(e.target.value) }))}
-                  aria-label={`Words per sentence: ${settings.wordsPerSentence}`}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, wordsPerSentence: Number(e.target.value) }))}`}
                 />
               </div>
             </div>
@@ -1290,7 +1285,7 @@ const LoremIpsumCore = () => {
                           setSettings((prev) => ({ ...prev, titleStyle: value }))
                         }
                       >
-                        <SelectTrigger id="titleStyle" aria-label="Select title style">
+                        <SelectTrigger id="titleStyle">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -1312,7 +1307,6 @@ const LoremIpsumCore = () => {
                         value={customWords}
                         onChange={(e) => setCustomWords(e.target.value)}
                         className="min-h-[80px]"
-                        aria-label="Custom words for text generation"
                       />
                     </div>
                   )}

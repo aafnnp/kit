@@ -456,8 +456,6 @@ const WordCount = () => {
 
       // Announce to screen readers
       const announcement = document.createElement('div')
-      announcement.setAttribute('aria-live', 'polite')
-      announcement.setAttribute('aria-atomic', 'true')
       announcement.className = 'sr-only'
       announcement.textContent = message
       document.body.appendChild(announcement)
@@ -558,8 +556,6 @@ const WordCount = () => {
 
     // Announce completion to screen readers
     const announcement = document.createElement('div')
-    announcement.setAttribute('aria-live', 'assertive')
-    announcement.setAttribute('aria-atomic', 'true')
     announcement.className = 'sr-only'
     announcement.textContent = message
     document.body.appendChild(announcement)
@@ -612,7 +608,7 @@ const WordCount = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" aria-hidden="true" />
+              <FileText className="h-5 w-5" />
               Text Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -667,8 +663,7 @@ const WordCount = () => {
                   min="100"
                   max="500"
                   value={settings.wordsPerMinute}
-                  onChange={(e) => setSettings((prev) => ({ ...prev, wordsPerMinute: Number(e.target.value) }))}
-                  aria-label={`Reading speed: ${settings.wordsPerMinute} words per minute`}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, wordsPerMinute: Number(e.target.value) }))} words per minute`}
                 />
               </div>
 
@@ -680,8 +675,7 @@ const WordCount = () => {
                   min="1"
                   max="10"
                   value={settings.minWordLength}
-                  onChange={(e) => setSettings((prev) => ({ ...prev, minWordLength: Number(e.target.value) }))}
-                  aria-label={`Minimum word length: ${settings.minWordLength} characters`}
+                  onChange={(e) => setSettings((prev) => ({ ...prev, minWordLength: Number(e.target.value) }))} characters`}
                 />
               </div>
 
@@ -693,7 +687,7 @@ const WordCount = () => {
                     setSettings((prev) => ({ ...prev, language: value }))
                   }
                 >
-                  <SelectTrigger id="language" aria-label="Select language for analysis">
+                  <SelectTrigger id="language">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -750,7 +744,6 @@ const WordCount = () => {
                   value={manualText}
                   onChange={(e) => setManualText(e.target.value)}
                   className="min-h-[200px] resize-y"
-                  aria-label="Text input for analysis"
                 />
               </div>
 
@@ -893,7 +886,6 @@ const WordCount = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop text files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -920,7 +912,6 @@ const WordCount = () => {
                     accept=".txt,.md,.rtf,.csv,.doc,.docx,.pdf,.json,.html,.xml"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select text files"
                   />
                 </div>
               </CardContent>
@@ -1066,8 +1057,7 @@ const WordCount = () => {
                             {file.status === 'completed' && file.analysis && (
                               <Button
                                 size="sm"
-                                onClick={() => exportAnalysis(file.analysis!, file.name)}
-                                aria-label={`Export analysis for ${file.name}`}
+                                onClick={() => exportAnalysis(file.analysis!, file.name)}`}
                               >
                                 <Download className="h-4 w-4" />
                               </Button>
@@ -1076,8 +1066,7 @@ const WordCount = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
+                              onClick={() => removeFile(file.id)}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

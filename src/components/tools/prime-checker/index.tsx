@@ -1132,7 +1132,7 @@ const PrimeCheckerCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Calculator className="h-5 w-5" aria-hidden="true" />
+              <Calculator className="h-5 w-5" />
               Prime Checker & Mathematical Analysis Tool
             </CardTitle>
             <CardDescription>

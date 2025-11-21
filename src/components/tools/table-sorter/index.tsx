@@ -934,7 +934,7 @@ const TableSorterCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ArrowUpDown className="h-5 w-5" aria-hidden="true" />
+              <ArrowUpDown className="h-5 w-5" />
               Table Sorter
             </CardTitle>
             <CardDescription>
@@ -1026,7 +1026,6 @@ const TableSorterCore = () => {
                     onChange={(e) => setInputData(e.target.value)}
                     placeholder="Enter CSV, TSV, or JSON data..."
                     className="min-h-[150px] font-mono"
-                    aria-label="Data input"
                   />
                 </div>
               </CardContent>
@@ -1370,7 +1369,6 @@ const TableSorterCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop data files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1397,7 +1395,6 @@ const TableSorterCore = () => {
                     accept=".csv,.tsv,.txt,.json,.xlsx,.xls"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select data files"
                   />
                 </div>
               </CardContent>
@@ -1561,8 +1558,7 @@ const TableSorterCore = () => {
                                   variant="outline"
                                   onClick={() =>
                                     exportCSV(file.sortedData!, file.name.replace(/\.[^/.]+$/, '-sorted.csv'))
-                                  }
-                                  aria-label={`Export sorted ${file.name}`}
+                                  }`}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1570,8 +1566,7 @@ const TableSorterCore = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => copyTableAsCSV(file.sortedData!, file.id)}
-                                  aria-label={`Copy sorted data from ${file.name}`}
+                                  onClick={() => copyTableAsCSV(file.sortedData!, file.id)}`}
                                 >
                                   {copiedText === file.id ? (
                                     <Check className="h-4 w-4" />
@@ -1585,8 +1580,7 @@ const TableSorterCore = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
+                              onClick={() => removeFile(file.id)}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
