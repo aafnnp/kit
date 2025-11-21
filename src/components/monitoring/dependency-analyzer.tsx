@@ -561,7 +561,7 @@ export function DependencyAnalyzer() {
                 >
                   <Icon
                     name="Info"
-                    className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0"
+                    className="h-4 w-4 text-blue-600 mt-0.5 shrink-0"
                   />
                   <p className="text-sm text-blue-800 dark:text-blue-200">{recommendation}</p>
                 </div>

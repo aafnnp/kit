@@ -1,24 +1,20 @@
-name: 'Build and Release'
+name: "Build and Release"
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g., v1.0.0)'
+        description: "Release version (e.g., v1.0.0)"
         required: false
         type: string
       prerelease:
-        description: 'Mark as prerelease'
+        description: "Mark as prerelease"
         required: false
         type: boolean
         default: false
   push:
     tags:
-      - 'v*'
-
-env:
-  CARGO_TERM_COLOR: always
-  RUST_BACKTRACE: 1
+      - "v*"
 
 jobs:
   # 代码质量检查和测试
@@ -32,8 +28,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
-          cache: 'npm'
+          node-version: "lts/*"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm install
@@ -60,27 +56,8 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Rust cache
-        uses: swatinem/rust-cache@v2
-        with:
-          workspaces: './src-tauri -> target'
-
-      - name: Install Linux dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-
-      - name: Build Tauri app (check only)
-        run: |
-          cd src-tauri
-          cargo check
-
-  # 构建和发布
-  publish-tauri:
-    name: Build and Release (${{ matrix.platform }})
+  publish-electron:
+    name: Build and Release Electron (${{ matrix.platform }})
     permissions:
       contents: write
     needs: [test-and-lint]
@@ -89,25 +66,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: 'macos-15'
-            args: '--target aarch64-apple-darwin'
-            target: 'aarch64-apple-darwin'
-            arch: 'arm64'
-          - platform: 'macos-15'
-            args: '--target x86_64-apple-darwin'
-            target: 'x86_64-apple-darwin'
-            arch: 'x64'
-          - platform: 'ubuntu-22.04'
-            args: ''
-            target: 'x86_64-unknown-linux-gnu'
-            arch: 'x64'
-          - platform: 'windows-latest'
-            args: ''
-            target: 'x86_64-pc-windows-msvc'
-            arch: 'x64'
-
+          - platform: "macos-15"
+          - platform: "ubuntu-22.04"
+          - platform: "windows-latest"
     runs-on: ${{ matrix.platform }}
-    timeout-minutes: 60
+    timeout-minutes: 45
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -130,27 +93,14 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y --no-install-recommends libfuse2 libgconf-2-4 rpm
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
-          components: rustfmt, clippy
-
-      - name: Setup Rust cache
-        uses: swatinem/rust-cache@v2
-        with:
-          workspaces: './src-tauri -> target'
-          cache-on-failure: true
-          key: ${{ matrix.target }}
+          node-version: "lts/*"
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install frontend dependencies
         run: npm install --prefer-offline --no-audit
@@ -167,96 +117,8 @@ jobs:
           fi
           npm version "$VERSION" --no-git-tag-version
 
-      - name: Sync Tauri version files
-        shell: bash
-        run: |
-          node -e '
-            const fs = require("fs");
-            const path = require("path");
-            const pkg = require(path.join(process.cwd(), "package.json"));
-            const version = pkg.version;
-            console.log("Syncing Tauri versions to", version);
-
-            // Update tauri.conf.json
-            const tauriConfPath = path.join(process.cwd(), "src-tauri/tauri.conf.json");
-            const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, "utf8"));
-            tauriConf.version = version;
-            fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2) + "\n");
-
-            // Update Cargo.toml [package] version
-            const cargoTomlPath = path.join(process.cwd(), "src-tauri/Cargo.toml");
-            let cargoToml = fs.readFileSync(cargoTomlPath, "utf8");
-            cargoToml = cargoToml.replace(/^version = \".*\"/m, `version = \"${version}\"`);
-            fs.writeFileSync(cargoTomlPath, cargoToml);
-          '
-
-      - name: Generate changelog and release notes
-        id: changelog
-        shell: bash
-        run: |
-          # 生成完整更新日志
-          npm run changelog:generate
-
-          # 生成当前版本的发布说明
-          RELEASE_NOTES=$(npm run changelog:release ${{ steps.version.outputs.version }} --silent)
-
-          # 将发布说明保存到环境变量（处理多行文本）
-          echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
-          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          # 输出预览
-          echo "📋 生成的发布说明:"
-          echo "$RELEASE_NOTES"
-
-      - name: Build frontend with optimizations
-        run: |
-          npm run build
+      - name: Build Electron app
         env:
           NODE_ENV: production
-          VITE_APP_VERSION: ${{ steps.version.outputs.version }}
-
-      - name: Rust format check
-        working-directory: src-tauri
-        run: cargo fmt --all -- --check
-
-      - name: Rust clippy check
-        working-directory: src-tauri
-        run: cargo clippy --all-targets --all-features -- -D warnings
-
-      - name: Build and release Tauri app
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_PRIVATE_KEY_PASSWORD }}
-          NODE_ENV: production
-        with:
-          tagName: ${{ steps.version.outputs.version }}
-          releaseName: 'Kit ${{ steps.version.outputs.version }}'
-          releaseBody: |
-            ${{ steps.changelog.outputs.RELEASE_NOTES }}
-
-            ### 📦 安装说明
-            - **Windows**: 下载 `.msi` 文件并运行安装
-            - **macOS**: 下载 `.dmg` 文件，拖拽到应用程序文件夹
-            - **Linux**: 下载 `.AppImage` 文件，添加执行权限后运行
-
-            ### 🔄 自动更新
-            应用内置自动更新功能，会在有新版本时提示更新。
-
-            ### 📋 完整更新日志
-            查看 [CHANGELOG.md](https://github.com/aafnnp/kit/blob/master/CHANGELOG.md) 了解所有版本的详细更新内容。
-
-            ---
-
-            **构建信息**:
-            - 构建时间: ${{ github.run_id }}
-            - 提交哈希: ${{ github.sha }}
-            - 分支: ${{ github.ref_name }}
-          releaseDraft: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prerelease == 'true' }}
-          prerelease: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prerelease == 'true' }}
-          includeUpdaterJson: true
-          includeDebug: false
-          includeRelease: true
-          args: ${{ matrix.args }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run electron:build
