@@ -709,7 +709,7 @@ const BorderRadiusCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Circle className="h-5 w-5" />
+              <Circle className="h-5 w-5" aria-hidden="true" />
               Border Radius Generator
             </CardTitle>
             <CardDescription>
@@ -1226,6 +1226,7 @@ const BorderRadiusCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
+                  aria-label="Drag and drop border radius files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1252,6 +1253,7 @@ const BorderRadiusCore = () => {
                     accept=".json,.css,.scss,.txt"
                     onChange={handleFileInput}
                     className="hidden"
+                    aria-label="Select border radius files"
                   />
                 </div>
               </CardContent>

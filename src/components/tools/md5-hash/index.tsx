@@ -756,7 +756,7 @@ const Md5HashCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Hash className="h-5 w-5" />
+              <Hash className="h-5 w-5" aria-hidden="true" />
               MD5 Hash & Cryptographic Tools
             </CardTitle>
             <CardDescription>
@@ -827,6 +827,7 @@ const Md5HashCore = () => {
                     value={currentText}
                     onChange={(e) => setCurrentText(e.target.value)}
                     className="min-h-[120px]"
+                    aria-label="Text input for hashing"
                   />
 
                   <div className="flex gap-2">
@@ -868,7 +869,8 @@ const Md5HashCore = () => {
                           <Input
                             value={hash.hash}
                             readOnly
-                            className="font-mono text-sm" hash result`}
+                            className="font-mono text-sm"
+                            aria-label={`${hash.algorithm} hash result`}
                           />
                           <Button
                             size="sm"
@@ -913,6 +915,7 @@ const Md5HashCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
+                  aria-label="Drag and drop files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -936,6 +939,7 @@ const Md5HashCore = () => {
                     multiple
                     onChange={handleFileInput}
                     className="hidden"
+                    aria-label="Select files for hashing"
                   />
                 </div>
               </CardContent>

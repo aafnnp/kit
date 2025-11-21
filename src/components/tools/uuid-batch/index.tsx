@@ -1231,7 +1231,7 @@ const UUIDBatchCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Layers className="h-5 w-5" />
+              <Layers className="h-5 w-5" aria-hidden="true" />
               UUID Batch Generator & Management Tool
             </CardTitle>
             <CardDescription>

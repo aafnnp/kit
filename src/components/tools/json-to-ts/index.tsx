@@ -962,7 +962,7 @@ const JSONToTSCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Braces className="h-5 w-5" />
+              <Braces className="h-5 w-5" aria-hidden="true" />
               JSON to TypeScript Interface Generator
             </CardTitle>
             <CardDescription>
@@ -1020,6 +1020,7 @@ const JSONToTSCore = () => {
                       onChange={(e) => setJsonInput(e.target.value)}
                       placeholder="Enter or paste your JSON here..."
                       className="mt-2 min-h-[200px] font-mono"
+                      aria-label="JSON input for TypeScript generation"
                     />
                     {settings.realTimeGeneration && jsonInput && (
                       <div className="mt-2 text-sm">
@@ -1391,6 +1392,7 @@ const JSONToTSCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder='User:{"name": "John", "age": 30}&#10;Product:{"id": 1, "name": "Item", "price": 29.99}&#10;Config:{"theme": "dark", "enabled": true}'
                       className="mt-2 min-h-[120px] font-mono"
+                      aria-label="Batch TypeScript generation input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
                       Format: <code>interfaceName:jsonContent</code> (one per line)

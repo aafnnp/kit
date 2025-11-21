@@ -1027,7 +1027,7 @@ const RomanNumeralCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Scroll className="h-5 w-5" />
+              <Scroll className="h-5 w-5" aria-hidden="true" />
               Roman Numeral & Classical Number System Tool
             </CardTitle>
             <CardDescription>

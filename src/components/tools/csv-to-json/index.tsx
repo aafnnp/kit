@@ -1032,9 +1032,9 @@ const CSVJSONCore = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <div className="flex items-center gap-2">
-                <FileSpreadsheet className="h-5 w-5" />
-                <ArrowLeftRight className="h-4 w-4" />
-                <Braces className="h-5 w-5" />
+                <FileSpreadsheet className="h-5 w-5" aria-hidden="true" />
+                <ArrowLeftRight className="h-4 w-4" aria-hidden="true" />
+                <Braces className="h-5 w-5" aria-hidden="true" />
               </div>
               CSV ⇄ JSON Bidirectional Converter
             </CardTitle>
@@ -1109,7 +1109,8 @@ const CSVJSONCore = () => {
                           ? 'Enter or paste your CSV data here...'
                           : 'Enter or paste your JSON data here...'
                       }
-                      className="mt-2 min-h-[200px] font-mono" input for conversion`}
+                      className="mt-2 min-h-[200px] font-mono"
+                      aria-label={`${direction === 'csv-to-json' ? 'CSV' : 'JSON'} input for conversion`}
                     />
                     {settings.realTimeConversion && input && (
                       <div className="mt-2 text-sm">
@@ -1553,6 +1554,7 @@ const CSVJSONCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder='csv:name,age,email&#10;John,30,john@example.com&#10;json:[{"name":"John","age":30}]&#10;csv:product,price&#10;Widget,29.99'
                       className="mt-2 min-h-[120px] font-mono"
+                      aria-label="Batch conversion input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
                       Format: <code>csv:data</code> or <code>json:data</code> (one per line)

@@ -806,7 +806,7 @@ const ExifViewerCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Camera className="h-5 w-5" />
+              <Camera className="h-5 w-5" aria-hidden="true" />
               EXIF Viewer
             </CardTitle>
             <CardDescription>
@@ -880,6 +880,7 @@ const ExifViewerCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
+                  aria-label="Drag and drop image here or click to select image"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -931,6 +932,7 @@ const ExifViewerCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
+                    aria-label="Select image file"
                   />
                 </div>
               </CardContent>
@@ -1305,6 +1307,7 @@ const ExifViewerCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
+                  aria-label="Drag and drop image files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1329,6 +1332,7 @@ const ExifViewerCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
+                    aria-label="Select image files"
                   />
                 </div>
               </CardContent>

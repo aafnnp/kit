@@ -215,9 +215,9 @@ const Base64ImageCore = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <div className="flex items-center gap-2">
-                <Image className="h-5 w-5" />
-                <ArrowLeftRight className="h-4 w-4" />
-                <FileText className="h-5 w-5" />
+                <Image className="h-5 w-5" aria-hidden="true" />
+                <ArrowLeftRight className="h-4 w-4" aria-hidden="true" />
+                <FileText className="h-5 w-5" aria-hidden="true" />
               </div>
               Base64 ⇄ Image Bidirectional Converter
             </CardTitle>
@@ -287,6 +287,7 @@ const Base64ImageCore = () => {
                         onChange={(e) => setInput(e.target.value)}
                         placeholder="Enter or paste Base64 image data here..."
                         className="mt-2 min-h-[120px] font-mono"
+                        aria-label="Base64 input for image conversion"
                       />
                       {settings.realTimeProcessing && input && (
                         <div className="mt-2 text-sm">
@@ -317,6 +318,7 @@ const Base64ImageCore = () => {
                           accept="image/*"
                           onChange={handleFileSelect}
                           className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                          aria-label="Select image file for Base64 conversion"
                         />
                       </div>
                       {selectedFile && (
@@ -822,6 +824,7 @@ const Base64ImageCore = () => {
                         multiple
                         onChange={handleBatchFileSelect}
                         className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                        aria-label="Select multiple image files for batch processing"
                       />
                     </div>
                     {selectedFiles.length > 0 && (

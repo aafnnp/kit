@@ -970,7 +970,7 @@ const CronParserCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
+              <Clock className="h-5 w-5" aria-hidden="true" />
               Cron Expression Parser & Analyzer
             </CardTitle>
             <CardDescription>
@@ -1020,6 +1020,7 @@ const CronParserCore = () => {
                       onChange={(e) => setCurrentExpression(e.target.value)}
                       placeholder="* * * * * (minute hour day month weekday)"
                       className="mt-2 font-mono"
+                      aria-label="Cron expression input"
                     />
                     {settings.realTimeValidation && currentExpression && (
                       <div className="mt-2 text-sm">
@@ -1303,6 +1304,7 @@ const CronParserCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="* * * * *&#10;0 9 * * 1-5&#10;0 0 1 * *"
                       className="mt-2 min-h-[120px] font-mono"
+                      aria-label="Batch cron expression input"
                     />
                   </div>
 

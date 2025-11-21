@@ -960,7 +960,7 @@ const DNSLookupCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Network className="h-5 w-5" />
+              <Network className="h-5 w-5" aria-hidden="true" />
               DNS Lookup & Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -1018,6 +1018,7 @@ const DNSLookupCore = () => {
                       onChange={(e) => setDomain(e.target.value)}
                       placeholder="Enter domain name (e.g., example.com)"
                       className="mt-2"
+                      aria-label="Domain name for DNS lookup"
                     />
                     {domain && (
                       <div className="mt-2 text-sm">
@@ -1684,6 +1685,7 @@ const DNSLookupCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="example.com&#10;google.com&#10;github.com&#10;stackoverflow.com"
                       className="mt-2 min-h-[200px] font-mono text-sm"
+                      aria-label="Batch DNS lookup input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">Enter one domain name per line</div>
                   </div>

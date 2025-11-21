@@ -1212,7 +1212,7 @@ const MimeSearchCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5" />
+              <Database className="h-5 w-5" aria-hidden="true" />
               MIME Type Search & Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -1270,6 +1270,7 @@ const MimeSearchCore = () => {
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Enter file extension, MIME type, or keyword..."
                         className="mt-2"
+                        aria-label="MIME type search query"
                       />
                       {settings.realTimeSearch && query && (
                         <div className="mt-2 text-sm">
@@ -1790,6 +1791,7 @@ const MimeSearchCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="jpg&#10;image/png&#9;mimetype&#10;video&#9;keyword&#10;application&#9;category"
                       className="mt-2 min-h-[200px] font-mono text-sm"
+                      aria-label="Batch MIME search input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
                       Format: query[tab]type (type is optional, defaults to 'extension')

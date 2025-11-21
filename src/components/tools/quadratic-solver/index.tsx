@@ -1067,7 +1067,7 @@ const QuadraticSolverCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <SquareFunction className="h-5 w-5" />
+              <SquareFunction className="h-5 w-5" aria-hidden="true" />
               Quadratic Solver & Mathematical Equation Tool
             </CardTitle>
             <CardDescription>

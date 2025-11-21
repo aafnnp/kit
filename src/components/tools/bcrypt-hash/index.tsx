@@ -883,7 +883,7 @@ const BcryptHashCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5" />
+              <Lock className="h-5 w-5" aria-hidden="true" />
               Bcrypt Hash & Password Security
             </CardTitle>
             <CardDescription>
@@ -961,6 +961,7 @@ const BcryptHashCore = () => {
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       className="pr-10"
+                      aria-label="Password input for Bcrypt hashing"
                     />
                     <Button
                       type="button"
@@ -968,6 +969,7 @@ const BcryptHashCore = () => {
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                       onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
@@ -1083,7 +1085,8 @@ const BcryptHashCore = () => {
                           <Input
                             value={hash.hash}
                             readOnly
-                            className="font-mono text-sm" salt rounds`}
+                            className="font-mono text-sm"
+                            aria-label={`Bcrypt hash with ${hash.saltRounds} salt rounds`}
                           />
                           <Button
                             size="sm"
@@ -1136,6 +1139,7 @@ const BcryptHashCore = () => {
                         value={verifyPassword}
                         onChange={(e) => setVerifyPassword(e.target.value)}
                         className="pr-10"
+                        aria-label="Password for verification"
                       />
                       <Button
                         type="button"
@@ -1143,6 +1147,7 @@ const BcryptHashCore = () => {
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
@@ -1160,6 +1165,7 @@ const BcryptHashCore = () => {
                       onChange={(e) => setVerifyHash(e.target.value)}
                       className="mt-2 font-mono text-sm"
                       rows={3}
+                      aria-label="Bcrypt hash for verification"
                     />
                   </div>
 
@@ -1233,6 +1239,7 @@ const BcryptHashCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
+                  aria-label="Drag and drop text files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1257,6 +1264,7 @@ const BcryptHashCore = () => {
                     accept=".txt,text/plain"
                     onChange={handleFileInput}
                     className="hidden"
+                    aria-label="Select text files for Bcrypt processing"
                   />
                 </div>
               </CardContent>

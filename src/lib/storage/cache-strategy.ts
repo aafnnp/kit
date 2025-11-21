@@ -1,7 +1,7 @@
 /**
  * 缓存策略管理器 - 实现高级缓存策略和内存优化
  */
-import { compress, decompress } from "fflate"
+import { compressSync, decompressSync } from "fflate"
 import { cache } from "./cache"
 import { logger } from "@/lib/data/logger"
 import i18n from "@/locales"
@@ -92,7 +92,7 @@ class CacheStrategyManager {
         this.stats.diskCacheSize = new Blob([stored]).size
       }
     } catch (error) {
-      logger.warn("Failed to load persistent cache:", error)
+      logger.warn("Failed to load persistent cache:", { error })
     }
   }
 
@@ -119,7 +119,7 @@ class CacheStrategyManager {
       localStorage.setItem("kit_persistent_cache", serialized)
       this.stats.diskCacheSize = size
     } catch (error) {
-      logger.warn("Failed to save persistent cache:", error)
+      logger.warn("Failed to save persistent cache:", { error })
     }
   }
 
@@ -132,7 +132,7 @@ class CacheStrategyManager {
     try {
       const encoder = new TextEncoder()
       const uint8Array = encoder.encode(data)
-      const compressed = compress(uint8Array, { level: 6 })
+      const compressed = compressSync(uint8Array, { level: 6 })
 
       // Convert to base64 for storage
       const base64 = btoa(String.fromCharCode(...compressed))
@@ -143,7 +143,7 @@ class CacheStrategyManager {
 
       return base64
     } catch (error) {
-      logger.warn("Compression failed:", error)
+      logger.warn("Compression failed:", { error })
       return data
     }
   }
@@ -157,11 +157,11 @@ class CacheStrategyManager {
     try {
       // Convert from base64 to Uint8Array
       const uint8Array = Uint8Array.from(atob(data), (c) => c.charCodeAt(0))
-      const decompressed = decompress(uint8Array)
+      const decompressed = decompressSync(uint8Array)
       const decoder = new TextDecoder()
       return decoder.decode(decompressed)
     } catch (error) {
-      logger.warn("Decompression failed:", error)
+      logger.warn("Decompression failed:", { error })
       return data
     }
   }
@@ -289,7 +289,7 @@ class CacheStrategyManager {
       this.stats.persistentCacheHits++
       return item.data
     } catch (error) {
-      logger.warn("Failed to parse persistent cache item:", error)
+      logger.warn("Failed to parse persistent cache item:", { error })
       this.persistentCache.delete(key)
       this.stats.persistentCacheMisses++
       return null
@@ -318,7 +318,7 @@ class CacheStrategyManager {
     try {
       localStorage.removeItem("kit_persistent_cache")
     } catch (error) {
-      logger.warn("Failed to clear persistent cache:", error)
+      logger.warn("Failed to clear persistent cache:", { error })
     }
 
     this.stats = {
@@ -359,7 +359,7 @@ class CacheStrategyManager {
       try {
         localStorage.removeItem("kit_persistent_cache")
       } catch (error) {
-        logger.warn("Failed to clear persistent cache:", error)
+        logger.warn("Failed to clear persistent cache:", { error })
       }
     }
   }

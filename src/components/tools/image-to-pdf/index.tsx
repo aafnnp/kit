@@ -170,7 +170,7 @@ const ImageToPdf = () => {
   }, [files, settings, setError])
 
   return (
-    <Card className="max-w-2xl mx-auto mt-6">
+    <Card className="max-w-2xl mx-auto mt-6" aria-label="图片转 PDF 工具">
       <CardHeader>
         <CardTitle>图片转 PDF（Image to PDF）</CardTitle>
         <CardDescription>支持批量、格式、纸张、边距、拖拽上传，全面对齐其它图片工具体验</CardDescription>
@@ -180,7 +180,7 @@ const ImageToPdf = () => {
         <div className="grid grid-cols-2 gap-4 mb-4">
           <Label htmlFor="pageSize">纸张大小</Label>
           <Select value={settings.pageSize} onValueChange={(v) => setSettings((s) => ({ ...s, pageSize: v as any }))}>
-            <SelectTrigger id="pageSize">
+            <SelectTrigger id="pageSize" aria-label="纸张大小">
               <SelectValue>{settings.pageSize}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -195,7 +195,7 @@ const ImageToPdf = () => {
             value={settings.orientation}
             onValueChange={(v) => setSettings((s) => ({ ...s, orientation: v as any }))}
           >
-            <SelectTrigger id="orientation">
+            <SelectTrigger id="orientation" aria-label="页面方向">
               <SelectValue>{settings.orientation}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -211,6 +211,7 @@ const ImageToPdf = () => {
             max={100}
             value={settings.margin}
             onChange={(e) => setSettings((s) => ({ ...s, margin: Number(e.target.value) }))}
+            aria-label="边距"
           />
           <Label htmlFor="quality">图片质量</Label>
           <Input
@@ -221,12 +222,14 @@ const ImageToPdf = () => {
             step={0.01}
             value={settings.quality}
             onChange={(e) => setSettings((s) => ({ ...s, quality: Number(e.target.value) }))}
+            aria-label="图片质量"
           />
         </div>
         {/* 拖拽上传区 */}
         <div
           className="border-2 border-dashed rounded p-6 text-center mb-4 cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
           tabIndex={0}
+          aria-label="拖拽图片到此处或点击上传"
           onDrop={onDrop}
           onDragOver={(e) => e.preventDefault()}
           onClick={() => document.getElementById('image-upload')?.click()}
@@ -240,7 +243,7 @@ const ImageToPdf = () => {
           <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
               <span>已选图片（{files.length}）</span>
-              <Button variant="ghost" size="sm" onClick={clearFiles}>
+              <Button variant="ghost" size="sm" onClick={clearFiles} aria-label="清空图片">
                 <Trash2 className="mr-1" />
                 清空
               </Button>
@@ -250,14 +253,16 @@ const ImageToPdf = () => {
                 <div
                   key={f.id}
                   className="flex flex-col items-center border rounded p-2"
-                  tabIndex={0}`}
+                  tabIndex={0}
+                  aria-label={`图片 ${f.name}`}
                 >
                   <img src={f.url} alt={f.name} className="w-full h-auto mb-2 border rounded" />
                   <div className="font-mono text-xs select-all break-all mb-1">{f.name}</div>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => removeFile(f.id)}`}
+                    onClick={() => removeFile(f.id)}
+                    aria-label={`移除图片 ${f.name}`}
                   >
                     <Trash2 className="mr-1" />
                     移除
@@ -275,13 +280,13 @@ const ImageToPdf = () => {
         )}
         {/* 进度条 */}
         {loading && (
-          <div className="w-full bg-gray-200 rounded h-2 mb-2">
+          <div className="w-full bg-gray-200 rounded h-2 mb-2" aria-label="生成进度">
             <div className="bg-blue-500 h-2 rounded" style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
         )}
         {/* 统计信息 */}
         {stats && (
-          <div className="mb-2 text-sm text-muted-foreground flex items-center gap-4">
+          <div className="mb-2 text-sm text-muted-foreground flex items-center gap-4" aria-label="统计信息">
             <BarChart3 className="mr-1" />
             <span>图片数：{stats.totalImages}</span>
             <span>PDF页数：{stats.pageCount}</span>
@@ -289,7 +294,7 @@ const ImageToPdf = () => {
           </div>
         )}
         {/* 生成 PDF 按钮 */}
-        <Button disabled={files.length === 0 || loading} className="w-full" onClick={handleExport}>
+        <Button disabled={files.length === 0 || loading} aria-busy={loading} className="w-full" onClick={handleExport}>
           {loading ? <Loader2 className="animate-spin mr-2" /> : <Download className="mr-2" />}生成 PDF
         </Button>
       </CardContent>

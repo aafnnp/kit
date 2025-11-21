@@ -612,7 +612,7 @@ const MarkdownPreviewCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
+              <FileText className="h-5 w-5" aria-hidden="true" />
               Markdown Preview
             </CardTitle>
             <CardDescription>
@@ -655,7 +655,7 @@ const MarkdownPreviewCore = () => {
                         setSettings((prev) => ({ ...prev, viewMode: value }))
                       }
                     >
-                      <SelectTrigger id="viewMode">
+                      <SelectTrigger id="viewMode" aria-label="Select view mode">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -689,7 +689,7 @@ const MarkdownPreviewCore = () => {
                         setSettings((prev) => ({ ...prev, fontSize: value }))
                       }
                     >
-                      <SelectTrigger id="fontSize">
+                      <SelectTrigger id="fontSize" aria-label="Select font size">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -708,7 +708,7 @@ const MarkdownPreviewCore = () => {
                         setSettings((prev) => ({ ...prev, theme: value }))
                       }
                     >
-                      <SelectTrigger id="theme">
+                      <SelectTrigger id="theme" aria-label="Select theme">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -851,6 +851,7 @@ const MarkdownPreviewCore = () => {
                           lineHeight: settings.lineNumbers ? '1.5' : '1.6',
                           tabSize: 2,
                         }}
+                        aria-label="Markdown editor"
                       />
                     </div>
                   )}
@@ -878,6 +879,7 @@ const MarkdownPreviewCore = () => {
                               : 'text-base'
                         }`}
                         dangerouslySetInnerHTML={{ __html: previewHTML }}
+                        aria-label="Markdown preview"
                       />
                     </div>
                   )}
@@ -926,6 +928,7 @@ const MarkdownPreviewCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
+                  aria-label="Drag and drop markdown files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -950,6 +953,7 @@ const MarkdownPreviewCore = () => {
                     accept=".md,.markdown,.txt"
                     onChange={handleFileInput}
                     className="hidden"
+                    aria-label="Select markdown files"
                   />
                 </div>
               </CardContent>
@@ -1098,7 +1102,8 @@ const MarkdownPreviewCore = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => copyToClipboard(file.content, file.id)}`}
+                                  onClick={() => copyToClipboard(file.content, file.id)}
+                                  aria-label={`Copy markdown for ${file.name}`}
                                 >
                                   {copiedText === file.id ? (
                                     <Check className="h-4 w-4" />
@@ -1110,7 +1115,8 @@ const MarkdownPreviewCore = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => exportHTML(file.content, file.name.replace(/\.[^/.]+$/, '.html'))}`}
+                                  onClick={() => exportHTML(file.content, file.name.replace(/\.[^/.]+$/, '.html'))}
+                                  aria-label={`Export HTML for ${file.name}`}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1120,7 +1126,8 @@ const MarkdownPreviewCore = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => removeFile(file.id)}`}
+                              onClick={() => removeFile(file.id)}
+                              aria-label={`Remove ${file.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

@@ -993,7 +993,7 @@ const JSONPlotCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
+              <BarChart3 className="h-5 w-5" aria-hidden="true" />
               JSON Plot & Visualization Tool
             </CardTitle>
             <CardDescription>

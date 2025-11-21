@@ -194,6 +194,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
         variant="outline"
         size="sm"
         className={`fixed bottom-4 right-4 z-50 ${className}`}
+        aria-label={t("performanceMonitor.open-monitor")}
       >
         <Monitor className="h-4 w-4" />
       </Button>

@@ -231,24 +231,39 @@ export const Route = createFileRoute("/")({
             <TabsList
               className="grid w-full grid-cols-5 h-auto p-1"
               role="tablist"
+              aria-label={t("tabs.navigation")}
             >
               <TabsTrigger
                 value="all"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 px-2 sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
                 role="tab"
+                aria-selected={activeTab === "all"}
+                aria-controls="tabpanel-all"
               >
-                <Grid3X3 className="h-4 w-4" />
+                <Grid3X3
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
                 <span className="text-xs sm:text-sm">{t("allTools")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="recent"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 px-2 sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
                 role="tab"
+                aria-selected={activeTab === "recent"}
+                aria-controls="tabpanel-recent"
+                aria-label={`${t("app.recent")} (${recentTools.length} ${t("routes.index.tools-count")})`}
               >
                 <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
+                  <Clock
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
                   {recentTools.length > 0 && (
-                    <span className="rounded-full bg-primary/20 text-primary px-1 py-0.5 text-xs font-medium min-w-[16px] h-4 flex items-center justify-center">
+                    <span
+                      className="rounded-full bg-primary/20 text-primary px-1 py-0.5 text-xs font-medium min-w-[16px] h-4 flex items-center justify-center"
+                      aria-label={`${recentTools.length} ${t("routes.index.tools-count")}`}
+                    >
                       {recentTools.length}
                     </span>
                   )}
@@ -259,11 +274,20 @@ export const Route = createFileRoute("/")({
                 value="favorites"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 px-2 sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
                 role="tab"
+                aria-selected={activeTab === "favorites"}
+                aria-controls="tabpanel-favorites"
+                aria-label={`${t("app.favorites")} (${favorites.length} ${t("routes.index.tools-count")})`}
               >
                 <div className="flex items-center gap-1">
-                  <Heart className="h-4 w-4" />
+                  <Heart
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
                   {favorites.length > 0 && (
-                    <span className="rounded-full bg-primary/20 text-primary px-1 py-0.5 text-xs font-medium min-w-[16px] h-4 flex items-center justify-center">
+                    <span
+                      className="rounded-full bg-primary/20 text-primary px-1 py-0.5 text-xs font-medium min-w-[16px] h-4 flex items-center justify-center"
+                      aria-label={`${favorites.length} ${t("routes.index.tools-count")}`}
+                    >
                       {favorites.length}
                     </span>
                   )}
@@ -275,10 +299,20 @@ export const Route = createFileRoute("/")({
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 px-2 sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
                 disabled={!searchQuery}
                 role="tab"
+                aria-selected={activeTab === "search"}
+                aria-controls="tabpanel-search"
+                aria-label={
+                  searchQuery
+                    ? `${t("search.results")} "${searchQuery}" (${filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)} ${t("routes.index.tools-count")})`
+                    : t("routes.index.search-disabled")
+                }
               >
                 <span className="text-xs sm:text-sm">{t("app.searchResults")}</span>
                 {searchQuery && (
-                  <span className="rounded-full bg-primary/20 text-primary px-1 py-0.5 text-xs font-medium min-w-[16px] h-4 flex items-center justify-center">
+                  <span
+                    className="rounded-full bg-primary/20 text-primary px-1 py-0.5 text-xs font-medium min-w-[16px] h-4 flex items-center justify-center"
+                    aria-label={`${filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)} ${t("routes.index.tools-count")}`}
+                  >
                     {filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)}
                   </span>
                 )}
@@ -287,8 +321,13 @@ export const Route = createFileRoute("/")({
                 value="categories"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 px-2 sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
                 role="tab"
+                aria-selected={activeTab === "categories"}
+                aria-controls="tabpanel-categories"
               >
-                <Settings className="h-4 w-4" />
+                <Settings
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
                 <span className="text-xs sm:text-sm">{t("categories")}</span>
               </TabsTrigger>
             </TabsList>
@@ -297,6 +336,7 @@ export const Route = createFileRoute("/")({
               value="all"
               id="tabpanel-all"
               role="tabpanel"
+              aria-labelledby="tab-all"
             >
               {renderToolGrid(tools)}
             </TabsContent>
@@ -305,6 +345,7 @@ export const Route = createFileRoute("/")({
               value="recent"
               id="tabpanel-recent"
               role="tabpanel"
+              aria-labelledby="tab-recent"
             >
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">{t("recent.title")}</h2>
@@ -314,8 +355,12 @@ export const Route = createFileRoute("/")({
                     size="sm"
                     onClick={clearRecent}
                     className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    aria-label={t("routes.index.recent-clear-confirm")}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
                     {t("recent.clear")}
                   </Button>
                 )}
@@ -327,6 +372,7 @@ export const Route = createFileRoute("/")({
               value="favorites"
               id="tabpanel-favorites"
               role="tabpanel"
+              aria-labelledby="tab-favorites"
             >
               <div className="mb-4">
                 <h2 className="text-xl font-semibold">{t("favorites.title")}</h2>
@@ -338,6 +384,7 @@ export const Route = createFileRoute("/")({
               value="search"
               id="tabpanel-search"
               role="tabpanel"
+              aria-labelledby="tab-search"
             >
               <div className="mb-4">
                 <h2 className="text-xl font-semibold">
@@ -351,6 +398,7 @@ export const Route = createFileRoute("/")({
               value="categories"
               id="tabpanel-categories"
               role="tabpanel"
+              aria-labelledby="tab-categories"
             >
               <CategoryManager allTools={allTools} />
             </TabsContent>

@@ -896,7 +896,7 @@ const MarkdownTOCCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <List className="h-5 w-5" />
+              <List className="h-5 w-5" aria-hidden="true" />
               Markdown TOC Generator
             </CardTitle>
             <CardDescription>
@@ -1156,6 +1156,7 @@ const MarkdownTOCCore = () => {
                       onChange={(e) => setMarkdown(e.target.value)}
                       placeholder="Enter your Markdown content here..."
                       className="min-h-[300px] font-mono"
+                      aria-label="Markdown content input"
                     />
                   </div>
                 </CardContent>
@@ -1194,6 +1195,7 @@ const MarkdownTOCCore = () => {
                         value={tocPreview.result.toc}
                         readOnly
                         className="min-h-[300px] font-mono"
+                        aria-label="Generated table of contents"
                       />
                     </div>
                   ) : (
@@ -1318,6 +1320,7 @@ const MarkdownTOCCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
+                  aria-label="Drag and drop Markdown files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1344,6 +1347,7 @@ const MarkdownTOCCore = () => {
                     accept=".md,.markdown,.txt"
                     onChange={handleFileInput}
                     className="hidden"
+                    aria-label="Select Markdown files"
                   />
                 </div>
               </CardContent>
@@ -1492,7 +1496,8 @@ const MarkdownTOCCore = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => exportTOC(file.tocResult!, file.name.replace(/\.[^/.]+$/, '-toc'))}`}
+                                  onClick={() => exportTOC(file.tocResult!, file.name.replace(/\.[^/.]+$/, '-toc'))}
+                                  aria-label={`Export TOC for ${file.name}`}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1500,7 +1505,8 @@ const MarkdownTOCCore = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => copyToClipboard(file.tocResult!.toc, file.id)}`}
+                                  onClick={() => copyToClipboard(file.tocResult!.toc, file.id)}
+                                  aria-label={`Copy TOC from ${file.name}`}
                                 >
                                   {copiedText === file.id ? (
                                     <Check className="h-4 w-4" />
@@ -1514,7 +1520,8 @@ const MarkdownTOCCore = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => removeFile(file.id)}`}
+                              onClick={() => removeFile(file.id)}
+                              aria-label={`Remove ${file.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

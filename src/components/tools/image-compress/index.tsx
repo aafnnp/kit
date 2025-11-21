@@ -372,6 +372,8 @@ const ImageCompressCore = () => {
 
       // Announce to screen readers
       const announcement = document.createElement('div')
+      announcement.setAttribute('aria-live', 'polite')
+      announcement.setAttribute('aria-atomic', 'true')
       announcement.className = 'sr-only'
       announcement.textContent = message
       document.body.appendChild(announcement)
@@ -460,6 +462,8 @@ const ImageCompressCore = () => {
 
       // Announce completion to screen readers
       const announcement = document.createElement('div')
+      announcement.setAttribute('aria-live', 'assertive')
+      announcement.setAttribute('aria-atomic', 'true')
       announcement.className = 'sr-only'
       announcement.textContent = message
       document.body.appendChild(announcement)
@@ -565,7 +569,7 @@ const ImageCompressCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ImageIcon className="h-6 w-6" />
+              <ImageIcon className="h-6 w-6" aria-hidden="true" />
               Image Compression & Optimization Tool
             </CardTitle>
             <CardDescription>
@@ -630,7 +634,8 @@ const ImageCompressCore = () => {
                       step="5"
                       value={settings.quality}
                       onChange={(e) => setSettings((prev) => ({ ...prev, quality: Number(e.target.value) }))}
-                      className="w-full" percent`}
+                      className="w-full"
+                      aria-label={`Compression quality: ${settings.quality} percent`}
                     />
                     <div className="text-xs text-muted-foreground">Higher quality = larger file size</div>
                   </div>
@@ -644,7 +649,7 @@ const ImageCompressCore = () => {
                         setSettings((prev) => ({ ...prev, format: value }))
                       }
                     >
-                      <SelectTrigger id="format">
+                      <SelectTrigger id="format" aria-label="Select output format">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -670,6 +675,7 @@ const ImageCompressCore = () => {
                           }))
                         }
                         className="w-full"
+                        aria-label="Maximum width in pixels"
                       />
                       <Input
                         type="number"
@@ -682,6 +688,7 @@ const ImageCompressCore = () => {
                           }))
                         }
                         className="w-full"
+                        aria-label="Maximum height in pixels"
                       />
                     </div>
                   </div>
@@ -798,6 +805,7 @@ const ImageCompressCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
+                  aria-label="Drag and drop images here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -822,6 +830,7 @@ const ImageCompressCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
+                    aria-label="Select image files"
                   />
                 </div>
               </CardContent>

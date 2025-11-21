@@ -895,7 +895,7 @@ const JSONPrettyCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Code className="h-5 w-5" />
+              <Code className="h-5 w-5" aria-hidden="true" />
               {i18n.language.startsWith('en') ? 'JSON Formatter & Analyzer' : 'JSON 格式化与分析工具'}
             </CardTitle>
             <CardDescription>
@@ -956,6 +956,7 @@ const JSONPrettyCore = () => {
                           : '在此输入或粘贴您的 JSON...'
                       }
                       className="mt-2 min-h-[200px] font-mono"
+                      aria-label={i18n.language.startsWith('en') ? 'JSON input for processing' : '用于处理的 JSON 输入'}
                     />
                     {settings.realTimeProcessing && input && (
                       <div className="mt-2 text-sm">
@@ -1362,6 +1363,7 @@ const JSONPrettyCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder='{"name": "Item 1"}&#10;{"name": "Item 2"}&#10;{"name": "Item 3"}'
                       className="mt-2 min-h-[120px] font-mono"
+                      aria-label={i18n.language.startsWith('en') ? 'Batch JSON input' : '批量 JSON 输入'}
                     />
                   </div>
 

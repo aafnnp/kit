@@ -905,7 +905,7 @@ const URLEncodeCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Link className="h-5 w-5" />
+              <Link className="h-5 w-5" aria-hidden="true" />
               URL Encoder & Decoder
             </CardTitle>
             <CardDescription>
@@ -962,6 +962,7 @@ const URLEncodeCore = () => {
                       onChange={(e) => setInput(e.target.value)}
                       placeholder="Enter text or URL to encode/decode..."
                       className="mt-2 min-h-[120px] font-mono"
+                      aria-label="URL input for processing"
                     />
                     {settings.realTimeProcessing && input && (
                       <div className="mt-2 text-sm">
@@ -1111,6 +1112,7 @@ const URLEncodeCore = () => {
                         readOnly
                         placeholder="Processed output will appear here..."
                         className="mt-2 min-h-[120px] font-mono bg-muted"
+                        aria-label="URL processing output"
                       />
                     </div>
 
@@ -1286,6 +1288,7 @@ const URLEncodeCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="encode:component:Hello World!&#10;decode:component:Hello%20World%21&#10;encode:uri:https://example.com/path with spaces"
                       className="mt-2 min-h-[120px] font-mono"
+                      aria-label="Batch URL processing input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
                       Format: <code>operation:encodingType:content</code> (one per line)

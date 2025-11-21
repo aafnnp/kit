@@ -226,6 +226,7 @@ export function CategoryManager({ allTools, onCategoryChange }: CategoryManagerP
                         }`}
                         style={{ backgroundColor: color }}
                         onClick={() => setSelectedColor(color)}
+                        aria-label={`选择颜色 ${color}`}
                       />
                     ))}
                   </div>
@@ -309,7 +310,8 @@ export function CategoryManager({ allTools, onCategoryChange }: CategoryManagerP
                       selectedColor === color ? 'border-foreground' : 'border-transparent'
                     }`}
                     style={{ backgroundColor: color }}
-                    onClick={() => setSelectedColor(color)}`}
+                    onClick={() => setSelectedColor(color)}
+                    aria-label={`选择颜色 ${color}`}
                   />
                 ))}
               </div>

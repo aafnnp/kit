@@ -619,6 +619,8 @@ const ImageCropCore = () => {
 
         // Announce to screen readers
         const announcement = document.createElement('div')
+        announcement.setAttribute('aria-live', 'polite')
+        announcement.setAttribute('aria-atomic', 'true')
         announcement.className = 'sr-only'
         announcement.textContent = message
         document.body.appendChild(announcement)
@@ -786,6 +788,8 @@ const ImageCropCore = () => {
 
     // Announce completion to screen readers
     const announcement = document.createElement('div')
+    announcement.setAttribute('aria-live', 'assertive')
+    announcement.setAttribute('aria-atomic', 'true')
     announcement.className = 'sr-only'
     announcement.textContent = message
     document.body.appendChild(announcement)
@@ -907,7 +911,7 @@ const ImageCropCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Crop className="h-6 w-6" />
+              <Crop className="h-6 w-6" aria-hidden="true" />
               Professional Image Crop & Resize Tool
             </CardTitle>
             <CardDescription>
@@ -967,7 +971,7 @@ const ImageCropCore = () => {
                       value={settings.aspectRatio}
                       onValueChange={(value: CropSettings['aspectRatio']) => updateAspectRatio(value)}
                     >
-                      <SelectTrigger id="aspectRatio">
+                      <SelectTrigger id="aspectRatio" aria-label="Select aspect ratio">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -986,7 +990,7 @@ const ImageCropCore = () => {
                   <div className="space-y-2">
                     <Label htmlFor="template">Quick Templates</Label>
                     <Select value={selectedTemplate} onValueChange={applyTemplate}>
-                      <SelectTrigger id="template">
+                      <SelectTrigger id="template" aria-label="Select template">
                         <SelectValue placeholder="Choose a template..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -1218,6 +1222,7 @@ const ImageCropCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
+                  aria-label="Drag and drop images here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1242,6 +1247,7 @@ const ImageCropCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
+                    aria-label="Select image files"
                   />
                 </div>
               </CardContent>

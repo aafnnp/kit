@@ -1068,7 +1068,7 @@ const MarkdownMermaidCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ChartArea className="h-5 w-5" />
+              <ChartArea className="h-5 w-5" aria-hidden="true" />
               Markdown Mermaid & Diagram Tool
             </CardTitle>
             <CardDescription>

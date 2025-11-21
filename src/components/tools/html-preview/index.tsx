@@ -413,12 +413,12 @@ const htmlTemplates: HTMLTemplate[] = [
         <h1>Contact Form</h1>
         <div class="form-group">
             <label for="name">Name *</label>
-            <input type="text" id="name" name="name" required>
+            <input type="text" id="name" name="name" required aria-describedby="name-error">
             <div id="name-error" class="error" role="alert"></div>
         </div>
         <div class="form-group">
             <label for="email">Email *</label>
-            <input type="email" id="email" name="email" required>
+            <input type="email" id="email" name="email" required aria-describedby="email-error">
             <div id="email-error" class="error" role="alert"></div>
         </div>
         <div class="form-group">
@@ -1000,7 +1000,7 @@ const HTMLPreviewCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Code className="h-5 w-5" />
+              <Code className="h-5 w-5" aria-hidden="true" />
               HTML Preview & Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -1057,6 +1057,7 @@ const HTMLPreviewCore = () => {
                       onChange={(e) => setHtml(e.target.value)}
                       placeholder="Enter your HTML code here..."
                       className="mt-2 min-h-[300px] font-mono text-sm"
+                      aria-label="HTML code input for live preview"
                     />
                     {settings.validateHTML && html && (
                       <div className="mt-2 text-sm">
@@ -1538,6 +1539,7 @@ const HTMLPreviewCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="<!DOCTYPE html>&#10;<html>&#10;<head><title>Document 1</title></head>&#10;<body><h1>Hello World</h1></body>&#10;</html>&#10;---&#10;<!DOCTYPE html>&#10;<html>&#10;<head><title>Document 2</title></head>&#10;<body><h1>Another Document</h1></body>&#10;</html>"
                       className="mt-2 min-h-[200px] font-mono"
+                      aria-label="Batch HTML input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
                       Separate multiple HTML documents with "---" on a new line

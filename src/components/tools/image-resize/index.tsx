@@ -629,6 +629,8 @@ const ImageResizeCore = () => {
 
       // Announce to screen readers
       const announcement = document.createElement('div')
+      announcement.setAttribute('aria-live', 'polite')
+      announcement.setAttribute('aria-atomic', 'true')
       announcement.className = 'sr-only'
       announcement.textContent = message
       document.body.appendChild(announcement)
@@ -765,6 +767,8 @@ const ImageResizeCore = () => {
 
     // Announce completion to screen readers
     const announcement = document.createElement('div')
+    announcement.setAttribute('aria-live', 'assertive')
+    announcement.setAttribute('aria-atomic', 'true')
     announcement.className = 'sr-only'
     announcement.textContent = message
     document.body.appendChild(announcement)
@@ -829,7 +833,7 @@ const ImageResizeCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ImageIcon className="h-6 w-6" />
+              <ImageIcon className="h-6 w-6" aria-hidden="true" />
               Image Resize & Dimension Tool
             </CardTitle>
             <CardDescription>
@@ -896,7 +900,8 @@ const ImageResizeCore = () => {
                           setSettings((prev) => ({ ...prev, width: Number(e.target.value) }))
                           setSelectedPreset('')
                         }}
-                        className="flex-1" pixels`}
+                        className="flex-1"
+                        aria-label={`Width: ${settings.width} pixels`}
                       />
                       <Button
                         size="sm"
@@ -906,7 +911,8 @@ const ImageResizeCore = () => {
                             ...prev,
                             maintainAspectRatio: !prev.maintainAspectRatio,
                           }))
-                        } aspect ratio`}
+                        }
+                        aria-label={`${settings.maintainAspectRatio ? 'Unlock' : 'Lock'} aspect ratio`}
                       >
                         {settings.maintainAspectRatio ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
                       </Button>
@@ -926,7 +932,8 @@ const ImageResizeCore = () => {
                           setSettings((prev) => ({ ...prev, height: Number(e.target.value) }))
                           setSelectedPreset('')
                         }}
-                        className="flex-1" pixels`}
+                        className="flex-1"
+                        aria-label={`Height: ${settings.height} pixels`}
                       />
                       <Button
                         size="sm"
@@ -938,6 +945,7 @@ const ImageResizeCore = () => {
                             height: 600,
                           }))
                         }
+                        aria-label="Reset dimensions to default"
                       >
                         <RotateCcw className="h-4 w-4" />
                       </Button>
@@ -955,7 +963,7 @@ const ImageResizeCore = () => {
                         setSettings((prev) => ({ ...prev, resizeMode: value }))
                       }
                     >
-                      <SelectTrigger id="resizeMode">
+                      <SelectTrigger id="resizeMode" aria-label="Select resize mode">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -975,7 +983,7 @@ const ImageResizeCore = () => {
                         setSettings((prev) => ({ ...prev, format: value }))
                       }
                     >
-                      <SelectTrigger id="format">
+                      <SelectTrigger id="format" aria-label="Select output format">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -997,7 +1005,8 @@ const ImageResizeCore = () => {
                         step="5"
                         value={settings.quality}
                         onChange={(e) => setSettings((prev) => ({ ...prev, quality: Number(e.target.value) }))}
-                        className="w-full" percent`}
+                        className="w-full"
+                        aria-label={`Image quality: ${settings.quality} percent`}
                       />
                     </div>
                   )}
@@ -1092,6 +1101,7 @@ const ImageResizeCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
+                  aria-label="Drag and drop images here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1116,6 +1126,7 @@ const ImageResizeCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
+                    aria-label="Select image files"
                   />
                 </div>
               </CardContent>

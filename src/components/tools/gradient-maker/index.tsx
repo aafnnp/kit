@@ -809,7 +809,7 @@ const GradientMakerCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Paintbrush className="h-5 w-5" />
+              <Paintbrush className="h-5 w-5" aria-hidden="true" />
               Gradient Maker
             </CardTitle>
             <CardDescription>
@@ -1305,6 +1305,7 @@ const GradientMakerCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
+                  aria-label="Drag and drop gradient files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1331,6 +1332,7 @@ const GradientMakerCore = () => {
                     accept=".json,.css,.scss,.svg,.txt"
                     onChange={handleFileInput}
                     className="hidden"
+                    aria-label="Select gradient files"
                   />
                 </div>
               </CardContent>

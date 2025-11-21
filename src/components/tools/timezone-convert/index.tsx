@@ -899,7 +899,7 @@ const TimezoneConvertCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5" />
+              <Globe className="h-5 w-5" aria-hidden="true" />
               Timezone Converter & World Clock
             </CardTitle>
             <CardDescription>
@@ -956,6 +956,7 @@ const TimezoneConvertCore = () => {
                       onChange={(e) => setInputTime(e.target.value)}
                       placeholder="2024-01-15 14:30:00 or Jan 15, 2024 2:30 PM"
                       className="mt-2"
+                      aria-label="Input date and time"
                     />
                     {settings.realTimeConversion && inputTime && (
                       <div className="mt-2 text-sm">
@@ -1258,6 +1259,7 @@ const TimezoneConvertCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="2024-01-15 14:30,UTC,America/New_York&#10;2024-01-15 09:00,America/Los_Angeles,Europe/London&#10;Jan 15 2024 3:30 PM,Asia/Tokyo,Australia/Sydney"
                       className="mt-2 min-h-[120px] font-mono"
+                      aria-label="Batch timezone conversion input"
                     />
                   </div>
 

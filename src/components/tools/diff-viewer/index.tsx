@@ -891,7 +891,7 @@ const DiffViewerCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <GitCompare className="h-5 w-5" />
+              <GitCompare className="h-5 w-5" aria-hidden="true" />
               Diff Viewer
             </CardTitle>
             <CardDescription>
@@ -1073,6 +1073,7 @@ const DiffViewerCore = () => {
                       onChange={(e) => setLeftText(e.target.value)}
                       placeholder="Enter original text..."
                       className="min-h-[200px] font-mono"
+                      aria-label="Left text input"
                     />
                   </div>
                 </CardContent>
@@ -1101,6 +1102,7 @@ const DiffViewerCore = () => {
                       onChange={(e) => setRightText(e.target.value)}
                       placeholder="Enter modified text..."
                       className="min-h-[200px] font-mono"
+                      aria-label="Right text input"
                     />
                   </div>
                 </CardContent>
@@ -1405,6 +1407,7 @@ const DiffViewerCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
+                  aria-label="Drag and drop text files here or click to select files"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
@@ -1431,6 +1434,7 @@ const DiffViewerCore = () => {
                     accept=".txt,.log,.csv,.json,.md,.markdown,.js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.h,.css,.html,.xml,.yaml,.yml"
                     onChange={handleFileInput}
                     className="hidden"
+                    aria-label="Select text files"
                   />
                 </div>
               </CardContent>
@@ -1546,7 +1550,8 @@ const DiffViewerCore = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => removeFile(file.id)}`}
+                              onClick={() => removeFile(file.id)}
+                              aria-label={`Remove ${file.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -1651,7 +1656,8 @@ const DiffViewerCore = () => {
                                   variant="outline"
                                   onClick={() =>
                                     exportUnifiedDiff(pair.result!, pair.leftFile.name, pair.rightFile.name)
-                                  } vs ${pair.rightFile.name}`}
+                                  }
+                                  aria-label={`Export diff for ${pair.leftFile.name} vs ${pair.rightFile.name}`}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1677,7 +1683,8 @@ const DiffViewerCore = () => {
                                       })
                                       .join('\n')
                                     copyToClipboard(diffText, pair.id)
-                                  }} vs ${pair.rightFile.name}`}
+                                  }}
+                                  aria-label={`Copy diff for ${pair.leftFile.name} vs ${pair.rightFile.name}`}
                                 >
                                   {copiedText === pair.id ? (
                                     <Check className="h-4 w-4" />
@@ -1691,7 +1698,8 @@ const DiffViewerCore = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => removePair(pair.id)} vs ${pair.rightFile.name}`}
+                              onClick={() => removePair(pair.id)}
+                              aria-label={`Remove pair ${pair.leftFile.name} vs ${pair.rightFile.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

@@ -991,7 +991,7 @@ const URLParserCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Link className="h-5 w-5" />
+              <Link className="h-5 w-5" aria-hidden="true" />
               URL Parser & Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -1048,6 +1048,7 @@ const URLParserCore = () => {
                       onChange={(e) => setURL(e.target.value)}
                       placeholder="Enter URL (e.g., https://example.com/path?param=value#section)"
                       className="mt-2"
+                      aria-label="URL for parsing"
                     />
                     {url && (
                       <div className="mt-2 text-sm">
@@ -1775,6 +1776,7 @@ const URLParserCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="https://example.com&#10;https://api.example.com/v1/users&#10;https://shop.example.com/products/item?id=123"
                       className="mt-2 min-h-[200px] font-mono text-sm"
+                      aria-label="Batch URL parsing input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">Enter one URL per line</div>
                   </div>

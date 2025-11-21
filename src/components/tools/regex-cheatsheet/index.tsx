@@ -734,7 +734,7 @@ const RegexCheatsheetCore = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5" />
+              <BookOpen className="h-5 w-5" aria-hidden="true" />
               Regex Cheatsheet & Testing Tool
             </CardTitle>
             <CardDescription>
