@@ -2,6 +2,8 @@
   "name": "kit",
   "private": true,
   "version": "0.2.0",
+  "description": "Kit desktop toolbox for everyday workflows",
+  "author": "Manon",
   "type": "module",
   "scripts": {
     "dev": "vite",

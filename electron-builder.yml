@@ -29,7 +29,7 @@ win:
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
-  createDesktopShortcut: always
+  createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: Kit
   installerIcon: build/icon.png
@@ -37,10 +37,6 @@ nsis:
   installerHeaderIcon: build/icon.png
   menuCategory: DeveloperTool
   displayLanguageSelector: true
-  languages:
-    - English
-    - SimpChinese
-  installMode: perUser
   compression: maximum
 
 mac:
@@ -79,9 +75,8 @@ linux:
 deb:
   depends: []
   priority: optional
-  section: utils
 
-appimage:
+appImage:
   artifactName: ${name}-${version}-${arch}.${ext}
 
 publish:
