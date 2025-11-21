@@ -1,12 +1,12 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -28,8 +28,8 @@ import {
   Grid,
   ChevronUp,
   ChevronDown,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   DataFile,
   TableData,
@@ -40,23 +40,23 @@ import type {
   DataType,
   SortDirection,
   DataFormat,
-} from '@/types/table-sorter'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/table-sorter"
+import { formatFileSize } from "@/lib/utils"
 // Types
 
 // Utility functions
 
 const validateDataFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
-  const allowedTypes = ['.csv', '.tsv', '.txt', '.json', '.xlsx', '.xls']
+  const allowedTypes = [".csv", ".tsv", ".txt", ".json", ".xlsx", ".xls"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 50MB' }
+    return { isValid: false, error: "File size must be less than 50MB" }
   }
 
-  const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+  const extension = "." + file.name.split(".").pop()?.toLowerCase()
   if (!allowedTypes.includes(extension)) {
-    return { isValid: false, error: 'Only CSV, TSV, TXT, JSON, and Excel files are supported' }
+    return { isValid: false, error: "Only CSV, TSV, TXT, JSON, and Excel files are supported" }
   }
 
   return { isValid: true }
@@ -64,10 +64,10 @@ const validateDataFile = (file: File): { isValid: boolean; error?: string } => {
 
 // Data type detection
 const detectDataType = (values: (string | number)[]): DataType => {
-  if (values.length === 0) return 'string'
+  if (values.length === 0) return "string"
 
-  const nonEmptyValues = values.filter((v) => v !== '' && v != null)
-  if (nonEmptyValues.length === 0) return 'string'
+  const nonEmptyValues = values.filter((v) => v !== "" && v != null)
+  if (nonEmptyValues.length === 0) return "string"
 
   let numberCount = 0
   let dateCount = 0
@@ -77,13 +77,13 @@ const detectDataType = (values: (string | number)[]): DataType => {
     const strValue = String(value).trim().toLowerCase()
 
     // Check boolean
-    if (strValue === 'true' || strValue === 'false' || strValue === '1' || strValue === '0') {
+    if (strValue === "true" || strValue === "false" || strValue === "1" || strValue === "0") {
       booleanCount++
       continue
     }
 
     // Check number
-    if (!isNaN(Number(strValue)) && strValue !== '') {
+    if (!isNaN(Number(strValue)) && strValue !== "") {
       numberCount++
       continue
     }
@@ -99,24 +99,24 @@ const detectDataType = (values: (string | number)[]): DataType => {
   const total = nonEmptyValues.length
   const threshold = 0.8 // 80% threshold for type detection
 
-  if (numberCount / total >= threshold) return 'number'
-  if (dateCount / total >= threshold) return 'date'
-  if (booleanCount / total >= threshold) return 'boolean'
-  if ((numberCount + dateCount + booleanCount) / total < 0.5) return 'string'
+  if (numberCount / total >= threshold) return "number"
+  if (dateCount / total >= threshold) return "date"
+  if (booleanCount / total >= threshold) return "boolean"
+  if ((numberCount + dateCount + booleanCount) / total < 0.5) return "string"
 
-  return 'mixed'
+  return "mixed"
 }
 
 // Data parsing functions
-const parseCSV = (content: string, delimiter: string = ','): TableData => {
+const parseCSV = (content: string, delimiter: string = ","): TableData => {
   const lines = content.trim().split(/\r?\n/)
   if (lines.length === 0) {
-    throw new Error('Empty file')
+    throw new Error("Empty file")
   }
 
   const rows = lines.map((line) => {
     // Simple CSV parsing - in production, use a proper CSV parser
-    const cells = line.split(delimiter).map((cell) => cell.trim().replace(/^"|"$/g, ''))
+    const cells = line.split(delimiter).map((cell) => cell.trim().replace(/^"|"$/g, ""))
     return cells
   })
 
@@ -127,11 +127,11 @@ const parseCSV = (content: string, delimiter: string = ','): TableData => {
   const processedRows: (string | number)[][] = dataRows.map((row) =>
     row.map((cell) => {
       const trimmed = cell.trim()
-      if (trimmed === '') return ''
+      if (trimmed === "") return ""
 
       // Try to convert to number
       const num = Number(trimmed)
-      if (!isNaN(num) && trimmed !== '') {
+      if (!isNaN(num) && trimmed !== "") {
         return num
       }
 
@@ -162,11 +162,11 @@ const parseJSON = (content: string): TableData => {
     const data = JSON.parse(content)
 
     if (!Array.isArray(data)) {
-      throw new Error('JSON must be an array of objects')
+      throw new Error("JSON must be an array of objects")
     }
 
     if (data.length === 0) {
-      throw new Error('Empty JSON array')
+      throw new Error("Empty JSON array")
     }
 
     // Extract headers from first object
@@ -176,8 +176,8 @@ const parseJSON = (content: string): TableData => {
     const rows: (string | number)[][] = data.map((obj) =>
       headers.map((header) => {
         const value = obj[header]
-        if (value == null) return ''
-        if (typeof value === 'number') return value
+        if (value == null) return ""
+        if (typeof value === "number") return value
         return String(value)
       })
     )
@@ -199,35 +199,35 @@ const parseJSON = (content: string): TableData => {
       },
     }
   } catch (error) {
-    throw new Error(`Invalid JSON: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    throw new Error(`Invalid JSON: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 }
 
 // Auto-detect format and parse
-const parseData = (content: string, format: DataFormat = 'auto'): TableData => {
-  if (format === 'auto') {
+const parseData = (content: string, format: DataFormat = "auto"): TableData => {
+  if (format === "auto") {
     // Try to detect format
     const trimmed = content.trim()
 
-    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+    if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
       return parseJSON(content)
     }
 
     // Check for tab-separated values
-    if (trimmed.includes('\t')) {
-      return parseCSV(content, '\t')
+    if (trimmed.includes("\t")) {
+      return parseCSV(content, "\t")
     }
 
     // Default to CSV
-    return parseCSV(content, ',')
+    return parseCSV(content, ",")
   }
 
   switch (format) {
-    case 'csv':
-      return parseCSV(content, ',')
-    case 'tsv':
-      return parseCSV(content, '\t')
-    case 'json':
+    case "csv":
+      return parseCSV(content, ",")
+    case "tsv":
+      return parseCSV(content, "\t")
+    case "json":
       return parseJSON(content)
     default:
       throw new Error(`Unsupported format: ${format}`)
@@ -242,31 +242,31 @@ const compareValues = (
   caseSensitive: boolean = true
 ): number => {
   // Handle null/empty values
-  if (a === '' || a == null) return b === '' || b == null ? 0 : -1
-  if (b === '' || b == null) return 1
+  if (a === "" || a == null) return b === "" || b == null ? 0 : -1
+  if (b === "" || b == null) return 1
 
   switch (dataType) {
-    case 'number':
-      const numA = typeof a === 'number' ? a : parseFloat(String(a))
-      const numB = typeof b === 'number' ? b : parseFloat(String(b))
+    case "number":
+      const numA = typeof a === "number" ? a : parseFloat(String(a))
+      const numB = typeof b === "number" ? b : parseFloat(String(b))
       if (isNaN(numA)) return isNaN(numB) ? 0 : -1
       if (isNaN(numB)) return 1
       return numA - numB
 
-    case 'date':
+    case "date":
       const dateA = new Date(String(a))
       const dateB = new Date(String(b))
       if (isNaN(dateA.getTime())) return isNaN(dateB.getTime()) ? 0 : -1
       if (isNaN(dateB.getTime())) return 1
       return dateA.getTime() - dateB.getTime()
 
-    case 'boolean':
-      const boolA = String(a).toLowerCase() === 'true' || String(a) === '1'
-      const boolB = String(b).toLowerCase() === 'true' || String(b) === '1'
+    case "boolean":
+      const boolA = String(a).toLowerCase() === "true" || String(a) === "1"
+      const boolB = String(b).toLowerCase() === "true" || String(b) === "1"
       return boolA === boolB ? 0 : boolA ? 1 : -1
 
-    case 'string':
-    case 'mixed':
+    case "string":
+    case "mixed":
     default:
       const strA = String(a)
       const strB = String(b)
@@ -294,7 +294,7 @@ const sortTableData = (data: TableData, settings: SortSettings): TableData => {
 
       let comparison = compareValues(valueA, valueB, dataType, settings.caseSensitive)
 
-      if (direction === 'desc') {
+      if (direction === "desc") {
         comparison = -comparison
       }
 
@@ -315,73 +315,73 @@ const sortTableData = (data: TableData, settings: SortSettings): TableData => {
 // Sort presets
 const sortPresets: SortPreset[] = [
   {
-    id: 'alphabetical',
-    name: 'Alphabetical (A-Z)',
-    description: 'Sort by first column alphabetically',
+    id: "alphabetical",
+    name: "Alphabetical (A-Z)",
+    description: "Sort by first column alphabetically",
     settings: {
       multiColumn: false,
-      sortConfigs: [{ column: 0, direction: 'asc', dataType: 'string' }],
+      sortConfigs: [{ column: 0, direction: "asc", dataType: "string" }],
       caseSensitive: false,
     },
-    example: 'Names, products, categories',
+    example: "Names, products, categories",
   },
   {
-    id: 'numerical',
-    name: 'Numerical (Low to High)',
-    description: 'Sort by first column numerically',
+    id: "numerical",
+    name: "Numerical (Low to High)",
+    description: "Sort by first column numerically",
     settings: {
       multiColumn: false,
-      sortConfigs: [{ column: 0, direction: 'asc', dataType: 'number' }],
+      sortConfigs: [{ column: 0, direction: "asc", dataType: "number" }],
       caseSensitive: true,
     },
-    example: 'Prices, quantities, scores',
+    example: "Prices, quantities, scores",
   },
   {
-    id: 'date',
-    name: 'Date (Oldest First)',
-    description: 'Sort by first column as dates',
+    id: "date",
+    name: "Date (Oldest First)",
+    description: "Sort by first column as dates",
     settings: {
       multiColumn: false,
-      sortConfigs: [{ column: 0, direction: 'asc', dataType: 'date' }],
+      sortConfigs: [{ column: 0, direction: "asc", dataType: "date" }],
       caseSensitive: true,
     },
-    example: 'Created dates, deadlines, timestamps',
+    example: "Created dates, deadlines, timestamps",
   },
   {
-    id: 'multi-column',
-    name: 'Multi-Column Sort',
-    description: 'Sort by multiple columns with priority',
+    id: "multi-column",
+    name: "Multi-Column Sort",
+    description: "Sort by multiple columns with priority",
     settings: {
       multiColumn: true,
       sortConfigs: [
-        { column: 0, direction: 'asc', dataType: 'string' },
-        { column: 1, direction: 'asc', dataType: 'number' },
+        { column: 0, direction: "asc", dataType: "string" },
+        { column: 1, direction: "asc", dataType: "number" },
       ],
       caseSensitive: false,
     },
-    example: 'Category then price, name then date',
+    example: "Category then price, name then date",
   },
   {
-    id: 'reverse',
-    name: 'Reverse Order',
-    description: 'Reverse the current order',
+    id: "reverse",
+    name: "Reverse Order",
+    description: "Reverse the current order",
     settings: {
       multiColumn: false,
-      sortConfigs: [{ column: 0, direction: 'desc', dataType: 'string' }],
+      sortConfigs: [{ column: 0, direction: "desc", dataType: "string" }],
       caseSensitive: false,
     },
-    example: 'Z-A, newest first, highest to lowest',
+    example: "Z-A, newest first, highest to lowest",
   },
 ]
 
 // Custom hooks
 const useTableProcessing = () => {
-  const processTable = useCallback((content: string, format: DataFormat = 'auto'): TableData => {
+  const processTable = useCallback((content: string, format: DataFormat = "auto"): TableData => {
     try {
       return parseData(content, format)
     } catch (error) {
-      console.error('Table processing error:', error)
-      throw new Error(error instanceof Error ? error.message : 'Table processing failed')
+      console.error("Table processing error:", error)
+      throw new Error(error instanceof Error ? error.message : "Table processing failed")
     }
   }, [])
 
@@ -389,8 +389,8 @@ const useTableProcessing = () => {
     try {
       return sortTableData(data, settings)
     } catch (error) {
-      console.error('Table sorting error:', error)
-      throw new Error(error instanceof Error ? error.message : 'Table sorting failed')
+      console.error("Table sorting error:", error)
+      throw new Error(error instanceof Error ? error.message : "Table sorting failed")
     }
   }, [])
 
@@ -398,7 +398,7 @@ const useTableProcessing = () => {
     async (files: DataFile[], settings: SortSettings): Promise<DataFile[]> => {
       return Promise.all(
         files.map(async (file) => {
-          if (file.status !== 'pending') return file
+          if (file.status !== "pending") return file
 
           try {
             const parsedData = processTable(file.content)
@@ -406,7 +406,7 @@ const useTableProcessing = () => {
 
             return {
               ...file,
-              status: 'completed' as const,
+              status: "completed" as const,
               parsedData,
               sortedData,
               processedAt: new Date(),
@@ -414,8 +414,8 @@ const useTableProcessing = () => {
           } catch (error) {
             return {
               ...file,
-              status: 'error' as const,
-              error: error instanceof Error ? error.message : 'Processing failed',
+              status: "error" as const,
+              error: error instanceof Error ? error.message : "Processing failed",
             }
           }
         })
@@ -428,7 +428,7 @@ const useTableProcessing = () => {
 }
 
 // Real-time table preview hook
-const useRealTimeTablePreview = (content: string, settings: SortSettings, format: DataFormat = 'auto') => {
+const useRealTimeTablePreview = (content: string, settings: SortSettings, format: DataFormat = "auto") => {
   return useMemo(() => {
     if (!content.trim()) {
       return {
@@ -471,7 +471,7 @@ const useRealTimeTablePreview = (content: string, settings: SortSettings, format
           dataTypes: [],
           processingTime: 0,
         },
-        error: error instanceof Error ? error.message : 'Processing failed',
+        error: error instanceof Error ? error.message : "Processing failed",
       }
     }
   }, [content, settings, format])
@@ -497,17 +497,17 @@ const useFileProcessing = () => {
             name: file.name,
             content,
             size: file.size,
-            type: file.type || 'text/plain',
-            status: 'pending',
+            type: file.type || "text/plain",
+            status: "pending",
           }
 
           resolve(dataFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsText(file)
     })
   }, [])
@@ -517,17 +517,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
-            type: files[index].type || 'text/plain',
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            type: files[index].type || "text/plain",
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -542,26 +542,26 @@ const useFileProcessing = () => {
 const useTableExport = () => {
   const exportCSV = useCallback((data: TableData, filename?: string) => {
     const csvContent = [
-      data.headers.join(','),
+      data.headers.join(","),
       ...data.rows.map((row) =>
         row
           .map((cell) => {
             const cellStr = String(cell)
             // Escape quotes and wrap in quotes if contains comma, quote, or newline
-            if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
+            if (cellStr.includes(",") || cellStr.includes('"') || cellStr.includes("\n")) {
               return `"${cellStr.replace(/"/g, '""')}"`
             }
             return cellStr
           })
-          .join(',')
+          .join(",")
       ),
-    ].join('\n')
+    ].join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' })
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = filename || 'sorted-table.csv'
+    link.download = filename || "sorted-table.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -572,17 +572,17 @@ const useTableExport = () => {
     const jsonData = data.rows.map((row) => {
       const obj: Record<string, string | number> = {}
       data.headers.forEach((header, index) => {
-        obj[header] = row[index] || ''
+        obj[header] = row[index] || ""
       })
       return obj
     })
 
     const jsonContent = JSON.stringify(jsonData, null, 2)
-    const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8' })
+    const blob = new Blob([jsonContent], { type: "application/json;charset=utf-8" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = filename || 'sorted-table.json'
+    link.download = filename || "sorted-table.json"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -591,15 +591,15 @@ const useTableExport = () => {
 
   const exportTSV = useCallback((data: TableData, filename?: string) => {
     const tsvContent = [
-      data.headers.join('\t'),
-      ...data.rows.map((row) => row.map((cell) => String(cell)).join('\t')),
-    ].join('\n')
+      data.headers.join("\t"),
+      ...data.rows.map((row) => row.map((cell) => String(cell)).join("\t")),
+    ].join("\n")
 
-    const blob = new Blob([tsvContent], { type: 'text/tab-separated-values;charset=utf-8' })
+    const blob = new Blob([tsvContent], { type: "text/tab-separated-values;charset=utf-8" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = filename || 'sorted-table.tsv'
+    link.download = filename || "sorted-table.tsv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -611,13 +611,13 @@ const useTableExport = () => {
       const completedFiles = files.filter((f) => f.sortedData)
 
       if (completedFiles.length === 0) {
-        toast.error('No sorted tables to export')
+        toast.error("No sorted tables to export")
         return
       }
 
       completedFiles.forEach((file) => {
         if (file.sortedData) {
-          const baseName = file.name.replace(/\.[^/.]+$/, '')
+          const baseName = file.name.replace(/\.[^/.]+$/, "")
           exportCSV(file.sortedData, `${baseName}-sorted.csv`)
         }
       })
@@ -635,12 +635,12 @@ const useTableExport = () => {
         originalSize: formatFileSize(file.size),
         rows: file.sortedData!.metadata.rowCount,
         columns: file.sortedData!.metadata.columnCount,
-        dataTypes: file.sortedData!.metadata.dataTypes.join(', '),
+        dataTypes: file.sortedData!.metadata.dataTypes.join(", "),
         status: file.status,
       }))
 
     const csvContent = [
-      ['Filename', 'Original Size', 'Rows', 'Columns', 'Data Types', 'Status'],
+      ["Filename", "Original Size", "Rows", "Columns", "Data Types", "Status"],
       ...stats.map((stat) => [
         stat.filename,
         stat.originalSize,
@@ -650,20 +650,20 @@ const useTableExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'table-sorting-statistics.csv'
+    link.download = "table-sorting-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportCSV, exportJSON, exportTSV, exportBatch, exportStatistics }
@@ -676,24 +676,24 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
   const copyTableAsCSV = useCallback(
     async (data: TableData, label?: string) => {
       const csvContent = [
-        data.headers.join(','),
-        ...data.rows.map((row) => row.map((cell) => String(cell)).join(',')),
-      ].join('\n')
+        data.headers.join(","),
+        ...data.rows.map((row) => row.map((cell) => String(cell)).join(",")),
+      ].join("\n")
 
-      await copyToClipboard(csvContent, label || 'table data')
+      await copyToClipboard(csvContent, label || "table data")
     },
     [copyToClipboard]
   )
@@ -709,9 +709,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -729,7 +729,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only CSV, TSV, TXT, JSON, or Excel files')
+        toast.error("Please drop only CSV, TSV, TXT, JSON, or Excel files")
       }
     },
     [onFilesDropped]
@@ -743,7 +743,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -763,17 +763,17 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time sorting, file upload, batch processing, multiple data formats
  */
 const TableSorterCore = () => {
-  const [activeTab, setActiveTab] = useState<'sorter' | 'files'>('sorter')
+  const [activeTab, setActiveTab] = useState<"sorter" | "files">("sorter")
   const [inputData, setInputData] = useState(
-    'Name,Age,City,Score\nAlice,25,New York,95\nBob,30,Los Angeles,87\nCharlie,22,Chicago,92\nDiana,28,Houston,89\nEve,35,Phoenix,94'
+    "Name,Age,City,Score\nAlice,25,New York,95\nBob,30,Los Angeles,87\nCharlie,22,Chicago,92\nDiana,28,Houston,89\nEve,35,Phoenix,94"
   )
   const [files, setFiles] = useState<DataFile[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedPreset, setSelectedPreset] = useState<string>('alphabetical')
-  const [dataFormat, setDataFormat] = useState<DataFormat>('auto')
+  const [selectedPreset, setSelectedPreset] = useState<string>("alphabetical")
+  const [dataFormat, setDataFormat] = useState<DataFormat>("auto")
   const [settings, setSortSettings] = useState<SortSettings>({
     multiColumn: false,
-    sortConfigs: [{ column: 0, direction: 'asc', dataType: 'string' }],
+    sortConfigs: [{ column: 0, direction: "asc", dataType: "string" }],
     caseSensitive: false,
     nullsFirst: false,
   })
@@ -795,7 +795,7 @@ const TableSorterCore = () => {
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
@@ -826,8 +826,8 @@ const TableSorterCore = () => {
         ...prev.sortConfigs,
         {
           column: 0,
-          direction: 'asc',
-          dataType: tablePreview.originalData!.metadata.dataTypes[0] || 'string',
+          direction: "asc",
+          dataType: tablePreview.originalData!.metadata.dataTypes[0] || "string",
         },
       ],
     }))
@@ -851,9 +851,9 @@ const TableSorterCore = () => {
 
   // Process all files
   const processFiles = useCallback(async () => {
-    const pendingFiles = files.filter((f) => f.status === 'pending')
+    const pendingFiles = files.filter((f) => f.status === "pending")
     if (pendingFiles.length === 0) {
-      toast.error('No files to process')
+      toast.error("No files to process")
       return
     }
 
@@ -866,9 +866,9 @@ const TableSorterCore = () => {
           return updated || file
         })
       )
-      toast.success('Files processed successfully!')
+      toast.success("Files processed successfully!")
     } catch (error) {
-      toast.error('Failed to process files')
+      toast.error("Failed to process files")
     } finally {
       setIsProcessing(false)
     }
@@ -877,7 +877,7 @@ const TableSorterCore = () => {
   // Clear all files
   const clearAll = useCallback(() => {
     setFiles([])
-    toast.success('All files cleared')
+    toast.success("All files cleared")
   }, [])
 
   // Remove specific file
@@ -890,7 +890,7 @@ const TableSorterCore = () => {
     if (files.length === 0) return null
 
     const completedFiles = files.filter((f) => f.sortedData)
-    const failedFiles = files.filter((f) => f.status === 'error')
+    const failedFiles = files.filter((f) => f.status === "error")
 
     const dataTypeDistribution: Record<DataType, number> = {
       string: 0,
@@ -929,12 +929,15 @@ const TableSorterCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ArrowUpDown className="h-5 w-5" aria-hidden="true" />
+              <ArrowUpDown className="h-5 w-5" />
               Table Sorter
             </CardTitle>
             <CardDescription>
@@ -945,20 +948,32 @@ const TableSorterCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'sorter' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "sorter" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="sorter" className="flex items-center gap-2">
+            <TabsTrigger
+              value="sorter"
+              className="flex items-center gap-2"
+            >
               <Grid className="h-4 w-4" />
               Table Sorter
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* Table Sorter Tab */}
-          <TabsContent value="sorter" className="space-y-4">
+          <TabsContent
+            value="sorter"
+            className="space-y-4"
+          >
             {/* Sort Presets */}
             <Card>
               <CardHeader>
@@ -972,7 +987,7 @@ const TableSorterCore = () => {
                   {sortPresets.map((preset) => (
                     <Button
                       key={preset.id}
-                      variant={selectedPreset === preset.id ? 'default' : 'outline'}
+                      variant={selectedPreset === preset.id ? "default" : "outline"}
                       onClick={() => applyPreset(preset.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -996,7 +1011,10 @@ const TableSorterCore = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="data-format">Data Format</Label>
-                    <Select value={dataFormat} onValueChange={(value: DataFormat) => setDataFormat(value)}>
+                    <Select
+                      value={dataFormat}
+                      onValueChange={(value: DataFormat) => setDataFormat(value)}
+                    >
                       <SelectTrigger className="w-32">
                         <SelectValue />
                       </SelectTrigger>
@@ -1014,10 +1032,10 @@ const TableSorterCore = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => copyToClipboard(inputData, 'input data')}
+                      onClick={() => copyToClipboard(inputData, "input data")}
                       disabled={!inputData}
                     >
-                      {copiedText === 'input data' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {copiedText === "input data" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     </Button>
                   </div>
                   <Textarea
@@ -1026,7 +1044,6 @@ const TableSorterCore = () => {
                     onChange={(e) => setInputData(e.target.value)}
                     placeholder="Enter CSV, TSV, or JSON data..."
                     className="min-h-[150px] font-mono"
-                    aria-label="Data input"
                   />
                 </div>
               </CardContent>
@@ -1051,7 +1068,10 @@ const TableSorterCore = () => {
                       onChange={(e) => setSortSettings((prev) => ({ ...prev, multiColumn: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="multiColumn" className="text-sm">
+                    <Label
+                      htmlFor="multiColumn"
+                      className="text-sm"
+                    >
                       Multi-column Sort
                     </Label>
                   </div>
@@ -1064,7 +1084,10 @@ const TableSorterCore = () => {
                       onChange={(e) => setSortSettings((prev) => ({ ...prev, caseSensitive: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="caseSensitive" className="text-sm">
+                    <Label
+                      htmlFor="caseSensitive"
+                      className="text-sm"
+                    >
                       Case Sensitive
                     </Label>
                   </div>
@@ -1077,7 +1100,10 @@ const TableSorterCore = () => {
                       onChange={(e) => setSortSettings((prev) => ({ ...prev, nullsFirst: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="nullsFirst" className="text-sm">
+                    <Label
+                      htmlFor="nullsFirst"
+                      className="text-sm"
+                    >
                       Nulls First
                     </Label>
                   </div>
@@ -1101,7 +1127,10 @@ const TableSorterCore = () => {
                   </div>
 
                   {settings.sortConfigs.map((config, index) => (
-                    <div key={index} className="flex items-center gap-3 p-3 border rounded">
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-3 border rounded"
+                    >
                       <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
                         <div className="space-y-1">
                           <Label className="text-xs">Column</Label>
@@ -1114,7 +1143,10 @@ const TableSorterCore = () => {
                             </SelectTrigger>
                             <SelectContent>
                               {tablePreview.originalData?.headers.map((header, i) => (
-                                <SelectItem key={i} value={i.toString()}>
+                                <SelectItem
+                                  key={i}
+                                  value={i.toString()}
+                                >
                                   {header} ({i})
                                 </SelectItem>
                               )) || []}
@@ -1224,7 +1256,10 @@ const TableSorterCore = () => {
                     <Label className="text-sm font-medium">Data Types by Column</Label>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {tablePreview.originalData.headers.map((header, index) => (
-                        <div key={index} className="flex items-center gap-2 px-3 py-1 bg-muted rounded-full text-sm">
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 px-3 py-1 bg-muted rounded-full text-sm"
+                        >
                           <span className="font-medium">{header}:</span>
                           <span className="text-muted-foreground capitalize">
                             {tablePreview.originalData!.metadata.dataTypes[index]}
@@ -1263,9 +1298,9 @@ const TableSorterCore = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => copyTableAsCSV(tablePreview.sortedData!, 'sorted table')}
+                        onClick={() => copyTableAsCSV(tablePreview.sortedData!, "sorted table")}
                       >
-                        {copiedText === 'sorted table' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        {copiedText === "sorted table" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                       </Button>
                     </div>
                   </CardTitle>
@@ -1276,12 +1311,15 @@ const TableSorterCore = () => {
                       <TableHeader>
                         <TableRow>
                           {tablePreview.sortedData.headers.map((header, index) => (
-                            <TableHead key={index} className="font-semibold">
+                            <TableHead
+                              key={index}
+                              className="font-semibold"
+                            >
                               <div className="flex items-center gap-2">
                                 {header}
                                 {settings.sortConfigs.find((c) => c.column === index) && (
                                   <div className="flex items-center gap-1">
-                                    {settings.sortConfigs.find((c) => c.column === index)?.direction === 'asc' ? (
+                                    {settings.sortConfigs.find((c) => c.column === index)?.direction === "asc" ? (
                                       <ChevronUp className="h-3 w-3 text-blue-600" />
                                     ) : (
                                       <ChevronDown className="h-3 w-3 text-blue-600" />
@@ -1300,7 +1338,10 @@ const TableSorterCore = () => {
                         {tablePreview.sortedData.rows.slice(0, 100).map((row, rowIndex) => (
                           <TableRow key={rowIndex}>
                             {row.map((cell, cellIndex) => (
-                              <TableCell key={cellIndex} className="font-mono text-sm">
+                              <TableCell
+                                key={cellIndex}
+                                className="font-mono text-sm"
+                              >
                                 {String(cell)}
                               </TableCell>
                             ))}
@@ -1328,22 +1369,34 @@ const TableSorterCore = () => {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex flex-wrap gap-3 justify-center">
-                    <Button onClick={() => exportCSV(tablePreview.sortedData!)} variant="outline">
+                    <Button
+                      onClick={() => exportCSV(tablePreview.sortedData!)}
+                      variant="outline"
+                    >
                       <Download className="mr-2 h-4 w-4" />
                       Export CSV
                     </Button>
 
-                    <Button onClick={() => exportJSON(tablePreview.sortedData!)} variant="outline">
+                    <Button
+                      onClick={() => exportJSON(tablePreview.sortedData!)}
+                      variant="outline"
+                    >
                       <FileText className="mr-2 h-4 w-4" />
                       Export JSON
                     </Button>
 
-                    <Button onClick={() => exportTSV(tablePreview.sortedData!)} variant="outline">
+                    <Button
+                      onClick={() => exportTSV(tablePreview.sortedData!)}
+                      variant="outline"
+                    >
                       <Code className="mr-2 h-4 w-4" />
                       Export TSV
                     </Button>
 
-                    <Button onClick={() => copyTableAsCSV(tablePreview.sortedData!, 'table data')} variant="outline">
+                    <Button
+                      onClick={() => copyTableAsCSV(tablePreview.sortedData!, "table data")}
+                      variant="outline"
+                    >
                       <Copy className="mr-2 h-4 w-4" />
                       Copy Data
                     </Button>
@@ -1354,15 +1407,18 @@ const TableSorterCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             {/* File Upload */}
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1370,9 +1426,8 @@ const TableSorterCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop data files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1383,7 +1438,11 @@ const TableSorterCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your data files here, or click to select files
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1397,7 +1456,6 @@ const TableSorterCore = () => {
                     accept=".csv,.tsv,.txt,.json,.xlsx,.xls"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select data files"
                   />
                 </div>
               </CardContent>
@@ -1444,7 +1502,10 @@ const TableSorterCore = () => {
                     <Label className="text-sm font-medium">Data Type Distribution</Label>
                     <div className="mt-2 grid grid-cols-2 md:grid-cols-5 gap-2">
                       {Object.entries(totalStats.dataTypeDistribution).map(([type, count]) => (
-                        <div key={type} className="text-center p-2 bg-muted/30 rounded">
+                        <div
+                          key={type}
+                          className="text-center p-2 bg-muted/30 rounded"
+                        >
                           <div className="text-lg font-bold">{count}</div>
                           <div className="text-xs text-muted-foreground capitalize">{type}</div>
                         </div>
@@ -1462,7 +1523,7 @@ const TableSorterCore = () => {
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Button
                       onClick={processFiles}
-                      disabled={isProcessing || files.every((f) => f.status !== 'pending')}
+                      disabled={isProcessing || files.every((f) => f.status !== "pending")}
                       className="min-w-32"
                     >
                       {isProcessing ? (
@@ -1496,7 +1557,11 @@ const TableSorterCore = () => {
                       Export Statistics
                     </Button>
 
-                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                    <Button
+                      onClick={clearAll}
+                      variant="destructive"
+                      disabled={isProcessing}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
@@ -1514,14 +1579,20 @@ const TableSorterCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground space-y-1">
@@ -1530,20 +1601,20 @@ const TableSorterCore = () => {
                                 <span className="font-medium"> Type:</span> {file.type}
                               </div>
 
-                              {file.status === 'completed' && file.sortedData && (
+                              {file.status === "completed" && file.sortedData && (
                                 <div className="mt-2">
                                   <div className="text-xs font-medium mb-1">Table Sorted:</div>
                                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                                     <div>{file.sortedData.metadata.rowCount} rows</div>
                                     <div>{file.sortedData.metadata.columnCount} columns</div>
-                                    <div>{file.sortedData.metadata.dataTypes.join(', ')}</div>
+                                    <div>{file.sortedData.metadata.dataTypes.join(", ")}</div>
                                     <div>{settings.sortConfigs.length} sort columns</div>
                                   </div>
                                 </div>
                               )}
 
-                              {file.status === 'pending' && <div className="text-blue-600">Ready for sorting</div>}
-                              {file.status === 'processing' && (
+                              {file.status === "pending" && <div className="text-blue-600">Ready for sorting</div>}
+                              {file.status === "processing" && (
                                 <div className="text-blue-600 flex items-center gap-2">
                                   <Loader2 className="h-4 w-4 animate-spin" />
                                   Processing...
@@ -1554,15 +1625,14 @@ const TableSorterCore = () => {
                           </div>
 
                           <div className="flex-shrink-0 flex items-center gap-2">
-                            {file.status === 'completed' && file.sortedData && (
+                            {file.status === "completed" && file.sortedData && (
                               <>
                                 <Button
                                   size="sm"
                                   variant="outline"
                                   onClick={() =>
-                                    exportCSV(file.sortedData!, file.name.replace(/\.[^/.]+$/, '-sorted.csv'))
+                                    exportCSV(file.sortedData!, file.name.replace(/\.[^/.]+$/, "-sorted.csv"))
                                   }
-                                  aria-label={`Export sorted ${file.name}`}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1571,7 +1641,6 @@ const TableSorterCore = () => {
                                   size="sm"
                                   variant="outline"
                                   onClick={() => copyTableAsCSV(file.sortedData!, file.id)}
-                                  aria-label={`Copy sorted data from ${file.name}`}
                                 >
                                   {copiedText === file.id ? (
                                     <Check className="h-4 w-4" />
@@ -1586,7 +1655,6 @@ const TableSorterCore = () => {
                               size="sm"
                               variant="ghost"
                               onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

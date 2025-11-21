@@ -1,12 +1,12 @@
-import { useCallback, useState, useMemo, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -21,8 +21,8 @@ import {
   Clock,
   BookOpen,
   Code,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   CronBatch,
   CronExpression,
@@ -34,39 +34,39 @@ import type {
   CronTemplate,
   CronValidation,
   ExportFormat,
-} from '@/types/cron-parser'
+} from "@/types/cron-parser"
 
 // Utility functions
 
 // Cron field ranges and constraints
 const CRON_RANGES = {
-  minute: { min: 0, max: 59, name: 'minute' },
-  hour: { min: 0, max: 23, name: 'hour' },
-  dayOfMonth: { min: 1, max: 31, name: 'day of month' },
-  month: { min: 1, max: 12, name: 'month' },
-  dayOfWeek: { min: 0, max: 7, name: 'day of week' }, // 0 and 7 both represent Sunday
-  year: { min: 1970, max: 3000, name: 'year' },
+  minute: { min: 0, max: 59, name: "minute" },
+  hour: { min: 0, max: 23, name: "hour" },
+  dayOfMonth: { min: 1, max: 31, name: "day of month" },
+  month: { min: 1, max: 12, name: "month" },
+  dayOfWeek: { min: 0, max: 7, name: "day of week" }, // 0 and 7 both represent Sunday
+  year: { min: 1970, max: 3000, name: "year" },
 }
 
 // Month and day names
-const MONTH_NAMES = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
-const DAY_NAMES = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+const MONTH_NAMES = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+const DAY_NAMES = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
 
 // Common timezones
 const COMMON_TIMEZONES = [
-  'UTC',
-  'America/New_York',
-  'America/Los_Angeles',
-  'America/Chicago',
-  'America/Denver',
-  'Europe/London',
-  'Europe/Paris',
-  'Europe/Berlin',
-  'Asia/Tokyo',
-  'Asia/Shanghai',
-  'Asia/Kolkata',
-  'Australia/Sydney',
-  'Pacific/Auckland',
+  "UTC",
+  "America/New_York",
+  "America/Los_Angeles",
+  "America/Chicago",
+  "America/Denver",
+  "Europe/London",
+  "Europe/Paris",
+  "Europe/Berlin",
+  "Asia/Tokyo",
+  "Asia/Shanghai",
+  "Asia/Kolkata",
+  "Australia/Sydney",
+  "Pacific/Auckland",
 ]
 
 // Parse cron field value
@@ -75,15 +75,15 @@ const parseCronField = (value: string, fieldType: keyof typeof CRON_RANGES): Cro
   const field: CronField = {
     raw: value,
     values: [],
-    type: 'invalid',
-    description: '',
+    type: "invalid",
+    description: "",
     isValid: false,
   }
 
   try {
     // Handle wildcard
-    if (value === '*') {
-      field.type = 'wildcard'
+    if (value === "*") {
+      field.type = "wildcard"
       field.values = Array.from({ length: range.max - range.min + 1 }, (_, i) => i + range.min)
       field.description = `Every ${range.name}`
       field.isValid = true
@@ -91,24 +91,24 @@ const parseCronField = (value: string, fieldType: keyof typeof CRON_RANGES): Cro
     }
 
     // Handle step values (*/5, 1-10/2)
-    if (value.includes('/')) {
-      const [rangeOrWildcard, step] = value.split('/')
+    if (value.includes("/")) {
+      const [rangeOrWildcard, step] = value.split("/")
       const stepNum = parseInt(step)
 
       if (isNaN(stepNum) || stepNum <= 0) {
-        field.error = 'Invalid step value'
+        field.error = "Invalid step value"
         return field
       }
 
       let startRange: number[], endRange: number[]
 
-      if (rangeOrWildcard === '*') {
+      if (rangeOrWildcard === "*") {
         startRange = [range.min]
         endRange = [range.max]
-      } else if (rangeOrWildcard.includes('-')) {
-        const [start, end] = rangeOrWildcard.split('-').map(Number)
+      } else if (rangeOrWildcard.includes("-")) {
+        const [start, end] = rangeOrWildcard.split("-").map(Number)
         if (isNaN(start) || isNaN(end) || start < range.min || end > range.max || start > end) {
-          field.error = 'Invalid range in step'
+          field.error = "Invalid range in step"
           return field
         }
         startRange = [start]
@@ -116,14 +116,14 @@ const parseCronField = (value: string, fieldType: keyof typeof CRON_RANGES): Cro
       } else {
         const start = parseInt(rangeOrWildcard)
         if (isNaN(start) || start < range.min || start > range.max) {
-          field.error = 'Invalid start value in step'
+          field.error = "Invalid start value in step"
           return field
         }
         startRange = [start]
         endRange = [range.max]
       }
 
-      field.type = 'step'
+      field.type = "step"
       field.values = []
       for (let i = startRange[0]; i <= endRange[0]; i += stepNum) {
         field.values.push(i)
@@ -134,14 +134,14 @@ const parseCronField = (value: string, fieldType: keyof typeof CRON_RANGES): Cro
     }
 
     // Handle ranges (1-5)
-    if (value.includes('-')) {
-      const [start, end] = value.split('-').map(Number)
+    if (value.includes("-")) {
+      const [start, end] = value.split("-").map(Number)
       if (isNaN(start) || isNaN(end) || start < range.min || end > range.max || start > end) {
-        field.error = 'Invalid range'
+        field.error = "Invalid range"
         return field
       }
 
-      field.type = 'range'
+      field.type = "range"
       field.values = Array.from({ length: end - start + 1 }, (_, i) => i + start)
       field.description = `From ${start} to ${end}`
       field.isValid = true
@@ -149,14 +149,14 @@ const parseCronField = (value: string, fieldType: keyof typeof CRON_RANGES): Cro
     }
 
     // Handle lists (1,3,5)
-    if (value.includes(',')) {
-      const values = value.split(',').map((v) => {
+    if (value.includes(",")) {
+      const values = value.split(",").map((v) => {
         // Handle named values (MON, JAN, etc.)
         if (isNaN(Number(v))) {
-          if (fieldType === 'month') {
+          if (fieldType === "month") {
             const monthIndex = MONTH_NAMES.indexOf(v.toUpperCase())
             return monthIndex >= 0 ? monthIndex + 1 : NaN
-          } else if (fieldType === 'dayOfWeek') {
+          } else if (fieldType === "dayOfWeek") {
             const dayIndex = DAY_NAMES.indexOf(v.toUpperCase())
             return dayIndex >= 0 ? dayIndex : NaN
           }
@@ -166,13 +166,13 @@ const parseCronField = (value: string, fieldType: keyof typeof CRON_RANGES): Cro
       })
 
       if (values.some((v) => isNaN(v) || v < range.min || v > range.max)) {
-        field.error = 'Invalid values in list'
+        field.error = "Invalid values in list"
         return field
       }
 
-      field.type = 'list'
+      field.type = "list"
       field.values = values.sort((a, b) => a - b)
-      field.description = `At ${values.join(', ')}`
+      field.description = `At ${values.join(", ")}`
       field.isValid = true
       return field
     }
@@ -181,14 +181,14 @@ const parseCronField = (value: string, fieldType: keyof typeof CRON_RANGES): Cro
     let numValue: number
     if (isNaN(Number(value))) {
       // Handle named values
-      if (fieldType === 'month') {
+      if (fieldType === "month") {
         const monthIndex = MONTH_NAMES.indexOf(value.toUpperCase())
         numValue = monthIndex >= 0 ? monthIndex + 1 : NaN
-      } else if (fieldType === 'dayOfWeek') {
+      } else if (fieldType === "dayOfWeek") {
         const dayIndex = DAY_NAMES.indexOf(value.toUpperCase())
         numValue = dayIndex >= 0 ? dayIndex : NaN
       } else {
-        field.error = 'Invalid value'
+        field.error = "Invalid value"
         return field
       }
     } else {
@@ -200,13 +200,13 @@ const parseCronField = (value: string, fieldType: keyof typeof CRON_RANGES): Cro
       return field
     }
 
-    field.type = 'specific'
+    field.type = "specific"
     field.values = [numValue]
     field.description = `At ${numValue}`
     field.isValid = true
     return field
   } catch (error) {
-    field.error = 'Parse error'
+    field.error = "Parse error"
     return field
   }
 }
@@ -222,10 +222,10 @@ const parseCronExpression = (
 
   if (parts.length !== expectedParts) {
     const invalidField: CronField = {
-      raw: '',
+      raw: "",
       values: [],
-      type: 'invalid',
-      description: '',
+      type: "invalid",
+      description: "",
       isValid: false,
       error: `Expected ${expectedParts} parts, got ${parts.length}`,
     }
@@ -242,15 +242,15 @@ const parseCronExpression = (
 
   let partIndex = 0
   const fields: CronFields = {
-    minute: parseCronField(parts[partIndex++], 'minute'),
-    hour: parseCronField(parts[partIndex++], 'hour'),
-    dayOfMonth: parseCronField(parts[partIndex++], 'dayOfMonth'),
-    month: parseCronField(parts[partIndex++], 'month'),
-    dayOfWeek: parseCronField(parts[partIndex++], 'dayOfWeek'),
+    minute: parseCronField(parts[partIndex++], "minute"),
+    hour: parseCronField(parts[partIndex++], "hour"),
+    dayOfMonth: parseCronField(parts[partIndex++], "dayOfMonth"),
+    month: parseCronField(parts[partIndex++], "month"),
+    dayOfWeek: parseCronField(parts[partIndex++], "dayOfWeek"),
   }
 
   if (includeYear && partIndex < parts.length) {
-    fields.year = parseCronField(parts[partIndex], 'year')
+    fields.year = parseCronField(parts[partIndex], "year")
   }
 
   return fields
@@ -263,59 +263,59 @@ const generateHumanReadable = (fields: CronFields): string => {
 
     // Handle special cases first
     if (
-      fields.minute.type === 'wildcard' &&
-      fields.hour.type === 'wildcard' &&
-      fields.dayOfMonth.type === 'wildcard' &&
-      fields.month.type === 'wildcard' &&
-      fields.dayOfWeek.type === 'wildcard'
+      fields.minute.type === "wildcard" &&
+      fields.hour.type === "wildcard" &&
+      fields.dayOfMonth.type === "wildcard" &&
+      fields.month.type === "wildcard" &&
+      fields.dayOfWeek.type === "wildcard"
     ) {
-      return 'Every minute'
+      return "Every minute"
     }
 
     // Frequency part
-    if (fields.minute.type === 'specific' && fields.minute.values[0] === 0) {
-      if (fields.hour.type === 'specific') {
-        parts.push(`At ${fields.hour.values[0].toString().padStart(2, '0')}:00`)
-      } else if (fields.hour.type === 'wildcard') {
-        parts.push('At the top of every hour')
+    if (fields.minute.type === "specific" && fields.minute.values[0] === 0) {
+      if (fields.hour.type === "specific") {
+        parts.push(`At ${fields.hour.values[0].toString().padStart(2, "0")}:00`)
+      } else if (fields.hour.type === "wildcard") {
+        parts.push("At the top of every hour")
       } else {
         parts.push(`At minute 0 of ${fields.hour.description.toLowerCase()}`)
       }
-    } else if (fields.minute.type === 'wildcard') {
-      parts.push('Every minute')
+    } else if (fields.minute.type === "wildcard") {
+      parts.push("Every minute")
     } else {
       parts.push(`At ${fields.minute.description.toLowerCase()}`)
     }
 
     // Hour part
-    if (fields.hour.type !== 'wildcard' && !(fields.minute.type === 'specific' && fields.minute.values[0] === 0)) {
+    if (fields.hour.type !== "wildcard" && !(fields.minute.type === "specific" && fields.minute.values[0] === 0)) {
       parts.push(`of ${fields.hour.description.toLowerCase()}`)
     }
 
     // Day part
-    if (fields.dayOfMonth.type !== 'wildcard' && fields.dayOfWeek.type !== 'wildcard') {
+    if (fields.dayOfMonth.type !== "wildcard" && fields.dayOfWeek.type !== "wildcard") {
       parts.push(`on ${fields.dayOfMonth.description.toLowerCase()} and ${fields.dayOfWeek.description.toLowerCase()}`)
-    } else if (fields.dayOfMonth.type !== 'wildcard') {
+    } else if (fields.dayOfMonth.type !== "wildcard") {
       parts.push(`on ${fields.dayOfMonth.description.toLowerCase()}`)
-    } else if (fields.dayOfWeek.type !== 'wildcard') {
-      const dayNames = fields.dayOfWeek.values.map((d) => DAY_NAMES[d === 7 ? 0 : d]).join(', ')
+    } else if (fields.dayOfWeek.type !== "wildcard") {
+      const dayNames = fields.dayOfWeek.values.map((d) => DAY_NAMES[d === 7 ? 0 : d]).join(", ")
       parts.push(`on ${dayNames}`)
     }
 
     // Month part
-    if (fields.month.type !== 'wildcard') {
-      const monthNames = fields.month.values.map((m) => MONTH_NAMES[m - 1]).join(', ')
+    if (fields.month.type !== "wildcard") {
+      const monthNames = fields.month.values.map((m) => MONTH_NAMES[m - 1]).join(", ")
       parts.push(`in ${monthNames}`)
     }
 
-    return parts.join(' ')
+    return parts.join(" ")
   } catch (error) {
-    return 'Unable to generate description'
+    return "Unable to generate description"
   }
 }
 
 // Calculate next run times
-const calculateNextRuns = (fields: CronFields, count: number = 5, _timezone: string = 'UTC'): Date[] => {
+const calculateNextRuns = (fields: CronFields, count: number = 5, _timezone: string = "UTC"): Date[] => {
   const nextRuns: Date[] = []
   const now = new Date()
   let current = new Date(now.getTime() + 60000) // Start from next minute
@@ -360,36 +360,36 @@ const matchesCronFields = (date: Date, fields: CronFields): boolean => {
 // Determine cron frequency
 const determineCronFrequency = (fields: CronFields): CronFrequency => {
   // Check for specific patterns
-  if (fields.minute.type === 'wildcard') {
-    return { type: 'minutely', interval: 1, description: 'Every minute' }
+  if (fields.minute.type === "wildcard") {
+    return { type: "minutely", interval: 1, description: "Every minute" }
   }
 
-  if (fields.hour.type === 'wildcard' && fields.minute.type === 'specific') {
-    return { type: 'hourly', interval: 1, description: 'Every hour' }
+  if (fields.hour.type === "wildcard" && fields.minute.type === "specific") {
+    return { type: "hourly", interval: 1, description: "Every hour" }
   }
 
   if (
-    fields.dayOfMonth.type === 'wildcard' &&
-    fields.dayOfWeek.type === 'wildcard' &&
-    fields.hour.type === 'specific' &&
-    fields.minute.type === 'specific'
+    fields.dayOfMonth.type === "wildcard" &&
+    fields.dayOfWeek.type === "wildcard" &&
+    fields.hour.type === "specific" &&
+    fields.minute.type === "specific"
   ) {
-    return { type: 'daily', interval: 1, description: 'Every day' }
+    return { type: "daily", interval: 1, description: "Every day" }
   }
 
-  if (fields.dayOfWeek.type === 'specific' && fields.dayOfWeek.values.length === 1) {
-    return { type: 'weekly', interval: 1, description: 'Every week' }
+  if (fields.dayOfWeek.type === "specific" && fields.dayOfWeek.values.length === 1) {
+    return { type: "weekly", interval: 1, description: "Every week" }
   }
 
-  if (fields.dayOfMonth.type === 'specific' && fields.dayOfMonth.values.length === 1) {
-    return { type: 'monthly', interval: 1, description: 'Every month' }
+  if (fields.dayOfMonth.type === "specific" && fields.dayOfMonth.values.length === 1) {
+    return { type: "monthly", interval: 1, description: "Every month" }
   }
 
-  if (fields.month.type === 'specific' && fields.month.values.length === 1) {
-    return { type: 'yearly', interval: 1, description: 'Every year' }
+  if (fields.month.type === "specific" && fields.month.values.length === 1) {
+    return { type: "yearly", interval: 1, description: "Every year" }
   }
 
-  return { type: 'custom', interval: 0, description: 'Custom schedule' }
+  return { type: "custom", interval: 0, description: "Custom schedule" }
 }
 
 // Validate cron expression
@@ -403,7 +403,7 @@ const validateCronExpression = (expression: string, settings: CronSettings): Cro
 
   if (!expression.trim()) {
     validation.isValid = false
-    validation.errors.push('Cron expression cannot be empty')
+    validation.errors.push("Cron expression cannot be empty")
     return validation
   }
 
@@ -418,12 +418,12 @@ const validateCronExpression = (expression: string, settings: CronSettings): Cro
   })
 
   // Add warnings and suggestions
-  if (fields.dayOfMonth.type !== 'wildcard' && fields.dayOfWeek.type !== 'wildcard') {
-    validation.warnings.push('Both day of month and day of week are specified. This may not run as expected.')
+  if (fields.dayOfMonth.type !== "wildcard" && fields.dayOfWeek.type !== "wildcard") {
+    validation.warnings.push("Both day of month and day of week are specified. This may not run as expected.")
   }
 
-  if (fields.minute.type === 'wildcard' && fields.hour.type === 'wildcard') {
-    validation.warnings.push('This will run every minute. Consider if this is intended.')
+  if (fields.minute.type === "wildcard" && fields.hour.type === "wildcard") {
+    validation.warnings.push("This will run every minute. Consider if this is intended.")
   }
 
   return validation
@@ -432,94 +432,94 @@ const validateCronExpression = (expression: string, settings: CronSettings): Cro
 // Cron templates with common expressions
 const cronTemplates: CronTemplate[] = [
   {
-    id: 'every-minute',
-    name: 'Every Minute',
-    expression: '* * * * *',
-    description: 'Runs every minute',
-    category: 'Basic',
-    frequency: 'Every minute',
-    examples: ['System monitoring', 'Real-time data processing'],
+    id: "every-minute",
+    name: "Every Minute",
+    expression: "* * * * *",
+    description: "Runs every minute",
+    category: "Basic",
+    frequency: "Every minute",
+    examples: ["System monitoring", "Real-time data processing"],
   },
   {
-    id: 'every-hour',
-    name: 'Every Hour',
-    expression: '0 * * * *',
-    description: 'Runs at the beginning of every hour',
-    category: 'Basic',
-    frequency: 'Hourly',
-    examples: ['Log rotation', 'Cache cleanup'],
+    id: "every-hour",
+    name: "Every Hour",
+    expression: "0 * * * *",
+    description: "Runs at the beginning of every hour",
+    category: "Basic",
+    frequency: "Hourly",
+    examples: ["Log rotation", "Cache cleanup"],
   },
   {
-    id: 'daily-midnight',
-    name: 'Daily at Midnight',
-    expression: '0 0 * * *',
-    description: 'Runs every day at midnight',
-    category: 'Daily',
-    frequency: 'Daily',
-    examples: ['Daily backups', 'Report generation'],
+    id: "daily-midnight",
+    name: "Daily at Midnight",
+    expression: "0 0 * * *",
+    description: "Runs every day at midnight",
+    category: "Daily",
+    frequency: "Daily",
+    examples: ["Daily backups", "Report generation"],
   },
   {
-    id: 'daily-9am',
-    name: 'Daily at 9 AM',
-    expression: '0 9 * * *',
-    description: 'Runs every day at 9:00 AM',
-    category: 'Daily',
-    frequency: 'Daily',
-    examples: ['Morning reports', 'Daily notifications'],
+    id: "daily-9am",
+    name: "Daily at 9 AM",
+    expression: "0 9 * * *",
+    description: "Runs every day at 9:00 AM",
+    category: "Daily",
+    frequency: "Daily",
+    examples: ["Morning reports", "Daily notifications"],
   },
   {
-    id: 'weekly-monday',
-    name: 'Weekly on Monday',
-    expression: '0 9 * * 1',
-    description: 'Runs every Monday at 9:00 AM',
-    category: 'Weekly',
-    frequency: 'Weekly',
-    examples: ['Weekly reports', 'System maintenance'],
+    id: "weekly-monday",
+    name: "Weekly on Monday",
+    expression: "0 9 * * 1",
+    description: "Runs every Monday at 9:00 AM",
+    category: "Weekly",
+    frequency: "Weekly",
+    examples: ["Weekly reports", "System maintenance"],
   },
   {
-    id: 'monthly-first',
-    name: 'Monthly on 1st',
-    expression: '0 0 1 * *',
-    description: 'Runs on the 1st day of every month at midnight',
-    category: 'Monthly',
-    frequency: 'Monthly',
-    examples: ['Monthly billing', 'Archive old data'],
+    id: "monthly-first",
+    name: "Monthly on 1st",
+    expression: "0 0 1 * *",
+    description: "Runs on the 1st day of every month at midnight",
+    category: "Monthly",
+    frequency: "Monthly",
+    examples: ["Monthly billing", "Archive old data"],
   },
   {
-    id: 'workdays-9am',
-    name: 'Workdays at 9 AM',
-    expression: '0 9 * * 1-5',
-    description: 'Runs Monday through Friday at 9:00 AM',
-    category: 'Business',
-    frequency: 'Weekdays',
-    examples: ['Business reports', 'Workday notifications'],
+    id: "workdays-9am",
+    name: "Workdays at 9 AM",
+    expression: "0 9 * * 1-5",
+    description: "Runs Monday through Friday at 9:00 AM",
+    category: "Business",
+    frequency: "Weekdays",
+    examples: ["Business reports", "Workday notifications"],
   },
   {
-    id: 'every-15min',
-    name: 'Every 15 Minutes',
-    expression: '*/15 * * * *',
-    description: 'Runs every 15 minutes',
-    category: 'Frequent',
-    frequency: 'Every 15 minutes',
-    examples: ['Health checks', 'Data synchronization'],
+    id: "every-15min",
+    name: "Every 15 Minutes",
+    expression: "*/15 * * * *",
+    description: "Runs every 15 minutes",
+    category: "Frequent",
+    frequency: "Every 15 minutes",
+    examples: ["Health checks", "Data synchronization"],
   },
   {
-    id: 'twice-daily',
-    name: 'Twice Daily',
-    expression: '0 9,21 * * *',
-    description: 'Runs twice daily at 9:00 AM and 9:00 PM',
-    category: 'Daily',
-    frequency: 'Twice daily',
-    examples: ['Bi-daily backups', 'Status updates'],
+    id: "twice-daily",
+    name: "Twice Daily",
+    expression: "0 9,21 * * *",
+    description: "Runs twice daily at 9:00 AM and 9:00 PM",
+    category: "Daily",
+    frequency: "Twice daily",
+    examples: ["Bi-daily backups", "Status updates"],
   },
   {
-    id: 'quarterly',
-    name: 'Quarterly',
-    expression: '0 0 1 1,4,7,10 *',
-    description: 'Runs quarterly on the 1st day of Jan, Apr, Jul, Oct',
-    category: 'Periodic',
-    frequency: 'Quarterly',
-    examples: ['Quarterly reports', 'License renewals'],
+    id: "quarterly",
+    name: "Quarterly",
+    expression: "0 0 1 1,4,7,10 *",
+    description: "Runs quarterly on the 1st day of Jan, Apr, Jul, Oct",
+    category: "Periodic",
+    frequency: "Quarterly",
+    examples: ["Quarterly reports", "License renewals"],
   },
 ]
 
@@ -533,13 +533,13 @@ const useCronParsing = () => {
       const cronExpression: CronExpression = {
         id: nanoid(),
         expression,
-        description: '',
+        description: "",
         isValid: validation.isValid,
-        error: validation.errors.join('; '),
+        error: validation.errors.join("; "),
         parsedFields: fields,
-        humanReadable: '',
+        humanReadable: "",
         nextRuns: [],
-        frequency: { type: 'custom', interval: 0, description: 'Custom' },
+        frequency: { type: "custom", interval: 0, description: "Custom" },
         timezone: settings.timezone,
         createdAt: new Date(),
       }
@@ -552,23 +552,23 @@ const useCronParsing = () => {
 
       return cronExpression
     } catch (error) {
-      console.error('Cron parsing error:', error)
+      console.error("Cron parsing error:", error)
       return {
         id: nanoid(),
         expression,
-        description: '',
+        description: "",
         isValid: false,
-        error: error instanceof Error ? error.message : 'Parsing failed',
+        error: error instanceof Error ? error.message : "Parsing failed",
         parsedFields: {
-          minute: { raw: '', values: [], type: 'invalid', description: '', isValid: false },
-          hour: { raw: '', values: [], type: 'invalid', description: '', isValid: false },
-          dayOfMonth: { raw: '', values: [], type: 'invalid', description: '', isValid: false },
-          month: { raw: '', values: [], type: 'invalid', description: '', isValid: false },
-          dayOfWeek: { raw: '', values: [], type: 'invalid', description: '', isValid: false },
+          minute: { raw: "", values: [], type: "invalid", description: "", isValid: false },
+          hour: { raw: "", values: [], type: "invalid", description: "", isValid: false },
+          dayOfMonth: { raw: "", values: [], type: "invalid", description: "", isValid: false },
+          month: { raw: "", values: [], type: "invalid", description: "", isValid: false },
+          dayOfWeek: { raw: "", values: [], type: "invalid", description: "", isValid: false },
         },
-        humanReadable: 'Parse error',
+        humanReadable: "Parse error",
         nextRuns: [],
-        frequency: { type: 'custom', interval: 0, description: 'Error' },
+        frequency: { type: "custom", interval: 0, description: "Error" },
         timezone: settings.timezone,
         createdAt: new Date(),
       }
@@ -609,8 +609,8 @@ const useCronParsing = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch parsing error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch parsing failed')
+        console.error("Batch parsing error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch parsing failed")
       }
     },
     [parseSingle]
@@ -634,7 +634,7 @@ const useRealTimeCronValidation = (expression: string, settings: CronSettings) =
       const validation = validateCronExpression(expression, settings)
       return {
         isValid: validation.isValid,
-        error: validation.errors.join('; ') || null,
+        error: validation.errors.join("; ") || null,
         isEmpty: false,
         warnings: validation.warnings,
         suggestions: validation.suggestions,
@@ -642,7 +642,7 @@ const useRealTimeCronValidation = (expression: string, settings: CronSettings) =
     } catch (error) {
       return {
         isValid: false,
-        error: error instanceof Error ? error.message : 'Validation failed',
+        error: error instanceof Error ? error.message : "Validation failed",
         isEmpty: false,
       }
     }
@@ -653,37 +653,37 @@ const useRealTimeCronValidation = (expression: string, settings: CronSettings) =
 const useCronExport = () => {
   const exportCronExpressions = useCallback(
     (expressions: CronExpression[], format: ExportFormat, filename?: string) => {
-      let content = ''
-      let mimeType = 'text/plain'
-      let extension = '.txt'
+      let content = ""
+      let mimeType = "text/plain"
+      let extension = ".txt"
 
       switch (format) {
-        case 'json':
+        case "json":
           content = JSON.stringify(expressions, null, 2)
-          mimeType = 'application/json'
-          extension = '.json'
+          mimeType = "application/json"
+          extension = ".json"
           break
-        case 'csv':
+        case "csv":
           content = generateCSVFromCron(expressions)
-          mimeType = 'text/csv'
-          extension = '.csv'
+          mimeType = "text/csv"
+          extension = ".csv"
           break
-        case 'xml':
+        case "xml":
           content = generateXMLFromCron(expressions)
-          mimeType = 'application/xml'
-          extension = '.xml'
+          mimeType = "application/xml"
+          extension = ".xml"
           break
-        case 'txt':
+        case "txt":
         default:
           content = generateTextFromCron(expressions)
-          mimeType = 'text/plain'
-          extension = '.txt'
+          mimeType = "text/plain"
+          extension = ".txt"
           break
       }
 
       const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
       const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
+      const link = document.createElement("a")
       link.href = url
       link.download = filename || `cron-expressions${extension}`
       document.body.appendChild(link)
@@ -696,7 +696,7 @@ const useCronExport = () => {
 
   const exportBatch = useCallback(
     (batch: CronBatch) => {
-      exportCronExpressions(batch.expressions, 'json', `cron-batch-${batch.id}.json`)
+      exportCronExpressions(batch.expressions, "json", `cron-batch-${batch.id}.json`)
       toast.success(`Exported ${batch.expressions.length} cron expressions`)
     },
     [exportCronExpressions]
@@ -713,7 +713,7 @@ const useCronExport = () => {
     }))
 
     const csvContent = [
-      ['Batch ID', 'Expression Count', 'Valid Count', 'Invalid Count', 'Success Rate (%)', 'Created At'],
+      ["Batch ID", "Expression Count", "Valid Count", "Invalid Count", "Success Rate (%)", "Created At"],
       ...stats.map((stat) => [
         stat.batchId,
         stat.expressionCount.toString(),
@@ -723,20 +723,20 @@ const useCronExport = () => {
         stat.createdAt,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'cron-statistics.csv'
+    link.download = "cron-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportCronExpressions, exportBatch, exportStatistics }
@@ -760,18 +760,18 @@ ${expressions
         ? expr.nextRuns
             .slice(0, 3)
             .map((date) => date.toLocaleString())
-            .join(', ')
-        : 'No upcoming runs'
+            .join(", ")
+        : "No upcoming runs"
 
     return `${i + 1}. Expression: ${expr.expression}
    Description: ${expr.humanReadable}
    Frequency: ${expr.frequency.description}
-   Status: ${expr.isValid ? 'Valid' : 'Invalid'}
-   ${expr.error ? `Error: ${expr.error}` : ''}
+   Status: ${expr.isValid ? "Valid" : "Invalid"}
+   ${expr.error ? `Error: ${expr.error}` : ""}
    Next Runs: ${nextRunsText}
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((expressions.filter((expr) => expr.isValid).length / expressions.length) * 100).toFixed(1)}%
@@ -781,14 +781,14 @@ Statistics:
 const generateCSVFromCron = (expressions: CronExpression[]): string => {
   const rows = [
     [
-      'Expression',
-      'Human Readable',
-      'Frequency Type',
-      'Frequency Description',
-      'Valid',
-      'Error',
-      'Next Run',
-      'Timezone',
+      "Expression",
+      "Human Readable",
+      "Frequency Type",
+      "Frequency Description",
+      "Valid",
+      "Error",
+      "Next Run",
+      "Timezone",
     ],
   ]
 
@@ -798,14 +798,14 @@ const generateCSVFromCron = (expressions: CronExpression[]): string => {
       expr.humanReadable,
       expr.frequency.type,
       expr.frequency.description,
-      expr.isValid ? 'Yes' : 'No',
-      expr.error || '',
-      expr.nextRuns.length > 0 ? expr.nextRuns[0].toISOString() : '',
+      expr.isValid ? "Yes" : "No",
+      expr.error || "",
+      expr.nextRuns.length > 0 ? expr.nextRuns[0].toISOString() : "",
       expr.timezone,
     ])
   })
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 }
 
 const generateXMLFromCron = (expressions: CronExpression[]): string => {
@@ -828,14 +828,14 @@ const generateXMLFromCron = (expressions: CronExpression[]): string => {
         <description>${expr.frequency.description}</description>
       </frequency>
       <valid>${expr.isValid}</valid>
-      ${expr.error ? `<error>${expr.error}</error>` : ''}
+      ${expr.error ? `<error>${expr.error}</error>` : ""}
       <timezone>${expr.timezone}</timezone>
       <nextRuns>
-        ${expr.nextRuns.map((date) => `<run>${date.toISOString()}</run>`).join('')}
+        ${expr.nextRuns.map((date) => `<run>${date.toISOString()}</run>`).join("")}
       </nextRuns>
     </expression>`
       )
-      .join('')}
+      .join("")}
   </expressions>
 </cronExpressions>`
 }
@@ -847,13 +847,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -865,20 +865,20 @@ const useCopyToClipboard = () => {
  * Features: Expression parsing, validation, human-readable descriptions, schedule prediction
  */
 const CronParserCore = () => {
-  const [activeTab, setActiveTab] = useState<'parser' | 'batch' | 'templates'>('parser')
-  const [currentExpression, setCurrentExpression] = useState('')
+  const [activeTab, setActiveTab] = useState<"parser" | "batch" | "templates">("parser")
+  const [currentExpression, setCurrentExpression] = useState("")
   const [currentResult, setCurrentResult] = useState<CronExpression | null>(null)
   const [batches, setBatches] = useState<CronBatch[]>([])
-  const [batchInput, setBatchInput] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [batchInput, setBatchInput] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [settings, setSettings] = useState<CronSettings>({
-    timezone: 'UTC',
+    timezone: "UTC",
     includeSeconds: false,
     includeYear: false,
     maxNextRuns: 5,
     validateOnly: false,
-    exportFormat: 'json',
+    exportFormat: "json",
     realTimeValidation: true,
     showExamples: true,
   })
@@ -901,7 +901,7 @@ const CronParserCore = () => {
   // Handle single parsing
   const handleParseSingle = useCallback(async () => {
     if (!currentExpression.trim()) {
-      toast.error('Please enter a cron expression to parse')
+      toast.error("Please enter a cron expression to parse")
       return
     }
 
@@ -911,12 +911,12 @@ const CronParserCore = () => {
       setCurrentResult(result)
 
       if (result.isValid) {
-        toast.success('Cron expression parsed successfully')
+        toast.success("Cron expression parsed successfully")
       } else {
-        toast.error(result.error || 'Parsing failed')
+        toast.error(result.error || "Parsing failed")
       }
     } catch (error) {
-      toast.error('Failed to parse cron expression')
+      toast.error("Failed to parse cron expression")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -925,10 +925,10 @@ const CronParserCore = () => {
 
   // Handle batch parsing
   const handleParseBatch = useCallback(async () => {
-    const expressions = batchInput.split('\n').filter((line) => line.trim())
+    const expressions = batchInput.split("\n").filter((line) => line.trim())
 
     if (expressions.length === 0) {
-      toast.error('Please enter cron expressions to parse')
+      toast.error("Please enter cron expressions to parse")
       return
     }
 
@@ -938,7 +938,7 @@ const CronParserCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Parsed ${batch.expressions.length} cron expressions`)
     } catch (error) {
-      toast.error('Failed to parse batch')
+      toast.error("Failed to parse batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -965,12 +965,15 @@ const CronParserCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" aria-hidden="true" />
+              <Clock className="h-5 w-5" />
               Cron Expression Parser & Analyzer
             </CardTitle>
             <CardDescription>
@@ -982,24 +985,39 @@ const CronParserCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'parser' | 'batch' | 'templates')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "parser" | "batch" | "templates")}
+        >
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="parser" className="flex items-center gap-2">
+            <TabsTrigger
+              value="parser"
+              className="flex items-center gap-2"
+            >
               <Code className="h-4 w-4" />
               Expression Parser
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates & Examples
             </TabsTrigger>
           </TabsList>
 
           {/* Expression Parser Tab */}
-          <TabsContent value="parser" className="space-y-4">
+          <TabsContent
+            value="parser"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Input Section */}
               <Card>
@@ -1011,7 +1029,10 @@ const CronParserCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="cron-expression" className="text-sm font-medium">
+                    <Label
+                      htmlFor="cron-expression"
+                      className="text-sm font-medium"
+                    >
                       Cron Expression
                     </Label>
                     <Input
@@ -1020,7 +1041,6 @@ const CronParserCore = () => {
                       onChange={(e) => setCurrentExpression(e.target.value)}
                       placeholder="* * * * * (minute hour day month weekday)"
                       className="mt-2 font-mono"
-                      aria-label="Cron expression input"
                     />
                     {settings.realTimeValidation && currentExpression && (
                       <div className="mt-2 text-sm">
@@ -1041,7 +1061,10 @@ const CronParserCore = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="timezone" className="text-sm font-medium">
+                      <Label
+                        htmlFor="timezone"
+                        className="text-sm font-medium"
+                      >
                         Timezone
                       </Label>
                       <Select
@@ -1053,7 +1076,10 @@ const CronParserCore = () => {
                         </SelectTrigger>
                         <SelectContent>
                           {COMMON_TIMEZONES.map((tz) => (
-                            <SelectItem key={tz} value={tz}>
+                            <SelectItem
+                              key={tz}
+                              value={tz}
+                            >
                               {tz}
                             </SelectItem>
                           ))}
@@ -1062,7 +1088,10 @@ const CronParserCore = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="max-runs" className="text-sm font-medium">
+                      <Label
+                        htmlFor="max-runs"
+                        className="text-sm font-medium"
+                      >
                         Max Next Runs
                       </Label>
                       <Select
@@ -1091,7 +1120,10 @@ const CronParserCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, realTimeValidation: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="real-time-validation" className="text-sm">
+                      <Label
+                        htmlFor="real-time-validation"
+                        className="text-sm"
+                      >
                         Real-time validation
                       </Label>
                     </div>
@@ -1104,7 +1136,10 @@ const CronParserCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, includeYear: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="include-year" className="text-sm">
+                      <Label
+                        htmlFor="include-year"
+                        className="text-sm"
+                      >
                         Include year field (6-field format)
                       </Label>
                     </div>
@@ -1117,14 +1152,20 @@ const CronParserCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, showExamples: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="show-examples" className="text-sm">
+                      <Label
+                        htmlFor="show-examples"
+                        className="text-sm"
+                      >
                         Show examples and help
                       </Label>
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleParseSingle} disabled={!currentExpression.trim() || isProcessing}>
+                    <Button
+                      onClick={handleParseSingle}
+                      disabled={!currentExpression.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1134,7 +1175,7 @@ const CronParserCore = () => {
                     </Button>
                     <Button
                       onClick={() => {
-                        setCurrentExpression('')
+                        setCurrentExpression("")
                         setCurrentResult(null)
                       }}
                       variant="outline"
@@ -1183,9 +1224,9 @@ const CronParserCore = () => {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => copyToClipboard(currentResult.humanReadable, 'Description')}
+                                onClick={() => copyToClipboard(currentResult.humanReadable, "Description")}
                               >
-                                {copiedText === 'Description' ? (
+                                {copiedText === "Description" ? (
                                   <Check className="h-4 w-4" />
                                 ) : (
                                   <Copy className="h-4 w-4" />
@@ -1213,7 +1254,10 @@ const CronParserCore = () => {
                             <Label className="font-medium text-sm mb-3 block">Field Breakdown</Label>
                             <div className="space-y-2 text-xs">
                               {Object.entries(currentResult.parsedFields).map(([fieldName, field]) => (
-                                <div key={fieldName} className="grid grid-cols-3 gap-2">
+                                <div
+                                  key={fieldName}
+                                  className="grid grid-cols-3 gap-2"
+                                >
                                   <div className="font-medium capitalize">{fieldName}:</div>
                                   <div className="font-mono">{field.raw}</div>
                                   <div className="text-muted-foreground">{field.description}</div>
@@ -1230,7 +1274,10 @@ const CronParserCore = () => {
                               </Label>
                               <div className="space-y-2">
                                 {currentResult.nextRuns.map((date, index) => (
-                                  <div key={index} className="flex items-center justify-between text-sm">
+                                  <div
+                                    key={index}
+                                    className="flex items-center justify-between text-sm"
+                                  >
                                     <span>{date.toLocaleString()}</span>
                                     <Button
                                       size="sm"
@@ -1283,7 +1330,10 @@ const CronParserCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1295,7 +1345,10 @@ const CronParserCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-input"
+                      className="text-sm font-medium"
+                    >
                       Cron Expressions (one per line)
                     </Label>
                     <Textarea
@@ -1304,12 +1357,14 @@ const CronParserCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="* * * * *&#10;0 9 * * 1-5&#10;0 0 1 * *"
                       className="mt-2 min-h-[120px] font-mono"
-                      aria-label="Batch cron expression input"
                     />
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleParseBatch} disabled={!batchInput.trim() || isProcessing}>
+                    <Button
+                      onClick={handleParseBatch}
+                      disabled={!batchInput.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1317,7 +1372,10 @@ const CronParserCore = () => {
                       )}
                       Parse Batch
                     </Button>
-                    <Button onClick={() => setBatchInput('')} variant="outline">
+                    <Button
+                      onClick={() => setBatchInput("")}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Clear
                     </Button>
@@ -1335,7 +1393,10 @@ const CronParserCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} expressions processed</h4>
@@ -1345,7 +1406,11 @@ const CronParserCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportBatch(batch)}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportBatch(batch)}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export
                             </Button>
@@ -1375,15 +1440,18 @@ const CronParserCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.expressions.slice(0, 5).map((expr) => (
-                              <div key={expr.id} className="text-xs border rounded p-2">
+                              <div
+                                key={expr.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">{expr.expression}</span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      expr.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      expr.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {expr.isValid ? 'Valid' : 'Invalid'}
+                                    {expr.isValid ? "Valid" : "Invalid"}
                                   </span>
                                 </div>
                                 {expr.isValid && <div className="text-muted-foreground mt-1">{expr.humanReadable}</div>}
@@ -1406,7 +1474,10 @@ const CronParserCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1421,7 +1492,7 @@ const CronParserCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1437,7 +1508,7 @@ const CronParserCore = () => {
                         </div>
                         {template.examples.length > 0 && (
                           <div className="text-xs">
-                            <strong>Use cases:</strong> {template.examples.join(', ')}
+                            <strong>Use cases:</strong> {template.examples.join(", ")}
                           </div>
                         )}
                       </div>
@@ -1458,7 +1529,10 @@ const CronParserCore = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="export-format" className="text-sm font-medium">
+                <Label
+                  htmlFor="export-format"
+                  className="text-sm font-medium"
+                >
                   Export Format
                 </Label>
                 <Select
@@ -1479,7 +1553,10 @@ const CronParserCore = () => {
 
               {batches.length > 0 && (
                 <div className="flex gap-2 pt-4 border-t">
-                  <Button onClick={() => exportStatistics(batches)} variant="outline">
+                  <Button
+                    onClick={() => exportStatistics(batches)}
+                    variant="outline"
+                  >
                     <Download className="mr-2 h-4 w-4" />
                     Export Statistics
                   </Button>

@@ -1,12 +1,12 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -25,8 +25,8 @@ import {
   Tablet,
   Settings,
   Calculator,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   AccessibilityInfo,
   ClampMetadata,
@@ -39,20 +39,20 @@ import type {
   GeneratedClamp,
   ResponsiveBreakpoint,
   ViewportRange,
-} from '@/types/css-clamp'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/css-clamp"
+import { formatFileSize } from "@/lib/utils"
 
 const validateCssFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 5 * 1024 * 1024 // 5MB
-  const allowedTypes = ['.css', '.scss', '.sass', '.less', '.txt']
+  const allowedTypes = [".css", ".scss", ".sass", ".less", ".txt"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 5MB' }
+    return { isValid: false, error: "File size must be less than 5MB" }
   }
 
-  const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+  const extension = "." + file.name.split(".").pop()?.toLowerCase()
   if (!allowedTypes.includes(extension)) {
-    return { isValid: false, error: 'Only CSS, SCSS, SASS, LESS, and TXT files are supported' }
+    return { isValid: false, error: "Only CSS, SCSS, SASS, LESS, and TXT files are supported" }
   }
 
   return { isValid: true }
@@ -61,25 +61,25 @@ const validateCssFile = (file: File): { isValid: boolean; error?: string } => {
 // CSS clamp calculation functions
 const convertToPixels = (value: number, unit: CssUnit, baseSize: number = 16): number => {
   switch (unit) {
-    case 'px':
+    case "px":
       return value
-    case 'rem':
+    case "rem":
       return value * baseSize
-    case 'em':
+    case "em":
       return value * baseSize
-    case 'vw':
+    case "vw":
       return (value / 100) * window.innerWidth
-    case 'vh':
+    case "vh":
       return (value / 100) * window.innerHeight
-    case 'vmin':
+    case "vmin":
       return (value / 100) * Math.min(window.innerWidth, window.innerHeight)
-    case 'vmax':
+    case "vmax":
       return (value / 100) * Math.max(window.innerWidth, window.innerHeight)
-    case '%':
+    case "%":
       return value // Percentage depends on parent, return as-is
-    case 'ch':
+    case "ch":
       return value * (baseSize * 0.5) // Approximate character width
-    case 'ex':
+    case "ex":
       return value * (baseSize * 0.5) // Approximate x-height
     default:
       return value
@@ -110,10 +110,10 @@ const calculateClampValue = (
 
     // Calculate responsive breakpoints
     const breakpoints: ResponsiveBreakpoint[] = [
-      { name: 'Mobile', width: 320, value: minValue, unit: minUnit },
-      { name: 'Tablet', width: 768, value: idealValue, unit: idealUnit },
-      { name: 'Desktop', width: 1024, value: maxValue, unit: maxUnit },
-      { name: 'Wide', width: 1440, value: maxValue, unit: maxUnit },
+      { name: "Mobile", width: 320, value: minValue, unit: minUnit },
+      { name: "Tablet", width: 768, value: idealValue, unit: idealUnit },
+      { name: "Desktop", width: 1024, value: maxValue, unit: maxUnit },
+      { name: "Wide", width: 1440, value: maxValue, unit: maxUnit },
     ]
 
     // Accessibility analysis
@@ -136,7 +136,7 @@ const calculateClampValue = (
 
     return {
       id: nanoid(),
-      property: 'font-size',
+      property: "font-size",
       minValue,
       idealValue,
       maxValue,
@@ -148,7 +148,7 @@ const calculateClampValue = (
       metadata,
     }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'Clamp calculation failed')
+    throw new Error(error instanceof Error ? error.message : "Clamp calculation failed")
   }
 }
 
@@ -161,11 +161,11 @@ const validateClampValues = (
   maxUnit: CssUnit
 ): { isValid: boolean; error?: string } => {
   if (minValue <= 0 || idealValue <= 0 || maxValue <= 0) {
-    return { isValid: false, error: 'All values must be positive numbers' }
+    return { isValid: false, error: "All values must be positive numbers" }
   }
 
   if (minValue >= maxValue) {
-    return { isValid: false, error: 'Minimum value must be less than maximum value' }
+    return { isValid: false, error: "Minimum value must be less than maximum value" }
   }
 
   // Convert to pixels for comparison
@@ -173,7 +173,7 @@ const validateClampValues = (
   const maxPx = convertToPixels(maxValue, maxUnit)
 
   if (minPx >= maxPx) {
-    return { isValid: false, error: 'Minimum value must be less than maximum value when converted to pixels' }
+    return { isValid: false, error: "Minimum value must be less than maximum value when converted to pixels" }
   }
 
   return { isValid: true }
@@ -202,115 +202,115 @@ const generatePropertyClamp = (
 // CSS clamp templates
 const clampTemplates: ClampTemplate[] = [
   {
-    id: 'responsive-text',
-    name: 'Responsive Text',
-    description: 'Fluid typography that scales with viewport',
-    category: 'Typography',
-    property: 'font-size',
+    id: "responsive-text",
+    name: "Responsive Text",
+    description: "Fluid typography that scales with viewport",
+    category: "Typography",
+    property: "font-size",
     minValue: 16,
     idealValue: 4,
     maxValue: 24,
-    minUnit: 'px',
-    idealUnit: 'vw',
-    maxUnit: 'px',
+    minUnit: "px",
+    idealUnit: "vw",
+    maxUnit: "px",
     viewportRange: { minWidth: 320, maxWidth: 1200 },
   },
   {
-    id: 'heading-large',
-    name: 'Large Heading',
-    description: 'Responsive heading for hero sections',
-    category: 'Typography',
-    property: 'font-size',
+    id: "heading-large",
+    name: "Large Heading",
+    description: "Responsive heading for hero sections",
+    category: "Typography",
+    property: "font-size",
     minValue: 32,
     idealValue: 8,
     maxValue: 64,
-    minUnit: 'px',
-    idealUnit: 'vw',
-    maxUnit: 'px',
+    minUnit: "px",
+    idealUnit: "vw",
+    maxUnit: "px",
     viewportRange: { minWidth: 320, maxWidth: 1200 },
   },
   {
-    id: 'container-width',
-    name: 'Container Width',
-    description: 'Responsive container with fluid width',
-    category: 'Layout',
-    property: 'width',
+    id: "container-width",
+    name: "Container Width",
+    description: "Responsive container with fluid width",
+    category: "Layout",
+    property: "width",
     minValue: 320,
     idealValue: 90,
     maxValue: 1200,
-    minUnit: 'px',
-    idealUnit: 'vw',
-    maxUnit: 'px',
+    minUnit: "px",
+    idealUnit: "vw",
+    maxUnit: "px",
     viewportRange: { minWidth: 320, maxWidth: 1440 },
   },
   {
-    id: 'spacing-margin',
-    name: 'Responsive Margin',
-    description: 'Fluid spacing that adapts to screen size',
-    category: 'Spacing',
-    property: 'margin',
+    id: "spacing-margin",
+    name: "Responsive Margin",
+    description: "Fluid spacing that adapts to screen size",
+    category: "Spacing",
+    property: "margin",
     minValue: 1,
     idealValue: 4,
     maxValue: 3,
-    minUnit: 'rem',
-    idealUnit: 'vw',
-    maxUnit: 'rem',
+    minUnit: "rem",
+    idealUnit: "vw",
+    maxUnit: "rem",
     viewportRange: { minWidth: 320, maxWidth: 1200 },
   },
   {
-    id: 'spacing-padding',
-    name: 'Responsive Padding',
-    description: 'Fluid padding for consistent spacing',
-    category: 'Spacing',
-    property: 'padding',
+    id: "spacing-padding",
+    name: "Responsive Padding",
+    description: "Fluid padding for consistent spacing",
+    category: "Spacing",
+    property: "padding",
     minValue: 0.5,
     idealValue: 2,
     maxValue: 2,
-    minUnit: 'rem',
-    idealUnit: 'vw',
-    maxUnit: 'rem',
+    minUnit: "rem",
+    idealUnit: "vw",
+    maxUnit: "rem",
     viewportRange: { minWidth: 320, maxWidth: 1200 },
   },
   {
-    id: 'border-radius',
-    name: 'Responsive Border Radius',
-    description: 'Fluid border radius for modern designs',
-    category: 'Design',
-    property: 'border-radius',
+    id: "border-radius",
+    name: "Responsive Border Radius",
+    description: "Fluid border radius for modern designs",
+    category: "Design",
+    property: "border-radius",
     minValue: 4,
     idealValue: 1,
     maxValue: 16,
-    minUnit: 'px',
-    idealUnit: 'vw',
-    maxUnit: 'px',
+    minUnit: "px",
+    idealUnit: "vw",
+    maxUnit: "px",
     viewportRange: { minWidth: 320, maxWidth: 1200 },
   },
   {
-    id: 'gap-responsive',
-    name: 'Responsive Gap',
-    description: 'Fluid gap for grid and flexbox layouts',
-    category: 'Layout',
-    property: 'gap',
+    id: "gap-responsive",
+    name: "Responsive Gap",
+    description: "Fluid gap for grid and flexbox layouts",
+    category: "Layout",
+    property: "gap",
     minValue: 0.5,
     idealValue: 2,
     maxValue: 2.5,
-    minUnit: 'rem',
-    idealUnit: 'vw',
-    maxUnit: 'rem',
+    minUnit: "rem",
+    idealUnit: "vw",
+    maxUnit: "rem",
     viewportRange: { minWidth: 320, maxWidth: 1200 },
   },
   {
-    id: 'line-height',
-    name: 'Responsive Line Height',
-    description: 'Fluid line height for better readability',
-    category: 'Typography',
-    property: 'line-height',
+    id: "line-height",
+    name: "Responsive Line Height",
+    description: "Fluid line height for better readability",
+    category: "Typography",
+    property: "line-height",
     minValue: 1.4,
     idealValue: 0.2,
     maxValue: 1.8,
-    minUnit: 'em',
-    idealUnit: 'vw',
-    maxUnit: 'em',
+    minUnit: "em",
+    idealUnit: "vw",
+    maxUnit: "em",
     viewportRange: { minWidth: 320, maxWidth: 1200 },
   },
 ]
@@ -363,7 +363,7 @@ const useRealTimeClamp = (
     } catch (error) {
       return {
         result: null,
-        error: error instanceof Error ? error.message : 'Clamp calculation failed',
+        error: error instanceof Error ? error.message : "Clamp calculation failed",
         isEmpty: false,
       }
     }
@@ -390,17 +390,17 @@ const useFileProcessing = () => {
             name: file.name,
             content,
             size: file.size,
-            type: file.type || 'text/css',
-            status: 'pending',
+            type: file.type || "text/css",
+            status: "pending",
           }
 
           resolve(clampFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsText(file)
     })
   }, [])
@@ -410,17 +410,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
-            type: files[index].type || 'text/css',
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            type: files[index].type || "text/css",
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -434,22 +434,22 @@ const useFileProcessing = () => {
 // Export functionality
 const useClampExport = () => {
   const exportClamp = useCallback((clamp: GeneratedClamp, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.css'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".css"
 
     switch (format) {
-      case 'css':
+      case "css":
         content = clamp.cssRule
-        mimeType = 'text/css'
-        extension = '.css'
+        mimeType = "text/css"
+        extension = ".css"
         break
-      case 'scss':
+      case "scss":
         content = `$clamp-${clamp.property}: ${clamp.clampRule};\n${clamp.cssRule}`
-        mimeType = 'text/scss'
-        extension = '.scss'
+        mimeType = "text/scss"
+        extension = ".scss"
         break
-      case 'json':
+      case "json":
         content = JSON.stringify(
           {
             id: clamp.id,
@@ -466,13 +466,13 @@ const useClampExport = () => {
           null,
           2
         )
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'js':
-        content = `export const ${clamp.property.replace('-', '')}Clamp = '${clamp.clampRule}';`
-        mimeType = 'text/javascript'
-        extension = '.js'
+      case "js":
+        content = `export const ${clamp.property.replace("-", "")}Clamp = '${clamp.clampRule}';`
+        mimeType = "text/javascript"
+        extension = ".js"
         break
       default:
         content = clamp.cssRule
@@ -480,7 +480,7 @@ const useClampExport = () => {
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `clamp-${clamp.property}${extension}`
     document.body.appendChild(link)
@@ -494,15 +494,15 @@ const useClampExport = () => {
       const completedFiles = files.filter((f) => f.clampData)
 
       if (completedFiles.length === 0) {
-        toast.error('No clamp results to export')
+        toast.error("No clamp results to export")
         return
       }
 
       completedFiles.forEach((file) => {
         if (file.clampData) {
           file.clampData.clamps.forEach((clamp, index) => {
-            const baseName = file.name.replace(/\.[^/.]+$/, '')
-            exportClamp(clamp, 'css', `${baseName}-clamp-${index + 1}.css`)
+            const baseName = file.name.replace(/\.[^/.]+$/, "")
+            exportClamp(clamp, "css", `${baseName}-clamp-${index + 1}.css`)
           })
         }
       })
@@ -528,14 +528,14 @@ const useClampExport = () => {
 
     const csvContent = [
       [
-        'Filename',
-        'Original Size',
-        'Total Clamps',
-        'Avg Scaling Factor',
-        'Responsive Range',
-        'Accessibility Score',
-        'Processing Time',
-        'Status',
+        "Filename",
+        "Original Size",
+        "Total Clamps",
+        "Avg Scaling Factor",
+        "Responsive Range",
+        "Accessibility Score",
+        "Processing Time",
+        "Status",
       ],
       ...stats.map((stat) => [
         stat.filename,
@@ -548,20 +548,20 @@ const useClampExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'clamp-statistics.csv'
+    link.download = "clamp-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportClamp, exportBatch, exportStatistics }
@@ -574,13 +574,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -595,9 +595,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -610,13 +610,13 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
 
       const files = Array.from(e.dataTransfer.files).filter(
         (file) =>
-          file.type.includes('css') || file.type.includes('text') || file.name.match(/\.(css|scss|sass|less|txt)$/i)
+          file.type.includes("css") || file.type.includes("text") || file.name.match(/\.(css|scss|sass|less|txt)$/i)
       )
 
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only CSS or text files')
+        toast.error("Please drop only CSS or text files")
       }
     },
     [onFilesDropped]
@@ -630,7 +630,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -650,26 +650,26 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time clamp generation, multiple units, batch processing, responsive design
  */
 const CssClampCore = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'files'>('generator')
-  const [property, setProperty] = useState<CssProperty>('font-size')
+  const [activeTab, setActiveTab] = useState<"generator" | "files">("generator")
+  const [property, setProperty] = useState<CssProperty>("font-size")
   const [minValue, setMinValue] = useState<number>(16)
   const [idealValue, setIdealValue] = useState<number>(4)
   const [maxValue, setMaxValue] = useState<number>(24)
-  const [minUnit, setMinUnit] = useState<CssUnit>('px')
-  const [idealUnit, setIdealUnit] = useState<CssUnit>('vw')
-  const [maxUnit, setMaxUnit] = useState<CssUnit>('px')
+  const [minUnit, setMinUnit] = useState<CssUnit>("px")
+  const [idealUnit, setIdealUnit] = useState<CssUnit>("vw")
+  const [maxUnit, setMaxUnit] = useState<CssUnit>("px")
   const [files, setFiles] = useState<CssClampFile[]>([])
   const [_, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('responsive-text')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("responsive-text")
   const [settings, setSettings] = useState<ClampSettings>({
-    defaultProperty: 'font-size',
-    defaultMinUnit: 'px',
-    defaultIdealUnit: 'vw',
-    defaultMaxUnit: 'px',
+    defaultProperty: "font-size",
+    defaultMinUnit: "px",
+    defaultIdealUnit: "vw",
+    defaultMaxUnit: "px",
     includeBreakpoints: true,
     generateFullCSS: true,
     optimizeForAccessibility: true,
-    exportFormat: 'css',
+    exportFormat: "css",
     viewportRange: { minWidth: 320, maxWidth: 1200 },
   })
 
@@ -698,7 +698,7 @@ const CssClampCore = () => {
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
@@ -724,15 +724,15 @@ const CssClampCore = () => {
 
   // Generate random values for testing
   const generateRandomValues = useCallback(() => {
-    const properties: CssProperty[] = ['font-size', 'width', 'height', 'margin', 'padding']
-    const units: CssUnit[] = ['px', 'rem', 'em', 'vw', 'vh']
+    const properties: CssProperty[] = ["font-size", "width", "height", "margin", "padding"]
+    const units: CssUnit[] = ["px", "rem", "em", "vw", "vh"]
 
     setProperty(properties[Math.floor(Math.random() * properties.length)])
     setMinValue(Math.floor(Math.random() * 20) + 10)
     setIdealValue(Math.floor(Math.random() * 10) + 2)
     setMaxValue(Math.floor(Math.random() * 30) + 25)
     setMinUnit(units[Math.floor(Math.random() * units.length)])
-    setIdealUnit('vw')
+    setIdealUnit("vw")
     setMaxUnit(units[Math.floor(Math.random() * units.length)])
   }, [])
 
@@ -746,12 +746,15 @@ const CssClampCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Ruler className="h-5 w-5" aria-hidden="true" />
+              <Ruler className="h-5 w-5" />
               CSS Clamp Generator
             </CardTitle>
             <CardDescription>
@@ -763,20 +766,32 @@ const CssClampCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'generator' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "generator" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <Calculator className="h-4 w-4" />
               Clamp Generator
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* Clamp Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             {/* Clamp Templates */}
             <Card>
               <CardHeader>
@@ -790,7 +805,7 @@ const CssClampCore = () => {
                   {clampTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -818,10 +833,16 @@ const CssClampCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="property" className="text-sm font-medium">
+                    <Label
+                      htmlFor="property"
+                      className="text-sm font-medium"
+                    >
                       CSS Property
                     </Label>
-                    <Select value={property} onValueChange={(value: CssProperty) => setProperty(value)}>
+                    <Select
+                      value={property}
+                      onValueChange={(value: CssProperty) => setProperty(value)}
+                    >
                       <SelectTrigger className="mt-2">
                         <SelectValue />
                       </SelectTrigger>
@@ -840,7 +861,10 @@ const CssClampCore = () => {
 
                   <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <Label htmlFor="min-value" className="text-sm font-medium">
+                      <Label
+                        htmlFor="min-value"
+                        className="text-sm font-medium"
+                      >
                         Minimum
                       </Label>
                       <div className="flex mt-2">
@@ -852,7 +876,10 @@ const CssClampCore = () => {
                           className="rounded-r-none"
                           step="0.1"
                         />
-                        <Select value={minUnit} onValueChange={(value: CssUnit) => setMinUnit(value)}>
+                        <Select
+                          value={minUnit}
+                          onValueChange={(value: CssUnit) => setMinUnit(value)}
+                        >
                           <SelectTrigger className="w-20 rounded-l-none border-l-0">
                             <SelectValue />
                           </SelectTrigger>
@@ -869,7 +896,10 @@ const CssClampCore = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="ideal-value" className="text-sm font-medium">
+                      <Label
+                        htmlFor="ideal-value"
+                        className="text-sm font-medium"
+                      >
                         Ideal (Fluid)
                       </Label>
                       <div className="flex mt-2">
@@ -881,7 +911,10 @@ const CssClampCore = () => {
                           className="rounded-r-none"
                           step="0.1"
                         />
-                        <Select value={idealUnit} onValueChange={(value: CssUnit) => setIdealUnit(value)}>
+                        <Select
+                          value={idealUnit}
+                          onValueChange={(value: CssUnit) => setIdealUnit(value)}
+                        >
                           <SelectTrigger className="w-20 rounded-l-none border-l-0">
                             <SelectValue />
                           </SelectTrigger>
@@ -898,7 +931,10 @@ const CssClampCore = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="max-value" className="text-sm font-medium">
+                      <Label
+                        htmlFor="max-value"
+                        className="text-sm font-medium"
+                      >
                         Maximum
                       </Label>
                       <div className="flex mt-2">
@@ -910,7 +946,10 @@ const CssClampCore = () => {
                           className="rounded-r-none"
                           step="0.1"
                         />
-                        <Select value={maxUnit} onValueChange={(value: CssUnit) => setMaxUnit(value)}>
+                        <Select
+                          value={maxUnit}
+                          onValueChange={(value: CssUnit) => setMaxUnit(value)}
+                        >
                           <SelectTrigger className="w-20 rounded-l-none border-l-0">
                             <SelectValue />
                           </SelectTrigger>
@@ -935,16 +974,20 @@ const CssClampCore = () => {
                         setMinValue(16)
                         setIdealValue(4)
                         setMaxValue(24)
-                        setMinUnit('px')
-                        setIdealUnit('vw')
-                        setMaxUnit('px')
+                        setMinUnit("px")
+                        setIdealUnit("vw")
+                        setMaxUnit("px")
                       }}
                     >
                       <RotateCcw className="h-4 w-4 mr-2" />
                       Reset
                     </Button>
 
-                    <Button size="sm" variant="outline" onClick={generateRandomValues}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={generateRandomValues}
+                    >
                       <Shuffle className="h-4 w-4 mr-2" />
                       Random
                     </Button>
@@ -994,9 +1037,9 @@ const CssClampCore = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => copyToClipboard(clampResult.result!.cssRule, 'CSS rule')}
+                          onClick={() => copyToClipboard(clampResult.result!.cssRule, "CSS rule")}
                         >
-                          {copiedText === 'CSS rule' ? (
+                          {copiedText === "CSS rule" ? (
                             <Check className="h-4 w-4 mr-2" />
                           ) : (
                             <Copy className="h-4 w-4 mr-2" />
@@ -1007,9 +1050,9 @@ const CssClampCore = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => copyToClipboard(clampResult.result!.clampRule, 'clamp function')}
+                          onClick={() => copyToClipboard(clampResult.result!.clampRule, "clamp function")}
                         >
-                          {copiedText === 'clamp function' ? (
+                          {copiedText === "clamp function" ? (
                             <Check className="h-4 w-4 mr-2" />
                           ) : (
                             <Copy className="h-4 w-4 mr-2" />
@@ -1017,7 +1060,11 @@ const CssClampCore = () => {
                           Copy Clamp
                         </Button>
 
-                        <Button size="sm" variant="outline" onClick={() => exportClamp(clampResult.result!, 'css')}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => exportClamp(clampResult.result!, "css")}
+                        >
                           <Download className="h-4 w-4 mr-2" />
                           Export
                         </Button>
@@ -1046,11 +1093,14 @@ const CssClampCore = () => {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       {clampResult.result.metadata.breakpoints.map((breakpoint) => (
-                        <div key={breakpoint.name} className="border rounded-lg p-3 text-center">
+                        <div
+                          key={breakpoint.name}
+                          className="border rounded-lg p-3 text-center"
+                        >
                           <div className="flex items-center justify-center gap-2 mb-2">
-                            {breakpoint.name === 'Mobile' && <Smartphone className="h-4 w-4" />}
-                            {breakpoint.name === 'Tablet' && <Tablet className="h-4 w-4" />}
-                            {(breakpoint.name === 'Desktop' || breakpoint.name === 'Wide') && (
+                            {breakpoint.name === "Mobile" && <Smartphone className="h-4 w-4" />}
+                            {breakpoint.name === "Tablet" && <Tablet className="h-4 w-4" />}
+                            {(breakpoint.name === "Desktop" || breakpoint.name === "Wide") && (
                               <Monitor className="h-4 w-4" />
                             )}
                             <span className="font-medium text-sm">{breakpoint.name}</span>
@@ -1102,11 +1152,11 @@ const CssClampCore = () => {
                             <span
                               className={
                                 clampResult.result.metadata.accessibility.meetsMinimumSize
-                                  ? 'text-green-600'
-                                  : 'text-red-600'
+                                  ? "text-green-600"
+                                  : "text-red-600"
                               }
                             >
-                              {clampResult.result.metadata.accessibility.meetsMinimumSize ? '✓' : '✗'}
+                              {clampResult.result.metadata.accessibility.meetsMinimumSize ? "✓" : "✗"}
                             </span>
                             <span>Meets minimum size requirements (16px)</span>
                           </div>
@@ -1135,7 +1185,10 @@ const CssClampCore = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="min-viewport" className="text-sm font-medium">
+                    <Label
+                      htmlFor="min-viewport"
+                      className="text-sm font-medium"
+                    >
                       Minimum Viewport Width
                     </Label>
                     <div className="flex items-center gap-2 mt-2">
@@ -1156,7 +1209,10 @@ const CssClampCore = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="max-viewport" className="text-sm font-medium">
+                    <Label
+                      htmlFor="max-viewport"
+                      className="text-sm font-medium"
+                    >
                       Maximum Viewport Width
                     </Label>
                     <div className="flex items-center gap-2 mt-2">
@@ -1186,7 +1242,10 @@ const CssClampCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, includeBreakpoints: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="include-breakpoints" className="text-sm">
+                    <Label
+                      htmlFor="include-breakpoints"
+                      className="text-sm"
+                    >
                       Show responsive breakpoints analysis
                     </Label>
                   </div>
@@ -1199,7 +1258,10 @@ const CssClampCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, generateFullCSS: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="generate-full-css" className="text-sm">
+                    <Label
+                      htmlFor="generate-full-css"
+                      className="text-sm"
+                    >
                       Generate complete CSS rules
                     </Label>
                   </div>
@@ -1212,14 +1274,20 @@ const CssClampCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, optimizeForAccessibility: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="optimize-accessibility" className="text-sm">
+                    <Label
+                      htmlFor="optimize-accessibility"
+                      className="text-sm"
+                    >
                       Optimize for accessibility
                     </Label>
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -1242,14 +1310,17 @@ const CssClampCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1257,9 +1328,8 @@ const CssClampCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop CSS files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1270,7 +1340,11 @@ const CssClampCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your CSS files here, or click to select files for batch clamp analysis
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1284,7 +1358,6 @@ const CssClampCore = () => {
                     accept=".css,.scss,.sass,.less,.txt"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select CSS files"
                   />
                 </div>
               </CardContent>
@@ -1298,26 +1371,32 @@ const CssClampCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground">
                               <span className="font-medium">Size:</span> {formatFileSize(file.size)}
                             </div>
-                            {file.status === 'completed' && file.clampData && (
+                            {file.status === "completed" && file.clampData && (
                               <div className="mt-2 text-xs">
                                 {file.clampData.statistics.totalClamps} clamp values found
                               </div>
                             )}
                             {file.error && <div className="text-red-600 text-sm">Error: {file.error}</div>}
                           </div>
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <Button
                               size="sm"
                               variant="ghost"

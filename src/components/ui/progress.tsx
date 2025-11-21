@@ -6,25 +6,14 @@ interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   max?: number
 }
 
-function Progress({
-  className,
-  value = 0,
-  max = 100,
-  ...props
-}: ProgressProps) {
+function Progress({ className, value = 0, max = 100, ...props }: ProgressProps) {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100)
-  
+
   return (
     <div
       data-slot="progress"
-      className={cn(
-        "bg-primary/20 relative h-2 w-full overflow-hidden rounded-full",
-        className
-      )}
+      className={cn("bg-primary/20 relative h-2 w-full overflow-hidden rounded-full", className)}
       role="progressbar"
-      aria-valuemin={0}
-      aria-valuemax={max}
-      aria-valuenow={value}
       {...props}
     >
       <div

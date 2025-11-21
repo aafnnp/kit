@@ -25,13 +25,9 @@ export function SiteHeader() {
               variant="ghost"
               size="sm"
               onClick={() => setSettingsOpen(true)}
-              aria-label={t("navigation.settings", "打开设置页面")}
               className="flex items-center justify-center p-2"
             >
-              <IconSettings
-                className="size-4! sm:size-5! text-primary shrink-0"
-                aria-hidden="true"
-              />
+              <IconSettings className="size-4! sm:size-5! text-primary shrink-0" />
               <span className="sr-only">{t("navigation.settings", "设置")}</span>
             </Button>
           </div>

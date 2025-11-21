@@ -1,12 +1,12 @@
-import { useCallback, useState, useMemo, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -32,8 +32,8 @@ import {
   FileAudio,
   File,
   Archive,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   MimeSearchResult,
   MimeTypeInfo,
@@ -47,7 +47,7 @@ import type {
   SecurityRisk,
   SearchMode,
   ExportFormat,
-} from '@/types/mime-search'
+} from "@/types/mime-search"
 
 // Utility functions
 
@@ -55,16 +55,16 @@ import type {
 const mimeDatabase: MimeTypeInfo[] = [
   // Images
   {
-    mimeType: 'image/jpeg',
-    extensions: ['jpg', 'jpeg', 'jpe'],
-    category: 'image',
-    description: 'JPEG image format with lossy compression',
-    commonName: 'JPEG Image',
+    mimeType: "image/jpeg",
+    extensions: ["jpg", "jpeg", "jpe"],
+    category: "image",
+    description: "JPEG image format with lossy compression",
+    commonName: "JPEG Image",
     isStandard: true,
-    rfc: 'RFC 2046',
-    usage: ['Photography', 'Web images', 'Digital cameras'],
+    rfc: "RFC 2046",
+    usage: ["Photography", "Web images", "Digital cameras"],
     security: {
-      riskLevel: 'minimal',
+      riskLevel: "minimal",
       executable: false,
       scriptable: false,
       canContainMalware: false,
@@ -73,8 +73,8 @@ const mimeDatabase: MimeTypeInfo[] = [
     },
     compression: {
       isCompressed: true,
-      compressionType: 'Lossy',
-      typicalSize: '50KB - 5MB',
+      compressionType: "Lossy",
+      typicalSize: "50KB - 5MB",
       compressionRatio: 10,
     },
     browserSupport: {
@@ -84,20 +84,20 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: true,
       ie: true,
       mobile: true,
-      notes: ['Universal support'],
+      notes: ["Universal support"],
     },
   },
   {
-    mimeType: 'image/png',
-    extensions: ['png'],
-    category: 'image',
-    description: 'Portable Network Graphics with lossless compression',
-    commonName: 'PNG Image',
+    mimeType: "image/png",
+    extensions: ["png"],
+    category: "image",
+    description: "Portable Network Graphics with lossless compression",
+    commonName: "PNG Image",
     isStandard: true,
-    rfc: 'RFC 2083',
-    usage: ['Web graphics', 'Screenshots', 'Logos with transparency'],
+    rfc: "RFC 2083",
+    usage: ["Web graphics", "Screenshots", "Logos with transparency"],
     security: {
-      riskLevel: 'minimal',
+      riskLevel: "minimal",
       executable: false,
       scriptable: false,
       canContainMalware: false,
@@ -106,8 +106,8 @@ const mimeDatabase: MimeTypeInfo[] = [
     },
     compression: {
       isCompressed: true,
-      compressionType: 'Lossless',
-      typicalSize: '10KB - 2MB',
+      compressionType: "Lossless",
+      typicalSize: "10KB - 2MB",
       compressionRatio: 3,
     },
     browserSupport: {
@@ -117,19 +117,19 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: true,
       ie: true,
       mobile: true,
-      notes: ['Universal support', 'Transparency support'],
+      notes: ["Universal support", "Transparency support"],
     },
   },
   {
-    mimeType: 'image/webp',
-    extensions: ['webp'],
-    category: 'image',
-    description: 'Modern image format with superior compression',
-    commonName: 'WebP Image',
+    mimeType: "image/webp",
+    extensions: ["webp"],
+    category: "image",
+    description: "Modern image format with superior compression",
+    commonName: "WebP Image",
     isStandard: true,
-    usage: ['Modern web applications', 'Progressive web apps'],
+    usage: ["Modern web applications", "Progressive web apps"],
     security: {
-      riskLevel: 'minimal',
+      riskLevel: "minimal",
       executable: false,
       scriptable: false,
       canContainMalware: false,
@@ -138,8 +138,8 @@ const mimeDatabase: MimeTypeInfo[] = [
     },
     compression: {
       isCompressed: true,
-      compressionType: 'Both lossy and lossless',
-      typicalSize: '20KB - 1MB',
+      compressionType: "Both lossy and lossless",
+      typicalSize: "20KB - 1MB",
       compressionRatio: 25,
     },
     browserSupport: {
@@ -149,19 +149,19 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: true,
       ie: false,
       mobile: true,
-      notes: ['Modern browsers only', 'IE not supported'],
+      notes: ["Modern browsers only", "IE not supported"],
     },
   },
   {
-    mimeType: 'image/gif',
-    extensions: ['gif'],
-    category: 'image',
-    description: 'Graphics Interchange Format with animation support',
-    commonName: 'GIF Image',
+    mimeType: "image/gif",
+    extensions: ["gif"],
+    category: "image",
+    description: "Graphics Interchange Format with animation support",
+    commonName: "GIF Image",
     isStandard: true,
-    usage: ['Animated images', 'Simple graphics', 'Memes'],
+    usage: ["Animated images", "Simple graphics", "Memes"],
     security: {
-      riskLevel: 'minimal',
+      riskLevel: "minimal",
       executable: false,
       scriptable: false,
       canContainMalware: false,
@@ -170,8 +170,8 @@ const mimeDatabase: MimeTypeInfo[] = [
     },
     compression: {
       isCompressed: true,
-      compressionType: 'Lossless',
-      typicalSize: '50KB - 10MB',
+      compressionType: "Lossless",
+      typicalSize: "50KB - 10MB",
       compressionRatio: 2,
     },
     browserSupport: {
@@ -181,29 +181,29 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: true,
       ie: true,
       mobile: true,
-      notes: ['Universal support', 'Animation support'],
+      notes: ["Universal support", "Animation support"],
     },
   },
   {
-    mimeType: 'image/svg+xml',
-    extensions: ['svg'],
-    category: 'image',
-    description: 'Scalable Vector Graphics format',
-    commonName: 'SVG Image',
+    mimeType: "image/svg+xml",
+    extensions: ["svg"],
+    category: "image",
+    description: "Scalable Vector Graphics format",
+    commonName: "SVG Image",
     isStandard: true,
-    usage: ['Vector graphics', 'Icons', 'Scalable illustrations'],
+    usage: ["Vector graphics", "Icons", "Scalable illustrations"],
     security: {
-      riskLevel: 'medium',
+      riskLevel: "medium",
       executable: false,
       scriptable: true,
       canContainMalware: true,
       requiresSandbox: true,
-      warnings: ['Can contain JavaScript', 'Potential XSS vector'],
+      warnings: ["Can contain JavaScript", "Potential XSS vector"],
     },
     compression: {
       isCompressed: false,
-      compressionType: 'Text-based',
-      typicalSize: '1KB - 500KB',
+      compressionType: "Text-based",
+      typicalSize: "1KB - 500KB",
     },
     browserSupport: {
       chrome: true,
@@ -212,21 +212,21 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: true,
       ie: false,
       mobile: true,
-      notes: ['Modern browsers', 'IE 9+ with limitations'],
+      notes: ["Modern browsers", "IE 9+ with limitations"],
     },
   },
   // Videos
   {
-    mimeType: 'video/mp4',
-    extensions: ['mp4', 'm4v'],
-    category: 'video',
-    description: 'MPEG-4 video container format',
-    commonName: 'MP4 Video',
+    mimeType: "video/mp4",
+    extensions: ["mp4", "m4v"],
+    category: "video",
+    description: "MPEG-4 video container format",
+    commonName: "MP4 Video",
     isStandard: true,
-    rfc: 'ISO/IEC 14496',
-    usage: ['Web video', 'Streaming', 'Mobile video'],
+    rfc: "ISO/IEC 14496",
+    usage: ["Web video", "Streaming", "Mobile video"],
     security: {
-      riskLevel: 'low',
+      riskLevel: "low",
       executable: false,
       scriptable: false,
       canContainMalware: false,
@@ -235,8 +235,8 @@ const mimeDatabase: MimeTypeInfo[] = [
     },
     compression: {
       isCompressed: true,
-      compressionType: 'Lossy',
-      typicalSize: '10MB - 2GB',
+      compressionType: "Lossy",
+      typicalSize: "10MB - 2GB",
       compressionRatio: 50,
     },
     browserSupport: {
@@ -246,19 +246,19 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: true,
       ie: true,
       mobile: true,
-      notes: ['Universal support', 'H.264 codec required'],
+      notes: ["Universal support", "H.264 codec required"],
     },
   },
   {
-    mimeType: 'video/webm',
-    extensions: ['webm'],
-    category: 'video',
-    description: 'WebM video format for web',
-    commonName: 'WebM Video',
+    mimeType: "video/webm",
+    extensions: ["webm"],
+    category: "video",
+    description: "WebM video format for web",
+    commonName: "WebM Video",
     isStandard: true,
-    usage: ['Web video', 'HTML5 video', 'Open source projects'],
+    usage: ["Web video", "HTML5 video", "Open source projects"],
     security: {
-      riskLevel: 'low',
+      riskLevel: "low",
       executable: false,
       scriptable: false,
       canContainMalware: false,
@@ -267,8 +267,8 @@ const mimeDatabase: MimeTypeInfo[] = [
     },
     compression: {
       isCompressed: true,
-      compressionType: 'Lossy',
-      typicalSize: '5MB - 1GB',
+      compressionType: "Lossy",
+      typicalSize: "5MB - 1GB",
       compressionRatio: 60,
     },
     browserSupport: {
@@ -278,21 +278,21 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: true,
       ie: false,
       mobile: true,
-      notes: ['Chrome and Firefox preferred', 'Safari requires plugin'],
+      notes: ["Chrome and Firefox preferred", "Safari requires plugin"],
     },
   },
   // Audio
   {
-    mimeType: 'audio/mpeg',
-    extensions: ['mp3'],
-    category: 'audio',
-    description: 'MPEG Audio Layer III format',
-    commonName: 'MP3 Audio',
+    mimeType: "audio/mpeg",
+    extensions: ["mp3"],
+    category: "audio",
+    description: "MPEG Audio Layer III format",
+    commonName: "MP3 Audio",
     isStandard: true,
-    rfc: 'ISO/IEC 11172-3',
-    usage: ['Music', 'Podcasts', 'Audio streaming'],
+    rfc: "ISO/IEC 11172-3",
+    usage: ["Music", "Podcasts", "Audio streaming"],
     security: {
-      riskLevel: 'minimal',
+      riskLevel: "minimal",
       executable: false,
       scriptable: false,
       canContainMalware: false,
@@ -301,8 +301,8 @@ const mimeDatabase: MimeTypeInfo[] = [
     },
     compression: {
       isCompressed: true,
-      compressionType: 'Lossy',
-      typicalSize: '3MB - 10MB',
+      compressionType: "Lossy",
+      typicalSize: "3MB - 10MB",
       compressionRatio: 11,
     },
     browserSupport: {
@@ -312,19 +312,19 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: true,
       ie: true,
       mobile: true,
-      notes: ['Universal support'],
+      notes: ["Universal support"],
     },
   },
   {
-    mimeType: 'audio/wav',
-    extensions: ['wav'],
-    category: 'audio',
-    description: 'Waveform Audio File Format',
-    commonName: 'WAV Audio',
+    mimeType: "audio/wav",
+    extensions: ["wav"],
+    category: "audio",
+    description: "Waveform Audio File Format",
+    commonName: "WAV Audio",
     isStandard: true,
-    usage: ['High-quality audio', 'Audio editing', 'Professional recording'],
+    usage: ["High-quality audio", "Audio editing", "Professional recording"],
     security: {
-      riskLevel: 'minimal',
+      riskLevel: "minimal",
       executable: false,
       scriptable: false,
       canContainMalware: false,
@@ -333,8 +333,8 @@ const mimeDatabase: MimeTypeInfo[] = [
     },
     compression: {
       isCompressed: false,
-      compressionType: 'Uncompressed',
-      typicalSize: '30MB - 100MB',
+      compressionType: "Uncompressed",
+      typicalSize: "30MB - 100MB",
     },
     browserSupport: {
       chrome: true,
@@ -343,21 +343,21 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: true,
       ie: true,
       mobile: true,
-      notes: ['Universal support', 'Large file sizes'],
+      notes: ["Universal support", "Large file sizes"],
     },
   },
   // Text
   {
-    mimeType: 'text/plain',
-    extensions: ['txt', 'text'],
-    category: 'text',
-    description: 'Plain text format',
-    commonName: 'Text File',
+    mimeType: "text/plain",
+    extensions: ["txt", "text"],
+    category: "text",
+    description: "Plain text format",
+    commonName: "Text File",
     isStandard: true,
-    rfc: 'RFC 2046',
-    usage: ['Documentation', 'Configuration files', 'Data files'],
+    rfc: "RFC 2046",
+    usage: ["Documentation", "Configuration files", "Data files"],
     security: {
-      riskLevel: 'minimal',
+      riskLevel: "minimal",
       executable: false,
       scriptable: false,
       canContainMalware: false,
@@ -366,8 +366,8 @@ const mimeDatabase: MimeTypeInfo[] = [
     },
     compression: {
       isCompressed: false,
-      compressionType: 'Uncompressed',
-      typicalSize: '1KB - 10MB',
+      compressionType: "Uncompressed",
+      typicalSize: "1KB - 10MB",
     },
     browserSupport: {
       chrome: true,
@@ -376,30 +376,30 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: true,
       ie: true,
       mobile: true,
-      notes: ['Universal support'],
+      notes: ["Universal support"],
     },
   },
   {
-    mimeType: 'text/html',
-    extensions: ['html', 'htm'],
-    category: 'text',
-    description: 'HyperText Markup Language',
-    commonName: 'HTML Document',
+    mimeType: "text/html",
+    extensions: ["html", "htm"],
+    category: "text",
+    description: "HyperText Markup Language",
+    commonName: "HTML Document",
     isStandard: true,
-    rfc: 'RFC 2854',
-    usage: ['Web pages', 'Email templates', 'Documentation'],
+    rfc: "RFC 2854",
+    usage: ["Web pages", "Email templates", "Documentation"],
     security: {
-      riskLevel: 'medium',
+      riskLevel: "medium",
       executable: false,
       scriptable: true,
       canContainMalware: true,
       requiresSandbox: true,
-      warnings: ['Can contain JavaScript', 'XSS vulnerability'],
+      warnings: ["Can contain JavaScript", "XSS vulnerability"],
     },
     compression: {
       isCompressed: false,
-      compressionType: 'Text-based',
-      typicalSize: '5KB - 1MB',
+      compressionType: "Text-based",
+      typicalSize: "5KB - 1MB",
     },
     browserSupport: {
       chrome: true,
@@ -408,94 +408,30 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: true,
       ie: true,
       mobile: true,
-      notes: ['Universal support'],
+      notes: ["Universal support"],
     },
   },
   {
-    mimeType: 'text/css',
-    extensions: ['css'],
-    category: 'text',
-    description: 'Cascading Style Sheets',
-    commonName: 'CSS Stylesheet',
+    mimeType: "text/css",
+    extensions: ["css"],
+    category: "text",
+    description: "Cascading Style Sheets",
+    commonName: "CSS Stylesheet",
     isStandard: true,
-    rfc: 'RFC 2318',
-    usage: ['Web styling', 'Print styles', 'UI themes'],
+    rfc: "RFC 2318",
+    usage: ["Web styling", "Print styles", "UI themes"],
     security: {
-      riskLevel: 'low',
-      executable: false,
-      scriptable: false,
-      canContainMalware: false,
-      requiresSandbox: false,
-      warnings: ['Can reference external resources'],
-    },
-    compression: {
-      isCompressed: false,
-      compressionType: 'Text-based',
-      typicalSize: '1KB - 500KB',
-    },
-    browserSupport: {
-      chrome: true,
-      firefox: true,
-      safari: true,
-      edge: true,
-      ie: true,
-      mobile: true,
-      notes: ['Universal support'],
-    },
-  },
-  {
-    mimeType: 'application/javascript',
-    extensions: ['js', 'mjs'],
-    category: 'application',
-    description: 'JavaScript source code',
-    commonName: 'JavaScript File',
-    isStandard: true,
-    rfc: 'RFC 4329',
-    usage: ['Web applications', 'Node.js', 'Browser scripts'],
-    security: {
-      riskLevel: 'high',
-      executable: true,
-      scriptable: true,
-      canContainMalware: true,
-      requiresSandbox: true,
-      warnings: ['Executable code', 'Can access system resources', 'XSS vector'],
-    },
-    compression: {
-      isCompressed: false,
-      compressionType: 'Text-based',
-      typicalSize: '1KB - 5MB',
-    },
-    browserSupport: {
-      chrome: true,
-      firefox: true,
-      safari: true,
-      edge: true,
-      ie: true,
-      mobile: true,
-      notes: ['Universal support', 'Execution context dependent'],
-    },
-  },
-  {
-    mimeType: 'application/json',
-    extensions: ['json'],
-    category: 'application',
-    description: 'JavaScript Object Notation data format',
-    commonName: 'JSON Data',
-    isStandard: true,
-    rfc: 'RFC 7159',
-    usage: ['API responses', 'Configuration files', 'Data exchange'],
-    security: {
-      riskLevel: 'low',
+      riskLevel: "low",
       executable: false,
       scriptable: false,
       canContainMalware: false,
       requiresSandbox: false,
-      warnings: ['Can contain sensitive data'],
+      warnings: ["Can reference external resources"],
     },
     compression: {
       isCompressed: false,
-      compressionType: 'Text-based',
-      typicalSize: '1KB - 50MB',
+      compressionType: "Text-based",
+      typicalSize: "1KB - 500KB",
     },
     browserSupport: {
       chrome: true,
@@ -504,30 +440,94 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: true,
       ie: true,
       mobile: true,
-      notes: ['Universal support', 'Native parsing support'],
+      notes: ["Universal support"],
     },
   },
   {
-    mimeType: 'application/pdf',
-    extensions: ['pdf'],
-    category: 'application',
-    description: 'Portable Document Format',
-    commonName: 'PDF Document',
+    mimeType: "application/javascript",
+    extensions: ["js", "mjs"],
+    category: "application",
+    description: "JavaScript source code",
+    commonName: "JavaScript File",
     isStandard: true,
-    rfc: 'ISO 32000',
-    usage: ['Documents', 'Forms', 'Print-ready files'],
+    rfc: "RFC 4329",
+    usage: ["Web applications", "Node.js", "Browser scripts"],
     security: {
-      riskLevel: 'medium',
+      riskLevel: "high",
       executable: true,
       scriptable: true,
       canContainMalware: true,
       requiresSandbox: true,
-      warnings: ['Can contain JavaScript', 'Can execute actions', 'Form submission'],
+      warnings: ["Executable code", "Can access system resources", "XSS vector"],
+    },
+    compression: {
+      isCompressed: false,
+      compressionType: "Text-based",
+      typicalSize: "1KB - 5MB",
+    },
+    browserSupport: {
+      chrome: true,
+      firefox: true,
+      safari: true,
+      edge: true,
+      ie: true,
+      mobile: true,
+      notes: ["Universal support", "Execution context dependent"],
+    },
+  },
+  {
+    mimeType: "application/json",
+    extensions: ["json"],
+    category: "application",
+    description: "JavaScript Object Notation data format",
+    commonName: "JSON Data",
+    isStandard: true,
+    rfc: "RFC 7159",
+    usage: ["API responses", "Configuration files", "Data exchange"],
+    security: {
+      riskLevel: "low",
+      executable: false,
+      scriptable: false,
+      canContainMalware: false,
+      requiresSandbox: false,
+      warnings: ["Can contain sensitive data"],
+    },
+    compression: {
+      isCompressed: false,
+      compressionType: "Text-based",
+      typicalSize: "1KB - 50MB",
+    },
+    browserSupport: {
+      chrome: true,
+      firefox: true,
+      safari: true,
+      edge: true,
+      ie: true,
+      mobile: true,
+      notes: ["Universal support", "Native parsing support"],
+    },
+  },
+  {
+    mimeType: "application/pdf",
+    extensions: ["pdf"],
+    category: "application",
+    description: "Portable Document Format",
+    commonName: "PDF Document",
+    isStandard: true,
+    rfc: "ISO 32000",
+    usage: ["Documents", "Forms", "Print-ready files"],
+    security: {
+      riskLevel: "medium",
+      executable: true,
+      scriptable: true,
+      canContainMalware: true,
+      requiresSandbox: true,
+      warnings: ["Can contain JavaScript", "Can execute actions", "Form submission"],
     },
     compression: {
       isCompressed: true,
-      compressionType: 'Various',
-      typicalSize: '100KB - 100MB',
+      compressionType: "Various",
+      typicalSize: "100KB - 100MB",
       compressionRatio: 5,
     },
     browserSupport: {
@@ -537,29 +537,29 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: true,
       ie: false,
       mobile: true,
-      notes: ['Built-in viewers', 'Plugin required for IE'],
+      notes: ["Built-in viewers", "Plugin required for IE"],
     },
   },
   {
-    mimeType: 'application/zip',
-    extensions: ['zip'],
-    category: 'application',
-    description: 'ZIP archive format',
-    commonName: 'ZIP Archive',
+    mimeType: "application/zip",
+    extensions: ["zip"],
+    category: "application",
+    description: "ZIP archive format",
+    commonName: "ZIP Archive",
     isStandard: true,
-    usage: ['File compression', 'Software distribution', 'Backup'],
+    usage: ["File compression", "Software distribution", "Backup"],
     security: {
-      riskLevel: 'high',
+      riskLevel: "high",
       executable: false,
       scriptable: false,
       canContainMalware: true,
       requiresSandbox: true,
-      warnings: ['Can contain executable files', 'Zip bombs possible', 'Path traversal attacks'],
+      warnings: ["Can contain executable files", "Zip bombs possible", "Path traversal attacks"],
     },
     compression: {
       isCompressed: true,
-      compressionType: 'Lossless',
-      typicalSize: '1KB - 4GB',
+      compressionType: "Lossless",
+      typicalSize: "1KB - 4GB",
       compressionRatio: 3,
     },
     browserSupport: {
@@ -569,7 +569,7 @@ const mimeDatabase: MimeTypeInfo[] = [
       edge: false,
       ie: false,
       mobile: false,
-      notes: ['Download only', 'No browser display'],
+      notes: ["Download only", "No browser display"],
     },
   },
 ]
@@ -584,14 +584,14 @@ const searchMimeTypes = (query: string, queryType: QueryType, settings: Processi
     .filter((mime) => {
       // Apply filters
       if (!settings.includeDeprecated && !mime.isStandard) return false
-      if (!settings.includeExperimental && mime.mimeType.includes('x-')) return false
-      if (!settings.includeVendorSpecific && mime.mimeType.includes('vnd.')) return false
+      if (!settings.includeExperimental && mime.mimeType.includes("x-")) return false
+      if (!settings.includeVendorSpecific && mime.mimeType.includes("vnd.")) return false
 
       let matches = false
 
       switch (queryType) {
-        case 'extension':
-          const ext = searchTerm.replace(/^\./, '') // Remove leading dot
+        case "extension":
+          const ext = searchTerm.replace(/^\./, "") // Remove leading dot
           matches = mime.extensions.some((e) =>
             settings.exactMatch
               ? settings.caseSensitive
@@ -603,18 +603,18 @@ const searchMimeTypes = (query: string, queryType: QueryType, settings: Processi
           )
           break
 
-        case 'mimetype':
+        case "mimetype":
           const mimeToSearch = settings.caseSensitive ? mime.mimeType : mime.mimeType.toLowerCase()
           matches = settings.exactMatch ? mimeToSearch === searchTerm : mimeToSearch.includes(searchTerm)
           break
 
-        case 'keyword':
-          const searchFields = [mime.description, mime.commonName, ...mime.usage, mime.category].join(' ')
+        case "keyword":
+          const searchFields = [mime.description, mime.commonName, ...mime.usage, mime.category].join(" ")
           const fieldsToSearch = settings.caseSensitive ? searchFields : searchFields.toLowerCase()
           matches = fieldsToSearch.includes(searchTerm)
           break
 
-        case 'category':
+        case "category":
           const categoryToSearch = settings.caseSensitive ? mime.category : mime.category.toLowerCase()
           matches = settings.exactMatch ? categoryToSearch === searchTerm : categoryToSearch.includes(searchTerm)
           break
@@ -630,64 +630,64 @@ const getMimesByCategory = (category: MimeCategory): MimeTypeInfo[] => {
 }
 
 const getSecurityRisks = (mimeTypes: MimeTypeInfo[]): MimeTypeInfo[] => {
-  return mimeTypes.filter((mime) => mime.security.riskLevel === 'high' || mime.security.riskLevel === 'medium')
+  return mimeTypes.filter((mime) => mime.security.riskLevel === "high" || mime.security.riskLevel === "medium")
 }
 
 // MIME templates
 const mimeTemplates: MimeTemplate[] = [
   {
-    id: 'web-images',
-    name: 'Web Images',
-    description: 'Common image formats for web development',
-    category: 'Images',
-    examples: ['jpg', 'png', 'webp', 'svg', 'gif'],
-    useCase: ['Web development', 'UI design', 'Content creation'],
-    searchTerms: ['image', 'photo', 'graphic', 'picture'],
+    id: "web-images",
+    name: "Web Images",
+    description: "Common image formats for web development",
+    category: "Images",
+    examples: ["jpg", "png", "webp", "svg", "gif"],
+    useCase: ["Web development", "UI design", "Content creation"],
+    searchTerms: ["image", "photo", "graphic", "picture"],
   },
   {
-    id: 'web-documents',
-    name: 'Web Documents',
-    description: 'Document formats for web applications',
-    category: 'Documents',
-    examples: ['html', 'css', 'js', 'json', 'xml'],
-    useCase: ['Web development', 'API development', 'Configuration'],
-    searchTerms: ['web', 'document', 'markup', 'script'],
+    id: "web-documents",
+    name: "Web Documents",
+    description: "Document formats for web applications",
+    category: "Documents",
+    examples: ["html", "css", "js", "json", "xml"],
+    useCase: ["Web development", "API development", "Configuration"],
+    searchTerms: ["web", "document", "markup", "script"],
   },
   {
-    id: 'media-files',
-    name: 'Media Files',
-    description: 'Audio and video formats for multimedia',
-    category: 'Media',
-    examples: ['mp4', 'webm', 'mp3', 'wav', 'ogg'],
-    useCase: ['Multimedia', 'Streaming', 'Entertainment'],
-    searchTerms: ['video', 'audio', 'media', 'sound', 'music'],
+    id: "media-files",
+    name: "Media Files",
+    description: "Audio and video formats for multimedia",
+    category: "Media",
+    examples: ["mp4", "webm", "mp3", "wav", "ogg"],
+    useCase: ["Multimedia", "Streaming", "Entertainment"],
+    searchTerms: ["video", "audio", "media", "sound", "music"],
   },
   {
-    id: 'office-documents',
-    name: 'Office Documents',
-    description: 'Common office and productivity file formats',
-    category: 'Office',
-    examples: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'],
-    useCase: ['Business', 'Documentation', 'Reports'],
-    searchTerms: ['office', 'document', 'spreadsheet', 'presentation'],
+    id: "office-documents",
+    name: "Office Documents",
+    description: "Common office and productivity file formats",
+    category: "Office",
+    examples: ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx"],
+    useCase: ["Business", "Documentation", "Reports"],
+    searchTerms: ["office", "document", "spreadsheet", "presentation"],
   },
   {
-    id: 'archive-formats',
-    name: 'Archive Formats',
-    description: 'Compression and archive file formats',
-    category: 'Archives',
-    examples: ['zip', 'rar', 'tar', 'gz', '7z'],
-    useCase: ['File compression', 'Backup', 'Distribution'],
-    searchTerms: ['archive', 'compress', 'zip', 'backup'],
+    id: "archive-formats",
+    name: "Archive Formats",
+    description: "Compression and archive file formats",
+    category: "Archives",
+    examples: ["zip", "rar", "tar", "gz", "7z"],
+    useCase: ["File compression", "Backup", "Distribution"],
+    searchTerms: ["archive", "compress", "zip", "backup"],
   },
   {
-    id: 'development-files',
-    name: 'Development Files',
-    description: 'Programming and development file formats',
-    category: 'Development',
-    examples: ['js', 'ts', 'py', 'java', 'cpp', 'cs'],
-    useCase: ['Software development', 'Programming', 'Scripting'],
-    searchTerms: ['code', 'programming', 'script', 'development'],
+    id: "development-files",
+    name: "Development Files",
+    description: "Programming and development file formats",
+    category: "Development",
+    examples: ["js", "ts", "py", "java", "cpp", "cs"],
+    useCase: ["Software development", "Programming", "Scripting"],
+    searchTerms: ["code", "programming", "script", "development"],
   },
 ]
 
@@ -703,62 +703,62 @@ const validateMimeQuery = (query: string, queryType: QueryType): MimeValidation 
   if (!query || query.trim().length === 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Search query cannot be empty',
-      type: 'format',
-      severity: 'error',
+      message: "Search query cannot be empty",
+      type: "format",
+      severity: "error",
     })
     return validation
   }
 
   // Query type specific validation
   switch (queryType) {
-    case 'extension':
-      if (query.includes('/')) {
-        validation.warnings.push('Extensions should not contain slashes')
+    case "extension":
+      if (query.includes("/")) {
+        validation.warnings.push("Extensions should not contain slashes")
         validation.suggestions.push('Use MIME type search for formats like "image/jpeg"')
       }
       if (query.length > 10) {
-        validation.warnings.push('Extension seems unusually long')
+        validation.warnings.push("Extension seems unusually long")
       }
       break
 
-    case 'mimetype':
-      if (!query.includes('/')) {
+    case "mimetype":
+      if (!query.includes("/")) {
         validation.warnings.push('MIME types typically contain a slash (e.g., "image/jpeg")')
-        validation.suggestions.push('Try extension search if looking for file extensions')
+        validation.suggestions.push("Try extension search if looking for file extensions")
       }
       if (!/^[a-zA-Z0-9][a-zA-Z0-9!#$&\-\^_]*\/[a-zA-Z0-9][a-zA-Z0-9!#$&\-\^_.]*$/.test(query)) {
-        validation.warnings.push('MIME type format may be invalid')
+        validation.warnings.push("MIME type format may be invalid")
       }
       break
 
-    case 'keyword':
+    case "keyword":
       if (query.length < 2) {
-        validation.warnings.push('Keyword search works better with longer terms')
+        validation.warnings.push("Keyword search works better with longer terms")
       }
       break
 
-    case 'category':
+    case "category":
       const validCategories = [
-        'image',
-        'video',
-        'audio',
-        'text',
-        'application',
-        'font',
-        'model',
-        'multipart',
-        'message',
+        "image",
+        "video",
+        "audio",
+        "text",
+        "application",
+        "font",
+        "model",
+        "multipart",
+        "message",
       ]
       if (!validCategories.includes(query.toLowerCase())) {
-        validation.suggestions.push(`Valid categories: ${validCategories.join(', ')}`)
+        validation.suggestions.push(`Valid categories: ${validCategories.join(", ")}`)
       }
       break
   }
 
   // Security checks
   if (/[<>'"&]/.test(query)) {
-    validation.warnings.push('Query contains potentially unsafe characters')
+    validation.warnings.push("Query contains potentially unsafe characters")
   }
 
   return validation
@@ -782,7 +782,7 @@ const useMimeSearch = () => {
 
         results.forEach((mime) => {
           categoryDistribution[mime.category] = (categoryDistribution[mime.category] || 0) + 1
-          if (mime.security.riskLevel === 'high' || mime.security.riskLevel === 'medium') {
+          if (mime.security.riskLevel === "high" || mime.security.riskLevel === "medium") {
             securityRiskCount++
           }
           if (mime.isStandard) {
@@ -816,7 +816,7 @@ const useMimeSearch = () => {
           queryType,
           results: [],
           isValid: false,
-          error: error instanceof Error ? error.message : 'Search failed',
+          error: error instanceof Error ? error.message : "Search failed",
           statistics: {
             queryLength: query.length,
             resultCount: 0,
@@ -877,8 +877,8 @@ const useMimeSearch = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch processing error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch processing failed')
+        console.error("Batch processing error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch processing failed")
       }
     },
     [performSearch]
@@ -917,13 +917,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -933,12 +933,12 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useMimeExport = () => {
   const exportResults = useCallback((results: MimeSearchResult[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         const jsonData = results.map((result) => ({
           id: result.id,
           query: result.query,
@@ -950,20 +950,20 @@ const useMimeExport = () => {
           createdAt: result.createdAt,
         }))
         content = JSON.stringify(jsonData, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         const csvHeaders = [
-          'Query',
-          'Query Type',
-          'MIME Type',
-          'Extensions',
-          'Category',
-          'Description',
-          'Security Risk',
-          'Standard',
-          'Browser Support',
+          "Query",
+          "Query Type",
+          "MIME Type",
+          "Extensions",
+          "Category",
+          "Description",
+          "Security Risk",
+          "Standard",
+          "Browser Support",
         ]
         const csvRows: string[] = []
         results.forEach((result) => {
@@ -974,25 +974,25 @@ const useMimeExport = () => {
                   `"${result.query.replace(/"/g, '""')}"`,
                   result.queryType,
                   mime.mimeType,
-                  `"${mime.extensions.join(', ')}"`,
+                  `"${mime.extensions.join(", ")}"`,
                   mime.category,
                   `"${mime.description.replace(/"/g, '""')}"`,
                   mime.security.riskLevel,
-                  mime.isStandard ? 'Yes' : 'No',
+                  mime.isStandard ? "Yes" : "No",
                   `"${Object.entries(mime.browserSupport)
                     .filter(([_, supported]) => supported)
                     .map(([browser]) => browser)
-                    .join(', ')}"`,
-                ].join(',')
+                    .join(", ")}"`,
+                ].join(",")
               )
             })
           }
         })
-        content = [csvHeaders.join(','), ...csvRows].join('\n')
-        mimeType = 'text/csv'
-        extension = '.csv'
+        content = [csvHeaders.join(","), ...csvRows].join("\n")
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         const xmlData = results
           .map(
             (result) => `
@@ -1006,7 +1006,7 @@ const useMimeExport = () => {
           (mime) => `
       <mimeType>
         <type>${mime.mimeType}</type>
-        <extensions>${mime.extensions.join(',')}</extensions>
+        <extensions>${mime.extensions.join(",")}</extensions>
         <category>${mime.category}</category>
         <description><![CDATA[${mime.description}]]></description>
         <security>
@@ -1015,26 +1015,26 @@ const useMimeExport = () => {
         </security>
       </mimeType>`
         )
-        .join('')}
+        .join("")}
     </results>
   </searchResult>`
           )
-          .join('')
+          .join("")
         content = `<?xml version="1.0" encoding="UTF-8"?>\n<mimeSearchResults>${xmlData}\n</mimeSearchResults>`
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromResults(results)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `mime-search-results${extension}`
     document.body.appendChild(link)
@@ -1060,27 +1060,27 @@ Search Results:
 ${results
   .map((result, i) => {
     return `${i + 1}. Search Query: "${result.query}" (${result.queryType})
-   Status: ${result.isValid ? 'Valid' : 'Invalid'}
-   ${result.error ? `Error: ${result.error}` : ''}
+   Status: ${result.isValid ? "Valid" : "Invalid"}
+   ${result.error ? `Error: ${result.error}` : ""}
    Results Found: ${result.results.length}
    Processing Time: ${result.statistics.processingTime.toFixed(2)}ms
 
-   ${result.results.length > 0 ? 'MIME Types Found:' : 'No MIME types found'}
+   ${result.results.length > 0 ? "MIME Types Found:" : "No MIME types found"}
    ${result.results
      .map(
        (mime, j) => `
    ${j + 1}. ${mime.mimeType}
-      Extensions: ${mime.extensions.join(', ')}
+      Extensions: ${mime.extensions.join(", ")}
       Category: ${mime.category}
       Description: ${mime.description}
       Security Risk: ${mime.security.riskLevel}
-      Standard: ${mime.isStandard ? 'Yes' : 'No'}
+      Standard: ${mime.isStandard ? "Yes" : "No"}
    `
      )
-     .join('')}
+     .join("")}
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
@@ -1094,17 +1094,17 @@ Statistics:
  * Features: Advanced MIME search, type analysis, security assessment, browser compatibility
  */
 const MimeSearchCore = () => {
-  const [activeTab, setActiveTab] = useState<'search' | 'batch' | 'analyzer' | 'templates'>('search')
-  const [query, setQuery] = useState('')
-  const [queryType, setQueryType] = useState<QueryType>('extension')
+  const [activeTab, setActiveTab] = useState<"search" | "batch" | "analyzer" | "templates">("search")
+  const [query, setQuery] = useState("")
+  const [queryType, setQueryType] = useState<QueryType>("extension")
   const [currentResult, setCurrentResult] = useState<MimeSearchResult | null>(null)
   const [batches, setBatches] = useState<ProcessingBatch[]>([])
-  const [batchInput, setBatchInput] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [batchInput, setBatchInput] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [showDetailedInfo, setShowDetailedInfo] = useState(false)
   const [settings, setSettings] = useState<ProcessingSettings>({
-    searchMode: 'fuzzy',
+    searchMode: "fuzzy",
     includeDeprecated: false,
     includeExperimental: false,
     includeVendorSpecific: false,
@@ -1112,7 +1112,7 @@ const MimeSearchCore = () => {
     exactMatch: false,
     includeSecurityInfo: true,
     includeBrowserSupport: true,
-    exportFormat: 'json',
+    exportFormat: "json",
     realTimeSearch: true,
     maxResults: 50,
   })
@@ -1127,7 +1127,7 @@ const MimeSearchCore = () => {
     const template = mimeTemplates.find((t) => t.id === templateId)
     if (template) {
       setQuery(template.examples[0])
-      setQueryType('extension')
+      setQueryType("extension")
       setSelectedTemplate(templateId)
       toast.success(`Applied template: ${template.name}`)
     }
@@ -1136,7 +1136,7 @@ const MimeSearchCore = () => {
   // Handle single search
   const handleSearch = useCallback(async () => {
     if (!query.trim()) {
-      toast.error('Please enter a search query')
+      toast.error("Please enter a search query")
       return
     }
 
@@ -1148,10 +1148,10 @@ const MimeSearchCore = () => {
       if (result.isValid) {
         toast.success(`Found ${result.results.length} MIME type(s)`)
       } else {
-        toast.error(result.error || 'Search failed')
+        toast.error(result.error || "Search failed")
       }
     } catch (error) {
-      toast.error('Failed to perform search')
+      toast.error("Failed to perform search")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -1160,17 +1160,17 @@ const MimeSearchCore = () => {
 
   // Handle batch processing
   const handleProcessBatch = useCallback(async () => {
-    const lines = batchInput.split('\n').filter((line) => line.trim())
+    const lines = batchInput.split("\n").filter((line) => line.trim())
     const queries = lines.map((line) => {
-      const [queryPart, typePart] = line.split('\t')
+      const [queryPart, typePart] = line.split("\t")
       return {
         query: queryPart.trim(),
-        queryType: (typePart?.trim() as QueryType) || 'extension',
+        queryType: (typePart?.trim() as QueryType) || "extension",
       }
     })
 
     if (queries.length === 0) {
-      toast.error('Please enter search queries')
+      toast.error("Please enter search queries")
       return
     }
 
@@ -1180,7 +1180,7 @@ const MimeSearchCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Processed ${batch.results.length} searches`)
     } catch (error) {
-      toast.error('Failed to process batch')
+      toast.error("Failed to process batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -1207,12 +1207,15 @@ const MimeSearchCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5" aria-hidden="true" />
+              <Database className="h-5 w-5" />
               MIME Type Search & Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -1226,29 +1229,44 @@ const MimeSearchCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'search' | 'batch' | 'analyzer' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "search" | "batch" | "analyzer" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="search" className="flex items-center gap-2">
+            <TabsTrigger
+              value="search"
+              className="flex items-center gap-2"
+            >
               <Search className="h-4 w-4" />
               MIME Search
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Search
             </TabsTrigger>
-            <TabsTrigger value="analyzer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analyzer"
+              className="flex items-center gap-2"
+            >
               <Shield className="h-4 w-4" />
               Type Analyzer
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* MIME Search Tab */}
-          <TabsContent value="search" className="space-y-4">
+          <TabsContent
+            value="search"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Search Input */}
               <Card>
@@ -1261,7 +1279,10 @@ const MimeSearchCore = () => {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="search-query" className="text-sm font-medium">
+                      <Label
+                        htmlFor="search-query"
+                        className="text-sm font-medium"
+                      >
                         Search Query
                       </Label>
                       <Input
@@ -1270,7 +1291,6 @@ const MimeSearchCore = () => {
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Enter file extension, MIME type, or keyword..."
                         className="mt-2"
-                        aria-label="MIME type search query"
                       />
                       {settings.realTimeSearch && query && (
                         <div className="mt-2 text-sm">
@@ -1290,10 +1310,16 @@ const MimeSearchCore = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="query-type" className="text-sm font-medium">
+                      <Label
+                        htmlFor="query-type"
+                        className="text-sm font-medium"
+                      >
                         Search Type
                       </Label>
-                      <Select value={queryType} onValueChange={(value: QueryType) => setQueryType(value)}>
+                      <Select
+                        value={queryType}
+                        onValueChange={(value: QueryType) => setQueryType(value)}
+                      >
                         <SelectTrigger className="mt-2">
                           <SelectValue />
                         </SelectTrigger>
@@ -1332,7 +1358,10 @@ const MimeSearchCore = () => {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="max-results" className="text-xs">
+                        <Label
+                          htmlFor="max-results"
+                          className="text-xs"
+                        >
                           Max Results
                         </Label>
                         <Input
@@ -1349,7 +1378,10 @@ const MimeSearchCore = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor="search-mode" className="text-xs">
+                        <Label
+                          htmlFor="search-mode"
+                          className="text-xs"
+                        >
                           Search Mode
                         </Label>
                         <Select
@@ -1377,7 +1409,10 @@ const MimeSearchCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, caseSensitive: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="case-sensitive" className="text-xs">
+                        <Label
+                          htmlFor="case-sensitive"
+                          className="text-xs"
+                        >
                           Case sensitive search
                         </Label>
                       </div>
@@ -1390,7 +1425,10 @@ const MimeSearchCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, exactMatch: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="exact-match" className="text-xs">
+                        <Label
+                          htmlFor="exact-match"
+                          className="text-xs"
+                        >
                           Exact match only
                         </Label>
                       </div>
@@ -1403,7 +1441,10 @@ const MimeSearchCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeDeprecated: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-deprecated" className="text-xs">
+                        <Label
+                          htmlFor="include-deprecated"
+                          className="text-xs"
+                        >
                           Include deprecated types
                         </Label>
                       </div>
@@ -1416,7 +1457,10 @@ const MimeSearchCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, realTimeSearch: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="real-time-search" className="text-xs">
+                        <Label
+                          htmlFor="real-time-search"
+                          className="text-xs"
+                        >
                           Real-time search
                         </Label>
                       </div>
@@ -1424,7 +1468,11 @@ const MimeSearchCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleSearch} disabled={!query.trim() || isProcessing} className="flex-1">
+                    <Button
+                      onClick={handleSearch}
+                      disabled={!query.trim() || isProcessing}
+                      className="flex-1"
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1434,7 +1482,7 @@ const MimeSearchCore = () => {
                     </Button>
                     <Button
                       onClick={() => {
-                        setQuery('')
+                        setQuery("")
                         setCurrentResult(null)
                       }}
                       variant="outline"
@@ -1449,7 +1497,10 @@ const MimeSearchCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-yellow-800">Warnings:</h4>
                       <div className="text-xs space-y-1">
                         {queryValidation.warnings.map((warning, index) => (
-                          <div key={index} className="text-yellow-700">
+                          <div
+                            key={index}
+                            className="text-yellow-700"
+                          >
                             {warning}
                           </div>
                         ))}
@@ -1462,7 +1513,10 @@ const MimeSearchCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-blue-800">Suggestions:</h4>
                       <div className="text-xs space-y-1">
                         {queryValidation.suggestions.map((suggestion, index) => (
-                          <div key={index} className="text-blue-700">
+                          <div
+                            key={index}
+                            className="text-blue-700"
+                          >
                             {suggestion}
                           </div>
                         ))}
@@ -1479,7 +1533,11 @@ const MimeSearchCore = () => {
                     <Info className="h-5 w-5" />
                     Search Results
                     <div className="ml-auto">
-                      <Button size="sm" variant="ghost" onClick={() => setShowDetailedInfo(!showDetailedInfo)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowDetailedInfo(!showDetailedInfo)}
+                      >
                         {showDetailedInfo ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
@@ -1494,7 +1552,7 @@ const MimeSearchCore = () => {
                         </div>
                         <div className="text-sm">
                           <div>
-                            <strong>Status:</strong> {currentResult.isValid ? 'Success' : 'Failed'}
+                            <strong>Status:</strong> {currentResult.isValid ? "Success" : "Failed"}
                           </div>
                           <div>
                             <strong>Results Found:</strong> {currentResult.results.length}
@@ -1515,7 +1573,10 @@ const MimeSearchCore = () => {
                           {/* Results List */}
                           <div className="space-y-3">
                             {currentResult.results.map((mime, index) => (
-                              <div key={index} className="border rounded-lg p-4">
+                              <div
+                                key={index}
+                                className="border rounded-lg p-4"
+                              >
                                 <div className="flex items-start justify-between mb-3">
                                   <div>
                                     <h4 className="font-medium text-lg">{mime.mimeType}</h4>
@@ -1524,26 +1585,26 @@ const MimeSearchCore = () => {
                                   <div className="flex items-center gap-2">
                                     <span
                                       className={`px-2 py-1 rounded text-xs ${
-                                        mime.category === 'image'
-                                          ? 'bg-blue-100 text-blue-800'
-                                          : mime.category === 'video'
-                                            ? 'bg-purple-100 text-purple-800'
-                                            : mime.category === 'audio'
-                                              ? 'bg-green-100 text-green-800'
-                                              : mime.category === 'text'
-                                                ? 'bg-yellow-100 text-yellow-800'
-                                                : 'bg-gray-100 text-gray-800'
+                                        mime.category === "image"
+                                          ? "bg-blue-100 text-blue-800"
+                                          : mime.category === "video"
+                                            ? "bg-purple-100 text-purple-800"
+                                            : mime.category === "audio"
+                                              ? "bg-green-100 text-green-800"
+                                              : mime.category === "text"
+                                                ? "bg-yellow-100 text-yellow-800"
+                                                : "bg-gray-100 text-gray-800"
                                       }`}
                                     >
                                       {mime.category}
                                     </span>
                                     <span
                                       className={`px-2 py-1 rounded text-xs ${
-                                        mime.security.riskLevel === 'high'
-                                          ? 'bg-red-100 text-red-800'
-                                          : mime.security.riskLevel === 'medium'
-                                            ? 'bg-orange-100 text-orange-800'
-                                            : 'bg-green-100 text-green-800'
+                                        mime.security.riskLevel === "high"
+                                          ? "bg-red-100 text-red-800"
+                                          : mime.security.riskLevel === "medium"
+                                            ? "bg-orange-100 text-orange-800"
+                                            : "bg-green-100 text-green-800"
                                       }`}
                                     >
                                       {mime.security.riskLevel} risk
@@ -1551,9 +1612,9 @@ const MimeSearchCore = () => {
                                     <Button
                                       size="sm"
                                       variant="ghost"
-                                      onClick={() => copyToClipboard(mime.mimeType, 'MIME Type')}
+                                      onClick={() => copyToClipboard(mime.mimeType, "MIME Type")}
                                     >
-                                      {copiedText === 'MIME Type' ? (
+                                      {copiedText === "MIME Type" ? (
                                         <Check className="h-4 w-4" />
                                       ) : (
                                         <Copy className="h-4 w-4" />
@@ -1565,13 +1626,13 @@ const MimeSearchCore = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                   <div>
                                     <div>
-                                      <strong>Extensions:</strong> {mime.extensions.map((ext) => `.${ext}`).join(', ')}
+                                      <strong>Extensions:</strong> {mime.extensions.map((ext) => `.${ext}`).join(", ")}
                                     </div>
                                     <div>
                                       <strong>Description:</strong> {mime.description}
                                     </div>
                                     <div>
-                                      <strong>Standard:</strong> {mime.isStandard ? 'Yes' : 'No'}
+                                      <strong>Standard:</strong> {mime.isStandard ? "Yes" : "No"}
                                     </div>
                                     {mime.rfc && (
                                       <div>
@@ -1581,11 +1642,11 @@ const MimeSearchCore = () => {
                                   </div>
                                   <div>
                                     <div>
-                                      <strong>Usage:</strong> {mime.usage.join(', ')}
+                                      <strong>Usage:</strong> {mime.usage.join(", ")}
                                     </div>
                                     <div>
-                                      <strong>Compression:</strong>{' '}
-                                      {mime.compression.isCompressed ? mime.compression.compressionType : 'None'}
+                                      <strong>Compression:</strong>{" "}
+                                      {mime.compression.isCompressed ? mime.compression.compressionType : "None"}
                                     </div>
                                     <div>
                                       <strong>Typical Size:</strong> {mime.compression.typicalSize}
@@ -1602,11 +1663,11 @@ const MimeSearchCore = () => {
                                         Security Information
                                       </h5>
                                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                                        <div>Executable: {mime.security.executable ? '⚠️ Yes' : '✅ No'}</div>
-                                        <div>Scriptable: {mime.security.scriptable ? '⚠️ Yes' : '✅ No'}</div>
-                                        <div>Malware Risk: {mime.security.canContainMalware ? '⚠️ Yes' : '✅ No'}</div>
+                                        <div>Executable: {mime.security.executable ? "⚠️ Yes" : "✅ No"}</div>
+                                        <div>Scriptable: {mime.security.scriptable ? "⚠️ Yes" : "✅ No"}</div>
+                                        <div>Malware Risk: {mime.security.canContainMalware ? "⚠️ Yes" : "✅ No"}</div>
                                         <div>
-                                          Sandbox: {mime.security.requiresSandbox ? '⚠️ Required' : '✅ Not needed'}
+                                          Sandbox: {mime.security.requiresSandbox ? "⚠️ Required" : "✅ Not needed"}
                                         </div>
                                       </div>
                                       {mime.security.warnings.length > 0 && (
@@ -1630,30 +1691,30 @@ const MimeSearchCore = () => {
                                         Browser Support
                                       </h5>
                                       <div className="grid grid-cols-3 md:grid-cols-6 gap-2 text-xs">
-                                        <div className={mime.browserSupport.chrome ? 'text-green-600' : 'text-red-600'}>
-                                          Chrome: {mime.browserSupport.chrome ? '✅' : '❌'}
+                                        <div className={mime.browserSupport.chrome ? "text-green-600" : "text-red-600"}>
+                                          Chrome: {mime.browserSupport.chrome ? "✅" : "❌"}
                                         </div>
                                         <div
-                                          className={mime.browserSupport.firefox ? 'text-green-600' : 'text-red-600'}
+                                          className={mime.browserSupport.firefox ? "text-green-600" : "text-red-600"}
                                         >
-                                          Firefox: {mime.browserSupport.firefox ? '✅' : '❌'}
+                                          Firefox: {mime.browserSupport.firefox ? "✅" : "❌"}
                                         </div>
-                                        <div className={mime.browserSupport.safari ? 'text-green-600' : 'text-red-600'}>
-                                          Safari: {mime.browserSupport.safari ? '✅' : '❌'}
+                                        <div className={mime.browserSupport.safari ? "text-green-600" : "text-red-600"}>
+                                          Safari: {mime.browserSupport.safari ? "✅" : "❌"}
                                         </div>
-                                        <div className={mime.browserSupport.edge ? 'text-green-600' : 'text-red-600'}>
-                                          Edge: {mime.browserSupport.edge ? '✅' : '❌'}
+                                        <div className={mime.browserSupport.edge ? "text-green-600" : "text-red-600"}>
+                                          Edge: {mime.browserSupport.edge ? "✅" : "❌"}
                                         </div>
-                                        <div className={mime.browserSupport.ie ? 'text-green-600' : 'text-red-600'}>
-                                          IE: {mime.browserSupport.ie ? '✅' : '❌'}
+                                        <div className={mime.browserSupport.ie ? "text-green-600" : "text-red-600"}>
+                                          IE: {mime.browserSupport.ie ? "✅" : "❌"}
                                         </div>
-                                        <div className={mime.browserSupport.mobile ? 'text-green-600' : 'text-red-600'}>
-                                          Mobile: {mime.browserSupport.mobile ? '✅' : '❌'}
+                                        <div className={mime.browserSupport.mobile ? "text-green-600" : "text-red-600"}>
+                                          Mobile: {mime.browserSupport.mobile ? "✅" : "❌"}
                                         </div>
                                       </div>
                                       {mime.browserSupport.notes.length > 0 && (
                                         <div className="mt-2 text-xs text-muted-foreground">
-                                          <strong>Notes:</strong> {mime.browserSupport.notes.join(', ')}
+                                          <strong>Notes:</strong> {mime.browserSupport.notes.join(", ")}
                                         </div>
                                       )}
                                     </div>
@@ -1719,7 +1780,10 @@ const MimeSearchCore = () => {
                                 <div className="flex flex-wrap gap-2">
                                   {Object.entries(currentResult.statistics.categoryDistribution).map(
                                     ([category, count]) => (
-                                      <span key={category} className="px-2 py-1 bg-muted rounded text-xs">
+                                      <span
+                                        key={category}
+                                        className="px-2 py-1 bg-muted rounded text-xs"
+                                      >
                                         {category}: {count}
                                       </span>
                                     )
@@ -1768,7 +1832,10 @@ const MimeSearchCore = () => {
           </TabsContent>
 
           {/* Batch Search Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1782,7 +1849,10 @@ const MimeSearchCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-input"
+                      className="text-sm font-medium"
+                    >
                       Search Queries (one per line, format: query[tab]type)
                     </Label>
                     <Textarea
@@ -1791,7 +1861,6 @@ const MimeSearchCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="jpg&#10;image/png&#9;mimetype&#10;video&#9;keyword&#10;application&#9;category"
                       className="mt-2 min-h-[200px] font-mono text-sm"
-                      aria-label="Batch MIME search input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
                       Format: query[tab]type (type is optional, defaults to 'extension')
@@ -1799,7 +1868,10 @@ const MimeSearchCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleProcessBatch} disabled={!batchInput.trim() || isProcessing}>
+                    <Button
+                      onClick={handleProcessBatch}
+                      disabled={!batchInput.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1807,7 +1879,10 @@ const MimeSearchCore = () => {
                       )}
                       Search Batch
                     </Button>
-                    <Button onClick={() => setBatchInput('')} variant="outline">
+                    <Button
+                      onClick={() => setBatchInput("")}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Clear
                     </Button>
@@ -1825,7 +1900,10 @@ const MimeSearchCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} searches processed</h4>
@@ -1835,7 +1913,11 @@ const MimeSearchCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportResults(batch.results, 'csv')}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportResults(batch.results, "csv")}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export CSV
                             </Button>
@@ -1867,7 +1949,10 @@ const MimeSearchCore = () => {
                             <h5 className="font-medium text-sm mb-2">Category Distribution</h5>
                             <div className="space-y-1">
                               {Object.entries(batch.statistics.categoryDistribution).map(([category, count]) => (
-                                <div key={category} className="flex justify-between text-xs">
+                                <div
+                                  key={category}
+                                  className="flex justify-between text-xs"
+                                >
                                   <span>{category}:</span>
                                   <span>{count}</span>
                                 </div>
@@ -1878,14 +1963,17 @@ const MimeSearchCore = () => {
                             <h5 className="font-medium text-sm mb-2">Security Risk Distribution</h5>
                             <div className="space-y-1">
                               {Object.entries(batch.statistics.securityDistribution).map(([risk, count]) => (
-                                <div key={risk} className="flex justify-between text-xs">
+                                <div
+                                  key={risk}
+                                  className="flex justify-between text-xs"
+                                >
                                   <span
                                     className={
-                                      risk === 'high'
-                                        ? 'text-red-600'
-                                        : risk === 'medium'
-                                          ? 'text-orange-600'
-                                          : 'text-green-600'
+                                      risk === "high"
+                                        ? "text-red-600"
+                                        : risk === "medium"
+                                          ? "text-orange-600"
+                                          : "text-green-600"
                                     }
                                   >
                                     {risk}:
@@ -1900,26 +1988,29 @@ const MimeSearchCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.results.slice(0, 5).map((result) => (
-                              <div key={result.id} className="text-xs border rounded p-2">
+                              <div
+                                key={result.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">
                                     "{result.query}" ({result.queryType})
                                   </span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      result.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      result.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {result.isValid ? `${result.results.length} found` : 'Failed'}
+                                    {result.isValid ? `${result.results.length} found` : "Failed"}
                                   </span>
                                 </div>
                                 {result.isValid && result.results.length > 0 && (
                                   <div className="text-muted-foreground mt-1">
-                                    Top results:{' '}
+                                    Top results:{" "}
                                     {result.results
                                       .slice(0, 3)
                                       .map((mime) => mime.mimeType)
-                                      .join(', ')}
+                                      .join(", ")}
                                     {result.results.length > 3 && ` +${result.results.length - 3} more`}
                                   </div>
                                 )}
@@ -1942,7 +2033,10 @@ const MimeSearchCore = () => {
           </TabsContent>
 
           {/* Type Analyzer Tab */}
-          <TabsContent value="analyzer" className="space-y-4">
+          <TabsContent
+            value="analyzer"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1955,7 +2049,7 @@ const MimeSearchCore = () => {
                 <div className="space-y-4">
                   {/* Category Analysis */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {(['image', 'video', 'audio', 'text', 'application'] as MimeCategory[]).map((category) => {
+                    {(["image", "video", "audio", "text", "application"] as MimeCategory[]).map((category) => {
                       const categoryMimes = getMimesByCategory(category)
                       const securityRisks = getSecurityRisks(categoryMimes)
 
@@ -1963,11 +2057,11 @@ const MimeSearchCore = () => {
                         <Card key={category}>
                           <CardHeader className="pb-2">
                             <CardTitle className="text-sm flex items-center gap-2">
-                              {category === 'image' && <FileImage className="h-4 w-4" />}
-                              {category === 'video' && <FileVideo className="h-4 w-4" />}
-                              {category === 'audio' && <FileAudio className="h-4 w-4" />}
-                              {category === 'text' && <FileText className="h-4 w-4" />}
-                              {category === 'application' && <File className="h-4 w-4" />}
+                              {category === "image" && <FileImage className="h-4 w-4" />}
+                              {category === "video" && <FileVideo className="h-4 w-4" />}
+                              {category === "audio" && <FileAudio className="h-4 w-4" />}
+                              {category === "text" && <FileText className="h-4 w-4" />}
+                              {category === "application" && <File className="h-4 w-4" />}
                               {category.charAt(0).toUpperCase() + category.slice(1)}
                             </CardTitle>
                           </CardHeader>
@@ -1981,8 +2075,8 @@ const MimeSearchCore = () => {
                               className="w-full mt-2"
                               onClick={() => {
                                 setQuery(category)
-                                setQueryType('category')
-                                setActiveTab('search')
+                                setQueryType("category")
+                                setActiveTab("search")
                               }}
                             >
                               View All {category}
@@ -2000,30 +2094,36 @@ const MimeSearchCore = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {(['high', 'medium', 'low'] as SecurityRisk[]).map((riskLevel) => {
+                        {(["high", "medium", "low"] as SecurityRisk[]).map((riskLevel) => {
                           const riskMimes = mimeDatabase.filter((mime) => mime.security.riskLevel === riskLevel)
 
                           return (
-                            <div key={riskLevel} className="border rounded-lg p-3">
+                            <div
+                              key={riskLevel}
+                              className="border rounded-lg p-3"
+                            >
                               <div className="flex items-center justify-between mb-2">
                                 <h4
                                   className={`font-medium text-sm ${
-                                    riskLevel === 'high'
-                                      ? 'text-red-700'
-                                      : riskLevel === 'medium'
-                                        ? 'text-orange-700'
-                                        : 'text-green-700'
+                                    riskLevel === "high"
+                                      ? "text-red-700"
+                                      : riskLevel === "medium"
+                                        ? "text-orange-700"
+                                        : "text-green-700"
                                   }`}
                                 >
-                                  {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)} Risk ({riskMimes.length}{' '}
+                                  {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)} Risk ({riskMimes.length}{" "}
                                   types)
                                 </h4>
                               </div>
                               <div className="text-xs space-y-1">
                                 {riskMimes.slice(0, 5).map((mime) => (
-                                  <div key={mime.mimeType} className="flex justify-between">
+                                  <div
+                                    key={mime.mimeType}
+                                    className="flex justify-between"
+                                  >
                                     <span>{mime.mimeType}</span>
-                                    <span className="text-muted-foreground">{mime.extensions.join(', ')}</span>
+                                    <span className="text-muted-foreground">{mime.extensions.join(", ")}</span>
                                   </div>
                                 ))}
                                 {riskMimes.length > 5 && (
@@ -2055,7 +2155,7 @@ const MimeSearchCore = () => {
                         <div>
                           <div className="font-medium">Security Risks</div>
                           <div className="text-2xl font-bold">
-                            {mimeDatabase.filter((m) => m.security.riskLevel !== 'minimal').length}
+                            {mimeDatabase.filter((m) => m.security.riskLevel !== "minimal").length}
                           </div>
                         </div>
                         <div>
@@ -2071,7 +2171,10 @@ const MimeSearchCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -2086,7 +2189,7 @@ const MimeSearchCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -2101,7 +2204,10 @@ const MimeSearchCore = () => {
                             <div className="text-xs font-medium mb-1">Examples:</div>
                             <div className="flex flex-wrap gap-1">
                               {template.examples.map((example, index) => (
-                                <span key={index} className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                                <span
+                                  key={index}
+                                  className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded"
+                                >
                                   {example}
                                 </span>
                               ))}
@@ -2109,12 +2215,12 @@ const MimeSearchCore = () => {
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Search Terms:</div>
-                            <div className="text-xs text-muted-foreground">{template.searchTerms.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.searchTerms.join(", ")}</div>
                           </div>
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>Use cases:</strong> {template.useCase.join(', ')}
+                            <strong>Use cases:</strong> {template.useCase.join(", ")}
                           </div>
                         )}
                       </div>
@@ -2136,7 +2242,10 @@ const MimeSearchCore = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -2166,7 +2275,10 @@ const MimeSearchCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, includeSecurityInfo: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="include-security" className="text-xs">
+                      <Label
+                        htmlFor="include-security"
+                        className="text-xs"
+                      >
                         Include security information
                       </Label>
                     </div>
@@ -2178,7 +2290,10 @@ const MimeSearchCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, includeBrowserSupport: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="include-browser" className="text-xs">
+                      <Label
+                        htmlFor="include-browser"
+                        className="text-xs"
+                      >
                         Include browser support
                       </Label>
                     </div>
@@ -2191,7 +2306,7 @@ const MimeSearchCore = () => {
                   <Button
                     onClick={() => {
                       const allResults = batches.flatMap((batch) => batch.results)
-                      exportResults(allResults, 'txt', 'mime-search-report.txt')
+                      exportResults(allResults, "txt", "mime-search-report.txt")
                     }}
                     variant="outline"
                   >

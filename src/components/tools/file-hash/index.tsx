@@ -1,13 +1,13 @@
-import React, { useCallback, useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import React, { useCallback, useRef, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import { toast } from 'sonner'
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -31,8 +31,8 @@ import {
   HardDrive,
   FileCheck,
   Folder,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   FileHashItem,
   FileHashData,
@@ -44,8 +44,8 @@ import type {
   FileIntegrityCheck,
   HashAlgorithm,
   ExportFormat,
-} from '@/types/file-hash'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/file-hash"
+import { formatFileSize } from "@/lib/utils"
 
 // Utility functions
 
@@ -53,33 +53,33 @@ const validateFileForHashing = (file: File): { isValid: boolean; error?: string 
   const maxSize = 500 * 1024 * 1024 // 500MB
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 500MB' }
+    return { isValid: false, error: "File size must be less than 500MB" }
   }
 
   if (file.size === 0) {
-    return { isValid: false, error: 'File cannot be empty' }
+    return { isValid: false, error: "File cannot be empty" }
   }
 
   return { isValid: true }
 }
 
 const getFileIcon = (type: string) => {
-  if (type.startsWith('image/')) return <FileImage className="h-4 w-4" />
-  if (type.startsWith('text/')) return <FileText className="h-4 w-4" />
-  if (type.includes('json') || type.includes('javascript')) return <Code className="h-4 w-4" />
+  if (type.startsWith("image/")) return <FileImage className="h-4 w-4" />
+  if (type.startsWith("text/")) return <FileText className="h-4 w-4" />
+  if (type.includes("json") || type.includes("javascript")) return <Code className="h-4 w-4" />
   return <FileCode className="h-4 w-4" />
 }
 
 // Enhanced file hashing algorithms
 const getAlgorithmName = (algorithm: HashAlgorithm): string => {
   const algorithmMap: Record<HashAlgorithm, string> = {
-    MD5: 'MD5',
-    'SHA-1': 'SHA-1',
-    'SHA-256': 'SHA-256',
-    'SHA-384': 'SHA-384',
-    'SHA-512': 'SHA-512',
+    MD5: "MD5",
+    "SHA-1": "SHA-1",
+    "SHA-256": "SHA-256",
+    "SHA-384": "SHA-384",
+    "SHA-512": "SHA-512",
   }
-  return algorithmMap[algorithm] || 'SHA-256'
+  return algorithmMap[algorithm] || "SHA-256"
 }
 
 // Calculate file hash with progress tracking
@@ -92,7 +92,7 @@ const calculateFileHash = async (
 
   try {
     if (!window.crypto?.subtle) {
-      throw new Error('Web Crypto API not supported in this browser')
+      throw new Error("Web Crypto API not supported in this browser")
     }
 
     const algorithmName = getAlgorithmName(algorithm)
@@ -106,8 +106,8 @@ const calculateFileHash = async (
       const hashBuffer = await window.crypto.subtle.digest(algorithmName, arrayBuffer)
       const hashArray = new Uint8Array(hashBuffer)
       const hash = Array.from(hashArray)
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join('')
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("")
 
       const processingTime = performance.now() - startTime
 
@@ -141,8 +141,8 @@ const calculateFileHash = async (
     const hashBuffer = await window.crypto.subtle.digest(algorithmName, arrayBuffer)
     const hashArray = new Uint8Array(hashBuffer)
     const hash = Array.from(hashArray)
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('')
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("")
 
     const processingTime = performance.now() - startTime
 
@@ -153,7 +153,7 @@ const calculateFileHash = async (
       chunks,
     }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'File hash calculation failed')
+    throw new Error(error instanceof Error ? error.message : "File hash calculation failed")
   }
 }
 
@@ -176,7 +176,7 @@ const calculateMultipleFileHashes = async (
     } catch (error) {
       results.push({
         algorithm,
-        hash: 'Error: ' + (error instanceof Error ? error.message : 'Hash calculation failed'),
+        hash: "Error: " + (error instanceof Error ? error.message : "Hash calculation failed"),
         processingTime: 0,
         chunks: 0,
       })
@@ -213,7 +213,7 @@ const verifyFileIntegrity = async (
       id: nanoid(),
       fileName: file.name,
       expectedHash,
-      actualHash: 'Error: ' + (error instanceof Error ? error.message : 'Verification failed'),
+      actualHash: "Error: " + (error instanceof Error ? error.message : "Verification failed"),
       algorithm,
       isValid: false,
       processingTime: performance.now() - startTime,
@@ -224,12 +224,12 @@ const verifyFileIntegrity = async (
 // File hash templates with different security levels
 const fileHashTemplates: FileHashTemplate[] = [
   {
-    id: 'integrity-check',
-    name: 'File Integrity Check',
-    description: 'Standard integrity verification (SHA-256)',
-    category: 'Integrity',
+    id: "integrity-check",
+    name: "File Integrity Check",
+    description: "Standard integrity verification (SHA-256)",
+    category: "Integrity",
     settings: {
-      algorithms: ['SHA-256'],
+      algorithms: ["SHA-256"],
       includeTimestamp: true,
       enableVerification: true,
       batchProcessing: true,
@@ -238,16 +238,16 @@ const fileHashTemplates: FileHashTemplate[] = [
       showProgress: true,
       integrityCheck: true,
     },
-    algorithms: ['SHA-256'],
-    securityLevel: 'high',
+    algorithms: ["SHA-256"],
+    securityLevel: "high",
   },
   {
-    id: 'comprehensive-analysis',
-    name: 'Comprehensive Analysis',
-    description: 'Multiple algorithms for thorough analysis',
-    category: 'Analysis',
+    id: "comprehensive-analysis",
+    name: "Comprehensive Analysis",
+    description: "Multiple algorithms for thorough analysis",
+    category: "Analysis",
     settings: {
-      algorithms: ['MD5', 'SHA-1', 'SHA-256', 'SHA-512'],
+      algorithms: ["MD5", "SHA-1", "SHA-256", "SHA-512"],
       includeTimestamp: true,
       enableVerification: true,
       batchProcessing: true,
@@ -256,16 +256,16 @@ const fileHashTemplates: FileHashTemplate[] = [
       showProgress: true,
       integrityCheck: true,
     },
-    algorithms: ['MD5', 'SHA-1', 'SHA-256', 'SHA-512'],
-    securityLevel: 'very-high',
+    algorithms: ["MD5", "SHA-1", "SHA-256", "SHA-512"],
+    securityLevel: "very-high",
   },
   {
-    id: 'security-focused',
-    name: 'Security Focused',
-    description: 'Secure algorithms only (SHA-256, SHA-384, SHA-512)',
-    category: 'Security',
+    id: "security-focused",
+    name: "Security Focused",
+    description: "Secure algorithms only (SHA-256, SHA-384, SHA-512)",
+    category: "Security",
     settings: {
-      algorithms: ['SHA-256', 'SHA-384', 'SHA-512'],
+      algorithms: ["SHA-256", "SHA-384", "SHA-512"],
       includeTimestamp: true,
       enableVerification: true,
       batchProcessing: true,
@@ -274,16 +274,16 @@ const fileHashTemplates: FileHashTemplate[] = [
       showProgress: true,
       integrityCheck: true,
     },
-    algorithms: ['SHA-256', 'SHA-384', 'SHA-512'],
-    securityLevel: 'very-high',
+    algorithms: ["SHA-256", "SHA-384", "SHA-512"],
+    securityLevel: "very-high",
   },
   {
-    id: 'legacy-support',
-    name: 'Legacy Support',
-    description: 'Includes legacy algorithms for compatibility',
-    category: 'Legacy',
+    id: "legacy-support",
+    name: "Legacy Support",
+    description: "Includes legacy algorithms for compatibility",
+    category: "Legacy",
     settings: {
-      algorithms: ['MD5', 'SHA-1', 'SHA-256'],
+      algorithms: ["MD5", "SHA-1", "SHA-256"],
       includeTimestamp: false,
       enableVerification: true,
       batchProcessing: true,
@@ -292,16 +292,16 @@ const fileHashTemplates: FileHashTemplate[] = [
       showProgress: true,
       integrityCheck: false,
     },
-    algorithms: ['MD5', 'SHA-1', 'SHA-256'],
-    securityLevel: 'medium',
+    algorithms: ["MD5", "SHA-1", "SHA-256"],
+    securityLevel: "medium",
   },
   {
-    id: 'quick-check',
-    name: 'Quick Check',
-    description: 'Fast hashing for quick verification (SHA-256)',
-    category: 'Quick',
+    id: "quick-check",
+    name: "Quick Check",
+    description: "Fast hashing for quick verification (SHA-256)",
+    category: "Quick",
     settings: {
-      algorithms: ['SHA-256'],
+      algorithms: ["SHA-256"],
       includeTimestamp: false,
       enableVerification: false,
       batchProcessing: false,
@@ -310,16 +310,16 @@ const fileHashTemplates: FileHashTemplate[] = [
       showProgress: false,
       integrityCheck: false,
     },
-    algorithms: ['SHA-256'],
-    securityLevel: 'high',
+    algorithms: ["SHA-256"],
+    securityLevel: "high",
   },
   {
-    id: 'forensic-analysis',
-    name: 'Forensic Analysis',
-    description: 'Comprehensive hashing for forensic purposes',
-    category: 'Forensic',
+    id: "forensic-analysis",
+    name: "Forensic Analysis",
+    description: "Comprehensive hashing for forensic purposes",
+    category: "Forensic",
     settings: {
-      algorithms: ['MD5', 'SHA-1', 'SHA-256', 'SHA-384', 'SHA-512'],
+      algorithms: ["MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512"],
       includeTimestamp: true,
       enableVerification: true,
       batchProcessing: true,
@@ -328,8 +328,8 @@ const fileHashTemplates: FileHashTemplate[] = [
       showProgress: true,
       integrityCheck: true,
     },
-    algorithms: ['MD5', 'SHA-1', 'SHA-256', 'SHA-384', 'SHA-512'],
-    securityLevel: 'very-high',
+    algorithms: ["MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512"],
+    securityLevel: "very-high",
   },
 ]
 
@@ -355,7 +355,7 @@ const processFileHashData = (
       settings,
     }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'File hash processing failed')
+    throw new Error(error instanceof Error ? error.message : "File hash processing failed")
   }
 }
 
@@ -395,7 +395,7 @@ const useFileHashGeneration = () => {
           enableVerification: true,
           batchProcessing: false,
           realTimeHashing: true,
-          exportFormat: 'json',
+          exportFormat: "json",
           chunkSize: 1024 * 1024,
           showProgress: true,
           integrityCheck: true,
@@ -403,8 +403,8 @@ const useFileHashGeneration = () => {
 
         return processFileHashData(file, hashes, statistics, settings)
       } catch (error) {
-        console.error('File hash generation error:', error)
-        throw new Error(error instanceof Error ? error.message : 'File hash generation failed')
+        console.error("File hash generation error:", error)
+        throw new Error(error instanceof Error ? error.message : "File hash generation failed")
       }
     },
     []
@@ -418,7 +418,7 @@ const useFileHashGeneration = () => {
     ): Promise<FileHashItem[]> => {
       return Promise.all(
         files.map(async (fileItem) => {
-          if (fileItem.status !== 'pending') return fileItem
+          if (fileItem.status !== "pending") return fileItem
 
           try {
             const hashData = await generateFileHash(fileItem.file, settings.algorithms, (algorithm, progress) => {
@@ -429,7 +429,7 @@ const useFileHashGeneration = () => {
 
             return {
               ...fileItem,
-              status: 'completed' as const,
+              status: "completed" as const,
               hashData,
               processedAt: new Date(),
               progress: 100,
@@ -437,8 +437,8 @@ const useFileHashGeneration = () => {
           } catch (error) {
             return {
               ...fileItem,
-              status: 'error' as const,
-              error: error instanceof Error ? error.message : 'Processing failed',
+              status: "error" as const,
+              error: error instanceof Error ? error.message : "Processing failed",
               progress: 0,
             }
           }
@@ -477,7 +477,7 @@ const useFileProcessing = () => {
       name: file.name,
       size: file.size,
       type: file.type,
-      status: 'pending',
+      status: "pending",
       progress: 0,
     }
 
@@ -489,7 +489,7 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
@@ -498,8 +498,8 @@ const useFileProcessing = () => {
             name: files[index].name,
             size: files[index].size,
             type: files[index].type,
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
             progress: 0,
           }
         }
@@ -514,37 +514,37 @@ const useFileProcessing = () => {
 // Export functionality
 const useFileHashExport = () => {
   const exportFileHash = useCallback((hashData: FileHashData, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(hashData, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromFileHash(hashData)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromFileHash(hashData)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromFileHash(hashData)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `file-hash-${hashData.original.name}${extension}`
     document.body.appendChild(link)
@@ -558,14 +558,14 @@ const useFileHashExport = () => {
       const completedFiles = files.filter((f) => f.hashData)
 
       if (completedFiles.length === 0) {
-        toast.error('No file hash data to export')
+        toast.error("No file hash data to export")
         return
       }
 
       completedFiles.forEach((file) => {
         if (file.hashData) {
-          const baseName = file.name.replace(/\.[^/.]+$/, '')
-          exportFileHash(file.hashData, 'json', `${baseName}-hashes.json`)
+          const baseName = file.name.replace(/\.[^/.]+$/, "")
+          exportFileHash(file.hashData, "json", `${baseName}-hashes.json`)
         }
       })
 
@@ -582,7 +582,7 @@ const useFileHashExport = () => {
         fileSize: formatFileSize(file.size),
         fileType: file.type,
         hashCount: file.hashData!.hashes.length,
-        algorithms: file.hashData!.hashes.map((h) => h.algorithm).join(', '),
+        algorithms: file.hashData!.hashes.map((h) => h.algorithm).join(", "),
         processingTime: `${file.hashData!.statistics.totalProcessingTime.toFixed(2)}ms`,
         integrityScore: file.hashData!.statistics.integrityScore,
         status: file.status,
@@ -590,14 +590,14 @@ const useFileHashExport = () => {
 
     const csvContent = [
       [
-        'Filename',
-        'File Size',
-        'File Type',
-        'Hash Count',
-        'Algorithms',
-        'Processing Time',
-        'Integrity Score',
-        'Status',
+        "Filename",
+        "File Size",
+        "File Type",
+        "Hash Count",
+        "Algorithms",
+        "Processing Time",
+        "Integrity Score",
+        "Status",
       ],
       ...stats.map((stat) => [
         stat.filename,
@@ -610,20 +610,20 @@ const useFileHashExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'file-hash-statistics.csv'
+    link.download = "file-hash-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportFileHash, exportBatch, exportStatistics }
@@ -641,7 +641,7 @@ File Information:
 - Last Modified: ${hashData.original.lastModified.toLocaleString()}
 
 Hash Results:
-${hashData.hashes.map((hash) => `- ${hash.algorithm}: ${hash.hash} (${hash.processingTime.toFixed(2)}ms, ${hash.chunks} chunks)`).join('\n')}
+${hashData.hashes.map((hash) => `- ${hash.algorithm}: ${hash.hash} (${hash.processingTime.toFixed(2)}ms, ${hash.chunks} chunks)`).join("\n")}
 
 Statistics:
 - Total Processing Time: ${hashData.statistics.totalProcessingTime.toFixed(2)}ms
@@ -652,16 +652,16 @@ Statistics:
 
 const generateCSVFromFileHash = (hashData: FileHashData): string => {
   const rows = [
-    ['Algorithm', 'Hash', 'Processing Time (ms)', 'Chunks'],
+    ["Algorithm", "Hash", "Processing Time (ms)", "Chunks"],
     ...hashData.hashes.map((hash) => [
       hash.algorithm,
       hash.hash,
       hash.processingTime.toFixed(2),
-      hash.chunks?.toString() || '0',
+      hash.chunks?.toString() || "0",
     ]),
   ]
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 }
 
 const generateXMLFromFileHash = (hashData: FileHashData): string => {
@@ -684,7 +684,7 @@ const generateXMLFromFileHash = (hashData: FileHashData): string => {
       <chunks>${hash.chunks || 0}</chunks>
     </hash>`
       )
-      .join('')}
+      .join("")}
   </hashes>
   <statistics>
     <totalProcessingTime>${hashData.statistics.totalProcessingTime}</totalProcessingTime>
@@ -701,13 +701,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -722,9 +722,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -740,7 +740,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop valid files')
+        toast.error("Please drop valid files")
       }
     },
     [onFilesDropped]
@@ -754,7 +754,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -774,21 +774,21 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time hashing, multiple algorithms, batch processing, comprehensive analysis
  */
 const FileHashCore = () => {
-  const [activeTab, setActiveTab] = useState<'hasher' | 'verify' | 'compare'>('hasher')
+  const [activeTab, setActiveTab] = useState<"hasher" | "verify" | "compare">("hasher")
   const [files, setFiles] = useState<FileHashItem[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('integrity-check')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("integrity-check")
   const [verifyFile, setVerifyFile] = useState<File | null>(null)
-  const [expectedHash, setExpectedHash] = useState('')
-  const [verifyAlgorithm, setVerifyAlgorithm] = useState<HashAlgorithm>('SHA-256')
+  const [expectedHash, setExpectedHash] = useState("")
+  const [verifyAlgorithm, setVerifyAlgorithm] = useState<HashAlgorithm>("SHA-256")
   const [verificationResult, setVerificationResult] = useState<FileIntegrityCheck | null>(null)
   const [settings, setSettings] = useState<FileHashSettings>({
-    algorithms: ['SHA-256'],
+    algorithms: ["SHA-256"],
     includeTimestamp: false,
     enableVerification: true,
     batchProcessing: true,
     realTimeHashing: true,
-    exportFormat: 'json',
+    exportFormat: "json",
     chunkSize: 1024 * 1024,
     showProgress: true,
     integrityCheck: true,
@@ -809,7 +809,7 @@ const FileHashCore = () => {
 
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
@@ -828,23 +828,23 @@ const FileHashCore = () => {
 
   // Handle file hash generation
   const handleGenerateHashes = useCallback(async () => {
-    const pendingFiles = files.filter((f) => f.status === 'pending')
+    const pendingFiles = files.filter((f) => f.status === "pending")
 
     if (pendingFiles.length === 0) {
-      toast.error('No files to process')
+      toast.error("No files to process")
       return
     }
 
     setIsProcessing(true)
     try {
       const processedFiles = await processFiles(files, settings, (fileId, _, progress) => {
-        setFiles((prev) => prev.map((f) => (f.id === fileId ? { ...f, progress, status: 'processing' as const } : f)))
+        setFiles((prev) => prev.map((f) => (f.id === fileId ? { ...f, progress, status: "processing" as const } : f)))
       })
 
       setFiles(processedFiles)
-      toast.success('File hashes generated successfully')
+      toast.success("File hashes generated successfully")
     } catch (error) {
-      toast.error('Failed to generate file hashes')
+      toast.error("Failed to generate file hashes")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -854,7 +854,7 @@ const FileHashCore = () => {
   // Handle file verification
   const handleVerifyFile = useCallback(async () => {
     if (!verifyFile || !expectedHash.trim()) {
-      toast.error('Please select a file and enter expected hash')
+      toast.error("Please select a file and enter expected hash")
       return
     }
 
@@ -862,9 +862,9 @@ const FileHashCore = () => {
     try {
       const result = await verifyFileIntegrity(verifyFile, expectedHash, verifyAlgorithm)
       setVerificationResult(result)
-      toast.success(result.isValid ? 'File verification successful' : 'File verification failed')
+      toast.success(result.isValid ? "File verification successful" : "File verification failed")
     } catch (error) {
-      toast.error('Failed to verify file')
+      toast.error("Failed to verify file")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -881,12 +881,15 @@ const FileHashCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <HardDrive className="h-5 w-5" aria-hidden="true" />
+              <HardDrive className="h-5 w-5" />
               File Hash & Integrity Verification
             </CardTitle>
             <CardDescription>
@@ -898,24 +901,39 @@ const FileHashCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'hasher' | 'verify' | 'compare')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "hasher" | "verify" | "compare")}
+        >
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="hasher" className="flex items-center gap-2">
+            <TabsTrigger
+              value="hasher"
+              className="flex items-center gap-2"
+            >
               <Hash className="h-4 w-4" />
               File Hasher
             </TabsTrigger>
-            <TabsTrigger value="verify" className="flex items-center gap-2">
+            <TabsTrigger
+              value="verify"
+              className="flex items-center gap-2"
+            >
               <FileCheck className="h-4 w-4" />
               Integrity Check
             </TabsTrigger>
-            <TabsTrigger value="compare" className="flex items-center gap-2">
+            <TabsTrigger
+              value="compare"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               File Comparison
             </TabsTrigger>
           </TabsList>
 
           {/* File Hasher Tab */}
-          <TabsContent value="hasher" className="space-y-4">
+          <TabsContent
+            value="hasher"
+            className="space-y-4"
+          >
             {/* Hash Templates */}
             <Card>
               <CardHeader>
@@ -929,7 +947,7 @@ const FileHashCore = () => {
                   {fileHashTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -953,8 +971,8 @@ const FileHashCore = () => {
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -962,9 +980,8 @@ const FileHashCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -975,7 +992,11 @@ const FileHashCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your files here, or click to select files for hash generation
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <Folder className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -986,7 +1007,6 @@ const FileHashCore = () => {
                     multiple
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select files for hash generation"
                   />
                 </div>
               </CardContent>
@@ -1001,7 +1021,7 @@ const FileHashCore = () => {
                     <div className="flex gap-2">
                       <Button
                         onClick={handleGenerateHashes}
-                        disabled={isProcessing || files.filter((f) => f.status === 'pending').length === 0}
+                        disabled={isProcessing || files.filter((f) => f.status === "pending").length === 0}
                       >
                         {isProcessing ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
@@ -1010,7 +1030,10 @@ const FileHashCore = () => {
                         )}
                         Generate Hashes
                       </Button>
-                      <Button onClick={() => setFiles([])} variant="outline">
+                      <Button
+                        onClick={() => setFiles([])}
+                        variant="outline"
+                      >
                         <RotateCcw className="mr-2 h-4 w-4" />
                         Clear All
                       </Button>
@@ -1020,20 +1043,26 @@ const FileHashCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">{getFileIcon(file.type)}</div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground">
                               <span className="font-medium">Size:</span> {formatFileSize(file.size)} •
-                              <span className="font-medium ml-2">Type:</span> {file.type || 'Unknown'}
+                              <span className="font-medium ml-2">Type:</span> {file.type || "Unknown"}
                             </div>
 
                             {/* Progress Bar */}
-                            {file.status === 'processing' && file.progress !== undefined && (
+                            {file.status === "processing" && file.progress !== undefined && (
                               <div className="mt-2">
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                   <div
@@ -1048,10 +1077,13 @@ const FileHashCore = () => {
                             )}
 
                             {/* Hash Results */}
-                            {file.status === 'completed' && file.hashData && (
+                            {file.status === "completed" && file.hashData && (
                               <div className="mt-3 space-y-2">
                                 {file.hashData.hashes.map((hash, index) => (
-                                  <div key={index} className="text-xs">
+                                  <div
+                                    key={index}
+                                    className="text-xs"
+                                  >
                                     <div className="flex items-center justify-between">
                                       <Label className="font-medium">{hash.algorithm}:</Label>
                                       <Button
@@ -1094,7 +1126,10 @@ const FileHashCore = () => {
           </TabsContent>
 
           {/* Integrity Check Tab */}
-          <TabsContent value="verify" className="space-y-4">
+          <TabsContent
+            value="verify"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1106,7 +1141,10 @@ const FileHashCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="verify-file" className="text-sm font-medium">
+                    <Label
+                      htmlFor="verify-file"
+                      className="text-sm font-medium"
+                    >
                       Select File
                     </Label>
                     <div className="mt-2">
@@ -1114,13 +1152,15 @@ const FileHashCore = () => {
                         id="verify-file"
                         type="file"
                         onChange={(e) => setVerifyFile(e.target.files?.[0] || null)}
-                        aria-label="Select file for verification"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <Label htmlFor="expected-hash" className="text-sm font-medium">
+                    <Label
+                      htmlFor="expected-hash"
+                      className="text-sm font-medium"
+                    >
                       Expected Hash
                     </Label>
                     <Textarea
@@ -1130,15 +1170,20 @@ const FileHashCore = () => {
                       onChange={(e) => setExpectedHash(e.target.value)}
                       className="mt-2 font-mono text-sm"
                       rows={3}
-                      aria-label="Expected hash value for verification"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="verify-algorithm" className="text-sm font-medium">
+                    <Label
+                      htmlFor="verify-algorithm"
+                      className="text-sm font-medium"
+                    >
                       Hash Algorithm
                     </Label>
-                    <Select value={verifyAlgorithm} onValueChange={(value: HashAlgorithm) => setVerifyAlgorithm(value)}>
+                    <Select
+                      value={verifyAlgorithm}
+                      onValueChange={(value: HashAlgorithm) => setVerifyAlgorithm(value)}
+                    >
                       <SelectTrigger className="mt-2">
                         <SelectValue />
                       </SelectTrigger>
@@ -1153,7 +1198,10 @@ const FileHashCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleVerifyFile} disabled={!verifyFile || !expectedHash.trim() || isProcessing}>
+                    <Button
+                      onClick={handleVerifyFile}
+                      disabled={!verifyFile || !expectedHash.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1164,7 +1212,7 @@ const FileHashCore = () => {
                     <Button
                       onClick={() => {
                         setVerifyFile(null)
-                        setExpectedHash('')
+                        setExpectedHash("")
                         setVerificationResult(null)
                       }}
                       variant="outline"
@@ -1178,7 +1226,7 @@ const FileHashCore = () => {
                   {verificationResult && (
                     <div
                       className={`border rounded-lg p-4 ${
-                        verificationResult.isValid ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+                        verificationResult.isValid ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-2">
@@ -1188,9 +1236,9 @@ const FileHashCore = () => {
                           <AlertCircle className="h-5 w-5 text-red-600" />
                         )}
                         <span
-                          className={`font-medium ${verificationResult.isValid ? 'text-green-800' : 'text-red-800'}`}
+                          className={`font-medium ${verificationResult.isValid ? "text-green-800" : "text-red-800"}`}
                         >
-                          {verificationResult.isValid ? 'File Integrity Verified' : 'File Integrity Check Failed'}
+                          {verificationResult.isValid ? "File Integrity Verified" : "File Integrity Check Failed"}
                         </span>
                       </div>
                       <div className="text-sm space-y-1">
@@ -1201,11 +1249,11 @@ const FileHashCore = () => {
                           <span className="font-medium">Algorithm:</span> {verificationResult.algorithm}
                         </div>
                         <div>
-                          <span className="font-medium">Expected:</span>{' '}
+                          <span className="font-medium">Expected:</span>{" "}
                           <code className="text-xs">{verificationResult.expectedHash}</code>
                         </div>
                         <div>
-                          <span className="font-medium">Actual:</span>{' '}
+                          <span className="font-medium">Actual:</span>{" "}
                           <code className="text-xs">{verificationResult.actualHash}</code>
                         </div>
                         <div className="text-muted-foreground">
@@ -1220,7 +1268,10 @@ const FileHashCore = () => {
           </TabsContent>
 
           {/* File Comparison Tab */}
-          <TabsContent value="compare" className="space-y-4">
+          <TabsContent
+            value="compare"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1238,7 +1289,10 @@ const FileHashCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Generate hashes for multiple files in the File Hasher tab to enable comparison functionality
                   </p>
-                  <Button onClick={() => setActiveTab('hasher')} variant="outline">
+                  <Button
+                    onClick={() => setActiveTab("hasher")}
+                    variant="outline"
+                  >
                     Go to File Hasher
                   </Button>
                 </div>
@@ -1257,7 +1311,10 @@ const FileHashCore = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -1277,7 +1334,10 @@ const FileHashCore = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="chunk-size" className="text-sm font-medium">
+                  <Label
+                    htmlFor="chunk-size"
+                    className="text-sm font-medium"
+                  >
                     Chunk Size (KB)
                   </Label>
                   <Select
@@ -1300,8 +1360,11 @@ const FileHashCore = () => {
               <div>
                 <Label className="text-sm font-medium mb-3 block">Hash Algorithms</Label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {(['MD5', 'SHA-1', 'SHA-256', 'SHA-384', 'SHA-512'] as HashAlgorithm[]).map((algorithm) => (
-                    <div key={algorithm} className="flex items-center space-x-2">
+                  {(["MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512"] as HashAlgorithm[]).map((algorithm) => (
+                    <div
+                      key={algorithm}
+                      className="flex items-center space-x-2"
+                    >
                       <input
                         id={`algorithm-${algorithm}`}
                         type="checkbox"
@@ -1321,9 +1384,12 @@ const FileHashCore = () => {
                         }}
                         className="rounded border-input"
                       />
-                      <Label htmlFor={`algorithm-${algorithm}`} className="text-sm flex items-center gap-1">
+                      <Label
+                        htmlFor={`algorithm-${algorithm}`}
+                        className="text-sm flex items-center gap-1"
+                      >
                         {algorithm}
-                        {(algorithm === 'SHA-256' || algorithm === 'SHA-384' || algorithm === 'SHA-512') && (
+                        {(algorithm === "SHA-256" || algorithm === "SHA-384" || algorithm === "SHA-512") && (
                           <Shield className="h-3 w-3 text-green-600" />
                         )}
                       </Label>
@@ -1341,7 +1407,10 @@ const FileHashCore = () => {
                     onChange={(e) => setSettings((prev) => ({ ...prev, includeTimestamp: e.target.checked }))}
                     className="rounded border-input"
                   />
-                  <Label htmlFor="include-timestamp" className="text-sm">
+                  <Label
+                    htmlFor="include-timestamp"
+                    className="text-sm"
+                  >
                     Include timestamp in exports
                   </Label>
                 </div>
@@ -1354,7 +1423,10 @@ const FileHashCore = () => {
                     onChange={(e) => setSettings((prev) => ({ ...prev, showProgress: e.target.checked }))}
                     className="rounded border-input"
                   />
-                  <Label htmlFor="show-progress" className="text-sm">
+                  <Label
+                    htmlFor="show-progress"
+                    className="text-sm"
+                  >
                     Show progress indicators
                   </Label>
                 </div>
@@ -1367,7 +1439,10 @@ const FileHashCore = () => {
                     onChange={(e) => setSettings((prev) => ({ ...prev, integrityCheck: e.target.checked }))}
                     className="rounded border-input"
                   />
-                  <Label htmlFor="integrity-check" className="text-sm">
+                  <Label
+                    htmlFor="integrity-check"
+                    className="text-sm"
+                  >
                     Enable integrity checking
                   </Label>
                 </div>
@@ -1380,7 +1455,10 @@ const FileHashCore = () => {
                     onChange={(e) => setSettings((prev) => ({ ...prev, batchProcessing: e.target.checked }))}
                     className="rounded border-input"
                   />
-                  <Label htmlFor="batch-processing" className="text-sm">
+                  <Label
+                    htmlFor="batch-processing"
+                    className="text-sm"
+                  >
                     Enable batch processing
                   </Label>
                 </div>
@@ -1388,11 +1466,17 @@ const FileHashCore = () => {
 
               {files.filter((f) => f.hashData).length > 0 && (
                 <div className="flex gap-2 pt-4 border-t">
-                  <Button onClick={() => exportBatch(files)} variant="outline">
+                  <Button
+                    onClick={() => exportBatch(files)}
+                    variant="outline"
+                  >
                     <Download className="mr-2 h-4 w-4" />
                     Export All Hashes
                   </Button>
-                  <Button onClick={() => exportStatistics(files)} variant="outline">
+                  <Button
+                    onClick={() => exportStatistics(files)}
+                    variant="outline"
+                  >
                     <BarChart3 className="mr-2 h-4 w-4" />
                     Export Statistics
                   </Button>

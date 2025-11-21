@@ -1,12 +1,12 @@
-import { useCallback, useState, useMemo, useEffect, useRef } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo, useEffect, useRef } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -30,8 +30,8 @@ import {
   ExternalLink,
   Globe,
   FileCode,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   HTMLProcessingResult,
   HTMLMetrics,
@@ -47,129 +47,119 @@ import type {
   PreviewMode,
   DeviceSize,
   ExportFormat,
-} from '@/types/html-preview'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/html-preview"
+import { formatFileSize } from "@/lib/utils"
 
 // Utility functions
 
 const getDeviceDimensions = (device: DeviceSize): { width: string; height: string } => {
   switch (device) {
-    case 'mobile':
-      return { width: '375px', height: '667px' }
-    case 'tablet':
-      return { width: '768px', height: '1024px' }
-    case 'desktop':
-      return { width: '1200px', height: '800px' }
+    case "mobile":
+      return { width: "375px", height: "667px" }
+    case "tablet":
+      return { width: "768px", height: "1024px" }
+    case "desktop":
+      return { width: "1200px", height: "800px" }
     default:
-      return { width: '100%', height: '400px' }
+      return { width: "100%", height: "400px" }
   }
 }
 
 // HTML processing functions
 const analyzeHTML = (html: string): HTMLMetrics => {
   const parser = new DOMParser()
-  const doc = parser.parseFromString(html, 'text/html')
+  const doc = parser.parseFromString(html, "text/html")
 
   // Count elements
-  const allElements = doc.querySelectorAll('*')
+  const allElements = doc.querySelectorAll("*")
   const elementCount = allElements.length
 
   // Get unique tag types
   const tagTypes = Array.from(new Set(Array.from(allElements).map((el) => el.tagName.toLowerCase())))
 
   // Check document structure
-  const hasDoctype = html.toLowerCase().includes('<!doctype')
-  const hasHead = doc.querySelector('head') !== null
-  const hasBody = doc.querySelector('body') !== null
-  const hasTitle = doc.querySelector('title') !== null
-  const hasMeta = doc.querySelector('meta') !== null
+  const hasDoctype = html.toLowerCase().includes("<!doctype")
+  const hasHead = doc.querySelector("head") !== null
+  const hasBody = doc.querySelector("body") !== null
+  const hasTitle = doc.querySelector("title") !== null
+  const hasMeta = doc.querySelector("meta") !== null
 
   // Check for CSS and JavaScript
-  const hasCSS = doc.querySelector('style, link[rel="stylesheet"]') !== null || html.includes('<style')
-  const hasJavaScript = doc.querySelector('script') !== null || html.includes('<script')
+  const hasCSS = doc.querySelector('style, link[rel="stylesheet"]') !== null || html.includes("<style")
+  const hasJavaScript = doc.querySelector("script") !== null || html.includes("<script")
 
   // Find external resources
   const externalResources: ExternalResource[] = []
 
   // CSS files
   doc.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
-    const href = link.getAttribute('href')
+    const href = link.getAttribute("href")
     if (href) {
       externalResources.push({
-        type: 'css',
+        type: "css",
         url: href,
-        isLocal: !href.startsWith('http'),
+        isLocal: !href.startsWith("http"),
       })
     }
   })
 
   // JavaScript files
-  doc.querySelectorAll('script[src]').forEach((script) => {
-    const src = script.getAttribute('src')
+  doc.querySelectorAll("script[src]").forEach((script) => {
+    const src = script.getAttribute("src")
     if (src) {
       externalResources.push({
-        type: 'js',
+        type: "js",
         url: src,
-        isLocal: !src.startsWith('http'),
+        isLocal: !src.startsWith("http"),
       })
     }
   })
 
   // Images
-  doc.querySelectorAll('img[src]').forEach((img) => {
-    const src = img.getAttribute('src')
+  doc.querySelectorAll("img[src]").forEach((img) => {
+    const src = img.getAttribute("src")
     if (src) {
       externalResources.push({
-        type: 'image',
+        type: "image",
         url: src,
-        isLocal: !src.startsWith('http'),
+        isLocal: !src.startsWith("http"),
       })
     }
   })
 
   // Semantic elements
-  const semanticTags = ['header', 'nav', 'main', 'section', 'article', 'aside', 'footer', 'figure', 'figcaption']
+  const semanticTags = ["header", "nav", "main", "section", "article", "aside", "footer", "figure", "figcaption"]
   const semanticElements = semanticTags.filter((tag) => doc.querySelector(tag))
 
   // Accessibility features
   const accessibilityFeatures: AccessibilityFeature[] = []
 
   // Alt attributes
-  const imagesWithAlt = doc.querySelectorAll('img[alt]')
+  const imagesWithAlt = doc.querySelectorAll("img[alt]")
   if (imagesWithAlt.length > 0) {
     accessibilityFeatures.push({
-      type: 'alt',
-      element: 'img',
+      type: "alt",
+      element: "img",
       description: `${imagesWithAlt.length} images with alt text`,
     })
   }
 
-  // ARIA attributes
-  const ariaElements = doc.querySelectorAll('[aria-label], [aria-labelledby], [aria-describedby]')
-  if (ariaElements.length > 0) {
-    accessibilityFeatures.push({
-      type: 'aria',
-      element: 'various',
-      description: `${ariaElements.length} elements with ARIA attributes`,
-    })
-  }
-
   // Role attributes
-  const roleElements = doc.querySelectorAll('[role]')
+  const roleElements = doc.querySelectorAll("[role]")
   if (roleElements.length > 0) {
     accessibilityFeatures.push({
-      type: 'role',
-      element: 'various',
+      type: "role",
+      element: "various",
       description: `${roleElements.length} elements with role attributes`,
     })
   }
 
   // Heading structure
-  const headings = doc.querySelectorAll('h1, h2, h3, h4, h5, h6')
+  const headings = doc.querySelectorAll("h1, h2, h3, h4, h5, h6")
   if (headings.length > 0) {
     accessibilityFeatures.push({
-      type: 'heading',
-      element: 'h1-h6',
+      type: "heading",
+      element: "h1-h6",
       description: `${headings.length} heading elements`,
     })
   }
@@ -194,7 +184,7 @@ const calculatePerformanceMetrics = (html: string, metrics: HTMLMetrics): Perfor
   const renderTime = performance.now() // Simplified
 
   // DOM complexity (based on nesting and element count)
-  const domComplexity = Math.min(100, metrics.elementCount / 10 + html.split('<').length / 20)
+  const domComplexity = Math.min(100, metrics.elementCount / 10 + html.split("<").length / 20)
 
   // CSS complexity (rough estimate)
   const cssMatches = html.match(/{[^}]*}/g) || []
@@ -216,8 +206,8 @@ const calculatePerformanceMetrics = (html: string, metrics: HTMLMetrics): Perfor
   let accessibilityScore = 0
   if (metrics.accessibilityFeatures.length > 0) accessibilityScore += 40
   if (metrics.semanticElements.length > 3) accessibilityScore += 30
-  if (html.includes('lang=')) accessibilityScore += 15
-  if (html.includes('tabindex')) accessibilityScore += 15
+  if (html.includes("lang=")) accessibilityScore += 15
+  if (html.includes("tabindex")) accessibilityScore += 15
 
   return {
     renderTime,
@@ -246,66 +236,66 @@ const performHTMLAnalysis = (html: string, metrics: HTMLMetrics, performance: Pe
   // Check if HTML is valid (basic check)
   try {
     const parser = new DOMParser()
-    const doc = parser.parseFromString(html, 'text/html')
-    const parserErrors = doc.querySelector('parsererror')
+    const doc = parser.parseFromString(html, "text/html")
+    const parserErrors = doc.querySelector("parsererror")
     if (parserErrors) {
       analysis.isValidHTML = false
-      analysis.htmlIssues.push('HTML parsing errors detected')
+      analysis.htmlIssues.push("HTML parsing errors detected")
       analysis.qualityScore -= 30
     }
   } catch {
     analysis.isValidHTML = false
-    analysis.htmlIssues.push('Invalid HTML structure')
+    analysis.htmlIssues.push("Invalid HTML structure")
     analysis.qualityScore -= 30
   }
 
   // Check modern structure
   analysis.hasModernStructure = metrics.hasDoctype && metrics.hasHead && metrics.hasBody
   if (!analysis.hasModernStructure) {
-    analysis.suggestedImprovements.push('Add proper HTML5 document structure with DOCTYPE, head, and body')
+    analysis.suggestedImprovements.push("Add proper HTML5 document structure with DOCTYPE, head, and body")
     analysis.qualityScore -= 20
   }
 
   // Check responsiveness
-  analysis.isResponsive = html.includes('viewport') || html.includes('media query') || html.includes('@media')
+  analysis.isResponsive = html.includes("viewport") || html.includes("media query") || html.includes("@media")
   if (!analysis.isResponsive) {
-    analysis.suggestedImprovements.push('Add viewport meta tag and responsive design elements')
+    analysis.suggestedImprovements.push("Add viewport meta tag and responsive design elements")
     analysis.qualityScore -= 15
   }
 
   // Check accessibility
   analysis.hasAccessibilityFeatures = metrics.accessibilityFeatures.length > 0
   if (!analysis.hasAccessibilityFeatures) {
-    analysis.suggestedImprovements.push('Add accessibility features like alt text, ARIA labels, and semantic elements')
+    analysis.suggestedImprovements.push("Add accessibility features like alt text, ARIA labels, and semantic elements")
     analysis.qualityScore -= 20
   }
 
   // Check SEO elements
   analysis.hasSEOElements = metrics.hasTitle && metrics.hasMeta
   if (!analysis.hasSEOElements) {
-    analysis.suggestedImprovements.push('Add title tag and meta description for better SEO')
+    analysis.suggestedImprovements.push("Add title tag and meta description for better SEO")
     analysis.qualityScore -= 15
   }
 
   // Security checks
-  if (html.includes('javascript:') || html.includes('onclick=') || html.includes('onload=')) {
-    analysis.securityIssues.push('Inline JavaScript detected - consider using external scripts')
+  if (html.includes("javascript:") || html.includes("onclick=") || html.includes("onload=")) {
+    analysis.securityIssues.push("Inline JavaScript detected - consider using external scripts")
     analysis.qualityScore -= 10
   }
 
-  if (html.includes('eval(') || html.includes('innerHTML')) {
-    analysis.securityIssues.push('Potentially unsafe JavaScript patterns detected')
+  if (html.includes("eval(") || html.includes("innerHTML")) {
+    analysis.securityIssues.push("Potentially unsafe JavaScript patterns detected")
     analysis.qualityScore -= 15
   }
 
   // Performance issues
   if (metrics.externalResources.length > 10) {
-    analysis.performanceIssues.push('Many external resources may impact loading performance')
+    analysis.performanceIssues.push("Many external resources may impact loading performance")
     analysis.qualityScore -= 10
   }
 
   if (performance.domComplexity > 80) {
-    analysis.performanceIssues.push('High DOM complexity may impact rendering performance')
+    analysis.performanceIssues.push("High DOM complexity may impact rendering performance")
     analysis.qualityScore -= 10
   }
 
@@ -315,10 +305,10 @@ const performHTMLAnalysis = (html: string, metrics: HTMLMetrics, performance: Pe
 // HTML templates
 const htmlTemplates: HTMLTemplate[] = [
   {
-    id: 'basic-page',
-    name: 'Basic HTML Page',
-    description: 'Simple HTML5 page with proper structure',
-    category: 'Basic',
+    id: "basic-page",
+    name: "Basic HTML Page",
+    description: "Simple HTML5 page with proper structure",
+    category: "Basic",
     htmlCode: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -349,14 +339,14 @@ const htmlTemplates: HTMLTemplate[] = [
     </div>
 </body>
 </html>`,
-    features: ['HTML5 DOCTYPE', 'Responsive viewport', 'Basic CSS styling', 'Semantic structure'],
-    useCase: ['Landing pages', 'Simple websites', 'Learning HTML'],
+    features: ["HTML5 DOCTYPE", "Responsive viewport", "Basic CSS styling", "Semantic structure"],
+    useCase: ["Landing pages", "Simple websites", "Learning HTML"],
   },
   {
-    id: 'responsive-layout',
-    name: 'Responsive Layout',
-    description: 'Modern responsive layout with CSS Grid and Flexbox',
-    category: 'Layout',
+    id: "responsive-layout",
+    name: "Responsive Layout",
+    description: "Modern responsive layout with CSS Grid and Flexbox",
+    category: "Layout",
     htmlCode: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -383,14 +373,14 @@ const htmlTemplates: HTMLTemplate[] = [
     </div>
 </body>
 </html>`,
-    features: ['CSS Grid layout', 'Responsive design', 'Mobile-first approach', 'Semantic HTML'],
-    useCase: ['Business websites', 'Portfolios', 'Blogs'],
+    features: ["CSS Grid layout", "Responsive design", "Mobile-first approach", "Semantic HTML"],
+    useCase: ["Business websites", "Portfolios", "Blogs"],
   },
   {
-    id: 'form-example',
-    name: 'Accessible Form',
-    description: 'Form with accessibility features and validation',
-    category: 'Forms',
+    id: "form-example",
+    name: "Accessible Form",
+    description: "Form with accessibility features and validation",
+    category: "Forms",
     htmlCode: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -429,14 +419,14 @@ const htmlTemplates: HTMLTemplate[] = [
     </form>
 </body>
 </html>`,
-    features: ['ARIA attributes', 'Form validation', 'Accessible labels', 'Error handling'],
-    useCase: ['Contact forms', 'Registration forms', 'Surveys'],
+    features: ["ARIA attributes", "Form validation", "Accessible labels", "Error handling"],
+    useCase: ["Contact forms", "Registration forms", "Surveys"],
   },
   {
-    id: 'card-layout',
-    name: 'Card Layout',
-    description: 'Modern card-based layout with CSS animations',
-    category: 'Components',
+    id: "card-layout",
+    name: "Card Layout",
+    description: "Modern card-based layout with CSS animations",
+    category: "Components",
     htmlCode: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -479,14 +469,14 @@ const htmlTemplates: HTMLTemplate[] = [
     </div>
 </body>
 </html>`,
-    features: ['CSS Grid', 'Hover animations', 'Gradient backgrounds', 'Card components'],
-    useCase: ['Service pages', 'Product showcases', 'Team pages'],
+    features: ["CSS Grid", "Hover animations", "Gradient backgrounds", "Card components"],
+    useCase: ["Service pages", "Product showcases", "Team pages"],
   },
   {
-    id: 'interactive-demo',
-    name: 'Interactive Demo',
-    description: 'Interactive HTML with JavaScript functionality',
-    category: 'Interactive',
+    id: "interactive-demo",
+    name: "Interactive Demo",
+    description: "Interactive HTML with JavaScript functionality",
+    category: "Interactive",
     htmlCode: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -544,8 +534,8 @@ const htmlTemplates: HTMLTemplate[] = [
     </script>
 </body>
 </html>`,
-    features: ['JavaScript interactivity', 'Event handling', 'DOM manipulation', 'User controls'],
-    useCase: ['Demos', 'Interactive tutorials', 'Web applications'],
+    features: ["JavaScript interactivity", "Event handling", "DOM manipulation", "User controls"],
+    useCase: ["Demos", "Interactive tutorials", "Web applications"],
   },
 ]
 
@@ -561,32 +551,32 @@ const validateHTML = (html: string): HTMLValidation => {
   if (!html.trim()) {
     validation.isValid = false
     validation.errors.push({
-      message: 'HTML content cannot be empty',
-      type: 'structure',
-      severity: 'error',
+      message: "HTML content cannot be empty",
+      type: "structure",
+      severity: "error",
     })
     return validation
   }
 
   // Basic HTML structure checks
-  if (!html.toLowerCase().includes('<!doctype')) {
-    validation.warnings.push('Missing DOCTYPE declaration')
-    validation.suggestions.push('Add <!DOCTYPE html> at the beginning of your document')
+  if (!html.toLowerCase().includes("<!doctype")) {
+    validation.warnings.push("Missing DOCTYPE declaration")
+    validation.suggestions.push("Add <!DOCTYPE html> at the beginning of your document")
   }
 
-  if (!html.toLowerCase().includes('<html')) {
-    validation.warnings.push('Missing <html> element')
-    validation.suggestions.push('Wrap your content in <html> tags')
+  if (!html.toLowerCase().includes("<html")) {
+    validation.warnings.push("Missing <html> element")
+    validation.suggestions.push("Wrap your content in <html> tags")
   }
 
-  if (!html.toLowerCase().includes('<head>')) {
-    validation.warnings.push('Missing <head> section')
-    validation.suggestions.push('Add <head> section with meta tags and title')
+  if (!html.toLowerCase().includes("<head>")) {
+    validation.warnings.push("Missing <head> section")
+    validation.suggestions.push("Add <head> section with meta tags and title")
   }
 
-  if (!html.toLowerCase().includes('<title>')) {
-    validation.warnings.push('Missing <title> element')
-    validation.suggestions.push('Add <title> element for better SEO and accessibility')
+  if (!html.toLowerCase().includes("<title>")) {
+    validation.warnings.push("Missing <title> element")
+    validation.suggestions.push("Add <title> element for better SEO and accessibility")
   }
 
   // Check for common syntax errors
@@ -594,33 +584,33 @@ const validateHTML = (html: string): HTMLValidation => {
   const closeTags = html.match(/<\/[^>]*>/g) || []
 
   if (openTags.length !== closeTags.length) {
-    validation.warnings.push('Potential unclosed HTML tags detected')
+    validation.warnings.push("Potential unclosed HTML tags detected")
   }
 
   // Security checks
-  if (html.includes('javascript:') || html.includes('vbscript:')) {
+  if (html.includes("javascript:") || html.includes("vbscript:")) {
     validation.errors.push({
-      message: 'Potentially unsafe JavaScript protocol detected',
-      type: 'security',
-      severity: 'error',
+      message: "Potentially unsafe JavaScript protocol detected",
+      type: "security",
+      severity: "error",
     })
   }
 
-  if (html.includes('<script') && html.includes('eval(')) {
+  if (html.includes("<script") && html.includes("eval(")) {
     validation.errors.push({
-      message: 'Use of eval() function detected - potential security risk',
-      type: 'security',
-      severity: 'warning',
+      message: "Use of eval() function detected - potential security risk",
+      type: "security",
+      severity: "warning",
     })
   }
 
   // Accessibility checks
   const imgTags = html.match(/<img[^>]*>/gi) || []
-  const imgsWithoutAlt = imgTags.filter((img) => !img.includes('alt='))
+  const imgsWithoutAlt = imgTags.filter((img) => !img.includes("alt="))
 
   if (imgsWithoutAlt.length > 0) {
     validation.warnings.push(`${imgsWithoutAlt.length} image(s) missing alt attributes`)
-    validation.suggestions.push('Add alt attributes to images for better accessibility')
+    validation.suggestions.push("Add alt attributes to images for better accessibility")
   }
 
   return validation
@@ -634,7 +624,7 @@ const useHTMLProcessing = () => {
     try {
       if (settings.sanitizeHTML) {
         // Basic HTML sanitization (remove script tags for security)
-        html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
       }
 
       const htmlMetrics = analyzeHTML(html)
@@ -652,7 +642,7 @@ const useHTMLProcessing = () => {
         isValid: true,
         statistics: {
           inputSize,
-          lineCount: html.split('\n').length,
+          lineCount: html.split("\n").length,
           characterCount: html.length,
           processingTime,
           htmlMetrics,
@@ -669,10 +659,10 @@ const useHTMLProcessing = () => {
         id: nanoid(),
         input: html,
         isValid: false,
-        error: error instanceof Error ? error.message : 'Processing failed',
+        error: error instanceof Error ? error.message : "Processing failed",
         statistics: {
           inputSize: new Blob([html]).size,
-          lineCount: html.split('\n').length,
+          lineCount: html.split("\n").length,
           characterCount: html.length,
           processingTime,
           htmlMetrics: {
@@ -735,8 +725,8 @@ const useHTMLProcessing = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch processing error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch processing failed')
+        console.error("Batch processing error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch processing failed")
       }
     },
     [processSingle]
@@ -775,13 +765,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -791,17 +781,17 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useHTMLExport = () => {
   const exportResults = useCallback((results: HTMLProcessingResult[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'html':
-        content = results.map((result) => result.input).join('\n\n<!-- Next HTML Document -->\n\n')
-        mimeType = 'text/html'
-        extension = '.html'
+      case "html":
+        content = results.map((result) => result.input).join("\n\n<!-- Next HTML Document -->\n\n")
+        mimeType = "text/html"
+        extension = ".html"
         break
-      case 'json':
+      case "json":
         const jsonData = results.map((result) => ({
           id: result.id,
           input: result.input,
@@ -812,20 +802,20 @@ const useHTMLExport = () => {
           createdAt: result.createdAt,
         }))
         content = JSON.stringify(jsonData, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromResults(results)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `html-preview${extension}`
     document.body.appendChild(link)
@@ -851,19 +841,19 @@ Results:
 ${results
   .map((result, i) => {
     return `${i + 1}. HTML Document
-   Status: ${result.isValid ? 'Valid' : 'Invalid'}
-   ${result.error ? `Error: ${result.error}` : ''}
+   Status: ${result.isValid ? "Valid" : "Invalid"}
+   ${result.error ? `Error: ${result.error}` : ""}
    Size: ${formatFileSize(result.statistics.inputSize)}
    Lines: ${result.statistics.lineCount}
    Characters: ${result.statistics.characterCount}
    Elements: ${result.statistics.htmlMetrics.elementCount}
    Processing Time: ${result.statistics.processingTime.toFixed(2)}ms
-   Quality Score: ${result.analysis?.qualityScore || 'N/A'}
+   Quality Score: ${result.analysis?.qualityScore || "N/A"}
    SEO Score: ${result.statistics.performanceMetrics.seoScore}/100
    Accessibility Score: ${result.statistics.performanceMetrics.accessibilityScore}/100
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
@@ -877,23 +867,23 @@ Statistics:
  * Features: Advanced HTML preview, validation, analysis, multiple view modes, batch processing
  */
 const HTMLPreviewCore = () => {
-  const [activeTab, setActiveTab] = useState<'preview' | 'batch' | 'analyzer' | 'templates'>('preview')
-  const [html, setHtml] = useState('')
+  const [activeTab, setActiveTab] = useState<"preview" | "batch" | "analyzer" | "templates">("preview")
+  const [html, setHtml] = useState("")
   const [currentResult, setCurrentResult] = useState<HTMLProcessingResult | null>(null)
   const [batches, setBatches] = useState<ProcessingBatch[]>([])
-  const [batchInput, setBatchInput] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [batchInput, setBatchInput] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [showAnalysis, setShowAnalysis] = useState(false)
   const [previewKey, setPreviewKey] = useState(0)
   const [settings, setSettings] = useState<ProcessingSettings>({
-    previewMode: 'iframe',
-    deviceSize: 'desktop',
+    previewMode: "iframe",
+    deviceSize: "desktop",
     showLineNumbers: true,
     enableSyntaxHighlighting: true,
     autoRefresh: true,
     refreshInterval: 1000,
-    exportFormat: 'html',
+    exportFormat: "html",
     includeCSS: true,
     includeJS: true,
     sanitizeHTML: false,
@@ -920,7 +910,7 @@ const HTMLPreviewCore = () => {
   // Handle single processing
   const handleProcessSingle = useCallback(async () => {
     if (!html.trim()) {
-      toast.error('Please enter HTML code to process')
+      toast.error("Please enter HTML code to process")
       return
     }
 
@@ -930,12 +920,12 @@ const HTMLPreviewCore = () => {
       setCurrentResult(result)
 
       if (result.isValid) {
-        toast.success('HTML processed successfully')
+        toast.success("HTML processed successfully")
       } else {
-        toast.error(result.error || 'Processing failed')
+        toast.error(result.error || "Processing failed")
       }
     } catch (error) {
-      toast.error('Failed to process HTML')
+      toast.error("Failed to process HTML")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -944,10 +934,10 @@ const HTMLPreviewCore = () => {
 
   // Handle batch processing
   const handleProcessBatch = useCallback(async () => {
-    const htmlInputs = batchInput.split('\n---\n').filter((input) => input.trim())
+    const htmlInputs = batchInput.split("\n---\n").filter((input) => input.trim())
 
     if (htmlInputs.length === 0) {
-      toast.error('Please enter HTML code to process')
+      toast.error("Please enter HTML code to process")
       return
     }
 
@@ -957,7 +947,7 @@ const HTMLPreviewCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Processed ${batch.results.length} HTML documents`)
     } catch (error) {
-      toast.error('Failed to process batch')
+      toast.error("Failed to process batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -995,12 +985,15 @@ const HTMLPreviewCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Code className="h-5 w-5" aria-hidden="true" />
+              <Code className="h-5 w-5" />
               HTML Preview & Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -1014,29 +1007,44 @@ const HTMLPreviewCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'preview' | 'batch' | 'analyzer' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "preview" | "batch" | "analyzer" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="preview" className="flex items-center gap-2">
+            <TabsTrigger
+              value="preview"
+              className="flex items-center gap-2"
+            >
               <Monitor className="h-4 w-4" />
               Live Preview
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
-            <TabsTrigger value="analyzer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analyzer"
+              className="flex items-center gap-2"
+            >
               <Search className="h-4 w-4" />
               HTML Analyzer
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* Live Preview Tab */}
-          <TabsContent value="preview" className="space-y-4">
+          <TabsContent
+            value="preview"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* HTML Editor */}
               <Card>
@@ -1048,7 +1056,10 @@ const HTMLPreviewCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="html-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="html-input"
+                      className="text-sm font-medium"
+                    >
                       HTML Code
                     </Label>
                     <Textarea
@@ -1057,7 +1068,6 @@ const HTMLPreviewCore = () => {
                       onChange={(e) => setHtml(e.target.value)}
                       placeholder="Enter your HTML code here..."
                       className="mt-2 min-h-[300px] font-mono text-sm"
-                      aria-label="HTML code input for live preview"
                     />
                     {settings.validateHTML && html && (
                       <div className="mt-2 text-sm">
@@ -1082,7 +1092,10 @@ const HTMLPreviewCore = () => {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="device-size" className="text-xs">
+                        <Label
+                          htmlFor="device-size"
+                          className="text-xs"
+                        >
                           Preview Device
                         </Label>
                         <Select
@@ -1116,7 +1129,10 @@ const HTMLPreviewCore = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor="refresh-interval" className="text-xs">
+                        <Label
+                          htmlFor="refresh-interval"
+                          className="text-xs"
+                        >
                           Refresh Interval (ms)
                         </Label>
                         <Input
@@ -1143,7 +1159,10 @@ const HTMLPreviewCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, autoRefresh: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="auto-refresh" className="text-xs">
+                        <Label
+                          htmlFor="auto-refresh"
+                          className="text-xs"
+                        >
                           Auto-refresh preview
                         </Label>
                       </div>
@@ -1156,7 +1175,10 @@ const HTMLPreviewCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, validateHTML: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="validate-html" className="text-xs">
+                        <Label
+                          htmlFor="validate-html"
+                          className="text-xs"
+                        >
                           Real-time validation
                         </Label>
                       </div>
@@ -1169,7 +1191,10 @@ const HTMLPreviewCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, sanitizeHTML: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="sanitize-html" className="text-xs">
+                        <Label
+                          htmlFor="sanitize-html"
+                          className="text-xs"
+                        >
                           Sanitize HTML (remove scripts)
                         </Label>
                       </div>
@@ -1182,7 +1207,10 @@ const HTMLPreviewCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, showLineNumbers: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="show-line-numbers" className="text-xs">
+                        <Label
+                          htmlFor="show-line-numbers"
+                          className="text-xs"
+                        >
                           Show line numbers
                         </Label>
                       </div>
@@ -1190,7 +1218,11 @@ const HTMLPreviewCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={refreshPreview} disabled={!html.trim() || isProcessing} className="flex-1">
+                    <Button
+                      onClick={refreshPreview}
+                      disabled={!html.trim() || isProcessing}
+                      className="flex-1"
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1199,11 +1231,11 @@ const HTMLPreviewCore = () => {
                       Refresh Preview
                     </Button>
                     <Button
-                      onClick={() => copyToClipboard(html, 'HTML Code')}
+                      onClick={() => copyToClipboard(html, "HTML Code")}
                       variant="outline"
                       disabled={!html.trim()}
                     >
-                      {copiedText === 'HTML Code' ? (
+                      {copiedText === "HTML Code" ? (
                         <Check className="mr-2 h-4 w-4" />
                       ) : (
                         <Copy className="mr-2 h-4 w-4" />
@@ -1212,7 +1244,7 @@ const HTMLPreviewCore = () => {
                     </Button>
                     <Button
                       onClick={() => {
-                        setHtml('')
+                        setHtml("")
                         setCurrentResult(null)
                       }}
                       variant="outline"
@@ -1227,7 +1259,10 @@ const HTMLPreviewCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-yellow-800">Warnings:</h4>
                       <div className="text-xs space-y-1">
                         {htmlValidation.warnings.map((warning, index) => (
-                          <div key={index} className="text-yellow-700">
+                          <div
+                            key={index}
+                            className="text-yellow-700"
+                          >
                             {warning}
                           </div>
                         ))}
@@ -1240,7 +1275,10 @@ const HTMLPreviewCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-blue-800">Suggestions:</h4>
                       <div className="text-xs space-y-1">
                         {htmlValidation.suggestions.map((suggestion, index) => (
-                          <div key={index} className="text-blue-700">
+                          <div
+                            key={index}
+                            className="text-blue-700"
+                          >
                             {suggestion}
                           </div>
                         ))}
@@ -1260,7 +1298,11 @@ const HTMLPreviewCore = () => {
                       <span className="text-xs text-muted-foreground">
                         {settings.deviceSize} ({deviceDimensions.width} × {deviceDimensions.height})
                       </span>
-                      <Button size="sm" variant="ghost" onClick={() => setShowAnalysis(!showAnalysis)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowAnalysis(!showAnalysis)}
+                      >
                         {showAnalysis ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
@@ -1277,7 +1319,11 @@ const HTMLPreviewCore = () => {
                             <span>Preview</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Button size="sm" variant="ghost" onClick={refreshPreview}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={refreshPreview}
+                            >
                               <RefreshCw className="h-4 w-4" />
                             </Button>
                             <Button
@@ -1300,8 +1346,8 @@ const HTMLPreviewCore = () => {
                           style={{
                             width: deviceDimensions.width,
                             height: deviceDimensions.height,
-                            maxWidth: '100%',
-                            overflow: 'auto',
+                            maxWidth: "100%",
+                            overflow: "auto",
                           }}
                         >
                           <iframe
@@ -1335,7 +1381,7 @@ const HTMLPreviewCore = () => {
                               </div>
                               <div>
                                 <div>
-                                  <strong>Characters:</strong>{' '}
+                                  <strong>Characters:</strong>{" "}
                                   {currentResult.statistics.characterCount.toLocaleString()}
                                 </div>
                                 <div>
@@ -1348,14 +1394,14 @@ const HTMLPreviewCore = () => {
                               </div>
                               <div>
                                 <div>
-                                  <strong>Has CSS:</strong> {currentResult.statistics.htmlMetrics.hasCSS ? 'Yes' : 'No'}
+                                  <strong>Has CSS:</strong> {currentResult.statistics.htmlMetrics.hasCSS ? "Yes" : "No"}
                                 </div>
                                 <div>
-                                  <strong>Has JavaScript:</strong>{' '}
-                                  {currentResult.statistics.htmlMetrics.hasJavaScript ? 'Yes' : 'No'}
+                                  <strong>Has JavaScript:</strong>{" "}
+                                  {currentResult.statistics.htmlMetrics.hasJavaScript ? "Yes" : "No"}
                                 </div>
                                 <div>
-                                  <strong>External Resources:</strong>{' '}
+                                  <strong>External Resources:</strong>{" "}
                                   {currentResult.statistics.htmlMetrics.externalResources.length}
                                 </div>
                               </div>
@@ -1368,8 +1414,8 @@ const HTMLPreviewCore = () => {
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div>
                                 <div>
-                                  <strong>Overall Quality:</strong>{' '}
-                                  {currentResult.analysis?.qualityScore?.toFixed(1) || 'N/A'}/100
+                                  <strong>Overall Quality:</strong>{" "}
+                                  {currentResult.analysis?.qualityScore?.toFixed(1) || "N/A"}/100
                                 </div>
                               </div>
                               <div>
@@ -1379,13 +1425,13 @@ const HTMLPreviewCore = () => {
                               </div>
                               <div>
                                 <div>
-                                  <strong>Accessibility:</strong>{' '}
+                                  <strong>Accessibility:</strong>{" "}
                                   {currentResult.statistics.performanceMetrics.accessibilityScore}/100
                                 </div>
                               </div>
                               <div>
                                 <div>
-                                  <strong>DOM Complexity:</strong>{' '}
+                                  <strong>DOM Complexity:</strong>{" "}
                                   {currentResult.statistics.performanceMetrics.domComplexity.toFixed(1)}/100
                                 </div>
                               </div>
@@ -1398,42 +1444,42 @@ const HTMLPreviewCore = () => {
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                               <div>
                                 <div>
-                                  <strong>DOCTYPE:</strong>{' '}
-                                  {currentResult.statistics.htmlMetrics.hasDoctype ? '✓' : '✗'}
+                                  <strong>DOCTYPE:</strong>{" "}
+                                  {currentResult.statistics.htmlMetrics.hasDoctype ? "✓" : "✗"}
                                 </div>
                                 <div>
-                                  <strong>Head Section:</strong>{' '}
-                                  {currentResult.statistics.htmlMetrics.hasHead ? '✓' : '✗'}
+                                  <strong>Head Section:</strong>{" "}
+                                  {currentResult.statistics.htmlMetrics.hasHead ? "✓" : "✗"}
                                 </div>
                                 <div>
-                                  <strong>Body Section:</strong>{' '}
-                                  {currentResult.statistics.htmlMetrics.hasBody ? '✓' : '✗'}
+                                  <strong>Body Section:</strong>{" "}
+                                  {currentResult.statistics.htmlMetrics.hasBody ? "✓" : "✗"}
                                 </div>
                               </div>
                               <div>
                                 <div>
-                                  <strong>Title Tag:</strong>{' '}
-                                  {currentResult.statistics.htmlMetrics.hasTitle ? '✓' : '✗'}
+                                  <strong>Title Tag:</strong>{" "}
+                                  {currentResult.statistics.htmlMetrics.hasTitle ? "✓" : "✗"}
                                 </div>
                                 <div>
-                                  <strong>Meta Tags:</strong> {currentResult.statistics.htmlMetrics.hasMeta ? '✓' : '✗'}
+                                  <strong>Meta Tags:</strong> {currentResult.statistics.htmlMetrics.hasMeta ? "✓" : "✗"}
                                 </div>
                                 <div>
-                                  <strong>Semantic Elements:</strong>{' '}
+                                  <strong>Semantic Elements:</strong>{" "}
                                   {currentResult.statistics.htmlMetrics.semanticElements.length}
                                 </div>
                               </div>
                               <div>
                                 <div>
-                                  <strong>Accessibility Features:</strong>{' '}
+                                  <strong>Accessibility Features:</strong>{" "}
                                   {currentResult.statistics.htmlMetrics.accessibilityFeatures.length}
                                 </div>
                                 <div>
-                                  <strong>Modern Structure:</strong>{' '}
-                                  {currentResult.analysis?.hasModernStructure ? '✓' : '✗'}
+                                  <strong>Modern Structure:</strong>{" "}
+                                  {currentResult.analysis?.hasModernStructure ? "✓" : "✗"}
                                 </div>
                                 <div>
-                                  <strong>Responsive:</strong> {currentResult.analysis?.isResponsive ? '✓' : '✗'}
+                                  <strong>Responsive:</strong> {currentResult.analysis?.isResponsive ? "✓" : "✗"}
                                 </div>
                               </div>
                             </div>
@@ -1449,7 +1495,10 @@ const HTMLPreviewCore = () => {
                                   </Label>
                                   <ul className="text-sm space-y-1">
                                     {currentResult.analysis.suggestedImprovements.map((suggestion, index) => (
-                                      <li key={index} className="flex items-center gap-2">
+                                      <li
+                                        key={index}
+                                        className="flex items-center gap-2"
+                                      >
                                         <CheckCircle2 className="h-3 w-3 text-blue-600" />
                                         {suggestion}
                                       </li>
@@ -1463,7 +1512,10 @@ const HTMLPreviewCore = () => {
                                   <Label className="font-medium text-sm mb-3 block text-red-700">Security Issues</Label>
                                   <ul className="text-sm space-y-1">
                                     {currentResult.analysis.securityIssues.map((issue, index) => (
-                                      <li key={index} className="flex items-center gap-2">
+                                      <li
+                                        key={index}
+                                        className="flex items-center gap-2"
+                                      >
                                         <AlertCircle className="h-3 w-3 text-red-600" />
                                         {issue}
                                       </li>
@@ -1479,7 +1531,10 @@ const HTMLPreviewCore = () => {
                                   </Label>
                                   <ul className="text-sm space-y-1">
                                     {currentResult.analysis.performanceIssues.map((issue, index) => (
-                                      <li key={index} className="flex items-center gap-2">
+                                      <li
+                                        key={index}
+                                        className="flex items-center gap-2"
+                                      >
                                         <Zap className="h-3 w-3 text-orange-600" />
                                         {issue}
                                       </li>
@@ -1518,7 +1573,10 @@ const HTMLPreviewCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1530,7 +1588,10 @@ const HTMLPreviewCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-input"
+                      className="text-sm font-medium"
+                    >
                       HTML Documents (separate with "---")
                     </Label>
                     <Textarea
@@ -1539,7 +1600,6 @@ const HTMLPreviewCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="<!DOCTYPE html>&#10;<html>&#10;<head><title>Document 1</title></head>&#10;<body><h1>Hello World</h1></body>&#10;</html>&#10;---&#10;<!DOCTYPE html>&#10;<html>&#10;<head><title>Document 2</title></head>&#10;<body><h1>Another Document</h1></body>&#10;</html>"
                       className="mt-2 min-h-[200px] font-mono"
-                      aria-label="Batch HTML input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
                       Separate multiple HTML documents with "---" on a new line
@@ -1547,7 +1607,10 @@ const HTMLPreviewCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleProcessBatch} disabled={!batchInput.trim() || isProcessing}>
+                    <Button
+                      onClick={handleProcessBatch}
+                      disabled={!batchInput.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1555,7 +1618,10 @@ const HTMLPreviewCore = () => {
                       )}
                       Process Batch
                     </Button>
-                    <Button onClick={() => setBatchInput('')} variant="outline">
+                    <Button
+                      onClick={() => setBatchInput("")}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Clear
                     </Button>
@@ -1573,7 +1639,10 @@ const HTMLPreviewCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} HTML documents processed</h4>
@@ -1583,7 +1652,11 @@ const HTMLPreviewCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportResults(batch.results, 'html')}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportResults(batch.results, "html")}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export
                             </Button>
@@ -1605,7 +1678,7 @@ const HTMLPreviewCore = () => {
                             <span className="font-medium">Invalid:</span> {batch.statistics.invalidCount}
                           </div>
                           <div>
-                            <span className="font-medium">Avg Quality:</span>{' '}
+                            <span className="font-medium">Avg Quality:</span>{" "}
                             {batch.statistics.averageQuality.toFixed(1)}
                           </div>
                         </div>
@@ -1613,24 +1686,27 @@ const HTMLPreviewCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.results.slice(0, 5).map((result) => (
-                              <div key={result.id} className="text-xs border rounded p-2">
+                              <div
+                                key={result.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">
                                     HTML Document ({result.statistics.htmlMetrics.elementCount} elements)
                                   </span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      result.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      result.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {result.isValid ? 'Valid' : 'Invalid'}
+                                    {result.isValid ? "Valid" : "Invalid"}
                                   </span>
                                 </div>
                                 {result.isValid && (
                                   <div className="text-muted-foreground mt-1">
-                                    Elements: {result.statistics.htmlMetrics.elementCount} • Size:{' '}
-                                    {formatFileSize(result.statistics.inputSize)} • Quality:{' '}
-                                    {result.analysis?.qualityScore?.toFixed(1) || 'N/A'}/100 • Time:{' '}
+                                    Elements: {result.statistics.htmlMetrics.elementCount} • Size:{" "}
+                                    {formatFileSize(result.statistics.inputSize)} • Quality:{" "}
+                                    {result.analysis?.qualityScore?.toFixed(1) || "N/A"}/100 • Time:{" "}
                                     {result.statistics.processingTime.toFixed(2)}ms
                                   </div>
                                 )}
@@ -1653,7 +1729,10 @@ const HTMLPreviewCore = () => {
           </TabsContent>
 
           {/* HTML Analyzer Tab */}
-          <TabsContent value="analyzer" className="space-y-4">
+          <TabsContent
+            value="analyzer"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1683,7 +1762,7 @@ const HTMLPreviewCore = () => {
                           <CardTitle className="text-sm">Quality Metrics</CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
-                          <div>Overall Quality: {currentResult.analysis?.qualityScore?.toFixed(1) || 'N/A'}/100</div>
+                          <div>Overall Quality: {currentResult.analysis?.qualityScore?.toFixed(1) || "N/A"}/100</div>
                           <div>SEO Score: {currentResult.statistics.performanceMetrics.seoScore}/100</div>
                           <div>Accessibility: {currentResult.statistics.performanceMetrics.accessibilityScore}/100</div>
                           <div>
@@ -1697,10 +1776,10 @@ const HTMLPreviewCore = () => {
                           <CardTitle className="text-sm">Features</CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
-                          <div>Modern Structure: {currentResult.analysis?.hasModernStructure ? 'Yes' : 'No'}</div>
-                          <div>Responsive: {currentResult.analysis?.isResponsive ? 'Yes' : 'No'}</div>
-                          <div>Accessibility: {currentResult.analysis?.hasAccessibilityFeatures ? 'Yes' : 'No'}</div>
-                          <div>SEO Elements: {currentResult.analysis?.hasSEOElements ? 'Yes' : 'No'}</div>
+                          <div>Modern Structure: {currentResult.analysis?.hasModernStructure ? "Yes" : "No"}</div>
+                          <div>Responsive: {currentResult.analysis?.isResponsive ? "Yes" : "No"}</div>
+                          <div>Accessibility: {currentResult.analysis?.hasAccessibilityFeatures ? "Yes" : "No"}</div>
+                          <div>SEO Elements: {currentResult.analysis?.hasSEOElements ? "Yes" : "No"}</div>
                         </CardContent>
                       </Card>
                     </div>
@@ -1714,7 +1793,10 @@ const HTMLPreviewCore = () => {
                         <CardContent>
                           <div className="flex flex-wrap gap-2">
                             {currentResult.statistics.htmlMetrics.semanticElements.map((element, index) => (
-                              <span key={index} className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                              <span
+                                key={index}
+                                className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs"
+                              >
                                 &lt;{element}&gt;
                               </span>
                             ))}
@@ -1732,28 +1814,31 @@ const HTMLPreviewCore = () => {
                         <CardContent>
                           <div className="space-y-2">
                             {currentResult.statistics.htmlMetrics.externalResources.map((resource, index) => (
-                              <div key={index} className="flex items-center justify-between text-xs">
+                              <div
+                                key={index}
+                                className="flex items-center justify-between text-xs"
+                              >
                                 <span className="font-mono truncate flex-1">{resource.url}</span>
                                 <div className="flex gap-2">
                                   <span
                                     className={`px-2 py-1 rounded ${
-                                      resource.type === 'css'
-                                        ? 'bg-blue-100 text-blue-800'
-                                        : resource.type === 'js'
-                                          ? 'bg-yellow-100 text-yellow-800'
-                                          : resource.type === 'image'
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-gray-100 text-gray-800'
+                                      resource.type === "css"
+                                        ? "bg-blue-100 text-blue-800"
+                                        : resource.type === "js"
+                                          ? "bg-yellow-100 text-yellow-800"
+                                          : resource.type === "image"
+                                            ? "bg-green-100 text-green-800"
+                                            : "bg-gray-100 text-gray-800"
                                     }`}
                                   >
                                     {resource.type}
                                   </span>
                                   <span
                                     className={`px-2 py-1 rounded ${
-                                      resource.isLocal ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                                      resource.isLocal ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"
                                     }`}
                                   >
-                                    {resource.isLocal ? 'Local' : 'External'}
+                                    {resource.isLocal ? "Local" : "External"}
                                   </span>
                                 </div>
                               </div>
@@ -1772,7 +1857,10 @@ const HTMLPreviewCore = () => {
                         <CardContent>
                           <div className="space-y-2">
                             {currentResult.statistics.htmlMetrics.accessibilityFeatures.map((feature, index) => (
-                              <div key={index} className="flex items-center gap-2 text-sm">
+                              <div
+                                key={index}
+                                className="flex items-center gap-2 text-sm"
+                              >
                                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                                 <span className="font-medium">{feature.type}:</span>
                                 <span>{feature.description}</span>
@@ -1797,7 +1885,10 @@ const HTMLPreviewCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1812,7 +1903,7 @@ const HTMLPreviewCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1827,7 +1918,10 @@ const HTMLPreviewCore = () => {
                             <div className="text-xs font-medium mb-1">Features:</div>
                             <div className="flex flex-wrap gap-1">
                               {template.features.map((feature, index) => (
-                                <span key={index} className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                                <span
+                                  key={index}
+                                  className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded"
+                                >
                                   {feature}
                                 </span>
                               ))}
@@ -1842,7 +1936,7 @@ const HTMLPreviewCore = () => {
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>Use cases:</strong> {template.useCase.join(', ')}
+                            <strong>Use cases:</strong> {template.useCase.join(", ")}
                           </div>
                         )}
                       </div>
@@ -1864,7 +1958,10 @@ const HTMLPreviewCore = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -1883,7 +1980,10 @@ const HTMLPreviewCore = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="preview-mode" className="text-sm font-medium">
+                  <Label
+                    htmlFor="preview-mode"
+                    className="text-sm font-medium"
+                  >
                     Preview Mode
                   </Label>
                   <Select
@@ -1907,7 +2007,7 @@ const HTMLPreviewCore = () => {
                   <Button
                     onClick={() => {
                       const allResults = batches.flatMap((batch) => batch.results)
-                      exportResults(allResults, 'txt', 'html-analysis-report.txt')
+                      exportResults(allResults, "txt", "html-analysis-report.txt")
                     }}
                     variant="outline"
                   >

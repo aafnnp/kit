@@ -1,12 +1,12 @@
-import { useCallback, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -33,8 +33,8 @@ import {
   Hash,
   Key,
   Lock,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   URLParseResult,
   URLComponents,
@@ -49,7 +49,7 @@ import type {
   URLTemplate,
   URLValidation,
   ExportFormat,
-} from '@/types/url-parser'
+} from "@/types/url-parser"
 
 // Utility functions
 
@@ -70,11 +70,11 @@ const parseURL = (
       })
     })
 
-    const pathSegments = url.pathname.split('/').filter((segment) => segment.length > 0)
-    const domainParts = url.hostname.split('.')
+    const pathSegments = url.pathname.split("/").filter((segment) => segment.length > 0)
+    const domainParts = url.hostname.split(".")
     const tld = domainParts[domainParts.length - 1]
-    const domain = domainParts.length > 1 ? domainParts[domainParts.length - 2] + '.' + tld : url.hostname
-    const subdomain = domainParts.length > 2 ? domainParts.slice(0, -2).join('.') : undefined
+    const domain = domainParts.length > 1 ? domainParts[domainParts.length - 2] + "." + tld : url.hostname
+    const subdomain = domainParts.length > 2 ? domainParts.slice(0, -2).join(".") : undefined
 
     const components: URLComponents = {
       protocol: url.protocol,
@@ -92,11 +92,11 @@ const parseURL = (
       subdomain,
       domain,
       tld,
-      isSecure: url.protocol === 'https:',
+      isSecure: url.protocol === "https:",
       defaultPort:
         !url.port ||
-        (url.protocol === 'http:' && url.port === '80') ||
-        (url.protocol === 'https:' && url.port === '443'),
+        (url.protocol === "http:" && url.port === "80") ||
+        (url.protocol === "https:" && url.port === "443"),
       hasCredentials: !!(url.username || url.password),
     }
 
@@ -107,21 +107,21 @@ const parseURL = (
 
     return { components, analysis, security, seo }
   } catch (error) {
-    throw new Error(`Invalid URL: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    throw new Error(`Invalid URL: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 }
 
 const analyzeURL = (url: URL, components: URLComponents): URLAnalysis => {
   const analysis: URLAnalysis = {
     isValidURL: true,
-    urlType: 'absolute',
+    urlType: "absolute",
     hasCredentials: !!(components.username || components.password),
     hasQuery: components.search.length > 0,
     hasFragment: components.hash.length > 0,
     hasPort: !components.defaultPort,
-    isLocalhost: components.hostname === 'localhost' || components.hostname === '127.0.0.1',
+    isLocalhost: components.hostname === "localhost" || components.hostname === "127.0.0.1",
     isIP: /^\d+\.\d+\.\d+\.\d+$/.test(components.hostname),
-    isDomain: !/^\d+\.\d+\.\d+\.\d+$/.test(components.hostname) && components.hostname !== 'localhost',
+    isDomain: !/^\d+\.\d+\.\d+\.\d+$/.test(components.hostname) && components.hostname !== "localhost",
     pathDepth: components.pathSegments.length,
     queryParamCount: components.searchParams.length,
     urlLength: url.toString().length,
@@ -144,32 +144,32 @@ const analyzeURL = (url: URL, components: URLComponents): URLAnalysis => {
   // Quality assessment
   if (analysis.urlLength > 2000) {
     analysis.qualityScore -= 20
-    analysis.issues.push('URL is very long (>2000 characters)')
-    analysis.recommendations.push('Consider shortening the URL for better usability')
+    analysis.issues.push("URL is very long (>2000 characters)")
+    analysis.recommendations.push("Consider shortening the URL for better usability")
   }
 
   if (analysis.pathDepth > 5) {
     analysis.qualityScore -= 10
     analysis.usabilityScore -= 15
-    analysis.issues.push('URL has deep path structure')
-    analysis.recommendations.push('Consider flattening the URL structure')
+    analysis.issues.push("URL has deep path structure")
+    analysis.recommendations.push("Consider flattening the URL structure")
   }
 
   if (analysis.queryParamCount > 10) {
     analysis.qualityScore -= 15
-    analysis.issues.push('URL has many query parameters')
-    analysis.recommendations.push('Consider reducing the number of query parameters')
+    analysis.issues.push("URL has many query parameters")
+    analysis.recommendations.push("Consider reducing the number of query parameters")
   }
 
   // Usability assessment
-  if (components.pathname.includes('_')) {
+  if (components.pathname.includes("_")) {
     analysis.usabilityScore -= 5
-    analysis.recommendations.push('Consider using hyphens instead of underscores in paths')
+    analysis.recommendations.push("Consider using hyphens instead of underscores in paths")
   }
 
   if (!/^[a-z0-9\-._~:/?#[\]@!$&'()*+,;=%]*$/i.test(url.toString())) {
     analysis.usabilityScore -= 10
-    analysis.issues.push('URL contains non-standard characters')
+    analysis.issues.push("URL contains non-standard characters")
   }
 
   return analysis
@@ -182,7 +182,7 @@ const analyzeURLSecurity = (url: URL, components: URLComponents): URLSecurity =>
     credentialExposure: false,
     suspiciousPatterns: [],
     securityIssues: [],
-    riskLevel: 'low',
+    riskLevel: "low",
     securityScore: 100,
     recommendations: [],
     phishingIndicators: [],
@@ -192,32 +192,32 @@ const analyzeURLSecurity = (url: URL, components: URLComponents): URLSecurity =>
   // Security assessment
   if (!components.isSecure) {
     security.securityScore -= 30
-    security.securityIssues.push('URL uses insecure HTTP protocol')
-    security.recommendations.push('Use HTTPS for secure communication')
-    security.riskLevel = 'medium'
+    security.securityIssues.push("URL uses insecure HTTP protocol")
+    security.recommendations.push("Use HTTPS for secure communication")
+    security.riskLevel = "medium"
   }
 
   if (components.hasCredentials) {
     security.securityScore -= 40
     security.credentialExposure = true
-    security.securityIssues.push('URL contains credentials in plain text')
-    security.recommendations.push('Never include credentials in URLs')
-    security.riskLevel = 'high'
+    security.securityIssues.push("URL contains credentials in plain text")
+    security.recommendations.push("Never include credentials in URLs")
+    security.riskLevel = "high"
   }
 
   // Check for suspicious patterns
   const suspiciousPatterns = [
-    'bit.ly',
-    'tinyurl.com',
-    'goo.gl',
-    't.co', // URL shorteners
-    'phishing',
-    'malware',
-    'virus',
-    'hack',
-    'free-download',
-    'click-here',
-    'urgent',
+    "bit.ly",
+    "tinyurl.com",
+    "goo.gl",
+    "t.co", // URL shorteners
+    "phishing",
+    "malware",
+    "virus",
+    "hack",
+    "free-download",
+    "click-here",
+    "urgent",
   ]
 
   suspiciousPatterns.forEach((pattern) => {
@@ -240,12 +240,12 @@ const analyzeURLSecurity = (url: URL, components: URLComponents): URLSecurity =>
     if (pattern.test(url.toString().toLowerCase())) {
       security.phishingIndicators.push(pattern.toString())
       security.securityScore -= 25
-      security.riskLevel = 'high'
+      security.riskLevel = "high"
     }
   })
 
   if (security.suspiciousPatterns.length > 0) {
-    security.riskLevel = security.riskLevel === 'high' ? 'high' : 'medium'
+    security.riskLevel = security.riskLevel === "high" ? "high" : "medium"
   }
 
   return security
@@ -268,35 +268,35 @@ const analyzeURLSEO = (url: URL, components: URLComponents): URLSEOAnalysis => {
   // Length assessment
   if (url.toString().length > 100) {
     seo.lengthScore -= 20
-    seo.issues.push('URL is longer than recommended for SEO (>100 characters)')
-    seo.recommendations.push('Keep URLs under 100 characters for better SEO')
+    seo.issues.push("URL is longer than recommended for SEO (>100 characters)")
+    seo.recommendations.push("Keep URLs under 100 characters for better SEO")
   }
 
   // Path structure assessment
-  if (components.pathSegments.some((segment) => segment.includes('_'))) {
+  if (components.pathSegments.some((segment) => segment.includes("_"))) {
     seo.pathStructureScore -= 15
-    seo.issues.push('URL uses underscores instead of hyphens')
-    seo.recommendations.push('Use hyphens instead of underscores for better SEO')
+    seo.issues.push("URL uses underscores instead of hyphens")
+    seo.recommendations.push("Use hyphens instead of underscores for better SEO")
   }
 
   if (components.pathSegments.some((segment) => /[A-Z]/.test(segment))) {
     seo.pathStructureScore -= 10
-    seo.issues.push('URL contains uppercase characters')
-    seo.recommendations.push('Use lowercase URLs for consistency')
+    seo.issues.push("URL contains uppercase characters")
+    seo.recommendations.push("Use lowercase URLs for consistency")
   }
 
   // Readability assessment
-  const pathText = components.pathSegments.join(' ')
+  const pathText = components.pathSegments.join(" ")
   const words = pathText.split(/[-_\s]+/).filter((word) => word.length > 0)
 
   if (words.length === 0) {
     seo.readabilityScore -= 30
-    seo.issues.push('URL path is not descriptive')
-    seo.recommendations.push('Use descriptive words in URL paths')
+    seo.issues.push("URL path is not descriptive")
+    seo.recommendations.push("Use descriptive words in URL paths")
   }
 
   // Extract potential keywords
-  const commonWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by']
+  const commonWords = ["the", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by"]
   words.forEach((word) => {
     if (word.length > 2 && !commonWords.includes(word.toLowerCase())) {
       seo.keywords.push(word.toLowerCase())
@@ -309,7 +309,7 @@ const analyzeURLSEO = (url: URL, components: URLComponents): URLSEOAnalysis => {
 
   if (!seo.hasKeywords) {
     seo.readabilityScore -= 20
-    seo.recommendations.push('Include relevant keywords in the URL path')
+    seo.recommendations.push("Include relevant keywords in the URL path")
   }
 
   return seo
@@ -318,80 +318,80 @@ const analyzeURLSEO = (url: URL, components: URLComponents): URLSEOAnalysis => {
 // URL templates
 const urlTemplates: URLTemplate[] = [
   {
-    id: 'basic-websites',
-    name: 'Basic Websites',
-    description: 'Analysis of common website URL structures',
-    category: 'Website',
-    urls: ['https://example.com', 'https://www.google.com', 'https://github.com/user/repo'],
-    analysisTypes: ['structure', 'security', 'seo'],
-    useCase: ['Website analysis', 'URL structure review', 'SEO optimization'],
-    examples: ['Homepage URLs', 'Subdomain structures', 'Path hierarchies'],
+    id: "basic-websites",
+    name: "Basic Websites",
+    description: "Analysis of common website URL structures",
+    category: "Website",
+    urls: ["https://example.com", "https://www.google.com", "https://github.com/user/repo"],
+    analysisTypes: ["structure", "security", "seo"],
+    useCase: ["Website analysis", "URL structure review", "SEO optimization"],
+    examples: ["Homepage URLs", "Subdomain structures", "Path hierarchies"],
   },
   {
-    id: 'api-endpoints',
-    name: 'API Endpoints',
-    description: 'Analysis of REST API URL patterns',
-    category: 'API',
+    id: "api-endpoints",
+    name: "API Endpoints",
+    description: "Analysis of REST API URL patterns",
+    category: "API",
     urls: [
-      'https://api.example.com/v1/users',
-      'https://jsonplaceholder.typicode.com/posts/1',
-      'https://api.github.com/repos/owner/repo',
+      "https://api.example.com/v1/users",
+      "https://jsonplaceholder.typicode.com/posts/1",
+      "https://api.github.com/repos/owner/repo",
     ],
-    analysisTypes: ['structure', 'security'],
-    useCase: ['API design review', 'Endpoint analysis', 'Version management'],
-    examples: ['RESTful endpoints', 'Versioned APIs', 'Resource paths'],
+    analysisTypes: ["structure", "security"],
+    useCase: ["API design review", "Endpoint analysis", "Version management"],
+    examples: ["RESTful endpoints", "Versioned APIs", "Resource paths"],
   },
   {
-    id: 'ecommerce-urls',
-    name: 'E-commerce URLs',
-    description: 'Analysis of e-commerce URL structures',
-    category: 'E-commerce',
+    id: "ecommerce-urls",
+    name: "E-commerce URLs",
+    description: "Analysis of e-commerce URL structures",
+    category: "E-commerce",
     urls: [
-      'https://shop.example.com/products/category/item-name',
-      'https://amazon.com/dp/B08N5WRWNW',
-      'https://store.com/cart?item=123&qty=2',
+      "https://shop.example.com/products/category/item-name",
+      "https://amazon.com/dp/B08N5WRWNW",
+      "https://store.com/cart?item=123&qty=2",
     ],
-    analysisTypes: ['structure', 'seo', 'usability'],
-    useCase: ['Product page optimization', 'Category structure', 'Shopping cart analysis'],
-    examples: ['Product URLs', 'Category pages', 'Shopping cart links'],
+    analysisTypes: ["structure", "seo", "usability"],
+    useCase: ["Product page optimization", "Category structure", "Shopping cart analysis"],
+    examples: ["Product URLs", "Category pages", "Shopping cart links"],
   },
   {
-    id: 'social-media',
-    name: 'Social Media URLs',
-    description: 'Analysis of social media platform URLs',
-    category: 'Social',
+    id: "social-media",
+    name: "Social Media URLs",
+    description: "Analysis of social media platform URLs",
+    category: "Social",
     urls: [
-      'https://twitter.com/username/status/1234567890',
-      'https://facebook.com/page/posts/123',
-      'https://linkedin.com/in/username',
+      "https://twitter.com/username/status/1234567890",
+      "https://facebook.com/page/posts/123",
+      "https://linkedin.com/in/username",
     ],
-    analysisTypes: ['structure', 'security'],
-    useCase: ['Social media analysis', 'Profile verification', 'Content linking'],
-    examples: ['Profile URLs', 'Post links', 'Share URLs'],
+    analysisTypes: ["structure", "security"],
+    useCase: ["Social media analysis", "Profile verification", "Content linking"],
+    examples: ["Profile URLs", "Post links", "Share URLs"],
   },
   {
-    id: 'security-analysis',
-    name: 'Security Analysis',
-    description: 'URLs with potential security concerns',
-    category: 'Security',
-    urls: ['http://insecure.example.com', 'https://user:pass@example.com/login', 'https://bit.ly/suspicious-link'],
-    analysisTypes: ['security', 'compliance'],
-    useCase: ['Security assessment', 'Vulnerability detection', 'Risk analysis'],
-    examples: ['Insecure protocols', 'Credential exposure', 'Suspicious patterns'],
+    id: "security-analysis",
+    name: "Security Analysis",
+    description: "URLs with potential security concerns",
+    category: "Security",
+    urls: ["http://insecure.example.com", "https://user:pass@example.com/login", "https://bit.ly/suspicious-link"],
+    analysisTypes: ["security", "compliance"],
+    useCase: ["Security assessment", "Vulnerability detection", "Risk analysis"],
+    examples: ["Insecure protocols", "Credential exposure", "Suspicious patterns"],
   },
   {
-    id: 'seo-optimization',
-    name: 'SEO Optimization',
-    description: 'URLs optimized for search engines',
-    category: 'SEO',
+    id: "seo-optimization",
+    name: "SEO Optimization",
+    description: "URLs optimized for search engines",
+    category: "SEO",
     urls: [
-      'https://blog.example.com/how-to-optimize-urls-for-seo',
-      'https://site.com/products/blue-widgets',
-      'https://news.com/2023/12/breaking-news-title',
+      "https://blog.example.com/how-to-optimize-urls-for-seo",
+      "https://site.com/products/blue-widgets",
+      "https://news.com/2023/12/breaking-news-title",
     ],
-    analysisTypes: ['seo', 'structure'],
-    useCase: ['SEO analysis', 'Content optimization', 'Search ranking'],
-    examples: ['SEO-friendly URLs', 'Keyword-rich paths', 'Date-based structures'],
+    analysisTypes: ["seo", "structure"],
+    useCase: ["SEO analysis", "Content optimization", "Search ranking"],
+    examples: ["SEO-friendly URLs", "Keyword-rich paths", "Date-based structures"],
   },
 ]
 
@@ -407,9 +407,9 @@ const validateURL = (urlString: string): URLValidation => {
   if (!urlString || urlString.trim().length === 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'URL cannot be empty',
-      type: 'format',
-      severity: 'error',
+      message: "URL cannot be empty",
+      type: "format",
+      severity: "error",
     })
     return validation
   }
@@ -419,70 +419,70 @@ const validateURL = (urlString: string): URLValidation => {
   // Check for basic URL format
   try {
     const url = new URL(trimmedUrl)
-    validation.urlType = 'absolute'
+    validation.urlType = "absolute"
 
     // Protocol validation
-    if (!['http:', 'https:', 'ftp:', 'ftps:'].includes(url.protocol)) {
+    if (!["http:", "https:", "ftp:", "ftps:"].includes(url.protocol)) {
       validation.warnings.push(`Uncommon protocol: ${url.protocol}`)
     }
 
     // Security warnings
-    if (url.protocol === 'http:') {
-      validation.warnings.push('URL uses insecure HTTP protocol')
-      validation.suggestions.push('Consider using HTTPS for better security')
+    if (url.protocol === "http:") {
+      validation.warnings.push("URL uses insecure HTTP protocol")
+      validation.suggestions.push("Consider using HTTPS for better security")
     }
 
     if (url.username || url.password) {
       validation.errors.push({
-        message: 'URL contains credentials',
-        type: 'security',
-        severity: 'error',
+        message: "URL contains credentials",
+        type: "security",
+        severity: "error",
       })
-      validation.suggestions.push('Remove credentials from URL for security')
+      validation.suggestions.push("Remove credentials from URL for security")
     }
 
     // Length validation
     if (trimmedUrl.length > 2000) {
-      validation.warnings.push('URL is very long (>2000 characters)')
-      validation.suggestions.push('Consider shortening the URL')
+      validation.warnings.push("URL is very long (>2000 characters)")
+      validation.suggestions.push("Consider shortening the URL")
     }
 
     return validation
   } catch (error) {
     // Try relative URL patterns
-    if (trimmedUrl.startsWith('/')) {
-      validation.urlType = 'relative'
-      validation.warnings.push('Relative URL detected')
-      validation.suggestions.push('Add protocol and domain for complete URL')
+    if (trimmedUrl.startsWith("/")) {
+      validation.urlType = "relative"
+      validation.warnings.push("Relative URL detected")
+      validation.suggestions.push("Add protocol and domain for complete URL")
       return validation
     }
 
-    if (trimmedUrl.startsWith('//')) {
-      validation.urlType = 'protocol-relative'
-      validation.warnings.push('Protocol-relative URL detected')
-      validation.suggestions.push('Add protocol (http:// or https://) for complete URL')
+    if (trimmedUrl.startsWith("//")) {
+      validation.urlType = "protocol-relative"
+      validation.warnings.push("Protocol-relative URL detected")
+      validation.suggestions.push("Add protocol (http:// or https://) for complete URL")
       return validation
     }
 
     // Invalid URL
     validation.isValid = false
-    validation.urlType = 'invalid'
+    validation.urlType = "invalid"
     validation.errors.push({
-      message: 'Invalid URL format',
-      type: 'format',
-      severity: 'error',
+      message: "Invalid URL format",
+      type: "format",
+      severity: "error",
     })
 
     // Provide suggestions
-    if (!trimmedUrl.includes('://')) {
-      validation.suggestions.push('Add protocol (e.g., https://) to the beginning')
+    if (!trimmedUrl.includes("://")) {
+      validation.suggestions.push("Add protocol (e.g., https://) to the beginning")
     }
 
-    if (trimmedUrl.includes(' ')) {
-      validation.suggestions.push('Remove spaces from URL')
+    if (trimmedUrl.includes(" ")) {
+      validation.suggestions.push("Remove spaces from URL")
     }
 
-    validation.suggestions.push('Check URL format: protocol://domain/path?query#fragment')
+    validation.suggestions.push("Check URL format: protocol://domain/path?query#fragment")
 
     return validation
   }
@@ -531,7 +531,7 @@ const useURLParser = () => {
         id: nanoid(),
         url: urlString,
         isValid: false,
-        error: error instanceof Error ? error.message : 'URL parsing failed',
+        error: error instanceof Error ? error.message : "URL parsing failed",
         statistics: {
           urlLength: urlString.length,
           pathLength: 0,
@@ -623,8 +623,8 @@ const useURLParser = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch processing error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch processing failed')
+        console.error("Batch processing error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch processing failed")
       }
     },
     [parseURLString]
@@ -644,7 +644,7 @@ const calculateComplexityScore = (components: URLComponents): number => {
 }
 
 const calculateReadabilityIndex = (components: URLComponents): number => {
-  const pathText = components.pathSegments.join(' ')
+  const pathText = components.pathSegments.join(" ")
   const words = pathText.split(/[-_\s]+/).filter((word) => word.length > 0)
   const avgWordLength = words.length > 0 ? words.reduce((sum, word) => sum + word.length, 0) / words.length : 0
 
@@ -683,13 +683,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -699,12 +699,12 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useURLExport = () => {
   const exportResults = useCallback((results: URLParseResult[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         const jsonData = results.map((result) => ({
           id: result.id,
           url: result.url,
@@ -718,46 +718,46 @@ const useURLExport = () => {
           createdAt: result.createdAt,
         }))
         content = JSON.stringify(jsonData, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         const csvHeaders = [
-          'URL',
-          'Valid',
-          'Protocol',
-          'Domain',
-          'Path',
-          'Query Params',
-          'Security Score',
-          'SEO Score',
-          'Quality Score',
-          'Processing Time',
+          "URL",
+          "Valid",
+          "Protocol",
+          "Domain",
+          "Path",
+          "Query Params",
+          "Security Score",
+          "SEO Score",
+          "Quality Score",
+          "Processing Time",
         ]
         const csvRows: string[] = []
         results.forEach((result) => {
           csvRows.push(
             [
               result.url,
-              result.isValid ? 'Yes' : 'No',
-              result.components?.protocol || '',
-              result.components?.domain || '',
-              result.components?.pathname || '',
-              result.components?.searchParams.length.toString() || '0',
-              result.security?.securityScore?.toString() || '',
-              result.seo?.lengthScore?.toString() || '',
-              result.analysis?.qualityScore?.toString() || '',
+              result.isValid ? "Yes" : "No",
+              result.components?.protocol || "",
+              result.components?.domain || "",
+              result.components?.pathname || "",
+              result.components?.searchParams.length.toString() || "0",
+              result.security?.securityScore?.toString() || "",
+              result.seo?.lengthScore?.toString() || "",
+              result.analysis?.qualityScore?.toString() || "",
               result.statistics.processingTime.toFixed(2),
             ]
               .map((field) => `"${field.replace(/"/g, '""')}"`)
-              .join(',')
+              .join(",")
           )
         })
-        content = [csvHeaders.join(','), ...csvRows].join('\n')
-        mimeType = 'text/csv'
-        extension = '.csv'
+        content = [csvHeaders.join(","), ...csvRows].join("\n")
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         const xmlData = results
           .map(
             (result) => `
@@ -765,11 +765,11 @@ const useURLExport = () => {
     <url><![CDATA[${result.url}]]></url>
     <valid>${result.isValid}</valid>
     <components>
-      <protocol>${result.components?.protocol || ''}</protocol>
-      <hostname>${result.components?.hostname || ''}</hostname>
-      <pathname>${result.components?.pathname || ''}</pathname>
-      <search>${result.components?.search || ''}</search>
-      <hash>${result.components?.hash || ''}</hash>
+      <protocol>${result.components?.protocol || ""}</protocol>
+      <hostname>${result.components?.hostname || ""}</hostname>
+      <pathname>${result.components?.pathname || ""}</pathname>
+      <search>${result.components?.search || ""}</search>
+      <hash>${result.components?.hash || ""}</hash>
     </components>
     <analysis>
       <qualityScore>${result.analysis?.qualityScore || 0}</qualityScore>
@@ -778,22 +778,22 @@ const useURLExport = () => {
     </analysis>
   </urlParse>`
           )
-          .join('')
+          .join("")
         content = `<?xml version="1.0" encoding="UTF-8"?>\n<urlParseResults>${xmlData}\n</urlParseResults>`
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromResults(results)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `url-parse-results${extension}`
     document.body.appendChild(link)
@@ -819,8 +819,8 @@ URL Analysis Results:
 ${results
   .map((result, i) => {
     return `${i + 1}. URL: ${result.url}
-   Status: ${result.isValid ? 'Valid' : 'Invalid'}
-   ${result.error ? `Error: ${result.error}` : ''}
+   Status: ${result.isValid ? "Valid" : "Invalid"}
+   ${result.error ? `Error: ${result.error}` : ""}
    Processing Time: ${result.statistics.processingTime.toFixed(2)}ms
 
    ${
@@ -828,13 +828,13 @@ ${results
        ? `Components:
    - Protocol: ${result.components.protocol}
    - Hostname: ${result.components.hostname}
-   - Port: ${result.components.port || 'default'}
+   - Port: ${result.components.port || "default"}
    - Path: ${result.components.pathname}
    - Query: ${result.components.search}
    - Fragment: ${result.components.hash}
    - Parameters: ${result.components.searchParams.length}
    `
-       : 'No component data'
+       : "No component data"
    }
 
    ${
@@ -845,7 +845,7 @@ ${results
    - Path Depth: ${result.analysis.pathDepth}
    - Query Params: ${result.analysis.queryParamCount}
    `
-       : 'No analysis data'
+       : "No analysis data"
    }
 
    ${
@@ -853,10 +853,10 @@ ${results
        ? `Security:
    - Security Score: ${result.security.securityScore}/100
    - Risk Level: ${result.security.riskLevel}
-   - Is Secure: ${result.security.isSecure ? 'Yes' : 'No'}
-   - Has Credentials: ${result.security.hasCredentials ? 'Yes' : 'No'}
+   - Is Secure: ${result.security.isSecure ? "Yes" : "No"}
+   - Has Credentials: ${result.security.hasCredentials ? "Yes" : "No"}
    `
-       : 'No security data'
+       : "No security data"
    }
 
    ${
@@ -864,14 +864,14 @@ ${results
        ? `SEO:
    - Length Score: ${result.seo.lengthScore}/100
    - Readability Score: ${result.seo.readabilityScore}/100
-   - SEO Friendly: ${result.seo.isSearchEngineFriendly ? 'Yes' : 'No'}
-   - Keywords: ${result.seo.keywords.join(', ') || 'None'}
+   - SEO Friendly: ${result.seo.isSearchEngineFriendly ? "Yes" : "No"}
+   - Keywords: ${result.seo.keywords.join(", ") || "None"}
    `
-       : 'No SEO data'
+       : "No SEO data"
    }
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
@@ -886,12 +886,12 @@ Statistics:
  * Features: Advanced URL parsing, security analysis, SEO optimization, compliance checking
  */
 const URLParserCore = () => {
-  const [activeTab, setActiveTab] = useState<'parser' | 'batch' | 'analyzer' | 'templates'>('parser')
-  const [url, setURL] = useState('')
+  const [activeTab, setActiveTab] = useState<"parser" | "batch" | "analyzer" | "templates">("parser")
+  const [url, setURL] = useState("")
   const [currentResult, setCurrentResult] = useState<URLParseResult | null>(null)
   const [batches, setBatches] = useState<ProcessingBatch[]>([])
-  const [batchInput, setBatchInput] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [batchInput, setBatchInput] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [showDetailedAnalysis, setShowDetailedAnalysis] = useState(false)
   const [settings, setSettings] = useState<ProcessingSettings>({
@@ -900,7 +900,7 @@ const URLParserCore = () => {
     includeCompliance: true,
     validateDomains: true,
     checkSuspiciousPatterns: true,
-    exportFormat: 'json',
+    exportFormat: "json",
     realTimeValidation: true,
     maxResults: 100,
     strictMode: false,
@@ -924,12 +924,12 @@ const URLParserCore = () => {
   // Handle single parse
   const handleParse = useCallback(async () => {
     if (!url.trim()) {
-      toast.error('Please enter a URL')
+      toast.error("Please enter a URL")
       return
     }
 
     if (!urlValidation.isValid && settings.strictMode) {
-      toast.error('Please enter a valid URL')
+      toast.error("Please enter a valid URL")
       return
     }
 
@@ -941,10 +941,10 @@ const URLParserCore = () => {
       if (result.isValid) {
         toast.success(`URL parsed successfully`)
       } else {
-        toast.error(result.error || 'URL parsing failed')
+        toast.error(result.error || "URL parsing failed")
       }
     } catch (error) {
-      toast.error('Failed to parse URL')
+      toast.error("Failed to parse URL")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -954,12 +954,12 @@ const URLParserCore = () => {
   // Handle batch processing
   const handleProcessBatch = useCallback(async () => {
     const urls = batchInput
-      .split('\n')
+      .split("\n")
       .filter((line) => line.trim())
       .map((line) => line.trim())
 
     if (urls.length === 0) {
-      toast.error('Please enter URLs to parse')
+      toast.error("Please enter URLs to parse")
       return
     }
 
@@ -969,7 +969,7 @@ const URLParserCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Processed ${batch.results.length} URLs`)
     } catch (error) {
-      toast.error('Failed to process batch')
+      toast.error("Failed to process batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -986,12 +986,15 @@ const URLParserCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Link className="h-5 w-5" aria-hidden="true" />
+              <Link className="h-5 w-5" />
               URL Parser & Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -1005,29 +1008,44 @@ const URLParserCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'parser' | 'batch' | 'analyzer' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "parser" | "batch" | "analyzer" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="parser" className="flex items-center gap-2">
+            <TabsTrigger
+              value="parser"
+              className="flex items-center gap-2"
+            >
               <Search className="h-4 w-4" />
               URL Parser
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Parser
             </TabsTrigger>
-            <TabsTrigger value="analyzer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analyzer"
+              className="flex items-center gap-2"
+            >
               <Shield className="h-4 w-4" />
               URL Analyzer
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* URL Parser Tab */}
-          <TabsContent value="parser" className="space-y-4">
+          <TabsContent
+            value="parser"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Parser Input */}
               <Card>
@@ -1039,7 +1057,10 @@ const URLParserCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="url-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="url-input"
+                      className="text-sm font-medium"
+                    >
                       URL
                     </Label>
                     <Input
@@ -1048,7 +1069,6 @@ const URLParserCore = () => {
                       onChange={(e) => setURL(e.target.value)}
                       placeholder="Enter URL (e.g., https://example.com/path?param=value#section)"
                       className="mt-2"
-                      aria-label="URL for parsing"
                     />
                     {url && (
                       <div className="mt-2 text-sm">
@@ -1082,7 +1102,10 @@ const URLParserCore = () => {
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-security" className="text-xs">
+                        <Label
+                          htmlFor="include-security"
+                          className="text-xs"
+                        >
                           Include security analysis
                         </Label>
                       </div>
@@ -1095,7 +1118,10 @@ const URLParserCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeSEOAnalysis: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-seo" className="text-xs">
+                        <Label
+                          htmlFor="include-seo"
+                          className="text-xs"
+                        >
                           Include SEO analysis
                         </Label>
                       </div>
@@ -1108,7 +1134,10 @@ const URLParserCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeCompliance: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-compliance" className="text-xs">
+                        <Label
+                          htmlFor="include-compliance"
+                          className="text-xs"
+                        >
                           Include compliance checking
                         </Label>
                       </div>
@@ -1121,7 +1150,10 @@ const URLParserCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, strictMode: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="strict-mode" className="text-xs">
+                        <Label
+                          htmlFor="strict-mode"
+                          className="text-xs"
+                        >
                           Strict validation mode
                         </Label>
                       </div>
@@ -1136,7 +1168,10 @@ const URLParserCore = () => {
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="check-suspicious" className="text-xs">
+                        <Label
+                          htmlFor="check-suspicious"
+                          className="text-xs"
+                        >
                           Check for suspicious patterns
                         </Label>
                       </div>
@@ -1158,7 +1193,7 @@ const URLParserCore = () => {
                     </Button>
                     <Button
                       onClick={() => {
-                        setURL('')
+                        setURL("")
                         setCurrentResult(null)
                       }}
                       variant="outline"
@@ -1173,7 +1208,10 @@ const URLParserCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-yellow-800">Warnings:</h4>
                       <div className="text-xs space-y-1">
                         {urlValidation.warnings.map((warning, index) => (
-                          <div key={index} className="text-yellow-700">
+                          <div
+                            key={index}
+                            className="text-yellow-700"
+                          >
                             {warning}
                           </div>
                         ))}
@@ -1186,7 +1224,10 @@ const URLParserCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-blue-800">Suggestions:</h4>
                       <div className="text-xs space-y-1">
                         {urlValidation.suggestions.map((suggestion, index) => (
-                          <div key={index} className="text-blue-700">
+                          <div
+                            key={index}
+                            className="text-blue-700"
+                          >
                             {suggestion}
                           </div>
                         ))}
@@ -1203,7 +1244,11 @@ const URLParserCore = () => {
                     <Server className="h-5 w-5" />
                     URL Components
                     <div className="ml-auto">
-                      <Button size="sm" variant="ghost" onClick={() => setShowDetailedAnalysis(!showDetailedAnalysis)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowDetailedAnalysis(!showDetailedAnalysis)}
+                      >
                         {showDetailedAnalysis ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
@@ -1216,7 +1261,7 @@ const URLParserCore = () => {
                         <div className="text-sm font-medium mb-2">URL: {currentResult.url}</div>
                         <div className="text-sm">
                           <div>
-                            <strong>Status:</strong> {currentResult.isValid ? 'Valid' : 'Invalid'}
+                            <strong>Status:</strong> {currentResult.isValid ? "Valid" : "Invalid"}
                           </div>
                           <div>
                             <strong>Processing Time:</strong> {currentResult.statistics.processingTime.toFixed(2)}ms
@@ -1241,9 +1286,9 @@ const URLParserCore = () => {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => copyToClipboard(currentResult.url, 'URL')}
+                                onClick={() => copyToClipboard(currentResult.url, "URL")}
                               >
-                                {copiedText === 'URL' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                {copiedText === "URL" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                               </Button>
                             </div>
 
@@ -1255,8 +1300,8 @@ const URLParserCore = () => {
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
                                       currentResult.components.isSecure
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-red-100 text-red-800'
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-red-100 text-red-800"
                                     }`}
                                   >
                                     {currentResult.components.protocol}
@@ -1264,38 +1309,38 @@ const URLParserCore = () => {
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Globe className="h-4 w-4" />
-                                  <strong>Hostname:</strong>{' '}
+                                  <strong>Hostname:</strong>{" "}
                                   <span className="font-mono">{currentResult.components.hostname}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Server className="h-4 w-4" />
-                                  <strong>Port:</strong> {currentResult.components.port || 'default'}
+                                  <strong>Port:</strong> {currentResult.components.port || "default"}
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Navigation className="h-4 w-4" />
-                                  <strong>Origin:</strong>{' '}
+                                  <strong>Origin:</strong>{" "}
                                   <span className="font-mono">{currentResult.components.origin}</span>
                                 </div>
                               </div>
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2">
                                   <ArrowRight className="h-4 w-4" />
-                                  <strong>Path:</strong>{' '}
-                                  <span className="font-mono">{currentResult.components.pathname || '/'}</span>
+                                  <strong>Path:</strong>{" "}
+                                  <span className="font-mono">{currentResult.components.pathname || "/"}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Search className="h-4 w-4" />
-                                  <strong>Query:</strong>{' '}
-                                  <span className="font-mono">{currentResult.components.search || 'none'}</span>
+                                  <strong>Query:</strong>{" "}
+                                  <span className="font-mono">{currentResult.components.search || "none"}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Hash className="h-4 w-4" />
-                                  <strong>Fragment:</strong>{' '}
-                                  <span className="font-mono">{currentResult.components.hash || 'none'}</span>
+                                  <strong>Fragment:</strong>{" "}
+                                  <span className="font-mono">{currentResult.components.hash || "none"}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Building className="h-4 w-4" />
-                                  <strong>Domain:</strong>{' '}
+                                  <strong>Domain:</strong>{" "}
                                   <span className="font-mono">{currentResult.components.domain}</span>
                                 </div>
                               </div>
@@ -1307,7 +1352,7 @@ const URLParserCore = () => {
                                   <strong>⚠️ Security Warning:</strong> URL contains credentials
                                   <div className="mt-1 text-xs">
                                     Username: {currentResult.components.username}
-                                    {currentResult.components.password && ' • Password: [HIDDEN]'}
+                                    {currentResult.components.password && " • Password: [HIDDEN]"}
                                   </div>
                                 </div>
                               </div>
@@ -1323,7 +1368,10 @@ const URLParserCore = () => {
                               </h4>
                               <div className="space-y-2">
                                 {currentResult.components.pathSegments.map((segment, index) => (
-                                  <div key={index} className="flex items-center gap-2 text-sm">
+                                  <div
+                                    key={index}
+                                    className="flex items-center gap-2 text-sm"
+                                  >
                                     <span className="text-muted-foreground">{index + 1}.</span>
                                     <span className="font-mono bg-muted px-2 py-1 rounded">{segment}</span>
                                     <Button
@@ -1352,7 +1400,10 @@ const URLParserCore = () => {
                               </h4>
                               <div className="space-y-2">
                                 {currentResult.components.searchParams.map((param, index) => (
-                                  <div key={index} className="border rounded p-3">
+                                  <div
+                                    key={index}
+                                    className="border rounded p-3"
+                                  >
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                                       <div>
                                         <strong>Key:</strong>
@@ -1418,10 +1469,10 @@ const URLParserCore = () => {
                                         <div
                                           className={`h-2 rounded-full ${
                                             currentResult.security.securityScore >= 80
-                                              ? 'bg-green-500'
+                                              ? "bg-green-500"
                                               : currentResult.security.securityScore >= 60
-                                                ? 'bg-orange-500'
-                                                : 'bg-red-500'
+                                                ? "bg-orange-500"
+                                                : "bg-red-500"
                                           }`}
                                           style={{ width: `${currentResult.security.securityScore}%` }}
                                         ></div>
@@ -1432,11 +1483,11 @@ const URLParserCore = () => {
                                         <strong>Risk Level:</strong>
                                         <span
                                           className={`ml-1 px-2 py-1 rounded text-xs ${
-                                            currentResult.security.riskLevel === 'high'
-                                              ? 'bg-red-100 text-red-800'
-                                              : currentResult.security.riskLevel === 'medium'
-                                                ? 'bg-orange-100 text-orange-800'
-                                                : 'bg-green-100 text-green-800'
+                                            currentResult.security.riskLevel === "high"
+                                              ? "bg-red-100 text-red-800"
+                                              : currentResult.security.riskLevel === "medium"
+                                                ? "bg-orange-100 text-orange-800"
+                                                : "bg-green-100 text-green-800"
                                           }`}
                                         >
                                           {currentResult.security.riskLevel}
@@ -1445,14 +1496,14 @@ const URLParserCore = () => {
                                     </div>
                                     <div>
                                       <div>
-                                        <strong>Secure Protocol:</strong>{' '}
-                                        {currentResult.security.isSecure ? '✅ Yes' : '❌ No'}
+                                        <strong>Secure Protocol:</strong>{" "}
+                                        {currentResult.security.isSecure ? "✅ Yes" : "❌ No"}
                                       </div>
                                     </div>
                                     <div>
                                       <div>
-                                        <strong>Has Credentials:</strong>{' '}
-                                        {currentResult.security.hasCredentials ? '⚠️ Yes' : '✅ No'}
+                                        <strong>Has Credentials:</strong>{" "}
+                                        {currentResult.security.hasCredentials ? "⚠️ Yes" : "✅ No"}
                                       </div>
                                     </div>
                                   </div>
@@ -1462,7 +1513,10 @@ const URLParserCore = () => {
                                       <h5 className="font-medium text-sm mb-2 text-red-800">Security Issues</h5>
                                       <ul className="text-sm space-y-1">
                                         {currentResult.security.securityIssues.map((issue, index) => (
-                                          <li key={index} className="flex items-center gap-2 text-red-700">
+                                          <li
+                                            key={index}
+                                            className="flex items-center gap-2 text-red-700"
+                                          >
                                             <AlertCircle className="h-3 w-3" />
                                             {issue}
                                           </li>
@@ -1478,7 +1532,10 @@ const URLParserCore = () => {
                                       </h5>
                                       <ul className="text-sm space-y-1">
                                         {currentResult.security.recommendations.map((rec, index) => (
-                                          <li key={index} className="flex items-center gap-2 text-blue-700">
+                                          <li
+                                            key={index}
+                                            className="flex items-center gap-2 text-blue-700"
+                                          >
                                             <CheckCircle2 className="h-3 w-3" />
                                             {rec}
                                           </li>
@@ -1506,10 +1563,10 @@ const URLParserCore = () => {
                                         <div
                                           className={`h-2 rounded-full ${
                                             currentResult.seo.lengthScore >= 80
-                                              ? 'bg-green-500'
+                                              ? "bg-green-500"
                                               : currentResult.seo.lengthScore >= 60
-                                                ? 'bg-orange-500'
-                                                : 'bg-red-500'
+                                                ? "bg-orange-500"
+                                                : "bg-red-500"
                                           }`}
                                           style={{ width: `${currentResult.seo.lengthScore}%` }}
                                         ></div>
@@ -1523,10 +1580,10 @@ const URLParserCore = () => {
                                         <div
                                           className={`h-2 rounded-full ${
                                             currentResult.seo.readabilityScore >= 80
-                                              ? 'bg-green-500'
+                                              ? "bg-green-500"
                                               : currentResult.seo.readabilityScore >= 60
-                                                ? 'bg-orange-500'
-                                                : 'bg-red-500'
+                                                ? "bg-orange-500"
+                                                : "bg-red-500"
                                           }`}
                                           style={{ width: `${currentResult.seo.readabilityScore}%` }}
                                         ></div>
@@ -1534,8 +1591,8 @@ const URLParserCore = () => {
                                     </div>
                                     <div>
                                       <div>
-                                        <strong>SEO Friendly:</strong>{' '}
-                                        {currentResult.seo.isSearchEngineFriendly ? '✅ Yes' : '❌ No'}
+                                        <strong>SEO Friendly:</strong>{" "}
+                                        {currentResult.seo.isSearchEngineFriendly ? "✅ Yes" : "❌ No"}
                                       </div>
                                     </div>
                                   </div>
@@ -1561,7 +1618,10 @@ const URLParserCore = () => {
                                       <h5 className="font-medium text-sm mb-2 text-orange-800">SEO Issues</h5>
                                       <ul className="text-sm space-y-1">
                                         {currentResult.seo.issues.map((issue, index) => (
-                                          <li key={index} className="flex items-center gap-2 text-orange-700">
+                                          <li
+                                            key={index}
+                                            className="flex items-center gap-2 text-orange-700"
+                                          >
                                             <AlertCircle className="h-3 w-3" />
                                             {issue}
                                           </li>
@@ -1575,7 +1635,10 @@ const URLParserCore = () => {
                                       <h5 className="font-medium text-sm mb-2 text-blue-800">SEO Recommendations</h5>
                                       <ul className="text-sm space-y-1">
                                         {currentResult.seo.recommendations.map((rec, index) => (
-                                          <li key={index} className="flex items-center gap-2 text-blue-700">
+                                          <li
+                                            key={index}
+                                            className="flex items-center gap-2 text-blue-700"
+                                          >
                                             <CheckCircle2 className="h-3 w-3" />
                                             {rec}
                                           </li>
@@ -1603,10 +1666,10 @@ const URLParserCore = () => {
                                         <div
                                           className={`h-2 rounded-full ${
                                             currentResult.analysis.qualityScore >= 80
-                                              ? 'bg-green-500'
+                                              ? "bg-green-500"
                                               : currentResult.analysis.qualityScore >= 60
-                                                ? 'bg-orange-500'
-                                                : 'bg-red-500'
+                                                ? "bg-orange-500"
+                                                : "bg-red-500"
                                           }`}
                                           style={{ width: `${currentResult.analysis.qualityScore}%` }}
                                         ></div>
@@ -1620,10 +1683,10 @@ const URLParserCore = () => {
                                         <div
                                           className={`h-2 rounded-full ${
                                             currentResult.analysis.usabilityScore >= 80
-                                              ? 'bg-green-500'
+                                              ? "bg-green-500"
                                               : currentResult.analysis.usabilityScore >= 60
-                                                ? 'bg-orange-500'
-                                                : 'bg-red-500'
+                                                ? "bg-orange-500"
+                                                : "bg-red-500"
                                           }`}
                                           style={{ width: `${currentResult.analysis.usabilityScore}%` }}
                                         ></div>
@@ -1649,7 +1712,10 @@ const URLParserCore = () => {
                                           <h5 className="font-medium text-sm mb-2 text-red-800">Quality Issues</h5>
                                           <ul className="text-sm space-y-1">
                                             {currentResult.analysis.issues.map((issue, index) => (
-                                              <li key={index} className="flex items-center gap-2 text-red-700">
+                                              <li
+                                                key={index}
+                                                className="flex items-center gap-2 text-red-700"
+                                              >
                                                 <AlertCircle className="h-3 w-3" />
                                                 {issue}
                                               </li>
@@ -1665,7 +1731,10 @@ const URLParserCore = () => {
                                           </h5>
                                           <ul className="text-sm space-y-1">
                                             {currentResult.analysis.recommendations.map((rec, index) => (
-                                              <li key={index} className="flex items-center gap-2 text-blue-700">
+                                              <li
+                                                key={index}
+                                                className="flex items-center gap-2 text-blue-700"
+                                              >
                                                 <CheckCircle2 className="h-3 w-3" />
                                                 {rec}
                                               </li>
@@ -1755,7 +1824,10 @@ const URLParserCore = () => {
           </TabsContent>
 
           {/* Batch Parser Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1767,7 +1839,10 @@ const URLParserCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-input"
+                      className="text-sm font-medium"
+                    >
                       URLs (one per line)
                     </Label>
                     <Textarea
@@ -1776,13 +1851,15 @@ const URLParserCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="https://example.com&#10;https://api.example.com/v1/users&#10;https://shop.example.com/products/item?id=123"
                       className="mt-2 min-h-[200px] font-mono text-sm"
-                      aria-label="Batch URL parsing input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">Enter one URL per line</div>
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleProcessBatch} disabled={!batchInput.trim() || isProcessing}>
+                    <Button
+                      onClick={handleProcessBatch}
+                      disabled={!batchInput.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1790,7 +1867,10 @@ const URLParserCore = () => {
                       )}
                       Parse Batch
                     </Button>
-                    <Button onClick={() => setBatchInput('')} variant="outline">
+                    <Button
+                      onClick={() => setBatchInput("")}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Clear
                     </Button>
@@ -1808,7 +1888,10 @@ const URLParserCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} URLs processed</h4>
@@ -1818,7 +1901,11 @@ const URLParserCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportResults(batch.results, 'csv')}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportResults(batch.results, "csv")}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export CSV
                             </Button>
@@ -1840,11 +1927,11 @@ const URLParserCore = () => {
                             <span className="font-medium">Invalid:</span> {batch.statistics.invalidCount}
                           </div>
                           <div>
-                            <span className="font-medium">Avg Quality:</span>{' '}
+                            <span className="font-medium">Avg Quality:</span>{" "}
                             {batch.statistics.averageQuality.toFixed(1)}
                           </div>
                           <div>
-                            <span className="font-medium">Avg Security:</span>{' '}
+                            <span className="font-medium">Avg Security:</span>{" "}
                             {batch.statistics.averageSecurity.toFixed(1)}
                           </div>
                         </div>
@@ -1855,7 +1942,10 @@ const URLParserCore = () => {
                             <h5 className="font-medium text-sm mb-2">Protocol Distribution</h5>
                             <div className="space-y-1">
                               {Object.entries(batch.statistics.protocolDistribution).map(([protocol, count]) => (
-                                <div key={protocol} className="flex justify-between text-xs">
+                                <div
+                                  key={protocol}
+                                  className="flex justify-between text-xs"
+                                >
                                   <span>{protocol}:</span>
                                   <span>{count}</span>
                                 </div>
@@ -1866,14 +1956,17 @@ const URLParserCore = () => {
                             <h5 className="font-medium text-sm mb-2">Security Distribution</h5>
                             <div className="space-y-1">
                               {Object.entries(batch.statistics.securityDistribution).map(([level, count]) => (
-                                <div key={level} className="flex justify-between text-xs">
+                                <div
+                                  key={level}
+                                  className="flex justify-between text-xs"
+                                >
                                   <span
                                     className={
-                                      level === 'low'
-                                        ? 'text-green-600'
-                                        : level === 'medium'
-                                          ? 'text-orange-600'
-                                          : 'text-red-600'
+                                      level === "low"
+                                        ? "text-green-600"
+                                        : level === "medium"
+                                          ? "text-orange-600"
+                                          : "text-red-600"
                                     }
                                   >
                                     {level}:
@@ -1889,7 +1982,10 @@ const URLParserCore = () => {
                               {Object.entries(batch.statistics.domainDistribution)
                                 .slice(0, 5)
                                 .map(([domain, count]) => (
-                                  <div key={domain} className="flex justify-between text-xs">
+                                  <div
+                                    key={domain}
+                                    className="flex justify-between text-xs"
+                                  >
                                     <span className="truncate">{domain}:</span>
                                     <span>{count}</span>
                                   </div>
@@ -1901,23 +1997,26 @@ const URLParserCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.results.slice(0, 5).map((result) => (
-                              <div key={result.id} className="text-xs border rounded p-2">
+                              <div
+                                key={result.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">{result.url}</span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      result.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      result.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {result.isValid ? 'Valid' : 'Invalid'}
+                                    {result.isValid ? "Valid" : "Invalid"}
                                   </span>
                                 </div>
                                 {result.isValid && result.components && (
                                   <div className="text-muted-foreground mt-1">
                                     {result.components.protocol} • {result.components.domain} •
                                     {result.components.pathSegments.length} segments •
-                                    {result.components.searchParams.length} params • Quality:{' '}
-                                    {result.analysis?.qualityScore || 'N/A'}/100 •
+                                    {result.components.searchParams.length} params • Quality:{" "}
+                                    {result.analysis?.qualityScore || "N/A"}/100 •
                                     {result.statistics.processingTime.toFixed(2)}ms
                                   </div>
                                 )}
@@ -1940,7 +2039,10 @@ const URLParserCore = () => {
           </TabsContent>
 
           {/* URL Analyzer Tab */}
-          <TabsContent value="analyzer" className="space-y-4">
+          <TabsContent
+            value="analyzer"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1960,41 +2062,41 @@ const URLParserCore = () => {
                       <CardContent className="text-sm space-y-2">
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                           <div
-                            className={`p-3 rounded-lg ${currentResult.security?.isSecure ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}
+                            className={`p-3 rounded-lg ${currentResult.security?.isSecure ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}
                           >
                             <div className="font-medium">Protocol Security</div>
-                            <div className={currentResult.security?.isSecure ? 'text-green-700' : 'text-red-700'}>
-                              {currentResult.security?.isSecure ? 'Secure (HTTPS)' : 'Insecure (HTTP)'}
+                            <div className={currentResult.security?.isSecure ? "text-green-700" : "text-red-700"}>
+                              {currentResult.security?.isSecure ? "Secure (HTTPS)" : "Insecure (HTTP)"}
                             </div>
                           </div>
                           <div
-                            className={`p-3 rounded-lg ${currentResult.security?.hasCredentials ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'}`}
+                            className={`p-3 rounded-lg ${currentResult.security?.hasCredentials ? "bg-red-50 border border-red-200" : "bg-green-50 border border-green-200"}`}
                           >
                             <div className="font-medium">Credentials</div>
-                            <div className={currentResult.security?.hasCredentials ? 'text-red-700' : 'text-green-700'}>
-                              {currentResult.security?.hasCredentials ? 'Exposed' : 'Safe'}
+                            <div className={currentResult.security?.hasCredentials ? "text-red-700" : "text-green-700"}>
+                              {currentResult.security?.hasCredentials ? "Exposed" : "Safe"}
                             </div>
                           </div>
                           <div
                             className={`p-3 rounded-lg ${
-                              currentResult.security?.riskLevel === 'high'
-                                ? 'bg-red-50 border border-red-200'
-                                : currentResult.security?.riskLevel === 'medium'
-                                  ? 'bg-orange-50 border border-orange-200'
-                                  : 'bg-green-50 border border-green-200'
+                              currentResult.security?.riskLevel === "high"
+                                ? "bg-red-50 border border-red-200"
+                                : currentResult.security?.riskLevel === "medium"
+                                  ? "bg-orange-50 border border-orange-200"
+                                  : "bg-green-50 border border-green-200"
                             }`}
                           >
                             <div className="font-medium">Risk Level</div>
                             <div
                               className={
-                                currentResult.security?.riskLevel === 'high'
-                                  ? 'text-red-700'
-                                  : currentResult.security?.riskLevel === 'medium'
-                                    ? 'text-orange-700'
-                                    : 'text-green-700'
+                                currentResult.security?.riskLevel === "high"
+                                  ? "text-red-700"
+                                  : currentResult.security?.riskLevel === "medium"
+                                    ? "text-orange-700"
+                                    : "text-green-700"
                               }
                             >
-                              {currentResult.security?.riskLevel || 'Unknown'}
+                              {currentResult.security?.riskLevel || "Unknown"}
                             </div>
                           </div>
                         </div>
@@ -2004,10 +2106,10 @@ const URLParserCore = () => {
                             <div
                               className={`h-2 rounded-full ${
                                 (currentResult.security?.securityScore || 0) >= 80
-                                  ? 'bg-green-500'
+                                  ? "bg-green-500"
                                   : (currentResult.security?.securityScore || 0) >= 60
-                                    ? 'bg-orange-500'
-                                    : 'bg-red-500'
+                                    ? "bg-orange-500"
+                                    : "bg-red-500"
                               }`}
                               style={{ width: `${currentResult.security?.securityScore || 0}%` }}
                             ></div>
@@ -2038,7 +2140,7 @@ const URLParserCore = () => {
                           </div>
                           <div>
                             <div className="font-medium">SEO Friendly</div>
-                            <div className="text-lg">{currentResult.seo?.isSearchEngineFriendly ? '✅' : '❌'}</div>
+                            <div className="text-lg">{currentResult.seo?.isSearchEngineFriendly ? "✅" : "❌"}</div>
                           </div>
                         </div>
                       </CardContent>
@@ -2053,13 +2155,19 @@ const URLParserCore = () => {
                         </CardHeader>
                         <CardContent className="text-sm space-y-2">
                           {currentResult.security?.recommendations.map((rec, index) => (
-                            <div key={index} className="flex items-center gap-2 p-2 bg-blue-50 rounded">
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 p-2 bg-blue-50 rounded"
+                            >
                               <Shield className="h-4 w-4 text-blue-600" />
                               <span>{rec}</span>
                             </div>
                           ))}
                           {currentResult.seo?.recommendations.map((rec, index) => (
-                            <div key={index} className="flex items-center gap-2 p-2 bg-green-50 rounded">
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 p-2 bg-green-50 rounded"
+                            >
                               <Search className="h-4 w-4 text-green-600" />
                               <span>{rec}</span>
                             </div>
@@ -2080,7 +2188,10 @@ const URLParserCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -2095,7 +2206,7 @@ const URLParserCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -2110,7 +2221,10 @@ const URLParserCore = () => {
                             <div className="text-xs font-medium mb-1">Analysis Types:</div>
                             <div className="flex flex-wrap gap-1">
                               {template.analysisTypes.map((type, index) => (
-                                <span key={index} className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                                <span
+                                  key={index}
+                                  className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded"
+                                >
                                   {type}
                                 </span>
                               ))}
@@ -2121,15 +2235,15 @@ const URLParserCore = () => {
                             <div className="text-xs text-muted-foreground font-mono">
                               {template.urls
                                 .slice(0, 2)
-                                .map((url) => (url.length > 40 ? url.substring(0, 40) + '...' : url))
-                                .join(', ')}
-                              {template.urls.length > 2 && '...'}
+                                .map((url) => (url.length > 40 ? url.substring(0, 40) + "..." : url))
+                                .join(", ")}
+                              {template.urls.length > 2 && "..."}
                             </div>
                           </div>
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>Use cases:</strong> {template.useCase.join(', ')}
+                            <strong>Use cases:</strong> {template.useCase.join(", ")}
                           </div>
                         )}
                       </div>
@@ -2151,7 +2265,10 @@ const URLParserCore = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -2171,7 +2288,10 @@ const URLParserCore = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="max-results" className="text-sm font-medium">
+                  <Label
+                    htmlFor="max-results"
+                    className="text-sm font-medium"
+                  >
                     Max Results
                   </Label>
                   <Input
@@ -2191,7 +2311,7 @@ const URLParserCore = () => {
                   <Button
                     onClick={() => {
                       const allResults = batches.flatMap((batch) => batch.results)
-                      exportResults(allResults, 'txt', 'url-parse-report.txt')
+                      exportResults(allResults, "txt", "url-parse-report.txt")
                     }}
                     variant="outline"
                   >

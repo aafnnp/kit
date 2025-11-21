@@ -1,11 +1,11 @@
-import React, { useCallback, useState, useMemo, useRef } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useState, useMemo, useRef } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Upload,
@@ -26,9 +26,9 @@ import {
   Braces,
   Layers,
   BarChart3,
-} from 'lucide-react'
-import * as XLSX from 'xlsx'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import * as XLSX from "xlsx"
+import { nanoid } from "nanoid"
 import type {
   ExcelProcessingResult,
   SheetData,
@@ -43,27 +43,27 @@ import type {
   FileValidation,
   ExportFormat,
   SheetSelection,
-} from '@/types/excel-to-json'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/excel-to-json"
+import { formatFileSize } from "@/lib/utils"
 // Utility functions
 
 const detectDataType = (value: any): string => {
-  if (value === null || value === undefined || value === '') return 'empty'
-  if (typeof value === 'boolean') return 'boolean'
-  if (typeof value === 'number') return 'number'
-  if (value instanceof Date) return 'date'
-  if (typeof value === 'string') {
+  if (value === null || value === undefined || value === "") return "empty"
+  if (typeof value === "boolean") return "boolean"
+  if (typeof value === "number") return "number"
+  if (value instanceof Date) return "date"
+  if (typeof value === "string") {
     // Check if it's a date string
-    if (!isNaN(Date.parse(value)) && value.match(/^\d{4}-\d{2}-\d{2}/)) return 'date'
+    if (!isNaN(Date.parse(value)) && value.match(/^\d{4}-\d{2}-\d{2}/)) return "date"
     // Check if it's a number string
-    if (!isNaN(Number(value)) && value.trim() !== '') return 'number'
+    if (!isNaN(Number(value)) && value.trim() !== "") return "number"
     // Check if it's a formula
-    if (value.startsWith('=')) return 'formula'
+    if (value.startsWith("=")) return "formula"
     // Check if it's an error
-    if (value.startsWith('#')) return 'error'
-    return 'string'
+    if (value.startsWith("#")) return "error"
+    return "string"
   }
-  return 'unknown'
+  return "unknown"
 }
 
 // Excel processing functions
@@ -73,7 +73,7 @@ const processExcelFile = async (file: File, settings: ProcessingSettings): Promi
   try {
     const arrayBuffer = await file.arrayBuffer()
     const workbook = XLSX.read(arrayBuffer, {
-      type: 'array',
+      type: "array",
       cellFormula: settings.preserveFormulas,
       cellDates: true,
       cellNF: false,
@@ -102,7 +102,7 @@ const processExcelFile = async (file: File, settings: ProcessingSettings): Promi
       })
 
       // Analyze sheet structure
-      const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1')
+      const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1:A1")
       const rowCount = range.e.r - range.s.r + 1
       const columnCount = range.e.c - range.s.c + 1
 
@@ -168,7 +168,7 @@ const processExcelFile = async (file: File, settings: ProcessingSettings): Promi
       fileSize: file.size,
       sheets: [],
       isValid: false,
-      error: error instanceof Error ? error.message : 'Processing failed',
+      error: error instanceof Error ? error.message : "Processing failed",
       statistics: {
         fileSize: file.size,
         totalSheets: 0,
@@ -189,15 +189,15 @@ const getSelectedSheets = (workbook: XLSX.WorkBook, selection: SheetSelection): 
   const allSheets = workbook.SheetNames
 
   switch (selection) {
-    case 'first':
+    case "first":
       return allSheets.slice(0, 1)
-    case 'non-empty':
+    case "non-empty":
       return allSheets.filter((name) => {
         const sheet = workbook.Sheets[name]
         const jsonData = XLSX.utils.sheet_to_json(sheet)
         return jsonData.length > 0
       })
-    case 'all':
+    case "all":
     default:
       return allSheets
   }
@@ -205,7 +205,7 @@ const getSelectedSheets = (workbook: XLSX.WorkBook, selection: SheetSelection): 
 
 const extractHeaders = (worksheet: XLSX.WorkSheet, headerRow: number): string[] => {
   const headers: string[] = []
-  const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1')
+  const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1:A1")
 
   for (let col = range.s.c; col <= range.e.c; col++) {
     const cellAddress = XLSX.utils.encode_cell({ r: headerRow - 1, c: col })
@@ -232,25 +232,25 @@ const analyzeDataTypes = (data: any[]): DataTypeDistribution => {
     Object.values(row).forEach((value) => {
       const type = detectDataType(value)
       switch (type) {
-        case 'string':
+        case "string":
           distribution.strings++
           break
-        case 'number':
+        case "number":
           distribution.numbers++
           break
-        case 'date':
+        case "date":
           distribution.dates++
           break
-        case 'boolean':
+        case "boolean":
           distribution.booleans++
           break
-        case 'formula':
+        case "formula":
           distribution.formulas++
           break
-        case 'error':
+        case "error":
           distribution.errors++
           break
-        case 'empty':
+        case "empty":
           distribution.empty++
           break
       }
@@ -306,7 +306,7 @@ const analyzeExcelData = (sheets: SheetData[]): ExcelAnalysis => {
     // Check for formulas and errors
     if (sheet.dataTypes.formulas > 0) {
       analysis.hasFormulas = true
-      sheetAnalysis.recommendations.push('Consider evaluating formulas before export')
+      sheetAnalysis.recommendations.push("Consider evaluating formulas before export")
     }
 
     if (sheet.dataTypes.errors > 0) {
@@ -319,7 +319,7 @@ const analyzeExcelData = (sheets: SheetData[]): ExcelAnalysis => {
     const emptyRatio = sheet.dataTypes.empty / (sheet.rowCount * sheet.columnCount)
     if (emptyRatio > 0.5) {
       sheetAnalysis.hasEmptyRows = true
-      sheetAnalysis.recommendations.push('Consider removing empty rows and columns')
+      sheetAnalysis.recommendations.push("Consider removing empty rows and columns")
       sheetAnalysis.dataQuality -= 10
     }
 
@@ -328,7 +328,7 @@ const analyzeExcelData = (sheets: SheetData[]): ExcelAnalysis => {
     const stringRatio = sheet.dataTypes.strings / totalValues
     if (stringRatio > 0.8) {
       sheetAnalysis.dataTypeConsistency = false
-      sheetAnalysis.recommendations.push('Most data appears to be text - check for proper data types')
+      sheetAnalysis.recommendations.push("Most data appears to be text - check for proper data types")
     }
 
     analysis.sheetAnalysis.push(sheetAnalysis)
@@ -336,15 +336,15 @@ const analyzeExcelData = (sheets: SheetData[]): ExcelAnalysis => {
 
   // Generate overall suggestions
   if (analysis.hasEmptySheets) {
-    analysis.suggestedImprovements.push('Remove empty sheets to reduce file size')
+    analysis.suggestedImprovements.push("Remove empty sheets to reduce file size")
   }
 
   if (analysis.hasMultipleSheets) {
-    analysis.suggestedImprovements.push('Consider processing sheets individually for better organization')
+    analysis.suggestedImprovements.push("Consider processing sheets individually for better organization")
   }
 
   if (analysis.hasFormulas) {
-    analysis.suggestedImprovements.push('Formulas will be preserved as text - consider evaluating them first')
+    analysis.suggestedImprovements.push("Formulas will be preserved as text - consider evaluating them first")
   }
 
   // Calculate overall quality score
@@ -358,10 +358,10 @@ const analyzeExcelData = (sheets: SheetData[]): ExcelAnalysis => {
 // Excel templates
 const excelTemplates: ExcelTemplate[] = [
   {
-    id: 'simple-table',
-    name: 'Simple Data Table',
-    description: 'Basic table with headers and data rows',
-    category: 'Basic',
+    id: "simple-table",
+    name: "Simple Data Table",
+    description: "Basic table with headers and data rows",
+    category: "Basic",
     excelStructure: `A1: Name    B1: Age    C1: Email
 A2: John    B2: 30     C2: john@example.com
 A3: Jane    B3: 25     C3: jane@example.com`,
@@ -377,13 +377,13 @@ A3: Jane    B3: 25     C3: jane@example.com`,
     "Email": "jane@example.com"
   }
 ]`,
-    useCase: ['Contact lists', 'Employee data', 'Simple databases'],
+    useCase: ["Contact lists", "Employee data", "Simple databases"],
   },
   {
-    id: 'financial-data',
-    name: 'Financial Report',
-    description: 'Financial data with numbers and dates',
-    category: 'Business',
+    id: "financial-data",
+    name: "Financial Report",
+    description: "Financial data with numbers and dates",
+    category: "Business",
     excelStructure: `A1: Date       B1: Revenue   C1: Expenses  D1: Profit
 A2: 2024-01-01 B2: 10000     C2: 7000      D2: =B2-C2
 A3: 2024-01-02 B3: 12000     C3: 8000      D3: =B3-C3`,
@@ -401,13 +401,13 @@ A3: 2024-01-02 B3: 12000     C3: 8000      D3: =B3-C3`,
     "Profit": 4000
   }
 ]`,
-    useCase: ['Financial reports', 'Budget tracking', 'Sales data'],
+    useCase: ["Financial reports", "Budget tracking", "Sales data"],
   },
   {
-    id: 'multi-sheet',
-    name: 'Multi-Sheet Workbook',
-    description: 'Workbook with multiple related sheets',
-    category: 'Complex',
+    id: "multi-sheet",
+    name: "Multi-Sheet Workbook",
+    description: "Workbook with multiple related sheets",
+    category: "Complex",
     excelStructure: `Sheet1 (Users):
 A1: ID    B1: Name    C1: Department
 A2: 1     B2: John    C2: IT
@@ -427,13 +427,13 @@ A3: HR    B3: Human     C3: Jane`,
     {"ID": "HR", "Name": "Human", "Manager": "Jane"}
   ]
 }`,
-    useCase: ['Complex databases', 'Related data sets', 'System exports'],
+    useCase: ["Complex databases", "Related data sets", "System exports"],
   },
   {
-    id: 'inventory',
-    name: 'Inventory Management',
-    description: 'Product inventory with categories and stock levels',
-    category: 'Business',
+    id: "inventory",
+    name: "Inventory Management",
+    description: "Product inventory with categories and stock levels",
+    category: "Business",
     excelStructure: `A1: SKU     B1: Product    C1: Category  D1: Stock  E1: Price
 A2: WID001  B2: Widget A   C2: Hardware  D2: 50     E2: 29.99
 A3: WID002  B3: Widget B   C3: Hardware  D3: 25     E3: 39.99`,
@@ -453,13 +453,13 @@ A3: WID002  B3: Widget B   C3: Hardware  D3: 25     E3: 39.99`,
     "Price": 39.99
   }
 ]`,
-    useCase: ['Inventory systems', 'Product catalogs', 'Stock management'],
+    useCase: ["Inventory systems", "Product catalogs", "Stock management"],
   },
   {
-    id: 'survey-data',
-    name: 'Survey Responses',
-    description: 'Survey data with mixed data types',
-    category: 'Research',
+    id: "survey-data",
+    name: "Survey Responses",
+    description: "Survey data with mixed data types",
+    category: "Research",
     excelStructure: `A1: ID  B1: Age  C1: Satisfied  D1: Comments        E1: Date
 A2: 1   B2: 25   C2: TRUE       D2: Great service   E2: 2024-01-15
 A3: 2   B3: 30   C3: FALSE      D3: Needs improvement E3: 2024-01-16`,
@@ -479,7 +479,7 @@ A3: 2   B3: 30   C3: FALSE      D3: Needs improvement E3: 2024-01-16`,
     "Date": "2024-01-16"
   }
 ]`,
-    useCase: ['Survey analysis', 'Research data', 'Feedback collection'],
+    useCase: ["Survey analysis", "Research data", "Feedback collection"],
   },
 ]
 
@@ -493,15 +493,15 @@ const validateExcelFile = (file: File): FileValidation => {
   }
 
   // Check file type
-  const validExtensions = ['.xlsx', '.xls', '.xlsm', '.xlsb']
-  const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
+  const validExtensions = [".xlsx", ".xls", ".xlsm", ".xlsb"]
+  const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf("."))
 
   if (!validExtensions.includes(fileExtension)) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Invalid file format',
-      type: 'format',
-      details: `Supported formats: ${validExtensions.join(', ')}`,
+      message: "Invalid file format",
+      type: "format",
+      details: `Supported formats: ${validExtensions.join(", ")}`,
     })
   }
 
@@ -510,20 +510,20 @@ const validateExcelFile = (file: File): FileValidation => {
   if (file.size > maxSize) {
     validation.isValid = false
     validation.errors.push({
-      message: 'File too large',
-      type: 'size',
+      message: "File too large",
+      type: "size",
       details: `Maximum file size is ${formatFileSize(maxSize)}`,
     })
   }
 
   // Warnings for large files
   if (file.size > 10 * 1024 * 1024) {
-    validation.warnings.push('Large file detected - processing may take longer')
+    validation.warnings.push("Large file detected - processing may take longer")
   }
 
   // Suggestions
-  if (fileExtension === '.xls') {
-    validation.suggestions.push('Consider converting to .xlsx format for better compatibility')
+  if (fileExtension === ".xls") {
+    validation.suggestions.push("Consider converting to .xlsx format for better compatibility")
   }
 
   return validation
@@ -571,8 +571,8 @@ const useExcelProcessing = () => {
         statistics,
       }
     } catch (error) {
-      console.error('Batch processing error:', error)
-      throw new Error(error instanceof Error ? error.message : 'Batch processing failed')
+      console.error("Batch processing error:", error)
+      throw new Error(error instanceof Error ? error.message : "Batch processing failed")
     }
   }, [])
 
@@ -585,7 +585,7 @@ const useFileValidation = () => {
     if (!file) {
       return {
         isValid: false,
-        error: 'No file selected',
+        error: "No file selected",
         isEmpty: true,
       }
     }
@@ -611,13 +611,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -627,12 +627,12 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useExcelExport = () => {
   const exportResults = useCallback((results: ExcelProcessingResult[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         const jsonData = results.map((result) => ({
           fileName: result.fileName,
           sheets: result.sheets.map((sheet) => ({
@@ -641,33 +641,33 @@ const useExcelExport = () => {
           })),
         }))
         content = JSON.stringify(jsonData, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         // Export first sheet of first result as CSV
         if (results.length > 0 && results[0].sheets.length > 0) {
           const sheet = results[0].sheets[0]
-          const headers = sheet.headers.join(',')
+          const headers = sheet.headers.join(",")
           const rows = sheet.data.map((row) =>
-            sheet.headers.map((header) => JSON.stringify(row[header] || '')).join(',')
+            sheet.headers.map((header) => JSON.stringify(row[header] || "")).join(",")
           )
-          content = [headers, ...rows].join('\n')
+          content = [headers, ...rows].join("\n")
         }
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromResults(results)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `excel-to-json${extension}`
     document.body.appendChild(link)
@@ -693,18 +693,18 @@ Results:
 ${results
   .map((result, i) => {
     return `${i + 1}. File: ${result.fileName}
-   Status: ${result.isValid ? 'Success' : 'Failed'}
-   ${result.error ? `Error: ${result.error}` : ''}
+   Status: ${result.isValid ? "Success" : "Failed"}
+   ${result.error ? `Error: ${result.error}` : ""}
    File Size: ${formatFileSize(result.fileSize)}
    Sheets: ${result.statistics.totalSheets}
    Total Rows: ${result.statistics.totalRows}
    Total Columns: ${result.statistics.totalColumns}
    Processing Time: ${result.statistics.processingTime.toFixed(2)}ms
-   Quality Score: ${result.analysis?.qualityScore || 'N/A'}
+   Quality Score: ${result.analysis?.qualityScore || "N/A"}
    Memory Usage: ${formatFileSize(result.statistics.memoryUsage)}
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
@@ -719,26 +719,26 @@ Statistics:
  * Features: Advanced Excel processing, multi-sheet support, validation, analysis, batch processing
  */
 const ExcelToJSONCore = () => {
-  const [activeTab, setActiveTab] = useState<'converter' | 'batch' | 'analyzer' | 'templates'>('converter')
+  const [activeTab, setActiveTab] = useState<"converter" | "batch" | "analyzer" | "templates">("converter")
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [currentResult, setCurrentResult] = useState<ExcelProcessingResult | null>(null)
   const [batches, setBatches] = useState<ProcessingBatch[]>([])
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [showAnalysis, setShowAnalysis] = useState(false)
-  const [selectedSheet, setSelectedSheet] = useState<string>('')
+  const [selectedSheet, setSelectedSheet] = useState<string>("")
   const [settings, setSettings] = useState<ProcessingSettings>({
     includeEmptyRows: false,
     includeEmptyColumns: false,
     detectDataTypes: true,
     preserveFormulas: false,
-    exportFormat: 'json',
+    exportFormat: "json",
     jsonIndentation: 2,
-    sheetSelection: 'all',
+    sheetSelection: "all",
     headerRow: 1,
-    dateFormat: 'YYYY-MM-DD',
-    numberFormat: 'auto',
+    dateFormat: "YYYY-MM-DD",
+    numberFormat: "auto",
     realTimeProcessing: false,
   })
 
@@ -757,12 +757,12 @@ const ExcelToJSONCore = () => {
   // Handle single file processing
   const handleProcessSingle = useCallback(async () => {
     if (!selectedFile) {
-      toast.error('Please select an Excel file to process')
+      toast.error("Please select an Excel file to process")
       return
     }
 
     if (!fileValidation.isValid) {
-      toast.error(fileValidation.error || 'Invalid file')
+      toast.error(fileValidation.error || "Invalid file")
       return
     }
 
@@ -776,10 +776,10 @@ const ExcelToJSONCore = () => {
           `Excel file processed successfully - ${result.statistics.totalSheets} sheets, ${result.statistics.totalRows} rows`
         )
       } else {
-        toast.error(result.error || 'Processing failed')
+        toast.error(result.error || "Processing failed")
       }
     } catch (error) {
-      toast.error('Failed to process Excel file')
+      toast.error("Failed to process Excel file")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -789,7 +789,7 @@ const ExcelToJSONCore = () => {
   // Handle batch processing
   const handleProcessBatch = useCallback(async () => {
     if (selectedFiles.length === 0) {
-      toast.error('Please select Excel files to process')
+      toast.error("Please select Excel files to process")
       return
     }
 
@@ -799,7 +799,7 @@ const ExcelToJSONCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Processed ${batch.results.length} Excel files`)
     } catch (error) {
-      toast.error('Failed to process batch')
+      toast.error("Failed to process batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -841,12 +841,15 @@ const ExcelToJSONCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileSpreadsheet className="h-5 w-5" aria-hidden="true" />
+              <FileSpreadsheet className="h-5 w-5" />
               Excel to JSON Converter
             </CardTitle>
             <CardDescription>
@@ -860,29 +863,44 @@ const ExcelToJSONCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'converter' | 'batch' | 'analyzer' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "converter" | "batch" | "analyzer" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="converter" className="flex items-center gap-2">
+            <TabsTrigger
+              value="converter"
+              className="flex items-center gap-2"
+            >
               <FileSpreadsheet className="h-4 w-4" />
               Converter
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
-            <TabsTrigger value="analyzer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analyzer"
+              className="flex items-center gap-2"
+            >
               <BarChart3 className="h-4 w-4" />
               Data Analyzer
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* Converter Tab */}
-          <TabsContent value="converter" className="space-y-4">
+          <TabsContent
+            value="converter"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Input Section */}
               <Card>
@@ -894,7 +912,10 @@ const ExcelToJSONCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="file-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="file-input"
+                      className="text-sm font-medium"
+                    >
                       Select Excel File
                     </Label>
                     <div className="mt-2">
@@ -905,7 +926,6 @@ const ExcelToJSONCore = () => {
                         accept=".xlsx,.xls,.xlsm,.xlsb"
                         onChange={handleFileSelect}
                         className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                        aria-label="Select Excel file for conversion"
                       />
                     </div>
                     {selectedFile && (
@@ -936,7 +956,10 @@ const ExcelToJSONCore = () => {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="sheet-selection" className="text-xs">
+                        <Label
+                          htmlFor="sheet-selection"
+                          className="text-xs"
+                        >
                           Sheet Selection
                         </Label>
                         <Select
@@ -957,7 +980,10 @@ const ExcelToJSONCore = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor="header-row" className="text-xs">
+                        <Label
+                          htmlFor="header-row"
+                          className="text-xs"
+                        >
                           Header Row
                         </Label>
                         <Select
@@ -985,7 +1011,10 @@ const ExcelToJSONCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeEmptyRows: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-empty-rows" className="text-xs">
+                        <Label
+                          htmlFor="include-empty-rows"
+                          className="text-xs"
+                        >
                           Include empty rows
                         </Label>
                       </div>
@@ -998,7 +1027,10 @@ const ExcelToJSONCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeEmptyColumns: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-empty-columns" className="text-xs">
+                        <Label
+                          htmlFor="include-empty-columns"
+                          className="text-xs"
+                        >
                           Include empty columns
                         </Label>
                       </div>
@@ -1011,7 +1043,10 @@ const ExcelToJSONCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, detectDataTypes: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="detect-data-types" className="text-xs">
+                        <Label
+                          htmlFor="detect-data-types"
+                          className="text-xs"
+                        >
                           Auto-detect data types
                         </Label>
                       </div>
@@ -1024,7 +1059,10 @@ const ExcelToJSONCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, preserveFormulas: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="preserve-formulas" className="text-xs">
+                        <Label
+                          htmlFor="preserve-formulas"
+                          className="text-xs"
+                        >
                           Preserve formulas
                         </Label>
                       </div>
@@ -1037,7 +1075,10 @@ const ExcelToJSONCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, realTimeProcessing: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="real-time-processing" className="text-xs">
+                        <Label
+                          htmlFor="real-time-processing"
+                          className="text-xs"
+                        >
                           Real-time processing
                         </Label>
                       </div>
@@ -1062,7 +1103,7 @@ const ExcelToJSONCore = () => {
                         setSelectedFile(null)
                         setCurrentResult(null)
                         if (fileInputRef.current) {
-                          fileInputRef.current.value = ''
+                          fileInputRef.current.value = ""
                         }
                       }}
                       variant="outline"
@@ -1077,7 +1118,10 @@ const ExcelToJSONCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-yellow-800">Warnings:</h4>
                       <div className="text-xs space-y-1">
                         {fileValidation.warnings.map((warning, index) => (
-                          <div key={index} className="text-yellow-700">
+                          <div
+                            key={index}
+                            className="text-yellow-700"
+                          >
                             {warning}
                           </div>
                         ))}
@@ -1090,7 +1134,10 @@ const ExcelToJSONCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-blue-800">Suggestions:</h4>
                       <div className="text-xs space-y-1">
                         {fileValidation.suggestions.map((suggestion, index) => (
-                          <div key={index} className="text-blue-700">
+                          <div
+                            key={index}
+                            className="text-blue-700"
+                          >
                             {suggestion}
                           </div>
                         ))}
@@ -1115,7 +1162,7 @@ const ExcelToJSONCore = () => {
                         <div className="text-sm font-medium mb-2">File: {currentResult.fileName}</div>
                         <div className="text-sm">
                           <div>
-                            <strong>Status:</strong> {currentResult.isValid ? 'Success' : 'Failed'}
+                            <strong>Status:</strong> {currentResult.isValid ? "Success" : "Failed"}
                           </div>
                           {currentResult.error && (
                             <div className="text-red-600 mt-1">
@@ -1130,11 +1177,14 @@ const ExcelToJSONCore = () => {
                           {/* Sheet Selection */}
                           {currentResult.sheets.length > 1 && (
                             <div>
-                              <Label htmlFor="sheet-selector" className="text-sm font-medium">
+                              <Label
+                                htmlFor="sheet-selector"
+                                className="text-sm font-medium"
+                              >
                                 Select Sheet to View
                               </Label>
                               <Select
-                                value={selectedSheet || currentResult.sheets[0]?.name || ''}
+                                value={selectedSheet || currentResult.sheets[0]?.name || ""}
                                 onValueChange={setSelectedSheet}
                               >
                                 <SelectTrigger className="mt-2">
@@ -1142,7 +1192,10 @@ const ExcelToJSONCore = () => {
                                 </SelectTrigger>
                                 <SelectContent>
                                   {currentResult.sheets.map((sheet) => (
-                                    <SelectItem key={sheet.name} value={sheet.name}>
+                                    <SelectItem
+                                      key={sheet.name}
+                                      value={sheet.name}
+                                    >
                                       {sheet.name} ({sheet.rowCount} rows)
                                     </SelectItem>
                                   ))}
@@ -1166,18 +1219,22 @@ const ExcelToJSONCore = () => {
                                     if (currentSheet) {
                                       copyToClipboard(
                                         JSON.stringify(currentSheet.data, null, settings.jsonIndentation),
-                                        'JSON Data'
+                                        "JSON Data"
                                       )
                                     }
                                   }}
                                 >
-                                  {copiedText === 'JSON Data' ? (
+                                  {copiedText === "JSON Data" ? (
                                     <Check className="h-4 w-4" />
                                   ) : (
                                     <Copy className="h-4 w-4" />
                                   )}
                                 </Button>
-                                <Button size="sm" variant="ghost" onClick={() => setShowAnalysis(!showAnalysis)}>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setShowAnalysis(!showAnalysis)}
+                                >
                                   {showAnalysis ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </Button>
                               </div>
@@ -1226,8 +1283,8 @@ const ExcelToJSONCore = () => {
                                   <strong>Memory Usage:</strong> {formatFileSize(currentResult.statistics.memoryUsage)}
                                 </div>
                                 <div>
-                                  <strong>Quality Score:</strong>{' '}
-                                  {currentResult.analysis?.qualityScore?.toFixed(1) || 'N/A'}
+                                  <strong>Quality Score:</strong>{" "}
+                                  {currentResult.analysis?.qualityScore?.toFixed(1) || "N/A"}
                                 </div>
                                 <div>
                                   <strong>Empty Sheets:</strong> {currentResult.statistics.emptySheets}
@@ -1266,24 +1323,24 @@ const ExcelToJSONCore = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   <div>
                                     <div>
-                                      <strong>Multiple Sheets:</strong>{' '}
-                                      {currentResult.analysis.hasMultipleSheets ? 'Yes' : 'No'}
+                                      <strong>Multiple Sheets:</strong>{" "}
+                                      {currentResult.analysis.hasMultipleSheets ? "Yes" : "No"}
                                     </div>
                                     <div>
-                                      <strong>Has Formulas:</strong> {currentResult.analysis.hasFormulas ? 'Yes' : 'No'}
+                                      <strong>Has Formulas:</strong> {currentResult.analysis.hasFormulas ? "Yes" : "No"}
                                     </div>
                                     <div>
-                                      <strong>Has Errors:</strong> {currentResult.analysis.hasErrors ? 'Yes' : 'No'}
+                                      <strong>Has Errors:</strong> {currentResult.analysis.hasErrors ? "Yes" : "No"}
                                     </div>
                                   </div>
                                   <div>
                                     <div>
-                                      <strong>Empty Sheets:</strong>{' '}
-                                      {currentResult.analysis.hasEmptySheets ? 'Yes' : 'No'}
+                                      <strong>Empty Sheets:</strong>{" "}
+                                      {currentResult.analysis.hasEmptySheets ? "Yes" : "No"}
                                     </div>
                                     <div>
-                                      <strong>Inconsistent Headers:</strong>{' '}
-                                      {currentResult.analysis.hasInconsistentHeaders ? 'Yes' : 'No'}
+                                      <strong>Inconsistent Headers:</strong>{" "}
+                                      {currentResult.analysis.hasInconsistentHeaders ? "Yes" : "No"}
                                     </div>
                                     <div>
                                       <strong>Quality Score:</strong> {currentResult.analysis.qualityScore.toFixed(1)}
@@ -1359,7 +1416,10 @@ const ExcelToJSONCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1371,7 +1431,10 @@ const ExcelToJSONCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-file-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-file-input"
+                      className="text-sm font-medium"
+                    >
                       Select Multiple Excel Files
                     </Label>
                     <div className="mt-2">
@@ -1383,7 +1446,6 @@ const ExcelToJSONCore = () => {
                         multiple
                         onChange={handleBatchFileSelect}
                         className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                        aria-label="Select multiple Excel files for batch processing"
                       />
                     </div>
                     {selectedFiles.length > 0 && (
@@ -1397,7 +1459,10 @@ const ExcelToJSONCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleProcessBatch} disabled={selectedFiles.length === 0 || isProcessing}>
+                    <Button
+                      onClick={handleProcessBatch}
+                      disabled={selectedFiles.length === 0 || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1409,7 +1474,7 @@ const ExcelToJSONCore = () => {
                       onClick={() => {
                         setSelectedFiles([])
                         if (batchFileInputRef.current) {
-                          batchFileInputRef.current.value = ''
+                          batchFileInputRef.current.value = ""
                         }
                       }}
                       variant="outline"
@@ -1431,7 +1496,10 @@ const ExcelToJSONCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} files processed</h4>
@@ -1441,7 +1509,11 @@ const ExcelToJSONCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportResults(batch.results, 'json')}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportResults(batch.results, "json")}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export
                             </Button>
@@ -1463,7 +1535,7 @@ const ExcelToJSONCore = () => {
                             <span className="font-medium">Invalid:</span> {batch.statistics.invalidCount}
                           </div>
                           <div>
-                            <span className="font-medium">Avg Quality:</span>{' '}
+                            <span className="font-medium">Avg Quality:</span>{" "}
                             {batch.statistics.averageQuality.toFixed(1)}
                           </div>
                         </div>
@@ -1471,15 +1543,18 @@ const ExcelToJSONCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.results.slice(0, 5).map((result) => (
-                              <div key={result.id} className="text-xs border rounded p-2">
+                              <div
+                                key={result.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">{result.fileName}</span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      result.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      result.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {result.isValid ? 'Valid' : 'Invalid'}
+                                    {result.isValid ? "Valid" : "Invalid"}
                                   </span>
                                 </div>
                                 {result.isValid && (
@@ -1507,7 +1582,10 @@ const ExcelToJSONCore = () => {
           </TabsContent>
 
           {/* Data Analyzer Tab */}
-          <TabsContent value="analyzer" className="space-y-4">
+          <TabsContent
+            value="analyzer"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1537,7 +1615,7 @@ const ExcelToJSONCore = () => {
                           <CardTitle className="text-sm">Data Quality</CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
-                          <div>Quality Score: {currentResult.analysis?.qualityScore?.toFixed(1) || 'N/A'}/100</div>
+                          <div>Quality Score: {currentResult.analysis?.qualityScore?.toFixed(1) || "N/A"}/100</div>
                           <div>Empty Sheets: {currentResult.statistics.emptySheets}</div>
                           <div>Processing Time: {currentResult.statistics.processingTime.toFixed(2)}ms</div>
                           <div>Memory Usage: {formatFileSize(currentResult.statistics.memoryUsage)}</div>
@@ -1549,10 +1627,10 @@ const ExcelToJSONCore = () => {
                           <CardTitle className="text-sm">Data Features</CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
-                          <div>Has Formulas: {currentResult.analysis?.hasFormulas ? 'Yes' : 'No'}</div>
-                          <div>Has Errors: {currentResult.analysis?.hasErrors ? 'Yes' : 'No'}</div>
-                          <div>Multiple Sheets: {currentResult.analysis?.hasMultipleSheets ? 'Yes' : 'No'}</div>
-                          <div>Empty Sheets: {currentResult.analysis?.hasEmptySheets ? 'Yes' : 'No'}</div>
+                          <div>Has Formulas: {currentResult.analysis?.hasFormulas ? "Yes" : "No"}</div>
+                          <div>Has Errors: {currentResult.analysis?.hasErrors ? "Yes" : "No"}</div>
+                          <div>Multiple Sheets: {currentResult.analysis?.hasMultipleSheets ? "Yes" : "No"}</div>
+                          <div>Empty Sheets: {currentResult.analysis?.hasEmptySheets ? "Yes" : "No"}</div>
                         </CardContent>
                       </Card>
                     </div>
@@ -1566,7 +1644,10 @@ const ExcelToJSONCore = () => {
                         <CardContent>
                           <div className="space-y-3">
                             {currentResult.analysis.sheetAnalysis.map((sheet, index) => (
-                              <div key={index} className="border rounded p-3">
+                              <div
+                                key={index}
+                                className="border rounded p-3"
+                              >
                                 <div className="flex items-center justify-between mb-2">
                                   <h4 className="font-medium text-sm">{sheet.sheetName}</h4>
                                   <span className="text-xs px-2 py-1 bg-muted rounded">
@@ -1574,10 +1655,10 @@ const ExcelToJSONCore = () => {
                                   </span>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 text-xs">
-                                  <div>Header Consistency: {sheet.headerConsistency ? 'Good' : 'Issues'}</div>
-                                  <div>Data Type Consistency: {sheet.dataTypeConsistency ? 'Good' : 'Issues'}</div>
-                                  <div>Empty Rows: {sheet.hasEmptyRows ? 'Present' : 'None'}</div>
-                                  <div>Empty Columns: {sheet.hasEmptyColumns ? 'Present' : 'None'}</div>
+                                  <div>Header Consistency: {sheet.headerConsistency ? "Good" : "Issues"}</div>
+                                  <div>Data Type Consistency: {sheet.dataTypeConsistency ? "Good" : "Issues"}</div>
+                                  <div>Empty Rows: {sheet.hasEmptyRows ? "Present" : "None"}</div>
+                                  <div>Empty Columns: {sheet.hasEmptyColumns ? "Present" : "None"}</div>
                                 </div>
                                 {sheet.recommendations.length > 0 && (
                                   <div className="mt-2 text-xs">
@@ -1608,7 +1689,10 @@ const ExcelToJSONCore = () => {
                               <CardContent>
                                 <ul className="text-sm space-y-1">
                                   {currentResult.analysis.suggestedImprovements.map((suggestion, index) => (
-                                    <li key={index} className="flex items-center gap-2">
+                                    <li
+                                      key={index}
+                                      className="flex items-center gap-2"
+                                    >
                                       <CheckCircle2 className="h-3 w-3 text-blue-600" />
                                       {suggestion}
                                     </li>
@@ -1626,7 +1710,10 @@ const ExcelToJSONCore = () => {
                               <CardContent>
                                 <ul className="text-sm space-y-1">
                                   {currentResult.analysis.dataIssues.map((issue, index) => (
-                                    <li key={index} className="flex items-center gap-2">
+                                    <li
+                                      key={index}
+                                      className="flex items-center gap-2"
+                                    >
                                       <AlertCircle className="h-3 w-3 text-red-600" />
                                       {issue}
                                     </li>
@@ -1652,7 +1739,10 @@ const ExcelToJSONCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1667,7 +1757,7 @@ const ExcelToJSONCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => setSelectedTemplate(template.id)}
                     >
@@ -1693,7 +1783,7 @@ const ExcelToJSONCore = () => {
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>Use cases:</strong> {template.useCase.join(', ')}
+                            <strong>Use cases:</strong> {template.useCase.join(", ")}
                           </div>
                         )}
                       </div>
@@ -1715,7 +1805,10 @@ const ExcelToJSONCore = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -1734,7 +1827,10 @@ const ExcelToJSONCore = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="json-indent" className="text-sm font-medium">
+                  <Label
+                    htmlFor="json-indent"
+                    className="text-sm font-medium"
+                  >
                     JSON Indentation: {settings.jsonIndentation}
                   </Label>
                   <div className="mt-2 flex items-center gap-4">
@@ -1756,7 +1852,7 @@ const ExcelToJSONCore = () => {
                   <Button
                     onClick={() => {
                       const allResults = batches.flatMap((batch) => batch.results)
-                      exportResults(allResults, 'txt', 'excel-processing-statistics.txt')
+                      exportResults(allResults, "txt", "excel-processing-statistics.txt")
                     }}
                     variant="outline"
                   >

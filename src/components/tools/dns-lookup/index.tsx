@@ -1,12 +1,12 @@
-import { useCallback, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -27,8 +27,8 @@ import {
   Server,
   Clock,
   Network,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   DNSLookupResult,
   DNSRecord,
@@ -42,7 +42,7 @@ import type {
   DNSValidation,
   DNSRecordType,
   ExportFormat,
-} from '@/types/dns-lookup'
+} from "@/types/dns-lookup"
 
 // Utility functions
 
@@ -59,89 +59,89 @@ const performDNSLookup = async (domain: string, recordType: DNSRecordType): Prom
     const mockRecords: DNSRecord[] = []
 
     switch (recordType) {
-      case 'A':
-        if (domain.includes('google')) {
+      case "A":
+        if (domain.includes("google")) {
           mockRecords.push(
-            { type: 'A', name: domain, value: '142.250.191.14', ttl: 300 },
-            { type: 'A', name: domain, value: '142.250.191.46', ttl: 300 }
+            { type: "A", name: domain, value: "142.250.191.14", ttl: 300 },
+            { type: "A", name: domain, value: "142.250.191.46", ttl: 300 }
           )
-        } else if (domain.includes('github')) {
-          mockRecords.push({ type: 'A', name: domain, value: '140.82.112.3', ttl: 60 })
+        } else if (domain.includes("github")) {
+          mockRecords.push({ type: "A", name: domain, value: "140.82.112.3", ttl: 60 })
         } else {
-          mockRecords.push({ type: 'A', name: domain, value: '93.184.216.34', ttl: 86400 })
+          mockRecords.push({ type: "A", name: domain, value: "93.184.216.34", ttl: 86400 })
         }
         break
 
-      case 'AAAA':
-        if (domain.includes('google')) {
-          mockRecords.push({ type: 'AAAA', name: domain, value: '2607:f8b0:4004:c1b::65', ttl: 300 })
-        } else if (domain.includes('github')) {
-          mockRecords.push({ type: 'AAAA', name: domain, value: '2606:50c0:8000::153', ttl: 60 })
+      case "AAAA":
+        if (domain.includes("google")) {
+          mockRecords.push({ type: "AAAA", name: domain, value: "2607:f8b0:4004:c1b::65", ttl: 300 })
+        } else if (domain.includes("github")) {
+          mockRecords.push({ type: "AAAA", name: domain, value: "2606:50c0:8000::153", ttl: 60 })
         }
         break
 
-      case 'MX':
-        if (domain.includes('google')) {
+      case "MX":
+        if (domain.includes("google")) {
           mockRecords.push(
-            { type: 'MX', name: domain, value: 'smtp.google.com', priority: 10, ttl: 3600 },
-            { type: 'MX', name: domain, value: 'smtp2.google.com', priority: 20, ttl: 3600 }
-          )
-        } else {
-          mockRecords.push({ type: 'MX', name: domain, value: 'mail.example.com', priority: 10, ttl: 3600 })
-        }
-        break
-
-      case 'NS':
-        if (domain.includes('google')) {
-          mockRecords.push(
-            { type: 'NS', name: domain, value: 'ns1.google.com', ttl: 172800 },
-            { type: 'NS', name: domain, value: 'ns2.google.com', ttl: 172800 }
+            { type: "MX", name: domain, value: "smtp.google.com", priority: 10, ttl: 3600 },
+            { type: "MX", name: domain, value: "smtp2.google.com", priority: 20, ttl: 3600 }
           )
         } else {
-          mockRecords.push(
-            { type: 'NS', name: domain, value: 'ns1.example.com', ttl: 86400 },
-            { type: 'NS', name: domain, value: 'ns2.example.com', ttl: 86400 }
-          )
+          mockRecords.push({ type: "MX", name: domain, value: "mail.example.com", priority: 10, ttl: 3600 })
         }
         break
 
-      case 'TXT':
-        if (domain.includes('google')) {
+      case "NS":
+        if (domain.includes("google")) {
           mockRecords.push(
-            { type: 'TXT', name: domain, value: 'v=spf1 include:_spf.google.com ~all', ttl: 3600 },
-            { type: 'TXT', name: domain, value: 'google-site-verification=abc123def456', ttl: 3600 }
+            { type: "NS", name: domain, value: "ns1.google.com", ttl: 172800 },
+            { type: "NS", name: domain, value: "ns2.google.com", ttl: 172800 }
           )
         } else {
-          mockRecords.push({ type: 'TXT', name: domain, value: 'v=spf1 mx -all', ttl: 3600 })
+          mockRecords.push(
+            { type: "NS", name: domain, value: "ns1.example.com", ttl: 86400 },
+            { type: "NS", name: domain, value: "ns2.example.com", ttl: 86400 }
+          )
         }
         break
 
-      case 'CNAME':
-        if (domain.startsWith('www.')) {
-          mockRecords.push({ type: 'CNAME', name: domain, value: domain.replace('www.', ''), ttl: 3600 })
+      case "TXT":
+        if (domain.includes("google")) {
+          mockRecords.push(
+            { type: "TXT", name: domain, value: "v=spf1 include:_spf.google.com ~all", ttl: 3600 },
+            { type: "TXT", name: domain, value: "google-site-verification=abc123def456", ttl: 3600 }
+          )
+        } else {
+          mockRecords.push({ type: "TXT", name: domain, value: "v=spf1 mx -all", ttl: 3600 })
         }
         break
 
-      case 'SOA':
+      case "CNAME":
+        if (domain.startsWith("www.")) {
+          mockRecords.push({ type: "CNAME", name: domain, value: domain.replace("www.", ""), ttl: 3600 })
+        }
+        break
+
+      case "SOA":
         mockRecords.push({
-          type: 'SOA',
+          type: "SOA",
           name: domain,
-          value: 'ns1.example.com admin.example.com 2023120101 7200 3600 604800 86400',
+          value: "ns1.example.com admin.example.com 2023120101 7200 3600 604800 86400",
           ttl: 86400,
         })
         break
 
-      case 'CAA':
+      case "CAA":
         mockRecords.push(
-          { type: 'CAA', name: domain, value: '0 issue "letsencrypt.org"', ttl: 86400 },
-          { type: 'CAA', name: domain, value: '0 iodef "mailto:security@example.com"', ttl: 86400 }
+          { type: "CAA", name: domain, value: '0 issue "letsencrypt.org"', ttl: 86400 },
+          { type: "CAA", name: domain, value: '0 iodef "mailto:security@example.com"', ttl: 86400 }
         )
         break
     }
 
     return mockRecords
   } catch (error) {
-    throw new Error(`DNS lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    throw new Error(`DNS lookup failed: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 }
 
@@ -166,25 +166,25 @@ const analyzeDNSRecords = (_domain: string, allRecords: DNSRecord[]): DNSAnalysi
   // Analyze record types
   allRecords.forEach((record) => {
     switch (record.type) {
-      case 'A':
+      case "A":
         analysis.hasIPv4 = true
         analysis.ipAddresses.push(record.value)
         break
-      case 'AAAA':
+      case "AAAA":
         analysis.hasIPv6 = true
         analysis.ipAddresses.push(record.value)
         break
-      case 'MX':
+      case "MX":
         analysis.hasMailServers = true
         analysis.mailServers.push(record.value)
         break
-      case 'NS':
+      case "NS":
         analysis.hasNameServers = true
         analysis.nameServers.push(record.value)
         break
-      case 'TXT':
-      case 'CAA':
-      case 'DNSKEY':
+      case "TXT":
+      case "CAA":
+      case "DNSKEY":
         analysis.hasSecurityRecords = true
         break
     }
@@ -192,22 +192,22 @@ const analyzeDNSRecords = (_domain: string, allRecords: DNSRecord[]): DNSAnalysi
 
   // Quality assessment
   if (!analysis.hasIPv4) {
-    analysis.dnsIssues.push('No IPv4 address (A record) found')
+    analysis.dnsIssues.push("No IPv4 address (A record) found")
     analysis.qualityScore -= 20
   }
 
   if (!analysis.hasIPv6) {
-    analysis.suggestedImprovements.push('Consider adding IPv6 support (AAAA record)')
+    analysis.suggestedImprovements.push("Consider adding IPv6 support (AAAA record)")
     analysis.qualityScore -= 10
   }
 
   if (!analysis.hasNameServers) {
-    analysis.dnsIssues.push('No name servers (NS records) found')
+    analysis.dnsIssues.push("No name servers (NS records) found")
     analysis.qualityScore -= 15
   }
 
   if (!analysis.hasSecurityRecords) {
-    analysis.suggestedImprovements.push('Add security records (SPF, DMARC, CAA)')
+    analysis.suggestedImprovements.push("Add security records (SPF, DMARC, CAA)")
     analysis.qualityScore -= 15
   }
 
@@ -219,15 +219,15 @@ const analyzeDNSRecords = (_domain: string, allRecords: DNSRecord[]): DNSAnalysi
   }
 
   // Security analysis
-  const spfRecord = allRecords.find((record) => record.type === 'TXT' && record.value.includes('v=spf1'))
+  const spfRecord = allRecords.find((record) => record.type === "TXT" && record.value.includes("v=spf1"))
   if (!spfRecord) {
-    analysis.securityIssues.push('No SPF record found')
+    analysis.securityIssues.push("No SPF record found")
     analysis.qualityScore -= 10
   }
 
-  const caaRecord = allRecords.find((record) => record.type === 'CAA')
+  const caaRecord = allRecords.find((record) => record.type === "CAA")
   if (!caaRecord) {
-    analysis.suggestedImprovements.push('Consider adding CAA records for certificate authority authorization')
+    analysis.suggestedImprovements.push("Consider adding CAA records for certificate authority authorization")
   }
 
   return analysis
@@ -261,10 +261,10 @@ const calculateTTLAnalysis = (records: DNSRecord[]): TTLAnalysis => {
 
   // TTL distribution by ranges
   const ttlDistribution: Record<string, number> = {
-    'Very Low (< 5min)': ttls.filter((ttl) => ttl < 300).length,
-    'Low (5min - 1hr)': ttls.filter((ttl) => ttl >= 300 && ttl < 3600).length,
-    'Medium (1hr - 1day)': ttls.filter((ttl) => ttl >= 3600 && ttl < 86400).length,
-    'High (> 1day)': ttls.filter((ttl) => ttl >= 86400).length,
+    "Very Low (< 5min)": ttls.filter((ttl) => ttl < 300).length,
+    "Low (5min - 1hr)": ttls.filter((ttl) => ttl >= 300 && ttl < 3600).length,
+    "Medium (1hr - 1day)": ttls.filter((ttl) => ttl >= 3600 && ttl < 86400).length,
+    "High (> 1day)": ttls.filter((ttl) => ttl >= 86400).length,
   }
 
   return {
@@ -290,26 +290,26 @@ const calculateSecurityMetrics = (records: DNSRecord[]): SecurityMetrics => {
 
   records.forEach((record) => {
     switch (record.type) {
-      case 'CAA':
+      case "CAA":
         metrics.hasCAA = true
         metrics.securityScore += 20
         break
-      case 'DNSKEY':
-      case 'DS':
-      case 'RRSIG':
+      case "DNSKEY":
+      case "DS":
+      case "RRSIG":
         metrics.hasDNSSEC = true
         metrics.securityScore += 25
         break
-      case 'TXT':
-        if (record.value.includes('v=spf1')) {
+      case "TXT":
+        if (record.value.includes("v=spf1")) {
           metrics.hasSPF = true
           metrics.securityScore += 15
         }
-        if (record.value.includes('v=DMARC1')) {
+        if (record.value.includes("v=DMARC1")) {
           metrics.hasDMARC = true
           metrics.securityScore += 20
         }
-        if (record.value.includes('v=DKIM1')) {
+        if (record.value.includes("v=DKIM1")) {
           metrics.hasDKIM = true
           metrics.securityScore += 10
         }
@@ -319,22 +319,22 @@ const calculateSecurityMetrics = (records: DNSRecord[]): SecurityMetrics => {
 
   // Add recommendations
   if (!metrics.hasSPF) {
-    metrics.recommendations.push('Add SPF record to prevent email spoofing')
+    metrics.recommendations.push("Add SPF record to prevent email spoofing")
   }
   if (!metrics.hasDMARC) {
-    metrics.recommendations.push('Add DMARC record for email authentication')
+    metrics.recommendations.push("Add DMARC record for email authentication")
   }
   if (!metrics.hasCAA) {
-    metrics.recommendations.push('Add CAA record to control certificate issuance')
+    metrics.recommendations.push("Add CAA record to control certificate issuance")
   }
   if (!metrics.hasDNSSEC) {
-    metrics.recommendations.push('Enable DNSSEC for enhanced security')
+    metrics.recommendations.push("Enable DNSSEC for enhanced security")
   }
 
   // Check for vulnerabilities
-  const spfRecord = records.find((record) => record.type === 'TXT' && record.value.includes('v=spf1'))
-  if (spfRecord && spfRecord.value.includes('+all')) {
-    metrics.vulnerabilities.push('SPF record allows all senders (+all)')
+  const spfRecord = records.find((record) => record.type === "TXT" && record.value.includes("v=spf1"))
+  if (spfRecord && spfRecord.value.includes("+all")) {
+    metrics.vulnerabilities.push("SPF record allows all senders (+all)")
   }
 
   return metrics
@@ -343,64 +343,64 @@ const calculateSecurityMetrics = (records: DNSRecord[]): SecurityMetrics => {
 // DNS templates
 const dnsTemplates: DNSTemplate[] = [
   {
-    id: 'basic-website',
-    name: 'Basic Website',
-    description: 'Essential DNS records for a basic website',
-    category: 'Website',
-    domains: ['example.com', 'mysite.com', 'company.com'],
-    recordTypes: ['A', 'AAAA', 'CNAME', 'NS'],
-    useCase: ['Website hosting', 'Basic web presence', 'Domain setup'],
-    examples: ['A record for main domain', 'CNAME for www subdomain', 'NS records for name servers'],
+    id: "basic-website",
+    name: "Basic Website",
+    description: "Essential DNS records for a basic website",
+    category: "Website",
+    domains: ["example.com", "mysite.com", "company.com"],
+    recordTypes: ["A", "AAAA", "CNAME", "NS"],
+    useCase: ["Website hosting", "Basic web presence", "Domain setup"],
+    examples: ["A record for main domain", "CNAME for www subdomain", "NS records for name servers"],
   },
   {
-    id: 'email-setup',
-    name: 'Email Configuration',
-    description: 'DNS records for email services and security',
-    category: 'Email',
-    domains: ['company.com', 'business.org', 'startup.io'],
-    recordTypes: ['MX', 'TXT', 'SPF', 'DMARC'],
-    useCase: ['Email hosting', 'Email security', 'Anti-spam protection'],
-    examples: ['MX records for mail servers', 'SPF for sender authentication', 'DMARC for email policy'],
+    id: "email-setup",
+    name: "Email Configuration",
+    description: "DNS records for email services and security",
+    category: "Email",
+    domains: ["company.com", "business.org", "startup.io"],
+    recordTypes: ["MX", "TXT", "SPF", "DMARC"],
+    useCase: ["Email hosting", "Email security", "Anti-spam protection"],
+    examples: ["MX records for mail servers", "SPF for sender authentication", "DMARC for email policy"],
   },
   {
-    id: 'security-audit',
-    name: 'Security Audit',
-    description: 'Security-focused DNS record analysis',
-    category: 'Security',
-    domains: ['secure.com', 'bank.com', 'enterprise.org'],
-    recordTypes: ['CAA', 'DNSKEY', 'DS', 'TXT'],
-    useCase: ['Security assessment', 'DNSSEC validation', 'Certificate control'],
-    examples: ['CAA for certificate authority control', 'DNSSEC records', 'Security TXT records'],
+    id: "security-audit",
+    name: "Security Audit",
+    description: "Security-focused DNS record analysis",
+    category: "Security",
+    domains: ["secure.com", "bank.com", "enterprise.org"],
+    recordTypes: ["CAA", "DNSKEY", "DS", "TXT"],
+    useCase: ["Security assessment", "DNSSEC validation", "Certificate control"],
+    examples: ["CAA for certificate authority control", "DNSSEC records", "Security TXT records"],
   },
   {
-    id: 'cdn-setup',
-    name: 'CDN Configuration',
-    description: 'DNS records for content delivery networks',
-    category: 'Performance',
-    domains: ['cdn.example.com', 'static.mysite.com', 'assets.company.com'],
-    recordTypes: ['CNAME', 'A', 'AAAA'],
-    useCase: ['CDN setup', 'Performance optimization', 'Global content delivery'],
-    examples: ['CNAME to CDN provider', 'A records for edge servers', 'IPv6 support'],
+    id: "cdn-setup",
+    name: "CDN Configuration",
+    description: "DNS records for content delivery networks",
+    category: "Performance",
+    domains: ["cdn.example.com", "static.mysite.com", "assets.company.com"],
+    recordTypes: ["CNAME", "A", "AAAA"],
+    useCase: ["CDN setup", "Performance optimization", "Global content delivery"],
+    examples: ["CNAME to CDN provider", "A records for edge servers", "IPv6 support"],
   },
   {
-    id: 'subdomain-analysis',
-    name: 'Subdomain Analysis',
-    description: 'Comprehensive subdomain DNS analysis',
-    category: 'Analysis',
-    domains: ['api.example.com', 'blog.mysite.com', 'shop.company.com'],
-    recordTypes: ['A', 'CNAME', 'TXT', 'SRV'],
-    useCase: ['Subdomain mapping', 'Service discovery', 'API endpoints'],
-    examples: ['API subdomain records', 'Blog CNAME setup', 'Service records'],
+    id: "subdomain-analysis",
+    name: "Subdomain Analysis",
+    description: "Comprehensive subdomain DNS analysis",
+    category: "Analysis",
+    domains: ["api.example.com", "blog.mysite.com", "shop.company.com"],
+    recordTypes: ["A", "CNAME", "TXT", "SRV"],
+    useCase: ["Subdomain mapping", "Service discovery", "API endpoints"],
+    examples: ["API subdomain records", "Blog CNAME setup", "Service records"],
   },
   {
-    id: 'troubleshooting',
-    name: 'DNS Troubleshooting',
-    description: 'Comprehensive DNS diagnostic lookup',
-    category: 'Diagnostics',
-    domains: ['problem.com', 'slow.example.com', 'broken.site.com'],
-    recordTypes: ['A', 'AAAA', 'NS', 'SOA', 'MX', 'TXT'],
-    useCase: ['DNS debugging', 'Performance issues', 'Connectivity problems'],
-    examples: ['All record types', 'TTL analysis', 'Authority records'],
+    id: "troubleshooting",
+    name: "DNS Troubleshooting",
+    description: "Comprehensive DNS diagnostic lookup",
+    category: "Diagnostics",
+    domains: ["problem.com", "slow.example.com", "broken.site.com"],
+    recordTypes: ["A", "AAAA", "NS", "SOA", "MX", "TXT"],
+    useCase: ["DNS debugging", "Performance issues", "Connectivity problems"],
+    examples: ["All record types", "TTL analysis", "Authority records"],
   },
 ]
 
@@ -416,9 +416,9 @@ const validateDomain = (domain: string): DNSValidation => {
   if (!domain || domain.trim().length === 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Domain name cannot be empty',
-      type: 'format',
-      severity: 'error',
+      message: "Domain name cannot be empty",
+      type: "format",
+      severity: "error",
     })
     return validation
   }
@@ -428,9 +428,9 @@ const validateDomain = (domain: string): DNSValidation => {
   if (!domainRegex.test(domain)) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Invalid domain name format',
-      type: 'format',
-      severity: 'error',
+      message: "Invalid domain name format",
+      type: "format",
+      severity: "error",
     })
   }
 
@@ -438,41 +438,41 @@ const validateDomain = (domain: string): DNSValidation => {
   if (domain.length > 253) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Domain name too long (max 253 characters)',
-      type: 'format',
-      severity: 'error',
+      message: "Domain name too long (max 253 characters)",
+      type: "format",
+      severity: "error",
     })
   }
 
   // Label length validation
-  const labels = domain.split('.')
+  const labels = domain.split(".")
   for (const label of labels) {
     if (label.length > 63) {
-      validation.warnings.push('Domain label exceeds 63 characters')
+      validation.warnings.push("Domain label exceeds 63 characters")
       break
     }
   }
 
   // Common issues
-  if (domain.startsWith('-') || domain.endsWith('-')) {
-    validation.warnings.push('Domain should not start or end with hyphen')
+  if (domain.startsWith("-") || domain.endsWith("-")) {
+    validation.warnings.push("Domain should not start or end with hyphen")
   }
 
-  if (domain.includes('..')) {
+  if (domain.includes("..")) {
     validation.errors.push({
-      message: 'Domain contains consecutive dots',
-      type: 'format',
-      severity: 'error',
+      message: "Domain contains consecutive dots",
+      type: "format",
+      severity: "error",
     })
   }
 
   // Suggestions
-  if (!domain.includes('.')) {
-    validation.suggestions.push('Add a top-level domain (e.g., .com, .org)')
+  if (!domain.includes(".")) {
+    validation.suggestions.push("Add a top-level domain (e.g., .com, .org)")
   }
 
-  if (domain.startsWith('www.')) {
-    validation.suggestions.push('Consider testing both with and without www prefix')
+  if (domain.startsWith("www.")) {
+    validation.suggestions.push("Consider testing both with and without www prefix")
   }
 
   return validation
@@ -538,7 +538,7 @@ const useDNSLookup = () => {
         domain,
         recordType: recordTypes[0],
         isValid: false,
-        error: error instanceof Error ? error.message : 'DNS lookup failed',
+        error: error instanceof Error ? error.message : "DNS lookup failed",
         records: [],
         statistics: {
           domainLength: domain.length,
@@ -603,7 +603,7 @@ const useDNSLookup = () => {
             })
 
             const securityScore = result.statistics.securityMetrics.securityScore
-            const securityLevel = securityScore >= 80 ? 'High' : securityScore >= 50 ? 'Medium' : 'Low'
+            const securityLevel = securityScore >= 80 ? "High" : securityScore >= 50 ? "Medium" : "Low"
             securityDistribution[securityLevel] = (securityDistribution[securityLevel] || 0) + 1
           }
         })
@@ -628,8 +628,8 @@ const useDNSLookup = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch processing error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch processing failed')
+        console.error("Batch processing error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch processing failed")
       }
     },
     [performLookup]
@@ -668,13 +668,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -684,12 +684,12 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useDNSExport = () => {
   const exportResults = useCallback((results: DNSLookupResult[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         const jsonData = results.map((result) => ({
           id: result.id,
           domain: result.domain,
@@ -702,21 +702,21 @@ const useDNSExport = () => {
           createdAt: result.createdAt,
         }))
         content = JSON.stringify(jsonData, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         const csvHeaders = [
-          'Domain',
-          'Record Type',
-          'Record Value',
-          'TTL',
-          'Priority',
-          'Valid',
-          'Quality Score',
-          'Security Score',
-          'Has IPv4',
-          'Has IPv6',
+          "Domain",
+          "Record Type",
+          "Record Value",
+          "TTL",
+          "Priority",
+          "Valid",
+          "Quality Score",
+          "Security Score",
+          "Has IPv4",
+          "Has IPv6",
         ]
         const csvRows: string[] = []
         results.forEach((result) => {
@@ -727,27 +727,27 @@ const useDNSExport = () => {
                   result.domain,
                   record.type,
                   `"${record.value.replace(/"/g, '""')}"`,
-                  record.ttl?.toString() || '',
-                  record.priority?.toString() || '',
-                  'Yes',
-                  result.analysis?.qualityScore?.toString() || '',
+                  record.ttl?.toString() || "",
+                  record.priority?.toString() || "",
+                  "Yes",
+                  result.analysis?.qualityScore?.toString() || "",
                   result.statistics.securityMetrics.securityScore.toString(),
-                  result.analysis?.hasIPv4 ? 'Yes' : 'No',
-                  result.analysis?.hasIPv6 ? 'Yes' : 'No',
-                ].join(',')
+                  result.analysis?.hasIPv4 ? "Yes" : "No",
+                  result.analysis?.hasIPv6 ? "Yes" : "No",
+                ].join(",")
               )
             })
           } else {
             csvRows.push(
-              [result.domain, result.recordType, result.error || 'No records', '', '', 'No', '', '', '', ''].join(',')
+              [result.domain, result.recordType, result.error || "No records", "", "", "No", "", "", "", ""].join(",")
             )
           }
         })
-        content = [csvHeaders.join(','), ...csvRows].join('\n')
-        mimeType = 'text/csv'
-        extension = '.csv'
+        content = [csvHeaders.join(","), ...csvRows].join("\n")
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         const xmlData = results
           .map(
             (result) => `
@@ -764,10 +764,10 @@ const useDNSExport = () => {
         <name>${record.name}</name>
         <value><![CDATA[${record.value}]]></value>
         <ttl>${record.ttl || 0}</ttl>
-        ${record.priority ? `<priority>${record.priority}</priority>` : ''}
+        ${record.priority ? `<priority>${record.priority}</priority>` : ""}
       </record>`
         )
-        .join('')}
+        .join("")}
     </records>
     <analysis>
       <qualityScore>${result.analysis?.qualityScore || 0}</qualityScore>
@@ -777,22 +777,22 @@ const useDNSExport = () => {
     </analysis>
   </dnsLookup>`
           )
-          .join('')
+          .join("")
         content = `<?xml version="1.0" encoding="UTF-8"?>\n<dnsLookupResults>${xmlData}\n</dnsLookupResults>`
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromResults(results)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `dns-lookup-results${extension}`
     document.body.appendChild(link)
@@ -818,25 +818,25 @@ Lookup Results:
 ${results
   .map((result, i) => {
     return `${i + 1}. Domain: ${result.domain}
-   Status: ${result.isValid ? 'Valid' : 'Invalid'}
-   ${result.error ? `Error: ${result.error}` : ''}
+   Status: ${result.isValid ? "Valid" : "Invalid"}
+   ${result.error ? `Error: ${result.error}` : ""}
    Records Found: ${result.records.length}
    Processing Time: ${result.statistics.processingTime.toFixed(2)}ms
    Response Time: ${result.statistics.responseTime.toFixed(2)}ms
-   Quality Score: ${result.analysis?.qualityScore || 'N/A'}/100
+   Quality Score: ${result.analysis?.qualityScore || "N/A"}/100
    Security Score: ${result.statistics.securityMetrics.securityScore}/100
 
-   ${result.records.length > 0 ? 'DNS Records:' : 'No DNS records found'}
+   ${result.records.length > 0 ? "DNS Records:" : "No DNS records found"}
    ${result.records
      .map(
        (record, j) => `
-   ${j + 1}. ${record.type} ${record.name} ${record.value} ${record.ttl ? `(TTL: ${record.ttl}s)` : ''}
+   ${j + 1}. ${record.type} ${record.name} ${record.value} ${record.ttl ? `(TTL: ${record.ttl}s)` : ""}
    `
      )
-     .join('')}
+     .join("")}
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
@@ -851,25 +851,25 @@ Statistics:
  * Features: Advanced DNS lookup, record analysis, security assessment, performance monitoring
  */
 const DNSLookupCore = () => {
-  const [activeTab, setActiveTab] = useState<'lookup' | 'batch' | 'analyzer' | 'templates'>('lookup')
-  const [domain, setDomain] = useState('')
-  const [selectedRecordTypes, setSelectedRecordTypes] = useState<DNSRecordType[]>(['A', 'AAAA', 'MX', 'NS', 'TXT'])
+  const [activeTab, setActiveTab] = useState<"lookup" | "batch" | "analyzer" | "templates">("lookup")
+  const [domain, setDomain] = useState("")
+  const [selectedRecordTypes, setSelectedRecordTypes] = useState<DNSRecordType[]>(["A", "AAAA", "MX", "NS", "TXT"])
   const [currentResult, setCurrentResult] = useState<DNSLookupResult | null>(null)
   const [batches, setBatches] = useState<ProcessingBatch[]>([])
-  const [batchInput, setBatchInput] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [batchInput, setBatchInput] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [showDetailedAnalysis, setShowDetailedAnalysis] = useState(false)
   const [settings, setSettings] = useState<ProcessingSettings>({
-    recordTypes: ['A', 'AAAA', 'MX', 'NS', 'TXT'],
+    recordTypes: ["A", "AAAA", "MX", "NS", "TXT"],
     includeSecurityAnalysis: true,
     includePerformanceAnalysis: true,
     includeDomainAnalysis: true,
     timeout: 5000,
     retryAttempts: 3,
     usePublicDNS: true,
-    dnsServer: '8.8.8.8',
-    exportFormat: 'json',
+    dnsServer: "8.8.8.8",
+    exportFormat: "json",
     realTimeLookup: false,
     maxResults: 100,
   })
@@ -893,12 +893,12 @@ const DNSLookupCore = () => {
   // Handle single lookup
   const handleLookup = useCallback(async () => {
     if (!domain.trim()) {
-      toast.error('Please enter a domain name')
+      toast.error("Please enter a domain name")
       return
     }
 
     if (!domainValidation.isValid) {
-      toast.error('Please enter a valid domain name')
+      toast.error("Please enter a valid domain name")
       return
     }
 
@@ -910,10 +910,10 @@ const DNSLookupCore = () => {
       if (result.isValid) {
         toast.success(`Found ${result.records.length} DNS record(s)`)
       } else {
-        toast.error(result.error || 'DNS lookup failed')
+        toast.error(result.error || "DNS lookup failed")
       }
     } catch (error) {
-      toast.error('Failed to perform DNS lookup')
+      toast.error("Failed to perform DNS lookup")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -923,12 +923,12 @@ const DNSLookupCore = () => {
   // Handle batch processing
   const handleProcessBatch = useCallback(async () => {
     const domains = batchInput
-      .split('\n')
+      .split("\n")
       .filter((line) => line.trim())
       .map((line) => line.trim())
 
     if (domains.length === 0) {
-      toast.error('Please enter domain names to lookup')
+      toast.error("Please enter domain names to lookup")
       return
     }
 
@@ -938,7 +938,7 @@ const DNSLookupCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Processed ${batch.results.length} domain lookups`)
     } catch (error) {
-      toast.error('Failed to process batch')
+      toast.error("Failed to process batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -955,12 +955,15 @@ const DNSLookupCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Network className="h-5 w-5" aria-hidden="true" />
+              <Network className="h-5 w-5" />
               DNS Lookup & Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -975,29 +978,44 @@ const DNSLookupCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'lookup' | 'batch' | 'analyzer' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "lookup" | "batch" | "analyzer" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="lookup" className="flex items-center gap-2">
+            <TabsTrigger
+              value="lookup"
+              className="flex items-center gap-2"
+            >
               <Search className="h-4 w-4" />
               DNS Lookup
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Lookup
             </TabsTrigger>
-            <TabsTrigger value="analyzer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analyzer"
+              className="flex items-center gap-2"
+            >
               <Shield className="h-4 w-4" />
               DNS Analyzer
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* DNS Lookup Tab */}
-          <TabsContent value="lookup" className="space-y-4">
+          <TabsContent
+            value="lookup"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Lookup Input */}
               <Card>
@@ -1009,7 +1027,10 @@ const DNSLookupCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="domain-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="domain-input"
+                      className="text-sm font-medium"
+                    >
                       Domain Name
                     </Label>
                     <Input
@@ -1018,7 +1039,6 @@ const DNSLookupCore = () => {
                       onChange={(e) => setDomain(e.target.value)}
                       placeholder="Enter domain name (e.g., example.com)"
                       className="mt-2"
-                      aria-label="Domain name for DNS lookup"
                     />
                     {domain && (
                       <div className="mt-2 text-sm">
@@ -1041,9 +1061,12 @@ const DNSLookupCore = () => {
                   <div>
                     <Label className="text-sm font-medium mb-3 block">DNS Record Types</Label>
                     <div className="grid grid-cols-3 gap-2">
-                      {(['A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT', 'SOA', 'CAA', 'SRV'] as DNSRecordType[]).map(
+                      {(["A", "AAAA", "CNAME", "MX", "NS", "TXT", "SOA", "CAA", "SRV"] as DNSRecordType[]).map(
                         (recordType) => (
-                          <div key={recordType} className="flex items-center space-x-2">
+                          <div
+                            key={recordType}
+                            className="flex items-center space-x-2"
+                          >
                             <input
                               id={`record-${recordType}`}
                               type="checkbox"
@@ -1057,7 +1080,10 @@ const DNSLookupCore = () => {
                               }}
                               className="rounded border-input"
                             />
-                            <Label htmlFor={`record-${recordType}`} className="text-xs">
+                            <Label
+                              htmlFor={`record-${recordType}`}
+                              className="text-xs"
+                            >
                               {recordType}
                             </Label>
                           </div>
@@ -1068,7 +1094,7 @@ const DNSLookupCore = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => setSelectedRecordTypes(['A', 'AAAA', 'MX', 'NS', 'TXT'])}
+                        onClick={() => setSelectedRecordTypes(["A", "AAAA", "MX", "NS", "TXT"])}
                       >
                         Common
                       </Button>
@@ -1076,12 +1102,16 @@ const DNSLookupCore = () => {
                         size="sm"
                         variant="outline"
                         onClick={() =>
-                          setSelectedRecordTypes(['A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT', 'SOA', 'CAA', 'SRV'])
+                          setSelectedRecordTypes(["A", "AAAA", "CNAME", "MX", "NS", "TXT", "SOA", "CAA", "SRV"])
                         }
                       >
                         All
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => setSelectedRecordTypes([])}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedRecordTypes([])}
+                      >
                         Clear
                       </Button>
                     </div>
@@ -1093,7 +1123,10 @@ const DNSLookupCore = () => {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="timeout" className="text-xs">
+                        <Label
+                          htmlFor="timeout"
+                          className="text-xs"
+                        >
                           Timeout (ms)
                         </Label>
                         <Input
@@ -1110,7 +1143,10 @@ const DNSLookupCore = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor="dns-server" className="text-xs">
+                        <Label
+                          htmlFor="dns-server"
+                          className="text-xs"
+                        >
                           DNS Server
                         </Label>
                         <Select
@@ -1141,7 +1177,10 @@ const DNSLookupCore = () => {
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-security" className="text-xs">
+                        <Label
+                          htmlFor="include-security"
+                          className="text-xs"
+                        >
                           Include security analysis
                         </Label>
                       </div>
@@ -1156,7 +1195,10 @@ const DNSLookupCore = () => {
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-performance" className="text-xs">
+                        <Label
+                          htmlFor="include-performance"
+                          className="text-xs"
+                        >
                           Include performance analysis
                         </Label>
                       </div>
@@ -1171,7 +1213,10 @@ const DNSLookupCore = () => {
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-domain" className="text-xs">
+                        <Label
+                          htmlFor="include-domain"
+                          className="text-xs"
+                        >
                           Include domain analysis
                         </Label>
                       </div>
@@ -1195,7 +1240,7 @@ const DNSLookupCore = () => {
                     </Button>
                     <Button
                       onClick={() => {
-                        setDomain('')
+                        setDomain("")
                         setCurrentResult(null)
                       }}
                       variant="outline"
@@ -1210,7 +1255,10 @@ const DNSLookupCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-yellow-800">Warnings:</h4>
                       <div className="text-xs space-y-1">
                         {domainValidation.warnings.map((warning, index) => (
-                          <div key={index} className="text-yellow-700">
+                          <div
+                            key={index}
+                            className="text-yellow-700"
+                          >
                             {warning}
                           </div>
                         ))}
@@ -1223,7 +1271,10 @@ const DNSLookupCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-blue-800">Suggestions:</h4>
                       <div className="text-xs space-y-1">
                         {domainValidation.suggestions.map((suggestion, index) => (
-                          <div key={index} className="text-blue-700">
+                          <div
+                            key={index}
+                            className="text-blue-700"
+                          >
                             {suggestion}
                           </div>
                         ))}
@@ -1240,7 +1291,11 @@ const DNSLookupCore = () => {
                     <Server className="h-5 w-5" />
                     DNS Records
                     <div className="ml-auto">
-                      <Button size="sm" variant="ghost" onClick={() => setShowDetailedAnalysis(!showDetailedAnalysis)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowDetailedAnalysis(!showDetailedAnalysis)}
+                      >
                         {showDetailedAnalysis ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
@@ -1253,7 +1308,7 @@ const DNSLookupCore = () => {
                         <div className="text-sm font-medium mb-2">Domain: {currentResult.domain}</div>
                         <div className="text-sm">
                           <div>
-                            <strong>Status:</strong> {currentResult.isValid ? 'Success' : 'Failed'}
+                            <strong>Status:</strong> {currentResult.isValid ? "Success" : "Failed"}
                           </div>
                           <div>
                             <strong>Records Found:</strong> {currentResult.records.length}
@@ -1286,31 +1341,34 @@ const DNSLookupCore = () => {
                                 {} as Record<string, DNSRecord[]>
                               )
                             ).map(([recordType, records]) => (
-                              <div key={recordType} className="border rounded-lg p-4">
+                              <div
+                                key={recordType}
+                                className="border rounded-lg p-4"
+                              >
                                 <div className="flex items-center justify-between mb-3">
                                   <h4 className="font-medium text-lg flex items-center gap-2">
                                     <span
                                       className={`px-2 py-1 rounded text-xs ${
-                                        recordType === 'A' || recordType === 'AAAA'
-                                          ? 'bg-blue-100 text-blue-800'
-                                          : recordType === 'MX'
-                                            ? 'bg-green-100 text-green-800'
-                                            : recordType === 'NS'
-                                              ? 'bg-purple-100 text-purple-800'
-                                              : recordType === 'TXT'
-                                                ? 'bg-yellow-100 text-yellow-800'
-                                                : 'bg-gray-100 text-gray-800'
+                                        recordType === "A" || recordType === "AAAA"
+                                          ? "bg-blue-100 text-blue-800"
+                                          : recordType === "MX"
+                                            ? "bg-green-100 text-green-800"
+                                            : recordType === "NS"
+                                              ? "bg-purple-100 text-purple-800"
+                                              : recordType === "TXT"
+                                                ? "bg-yellow-100 text-yellow-800"
+                                                : "bg-gray-100 text-gray-800"
                                       }`}
                                     >
                                       {recordType}
                                     </span>
-                                    {records.length} record{records.length !== 1 ? 's' : ''}
+                                    {records.length} record{records.length !== 1 ? "s" : ""}
                                   </h4>
                                   <Button
                                     size="sm"
                                     variant="ghost"
                                     onClick={() =>
-                                      copyToClipboard(records.map((r) => r.value).join('\n'), `${recordType} Records`)
+                                      copyToClipboard(records.map((r) => r.value).join("\n"), `${recordType} Records`)
                                     }
                                   >
                                     {copiedText === `${recordType} Records` ? (
@@ -1323,7 +1381,10 @@ const DNSLookupCore = () => {
 
                                 <div className="space-y-2">
                                   {records.map((record, index) => (
-                                    <div key={index} className="bg-muted/50 rounded p-3">
+                                    <div
+                                      key={index}
+                                      className="bg-muted/50 rounded p-3"
+                                    >
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                                         <div>
                                           <div>
@@ -1377,26 +1438,26 @@ const DNSLookupCore = () => {
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                   <div>
                                     <div>
-                                      <strong>IPv4:</strong> {currentResult.analysis.hasIPv4 ? '✅ Yes' : '❌ No'}
+                                      <strong>IPv4:</strong> {currentResult.analysis.hasIPv4 ? "✅ Yes" : "❌ No"}
                                     </div>
                                     <div>
-                                      <strong>IPv6:</strong> {currentResult.analysis.hasIPv6 ? '✅ Yes' : '❌ No'}
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <div>
-                                      <strong>Mail Servers:</strong>{' '}
-                                      {currentResult.analysis.hasMailServers ? '✅ Yes' : '❌ No'}
-                                    </div>
-                                    <div>
-                                      <strong>Name Servers:</strong>{' '}
-                                      {currentResult.analysis.hasNameServers ? '✅ Yes' : '❌ No'}
+                                      <strong>IPv6:</strong> {currentResult.analysis.hasIPv6 ? "✅ Yes" : "❌ No"}
                                     </div>
                                   </div>
                                   <div>
                                     <div>
-                                      <strong>Security Records:</strong>{' '}
-                                      {currentResult.analysis.hasSecurityRecords ? '✅ Yes' : '❌ No'}
+                                      <strong>Mail Servers:</strong>{" "}
+                                      {currentResult.analysis.hasMailServers ? "✅ Yes" : "❌ No"}
+                                    </div>
+                                    <div>
+                                      <strong>Name Servers:</strong>{" "}
+                                      {currentResult.analysis.hasNameServers ? "✅ Yes" : "❌ No"}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div>
+                                      <strong>Security Records:</strong>{" "}
+                                      {currentResult.analysis.hasSecurityRecords ? "✅ Yes" : "❌ No"}
                                     </div>
                                     <div>
                                       <strong>Quality Score:</strong> {currentResult.analysis.qualityScore}/100
@@ -1422,33 +1483,33 @@ const DNSLookupCore = () => {
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm mb-4">
                                   <div>
                                     <div>
-                                      <strong>DNSSEC:</strong>{' '}
+                                      <strong>DNSSEC:</strong>{" "}
                                       {currentResult.statistics.securityMetrics.hasDNSSEC
-                                        ? '✅ Enabled'
-                                        : '❌ Disabled'}
+                                        ? "✅ Enabled"
+                                        : "❌ Disabled"}
                                     </div>
                                     <div>
-                                      <strong>SPF:</strong>{' '}
-                                      {currentResult.statistics.securityMetrics.hasSPF ? '✅ Present' : '❌ Missing'}
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <div>
-                                      <strong>DMARC:</strong>{' '}
-                                      {currentResult.statistics.securityMetrics.hasDMARC ? '✅ Present' : '❌ Missing'}
-                                    </div>
-                                    <div>
-                                      <strong>CAA:</strong>{' '}
-                                      {currentResult.statistics.securityMetrics.hasCAA ? '✅ Present' : '❌ Missing'}
+                                      <strong>SPF:</strong>{" "}
+                                      {currentResult.statistics.securityMetrics.hasSPF ? "✅ Present" : "❌ Missing"}
                                     </div>
                                   </div>
                                   <div>
                                     <div>
-                                      <strong>DKIM:</strong>{' '}
-                                      {currentResult.statistics.securityMetrics.hasDKIM ? '✅ Present' : '❌ Missing'}
+                                      <strong>DMARC:</strong>{" "}
+                                      {currentResult.statistics.securityMetrics.hasDMARC ? "✅ Present" : "❌ Missing"}
                                     </div>
                                     <div>
-                                      <strong>Security Score:</strong>{' '}
+                                      <strong>CAA:</strong>{" "}
+                                      {currentResult.statistics.securityMetrics.hasCAA ? "✅ Present" : "❌ Missing"}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div>
+                                      <strong>DKIM:</strong>{" "}
+                                      {currentResult.statistics.securityMetrics.hasDKIM ? "✅ Present" : "❌ Missing"}
+                                    </div>
+                                    <div>
+                                      <strong>Security Score:</strong>{" "}
                                       {currentResult.statistics.securityMetrics.securityScore}/100
                                     </div>
                                   </div>
@@ -1459,7 +1520,10 @@ const DNSLookupCore = () => {
                                     <h5 className="font-medium text-sm mb-2 text-red-800">Security Vulnerabilities</h5>
                                     <ul className="text-sm space-y-1">
                                       {currentResult.statistics.securityMetrics.vulnerabilities.map((vuln, index) => (
-                                        <li key={index} className="flex items-center gap-2 text-red-700">
+                                        <li
+                                          key={index}
+                                          className="flex items-center gap-2 text-red-700"
+                                        >
                                           <AlertCircle className="h-3 w-3" />
                                           {vuln}
                                         </li>
@@ -1473,7 +1537,10 @@ const DNSLookupCore = () => {
                                     <h5 className="font-medium text-sm mb-2 text-blue-800">Security Recommendations</h5>
                                     <ul className="text-sm space-y-1">
                                       {currentResult.statistics.securityMetrics.recommendations.map((rec, index) => (
-                                        <li key={index} className="flex items-center gap-2 text-blue-700">
+                                        <li
+                                          key={index}
+                                          className="flex items-center gap-2 text-blue-700"
+                                        >
                                           <CheckCircle2 className="h-3 w-3" />
                                           {rec}
                                         </li>
@@ -1500,7 +1567,7 @@ const DNSLookupCore = () => {
                                   </div>
                                   <div>
                                     <div>
-                                      <strong>Average TTL:</strong>{' '}
+                                      <strong>Average TTL:</strong>{" "}
                                       {Math.round(currentResult.statistics.ttlAnalysis.averageTTL)}s
                                     </div>
                                     <div>
@@ -1515,7 +1582,10 @@ const DNSLookupCore = () => {
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                                       {Object.entries(currentResult.statistics.ttlAnalysis.ttlDistribution).map(
                                         ([range, count]) => (
-                                          <div key={range} className="text-xs">
+                                          <div
+                                            key={range}
+                                            className="text-xs"
+                                          >
                                             <span className="font-medium">{range}:</span> {count}
                                           </div>
                                         )
@@ -1535,7 +1605,10 @@ const DNSLookupCore = () => {
                                       <Label className="font-medium text-sm mb-3 block text-red-700">DNS Issues</Label>
                                       <ul className="text-sm space-y-1">
                                         {currentResult.analysis.dnsIssues.map((issue, index) => (
-                                          <li key={index} className="flex items-center gap-2">
+                                          <li
+                                            key={index}
+                                            className="flex items-center gap-2"
+                                          >
                                             <AlertCircle className="h-3 w-3 text-red-600" />
                                             {issue}
                                           </li>
@@ -1551,7 +1624,10 @@ const DNSLookupCore = () => {
                                       </Label>
                                       <ul className="text-sm space-y-1">
                                         {currentResult.analysis.suggestedImprovements.map((suggestion, index) => (
-                                          <li key={index} className="flex items-center gap-2">
+                                          <li
+                                            key={index}
+                                            className="flex items-center gap-2"
+                                          >
                                             <CheckCircle2 className="h-3 w-3 text-blue-600" />
                                             {suggestion}
                                           </li>
@@ -1567,7 +1643,10 @@ const DNSLookupCore = () => {
                                       </Label>
                                       <ul className="text-sm space-y-1">
                                         {currentResult.analysis.performanceIssues.map((issue, index) => (
-                                          <li key={index} className="flex items-center gap-2">
+                                          <li
+                                            key={index}
+                                            className="flex items-center gap-2"
+                                          >
                                             <Clock className="h-3 w-3 text-orange-600" />
                                             {issue}
                                           </li>
@@ -1613,7 +1692,10 @@ const DNSLookupCore = () => {
                                 <div className="flex flex-wrap gap-2">
                                   {Object.entries(currentResult.statistics.recordTypeDistribution).map(
                                     ([type, count]) => (
-                                      <span key={type} className="px-2 py-1 bg-muted rounded text-xs">
+                                      <span
+                                        key={type}
+                                        className="px-2 py-1 bg-muted rounded text-xs"
+                                      >
                                         {type}: {count}
                                       </span>
                                     )
@@ -1662,7 +1744,10 @@ const DNSLookupCore = () => {
           </TabsContent>
 
           {/* Batch Lookup Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1676,7 +1761,10 @@ const DNSLookupCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-input"
+                      className="text-sm font-medium"
+                    >
                       Domain Names (one per line)
                     </Label>
                     <Textarea
@@ -1685,7 +1773,6 @@ const DNSLookupCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="example.com&#10;google.com&#10;github.com&#10;stackoverflow.com"
                       className="mt-2 min-h-[200px] font-mono text-sm"
-                      aria-label="Batch DNS lookup input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">Enter one domain name per line</div>
                   </div>
@@ -1702,7 +1789,10 @@ const DNSLookupCore = () => {
                       )}
                       Lookup Batch
                     </Button>
-                    <Button onClick={() => setBatchInput('')} variant="outline">
+                    <Button
+                      onClick={() => setBatchInput("")}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Clear
                     </Button>
@@ -1720,7 +1810,10 @@ const DNSLookupCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} domains processed</h4>
@@ -1730,7 +1823,11 @@ const DNSLookupCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportResults(batch.results, 'csv')}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportResults(batch.results, "csv")}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export CSV
                             </Button>
@@ -1762,7 +1859,10 @@ const DNSLookupCore = () => {
                             <h5 className="font-medium text-sm mb-2">Record Type Distribution</h5>
                             <div className="space-y-1">
                               {Object.entries(batch.statistics.recordTypeDistribution).map(([type, count]) => (
-                                <div key={type} className="flex justify-between text-xs">
+                                <div
+                                  key={type}
+                                  className="flex justify-between text-xs"
+                                >
                                   <span>{type}:</span>
                                   <span>{count}</span>
                                 </div>
@@ -1773,14 +1873,17 @@ const DNSLookupCore = () => {
                             <h5 className="font-medium text-sm mb-2">Security Distribution</h5>
                             <div className="space-y-1">
                               {Object.entries(batch.statistics.securityDistribution).map(([level, count]) => (
-                                <div key={level} className="flex justify-between text-xs">
+                                <div
+                                  key={level}
+                                  className="flex justify-between text-xs"
+                                >
                                   <span
                                     className={
-                                      level === 'High'
-                                        ? 'text-green-600'
-                                        : level === 'Medium'
-                                          ? 'text-orange-600'
-                                          : 'text-red-600'
+                                      level === "High"
+                                        ? "text-green-600"
+                                        : level === "Medium"
+                                          ? "text-orange-600"
+                                          : "text-red-600"
                                     }
                                   >
                                     {level}:
@@ -1795,21 +1898,24 @@ const DNSLookupCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.results.slice(0, 5).map((result) => (
-                              <div key={result.id} className="text-xs border rounded p-2">
+                              <div
+                                key={result.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">{result.domain}</span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      result.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      result.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {result.isValid ? `${result.records.length} records` : 'Failed'}
+                                    {result.isValid ? `${result.records.length} records` : "Failed"}
                                   </span>
                                 </div>
                                 {result.isValid && result.records.length > 0 && (
                                   <div className="text-muted-foreground mt-1">
-                                    Records: {Object.keys(result.statistics.recordTypeDistribution).join(', ')} •
-                                    Quality: {result.analysis?.qualityScore || 'N/A'}/100 • Security:{' '}
+                                    Records: {Object.keys(result.statistics.recordTypeDistribution).join(", ")} •
+                                    Quality: {result.analysis?.qualityScore || "N/A"}/100 • Security:{" "}
                                     {result.statistics.securityMetrics.securityScore}/100 •
                                     {result.statistics.processingTime.toFixed(2)}ms
                                   </div>
@@ -1833,7 +1939,10 @@ const DNSLookupCore = () => {
           </TabsContent>
 
           {/* DNS Analyzer Tab */}
-          <TabsContent value="analyzer" className="space-y-4">
+          <TabsContent
+            value="analyzer"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1853,39 +1962,39 @@ const DNSLookupCore = () => {
                       <CardContent className="text-sm space-y-2">
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                           <div
-                            className={`p-3 rounded-lg ${currentResult.statistics.securityMetrics.hasDNSSEC ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}
+                            className={`p-3 rounded-lg ${currentResult.statistics.securityMetrics.hasDNSSEC ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}
                           >
                             <div className="font-medium">DNSSEC</div>
                             <div
                               className={
-                                currentResult.statistics.securityMetrics.hasDNSSEC ? 'text-green-700' : 'text-red-700'
+                                currentResult.statistics.securityMetrics.hasDNSSEC ? "text-green-700" : "text-red-700"
                               }
                             >
-                              {currentResult.statistics.securityMetrics.hasDNSSEC ? 'Enabled' : 'Disabled'}
+                              {currentResult.statistics.securityMetrics.hasDNSSEC ? "Enabled" : "Disabled"}
                             </div>
                           </div>
                           <div
-                            className={`p-3 rounded-lg ${currentResult.statistics.securityMetrics.hasSPF ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}
+                            className={`p-3 rounded-lg ${currentResult.statistics.securityMetrics.hasSPF ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}
                           >
                             <div className="font-medium">SPF Record</div>
                             <div
                               className={
-                                currentResult.statistics.securityMetrics.hasSPF ? 'text-green-700' : 'text-red-700'
+                                currentResult.statistics.securityMetrics.hasSPF ? "text-green-700" : "text-red-700"
                               }
                             >
-                              {currentResult.statistics.securityMetrics.hasSPF ? 'Present' : 'Missing'}
+                              {currentResult.statistics.securityMetrics.hasSPF ? "Present" : "Missing"}
                             </div>
                           </div>
                           <div
-                            className={`p-3 rounded-lg ${currentResult.statistics.securityMetrics.hasCAA ? 'bg-green-50 border border-green-200' : 'bg-orange-50 border border-orange-200'}`}
+                            className={`p-3 rounded-lg ${currentResult.statistics.securityMetrics.hasCAA ? "bg-green-50 border border-green-200" : "bg-orange-50 border border-orange-200"}`}
                           >
                             <div className="font-medium">CAA Record</div>
                             <div
                               className={
-                                currentResult.statistics.securityMetrics.hasCAA ? 'text-green-700' : 'text-orange-700'
+                                currentResult.statistics.securityMetrics.hasCAA ? "text-green-700" : "text-orange-700"
                               }
                             >
-                              {currentResult.statistics.securityMetrics.hasCAA ? 'Present' : 'Missing'}
+                              {currentResult.statistics.securityMetrics.hasCAA ? "Present" : "Missing"}
                             </div>
                           </div>
                         </div>
@@ -1895,10 +2004,10 @@ const DNSLookupCore = () => {
                             <div
                               className={`h-2 rounded-full ${
                                 currentResult.statistics.securityMetrics.securityScore >= 80
-                                  ? 'bg-green-500'
+                                  ? "bg-green-500"
                                   : currentResult.statistics.securityMetrics.securityScore >= 50
-                                    ? 'bg-orange-500'
-                                    : 'bg-red-500'
+                                    ? "bg-orange-500"
+                                    : "bg-red-500"
                               }`}
                               style={{ width: `${currentResult.statistics.securityMetrics.securityScore}%` }}
                             ></div>
@@ -1948,13 +2057,19 @@ const DNSLookupCore = () => {
                         </CardHeader>
                         <CardContent className="text-sm space-y-2">
                           {currentResult.statistics.securityMetrics.recommendations.map((rec, index) => (
-                            <div key={index} className="flex items-center gap-2 p-2 bg-blue-50 rounded">
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 p-2 bg-blue-50 rounded"
+                            >
                               <Shield className="h-4 w-4 text-blue-600" />
                               <span>{rec}</span>
                             </div>
                           ))}
                           {currentResult.analysis?.suggestedImprovements.map((improvement, index) => (
-                            <div key={index} className="flex items-center gap-2 p-2 bg-green-50 rounded">
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 p-2 bg-green-50 rounded"
+                            >
                               <CheckCircle2 className="h-4 w-4 text-green-600" />
                               <span>{improvement}</span>
                             </div>
@@ -1977,7 +2092,10 @@ const DNSLookupCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1992,7 +2110,7 @@ const DNSLookupCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -2007,7 +2125,10 @@ const DNSLookupCore = () => {
                             <div className="text-xs font-medium mb-1">Record Types:</div>
                             <div className="flex flex-wrap gap-1">
                               {template.recordTypes.map((type, index) => (
-                                <span key={index} className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                                <span
+                                  key={index}
+                                  className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded"
+                                >
                                   {type}
                                 </span>
                               ))}
@@ -2016,14 +2137,14 @@ const DNSLookupCore = () => {
                           <div>
                             <div className="text-xs font-medium mb-1">Example Domains:</div>
                             <div className="text-xs text-muted-foreground font-mono">
-                              {template.domains.slice(0, 2).join(', ')}
-                              {template.domains.length > 2 && '...'}
+                              {template.domains.slice(0, 2).join(", ")}
+                              {template.domains.length > 2 && "..."}
                             </div>
                           </div>
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>Use cases:</strong> {template.useCase.join(', ')}
+                            <strong>Use cases:</strong> {template.useCase.join(", ")}
                           </div>
                         )}
                       </div>
@@ -2045,7 +2166,10 @@ const DNSLookupCore = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -2065,7 +2189,10 @@ const DNSLookupCore = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="retry-attempts" className="text-sm font-medium">
+                  <Label
+                    htmlFor="retry-attempts"
+                    className="text-sm font-medium"
+                  >
                     Retry Attempts
                   </Label>
                   <Input
@@ -2085,7 +2212,7 @@ const DNSLookupCore = () => {
                   <Button
                     onClick={() => {
                       const allResults = batches.flatMap((batch) => batch.results)
-                      exportResults(allResults, 'txt', 'dns-lookup-report.txt')
+                      exportResults(allResults, "txt", "dns-lookup-report.txt")
                     }}
                     variant="outline"
                   >

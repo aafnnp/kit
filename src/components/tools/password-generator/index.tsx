@@ -1,12 +1,12 @@
-import { useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Slider } from '@/components/ui/slider'
-import { toast } from 'sonner'
+import { useCallback, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Slider } from "@/components/ui/slider"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -24,8 +24,8 @@ import {
   Key,
   RefreshCw,
   History,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   PasswordItem,
   PasswordStrength,
@@ -37,12 +37,12 @@ import type {
   PasswordHistory,
   PasswordType,
   ExportFormat,
-} from '@/types/password-generator'
+} from "@/types/password-generator"
 // Utility functions
 
 const validatePasswordSettings = (settings: PasswordSettings): { isValid: boolean; error?: string } => {
   if (settings.length < 4 || settings.length > 128) {
-    return { isValid: false, error: 'Password length must be between 4 and 128 characters' }
+    return { isValid: false, error: "Password length must be between 4 and 128 characters" }
   }
 
   if (
@@ -52,20 +52,20 @@ const validatePasswordSettings = (settings: PasswordSettings): { isValid: boolea
     !settings.includeSymbols &&
     !settings.customCharacters
   ) {
-    return { isValid: false, error: 'At least one character type must be selected' }
+    return { isValid: false, error: "At least one character type must be selected" }
   }
 
   return { isValid: true }
 }
 
 const formatTimeToCrack = (seconds: number): string => {
-  if (seconds < 1) return 'Instant'
+  if (seconds < 1) return "Instant"
   if (seconds < 60) return `${Math.round(seconds)} seconds`
   if (seconds < 3600) return `${Math.round(seconds / 60)} minutes`
   if (seconds < 86400) return `${Math.round(seconds / 3600)} hours`
   if (seconds < 31536000) return `${Math.round(seconds / 86400)} days`
   if (seconds < 31536000000) return `${Math.round(seconds / 31536000)} years`
-  return 'Centuries'
+  return "Centuries"
 }
 
 const calculateEntropy = (password: string, characterSet: string): number => {
@@ -75,56 +75,56 @@ const calculateEntropy = (password: string, characterSet: string): number => {
 
 // Character sets for password generation
 const CHARACTER_SETS = {
-  uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-  lowercase: 'abcdefghijklmnopqrstuvwxyz',
-  numbers: '0123456789',
-  symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?',
-  similar: 'il1Lo0O',
-  ambiguous: '{}[]()/\\\'"`~,;.<>',
+  uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  lowercase: "abcdefghijklmnopqrstuvwxyz",
+  numbers: "0123456789",
+  symbols: "!@#$%^&*()_+-=[]{}|;:,.<>?",
+  similar: "il1Lo0O",
+  ambiguous: "{}[]()/\\'\"`~,;.<>",
   pronounceable: {
-    consonants: 'bcdfghjklmnpqrstvwxyz',
-    vowels: 'aeiou',
+    consonants: "bcdfghjklmnpqrstvwxyz",
+    vowels: "aeiou",
   },
 }
 
 const COMMON_WORDS = [
-  'apple',
-  'banana',
-  'cherry',
-  'dragon',
-  'eagle',
-  'forest',
-  'garden',
-  'happy',
-  'island',
-  'jungle',
-  'kitten',
-  'lemon',
-  'mountain',
-  'nature',
-  'ocean',
-  'purple',
-  'quiet',
-  'rainbow',
-  'sunset',
-  'tiger',
-  'umbrella',
-  'violet',
-  'winter',
-  'yellow',
-  'zebra',
-  'bridge',
-  'castle',
-  'dream',
-  'energy',
-  'freedom',
-  'golden',
-  'harmony',
+  "apple",
+  "banana",
+  "cherry",
+  "dragon",
+  "eagle",
+  "forest",
+  "garden",
+  "happy",
+  "island",
+  "jungle",
+  "kitten",
+  "lemon",
+  "mountain",
+  "nature",
+  "ocean",
+  "purple",
+  "quiet",
+  "rainbow",
+  "sunset",
+  "tiger",
+  "umbrella",
+  "violet",
+  "winter",
+  "yellow",
+  "zebra",
+  "bridge",
+  "castle",
+  "dream",
+  "energy",
+  "freedom",
+  "golden",
+  "harmony",
 ]
 
 // Build character set based on settings
 const buildCharacterSet = (settings: PasswordSettings): string => {
-  let charset = ''
+  let charset = ""
 
   if (settings.includeUppercase) charset += CHARACTER_SETS.uppercase
   if (settings.includeLowercase) charset += CHARACTER_SETS.lowercase
@@ -135,21 +135,21 @@ const buildCharacterSet = (settings: PasswordSettings): string => {
   // Remove similar characters if requested
   if (settings.excludeSimilar) {
     charset = charset
-      .split('')
+      .split("")
       .filter((char) => !CHARACTER_SETS.similar.includes(char))
-      .join('')
+      .join("")
   }
 
   // Remove ambiguous characters if requested
   if (settings.excludeAmbiguous) {
     charset = charset
-      .split('')
+      .split("")
       .filter((char) => !CHARACTER_SETS.ambiguous.includes(char))
-      .join('')
+      .join("")
   }
 
   // Remove duplicates
-  return [...new Set(charset)].join('')
+  return [...new Set(charset)].join("")
 }
 
 // Generate random password
@@ -157,10 +157,10 @@ const generateRandomPassword = (settings: PasswordSettings): string => {
   const charset = buildCharacterSet(settings)
 
   if (charset.length === 0) {
-    throw new Error('No characters available for password generation')
+    throw new Error("No characters available for password generation")
   }
 
-  let password = ''
+  let password = ""
   const crypto = window.crypto || (window as any).msCrypto
 
   if (crypto && crypto.getRandomValues) {
@@ -197,7 +197,7 @@ const generateMemorablePassword = (settings: PasswordSettings): string => {
     words.push(word)
   }
 
-  let password = words.join(settings.separator || '-')
+  let password = words.join(settings.separator || "-")
 
   // Add numbers if requested
   if (settings.includeNumbers) {
@@ -207,7 +207,7 @@ const generateMemorablePassword = (settings: PasswordSettings): string => {
 
   // Add symbols if requested
   if (settings.includeSymbols) {
-    const symbols = '!@#$%'
+    const symbols = "!@#$%"
     password += symbols[Math.floor(Math.random() * symbols.length)]
   }
 
@@ -216,7 +216,7 @@ const generateMemorablePassword = (settings: PasswordSettings): string => {
 
 // Generate PIN
 const generatePIN = (settings: PasswordSettings): string => {
-  let pin = ''
+  let pin = ""
   const length = Math.max(4, Math.min(settings.length, 12))
 
   for (let i = 0; i < length; i++) {
@@ -235,13 +235,13 @@ const generatePassphrase = (settings: PasswordSettings): string => {
     words.push(COMMON_WORDS[Math.floor(Math.random() * COMMON_WORDS.length)])
   }
 
-  return words.join(' ')
+  return words.join(" ")
 }
 
 // Generate pronounceable password
 const generatePronounceablePassword = (settings: PasswordSettings): string => {
   const { consonants, vowels } = CHARACTER_SETS.pronounceable
-  let password = ''
+  let password = ""
   const length = settings.length
 
   for (let i = 0; i < length; i++) {
@@ -275,17 +275,17 @@ const generatePronounceablePassword = (settings: PasswordSettings): string => {
 // Generate password based on type
 const generatePassword = (type: PasswordType, settings: PasswordSettings): string => {
   switch (type) {
-    case 'random':
+    case "random":
       return generateRandomPassword(settings)
-    case 'memorable':
+    case "memorable":
       return generateMemorablePassword(settings)
-    case 'pin':
+    case "pin":
       return generatePIN(settings)
-    case 'passphrase':
+    case "passphrase":
       return generatePassphrase(settings)
-    case 'pronounceable':
+    case "pronounceable":
       return generatePronounceablePassword(settings)
-    case 'custom':
+    case "custom":
       return generateRandomPassword(settings) // Use custom charset
     default:
       return generateRandomPassword(settings)
@@ -296,39 +296,39 @@ const generatePassword = (type: PasswordType, settings: PasswordSettings): strin
 const analyzePasswordStrength = (password: string): PasswordStrength => {
   const requirements: PasswordRequirement[] = [
     {
-      name: 'Length',
+      name: "Length",
       met: password.length >= 12,
-      description: 'At least 12 characters',
+      description: "At least 12 characters",
       weight: 25,
     },
     {
-      name: 'Uppercase',
+      name: "Uppercase",
       met: /[A-Z]/.test(password),
-      description: 'Contains uppercase letters',
+      description: "Contains uppercase letters",
       weight: 15,
     },
     {
-      name: 'Lowercase',
+      name: "Lowercase",
       met: /[a-z]/.test(password),
-      description: 'Contains lowercase letters',
+      description: "Contains lowercase letters",
       weight: 15,
     },
     {
-      name: 'Numbers',
+      name: "Numbers",
       met: /\d/.test(password),
-      description: 'Contains numbers',
+      description: "Contains numbers",
       weight: 15,
     },
     {
-      name: 'Symbols',
+      name: "Symbols",
       met: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
-      description: 'Contains special characters',
+      description: "Contains special characters",
       weight: 20,
     },
     {
-      name: 'No Common Patterns',
+      name: "No Common Patterns",
       met: !/(123|abc|password|qwerty|admin)/i.test(password),
-      description: 'Avoids common patterns',
+      description: "Avoids common patterns",
       weight: 10,
     },
   ]
@@ -336,12 +336,12 @@ const analyzePasswordStrength = (password: string): PasswordStrength => {
   const metRequirements = requirements.filter((req) => req.met)
   const score = metRequirements.reduce((sum, req) => sum + req.weight, 0)
 
-  let level: PasswordStrength['level'] = 'very-weak'
-  if (score >= 90) level = 'very-strong'
-  else if (score >= 75) level = 'strong'
-  else if (score >= 60) level = 'good'
-  else if (score >= 40) level = 'fair'
-  else if (score >= 20) level = 'weak'
+  let level: PasswordStrength["level"] = "very-weak"
+  if (score >= 90) level = "very-strong"
+  else if (score >= 75) level = "strong"
+  else if (score >= 60) level = "good"
+  else if (score >= 40) level = "fair"
+  else if (score >= 20) level = "weak"
 
   const feedback: string[] = []
   requirements.forEach((req) => {
@@ -359,10 +359,10 @@ const analyzePasswordStrength = (password: string): PasswordStrength => {
     includeSymbols: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
     excludeSimilar: false,
     excludeAmbiguous: false,
-    customCharacters: '',
-    pattern: '',
+    customCharacters: "",
+    pattern: "",
     wordCount: 4,
-    separator: '-',
+    separator: "-",
     minLength: 8,
     maxLength: 128,
   })
@@ -388,10 +388,10 @@ const analyzePasswordStrength = (password: string): PasswordStrength => {
 // Password templates with different security levels
 const passwordTemplates: PasswordTemplate[] = [
   {
-    id: 'strong-random',
-    name: 'Strong Random',
-    description: 'Cryptographically secure random password',
-    category: 'Security',
+    id: "strong-random",
+    name: "Strong Random",
+    description: "Cryptographically secure random password",
+    category: "Security",
     settings: {
       length: 16,
       includeUppercase: true,
@@ -401,30 +401,30 @@ const passwordTemplates: PasswordTemplate[] = [
       excludeSimilar: true,
       excludeAmbiguous: false,
     },
-    type: 'random',
-    securityLevel: 'very-high',
+    type: "random",
+    securityLevel: "very-high",
   },
   {
-    id: 'memorable-secure',
-    name: 'Memorable & Secure',
-    description: 'Easy to remember but still secure',
-    category: 'Memorable',
+    id: "memorable-secure",
+    name: "Memorable & Secure",
+    description: "Easy to remember but still secure",
+    category: "Memorable",
     settings: {
       wordCount: 4,
-      separator: '-',
+      separator: "-",
       includeNumbers: true,
       includeSymbols: false,
       includeUppercase: true,
       includeLowercase: true,
     },
-    type: 'memorable',
-    securityLevel: 'high',
+    type: "memorable",
+    securityLevel: "high",
   },
   {
-    id: 'maximum-security',
-    name: 'Maximum Security',
-    description: 'Highest security for sensitive accounts',
-    category: 'Maximum',
+    id: "maximum-security",
+    name: "Maximum Security",
+    description: "Highest security for sensitive accounts",
+    category: "Maximum",
     settings: {
       length: 32,
       includeUppercase: true,
@@ -434,14 +434,14 @@ const passwordTemplates: PasswordTemplate[] = [
       excludeSimilar: true,
       excludeAmbiguous: true,
     },
-    type: 'random',
-    securityLevel: 'maximum',
+    type: "random",
+    securityLevel: "maximum",
   },
   {
-    id: 'pronounceable',
-    name: 'Pronounceable',
-    description: 'Easy to pronounce and type',
-    category: 'Usability',
+    id: "pronounceable",
+    name: "Pronounceable",
+    description: "Easy to pronounce and type",
+    category: "Usability",
     settings: {
       length: 12,
       includeUppercase: true,
@@ -449,30 +449,30 @@ const passwordTemplates: PasswordTemplate[] = [
       includeNumbers: true,
       includeSymbols: false,
     },
-    type: 'pronounceable',
-    securityLevel: 'medium',
+    type: "pronounceable",
+    securityLevel: "medium",
   },
   {
-    id: 'passphrase',
-    name: 'Passphrase',
-    description: 'Multiple words for high security',
-    category: 'Passphrase',
+    id: "passphrase",
+    name: "Passphrase",
+    description: "Multiple words for high security",
+    category: "Passphrase",
     settings: {
       wordCount: 6,
-      separator: ' ',
+      separator: " ",
       includeNumbers: false,
       includeSymbols: false,
       includeUppercase: false,
       includeLowercase: true,
     },
-    type: 'passphrase',
-    securityLevel: 'high',
+    type: "passphrase",
+    securityLevel: "high",
   },
   {
-    id: 'pin-secure',
-    name: 'Secure PIN',
-    description: 'Numeric PIN for devices',
-    category: 'PIN',
+    id: "pin-secure",
+    name: "Secure PIN",
+    description: "Numeric PIN for devices",
+    category: "PIN",
     settings: {
       length: 6,
       includeNumbers: true,
@@ -480,8 +480,8 @@ const passwordTemplates: PasswordTemplate[] = [
       includeLowercase: false,
       includeSymbols: false,
     },
-    type: 'pin',
-    securityLevel: 'low',
+    type: "pin",
+    securityLevel: "low",
   },
 ]
 
@@ -509,8 +509,8 @@ const usePasswordGeneration = () => {
         settings,
       }
     } catch (error) {
-      console.error('Password generation error:', error)
-      throw new Error(error instanceof Error ? error.message : 'Password generation failed')
+      console.error("Password generation error:", error)
+      throw new Error(error instanceof Error ? error.message : "Password generation failed")
     }
   }, [])
 
@@ -562,8 +562,8 @@ const usePasswordGeneration = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch generation error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch generation failed')
+        console.error("Batch generation error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch generation failed")
       }
     },
     [generateSinglePassword]
@@ -603,37 +603,37 @@ const usePasswordHistory = () => {
 // Export functionality
 const usePasswordExport = () => {
   const exportPasswords = useCallback((passwords: PasswordItem[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(passwords, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromPasswords(passwords)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromPasswords(passwords)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromPasswords(passwords)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `passwords${extension}`
     document.body.appendChild(link)
@@ -644,7 +644,7 @@ const usePasswordExport = () => {
 
   const exportBatch = useCallback(
     (batch: PasswordBatch) => {
-      exportPasswords(batch.passwords, 'json', `password-batch-${batch.id}.json`)
+      exportPasswords(batch.passwords, "json", `password-batch-${batch.id}.json`)
       toast.success(`Exported ${batch.passwords.length} passwords`)
     },
     [exportPasswords]
@@ -661,7 +661,7 @@ const usePasswordExport = () => {
     }))
 
     const csvContent = [
-      ['Batch ID', 'Password Count', 'Type', 'Average Strength', 'Average Entropy', 'Created At'],
+      ["Batch ID", "Password Count", "Type", "Average Strength", "Average Entropy", "Created At"],
       ...stats.map((stat) => [
         stat.batchId,
         stat.passwordCount.toString(),
@@ -671,20 +671,20 @@ const usePasswordExport = () => {
         stat.createdAt,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'password-statistics.csv'
+    link.download = "password-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportPasswords, exportBatch, exportStatistics }
@@ -699,7 +699,7 @@ Generated: ${new Date().toLocaleString()}
 Total Passwords: ${passwords.length}
 
 Passwords:
-${passwords.map((p, i) => `${i + 1}. ${p.password} (${p.type}, ${p.strength.level}, ${p.entropy.toFixed(1)} bits)`).join('\n')}
+${passwords.map((p, i) => `${i + 1}. ${p.password} (${p.type}, ${p.strength.level}, ${p.entropy.toFixed(1)} bits)`).join("\n")}
 
 Statistics:
 - Average Strength: ${(passwords.reduce((sum, p) => sum + p.strength.score, 0) / passwords.length).toFixed(1)}/100
@@ -709,7 +709,7 @@ Statistics:
 
 const generateCSVFromPasswords = (passwords: PasswordItem[]): string => {
   const rows = [
-    ['Password', 'Type', 'Strength Level', 'Strength Score', 'Entropy', 'Created At'],
+    ["Password", "Type", "Strength Level", "Strength Score", "Entropy", "Created At"],
     ...passwords.map((p) => [
       p.password,
       p.type,
@@ -720,7 +720,7 @@ const generateCSVFromPasswords = (passwords: PasswordItem[]): string => {
     ]),
   ]
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 }
 
 const generateXMLFromPasswords = (passwords: PasswordItem[]): string => {
@@ -745,7 +745,7 @@ const generateXMLFromPasswords = (passwords: PasswordItem[]): string => {
       <createdAt>${p.createdAt.toISOString()}</createdAt>
     </password>`
       )
-      .join('')}
+      .join("")}
   </items>
 </passwords>`
 }
@@ -757,13 +757,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -775,10 +775,10 @@ const useCopyToClipboard = () => {
  * Features: Multiple password types, strength analysis, batch generation, comprehensive security
  */
 const PasswordGeneratorCore = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'batch' | 'history'>('generator')
+  const [activeTab, setActiveTab] = useState<"generator" | "batch" | "history">("generator")
   const [currentPassword, setCurrentPassword] = useState<PasswordItem | null>(null)
-  const [passwordType, setPasswordType] = useState<PasswordType>('random')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('strong-random')
+  const [passwordType, setPasswordType] = useState<PasswordType>("random")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("strong-random")
   const [showPassword, setShowPassword] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
   const [batches, setBatches] = useState<PasswordBatch[]>([])
@@ -791,10 +791,10 @@ const PasswordGeneratorCore = () => {
     includeSymbols: true,
     excludeSimilar: true,
     excludeAmbiguous: false,
-    customCharacters: '',
-    pattern: '',
+    customCharacters: "",
+    pattern: "",
     wordCount: 4,
-    separator: '-',
+    separator: "-",
     minLength: 8,
     maxLength: 128,
   })
@@ -822,9 +822,9 @@ const PasswordGeneratorCore = () => {
       const passwordItem = generateSinglePassword(passwordType, settings)
       setCurrentPassword(passwordItem)
       addToHistory(passwordItem)
-      toast.success('Password generated successfully')
+      toast.success("Password generated successfully")
     } catch (error) {
-      toast.error('Failed to generate password')
+      toast.error("Failed to generate password")
       console.error(error)
     } finally {
       setIsGenerating(false)
@@ -839,7 +839,7 @@ const PasswordGeneratorCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Generated ${batchCount} passwords successfully`)
     } catch (error) {
-      toast.error('Failed to generate password batch')
+      toast.error("Failed to generate password batch")
       console.error(error)
     } finally {
       setIsGenerating(false)
@@ -856,12 +856,15 @@ const PasswordGeneratorCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Key className="h-5 w-5" aria-hidden="true" />
+              <Key className="h-5 w-5" />
               Password Generator & Security Analysis
             </CardTitle>
             <CardDescription>
@@ -873,24 +876,39 @@ const PasswordGeneratorCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'generator' | 'batch' | 'history')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "generator" | "batch" | "history")}
+        >
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <Key className="h-4 w-4" />
               Password Generator
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Generation
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <History className="h-4 w-4" />
               Password History
             </TabsTrigger>
           </TabsList>
 
           {/* Password Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             {/* Password Templates */}
             <Card>
               <CardHeader>
@@ -904,7 +922,7 @@ const PasswordGeneratorCore = () => {
                   {passwordTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -934,10 +952,16 @@ const PasswordGeneratorCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="password-type" className="text-sm font-medium">
+                    <Label
+                      htmlFor="password-type"
+                      className="text-sm font-medium"
+                    >
                       Password Type
                     </Label>
-                    <Select value={passwordType} onValueChange={(value: PasswordType) => setPasswordType(value)}>
+                    <Select
+                      value={passwordType}
+                      onValueChange={(value: PasswordType) => setPasswordType(value)}
+                    >
                       <SelectTrigger className="mt-2">
                         <SelectValue />
                       </SelectTrigger>
@@ -952,9 +976,12 @@ const PasswordGeneratorCore = () => {
                     </Select>
                   </div>
 
-                  {(passwordType === 'random' || passwordType === 'pronounceable' || passwordType === 'custom') && (
+                  {(passwordType === "random" || passwordType === "pronounceable" || passwordType === "custom") && (
                     <div>
-                      <Label htmlFor="password-length" className="text-sm font-medium">
+                      <Label
+                        htmlFor="password-length"
+                        className="text-sm font-medium"
+                      >
                         Length: {settings.length}
                       </Label>
                       <Slider
@@ -969,10 +996,13 @@ const PasswordGeneratorCore = () => {
                     </div>
                   )}
 
-                  {(passwordType === 'memorable' || passwordType === 'passphrase') && (
+                  {(passwordType === "memorable" || passwordType === "passphrase") && (
                     <>
                       <div>
-                        <Label htmlFor="word-count" className="text-sm font-medium">
+                        <Label
+                          htmlFor="word-count"
+                          className="text-sm font-medium"
+                        >
                           Word Count: {settings.wordCount}
                         </Label>
                         <Slider
@@ -986,7 +1016,10 @@ const PasswordGeneratorCore = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="separator" className="text-sm font-medium">
+                        <Label
+                          htmlFor="separator"
+                          className="text-sm font-medium"
+                        >
                           Separator
                         </Label>
                         <Input
@@ -1000,7 +1033,7 @@ const PasswordGeneratorCore = () => {
                     </>
                   )}
 
-                  {passwordType !== 'pin' && passwordType !== 'passphrase' && (
+                  {passwordType !== "pin" && passwordType !== "passphrase" && (
                     <div className="space-y-3">
                       <Label className="text-sm font-medium">Character Types</Label>
 
@@ -1012,7 +1045,10 @@ const PasswordGeneratorCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeUppercase: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-uppercase" className="text-sm">
+                        <Label
+                          htmlFor="include-uppercase"
+                          className="text-sm"
+                        >
                           Uppercase letters (A-Z)
                         </Label>
                       </div>
@@ -1025,7 +1061,10 @@ const PasswordGeneratorCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeLowercase: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-lowercase" className="text-sm">
+                        <Label
+                          htmlFor="include-lowercase"
+                          className="text-sm"
+                        >
                           Lowercase letters (a-z)
                         </Label>
                       </div>
@@ -1038,7 +1077,10 @@ const PasswordGeneratorCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeNumbers: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-numbers" className="text-sm">
+                        <Label
+                          htmlFor="include-numbers"
+                          className="text-sm"
+                        >
                           Numbers (0-9)
                         </Label>
                       </div>
@@ -1051,7 +1093,10 @@ const PasswordGeneratorCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeSymbols: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-symbols" className="text-sm">
+                        <Label
+                          htmlFor="include-symbols"
+                          className="text-sm"
+                        >
                           Symbols (!@#$%^&*)
                         </Label>
                       </div>
@@ -1069,7 +1114,10 @@ const PasswordGeneratorCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, excludeSimilar: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="exclude-similar" className="text-sm">
+                      <Label
+                        htmlFor="exclude-similar"
+                        className="text-sm"
+                      >
                         Exclude similar characters (il1Lo0O)
                       </Label>
                     </div>
@@ -1082,15 +1130,21 @@ const PasswordGeneratorCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, excludeAmbiguous: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="exclude-ambiguous" className="text-sm">
+                      <Label
+                        htmlFor="exclude-ambiguous"
+                        className="text-sm"
+                      >
                         Exclude ambiguous characters
                       </Label>
                     </div>
                   </div>
 
-                  {passwordType === 'custom' && (
+                  {passwordType === "custom" && (
                     <div>
-                      <Label htmlFor="custom-characters" className="text-sm font-medium">
+                      <Label
+                        htmlFor="custom-characters"
+                        className="text-sm font-medium"
+                      >
                         Custom Characters
                       </Label>
                       <Input
@@ -1122,7 +1176,6 @@ const PasswordGeneratorCore = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => setShowPassword(!showPassword)}
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
@@ -1130,21 +1183,20 @@ const PasswordGeneratorCore = () => {
 
                     <div className="relative">
                       <Input
-                        value={currentPassword?.password || ''}
+                        value={currentPassword?.password || ""}
                         readOnly
-                        type={showPassword ? 'text' : 'password'}
+                        type={showPassword ? "text" : "password"}
                         className="font-mono text-lg pr-10"
                         placeholder="Click generate to create a password"
-                        aria-label="Generated password"
                       />
                       {currentPassword && (
                         <Button
                           size="sm"
                           variant="ghost"
                           className="absolute right-0 top-0 h-full px-3"
-                          onClick={() => copyToClipboard(currentPassword.password, 'Password')}
+                          onClick={() => copyToClipboard(currentPassword.password, "Password")}
                         >
-                          {copiedText === 'Password' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          {copiedText === "Password" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         </Button>
                       )}
                     </div>
@@ -1158,15 +1210,15 @@ const PasswordGeneratorCore = () => {
                           <span>Password Strength:</span>
                           <span
                             className={`font-medium ${
-                              currentPassword.strength.level === 'very-strong'
-                                ? 'text-green-600'
-                                : currentPassword.strength.level === 'strong'
-                                  ? 'text-blue-600'
-                                  : currentPassword.strength.level === 'good'
-                                    ? 'text-yellow-600'
-                                    : currentPassword.strength.level === 'fair'
-                                      ? 'text-orange-600'
-                                      : 'text-red-600'
+                              currentPassword.strength.level === "very-strong"
+                                ? "text-green-600"
+                                : currentPassword.strength.level === "strong"
+                                  ? "text-blue-600"
+                                  : currentPassword.strength.level === "good"
+                                    ? "text-yellow-600"
+                                    : currentPassword.strength.level === "fair"
+                                      ? "text-orange-600"
+                                      : "text-red-600"
                             }`}
                           >
                             {currentPassword.strength.level.toUpperCase()} ({currentPassword.strength.score}/100)
@@ -1175,15 +1227,15 @@ const PasswordGeneratorCore = () => {
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
                             className={`h-2 rounded-full transition-all ${
-                              currentPassword.strength.level === 'very-strong'
-                                ? 'bg-green-600'
-                                : currentPassword.strength.level === 'strong'
-                                  ? 'bg-blue-600'
-                                  : currentPassword.strength.level === 'good'
-                                    ? 'bg-yellow-600'
-                                    : currentPassword.strength.level === 'fair'
-                                      ? 'bg-orange-600'
-                                      : 'bg-red-600'
+                              currentPassword.strength.level === "very-strong"
+                                ? "bg-green-600"
+                                : currentPassword.strength.level === "strong"
+                                  ? "bg-blue-600"
+                                  : currentPassword.strength.level === "good"
+                                    ? "bg-yellow-600"
+                                    : currentPassword.strength.level === "fair"
+                                      ? "bg-orange-600"
+                                      : "bg-red-600"
                             }`}
                             style={{ width: `${currentPassword.strength.score}%` }}
                           />
@@ -1201,15 +1253,19 @@ const PasswordGeneratorCore = () => {
 
                       {currentPassword.strength.feedback.length > 0 && (
                         <div className="text-xs text-muted-foreground">
-                          <span className="font-medium">Suggestions:</span>{' '}
-                          {currentPassword.strength.feedback.join(', ')}
+                          <span className="font-medium">Suggestions:</span>{" "}
+                          {currentPassword.strength.feedback.join(", ")}
                         </div>
                       )}
                     </div>
                   )}
 
                   <div className="flex gap-2">
-                    <Button onClick={handleGeneratePassword} disabled={isGenerating} className="flex-1">
+                    <Button
+                      onClick={handleGeneratePassword}
+                      disabled={isGenerating}
+                      className="flex-1"
+                    >
                       {isGenerating ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1224,7 +1280,10 @@ const PasswordGeneratorCore = () => {
           </TabsContent>
 
           {/* Batch Generation Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1236,7 +1295,10 @@ const PasswordGeneratorCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-count" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-count"
+                      className="text-sm font-medium"
+                    >
                       Number of Passwords: {batchCount}
                     </Label>
                     <Slider
@@ -1251,7 +1313,10 @@ const PasswordGeneratorCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleGenerateBatch} disabled={isGenerating}>
+                    <Button
+                      onClick={handleGenerateBatch}
+                      disabled={isGenerating}
+                    >
                       {isGenerating ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1273,7 +1338,10 @@ const PasswordGeneratorCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">
@@ -1284,7 +1352,11 @@ const PasswordGeneratorCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportBatch(batch)}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportBatch(batch)}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export
                             </Button>
@@ -1300,15 +1372,18 @@ const PasswordGeneratorCore = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
                           {batch.passwords.map((password) => (
-                            <div key={password.id} className="text-xs">
+                            <div
+                              key={password.id}
+                              className="text-xs"
+                            >
                               <div className="flex items-center justify-between">
                                 <span className="font-mono truncate flex-1 mr-2">
-                                  {showPassword ? password.password : '••••••••••••'}
+                                  {showPassword ? password.password : "••••••••••••"}
                                 </span>
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  onClick={() => copyToClipboard(password.password, 'Password')}
+                                  onClick={() => copyToClipboard(password.password, "Password")}
                                   className="h-6 w-6 p-0"
                                 >
                                   <Copy className="h-3 w-3" />
@@ -1316,15 +1391,15 @@ const PasswordGeneratorCore = () => {
                               </div>
                               <div
                                 className={`text-xs ${
-                                  password.strength.level === 'very-strong'
-                                    ? 'text-green-600'
-                                    : password.strength.level === 'strong'
-                                      ? 'text-blue-600'
-                                      : password.strength.level === 'good'
-                                        ? 'text-yellow-600'
-                                        : password.strength.level === 'fair'
-                                          ? 'text-orange-600'
-                                          : 'text-red-600'
+                                  password.strength.level === "very-strong"
+                                    ? "text-green-600"
+                                    : password.strength.level === "strong"
+                                      ? "text-blue-600"
+                                      : password.strength.level === "good"
+                                        ? "text-yellow-600"
+                                        : password.strength.level === "fair"
+                                          ? "text-orange-600"
+                                          : "text-red-600"
                                 }`}
                               >
                                 {password.strength.level} ({password.strength.score}/100)
@@ -1336,11 +1411,11 @@ const PasswordGeneratorCore = () => {
                         <div className="mt-3 pt-3 border-t text-sm">
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <span className="font-medium">Average Strength:</span>{' '}
+                              <span className="font-medium">Average Strength:</span>{" "}
                               {batch.statistics.averageStrength.toFixed(1)}/100
                             </div>
                             <div>
-                              <span className="font-medium">Average Entropy:</span>{' '}
+                              <span className="font-medium">Average Entropy:</span>{" "}
                               {batch.statistics.averageEntropy.toFixed(1)} bits
                             </div>
                           </div>
@@ -1354,7 +1429,10 @@ const PasswordGeneratorCore = () => {
           </TabsContent>
 
           {/* Password History Tab */}
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent
+            value="history"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -1377,7 +1455,7 @@ const PasswordGeneratorCore = () => {
                                 createdAt: h.createdAt,
                                 settings,
                               })),
-                              'json'
+                              "json"
                             )
                           }
                           variant="outline"
@@ -1386,7 +1464,11 @@ const PasswordGeneratorCore = () => {
                           <Download className="mr-2 h-4 w-4" />
                           Export
                         </Button>
-                        <Button onClick={clearHistory} variant="outline" size="sm">
+                        <Button
+                          onClick={clearHistory}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Clear
                         </Button>
@@ -1401,31 +1483,37 @@ const PasswordGeneratorCore = () => {
                     <History className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                     <h3 className="text-lg font-semibold mb-2">No Password History</h3>
                     <p className="text-muted-foreground mb-4">Generated passwords will appear here for easy access</p>
-                    <Button onClick={() => setActiveTab('generator')} variant="outline">
+                    <Button
+                      onClick={() => setActiveTab("generator")}
+                      variant="outline"
+                    >
                       Generate Your First Password
                     </Button>
                   </div>
                 ) : (
                   <div className="space-y-3 max-h-96 overflow-y-auto">
                     {history.map((item) => (
-                      <div key={item.id} className="border rounded-lg p-3">
+                      <div
+                        key={item.id}
+                        className="border rounded-lg p-3"
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="font-mono text-sm truncate">
-                                {showPassword ? item.password : '••••••••••••'}
+                                {showPassword ? item.password : "••••••••••••"}
                               </span>
                               <span
                                 className={`text-xs px-2 py-1 rounded ${
-                                  item.strength.level === 'very-strong'
-                                    ? 'bg-green-100 text-green-800'
-                                    : item.strength.level === 'strong'
-                                      ? 'bg-blue-100 text-blue-800'
-                                      : item.strength.level === 'good'
-                                        ? 'bg-yellow-100 text-yellow-800'
-                                        : item.strength.level === 'fair'
-                                          ? 'bg-orange-100 text-orange-800'
-                                          : 'bg-red-100 text-red-800'
+                                  item.strength.level === "very-strong"
+                                    ? "bg-green-100 text-green-800"
+                                    : item.strength.level === "strong"
+                                      ? "bg-blue-100 text-blue-800"
+                                      : item.strength.level === "good"
+                                        ? "bg-yellow-100 text-yellow-800"
+                                        : item.strength.level === "fair"
+                                          ? "bg-orange-100 text-orange-800"
+                                          : "bg-red-100 text-red-800"
                                 }`}
                               >
                                 {item.strength.level}
@@ -1442,12 +1530,16 @@ const PasswordGeneratorCore = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => copyToClipboard(item.password, 'Password')}
+                              onClick={() => copyToClipboard(item.password, "Password")}
                             >
                               <Copy className="h-4 w-4" />
                             </Button>
                             {!item.used && (
-                              <Button size="sm" variant="ghost" onClick={() => markAsUsed(item.id)}>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => markAsUsed(item.id)}
+                              >
                                 <CheckCircle2 className="h-4 w-4" />
                               </Button>
                             )}

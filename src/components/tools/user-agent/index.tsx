@@ -1,11 +1,11 @@
-import { useCallback, useState, useMemo, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -31,8 +31,8 @@ import {
   Cpu,
   HardDrive,
   Info,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   UserAgentProcessingResult,
   UserAgentMetrics,
@@ -49,8 +49,8 @@ import type {
   UserAgentValidation,
   DeviceType,
   ExportFormat,
-} from '@/types/user-agent'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/user-agent"
+import { formatFileSize } from "@/lib/utils"
 // Utility functions
 
 // User Agent parsing functions
@@ -64,21 +64,21 @@ const parseUserAgent = (userAgent: string): UserAgentMetrics => {
 
   // Detect components
   const detectedComponents: string[] = []
-  if (/Mozilla/i.test(userAgent)) detectedComponents.push('Mozilla')
-  if (/WebKit/i.test(userAgent)) detectedComponents.push('WebKit')
-  if (/Gecko/i.test(userAgent)) detectedComponents.push('Gecko')
-  if (/Blink/i.test(userAgent)) detectedComponents.push('Blink')
-  if (/Trident/i.test(userAgent)) detectedComponents.push('Trident')
+  if (/Mozilla/i.test(userAgent)) detectedComponents.push("Mozilla")
+  if (/WebKit/i.test(userAgent)) detectedComponents.push("WebKit")
+  if (/Gecko/i.test(userAgent)) detectedComponents.push("Gecko")
+  if (/Blink/i.test(userAgent)) detectedComponents.push("Blink")
+  if (/Trident/i.test(userAgent)) detectedComponents.push("Trident")
 
   // Security features
   const securityFeatures: string[] = []
-  if (/Secure/i.test(userAgent)) securityFeatures.push('Secure Context')
-  if (/HTTPS/i.test(userAgent)) securityFeatures.push('HTTPS Support')
+  if (/Secure/i.test(userAgent)) securityFeatures.push("Secure Context")
+  if (/HTTPS/i.test(userAgent)) securityFeatures.push("HTTPS Support")
 
   // Privacy features
   const privacyFeatures: string[] = []
-  if (/DoNotTrack/i.test(userAgent)) privacyFeatures.push('Do Not Track')
-  if (/Privacy/i.test(userAgent)) privacyFeatures.push('Privacy Mode')
+  if (/DoNotTrack/i.test(userAgent)) privacyFeatures.push("Do Not Track")
+  if (/Privacy/i.test(userAgent)) privacyFeatures.push("Privacy Mode")
 
   return {
     length,
@@ -91,45 +91,45 @@ const parseUserAgent = (userAgent: string): UserAgentMetrics => {
 }
 
 const detectDevice = (userAgent: string): DeviceMetrics => {
-  let deviceType: DeviceType = 'unknown'
+  let deviceType: DeviceType = "unknown"
   let touchSupport = false
   const mobileFeatures: string[] = []
 
   // Device type detection
   if (/Mobile|Android|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(userAgent)) {
     if (/iPad|Tablet/i.test(userAgent)) {
-      deviceType = 'tablet'
+      deviceType = "tablet"
     } else {
-      deviceType = 'mobile'
+      deviceType = "mobile"
     }
     touchSupport = true
   } else if (/TV|Television|SmartTV|BRAVIA/i.test(userAgent)) {
-    deviceType = 'tv'
+    deviceType = "tv"
   } else if (/PlayStation|Xbox|Nintendo/i.test(userAgent)) {
-    deviceType = 'console'
+    deviceType = "console"
   } else if (/bot|crawler|spider|scraper/i.test(userAgent)) {
-    deviceType = 'bot'
+    deviceType = "bot"
   } else {
-    deviceType = 'desktop'
+    deviceType = "desktop"
   }
 
   // Mobile features
-  if (deviceType === 'mobile' || deviceType === 'tablet') {
-    if (/Touch/i.test(userAgent)) mobileFeatures.push('Touch Support')
-    if (/GPS/i.test(userAgent)) mobileFeatures.push('GPS')
-    if (/Camera/i.test(userAgent)) mobileFeatures.push('Camera')
-    if (/Accelerometer/i.test(userAgent)) mobileFeatures.push('Accelerometer')
+  if (deviceType === "mobile" || deviceType === "tablet") {
+    if (/Touch/i.test(userAgent)) mobileFeatures.push("Touch Support")
+    if (/GPS/i.test(userAgent)) mobileFeatures.push("GPS")
+    if (/Camera/i.test(userAgent)) mobileFeatures.push("Camera")
+    if (/Accelerometer/i.test(userAgent)) mobileFeatures.push("Accelerometer")
   }
 
   // Operating system detection
   const operatingSystem = detectOperatingSystem(userAgent)
 
   // Architecture detection
-  let architecture = 'unknown'
-  if (/x64|x86_64|amd64/i.test(userAgent)) architecture = 'x64'
-  else if (/x86|i386|i686/i.test(userAgent)) architecture = 'x86'
-  else if (/arm64|aarch64/i.test(userAgent)) architecture = 'ARM64'
-  else if (/arm/i.test(userAgent)) architecture = 'ARM'
+  let architecture = "unknown"
+  if (/x64|x86_64|amd64/i.test(userAgent)) architecture = "x64"
+  else if (/x86|i386|i686/i.test(userAgent)) architecture = "x86"
+  else if (/arm64|aarch64/i.test(userAgent)) architecture = "ARM64"
+  else if (/arm/i.test(userAgent)) architecture = "ARM"
 
   // Hardware info
   const hardwareInfo = detectHardwareInfo(userAgent)
@@ -145,101 +145,101 @@ const detectDevice = (userAgent: string): DeviceMetrics => {
 }
 
 const detectOperatingSystem = (userAgent: string): OperatingSystem => {
-  let name = 'Unknown'
-  let version = 'Unknown'
-  let family = 'Unknown'
+  let name = "Unknown"
+  let version = "Unknown"
+  let family = "Unknown"
   let architecture: string | undefined
 
   // Windows
   if (/Windows NT/i.test(userAgent)) {
-    name = 'Windows'
-    family = 'Windows'
+    name = "Windows"
+    family = "Windows"
     const winMatch = userAgent.match(/Windows NT ([\d.]+)/i)
     if (winMatch) {
       const ntVersion = winMatch[1]
       switch (ntVersion) {
-        case '10.0':
-          version = '10/11'
+        case "10.0":
+          version = "10/11"
           break
-        case '6.3':
-          version = '8.1'
+        case "6.3":
+          version = "8.1"
           break
-        case '6.2':
-          version = '8'
+        case "6.2":
+          version = "8"
           break
-        case '6.1':
-          version = '7'
+        case "6.1":
+          version = "7"
           break
-        case '6.0':
-          version = 'Vista'
+        case "6.0":
+          version = "Vista"
           break
         default:
           version = ntVersion
       }
     }
-    if (/WOW64|Win64|x64/i.test(userAgent)) architecture = 'x64'
-    else architecture = 'x86'
+    if (/WOW64|Win64|x64/i.test(userAgent)) architecture = "x64"
+    else architecture = "x86"
   }
   // macOS
   else if (/Mac OS X|macOS/i.test(userAgent)) {
-    name = 'macOS'
-    family = 'macOS'
+    name = "macOS"
+    family = "macOS"
     const macMatch = userAgent.match(/Mac OS X ([\d_]+)/i)
     if (macMatch) {
-      version = macMatch[1].replace(/_/g, '.')
+      version = macMatch[1].replace(/_/g, ".")
     }
-    architecture = /Intel/i.test(userAgent) ? 'Intel' : 'Apple Silicon'
+    architecture = /Intel/i.test(userAgent) ? "Intel" : "Apple Silicon"
   }
   // Linux
   else if (/Linux/i.test(userAgent)) {
-    name = 'Linux'
-    family = 'Linux'
-    if (/Ubuntu/i.test(userAgent)) name = 'Ubuntu'
-    else if (/Debian/i.test(userAgent)) name = 'Debian'
-    else if (/Red Hat|RHEL/i.test(userAgent)) name = 'Red Hat'
-    else if (/CentOS/i.test(userAgent)) name = 'CentOS'
+    name = "Linux"
+    family = "Linux"
+    if (/Ubuntu/i.test(userAgent)) name = "Ubuntu"
+    else if (/Debian/i.test(userAgent)) name = "Debian"
+    else if (/Red Hat|RHEL/i.test(userAgent)) name = "Red Hat"
+    else if (/CentOS/i.test(userAgent)) name = "CentOS"
 
-    if (/x86_64/i.test(userAgent)) architecture = 'x64'
-    else if (/i686/i.test(userAgent)) architecture = 'x86'
-    else if (/armv/i.test(userAgent)) architecture = 'ARM'
+    if (/x86_64/i.test(userAgent)) architecture = "x64"
+    else if (/i686/i.test(userAgent)) architecture = "x86"
+    else if (/armv/i.test(userAgent)) architecture = "ARM"
   }
   // Android
   else if (/Android/i.test(userAgent)) {
-    name = 'Android'
-    family = 'Android'
+    name = "Android"
+    family = "Android"
     const androidMatch = userAgent.match(/Android ([\d.]+)/i)
     if (androidMatch) version = androidMatch[1]
-    architecture = /arm64|aarch64/i.test(userAgent) ? 'ARM64' : 'ARM'
+    architecture = /arm64|aarch64/i.test(userAgent) ? "ARM64" : "ARM"
   }
   // iOS
   else if (/iPhone OS|iOS/i.test(userAgent)) {
-    name = 'iOS'
-    family = 'iOS'
+    name = "iOS"
+    family = "iOS"
     const iosMatch = userAgent.match(/OS ([\d_]+)/i)
-    if (iosMatch) version = iosMatch[1].replace(/_/g, '.')
-    architecture = 'ARM64'
+    if (iosMatch) version = iosMatch[1].replace(/_/g, ".")
+    architecture = "ARM64"
   }
 
   return { name, version, family, architecture }
 }
 
 const detectHardwareInfo = (userAgent: string): HardwareInfo => {
-  let platform = 'Unknown'
+  let platform = "Unknown"
   let vendor: string | undefined
   let model: string | undefined
 
   // Platform detection
-  if (/Win/i.test(userAgent)) platform = 'Windows'
-  else if (/Mac/i.test(userAgent)) platform = 'Macintosh'
-  else if (/Linux/i.test(userAgent)) platform = 'Linux'
-  else if (/Android/i.test(userAgent)) platform = 'Android'
-  else if (/iPhone|iPad/i.test(userAgent)) platform = 'iOS'
+  if (/Win/i.test(userAgent)) platform = "Windows"
+  else if (/Mac/i.test(userAgent)) platform = "Macintosh"
+  else if (/Linux/i.test(userAgent)) platform = "Linux"
+  else if (/Android/i.test(userAgent)) platform = "Android"
+  else if (/iPhone|iPad/i.test(userAgent)) platform = "iOS"
 
   // Vendor detection
-  if (/Apple/i.test(userAgent)) vendor = 'Apple'
-  else if (/Samsung/i.test(userAgent)) vendor = 'Samsung'
-  else if (/Google/i.test(userAgent)) vendor = 'Google'
-  else if (/Microsoft/i.test(userAgent)) vendor = 'Microsoft'
+  if (/Apple/i.test(userAgent)) vendor = "Apple"
+  else if (/Samsung/i.test(userAgent)) vendor = "Samsung"
+  else if (/Google/i.test(userAgent)) vendor = "Google"
+  else if (/Microsoft/i.test(userAgent)) vendor = "Microsoft"
 
   // Model detection (for mobile devices)
   const modelMatch = userAgent.match(/(iPhone|iPad|iPod|Galaxy|Pixel|Nexus)\s*([^;)]+)/i)
@@ -251,10 +251,10 @@ const detectHardwareInfo = (userAgent: string): HardwareInfo => {
 }
 
 const detectBrowser = (userAgent: string): BrowserMetrics => {
-  let browserName = 'Unknown'
-  let browserVersion = 'Unknown'
-  let engineName = 'Unknown'
-  let engineVersion = 'Unknown'
+  let browserName = "Unknown"
+  let browserVersion = "Unknown"
+  let engineName = "Unknown"
+  let engineVersion = "Unknown"
   const features: string[] = []
   const capabilities: BrowserCapability[] = []
   const securityFeatures: string[] = []
@@ -262,62 +262,62 @@ const detectBrowser = (userAgent: string): BrowserMetrics => {
 
   // Browser detection
   if (/Chrome/i.test(userAgent) && !/Edge|Edg/i.test(userAgent)) {
-    browserName = 'Chrome'
+    browserName = "Chrome"
     const chromeMatch = userAgent.match(/Chrome\/([\d.]+)/i)
     if (chromeMatch) browserVersion = chromeMatch[1]
-    engineName = 'Blink'
+    engineName = "Blink"
   } else if (/Firefox/i.test(userAgent)) {
-    browserName = 'Firefox'
+    browserName = "Firefox"
     const firefoxMatch = userAgent.match(/Firefox\/([\d.]+)/i)
     if (firefoxMatch) browserVersion = firefoxMatch[1]
-    engineName = 'Gecko'
+    engineName = "Gecko"
   } else if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) {
-    browserName = 'Safari'
+    browserName = "Safari"
     const safariMatch = userAgent.match(/Version\/([\d.]+)/i)
     if (safariMatch) browserVersion = safariMatch[1]
-    engineName = 'WebKit'
+    engineName = "WebKit"
   } else if (/Edge|Edg/i.test(userAgent)) {
-    browserName = 'Edge'
+    browserName = "Edge"
     const edgeMatch = userAgent.match(/Edg?\/([\d.]+)/i)
     if (edgeMatch) browserVersion = edgeMatch[1]
-    engineName = 'Blink'
+    engineName = "Blink"
   } else if (/Opera|OPR/i.test(userAgent)) {
-    browserName = 'Opera'
+    browserName = "Opera"
     const operaMatch = userAgent.match(/(?:Opera|OPR)\/([\d.]+)/i)
     if (operaMatch) browserVersion = operaMatch[1]
-    engineName = 'Blink'
+    engineName = "Blink"
   }
 
   // Engine version detection
-  if (engineName === 'Blink' || engineName === 'WebKit') {
+  if (engineName === "Blink" || engineName === "WebKit") {
     const webkitMatch = userAgent.match(/WebKit\/([\d.]+)/i)
     if (webkitMatch) engineVersion = webkitMatch[1]
-  } else if (engineName === 'Gecko') {
+  } else if (engineName === "Gecko") {
     const geckoMatch = userAgent.match(/Gecko\/([\d]+)/i)
     if (geckoMatch) engineVersion = geckoMatch[1]
   }
 
   // Features detection
-  if (/Mobile/i.test(userAgent)) features.push('Mobile')
-  if (/Tablet/i.test(userAgent)) features.push('Tablet')
-  if (/WebGL/i.test(userAgent)) features.push('WebGL')
-  if (/WebRTC/i.test(userAgent)) features.push('WebRTC')
+  if (/Mobile/i.test(userAgent)) features.push("Mobile")
+  if (/Tablet/i.test(userAgent)) features.push("Tablet")
+  if (/WebGL/i.test(userAgent)) features.push("WebGL")
+  if (/WebRTC/i.test(userAgent)) features.push("WebRTC")
 
   // Security features
-  if (/Secure/i.test(userAgent)) securityFeatures.push('Secure Context')
-  if (browserName === 'Chrome' || browserName === 'Firefox' || browserName === 'Edge') {
-    securityFeatures.push('Content Security Policy')
-    securityFeatures.push('HTTPS Enforcement')
+  if (/Secure/i.test(userAgent)) securityFeatures.push("Secure Context")
+  if (browserName === "Chrome" || browserName === "Firefox" || browserName === "Edge") {
+    securityFeatures.push("Content Security Policy")
+    securityFeatures.push("HTTPS Enforcement")
   }
 
   // Modern features (based on browser and version)
-  const majorVersion = parseInt(browserVersion.split('.')[0])
-  if (browserName === 'Chrome' && majorVersion >= 80) {
-    modernFeatures.push('ES2020 Support', 'WebAssembly', 'Service Workers')
-  } else if (browserName === 'Firefox' && majorVersion >= 75) {
-    modernFeatures.push('ES2020 Support', 'WebAssembly', 'Service Workers')
-  } else if (browserName === 'Safari' && majorVersion >= 13) {
-    modernFeatures.push('ES2019 Support', 'WebAssembly')
+  const majorVersion = parseInt(browserVersion.split(".")[0])
+  if (browserName === "Chrome" && majorVersion >= 80) {
+    modernFeatures.push("ES2020 Support", "WebAssembly", "Service Workers")
+  } else if (browserName === "Firefox" && majorVersion >= 75) {
+    modernFeatures.push("ES2020 Support", "WebAssembly", "Service Workers")
+  } else if (browserName === "Safari" && majorVersion >= 13) {
+    modernFeatures.push("ES2019 Support", "WebAssembly")
   }
 
   return {
@@ -346,8 +346,8 @@ const performUserAgentAnalysis = (
     isMobile: false,
     isTablet: false,
     isDesktop: false,
-    privacyLevel: 'medium',
-    securityRisk: 'low',
+    privacyLevel: "medium",
+    securityRisk: "low",
     suggestedImprovements: [],
     userAgentIssues: [],
     qualityScore: 100,
@@ -358,49 +358,49 @@ const performUserAgentAnalysis = (
   // Basic validation
   if (!userAgent || userAgent.length < 10) {
     analysis.isValidUserAgent = false
-    analysis.userAgentIssues.push('User agent string is too short or empty')
+    analysis.userAgentIssues.push("User agent string is too short or empty")
     analysis.qualityScore -= 50
   }
 
   if (!metrics.hasValidStructure) {
-    analysis.userAgentIssues.push('User agent lacks standard browser identification')
+    analysis.userAgentIssues.push("User agent lacks standard browser identification")
     analysis.qualityScore -= 30
   }
 
   // Device type analysis
-  analysis.isMobile = device.deviceType === 'mobile'
-  analysis.isTablet = device.deviceType === 'tablet'
-  analysis.isDesktop = device.deviceType === 'desktop'
-  analysis.isBot = device.deviceType === 'bot'
+  analysis.isMobile = device.deviceType === "mobile"
+  analysis.isTablet = device.deviceType === "tablet"
+  analysis.isDesktop = device.deviceType === "desktop"
+  analysis.isBot = device.deviceType === "bot"
 
   // Modern structure check
   analysis.hasModernStructure =
     metrics.detectedComponents.length > 2 &&
-    (metrics.detectedComponents.includes('WebKit') || metrics.detectedComponents.includes('Gecko'))
+    (metrics.detectedComponents.includes("WebKit") || metrics.detectedComponents.includes("Gecko"))
 
   if (!analysis.hasModernStructure) {
-    analysis.suggestedImprovements.push('Consider using a modern browser engine (WebKit/Gecko)')
+    analysis.suggestedImprovements.push("Consider using a modern browser engine (WebKit/Gecko)")
     analysis.qualityScore -= 20
   }
 
   // Privacy level assessment
   if (metrics.privacyFeatures.length > 1) {
-    analysis.privacyLevel = 'high'
+    analysis.privacyLevel = "high"
   } else if (metrics.privacyFeatures.length === 1) {
-    analysis.privacyLevel = 'medium'
+    analysis.privacyLevel = "medium"
   } else {
-    analysis.privacyLevel = 'low'
-    analysis.suggestedImprovements.push('Enable privacy features like Do Not Track')
+    analysis.privacyLevel = "low"
+    analysis.suggestedImprovements.push("Enable privacy features like Do Not Track")
   }
 
   // Security risk assessment
   if (browser.securityFeatures.length > 2) {
-    analysis.securityRisk = 'minimal'
+    analysis.securityRisk = "minimal"
   } else if (browser.securityFeatures.length > 0) {
-    analysis.securityRisk = 'low'
+    analysis.securityRisk = "low"
   } else {
-    analysis.securityRisk = 'medium'
-    analysis.suggestedImprovements.push('Update to a browser with modern security features')
+    analysis.securityRisk = "medium"
+    analysis.suggestedImprovements.push("Update to a browser with modern security features")
   }
 
   // Modernity score calculation
@@ -413,21 +413,21 @@ const performUserAgentAnalysis = (
   analysis.modernityScore = Math.min(100, modernityScore)
 
   // Compatibility issues
-  const browserVersion = parseInt(browser.browserVersion.split('.')[0])
-  if (browser.browserName === 'Internet Explorer') {
-    analysis.compatibilityIssues.push('Internet Explorer is deprecated and unsupported')
+  const browserVersion = parseInt(browser.browserVersion.split(".")[0])
+  if (browser.browserName === "Internet Explorer") {
+    analysis.compatibilityIssues.push("Internet Explorer is deprecated and unsupported")
     analysis.qualityScore -= 40
-  } else if (browser.browserName === 'Chrome' && browserVersion < 70) {
-    analysis.compatibilityIssues.push('Chrome version is outdated')
+  } else if (browser.browserName === "Chrome" && browserVersion < 70) {
+    analysis.compatibilityIssues.push("Chrome version is outdated")
     analysis.qualityScore -= 20
-  } else if (browser.browserName === 'Firefox' && browserVersion < 65) {
-    analysis.compatibilityIssues.push('Firefox version is outdated')
+  } else if (browser.browserName === "Firefox" && browserVersion < 65) {
+    analysis.compatibilityIssues.push("Firefox version is outdated")
     analysis.qualityScore -= 20
   }
 
   // Bot detection
   if (analysis.isBot) {
-    analysis.suggestedImprovements.push('Bot detected - ensure proper bot identification')
+    analysis.suggestedImprovements.push("Bot detected - ensure proper bot identification")
   }
 
   return analysis
@@ -436,106 +436,106 @@ const performUserAgentAnalysis = (
 // User Agent templates
 const userAgentTemplates: UserAgentTemplate[] = [
   {
-    id: 'chrome-desktop',
-    name: 'Chrome Desktop (Windows)',
-    description: 'Latest Chrome browser on Windows desktop',
-    category: 'Desktop',
+    id: "chrome-desktop",
+    name: "Chrome Desktop (Windows)",
+    description: "Latest Chrome browser on Windows desktop",
+    category: "Desktop",
     userAgent:
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    deviceType: 'desktop',
-    browserName: 'Chrome',
-    osName: 'Windows',
-    features: ['Modern Engine', 'Security Features', 'ES2020 Support'],
-    useCase: ['Web Development', 'Testing', 'General Browsing'],
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    deviceType: "desktop",
+    browserName: "Chrome",
+    osName: "Windows",
+    features: ["Modern Engine", "Security Features", "ES2020 Support"],
+    useCase: ["Web Development", "Testing", "General Browsing"],
   },
   {
-    id: 'firefox-desktop',
-    name: 'Firefox Desktop (macOS)',
-    description: 'Latest Firefox browser on macOS',
-    category: 'Desktop',
-    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/120.0',
-    deviceType: 'desktop',
-    browserName: 'Firefox',
-    osName: 'macOS',
-    features: ['Gecko Engine', 'Privacy Features', 'Open Source'],
-    useCase: ['Privacy-focused Browsing', 'Development', 'Testing'],
+    id: "firefox-desktop",
+    name: "Firefox Desktop (macOS)",
+    description: "Latest Firefox browser on macOS",
+    category: "Desktop",
+    userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/120.0",
+    deviceType: "desktop",
+    browserName: "Firefox",
+    osName: "macOS",
+    features: ["Gecko Engine", "Privacy Features", "Open Source"],
+    useCase: ["Privacy-focused Browsing", "Development", "Testing"],
   },
   {
-    id: 'safari-desktop',
-    name: 'Safari Desktop (macOS)',
-    description: 'Safari browser on macOS',
-    category: 'Desktop',
+    id: "safari-desktop",
+    name: "Safari Desktop (macOS)",
+    description: "Safari browser on macOS",
+    category: "Desktop",
     userAgent:
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
-    deviceType: 'desktop',
-    browserName: 'Safari',
-    osName: 'macOS',
-    features: ['WebKit Engine', 'Apple Integration', 'Energy Efficient'],
-    useCase: ['macOS Users', 'Apple Ecosystem', 'Testing'],
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15",
+    deviceType: "desktop",
+    browserName: "Safari",
+    osName: "macOS",
+    features: ["WebKit Engine", "Apple Integration", "Energy Efficient"],
+    useCase: ["macOS Users", "Apple Ecosystem", "Testing"],
   },
   {
-    id: 'chrome-mobile',
-    name: 'Chrome Mobile (Android)',
-    description: 'Chrome browser on Android mobile device',
-    category: 'Mobile',
+    id: "chrome-mobile",
+    name: "Chrome Mobile (Android)",
+    description: "Chrome browser on Android mobile device",
+    category: "Mobile",
     userAgent:
-      'Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
-    deviceType: 'mobile',
-    browserName: 'Chrome',
-    osName: 'Android',
-    features: ['Mobile Optimized', 'Touch Support', 'Modern Features'],
-    useCase: ['Mobile Testing', 'Responsive Design', 'Mobile Development'],
+      "Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    deviceType: "mobile",
+    browserName: "Chrome",
+    osName: "Android",
+    features: ["Mobile Optimized", "Touch Support", "Modern Features"],
+    useCase: ["Mobile Testing", "Responsive Design", "Mobile Development"],
   },
   {
-    id: 'safari-mobile',
-    name: 'Safari Mobile (iOS)',
-    description: 'Safari browser on iPhone',
-    category: 'Mobile',
+    id: "safari-mobile",
+    name: "Safari Mobile (iOS)",
+    description: "Safari browser on iPhone",
+    category: "Mobile",
     userAgent:
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
-    deviceType: 'mobile',
-    browserName: 'Safari',
-    osName: 'iOS',
-    features: ['iOS Integration', 'Touch Optimized', 'Apple Features'],
-    useCase: ['iOS Testing', 'Mobile Development', 'Apple Devices'],
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1",
+    deviceType: "mobile",
+    browserName: "Safari",
+    osName: "iOS",
+    features: ["iOS Integration", "Touch Optimized", "Apple Features"],
+    useCase: ["iOS Testing", "Mobile Development", "Apple Devices"],
   },
   {
-    id: 'edge-desktop',
-    name: 'Edge Desktop (Windows)',
-    description: 'Microsoft Edge browser on Windows',
-    category: 'Desktop',
+    id: "edge-desktop",
+    name: "Edge Desktop (Windows)",
+    description: "Microsoft Edge browser on Windows",
+    category: "Desktop",
     userAgent:
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
-    deviceType: 'desktop',
-    browserName: 'Edge',
-    osName: 'Windows',
-    features: ['Chromium Based', 'Microsoft Integration', 'Enterprise Features'],
-    useCase: ['Windows Users', 'Enterprise', 'Microsoft Ecosystem'],
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+    deviceType: "desktop",
+    browserName: "Edge",
+    osName: "Windows",
+    features: ["Chromium Based", "Microsoft Integration", "Enterprise Features"],
+    useCase: ["Windows Users", "Enterprise", "Microsoft Ecosystem"],
   },
   {
-    id: 'googlebot',
-    name: 'Googlebot',
-    description: 'Google search engine crawler',
-    category: 'Bot',
-    userAgent: 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-    deviceType: 'bot',
-    browserName: 'Googlebot',
-    osName: 'Unknown',
-    features: ['Web Crawler', 'SEO Indexing', 'Google Services'],
-    useCase: ['SEO Testing', 'Bot Detection', 'Search Engine Optimization'],
+    id: "googlebot",
+    name: "Googlebot",
+    description: "Google search engine crawler",
+    category: "Bot",
+    userAgent: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+    deviceType: "bot",
+    browserName: "Googlebot",
+    osName: "Unknown",
+    features: ["Web Crawler", "SEO Indexing", "Google Services"],
+    useCase: ["SEO Testing", "Bot Detection", "Search Engine Optimization"],
   },
   {
-    id: 'ipad-safari',
-    name: 'Safari Tablet (iPad)',
-    description: 'Safari browser on iPad tablet',
-    category: 'Tablet',
+    id: "ipad-safari",
+    name: "Safari Tablet (iPad)",
+    description: "Safari browser on iPad tablet",
+    category: "Tablet",
     userAgent:
-      'Mozilla/5.0 (iPad; CPU OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
-    deviceType: 'tablet',
-    browserName: 'Safari',
-    osName: 'iOS',
-    features: ['Tablet Optimized', 'Large Screen', 'Touch Interface'],
-    useCase: ['Tablet Testing', 'Responsive Design', 'iPad Development'],
+      "Mozilla/5.0 (iPad; CPU OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1",
+    deviceType: "tablet",
+    browserName: "Safari",
+    osName: "iOS",
+    features: ["Tablet Optimized", "Large Screen", "Touch Interface"],
+    useCase: ["Tablet Testing", "Responsive Design", "iPad Development"],
   },
 ]
 
@@ -551,42 +551,42 @@ const validateUserAgent = (userAgent: string): UserAgentValidation => {
   if (!userAgent || userAgent.trim().length === 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'User agent string cannot be empty',
-      type: 'format',
-      severity: 'error',
+      message: "User agent string cannot be empty",
+      type: "format",
+      severity: "error",
     })
     return validation
   }
 
   if (userAgent.length < 10) {
-    validation.warnings.push('User agent string is unusually short')
-    validation.suggestions.push('Ensure the user agent contains proper browser identification')
+    validation.warnings.push("User agent string is unusually short")
+    validation.suggestions.push("Ensure the user agent contains proper browser identification")
   }
 
   if (userAgent.length > 1000) {
-    validation.warnings.push('User agent string is unusually long')
-    validation.suggestions.push('Consider if all information in the user agent is necessary')
+    validation.warnings.push("User agent string is unusually long")
+    validation.suggestions.push("Consider if all information in the user agent is necessary")
   }
 
   // Check for basic structure
   if (!/Mozilla/i.test(userAgent)) {
-    validation.warnings.push('User agent does not start with Mozilla identifier')
-    validation.suggestions.push('Most browsers include Mozilla in their user agent string')
+    validation.warnings.push("User agent does not start with Mozilla identifier")
+    validation.suggestions.push("Most browsers include Mozilla in their user agent string")
   }
 
   // Check for suspicious patterns
   if (/script|javascript|eval|alert/i.test(userAgent)) {
     validation.errors.push({
-      message: 'User agent contains potentially malicious content',
-      type: 'security',
-      severity: 'error',
+      message: "User agent contains potentially malicious content",
+      type: "security",
+      severity: "error",
     })
   }
 
   // Check for common bot patterns
   if (/bot|crawler|spider|scraper/i.test(userAgent)) {
-    validation.warnings.push('User agent appears to be from a bot or crawler')
-    validation.suggestions.push('Ensure proper bot identification if this is intentional')
+    validation.warnings.push("User agent appears to be from a bot or crawler")
+    validation.suggestions.push("Ensure proper bot identification if this is intentional")
   }
 
   return validation
@@ -630,7 +630,7 @@ const useUserAgentProcessing = () => {
         id: nanoid(),
         input: userAgent,
         isValid: false,
-        error: error instanceof Error ? error.message : 'Processing failed',
+        error: error instanceof Error ? error.message : "Processing failed",
         statistics: {
           inputSize: new Blob([userAgent]).size,
           processingTime,
@@ -643,18 +643,18 @@ const useUserAgentProcessing = () => {
             privacyFeatures: [],
           },
           deviceMetrics: {
-            deviceType: 'unknown',
-            operatingSystem: { name: 'Unknown', version: 'Unknown', family: 'Unknown' },
-            architecture: 'unknown',
+            deviceType: "unknown",
+            operatingSystem: { name: "Unknown", version: "Unknown", family: "Unknown" },
+            architecture: "unknown",
             touchSupport: false,
             mobileFeatures: [],
-            hardwareInfo: { platform: 'Unknown' },
+            hardwareInfo: { platform: "Unknown" },
           },
           browserMetrics: {
-            browserName: 'Unknown',
-            browserVersion: 'Unknown',
-            engineName: 'Unknown',
-            engineVersion: 'Unknown',
+            browserName: "Unknown",
+            browserVersion: "Unknown",
+            engineName: "Unknown",
+            engineVersion: "Unknown",
             features: [],
             capabilities: [],
             securityFeatures: [],
@@ -718,8 +718,8 @@ const useUserAgentProcessing = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch processing error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch processing failed')
+        console.error("Batch processing error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch processing failed")
       }
     },
     [processSingle]
@@ -758,13 +758,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -774,12 +774,12 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useUserAgentExport = () => {
   const exportResults = useCallback((results: UserAgentProcessingResult[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         const jsonData = results.map((result) => ({
           id: result.id,
           userAgent: result.input,
@@ -791,39 +791,39 @@ const useUserAgentExport = () => {
           createdAt: result.createdAt,
         }))
         content = JSON.stringify(jsonData, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         const csvHeaders = [
-          'User Agent',
-          'Valid',
-          'Device Type',
-          'Browser',
-          'Browser Version',
-          'OS',
-          'OS Version',
-          'Quality Score',
-          'Security Risk',
-          'Privacy Level',
+          "User Agent",
+          "Valid",
+          "Device Type",
+          "Browser",
+          "Browser Version",
+          "OS",
+          "OS Version",
+          "Quality Score",
+          "Security Risk",
+          "Privacy Level",
         ]
         const csvRows = results.map((result) => [
           `"${result.input.replace(/"/g, '""')}"`,
-          result.isValid ? 'Yes' : 'No',
+          result.isValid ? "Yes" : "No",
           result.statistics.deviceMetrics.deviceType,
           result.statistics.browserMetrics.browserName,
           result.statistics.browserMetrics.browserVersion,
           result.statistics.deviceMetrics.operatingSystem.name,
           result.statistics.deviceMetrics.operatingSystem.version,
-          result.analysis?.qualityScore?.toFixed(1) || 'N/A',
-          result.analysis?.securityRisk || 'Unknown',
-          result.analysis?.privacyLevel || 'Unknown',
+          result.analysis?.qualityScore?.toFixed(1) || "N/A",
+          result.analysis?.securityRisk || "Unknown",
+          result.analysis?.privacyLevel || "Unknown",
         ])
-        content = [csvHeaders.join(','), ...csvRows.map((row) => row.join(','))].join('\n')
-        mimeType = 'text/csv'
-        extension = '.csv'
+        content = [csvHeaders.join(","), ...csvRows.map((row) => row.join(","))].join("\n")
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         const xmlData = results
           .map(
             (result) => `
@@ -842,27 +842,27 @@ const useUserAgentExport = () => {
     </browser>
     <analysis>
       <qualityScore>${result.analysis?.qualityScore || 0}</qualityScore>
-      <securityRisk>${result.analysis?.securityRisk || 'unknown'}</securityRisk>
-      <privacyLevel>${result.analysis?.privacyLevel || 'unknown'}</privacyLevel>
+      <securityRisk>${result.analysis?.securityRisk || "unknown"}</securityRisk>
+      <privacyLevel>${result.analysis?.privacyLevel || "unknown"}</privacyLevel>
     </analysis>
   </userAgent>`
           )
-          .join('')
+          .join("")
         content = `<?xml version="1.0" encoding="UTF-8"?>\n<userAgents>${xmlData}\n</userAgents>`
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromResults(results)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `user-agent-analysis${extension}`
     document.body.appendChild(link)
@@ -888,20 +888,20 @@ Results:
 ${results
   .map((result, i) => {
     return `${i + 1}. User Agent Analysis
-   Status: ${result.isValid ? 'Valid' : 'Invalid'}
-   ${result.error ? `Error: ${result.error}` : ''}
+   Status: ${result.isValid ? "Valid" : "Invalid"}
+   ${result.error ? `Error: ${result.error}` : ""}
    User Agent: ${result.input}
    Device Type: ${result.statistics.deviceMetrics.deviceType}
    Browser: ${result.statistics.browserMetrics.browserName} ${result.statistics.browserMetrics.browserVersion}
    Operating System: ${result.statistics.deviceMetrics.operatingSystem.name} ${result.statistics.deviceMetrics.operatingSystem.version}
    Engine: ${result.statistics.browserMetrics.engineName} ${result.statistics.browserMetrics.engineVersion}
-   Quality Score: ${result.analysis?.qualityScore?.toFixed(1) || 'N/A'}/100
-   Security Risk: ${result.analysis?.securityRisk || 'Unknown'}
-   Privacy Level: ${result.analysis?.privacyLevel || 'Unknown'}
+   Quality Score: ${result.analysis?.qualityScore?.toFixed(1) || "N/A"}/100
+   Security Risk: ${result.analysis?.securityRisk || "Unknown"}
+   Privacy Level: ${result.analysis?.privacyLevel || "Unknown"}
    Processing Time: ${result.statistics.processingTime.toFixed(2)}ms
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
@@ -915,15 +915,15 @@ Statistics:
  * Features: Advanced UA parsing, device detection, browser analysis, security assessment
  */
 const UserAgentCore = () => {
-  const [activeTab, setActiveTab] = useState<'analyzer' | 'batch' | 'detector' | 'templates'>('analyzer')
-  const [userAgent, setUserAgent] = useState('')
+  const [activeTab, setActiveTab] = useState<"analyzer" | "batch" | "detector" | "templates">("analyzer")
+  const [userAgent, setUserAgent] = useState("")
   const [currentResult, setCurrentResult] = useState<UserAgentProcessingResult | null>(null)
   const [batches, setBatches] = useState<ProcessingBatch[]>([])
-  const [batchInput, setBatchInput] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [batchInput, setBatchInput] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [showDetailedAnalysis, setShowDetailedAnalysis] = useState(false)
-  const [currentUserAgent, setCurrentUserAgent] = useState('')
+  const [currentUserAgent, setCurrentUserAgent] = useState("")
   const [settings, setSettings] = useState<ProcessingSettings>({
     includeDeviceInfo: true,
     includeBrowserInfo: true,
@@ -931,7 +931,7 @@ const UserAgentCore = () => {
     includePrivacyAnalysis: true,
     detectBots: true,
     analyzeCapabilities: true,
-    exportFormat: 'json',
+    exportFormat: "json",
     realTimeProcessing: true,
     showDetailedAnalysis: false,
   })
@@ -943,7 +943,7 @@ const UserAgentCore = () => {
 
   // Get current user agent on component mount
   useEffect(() => {
-    if (typeof navigator !== 'undefined') {
+    if (typeof navigator !== "undefined") {
       setCurrentUserAgent(navigator.userAgent)
       if (!userAgent) {
         setUserAgent(navigator.userAgent)
@@ -964,7 +964,7 @@ const UserAgentCore = () => {
   // Handle single processing
   const handleProcessSingle = useCallback(async () => {
     if (!userAgent.trim()) {
-      toast.error('Please enter a user agent string to analyze')
+      toast.error("Please enter a user agent string to analyze")
       return
     }
 
@@ -974,12 +974,12 @@ const UserAgentCore = () => {
       setCurrentResult(result)
 
       if (result.isValid) {
-        toast.success('User agent analyzed successfully')
+        toast.success("User agent analyzed successfully")
       } else {
-        toast.error(result.error || 'Analysis failed')
+        toast.error(result.error || "Analysis failed")
       }
     } catch (error) {
-      toast.error('Failed to analyze user agent')
+      toast.error("Failed to analyze user agent")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -988,10 +988,10 @@ const UserAgentCore = () => {
 
   // Handle batch processing
   const handleProcessBatch = useCallback(async () => {
-    const userAgents = batchInput.split('\n').filter((ua) => ua.trim())
+    const userAgents = batchInput.split("\n").filter((ua) => ua.trim())
 
     if (userAgents.length === 0) {
-      toast.error('Please enter user agent strings to analyze')
+      toast.error("Please enter user agent strings to analyze")
       return
     }
 
@@ -1001,7 +1001,7 @@ const UserAgentCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Analyzed ${batch.results.length} user agent strings`)
     } catch (error) {
-      toast.error('Failed to process batch')
+      toast.error("Failed to process batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -1028,12 +1028,15 @@ const UserAgentCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5" aria-hidden="true" />
+              <Globe className="h-5 w-5" />
               User Agent Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -1048,29 +1051,44 @@ const UserAgentCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'analyzer' | 'batch' | 'detector' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "analyzer" | "batch" | "detector" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="analyzer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analyzer"
+              className="flex items-center gap-2"
+            >
               <Search className="h-4 w-4" />
               UA Analyzer
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Analysis
             </TabsTrigger>
-            <TabsTrigger value="detector" className="flex items-center gap-2">
+            <TabsTrigger
+              value="detector"
+              className="flex items-center gap-2"
+            >
               <Shield className="h-4 w-4" />
               Device Detector
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               UA Templates
             </TabsTrigger>
           </TabsList>
 
           {/* User Agent Analyzer Tab */}
-          <TabsContent value="analyzer" className="space-y-4">
+          <TabsContent
+            value="analyzer"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Input Section */}
               <Card>
@@ -1082,7 +1100,10 @@ const UserAgentCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="ua-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="ua-input"
+                      className="text-sm font-medium"
+                    >
                       User Agent String
                     </Label>
                     <Textarea
@@ -1091,7 +1112,6 @@ const UserAgentCore = () => {
                       onChange={(e) => setUserAgent(e.target.value)}
                       placeholder="Enter user agent string to analyze..."
                       className="mt-2 min-h-[120px] font-mono text-sm"
-                      aria-label="User agent string input for analysis"
                     />
                     {settings.realTimeProcessing && userAgent && (
                       <div className="mt-2 text-sm">
@@ -1115,7 +1135,12 @@ const UserAgentCore = () => {
                     <div className="border rounded-lg p-3 bg-muted/50">
                       <Label className="text-sm font-medium mb-2 block">Your Current User Agent</Label>
                       <div className="font-mono text-xs break-all text-muted-foreground">{currentUserAgent}</div>
-                      <Button size="sm" variant="ghost" className="mt-2" onClick={() => setUserAgent(currentUserAgent)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="mt-2"
+                        onClick={() => setUserAgent(currentUserAgent)}
+                      >
                         Use Current UA
                       </Button>
                     </div>
@@ -1134,7 +1159,10 @@ const UserAgentCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeDeviceInfo: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-device" className="text-xs">
+                        <Label
+                          htmlFor="include-device"
+                          className="text-xs"
+                        >
                           Include device information
                         </Label>
                       </div>
@@ -1147,7 +1175,10 @@ const UserAgentCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeBrowserInfo: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-browser" className="text-xs">
+                        <Label
+                          htmlFor="include-browser"
+                          className="text-xs"
+                        >
                           Include browser information
                         </Label>
                       </div>
@@ -1162,7 +1193,10 @@ const UserAgentCore = () => {
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-security" className="text-xs">
+                        <Label
+                          htmlFor="include-security"
+                          className="text-xs"
+                        >
                           Include security analysis
                         </Label>
                       </div>
@@ -1175,7 +1209,10 @@ const UserAgentCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, detectBots: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="detect-bots" className="text-xs">
+                        <Label
+                          htmlFor="detect-bots"
+                          className="text-xs"
+                        >
                           Detect bots and crawlers
                         </Label>
                       </div>
@@ -1188,7 +1225,10 @@ const UserAgentCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, realTimeProcessing: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="real-time-processing" className="text-xs">
+                        <Label
+                          htmlFor="real-time-processing"
+                          className="text-xs"
+                        >
                           Real-time analysis
                         </Label>
                       </div>
@@ -1209,11 +1249,11 @@ const UserAgentCore = () => {
                       Analyze User Agent
                     </Button>
                     <Button
-                      onClick={() => copyToClipboard(userAgent, 'User Agent')}
+                      onClick={() => copyToClipboard(userAgent, "User Agent")}
                       variant="outline"
                       disabled={!userAgent.trim()}
                     >
-                      {copiedText === 'User Agent' ? (
+                      {copiedText === "User Agent" ? (
                         <Check className="mr-2 h-4 w-4" />
                       ) : (
                         <Copy className="mr-2 h-4 w-4" />
@@ -1222,7 +1262,7 @@ const UserAgentCore = () => {
                     </Button>
                     <Button
                       onClick={() => {
-                        setUserAgent('')
+                        setUserAgent("")
                         setCurrentResult(null)
                       }}
                       variant="outline"
@@ -1237,7 +1277,10 @@ const UserAgentCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-yellow-800">Warnings:</h4>
                       <div className="text-xs space-y-1">
                         {userAgentValidation.warnings.map((warning, index) => (
-                          <div key={index} className="text-yellow-700">
+                          <div
+                            key={index}
+                            className="text-yellow-700"
+                          >
                             {warning}
                           </div>
                         ))}
@@ -1250,7 +1293,10 @@ const UserAgentCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-blue-800">Suggestions:</h4>
                       <div className="text-xs space-y-1">
                         {userAgentValidation.suggestions.map((suggestion, index) => (
-                          <div key={index} className="text-blue-700">
+                          <div
+                            key={index}
+                            className="text-blue-700"
+                          >
                             {suggestion}
                           </div>
                         ))}
@@ -1267,7 +1313,11 @@ const UserAgentCore = () => {
                     <Info className="h-5 w-5" />
                     Analysis Results
                     <div className="ml-auto">
-                      <Button size="sm" variant="ghost" onClick={() => setShowDetailedAnalysis(!showDetailedAnalysis)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowDetailedAnalysis(!showDetailedAnalysis)}
+                      >
                         {showDetailedAnalysis ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
@@ -1278,7 +1328,7 @@ const UserAgentCore = () => {
                     <div className="space-y-4">
                       <div className="p-3 border rounded-lg">
                         <div className="text-sm font-medium mb-2">
-                          Analysis Status: {currentResult.isValid ? 'Success' : 'Failed'}
+                          Analysis Status: {currentResult.isValid ? "Success" : "Failed"}
                         </div>
                         {currentResult.error && (
                           <div className="text-red-600 text-sm mt-1">
@@ -1304,18 +1354,18 @@ const UserAgentCore = () => {
                                   <strong>Architecture:</strong> {currentResult.statistics.deviceMetrics.architecture}
                                 </div>
                                 <div>
-                                  <strong>Touch Support:</strong>{' '}
-                                  {currentResult.statistics.deviceMetrics.touchSupport ? 'Yes' : 'No'}
+                                  <strong>Touch Support:</strong>{" "}
+                                  {currentResult.statistics.deviceMetrics.touchSupport ? "Yes" : "No"}
                                 </div>
                               </div>
                               <div>
                                 <div>
-                                  <strong>Platform:</strong>{' '}
+                                  <strong>Platform:</strong>{" "}
                                   {currentResult.statistics.deviceMetrics.hardwareInfo.platform}
                                 </div>
                                 {currentResult.statistics.deviceMetrics.hardwareInfo.vendor && (
                                   <div>
-                                    <strong>Vendor:</strong>{' '}
+                                    <strong>Vendor:</strong>{" "}
                                     {currentResult.statistics.deviceMetrics.hardwareInfo.vendor}
                                   </div>
                                 )}
@@ -1337,22 +1387,22 @@ const UserAgentCore = () => {
                             <div className="grid grid-cols-2 gap-4 text-sm">
                               <div>
                                 <div>
-                                  <strong>OS Name:</strong>{' '}
+                                  <strong>OS Name:</strong>{" "}
                                   {currentResult.statistics.deviceMetrics.operatingSystem.name}
                                 </div>
                                 <div>
-                                  <strong>OS Version:</strong>{' '}
+                                  <strong>OS Version:</strong>{" "}
                                   {currentResult.statistics.deviceMetrics.operatingSystem.version}
                                 </div>
                               </div>
                               <div>
                                 <div>
-                                  <strong>OS Family:</strong>{' '}
+                                  <strong>OS Family:</strong>{" "}
                                   {currentResult.statistics.deviceMetrics.operatingSystem.family}
                                 </div>
                                 {currentResult.statistics.deviceMetrics.operatingSystem.architecture && (
                                   <div>
-                                    <strong>Architecture:</strong>{' '}
+                                    <strong>Architecture:</strong>{" "}
                                     {currentResult.statistics.deviceMetrics.operatingSystem.architecture}
                                   </div>
                                 )}
@@ -1380,7 +1430,7 @@ const UserAgentCore = () => {
                                   <strong>Engine:</strong> {currentResult.statistics.browserMetrics.engineName}
                                 </div>
                                 <div>
-                                  <strong>Engine Version:</strong>{' '}
+                                  <strong>Engine Version:</strong>{" "}
                                   {currentResult.statistics.browserMetrics.engineVersion}
                                 </div>
                               </div>
@@ -1396,24 +1446,24 @@ const UserAgentCore = () => {
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div>
                                 <div>
-                                  <strong>Quality Score:</strong>{' '}
-                                  {currentResult.analysis?.qualityScore?.toFixed(1) || 'N/A'}/100
+                                  <strong>Quality Score:</strong>{" "}
+                                  {currentResult.analysis?.qualityScore?.toFixed(1) || "N/A"}/100
                                 </div>
                               </div>
                               <div>
                                 <div>
-                                  <strong>Modernity Score:</strong>{' '}
-                                  {currentResult.analysis?.modernityScore?.toFixed(1) || 'N/A'}/100
+                                  <strong>Modernity Score:</strong>{" "}
+                                  {currentResult.analysis?.modernityScore?.toFixed(1) || "N/A"}/100
                                 </div>
                               </div>
                               <div>
                                 <div>
-                                  <strong>Security Risk:</strong> {currentResult.analysis?.securityRisk || 'Unknown'}
+                                  <strong>Security Risk:</strong> {currentResult.analysis?.securityRisk || "Unknown"}
                                 </div>
                               </div>
                               <div>
                                 <div>
-                                  <strong>Privacy Level:</strong> {currentResult.analysis?.privacyLevel || 'Unknown'}
+                                  <strong>Privacy Level:</strong> {currentResult.analysis?.privacyLevel || "Unknown"}
                                 </div>
                               </div>
                             </div>
@@ -1425,19 +1475,19 @@ const UserAgentCore = () => {
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div className="flex items-center gap-2">
                                 <Monitor className="h-4 w-4" />
-                                <span>Desktop: {currentResult.analysis?.isDesktop ? '✓' : '✗'}</span>
+                                <span>Desktop: {currentResult.analysis?.isDesktop ? "✓" : "✗"}</span>
                               </div>
                               <div className="flex items-center gap-2">
                                 <Smartphone className="h-4 w-4" />
-                                <span>Mobile: {currentResult.analysis?.isMobile ? '✓' : '✗'}</span>
+                                <span>Mobile: {currentResult.analysis?.isMobile ? "✓" : "✗"}</span>
                               </div>
                               <div className="flex items-center gap-2">
                                 <Tablet className="h-4 w-4" />
-                                <span>Tablet: {currentResult.analysis?.isTablet ? '✓' : '✗'}</span>
+                                <span>Tablet: {currentResult.analysis?.isTablet ? "✓" : "✗"}</span>
                               </div>
                               <div className="flex items-center gap-2">
                                 <Cpu className="h-4 w-4" />
-                                <span>Bot: {currentResult.analysis?.isBot ? '✓' : '✗'}</span>
+                                <span>Bot: {currentResult.analysis?.isBot ? "✓" : "✗"}</span>
                               </div>
                             </div>
                           </div>
@@ -1451,7 +1501,10 @@ const UserAgentCore = () => {
                                   <Label className="font-medium text-sm mb-3 block">Browser Features</Label>
                                   <div className="flex flex-wrap gap-2">
                                     {currentResult.statistics.browserMetrics.features.map((feature, index) => (
-                                      <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                                      <span
+                                        key={index}
+                                        className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs"
+                                      >
                                         {feature}
                                       </span>
                                     ))}
@@ -1520,7 +1573,10 @@ const UserAgentCore = () => {
                                       </Label>
                                       <ul className="text-sm space-y-1">
                                         {currentResult.analysis.suggestedImprovements.map((suggestion, index) => (
-                                          <li key={index} className="flex items-center gap-2">
+                                          <li
+                                            key={index}
+                                            className="flex items-center gap-2"
+                                          >
                                             <CheckCircle2 className="h-3 w-3 text-blue-600" />
                                             {suggestion}
                                           </li>
@@ -1536,7 +1592,10 @@ const UserAgentCore = () => {
                                       </Label>
                                       <ul className="text-sm space-y-1">
                                         {currentResult.analysis.compatibilityIssues.map((issue, index) => (
-                                          <li key={index} className="flex items-center gap-2">
+                                          <li
+                                            key={index}
+                                            className="flex items-center gap-2"
+                                          >
                                             <AlertCircle className="h-3 w-3 text-orange-600" />
                                             {issue}
                                           </li>
@@ -1552,7 +1611,10 @@ const UserAgentCore = () => {
                                       </Label>
                                       <ul className="text-sm space-y-1">
                                         {currentResult.analysis.userAgentIssues.map((issue, index) => (
-                                          <li key={index} className="flex items-center gap-2">
+                                          <li
+                                            key={index}
+                                            className="flex items-center gap-2"
+                                          >
                                             <AlertCircle className="h-3 w-3 text-red-600" />
                                             {issue}
                                           </li>
@@ -1581,7 +1643,7 @@ const UserAgentCore = () => {
                               </div>
                               <div>
                                 <div>
-                                  <strong>Components:</strong>{' '}
+                                  <strong>Components:</strong>{" "}
                                   {currentResult.statistics.userAgentMetrics.detectedComponents.length}
                                 </div>
                               </div>
@@ -1624,7 +1686,10 @@ const UserAgentCore = () => {
           </TabsContent>
 
           {/* Batch Analysis Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1636,7 +1701,10 @@ const UserAgentCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-input"
+                      className="text-sm font-medium"
+                    >
                       User Agent Strings (one per line)
                     </Label>
                     <Textarea
@@ -1645,13 +1713,15 @@ const UserAgentCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36&#10;Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15&#10;Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
                       className="mt-2 min-h-[200px] font-mono text-sm"
-                      aria-label="Batch user agent input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">Enter one user agent string per line</div>
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleProcessBatch} disabled={!batchInput.trim() || isProcessing}>
+                    <Button
+                      onClick={handleProcessBatch}
+                      disabled={!batchInput.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1659,7 +1729,10 @@ const UserAgentCore = () => {
                       )}
                       Analyze Batch
                     </Button>
-                    <Button onClick={() => setBatchInput('')} variant="outline">
+                    <Button
+                      onClick={() => setBatchInput("")}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Clear
                     </Button>
@@ -1677,7 +1750,10 @@ const UserAgentCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} user agents analyzed</h4>
@@ -1687,7 +1763,11 @@ const UserAgentCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportResults(batch.results, 'csv')}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportResults(batch.results, "csv")}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export CSV
                             </Button>
@@ -1709,7 +1789,7 @@ const UserAgentCore = () => {
                             <span className="font-medium">Invalid:</span> {batch.statistics.invalidCount}
                           </div>
                           <div>
-                            <span className="font-medium">Avg Quality:</span>{' '}
+                            <span className="font-medium">Avg Quality:</span>{" "}
                             {batch.statistics.averageQuality.toFixed(1)}
                           </div>
                         </div>
@@ -1720,7 +1800,10 @@ const UserAgentCore = () => {
                             <h5 className="font-medium text-sm mb-2">Device Types</h5>
                             <div className="space-y-1">
                               {Object.entries(batch.statistics.deviceTypeDistribution).map(([type, count]) => (
-                                <div key={type} className="flex justify-between text-xs">
+                                <div
+                                  key={type}
+                                  className="flex justify-between text-xs"
+                                >
                                   <span>{type}:</span>
                                   <span>{count}</span>
                                 </div>
@@ -1733,7 +1816,10 @@ const UserAgentCore = () => {
                               {Object.entries(batch.statistics.browserDistribution)
                                 .slice(0, 5)
                                 .map(([browser, count]) => (
-                                  <div key={browser} className="flex justify-between text-xs">
+                                  <div
+                                    key={browser}
+                                    className="flex justify-between text-xs"
+                                  >
                                     <span>{browser}:</span>
                                     <span>{count}</span>
                                   </div>
@@ -1746,7 +1832,10 @@ const UserAgentCore = () => {
                               {Object.entries(batch.statistics.osDistribution)
                                 .slice(0, 5)
                                 .map(([os, count]) => (
-                                  <div key={os} className="flex justify-between text-xs">
+                                  <div
+                                    key={os}
+                                    className="flex justify-between text-xs"
+                                  >
                                     <span>{os}:</span>
                                     <span>{count}</span>
                                   </div>
@@ -1758,26 +1847,29 @@ const UserAgentCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.results.slice(0, 5).map((result) => (
-                              <div key={result.id} className="text-xs border rounded p-2">
+                              <div
+                                key={result.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">
-                                    {result.statistics.browserMetrics.browserName} on{' '}
+                                    {result.statistics.browserMetrics.browserName} on{" "}
                                     {result.statistics.deviceMetrics.deviceType}
                                   </span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      result.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      result.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {result.isValid ? 'Valid' : 'Invalid'}
+                                    {result.isValid ? "Valid" : "Invalid"}
                                   </span>
                                 </div>
                                 {result.isValid && (
                                   <div className="text-muted-foreground mt-1">
-                                    {result.statistics.browserMetrics.browserName}{' '}
+                                    {result.statistics.browserMetrics.browserName}{" "}
                                     {result.statistics.browserMetrics.browserVersion} •
-                                    {result.statistics.deviceMetrics.operatingSystem.name} • Quality:{' '}
-                                    {result.analysis?.qualityScore?.toFixed(1) || 'N/A'}/100 •
+                                    {result.statistics.deviceMetrics.operatingSystem.name} • Quality:{" "}
+                                    {result.analysis?.qualityScore?.toFixed(1) || "N/A"}/100 •
                                     {result.statistics.processingTime.toFixed(2)}ms
                                   </div>
                                 )}
@@ -1800,7 +1892,10 @@ const UserAgentCore = () => {
           </TabsContent>
 
           {/* Device Detector Tab */}
-          <TabsContent value="detector" className="space-y-4">
+          <TabsContent
+            value="detector"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1818,36 +1913,36 @@ const UserAgentCore = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
                           <div>
-                            <strong>Browser:</strong>{' '}
-                            {typeof navigator !== 'undefined'
+                            <strong>Browser:</strong>{" "}
+                            {typeof navigator !== "undefined"
                               ? /Chrome/i.test(navigator.userAgent)
-                                ? 'Chrome'
+                                ? "Chrome"
                                 : /Firefox/i.test(navigator.userAgent)
-                                  ? 'Firefox'
+                                  ? "Firefox"
                                   : /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent)
-                                    ? 'Safari'
+                                    ? "Safari"
                                     : /Edge/i.test(navigator.userAgent)
-                                      ? 'Edge'
-                                      : 'Unknown'
-                              : 'Unknown'}
+                                      ? "Edge"
+                                      : "Unknown"
+                              : "Unknown"}
                           </div>
                           <div>
-                            <strong>Platform:</strong>{' '}
-                            {typeof navigator !== 'undefined' ? navigator.platform : 'Unknown'}
+                            <strong>Platform:</strong>{" "}
+                            {typeof navigator !== "undefined" ? navigator.platform : "Unknown"}
                           </div>
                           <div>
-                            <strong>Language:</strong>{' '}
-                            {typeof navigator !== 'undefined' ? navigator.language : 'Unknown'}
+                            <strong>Language:</strong>{" "}
+                            {typeof navigator !== "undefined" ? navigator.language : "Unknown"}
                           </div>
                         </div>
                         <div>
                           <div>
-                            <strong>Screen:</strong>{' '}
-                            {typeof screen !== 'undefined' ? `${screen.width}x${screen.height}` : 'Unknown'}
+                            <strong>Screen:</strong>{" "}
+                            {typeof screen !== "undefined" ? `${screen.width}x${screen.height}` : "Unknown"}
                           </div>
                           <div>
-                            <strong>Color Depth:</strong>{' '}
-                            {typeof screen !== 'undefined' ? `${screen.colorDepth} bits` : 'Unknown'}
+                            <strong>Color Depth:</strong>{" "}
+                            {typeof screen !== "undefined" ? `${screen.colorDepth} bits` : "Unknown"}
                           </div>
                           <div>
                             <strong>Timezone:</strong> {Intl.DateTimeFormat().resolvedOptions().timeZone}
@@ -1862,42 +1957,42 @@ const UserAgentCore = () => {
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                         <div className="space-y-2">
                           <div>
-                            Touch Support: {typeof navigator !== 'undefined' && 'ontouchstart' in window ? '✓' : '✗'}
+                            Touch Support: {typeof navigator !== "undefined" && "ontouchstart" in window ? "✓" : "✗"}
                           </div>
                           <div>
-                            Geolocation: {typeof navigator !== 'undefined' && 'geolocation' in navigator ? '✓' : '✗'}
+                            Geolocation: {typeof navigator !== "undefined" && "geolocation" in navigator ? "✓" : "✗"}
                           </div>
-                          <div>Local Storage: {typeof Storage !== 'undefined' ? '✓' : '✗'}</div>
+                          <div>Local Storage: {typeof Storage !== "undefined" ? "✓" : "✗"}</div>
                         </div>
                         <div className="space-y-2">
                           <div>
-                            WebGL:{' '}
+                            WebGL:{" "}
                             {(() => {
                               try {
-                                const canvas = document.createElement('canvas')
-                                return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
-                                  ? '✓'
-                                  : '✗'
+                                const canvas = document.createElement("canvas")
+                                return !!(canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+                                  ? "✓"
+                                  : "✗"
                               } catch {
-                                return '✗'
+                                return "✗"
                               }
                             })()}
                           </div>
-                          <div>WebRTC: {typeof RTCPeerConnection !== 'undefined' ? '✓' : '✗'}</div>
+                          <div>WebRTC: {typeof RTCPeerConnection !== "undefined" ? "✓" : "✗"}</div>
                           <div>
-                            Service Worker:{' '}
-                            {typeof navigator !== 'undefined' && 'serviceWorker' in navigator ? '✓' : '✗'}
+                            Service Worker:{" "}
+                            {typeof navigator !== "undefined" && "serviceWorker" in navigator ? "✓" : "✗"}
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <div>WebAssembly: {typeof WebAssembly !== 'undefined' ? '✓' : '✗'}</div>
+                          <div>WebAssembly: {typeof WebAssembly !== "undefined" ? "✓" : "✗"}</div>
                           <div>
-                            Push API:{' '}
-                            {typeof navigator !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window
-                              ? '✓'
-                              : '✗'}
+                            Push API:{" "}
+                            {typeof navigator !== "undefined" && "serviceWorker" in navigator && "PushManager" in window
+                              ? "✓"
+                              : "✗"}
                           </div>
-                          <div>Notifications: {typeof Notification !== 'undefined' ? '✓' : '✗'}</div>
+                          <div>Notifications: {typeof Notification !== "undefined" ? "✓" : "✗"}</div>
                         </div>
                       </div>
                     </div>
@@ -1907,11 +2002,18 @@ const UserAgentCore = () => {
                       <h3 className="font-medium mb-3">Your User Agent String</h3>
                       <div className="font-mono text-xs bg-muted p-3 rounded break-all">{currentUserAgent}</div>
                       <div className="flex gap-2 mt-3">
-                        <Button size="sm" onClick={() => copyToClipboard(currentUserAgent, 'Current User Agent')}>
+                        <Button
+                          size="sm"
+                          onClick={() => copyToClipboard(currentUserAgent, "Current User Agent")}
+                        >
                           <Copy className="mr-2 h-4 w-4" />
                           Copy UA
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => setUserAgent(currentUserAgent)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setUserAgent(currentUserAgent)}
+                        >
                           <ArrowRight className="mr-2 h-4 w-4" />
                           Analyze This UA
                         </Button>
@@ -1930,7 +2032,10 @@ const UserAgentCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1945,7 +2050,7 @@ const UserAgentCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1966,7 +2071,10 @@ const UserAgentCore = () => {
                             <div className="text-xs font-medium mb-1">Features:</div>
                             <div className="flex flex-wrap gap-1">
                               {template.features.map((feature, index) => (
-                                <span key={index} className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                                <span
+                                  key={index}
+                                  className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded"
+                                >
                                   {feature}
                                 </span>
                               ))}
@@ -1981,7 +2089,7 @@ const UserAgentCore = () => {
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>Use cases:</strong> {template.useCase.join(', ')}
+                            <strong>Use cases:</strong> {template.useCase.join(", ")}
                           </div>
                         )}
                       </div>
@@ -2003,7 +2111,10 @@ const UserAgentCore = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -2033,7 +2144,10 @@ const UserAgentCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, showDetailedAnalysis: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="detailed-analysis" className="text-xs">
+                      <Label
+                        htmlFor="detailed-analysis"
+                        className="text-xs"
+                      >
                         Show detailed analysis by default
                       </Label>
                     </div>
@@ -2046,7 +2160,7 @@ const UserAgentCore = () => {
                   <Button
                     onClick={() => {
                       const allResults = batches.flatMap((batch) => batch.results)
-                      exportResults(allResults, 'txt', 'user-agent-analysis-report.txt')
+                      exportResults(allResults, "txt", "user-agent-analysis-report.txt")
                     }}
                     variant="outline"
                   >

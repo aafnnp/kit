@@ -1,11 +1,11 @@
-import { useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -24,8 +24,8 @@ import {
   UserPlus,
   Briefcase,
   Heart,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   FakeUser,
   PersonalInfo,
@@ -42,309 +42,309 @@ import type {
   BatchStatistics,
   UserTemplate,
   ExportFormat,
-} from '@/types/fake-user'
+} from "@/types/fake-user"
 // Utility functions
 
 // Data sources for fake user generation
 const firstNames = {
   male: [
-    'James',
-    'John',
-    'Robert',
-    'Michael',
-    'William',
-    'David',
-    'Richard',
-    'Joseph',
-    'Thomas',
-    'Christopher',
-    'Charles',
-    'Daniel',
-    'Matthew',
-    'Anthony',
-    'Mark',
-    'Donald',
-    'Steven',
-    'Paul',
-    'Andrew',
-    'Joshua',
+    "James",
+    "John",
+    "Robert",
+    "Michael",
+    "William",
+    "David",
+    "Richard",
+    "Joseph",
+    "Thomas",
+    "Christopher",
+    "Charles",
+    "Daniel",
+    "Matthew",
+    "Anthony",
+    "Mark",
+    "Donald",
+    "Steven",
+    "Paul",
+    "Andrew",
+    "Joshua",
   ],
   female: [
-    'Mary',
-    'Patricia',
-    'Jennifer',
-    'Linda',
-    'Elizabeth',
-    'Barbara',
-    'Susan',
-    'Jessica',
-    'Sarah',
-    'Karen',
-    'Nancy',
-    'Lisa',
-    'Betty',
-    'Helen',
-    'Sandra',
-    'Donna',
-    'Carol',
-    'Ruth',
-    'Sharon',
-    'Michelle',
+    "Mary",
+    "Patricia",
+    "Jennifer",
+    "Linda",
+    "Elizabeth",
+    "Barbara",
+    "Susan",
+    "Jessica",
+    "Sarah",
+    "Karen",
+    "Nancy",
+    "Lisa",
+    "Betty",
+    "Helen",
+    "Sandra",
+    "Donna",
+    "Carol",
+    "Ruth",
+    "Sharon",
+    "Michelle",
   ],
 }
 
 const lastNames = [
-  'Smith',
-  'Johnson',
-  'Williams',
-  'Brown',
-  'Jones',
-  'Garcia',
-  'Miller',
-  'Davis',
-  'Rodriguez',
-  'Martinez',
-  'Hernandez',
-  'Lopez',
-  'Gonzalez',
-  'Wilson',
-  'Anderson',
-  'Thomas',
-  'Taylor',
-  'Moore',
-  'Jackson',
-  'Martin',
+  "Smith",
+  "Johnson",
+  "Williams",
+  "Brown",
+  "Jones",
+  "Garcia",
+  "Miller",
+  "Davis",
+  "Rodriguez",
+  "Martinez",
+  "Hernandez",
+  "Lopez",
+  "Gonzalez",
+  "Wilson",
+  "Anderson",
+  "Thomas",
+  "Taylor",
+  "Moore",
+  "Jackson",
+  "Martin",
 ]
 
 const countries = [
-  'United States',
-  'Canada',
-  'United Kingdom',
-  'Australia',
-  'Germany',
-  'France',
-  'Spain',
-  'Italy',
-  'Netherlands',
-  'Sweden',
-  'Norway',
-  'Denmark',
-  'Japan',
-  'South Korea',
-  'Singapore',
-  'New Zealand',
-  'Switzerland',
-  'Austria',
-  'Belgium',
-  'Ireland',
+  "United States",
+  "Canada",
+  "United Kingdom",
+  "Australia",
+  "Germany",
+  "France",
+  "Spain",
+  "Italy",
+  "Netherlands",
+  "Sweden",
+  "Norway",
+  "Denmark",
+  "Japan",
+  "South Korea",
+  "Singapore",
+  "New Zealand",
+  "Switzerland",
+  "Austria",
+  "Belgium",
+  "Ireland",
 ]
 
 const cities = {
-  'United States': [
-    'New York',
-    'Los Angeles',
-    'Chicago',
-    'Houston',
-    'Phoenix',
-    'Philadelphia',
-    'San Antonio',
-    'San Diego',
-    'Dallas',
-    'San Jose',
+  "United States": [
+    "New York",
+    "Los Angeles",
+    "Chicago",
+    "Houston",
+    "Phoenix",
+    "Philadelphia",
+    "San Antonio",
+    "San Diego",
+    "Dallas",
+    "San Jose",
   ],
   Canada: [
-    'Toronto',
-    'Montreal',
-    'Vancouver',
-    'Calgary',
-    'Edmonton',
-    'Ottawa',
-    'Winnipeg',
-    'Quebec City',
-    'Hamilton',
-    'Kitchener',
+    "Toronto",
+    "Montreal",
+    "Vancouver",
+    "Calgary",
+    "Edmonton",
+    "Ottawa",
+    "Winnipeg",
+    "Quebec City",
+    "Hamilton",
+    "Kitchener",
   ],
-  'United Kingdom': [
-    'London',
-    'Birmingham',
-    'Manchester',
-    'Glasgow',
-    'Liverpool',
-    'Leeds',
-    'Sheffield',
-    'Edinburgh',
-    'Bristol',
-    'Cardiff',
+  "United Kingdom": [
+    "London",
+    "Birmingham",
+    "Manchester",
+    "Glasgow",
+    "Liverpool",
+    "Leeds",
+    "Sheffield",
+    "Edinburgh",
+    "Bristol",
+    "Cardiff",
   ],
   Australia: [
-    'Sydney',
-    'Melbourne',
-    'Brisbane',
-    'Perth',
-    'Adelaide',
-    'Gold Coast',
-    'Newcastle',
-    'Canberra',
-    'Sunshine Coast',
-    'Wollongong',
+    "Sydney",
+    "Melbourne",
+    "Brisbane",
+    "Perth",
+    "Adelaide",
+    "Gold Coast",
+    "Newcastle",
+    "Canberra",
+    "Sunshine Coast",
+    "Wollongong",
   ],
 }
 
 const jobTitles = [
-  'Software Engineer',
-  'Data Scientist',
-  'Product Manager',
-  'Marketing Manager',
-  'Sales Representative',
-  'Accountant',
-  'Teacher',
-  'Nurse',
-  'Doctor',
-  'Lawyer',
-  'Designer',
-  'Consultant',
-  'Analyst',
-  'Developer',
-  'Manager',
-  'Director',
-  'Coordinator',
-  'Specialist',
-  'Administrator',
-  'Executive',
+  "Software Engineer",
+  "Data Scientist",
+  "Product Manager",
+  "Marketing Manager",
+  "Sales Representative",
+  "Accountant",
+  "Teacher",
+  "Nurse",
+  "Doctor",
+  "Lawyer",
+  "Designer",
+  "Consultant",
+  "Analyst",
+  "Developer",
+  "Manager",
+  "Director",
+  "Coordinator",
+  "Specialist",
+  "Administrator",
+  "Executive",
 ]
 
 const companies = [
-  'TechCorp',
-  'DataSystems',
-  'InnovateLab',
-  'GlobalSoft',
-  'NextGen Solutions',
-  'Digital Dynamics',
-  'Smart Industries',
-  'Future Tech',
-  'Advanced Systems',
-  'Modern Solutions',
-  'Elite Corp',
-  'Prime Technologies',
-  'Apex Industries',
-  'Summit Solutions',
-  'Peak Performance',
-  'Excellence Group',
-  'Premier Systems',
-  'Superior Tech',
-  'Ultimate Solutions',
-  'Optimal Corp',
+  "TechCorp",
+  "DataSystems",
+  "InnovateLab",
+  "GlobalSoft",
+  "NextGen Solutions",
+  "Digital Dynamics",
+  "Smart Industries",
+  "Future Tech",
+  "Advanced Systems",
+  "Modern Solutions",
+  "Elite Corp",
+  "Prime Technologies",
+  "Apex Industries",
+  "Summit Solutions",
+  "Peak Performance",
+  "Excellence Group",
+  "Premier Systems",
+  "Superior Tech",
+  "Ultimate Solutions",
+  "Optimal Corp",
 ]
 
 const industries = [
-  'Technology',
-  'Healthcare',
-  'Finance',
-  'Education',
-  'Retail',
-  'Manufacturing',
-  'Consulting',
-  'Media',
-  'Transportation',
-  'Real Estate',
-  'Energy',
-  'Telecommunications',
-  'Government',
-  'Non-profit',
-  'Entertainment',
-  'Hospitality',
-  'Agriculture',
-  'Construction',
-  'Automotive',
-  'Aerospace',
+  "Technology",
+  "Healthcare",
+  "Finance",
+  "Education",
+  "Retail",
+  "Manufacturing",
+  "Consulting",
+  "Media",
+  "Transportation",
+  "Real Estate",
+  "Energy",
+  "Telecommunications",
+  "Government",
+  "Non-profit",
+  "Entertainment",
+  "Hospitality",
+  "Agriculture",
+  "Construction",
+  "Automotive",
+  "Aerospace",
 ]
 
 const skills = [
-  'JavaScript',
-  'Python',
-  'Java',
-  'React',
-  'Node.js',
-  'SQL',
-  'AWS',
-  'Docker',
-  'Kubernetes',
-  'Git',
-  'Agile',
-  'Scrum',
-  'Project Management',
-  'Data Analysis',
-  'Machine Learning',
-  'UI/UX Design',
-  'Marketing',
-  'Sales',
-  'Communication',
-  'Leadership',
+  "JavaScript",
+  "Python",
+  "Java",
+  "React",
+  "Node.js",
+  "SQL",
+  "AWS",
+  "Docker",
+  "Kubernetes",
+  "Git",
+  "Agile",
+  "Scrum",
+  "Project Management",
+  "Data Analysis",
+  "Machine Learning",
+  "UI/UX Design",
+  "Marketing",
+  "Sales",
+  "Communication",
+  "Leadership",
 ]
 
 const interests = [
-  'Reading',
-  'Travel',
-  'Photography',
-  'Cooking',
-  'Music',
-  'Sports',
-  'Gaming',
-  'Art',
-  'Technology',
-  'Science',
-  'History',
-  'Movies',
-  'Fitness',
-  'Yoga',
-  'Hiking',
-  'Swimming',
-  'Dancing',
-  'Writing',
-  'Gardening',
-  'Volunteering',
+  "Reading",
+  "Travel",
+  "Photography",
+  "Cooking",
+  "Music",
+  "Sports",
+  "Gaming",
+  "Art",
+  "Technology",
+  "Science",
+  "History",
+  "Movies",
+  "Fitness",
+  "Yoga",
+  "Hiking",
+  "Swimming",
+  "Dancing",
+  "Writing",
+  "Gardening",
+  "Volunteering",
 ]
 
 const languages = [
-  'English',
-  'Spanish',
-  'French',
-  'German',
-  'Italian',
-  'Portuguese',
-  'Russian',
-  'Chinese',
-  'Japanese',
-  'Korean',
-  'Arabic',
-  'Hindi',
-  'Dutch',
-  'Swedish',
-  'Norwegian',
-  'Danish',
-  'Finnish',
-  'Polish',
-  'Turkish',
-  'Greek',
+  "English",
+  "Spanish",
+  "French",
+  "German",
+  "Italian",
+  "Portuguese",
+  "Russian",
+  "Chinese",
+  "Japanese",
+  "Korean",
+  "Arabic",
+  "Hindi",
+  "Dutch",
+  "Swedish",
+  "Norwegian",
+  "Danish",
+  "Finnish",
+  "Polish",
+  "Turkish",
+  "Greek",
 ]
 
-const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
-const eyeColors = ['Brown', 'Blue', 'Green', 'Hazel', 'Gray', 'Amber']
-const hairColors = ['Black', 'Brown', 'Blonde', 'Red', 'Gray', 'White']
+const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
+const eyeColors = ["Brown", "Blue", "Green", "Hazel", "Gray", "Amber"]
+const hairColors = ["Black", "Brown", "Blonde", "Red", "Gray", "White"]
 const ethnicities = [
-  'Caucasian',
-  'African American',
-  'Hispanic',
-  'Asian',
-  'Native American',
-  'Pacific Islander',
-  'Mixed',
-  'Other',
+  "Caucasian",
+  "African American",
+  "Hispanic",
+  "Asian",
+  "Native American",
+  "Pacific Islander",
+  "Mixed",
+  "Other",
 ]
 
 // Fake user generation functions
 const generateFakeUser = (settings: GenerationSettings): FakeUser => {
-  const gender = settings.gender === 'random' ? (Math.random() > 0.5 ? 'male' : 'female') : settings.gender || 'male'
+  const gender = settings.gender === "random" ? (Math.random() > 0.5 ? "male" : "female") : settings.gender || "male"
   const firstName = getRandomItem(firstNames[gender])
   const lastName = getRandomItem(lastNames)
   const age = getRandomNumber(settings.ageRange.min, settings.ageRange.max)
@@ -354,7 +354,7 @@ const generateFakeUser = (settings: GenerationSettings): FakeUser => {
   dateOfBirth.setDate(Math.floor(Math.random() * 28) + 1)
 
   const country = getRandomItem(countries)
-  const cityList = cities[country as keyof typeof cities] || ['Unknown City']
+  const cityList = cities[country as keyof typeof cities] || ["Unknown City"]
   const city = getRandomItem(cityList)
 
   const personalInfo: PersonalInfo = {
@@ -366,7 +366,7 @@ const generateFakeUser = (settings: GenerationSettings): FakeUser => {
     age,
     nationality: country,
     ethnicity: getRandomItem(ethnicities),
-    maritalStatus: getRandomItem(['single', 'married', 'divorced', 'widowed']),
+    maritalStatus: getRandomItem(["single", "married", "divorced", "widowed"]),
     bloodType: getRandomItem(bloodTypes),
     height: getRandomNumber(150, 200),
     weight: getRandomNumber(50, 120),
@@ -390,16 +390,16 @@ const generateFakeUser = (settings: GenerationSettings): FakeUser => {
 
   const addressInfo: AddressInfo = settings.includeAddress
     ? {
-        street: `${getRandomNumber(1, 9999)} ${getRandomItem(['Main', 'Oak', 'Pine', 'Maple', 'Cedar', 'Elm', 'Park', 'First', 'Second', 'Third'])} ${getRandomItem(['St', 'Ave', 'Rd', 'Blvd', 'Dr', 'Ln', 'Way', 'Ct'])}`,
+        street: `${getRandomNumber(1, 9999)} ${getRandomItem(["Main", "Oak", "Pine", "Maple", "Cedar", "Elm", "Park", "First", "Second", "Third"])} ${getRandomItem(["St", "Ave", "Rd", "Blvd", "Dr", "Ln", "Way", "Ct"])}`,
         city,
-        state: getRandomItem(['CA', 'NY', 'TX', 'FL', 'IL', 'PA', 'OH', 'GA', 'NC', 'MI']),
+        state: getRandomItem(["CA", "NY", "TX", "FL", "IL", "PA", "OH", "GA", "NC", "MI"]),
         country,
         zipCode: generateZipCode(),
         coordinates: {
           latitude: getRandomNumber(-90, 90, 6),
           longitude: getRandomNumber(-180, 180, 6),
         },
-        timezone: getRandomItem(['UTC-8', 'UTC-5', 'UTC', 'UTC+1', 'UTC+8', 'UTC+9']),
+        timezone: getRandomItem(["UTC-8", "UTC-5", "UTC", "UTC+1", "UTC+8", "UTC+9"]),
       }
     : ({} as AddressInfo)
 
@@ -408,46 +408,46 @@ const generateFakeUser = (settings: GenerationSettings): FakeUser => {
         jobTitle: getRandomItem(jobTitles),
         company: getRandomItem(companies),
         department: getRandomItem([
-          'Engineering',
-          'Marketing',
-          'Sales',
-          'HR',
-          'Finance',
-          'Operations',
-          'IT',
-          'Legal',
-          'R&D',
-          'Customer Service',
+          "Engineering",
+          "Marketing",
+          "Sales",
+          "HR",
+          "Finance",
+          "Operations",
+          "IT",
+          "Legal",
+          "R&D",
+          "Customer Service",
         ]),
         industry: getRandomItem(industries),
         experience: getRandomNumber(0, 20),
         salary: getRandomNumber(30000, 200000),
         skills: getRandomItems(skills, getRandomNumber(3, 8)),
         education: {
-          degree: getRandomItem(['Bachelor', 'Master', 'PhD', 'Associate', 'High School']),
+          degree: getRandomItem(["Bachelor", "Master", "PhD", "Associate", "High School"]),
           major: getRandomItem([
-            'Computer Science',
-            'Business',
-            'Engineering',
-            'Psychology',
-            'Biology',
-            'Mathematics',
-            'English',
-            'History',
-            'Art',
-            'Economics',
+            "Computer Science",
+            "Business",
+            "Engineering",
+            "Psychology",
+            "Biology",
+            "Mathematics",
+            "English",
+            "History",
+            "Art",
+            "Economics",
           ]),
           university: getRandomItem([
-            'MIT',
-            'Stanford',
-            'Harvard',
-            'Berkeley',
-            'Yale',
-            'Princeton',
-            'Columbia',
-            'NYU',
-            'UCLA',
-            'USC',
+            "MIT",
+            "Stanford",
+            "Harvard",
+            "Berkeley",
+            "Yale",
+            "Princeton",
+            "Columbia",
+            "NYU",
+            "UCLA",
+            "USC",
           ]),
           graduationYear: getRandomNumber(1990, 2023),
         },
@@ -457,10 +457,10 @@ const generateFakeUser = (settings: GenerationSettings): FakeUser => {
   const financialInfo: FinancialInfo = settings.includeFinancial
     ? {
         creditCardNumber: generateCreditCardNumber(),
-        creditCardType: getRandomItem(['Visa', 'MasterCard', 'American Express', 'Discover']),
+        creditCardType: getRandomItem(["Visa", "MasterCard", "American Express", "Discover"]),
         bankAccount: generateBankAccount(),
         routingNumber: generateRoutingNumber(),
-        currency: 'USD',
+        currency: "USD",
         monthlyIncome: getRandomNumber(2000, 15000),
         creditScore: getRandomNumber(300, 850),
       }
@@ -473,80 +473,80 @@ const generateFakeUser = (settings: GenerationSettings): FakeUser => {
         hobbies: getRandomItems(interests, getRandomNumber(2, 5)),
         languages: getRandomItems(languages, getRandomNumber(1, 4)),
         personalityType: getRandomItem([
-          'INTJ',
-          'INTP',
-          'ENTJ',
-          'ENTP',
-          'INFJ',
-          'INFP',
-          'ENFJ',
-          'ENFP',
-          'ISTJ',
-          'ISFJ',
-          'ESTJ',
-          'ESFJ',
-          'ISTP',
-          'ISFP',
-          'ESTP',
-          'ESFP',
+          "INTJ",
+          "INTP",
+          "ENTJ",
+          "ENTP",
+          "INFJ",
+          "INFP",
+          "ENFJ",
+          "ENFP",
+          "ISTJ",
+          "ISFJ",
+          "ESTJ",
+          "ESFJ",
+          "ISTP",
+          "ISFP",
+          "ESTP",
+          "ESFP",
         ]),
         favoriteColor: getRandomItem([
-          'Blue',
-          'Red',
-          'Green',
-          'Purple',
-          'Orange',
-          'Yellow',
-          'Pink',
-          'Black',
-          'White',
-          'Gray',
+          "Blue",
+          "Red",
+          "Green",
+          "Purple",
+          "Orange",
+          "Yellow",
+          "Pink",
+          "Black",
+          "White",
+          "Gray",
         ]),
         favoriteFood: getRandomItem([
-          'Pizza',
-          'Sushi',
-          'Pasta',
-          'Burger',
-          'Salad',
-          'Steak',
-          'Chicken',
-          'Fish',
-          'Tacos',
-          'Ice Cream',
+          "Pizza",
+          "Sushi",
+          "Pasta",
+          "Burger",
+          "Salad",
+          "Steak",
+          "Chicken",
+          "Fish",
+          "Tacos",
+          "Ice Cream",
         ]),
         favoriteMovie: getRandomItem([
-          'The Shawshank Redemption',
-          'The Godfather',
-          'Pulp Fiction',
-          'The Dark Knight',
-          'Forrest Gump',
-          'Inception',
-          'The Matrix',
-          'Goodfellas',
-          'The Lord of the Rings',
-          'Star Wars',
+          "The Shawshank Redemption",
+          "The Godfather",
+          "Pulp Fiction",
+          "The Dark Knight",
+          "Forrest Gump",
+          "Inception",
+          "The Matrix",
+          "Goodfellas",
+          "The Lord of the Rings",
+          "Star Wars",
         ]),
         favoriteBook: getRandomItem([
-          'To Kill a Mockingbird',
-          '1984',
-          'Pride and Prejudice',
-          'The Great Gatsby',
-          'Harry Potter',
-          'The Catcher in the Rye',
-          'Lord of the Flies',
-          'Jane Eyre',
-          'Wuthering Heights',
-          'The Hobbit',
+          "To Kill a Mockingbird",
+          "1984",
+          "Pride and Prejudice",
+          "The Great Gatsby",
+          "Harry Potter",
+          "The Catcher in the Rye",
+          "Lord of the Flies",
+          "Jane Eyre",
+          "Wuthering Heights",
+          "The Hobbit",
         ]),
       }
     : ({} as SocialInfo)
 
   const preferences: UserPreferences = {
-    theme: getRandomItem(['light', 'dark', 'auto']),
-    language: getRandomItem(['en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'zh', 'ja', 'ko']),
-    timezone: addressInfo.timezone || 'UTC',
+    theme: getRandomItem(["light", "dark", "auto"]),
+    language: getRandomItem(["en", "es", "fr", "de", "it", "pt", "ru", "zh", "ja", "ko"]),
+    timezone: addressInfo.timezone || "UTC",
     notifications: Math.random() > 0.3,
-    privacy: getRandomItem(['public', 'private', 'friends']),
+    privacy: getRandomItem(["public", "private", "friends"]),
   }
 
   const metadata: UserMetadata = {
@@ -554,7 +554,7 @@ const generateFakeUser = (settings: GenerationSettings): FakeUser => {
     ipAddress: generateIPAddress(),
     registrationDate: generateRandomDate(new Date(2020, 0, 1), new Date()),
     lastLogin: generateRandomDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), new Date()),
-    accountStatus: getRandomItem(['active', 'inactive', 'suspended']),
+    accountStatus: getRandomItem(["active", "inactive", "suspended"]),
     verificationStatus: Math.random() > 0.2,
     profileCompleteness: getRandomNumber(60, 100),
   }
@@ -589,11 +589,11 @@ const getRandomNumber = (min: number, max: number, decimals = 0): number => {
 }
 
 const generateEmail = (firstName: string, lastName: string): string => {
-  const domains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'company.com', 'email.com', 'mail.com']
-  const separators = ['.', '_', '']
+  const domains = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "company.com", "email.com", "mail.com"]
+  const separators = [".", "_", ""]
   const separator = getRandomItem(separators)
   const domain = getRandomItem(domains)
-  const number = Math.random() > 0.7 ? getRandomNumber(1, 999) : ''
+  const number = Math.random() > 0.7 ? getRandomNumber(1, 999) : ""
   return `${firstName.toLowerCase()}${separator}${lastName.toLowerCase()}${number}@${domain}`
 }
 
@@ -609,12 +609,12 @@ const generateZipCode = (): string => {
 }
 
 const generateCreditCardNumber = (): string => {
-  const prefix = getRandomItem(['4', '5', '3', '6']) // Visa, MC, Amex, Discover
+  const prefix = getRandomItem(["4", "5", "3", "6"]) // Visa, MC, Amex, Discover
   let number = prefix
   for (let i = 1; i < 16; i++) {
     number += getRandomNumber(0, 9)
   }
-  return number.replace(/(.{4})/g, '$1 ').trim()
+  return number.replace(/(.{4})/g, "$1 ").trim()
 }
 
 const generateBankAccount = (): string => {
@@ -638,10 +638,10 @@ const generateBio = (name: string, age: number): string => {
 
 const generateUserAgent = (): string => {
   const browsers = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15",
   ]
   return getRandomItem(browsers)
 }
@@ -657,13 +657,13 @@ const generateRandomDate = (start: Date, end: Date): Date => {
 // User Templates
 const userTemplates: UserTemplate[] = [
   {
-    id: 'basic-user',
-    name: 'Basic User',
-    description: 'Simple user profile with essential information',
-    category: 'General',
+    id: "basic-user",
+    name: "Basic User",
+    description: "Simple user profile with essential information",
+    category: "General",
     settings: {
-      locale: 'en-US',
-      gender: 'random',
+      locale: "en-US",
+      gender: "random",
       ageRange: { min: 18, max: 65 },
       includeFinancial: false,
       includeSocial: false,
@@ -672,30 +672,30 @@ const userTemplates: UserTemplate[] = [
       realData: false,
       customFields: [],
     },
-    useCase: ['Testing', 'Prototyping', 'Basic demos', 'Simple applications'],
-    examples: ['User registration', 'Profile creation', 'Contact forms', 'Basic listings'],
+    useCase: ["Testing", "Prototyping", "Basic demos", "Simple applications"],
+    examples: ["User registration", "Profile creation", "Contact forms", "Basic listings"],
     preview: {
       personalInfo: {
-        firstName: 'John',
-        lastName: 'Doe',
-        fullName: 'John Doe',
-        gender: 'male',
+        firstName: "John",
+        lastName: "Doe",
+        fullName: "John Doe",
+        gender: "male",
         age: 30,
       } as PersonalInfo,
       contactInfo: {
-        email: 'john.doe@example.com',
-        phone: '+1-555-123-4567',
+        email: "john.doe@example.com",
+        phone: "+1-555-123-4567",
       } as ContactInfo,
     } as Partial<FakeUser>,
   },
   {
-    id: 'professional-user',
-    name: 'Professional User',
-    description: 'Complete professional profile with work information',
-    category: 'Business',
+    id: "professional-user",
+    name: "Professional User",
+    description: "Complete professional profile with work information",
+    category: "Business",
     settings: {
-      locale: 'en-US',
-      gender: 'random',
+      locale: "en-US",
+      gender: "random",
       ageRange: { min: 25, max: 55 },
       includeFinancial: false,
       includeSocial: true,
@@ -704,31 +704,31 @@ const userTemplates: UserTemplate[] = [
       realData: false,
       customFields: [],
     },
-    useCase: ['LinkedIn-style profiles', 'Professional networks', 'Job platforms', 'Business directories'],
-    examples: ['Employee profiles', 'Professional networking', 'Resume data', 'Company directories'],
+    useCase: ["LinkedIn-style profiles", "Professional networks", "Job platforms", "Business directories"],
+    examples: ["Employee profiles", "Professional networking", "Resume data", "Company directories"],
     preview: {
       personalInfo: {
-        firstName: 'Sarah',
-        lastName: 'Johnson',
-        fullName: 'Sarah Johnson',
-        gender: 'female',
+        firstName: "Sarah",
+        lastName: "Johnson",
+        fullName: "Sarah Johnson",
+        gender: "female",
         age: 35,
       } as PersonalInfo,
       workInfo: {
-        jobTitle: 'Software Engineer',
-        company: 'TechCorp',
-        industry: 'Technology',
+        jobTitle: "Software Engineer",
+        company: "TechCorp",
+        industry: "Technology",
       } as WorkInfo,
     } as Partial<FakeUser>,
   },
   {
-    id: 'ecommerce-customer',
-    name: 'E-commerce Customer',
-    description: 'Customer profile with financial and address information',
-    category: 'E-commerce',
+    id: "ecommerce-customer",
+    name: "E-commerce Customer",
+    description: "Customer profile with financial and address information",
+    category: "E-commerce",
     settings: {
-      locale: 'en-US',
-      gender: 'random',
+      locale: "en-US",
+      gender: "random",
       ageRange: { min: 18, max: 70 },
       includeFinancial: true,
       includeSocial: false,
@@ -737,30 +737,30 @@ const userTemplates: UserTemplate[] = [
       realData: false,
       customFields: [],
     },
-    useCase: ['Online stores', 'Payment systems', 'Shipping platforms', 'Customer databases'],
-    examples: ['Customer profiles', 'Order management', 'Payment processing', 'Shipping addresses'],
+    useCase: ["Online stores", "Payment systems", "Shipping platforms", "Customer databases"],
+    examples: ["Customer profiles", "Order management", "Payment processing", "Shipping addresses"],
     preview: {
       personalInfo: {
-        firstName: 'Michael',
-        lastName: 'Brown',
-        fullName: 'Michael Brown',
-        gender: 'male',
+        firstName: "Michael",
+        lastName: "Brown",
+        fullName: "Michael Brown",
+        gender: "male",
         age: 42,
       } as PersonalInfo,
       financialInfo: {
-        creditCardType: 'Visa',
+        creditCardType: "Visa",
         monthlyIncome: 5000,
       } as FinancialInfo,
     } as Partial<FakeUser>,
   },
   {
-    id: 'social-media-user',
-    name: 'Social Media User',
-    description: 'Social profile with interests and social information',
-    category: 'Social',
+    id: "social-media-user",
+    name: "Social Media User",
+    description: "Social profile with interests and social information",
+    category: "Social",
     settings: {
-      locale: 'en-US',
-      gender: 'random',
+      locale: "en-US",
+      gender: "random",
       ageRange: { min: 16, max: 45 },
       includeFinancial: false,
       includeSocial: true,
@@ -769,30 +769,30 @@ const userTemplates: UserTemplate[] = [
       realData: false,
       customFields: [],
     },
-    useCase: ['Social networks', 'Dating apps', 'Community platforms', 'Interest-based apps'],
-    examples: ['Social profiles', 'User interests', 'Community members', 'Social connections'],
+    useCase: ["Social networks", "Dating apps", "Community platforms", "Interest-based apps"],
+    examples: ["Social profiles", "User interests", "Community members", "Social connections"],
     preview: {
       personalInfo: {
-        firstName: 'Emma',
-        lastName: 'Wilson',
-        fullName: 'Emma Wilson',
-        gender: 'female',
+        firstName: "Emma",
+        lastName: "Wilson",
+        fullName: "Emma Wilson",
+        gender: "female",
         age: 28,
       } as PersonalInfo,
       socialInfo: {
-        interests: ['Photography', 'Travel', 'Music'],
-        bio: 'Love exploring new places and capturing moments!',
+        interests: ["Photography", "Travel", "Music"],
+        bio: "Love exploring new places and capturing moments!",
       } as SocialInfo,
     } as Partial<FakeUser>,
   },
   {
-    id: 'international-user',
-    name: 'International User',
-    description: 'Diverse user profile with international data',
-    category: 'Global',
+    id: "international-user",
+    name: "International User",
+    description: "Diverse user profile with international data",
+    category: "Global",
     settings: {
-      locale: 'mixed',
-      gender: 'random',
+      locale: "mixed",
+      gender: "random",
       ageRange: { min: 18, max: 65 },
       includeFinancial: false,
       includeSocial: true,
@@ -801,27 +801,27 @@ const userTemplates: UserTemplate[] = [
       realData: false,
       customFields: [],
     },
-    useCase: ['Global platforms', 'Multi-language apps', 'International services', 'Diverse testing'],
-    examples: ['Global user base', 'Multi-cultural data', 'International testing', 'Localization testing'],
+    useCase: ["Global platforms", "Multi-language apps", "International services", "Diverse testing"],
+    examples: ["Global user base", "Multi-cultural data", "International testing", "Localization testing"],
     preview: {
       personalInfo: {
-        firstName: 'Akira',
-        lastName: 'Tanaka',
-        fullName: 'Akira Tanaka',
-        gender: 'male',
+        firstName: "Akira",
+        lastName: "Tanaka",
+        fullName: "Akira Tanaka",
+        gender: "male",
         age: 31,
-        nationality: 'Japan',
+        nationality: "Japan",
       } as PersonalInfo,
     } as Partial<FakeUser>,
   },
   {
-    id: 'complete-user',
-    name: 'Complete User',
-    description: 'Full user profile with all available information',
-    category: 'Comprehensive',
+    id: "complete-user",
+    name: "Complete User",
+    description: "Full user profile with all available information",
+    category: "Comprehensive",
     settings: {
-      locale: 'en-US',
-      gender: 'random',
+      locale: "en-US",
+      gender: "random",
       ageRange: { min: 18, max: 65 },
       includeFinancial: true,
       includeSocial: true,
@@ -830,22 +830,22 @@ const userTemplates: UserTemplate[] = [
       realData: false,
       customFields: [],
     },
-    useCase: ['Comprehensive testing', 'Full feature demos', 'Complete user systems', 'Advanced applications'],
-    examples: ['Full user profiles', 'Complete datasets', 'Advanced testing', 'Feature-rich applications'],
+    useCase: ["Comprehensive testing", "Full feature demos", "Complete user systems", "Advanced applications"],
+    examples: ["Full user profiles", "Complete datasets", "Advanced testing", "Feature-rich applications"],
     preview: {
       personalInfo: {
-        firstName: 'Alexandra',
-        lastName: 'Rodriguez',
-        fullName: 'Alexandra Rodriguez',
-        gender: 'female',
+        firstName: "Alexandra",
+        lastName: "Rodriguez",
+        fullName: "Alexandra Rodriguez",
+        gender: "female",
         age: 29,
       } as PersonalInfo,
       workInfo: {
-        jobTitle: 'Product Manager',
-        company: 'InnovateLab',
+        jobTitle: "Product Manager",
+        company: "InnovateLab",
       } as WorkInfo,
       socialInfo: {
-        interests: ['Technology', 'Innovation', 'Leadership'],
+        interests: ["Technology", "Innovation", "Leadership"],
       } as SocialInfo,
     } as Partial<FakeUser>,
   },
@@ -870,27 +870,27 @@ const calculateCompleteness = (user: FakeUser): number => {
   // Count personal info fields
   Object.values(user.personalInfo).forEach((value) => {
     totalFields++
-    if (value !== null && value !== undefined && value !== '') filledFields++
+    if (value !== null && value !== undefined && value !== "") filledFields++
   })
 
   // Count contact info fields
   Object.values(user.contactInfo).forEach((value) => {
     totalFields++
-    if (value !== null && value !== undefined && value !== '') filledFields++
+    if (value !== null && value !== undefined && value !== "") filledFields++
   })
 
   // Count other sections if they exist
   if (user.addressInfo && Object.keys(user.addressInfo).length > 0) {
     Object.values(user.addressInfo).forEach((value) => {
       totalFields++
-      if (value !== null && value !== undefined && value !== '') filledFields++
+      if (value !== null && value !== undefined && value !== "") filledFields++
     })
   }
 
   if (user.workInfo && Object.keys(user.workInfo).length > 0) {
     Object.values(user.workInfo).forEach((value) => {
       totalFields++
-      if (value !== null && value !== undefined && value !== '') filledFields++
+      if (value !== null && value !== undefined && value !== "") filledFields++
     })
   }
 
@@ -901,10 +901,10 @@ const calculateDiversity = (user: FakeUser): number => {
   // Simple diversity calculation based on variety of data
   let diversityScore = 50
 
-  if (user.personalInfo.nationality !== 'United States') diversityScore += 10
+  if (user.personalInfo.nationality !== "United States") diversityScore += 10
   if (user.socialInfo?.languages && user.socialInfo.languages.length > 1) diversityScore += 10
-  if (user.workInfo?.industry && user.workInfo.industry !== 'Technology') diversityScore += 10
-  if (user.personalInfo.ethnicity !== 'Caucasian') diversityScore += 10
+  if (user.workInfo?.industry && user.workInfo.industry !== "Technology") diversityScore += 10
+  if (user.personalInfo.ethnicity !== "Caucasian") diversityScore += 10
   if (user.personalInfo.age < 25 || user.personalInfo.age > 50) diversityScore += 10
 
   return Math.min(100, diversityScore)
@@ -960,10 +960,10 @@ const useFakeUserGenerator = () => {
     try {
       const batch: UserBatch = {
         id: nanoid(),
-        name: batchSettings.namingPattern || 'User Batch',
+        name: batchSettings.namingPattern || "User Batch",
         users: [],
         settings: batchSettings,
-        status: 'processing',
+        status: "processing",
         progress: 0,
         statistics: {
           totalGenerated: 0,
@@ -989,7 +989,7 @@ const useFakeUserGenerator = () => {
           const progress = ((i + 1) / batchSettings.count) * 100
           batch.progress = progress
         } catch (error: any) {
-          console.error('Failed to generate user:', error)
+          console.error("Failed to generate user:", error)
         }
       }
 
@@ -1021,7 +1021,7 @@ const useFakeUserGenerator = () => {
       }
 
       batch.users = results
-      batch.status = 'completed'
+      batch.status = "completed"
       batch.progress = 100
       batch.statistics = statistics
       batch.completedAt = new Date()
@@ -1058,13 +1058,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error: any) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -1074,35 +1074,35 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useUserExport = () => {
   const exportUser = useCallback((user: FakeUser, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(user, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromUser(user)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromUser(user)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'sql':
+      case "sql":
         content = generateSQLFromUser(user)
-        mimeType = 'text/plain'
-        extension = '.sql'
+        mimeType = "text/plain"
+        extension = ".sql"
         break
-      case 'yaml':
+      case "yaml":
         content = generateYAMLFromUser(user)
-        mimeType = 'text/yaml'
-        extension = '.yaml'
+        mimeType = "text/yaml"
+        extension = ".yaml"
         break
       default:
         content = JSON.stringify(user, null, 2)
@@ -1111,7 +1111,7 @@ const useUserExport = () => {
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `fake-user-${user.id}${extension}`
     document.body.appendChild(link)
@@ -1124,9 +1124,9 @@ const useUserExport = () => {
     // Implementation would depend on the format
     // For now, just export as JSON
     const content = JSON.stringify(batch, null, 2)
-    const blob = new Blob([content], { type: 'application/json;charset=utf-8' })
+    const blob = new Blob([content], { type: "application/json;charset=utf-8" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = `${batch.name}.json`
     document.body.appendChild(link)
@@ -1141,18 +1141,18 @@ const useUserExport = () => {
 // Helper functions for export formats
 const generateCSVFromUser = (user: FakeUser): string => {
   const headers = [
-    'ID',
-    'First Name',
-    'Last Name',
-    'Email',
-    'Phone',
-    'Age',
-    'Gender',
-    'City',
-    'Country',
-    'Job Title',
-    'Company',
-    'Salary',
+    "ID",
+    "First Name",
+    "Last Name",
+    "Email",
+    "Phone",
+    "Age",
+    "Gender",
+    "City",
+    "Country",
+    "Job Title",
+    "Company",
+    "Salary",
   ]
 
   const values = [
@@ -1163,14 +1163,14 @@ const generateCSVFromUser = (user: FakeUser): string => {
     user.contactInfo.phone,
     user.personalInfo.age.toString(),
     user.personalInfo.gender,
-    user.addressInfo?.city || '',
-    user.addressInfo?.country || '',
-    user.workInfo?.jobTitle || '',
-    user.workInfo?.company || '',
-    user.workInfo?.salary?.toString() || '',
+    user.addressInfo?.city || "",
+    user.addressInfo?.country || "",
+    user.workInfo?.jobTitle || "",
+    user.workInfo?.company || "",
+    user.workInfo?.salary?.toString() || "",
   ]
 
-  return [headers.join(','), values.map((v) => `"${v}"`).join(',')].join('\n')
+  return [headers.join(","), values.map((v) => `"${v}"`).join(",")].join("\n")
 }
 
 const generateXMLFromUser = (user: FakeUser): string => {
@@ -1194,7 +1194,7 @@ const generateXMLFromUser = (user: FakeUser): string => {
     <city>${user.addressInfo.city}</city>
     <country>${user.addressInfo.country}</country>
   </addressInfo>`
-      : ''
+      : ""
   }
   ${
     user.workInfo
@@ -1204,7 +1204,7 @@ const generateXMLFromUser = (user: FakeUser): string => {
     <company>${user.workInfo.company}</company>
     <salary>${user.workInfo.salary}</salary>
   </workInfo>`
-      : ''
+      : ""
   }
 </user>`
 }
@@ -1221,11 +1221,11 @@ const generateSQLFromUser = (user: FakeUser): string => {
   '${user.contactInfo.phone}',
   ${user.personalInfo.age},
   '${user.personalInfo.gender}',
-  '${user.addressInfo?.city || ''}',
-  '${user.addressInfo?.country || ''}',
-  '${user.workInfo?.jobTitle || ''}',
-  '${user.workInfo?.company || ''}',
-  ${user.workInfo?.salary || 'NULL'},
+  '${user.addressInfo?.city || ""}',
+  '${user.addressInfo?.country || ""}',
+  '${user.workInfo?.jobTitle || ""}',
+  '${user.workInfo?.company || ""}',
+  ${user.workInfo?.salary || "NULL"},
   '${user.createdAt.toISOString()}'
 );`
 }
@@ -1246,7 +1246,7 @@ ${
     ? `addressInfo:
   city: ${user.addressInfo.city}
   country: ${user.addressInfo.country}`
-    : ''
+    : ""
 }
 ${
   user.workInfo
@@ -1254,7 +1254,7 @@ ${
   jobTitle: ${user.workInfo.jobTitle}
   company: ${user.workInfo.company}
   salary: ${user.workInfo.salary}`
-    : ''
+    : ""
 }
 createdAt: ${user.createdAt.toISOString()}`
 }
@@ -1264,12 +1264,12 @@ createdAt: ${user.createdAt.toISOString()}`
  * Features: Advanced user generation, customization, analysis, and batch processing
  */
 const FakeUserCore = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'batch' | 'gallery' | 'templates'>('generator')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<"generator" | "batch" | "gallery" | "templates">("generator")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [currentUser, setCurrentUser] = useState<FakeUser | null>(null)
   const [settings, setSettings] = useState<GenerationSettings>({
-    locale: 'en-US',
-    gender: 'random',
+    locale: "en-US",
+    gender: "random",
     ageRange: { min: 18, max: 65 },
     includeFinancial: false,
     includeSocial: true,
@@ -1298,9 +1298,9 @@ const FakeUserCore = () => {
     try {
       const user = await generateUser(settings)
       setCurrentUser(user)
-      toast.success('Fake user generated successfully')
+      toast.success("Fake user generated successfully")
     } catch (error) {
-      toast.error('Failed to generate fake user')
+      toast.error("Failed to generate fake user")
       console.error(error)
     }
   }, [settings, generateUser])
@@ -1315,12 +1315,15 @@ const FakeUserCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" aria-hidden="true" />
+              <Users className="h-5 w-5" />
               Fake User Generator & Management Tool
             </CardTitle>
             <CardDescription>
@@ -1334,29 +1337,44 @@ const FakeUserCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'generator' | 'batch' | 'gallery' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "generator" | "batch" | "gallery" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <UserPlus className="h-4 w-4" />
               Generator
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Layers className="h-4 w-4" />
               Batch
             </TabsTrigger>
-            <TabsTrigger value="gallery" className="flex items-center gap-2">
+            <TabsTrigger
+              value="gallery"
+              className="flex items-center gap-2"
+            >
               <Users className="h-4 w-4" />
               Gallery
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* User Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Generator Settings */}
               <Card>
@@ -1370,12 +1388,15 @@ const FakeUserCore = () => {
                   {/* Basic Settings */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="gender" className="text-sm font-medium">
+                      <Label
+                        htmlFor="gender"
+                        className="text-sm font-medium"
+                      >
                         Gender
                       </Label>
                       <Select
-                        value={settings.gender || 'random'}
-                        onValueChange={(value: 'male' | 'female' | 'random') =>
+                        value={settings.gender || "random"}
+                        onValueChange={(value: "male" | "female" | "random") =>
                           setSettings((prev) => ({ ...prev, gender: value }))
                         }
                       >
@@ -1390,7 +1411,10 @@ const FakeUserCore = () => {
                       </Select>
                     </div>
                     <div>
-                      <Label htmlFor="locale" className="text-sm font-medium">
+                      <Label
+                        htmlFor="locale"
+                        className="text-sm font-medium"
+                      >
                         Locale
                       </Label>
                       <Select
@@ -1418,7 +1442,10 @@ const FakeUserCore = () => {
                     <Label className="text-sm font-medium">Age Range</Label>
                     <div className="grid grid-cols-2 gap-4 mt-2">
                       <div>
-                        <Label htmlFor="min-age" className="text-xs">
+                        <Label
+                          htmlFor="min-age"
+                          className="text-xs"
+                        >
                           Min Age
                         </Label>
                         <Input
@@ -1437,7 +1464,10 @@ const FakeUserCore = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="max-age" className="text-xs">
+                        <Label
+                          htmlFor="max-age"
+                          className="text-xs"
+                        >
                           Max Age
                         </Label>
                         <Input
@@ -1471,7 +1501,10 @@ const FakeUserCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeAddress: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-address" className="text-xs">
+                        <Label
+                          htmlFor="include-address"
+                          className="text-xs"
+                        >
                           Address information
                         </Label>
                       </div>
@@ -1484,7 +1517,10 @@ const FakeUserCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeWork: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-work" className="text-xs">
+                        <Label
+                          htmlFor="include-work"
+                          className="text-xs"
+                        >
                           Work and education information
                         </Label>
                       </div>
@@ -1497,7 +1533,10 @@ const FakeUserCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeFinancial: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-financial" className="text-xs">
+                        <Label
+                          htmlFor="include-financial"
+                          className="text-xs"
+                        >
                           Financial information
                         </Label>
                       </div>
@@ -1510,7 +1549,10 @@ const FakeUserCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeSocial: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-social" className="text-xs">
+                        <Label
+                          htmlFor="include-social"
+                          className="text-xs"
+                        >
                           Social and personal interests
                         </Label>
                       </div>
@@ -1523,7 +1565,10 @@ const FakeUserCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, realData: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="real-data" className="text-xs">
+                        <Label
+                          htmlFor="real-data"
+                          className="text-xs"
+                        >
                           Use more realistic data patterns
                         </Label>
                       </div>
@@ -1531,7 +1576,11 @@ const FakeUserCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleGenerate} disabled={isGenerating} className="flex-1">
+                    <Button
+                      onClick={handleGenerate}
+                      disabled={isGenerating}
+                      className="flex-1"
+                    >
                       {isGenerating ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1542,8 +1591,8 @@ const FakeUserCore = () => {
                     <Button
                       onClick={() =>
                         setSettings({
-                          locale: 'en-US',
-                          gender: 'random',
+                          locale: "en-US",
+                          gender: "random",
                           ageRange: { min: 18, max: 65 },
                           includeFinancial: false,
                           includeSocial: true,
@@ -1636,7 +1685,7 @@ const FakeUserCore = () => {
                           <div className="text-sm bg-muted/50 p-3 rounded">
                             <div>{currentUser.addressInfo.street}</div>
                             <div>
-                              {currentUser.addressInfo.city}, {currentUser.addressInfo.state}{' '}
+                              {currentUser.addressInfo.city}, {currentUser.addressInfo.state}{" "}
                               {currentUser.addressInfo.zipCode}
                             </div>
                             <div>{currentUser.addressInfo.country}</div>
@@ -1693,12 +1742,12 @@ const FakeUserCore = () => {
                             )}
                             {currentUser.socialInfo.interests && currentUser.socialInfo.interests.length > 0 && (
                               <div>
-                                <strong>Interests:</strong> {currentUser.socialInfo.interests.join(', ')}
+                                <strong>Interests:</strong> {currentUser.socialInfo.interests.join(", ")}
                               </div>
                             )}
                             {currentUser.socialInfo.languages && currentUser.socialInfo.languages.length > 0 && (
                               <div>
-                                <strong>Languages:</strong> {currentUser.socialInfo.languages.join(', ')}
+                                <strong>Languages:</strong> {currentUser.socialInfo.languages.join(", ")}
                               </div>
                             )}
                           </div>
@@ -1750,10 +1799,10 @@ const FakeUserCore = () => {
                                     <div
                                       className={`h-1 rounded-full ${
                                         analysis.completeness >= 80
-                                          ? 'bg-green-500'
+                                          ? "bg-green-500"
                                           : analysis.completeness >= 60
-                                            ? 'bg-orange-500'
-                                            : 'bg-red-500'
+                                            ? "bg-orange-500"
+                                            : "bg-red-500"
                                       }`}
                                       style={{ width: `${analysis.completeness}%` }}
                                     ></div>
@@ -1766,10 +1815,10 @@ const FakeUserCore = () => {
                                     <div
                                       className={`h-1 rounded-full ${
                                         analysis.diversity >= 80
-                                          ? 'bg-green-500'
+                                          ? "bg-green-500"
                                           : analysis.diversity >= 60
-                                            ? 'bg-orange-500'
-                                            : 'bg-red-500'
+                                            ? "bg-orange-500"
+                                            : "bg-red-500"
                                       }`}
                                       style={{ width: `${analysis.diversity}%` }}
                                     ></div>
@@ -1782,10 +1831,10 @@ const FakeUserCore = () => {
                                     <div
                                       className={`h-1 rounded-full ${
                                         analysis.realism >= 80
-                                          ? 'bg-green-500'
+                                          ? "bg-green-500"
                                           : analysis.realism >= 60
-                                            ? 'bg-orange-500'
-                                            : 'bg-red-500'
+                                            ? "bg-orange-500"
+                                            : "bg-red-500"
                                       }`}
                                       style={{ width: `${analysis.realism}%` }}
                                     ></div>
@@ -1798,10 +1847,10 @@ const FakeUserCore = () => {
                                     <div
                                       className={`h-1 rounded-full ${
                                         analysis.consistency >= 80
-                                          ? 'bg-green-500'
+                                          ? "bg-green-500"
                                           : analysis.consistency >= 60
-                                            ? 'bg-orange-500'
-                                            : 'bg-red-500'
+                                            ? "bg-orange-500"
+                                            : "bg-red-500"
                                       }`}
                                       style={{ width: `${analysis.consistency}%` }}
                                     ></div>
@@ -1815,24 +1864,36 @@ const FakeUserCore = () => {
 
                       {/* Export Options */}
                       <div className="flex gap-2 pt-4 border-t">
-                        <Button onClick={() => exportUser(currentUser, 'json')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportUser(currentUser, "json")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           JSON
                         </Button>
-                        <Button onClick={() => exportUser(currentUser, 'csv')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportUser(currentUser, "csv")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           CSV
                         </Button>
-                        <Button onClick={() => exportUser(currentUser, 'xml')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportUser(currentUser, "xml")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           XML
                         </Button>
                         <Button
-                          onClick={() => copyToClipboard(JSON.stringify(currentUser, null, 2), 'User Data')}
+                          onClick={() => copyToClipboard(JSON.stringify(currentUser, null, 2), "User Data")}
                           variant="outline"
                           size="sm"
                         >
-                          {copiedText === 'User Data' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          {copiedText === "User Data" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         </Button>
                       </div>
                     </div>
@@ -1851,7 +1912,10 @@ const FakeUserCore = () => {
           </TabsContent>
 
           {/* Placeholder for other tabs */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Batch User Generation</CardTitle>
@@ -1867,7 +1931,10 @@ const FakeUserCore = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="gallery" className="space-y-4">
+          <TabsContent
+            value="gallery"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">User Gallery</CardTitle>
@@ -1877,7 +1944,10 @@ const FakeUserCore = () => {
                 {users.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {users.slice(0, 12).map((user) => (
-                      <div key={user.id} className="border rounded-lg p-4">
+                      <div
+                        key={user.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <User className="h-4 w-4" />
@@ -1905,12 +1975,16 @@ const FakeUserCore = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => exportUser(user, 'json')}
+                              onClick={() => exportUser(user, "json")}
                               className="flex-1"
                             >
                               <Download className="h-3 w-3" />
                             </Button>
-                            <Button size="sm" variant="outline" onClick={() => removeUser(user.id)}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => removeUser(user.id)}
+                            >
                               <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
@@ -1929,7 +2003,10 @@ const FakeUserCore = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">User Templates</CardTitle>
@@ -1941,7 +2018,7 @@ const FakeUserCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1954,11 +2031,11 @@ const FakeUserCore = () => {
                         <div className="space-y-2">
                           <div>
                             <div className="text-xs font-medium mb-1">Use Cases:</div>
-                            <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Examples:</div>
-                            <div className="text-xs text-muted-foreground">{template.examples.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.examples.join(", ")}</div>
                           </div>
                         </div>
                       </div>

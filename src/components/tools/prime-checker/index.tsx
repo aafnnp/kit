@@ -1,11 +1,11 @@
-import { useCallback, useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -21,8 +21,8 @@ import {
   Calculator,
   Sigma,
   SquareFunction,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   PrimeAnalysis,
   PrimeFactor,
@@ -34,7 +34,7 @@ import type {
   GenerationAlgorithm,
   NumberType,
   ExportFormat,
-} from '@/types/prime-checker'
+} from "@/types/prime-checker"
 
 // Utility functions
 
@@ -191,15 +191,15 @@ const jacobiSymbol = (a: number, n: number): number => {
 }
 
 // Prime generation algorithms
-const generatePrimes = (limit: number, algorithm: GenerationAlgorithm = 'sieve'): number[] => {
+const generatePrimes = (limit: number, algorithm: GenerationAlgorithm = "sieve"): number[] => {
   switch (algorithm) {
-    case 'sieve':
+    case "sieve":
       return sieveOfEratosthenes(limit)
-    case 'incremental':
+    case "incremental":
       return incrementalGeneration(limit)
-    case 'wheel':
+    case "wheel":
       return wheelFactorization(limit)
-    case 'segmented_sieve':
+    case "segmented_sieve":
       return segmentedSieve(limit)
     default:
       return sieveOfEratosthenes(limit)
@@ -339,40 +339,40 @@ const analyzeMathematicalProperties = (n: number): MathematicalProperty[] => {
 
   // Basic properties
   properties.push({
-    name: 'Even/Odd',
-    value: n % 2 === 0 ? 'Even' : 'Odd',
-    description: 'Whether the number is even or odd',
+    name: "Even/Odd",
+    value: n % 2 === 0 ? "Even" : "Odd",
+    description: "Whether the number is even or odd",
   })
 
   properties.push({
-    name: 'Perfect Square',
+    name: "Perfect Square",
     value: Math.sqrt(n) % 1 === 0,
-    description: 'Whether the number is a perfect square',
+    description: "Whether the number is a perfect square",
   })
 
   properties.push({
-    name: 'Perfect Cube',
+    name: "Perfect Cube",
     value: Math.cbrt(n) % 1 === 0,
-    description: 'Whether the number is a perfect cube',
+    description: "Whether the number is a perfect cube",
   })
 
   // Divisibility rules
   properties.push({
-    name: 'Divisible by 3',
+    name: "Divisible by 3",
     value: n % 3 === 0,
-    description: 'Sum of digits divisible by 3',
+    description: "Sum of digits divisible by 3",
   })
 
   properties.push({
-    name: 'Divisible by 5',
+    name: "Divisible by 5",
     value: n % 5 === 0,
-    description: 'Ends in 0 or 5',
+    description: "Ends in 0 or 5",
   })
 
   properties.push({
-    name: 'Divisible by 9',
+    name: "Divisible by 9",
     value: n % 9 === 0,
-    description: 'Sum of digits divisible by 9',
+    description: "Sum of digits divisible by 9",
   })
 
   // Special number types
@@ -381,30 +381,30 @@ const analyzeMathematicalProperties = (n: number): MathematicalProperty[] => {
     const uniqueFactors = [...new Set(factors)]
 
     properties.push({
-      name: 'Square-free',
+      name: "Square-free",
       value: factors.length === uniqueFactors.length,
-      description: 'No repeated prime factors',
+      description: "No repeated prime factors",
     })
 
     properties.push({
-      name: 'Highly Composite',
+      name: "Highly Composite",
       value: isHighlyComposite(n),
-      description: 'Has more divisors than any smaller positive integer',
+      description: "Has more divisors than any smaller positive integer",
     })
   }
 
   // Fibonacci check
   properties.push({
-    name: 'Fibonacci Number',
+    name: "Fibonacci Number",
     value: isFibonacci(n),
-    description: 'Appears in the Fibonacci sequence',
+    description: "Appears in the Fibonacci sequence",
   })
 
   // Triangular number check
   properties.push({
-    name: 'Triangular Number',
+    name: "Triangular Number",
     value: isTriangular(n),
-    description: 'Can be represented as n(n+1)/2',
+    description: "Can be represented as n(n+1)/2",
   })
 
   return properties
@@ -464,14 +464,14 @@ const findRelatedPrimes = (n: number): RelatedPrime[] => {
   // Twin primes (differ by 2)
   if (primeAlgorithms.trial_division(n - 2)) {
     related.push({
-      type: 'twin',
+      type: "twin",
       prime: n - 2,
       relationship: `${n - 2} and ${n} are twin primes (differ by 2)`,
     })
   }
   if (primeAlgorithms.trial_division(n + 2)) {
     related.push({
-      type: 'twin',
+      type: "twin",
       prime: n + 2,
       relationship: `${n} and ${n + 2} are twin primes (differ by 2)`,
     })
@@ -480,14 +480,14 @@ const findRelatedPrimes = (n: number): RelatedPrime[] => {
   // Cousin primes (differ by 4)
   if (primeAlgorithms.trial_division(n - 4)) {
     related.push({
-      type: 'cousin',
+      type: "cousin",
       prime: n - 4,
       relationship: `${n - 4} and ${n} are cousin primes (differ by 4)`,
     })
   }
   if (primeAlgorithms.trial_division(n + 4)) {
     related.push({
-      type: 'cousin',
+      type: "cousin",
       prime: n + 4,
       relationship: `${n} and ${n + 4} are cousin primes (differ by 4)`,
     })
@@ -496,14 +496,14 @@ const findRelatedPrimes = (n: number): RelatedPrime[] => {
   // Sexy primes (differ by 6)
   if (primeAlgorithms.trial_division(n - 6)) {
     related.push({
-      type: 'sexy',
+      type: "sexy",
       prime: n - 6,
       relationship: `${n - 6} and ${n} are sexy primes (differ by 6)`,
     })
   }
   if (primeAlgorithms.trial_division(n + 6)) {
     related.push({
-      type: 'sexy',
+      type: "sexy",
       prime: n + 6,
       relationship: `${n} and ${n + 6} are sexy primes (differ by 6)`,
     })
@@ -512,7 +512,7 @@ const findRelatedPrimes = (n: number): RelatedPrime[] => {
   // Safe prime (n = 2p + 1 where p is prime)
   if ((n - 1) % 2 === 0 && primeAlgorithms.trial_division((n - 1) / 2)) {
     related.push({
-      type: 'safe',
+      type: "safe",
       prime: (n - 1) / 2,
       relationship: `${n} is a safe prime (2 × ${(n - 1) / 2} + 1)`,
     })
@@ -521,7 +521,7 @@ const findRelatedPrimes = (n: number): RelatedPrime[] => {
   // Sophie Germain prime (2n + 1 is also prime)
   if (primeAlgorithms.trial_division(2 * n + 1)) {
     related.push({
-      type: 'sophie_germain',
+      type: "sophie_germain",
       prime: 2 * n + 1,
       relationship: `${n} is a Sophie Germain prime (2 × ${n} + 1 = ${2 * n + 1} is also prime)`,
     })
@@ -531,7 +531,7 @@ const findRelatedPrimes = (n: number): RelatedPrime[] => {
   const mersenne = Math.log2(n + 1)
   if (mersenne === Math.floor(mersenne) && primeAlgorithms.trial_division(mersenne)) {
     related.push({
-      type: 'mersenne',
+      type: "mersenne",
       prime: mersenne,
       relationship: `${n} is a Mersenne prime (2^${mersenne} - 1)`,
     })
@@ -543,7 +543,7 @@ const findRelatedPrimes = (n: number): RelatedPrime[] => {
     const k = Math.log2(fermatTest)
     if (k === Math.floor(k) && k >= 0) {
       related.push({
-        type: 'fermat',
+        type: "fermat",
         prime: k,
         relationship: `${n} is a Fermat prime (2^(2^${k}) + 1)`,
       })
@@ -554,7 +554,7 @@ const findRelatedPrimes = (n: number): RelatedPrime[] => {
 }
 
 // Comprehensive prime analysis
-const analyzePrime = (number: number, algorithm: PrimeAlgorithm = 'trial_division'): PrimeAnalysis => {
+const analyzePrime = (number: number, algorithm: PrimeAlgorithm = "trial_division"): PrimeAnalysis => {
   const startTime = performance.now()
 
   const isPrime = primeAlgorithms[algorithm](number)
@@ -603,15 +603,15 @@ const calculateComplexity = (number: number, algorithm: PrimeAlgorithm): number 
   const digitCount = number.toString().length
 
   switch (algorithm) {
-    case 'trial_division':
+    case "trial_division":
       return Math.floor(Math.sqrt(number))
-    case 'miller_rabin':
+    case "miller_rabin":
       return digitCount * Math.log2(digitCount)
-    case 'fermat':
+    case "fermat":
       return digitCount * 2
-    case 'solovay_strassen':
+    case "solovay_strassen":
       return digitCount * Math.log2(digitCount) * 1.5
-    case 'aks':
+    case "aks":
       return Math.pow(digitCount, 6) // Simplified complexity
     default:
       return digitCount
@@ -619,10 +619,10 @@ const calculateComplexity = (number: number, algorithm: PrimeAlgorithm): number 
 }
 
 const getNumberType = (number: number): NumberType => {
-  if (number < 1000) return 'small'
-  if (number < 1000000) return 'medium'
-  if (number < 1000000000) return 'large'
-  return 'very_large'
+  if (number < 1000) return "small"
+  if (number < 1000000) return "medium"
+  if (number < 1000000000) return "large"
+  return "very_large"
 }
 
 const calculatePrimeGaps = (prime: number): number[] => {
@@ -662,9 +662,9 @@ const validatePrimeInput = (input: string): PrimeValidation => {
   if (!input || input.trim().length === 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Number input cannot be empty',
-      type: 'input',
-      severity: 'error',
+      message: "Number input cannot be empty",
+      type: "input",
+      severity: "error",
     })
     validation.qualityScore = 0
     return validation
@@ -675,9 +675,9 @@ const validatePrimeInput = (input: string): PrimeValidation => {
   if (isNaN(number)) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Input must be a valid integer',
-      type: 'input',
-      severity: 'error',
+      message: "Input must be a valid integer",
+      type: "input",
+      severity: "error",
     })
     validation.qualityScore -= 50
   }
@@ -685,38 +685,38 @@ const validatePrimeInput = (input: string): PrimeValidation => {
   if (number < 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Number must be non-negative',
-      type: 'input',
-      severity: 'error',
+      message: "Number must be non-negative",
+      type: "input",
+      severity: "error",
     })
     validation.qualityScore -= 30
   }
 
   if (number > Number.MAX_SAFE_INTEGER) {
-    validation.warnings.push('Number exceeds JavaScript safe integer limit')
-    validation.suggestions.push('Consider using a specialized big integer library for very large numbers')
+    validation.warnings.push("Number exceeds JavaScript safe integer limit")
+    validation.suggestions.push("Consider using a specialized big integer library for very large numbers")
     validation.qualityScore -= 20
   }
 
   if (number > 1000000000) {
-    validation.warnings.push('Very large number may impact performance')
-    validation.suggestions.push('Consider using probabilistic algorithms for large numbers')
+    validation.warnings.push("Very large number may impact performance")
+    validation.suggestions.push("Consider using probabilistic algorithms for large numbers")
     validation.qualityScore -= 10
   }
 
   if (number === 0 || number === 1) {
-    validation.suggestions.push('0 and 1 are neither prime nor composite by definition')
+    validation.suggestions.push("0 and 1 are neither prime nor composite by definition")
   }
 
   // Quality suggestions
   if (validation.qualityScore >= 90) {
-    validation.suggestions.push('Excellent input for prime analysis')
+    validation.suggestions.push("Excellent input for prime analysis")
   } else if (validation.qualityScore >= 70) {
-    validation.suggestions.push('Good input with minor considerations')
+    validation.suggestions.push("Good input with minor considerations")
   } else if (validation.qualityScore >= 50) {
-    validation.suggestions.push('Input needs improvement')
+    validation.suggestions.push("Input needs improvement")
   } else {
-    validation.suggestions.push('Input has significant issues')
+    validation.suggestions.push("Input has significant issues")
   }
 
   return validation
@@ -725,84 +725,84 @@ const validatePrimeInput = (input: string): PrimeValidation => {
 // Prime templates
 const primeTemplates: PrimeTemplate[] = [
   {
-    id: 'small-primes',
-    name: 'Small Primes',
-    description: 'First 10 prime numbers',
-    category: 'Basic',
+    id: "small-primes",
+    name: "Small Primes",
+    description: "First 10 prime numbers",
+    category: "Basic",
     numbers: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29],
     expectedResults: [true, true, true, true, true, true, true, true, true, true],
-    useCase: ['Learning', 'Basic testing', 'Algorithm verification'],
-    difficulty: 'simple',
+    useCase: ["Learning", "Basic testing", "Algorithm verification"],
+    difficulty: "simple",
   },
   {
-    id: 'twin-primes',
-    name: 'Twin Primes',
-    description: 'Pairs of primes that differ by 2',
-    category: 'Special',
+    id: "twin-primes",
+    name: "Twin Primes",
+    description: "Pairs of primes that differ by 2",
+    category: "Special",
     numbers: [3, 5, 11, 13, 17, 19, 29, 31, 41, 43],
     expectedResults: [true, true, true, true, true, true, true, true, true, true],
-    useCase: ['Number theory', 'Prime relationships', 'Mathematical research'],
-    difficulty: 'medium',
+    useCase: ["Number theory", "Prime relationships", "Mathematical research"],
+    difficulty: "medium",
   },
   {
-    id: 'mersenne-primes',
-    name: 'Mersenne Primes',
-    description: 'Primes of the form 2^p - 1',
-    category: 'Special',
+    id: "mersenne-primes",
+    name: "Mersenne Primes",
+    description: "Primes of the form 2^p - 1",
+    category: "Special",
     numbers: [3, 7, 31, 127, 8191],
     expectedResults: [true, true, true, true, true],
-    useCase: ['Cryptography', 'Perfect numbers', 'Mathematical research'],
-    difficulty: 'complex',
+    useCase: ["Cryptography", "Perfect numbers", "Mathematical research"],
+    difficulty: "complex",
   },
   {
-    id: 'fermat-numbers',
-    name: 'Fermat Numbers',
-    description: 'Numbers of the form 2^(2^n) + 1',
-    category: 'Special',
+    id: "fermat-numbers",
+    name: "Fermat Numbers",
+    description: "Numbers of the form 2^(2^n) + 1",
+    category: "Special",
     numbers: [3, 5, 17, 257, 65537],
     expectedResults: [true, true, true, true, true],
-    useCase: ['Number theory', 'Constructible polygons', 'Mathematical history'],
-    difficulty: 'complex',
+    useCase: ["Number theory", "Constructible polygons", "Mathematical history"],
+    difficulty: "complex",
   },
   {
-    id: 'sophie-germain',
-    name: 'Sophie Germain Primes',
-    description: 'Primes p where 2p + 1 is also prime',
-    category: 'Special',
+    id: "sophie-germain",
+    name: "Sophie Germain Primes",
+    description: "Primes p where 2p + 1 is also prime",
+    category: "Special",
     numbers: [2, 3, 5, 11, 23, 29, 41, 53, 83, 89],
     expectedResults: [true, true, true, true, true, true, true, true, true, true],
-    useCase: ['Cryptography', 'Number theory', 'Mathematical research'],
-    difficulty: 'medium',
+    useCase: ["Cryptography", "Number theory", "Mathematical research"],
+    difficulty: "medium",
   },
   {
-    id: 'composite-numbers',
-    name: 'Composite Numbers',
-    description: 'Non-prime numbers greater than 1',
-    category: 'Basic',
+    id: "composite-numbers",
+    name: "Composite Numbers",
+    description: "Non-prime numbers greater than 1",
+    category: "Basic",
     numbers: [4, 6, 8, 9, 10, 12, 14, 15, 16, 18],
     expectedResults: [false, false, false, false, false, false, false, false, false, false],
-    useCase: ['Learning', 'Algorithm testing', 'Factorization practice'],
-    difficulty: 'simple',
+    useCase: ["Learning", "Algorithm testing", "Factorization practice"],
+    difficulty: "simple",
   },
   {
-    id: 'large-primes',
-    name: 'Large Primes',
-    description: 'Primes with many digits',
-    category: 'Performance',
+    id: "large-primes",
+    name: "Large Primes",
+    description: "Primes with many digits",
+    category: "Performance",
     numbers: [982451653, 982451677, 982451707, 982451717, 982451747],
     expectedResults: [true, true, true, true, true],
-    useCase: ['Performance testing', 'Algorithm comparison', 'Cryptography'],
-    difficulty: 'complex',
+    useCase: ["Performance testing", "Algorithm comparison", "Cryptography"],
+    difficulty: "complex",
   },
   {
-    id: 'carmichael-numbers',
-    name: 'Carmichael Numbers',
+    id: "carmichael-numbers",
+    name: "Carmichael Numbers",
     description: "Composite numbers that satisfy Fermat's little theorem",
-    category: 'Special',
+    category: "Special",
     numbers: [561, 1105, 1729, 2465, 2821],
     expectedResults: [false, false, false, false, false],
-    useCase: ['Algorithm testing', 'Pseudoprime research', 'Number theory'],
-    difficulty: 'complex',
+    useCase: ["Algorithm testing", "Pseudoprime research", "Number theory"],
+    difficulty: "complex",
   },
 ]
 
@@ -812,7 +812,7 @@ const usePrimeAnalysis = () => {
   const [isProcessing, setIsProcessing] = useState(false)
 
   const analyzeNumber = useCallback(
-    async (number: number, algorithm: PrimeAlgorithm = 'trial_division'): Promise<PrimeAnalysis> => {
+    async (number: number, algorithm: PrimeAlgorithm = "trial_division"): Promise<PrimeAnalysis> => {
       setIsProcessing(true)
       try {
         const analysis = analyzePrime(number, algorithm)
@@ -849,13 +849,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -865,35 +865,35 @@ const useCopyToClipboard = () => {
 // Export functionality
 const usePrimeExport = () => {
   const exportAnalysis = useCallback((analysis: PrimeAnalysis, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(analysis, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromAnalysis(analysis)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'txt':
+      case "txt":
         content = generateTextFromAnalysis(analysis)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromAnalysis(analysis)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'yaml':
+      case "yaml":
         content = generateYAMLFromAnalysis(analysis)
-        mimeType = 'text/yaml'
-        extension = '.yaml'
+        mimeType = "text/yaml"
+        extension = ".yaml"
         break
       default:
         content = generateTextFromAnalysis(analysis)
@@ -902,7 +902,7 @@ const usePrimeExport = () => {
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `prime-analysis-${analysis.id}${extension}`
     document.body.appendChild(link)
@@ -916,22 +916,22 @@ const usePrimeExport = () => {
 
 // Helper functions for export formats
 const generateCSVFromAnalysis = (analysis: PrimeAnalysis): string => {
-  const headers = ['Property', 'Value']
+  const headers = ["Property", "Value"]
   const rows = [
-    ['Number', analysis.number.toString()],
-    ['Is Prime', analysis.isPrime.toString()],
-    ['Algorithm', analysis.algorithm],
-    ['Test Time (ms)', analysis.metadata.testTime.toFixed(2)],
-    ['Complexity', analysis.metadata.complexity.toString()],
-    ['Digit Count', analysis.metadata.digitCount.toString()],
-    ['Number Type', analysis.metadata.numberType],
-    ['Factors', analysis.factors.join(', ')],
-    ['Prime Factorization', analysis.primeFactorization.map((f) => `${f.prime}^${f.exponent}`).join(' × ')],
-    ['Related Primes', analysis.metadata.relatedPrimes.length.toString()],
-    ['Prime Gaps', analysis.metadata.primeGaps.join(', ')],
+    ["Number", analysis.number.toString()],
+    ["Is Prime", analysis.isPrime.toString()],
+    ["Algorithm", analysis.algorithm],
+    ["Test Time (ms)", analysis.metadata.testTime.toFixed(2)],
+    ["Complexity", analysis.metadata.complexity.toString()],
+    ["Digit Count", analysis.metadata.digitCount.toString()],
+    ["Number Type", analysis.metadata.numberType],
+    ["Factors", analysis.factors.join(", ")],
+    ["Prime Factorization", analysis.primeFactorization.map((f) => `${f.prime}^${f.exponent}`).join(" × ")],
+    ["Related Primes", analysis.metadata.relatedPrimes.length.toString()],
+    ["Prime Gaps", analysis.metadata.primeGaps.join(", ")],
   ]
 
-  return [headers.join(','), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
+  return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
 }
 
 const generateTextFromAnalysis = (analysis: PrimeAnalysis): string => {
@@ -939,40 +939,40 @@ const generateTextFromAnalysis = (analysis: PrimeAnalysis): string => {
 
 === BASIC INFORMATION ===
 Number: ${formatNumber(analysis.number)}
-Is Prime: ${analysis.isPrime ? 'Yes' : 'No'}
-Algorithm: ${analysis.algorithm.replace(/_/g, ' ').toUpperCase()}
+Is Prime: ${analysis.isPrime ? "Yes" : "No"}
+Algorithm: ${analysis.algorithm.replace(/_/g, " ").toUpperCase()}
 
 === PERFORMANCE METRICS ===
 Test Time: ${analysis.metadata.testTime.toFixed(2)} ms
 Complexity: ${formatNumber(analysis.metadata.complexity)}
 Digit Count: ${analysis.metadata.digitCount}
-Number Type: ${analysis.metadata.numberType.replace(/_/g, ' ').toUpperCase()}
+Number Type: ${analysis.metadata.numberType.replace(/_/g, " ").toUpperCase()}
 
 === FACTORIZATION ===
-All Factors: ${analysis.factors.map(formatNumber).join(', ')}
+All Factors: ${analysis.factors.map(formatNumber).join(", ")}
 Prime Factorization: ${
     analysis.primeFactorization
       .map((f) => (f.exponent === 1 ? f.prime.toString() : `${f.prime}^${f.exponent}`))
-      .join(' × ') || 'N/A'
+      .join(" × ") || "N/A"
   }
 
 === MATHEMATICAL PROPERTIES ===
 ${analysis.metadata.mathematicalProperties
   .map((prop) => `${prop.name}: ${prop.value} (${prop.description})`)
-  .join('\n')}
+  .join("\n")}
 
 === RELATED PRIMES ===
 ${
   analysis.metadata.relatedPrimes.length > 0
-    ? analysis.metadata.relatedPrimes.map((rp) => `${rp.type.toUpperCase()}: ${rp.relationship}`).join('\n')
-    : 'No related primes found'
+    ? analysis.metadata.relatedPrimes.map((rp) => `${rp.type.toUpperCase()}: ${rp.relationship}`).join("\n")
+    : "No related primes found"
 }
 
 === PRIME GAPS ===
 ${
   analysis.metadata.primeGaps.length > 0
-    ? `Gaps: ${analysis.metadata.primeGaps.join(', ')}`
-    : 'N/A (not a prime or no nearby primes found)'
+    ? `Gaps: ${analysis.metadata.primeGaps.join(", ")}`
+    : "N/A (not a prime or no nearby primes found)"
 }`
 }
 
@@ -989,20 +989,20 @@ const generateXMLFromAnalysis = (analysis: PrimeAnalysis): string => {
     <numberType>${analysis.metadata.numberType}</numberType>
   </metadata>
   <factors>
-${analysis.factors.map((factor) => `    <factor>${factor}</factor>`).join('\n')}
+${analysis.factors.map((factor) => `    <factor>${factor}</factor>`).join("\n")}
   </factors>
   <primeFactorization>
-${analysis.primeFactorization.map((pf) => `    <factor prime="${pf.prime}" exponent="${pf.exponent}"/>`).join('\n')}
+${analysis.primeFactorization.map((pf) => `    <factor prime="${pf.prime}" exponent="${pf.exponent}"/>`).join("\n")}
   </primeFactorization>
   <mathematicalProperties>
 ${analysis.metadata.mathematicalProperties
   .map((prop) => `    <property name="${prop.name}" value="${prop.value}" description="${prop.description}"/>`)
-  .join('\n')}
+  .join("\n")}
   </mathematicalProperties>
   <relatedPrimes>
 ${analysis.metadata.relatedPrimes
   .map((rp) => `    <relatedPrime type="${rp.type}" prime="${rp.prime}" relationship="${rp.relationship}"/>`)
-  .join('\n')}
+  .join("\n")}
   </relatedPrimes>
 </primeAnalysis>`
 }
@@ -1019,17 +1019,17 @@ metadata:
   digitCount: ${analysis.metadata.digitCount}
   numberType: ${analysis.metadata.numberType}
 factors:
-${analysis.factors.map((factor) => `  - ${factor}`).join('\n')}
+${analysis.factors.map((factor) => `  - ${factor}`).join("\n")}
 primeFactorization:
-${analysis.primeFactorization.map((pf) => `  - prime: ${pf.prime}\n    exponent: ${pf.exponent}`).join('\n')}
+${analysis.primeFactorization.map((pf) => `  - prime: ${pf.prime}\n    exponent: ${pf.exponent}`).join("\n")}
 mathematicalProperties:
 ${analysis.metadata.mathematicalProperties
   .map((prop) => `  - name: ${prop.name}\n    value: ${prop.value}\n    description: ${prop.description}`)
-  .join('\n')}
+  .join("\n")}
 relatedPrimes:
 ${analysis.metadata.relatedPrimes
   .map((rp) => `  - type: ${rp.type}\n    prime: ${rp.prime}\n    relationship: ${rp.relationship}`)
-  .join('\n')}`
+  .join("\n")}`
 }
 
 /**
@@ -1037,15 +1037,15 @@ ${analysis.metadata.relatedPrimes
  * Features: Advanced prime checking algorithms, mathematical analysis, factorization, and comprehensive number theory
  */
 const PrimeCheckerCore = () => {
-  const [activeTab, setActiveTab] = useState<'checker' | 'generator' | 'history' | 'templates' | 'settings'>('checker')
-  const [numberInput, setNumberInput] = useState('2')
+  const [activeTab, setActiveTab] = useState<"checker" | "generator" | "history" | "templates" | "settings">("checker")
+  const [numberInput, setNumberInput] = useState("2")
   const [currentAnalysis, setCurrentAnalysis] = useState<PrimeAnalysis | null>(null)
-  const [algorithm, setAlgorithm] = useState<PrimeAlgorithm>('trial_division')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [algorithm, setAlgorithm] = useState<PrimeAlgorithm>("trial_division")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
 
   // Prime generation settings
   const [generationLimit, setGenerationLimit] = useState(100)
-  const [generationAlgorithm, setGenerationAlgorithm] = useState<GenerationAlgorithm>('sieve')
+  const [generationAlgorithm, setGenerationAlgorithm] = useState<GenerationAlgorithm>("sieve")
   const [generatedPrimes, setGeneratedPrimes] = useState<number[]>([])
 
   const { analyses, isProcessing, analyzeNumber, clearAnalyses, removeAnalysis } = usePrimeAnalysis()
@@ -1077,7 +1077,7 @@ const PrimeCheckerCore = () => {
       setCurrentAnalysis(analysis)
       toast.success(`Analysis completed for ${formatNumber(number)}`)
     } catch (error) {
-      toast.error('Failed to analyze number')
+      toast.error("Failed to analyze number")
       console.error(error)
     }
   }, [numberInput, algorithm, analyzeNumber])
@@ -1085,12 +1085,12 @@ const PrimeCheckerCore = () => {
   // Generate primes
   const handleGeneratePrimes = useCallback(() => {
     if (generationLimit < 2) {
-      toast.error('Limit must be at least 2')
+      toast.error("Limit must be at least 2")
       return
     }
 
     if (generationLimit > 1000000) {
-      toast.error('Limit too large, please use a smaller number')
+      toast.error("Limit too large, please use a smaller number")
       return
     }
 
@@ -1099,7 +1099,7 @@ const PrimeCheckerCore = () => {
       setGeneratedPrimes(primes)
       toast.success(`Generated ${primes.length} primes up to ${formatNumber(generationLimit)}`)
     } catch (error) {
-      toast.error('Failed to generate primes')
+      toast.error("Failed to generate primes")
       console.error(error)
     }
   }, [generationLimit, generationAlgorithm])
@@ -1127,12 +1127,15 @@ const PrimeCheckerCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Calculator className="h-5 w-5" aria-hidden="true" />
+              <Calculator className="h-5 w-5" />
               Prime Checker & Mathematical Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -1145,32 +1148,53 @@ const PrimeCheckerCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as any)}
+        >
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="checker" className="flex items-center gap-2">
+            <TabsTrigger
+              value="checker"
+              className="flex items-center gap-2"
+            >
               <Calculator className="h-4 w-4" />
               Checker
             </TabsTrigger>
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <Zap className="h-4 w-4" />
               Generator
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger
+              value="settings"
+              className="flex items-center gap-2"
+            >
               <Settings className="h-4 w-4" />
               Settings
             </TabsTrigger>
           </TabsList>
 
           {/* Prime Checker Tab */}
-          <TabsContent value="checker" className="space-y-4">
+          <TabsContent
+            value="checker"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Number Input */}
               <Card>
@@ -1182,7 +1206,10 @@ const PrimeCheckerCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="number-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="number-input"
+                      className="text-sm font-medium"
+                    >
                       Number to Analyze
                     </Label>
                     <Input
@@ -1197,10 +1224,16 @@ const PrimeCheckerCore = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="algorithm" className="text-sm font-medium">
+                    <Label
+                      htmlFor="algorithm"
+                      className="text-sm font-medium"
+                    >
                       Algorithm
                     </Label>
-                    <Select value={algorithm} onValueChange={(value) => setAlgorithm(value as PrimeAlgorithm)}>
+                    <Select
+                      value={algorithm}
+                      onValueChange={(value) => setAlgorithm(value as PrimeAlgorithm)}
+                    >
                       <SelectTrigger className="mt-2">
                         <SelectValue />
                       </SelectTrigger>
@@ -1215,17 +1248,21 @@ const PrimeCheckerCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleAnalyze} disabled={isProcessing || !numberInput.trim()} className="flex-1">
+                    <Button
+                      onClick={handleAnalyze}
+                      disabled={isProcessing || !numberInput.trim()}
+                      className="flex-1"
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
                         <Calculator className="mr-2 h-4 w-4" />
                       )}
-                      {isProcessing ? 'Analyzing...' : 'Analyze Number'}
+                      {isProcessing ? "Analyzing..." : "Analyze Number"}
                     </Button>
                     <Button
                       onClick={() => {
-                        setNumberInput('')
+                        setNumberInput("")
                         setCurrentAnalysis(null)
                       }}
                       variant="outline"
@@ -1270,20 +1307,20 @@ const PrimeCheckerCore = () => {
                       <div className="text-center p-4 rounded-lg border">
                         <div
                           className={`text-3xl font-bold mb-2 ${
-                            currentAnalysis.isPrime ? 'text-green-600' : 'text-red-600'
+                            currentAnalysis.isPrime ? "text-green-600" : "text-red-600"
                           }`}
                         >
                           {formatNumber(currentAnalysis.number)}
                         </div>
                         <div
                           className={`text-lg font-medium ${
-                            currentAnalysis.isPrime ? 'text-green-600' : 'text-red-600'
+                            currentAnalysis.isPrime ? "text-green-600" : "text-red-600"
                           }`}
                         >
-                          {currentAnalysis.isPrime ? 'IS PRIME' : 'NOT PRIME'}
+                          {currentAnalysis.isPrime ? "IS PRIME" : "NOT PRIME"}
                         </div>
                         <div className="text-sm text-muted-foreground mt-1">
-                          Algorithm: {currentAnalysis.algorithm.replace(/_/g, ' ').toUpperCase()}
+                          Algorithm: {currentAnalysis.algorithm.replace(/_/g, " ").toUpperCase()}
                         </div>
                       </div>
 
@@ -1307,7 +1344,7 @@ const PrimeCheckerCore = () => {
                         </div>
                         <div className="text-center">
                           <div className="text-lg font-bold text-purple-600">
-                            {currentAnalysis.metadata.numberType.replace(/_/g, ' ').toUpperCase()}
+                            {currentAnalysis.metadata.numberType.replace(/_/g, " ").toUpperCase()}
                           </div>
                           <div className="text-xs text-muted-foreground">Type</div>
                         </div>
@@ -1319,13 +1356,13 @@ const PrimeCheckerCore = () => {
                           <Label className="text-sm font-medium">Factorization</Label>
                           <div className="p-3 bg-muted rounded text-sm">
                             <div className="mb-2">
-                              <strong>All Factors:</strong> {currentAnalysis.factors.map(formatNumber).join(', ')}
+                              <strong>All Factors:</strong> {currentAnalysis.factors.map(formatNumber).join(", ")}
                             </div>
                             <div>
-                              <strong>Prime Factorization:</strong>{' '}
+                              <strong>Prime Factorization:</strong>{" "}
                               {currentAnalysis.primeFactorization
                                 .map((f) => (f.exponent === 1 ? f.prime.toString() : `${f.prime}^${f.exponent}`))
-                                .join(' × ')}
+                                .join(" × ")}
                             </div>
                           </div>
                         </div>
@@ -1337,8 +1374,11 @@ const PrimeCheckerCore = () => {
                           <Label className="text-sm font-medium">Related Primes</Label>
                           <div className="space-y-1">
                             {currentAnalysis.metadata.relatedPrimes.slice(0, 3).map((rp, index) => (
-                              <div key={index} className="text-xs p-2 bg-muted rounded">
-                                <span className="font-medium capitalize">{rp.type.replace(/_/g, ' ')}:</span>{' '}
+                              <div
+                                key={index}
+                                className="text-xs p-2 bg-muted rounded"
+                              >
+                                <span className="font-medium capitalize">{rp.type.replace(/_/g, " ")}:</span>{" "}
                                 {rp.relationship}
                               </div>
                             ))}
@@ -1348,20 +1388,28 @@ const PrimeCheckerCore = () => {
 
                       {/* Export Options */}
                       <div className="flex gap-2 pt-4 border-t">
-                        <Button onClick={() => exportAnalysis(currentAnalysis, 'json')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportAnalysis(currentAnalysis, "json")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           JSON
                         </Button>
-                        <Button onClick={() => exportAnalysis(currentAnalysis, 'txt')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportAnalysis(currentAnalysis, "txt")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           Report
                         </Button>
                         <Button
-                          onClick={() => copyToClipboard(currentAnalysis.number.toString(), 'Number')}
+                          onClick={() => copyToClipboard(currentAnalysis.number.toString(), "Number")}
                           variant="outline"
                           size="sm"
                         >
-                          {copiedText === 'Number' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          {copiedText === "Number" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         </Button>
                       </div>
                     </div>
@@ -1388,15 +1436,18 @@ const PrimeCheckerCore = () => {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {currentAnalysis.metadata.mathematicalProperties.map((prop, index) => (
-                      <div key={index} className="p-3 border rounded-lg">
+                      <div
+                        key={index}
+                        className="p-3 border rounded-lg"
+                      >
                         <div className="font-medium text-sm mb-1">{prop.name}</div>
                         <div
                           className={`text-lg font-bold mb-1 ${
-                            typeof prop.value === 'boolean'
+                            typeof prop.value === "boolean"
                               ? prop.value
-                                ? 'text-green-600'
-                                : 'text-red-600'
-                              : 'text-blue-600'
+                                ? "text-green-600"
+                                : "text-red-600"
+                              : "text-blue-600"
                           }`}
                         >
                           {prop.value.toString()}
@@ -1411,7 +1462,10 @@ const PrimeCheckerCore = () => {
           </TabsContent>
 
           {/* Prime Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1423,7 +1477,10 @@ const PrimeCheckerCore = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="generation-limit" className="text-sm font-medium">
+                    <Label
+                      htmlFor="generation-limit"
+                      className="text-sm font-medium"
+                    >
                       Upper Limit
                     </Label>
                     <Input
@@ -1438,7 +1495,10 @@ const PrimeCheckerCore = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="generation-algorithm" className="text-sm font-medium">
+                    <Label
+                      htmlFor="generation-algorithm"
+                      className="text-sm font-medium"
+                    >
                       Algorithm
                     </Label>
                     <Select
@@ -1474,19 +1534,22 @@ const PrimeCheckerCore = () => {
                         Generated {generatedPrimes.length} primes up to {formatNumber(generationLimit)}
                       </span>
                       <Button
-                        onClick={() => copyToClipboard(generatedPrimes.join(', '), 'Prime List')}
+                        onClick={() => copyToClipboard(generatedPrimes.join(", "), "Prime List")}
                         variant="outline"
                         size="sm"
                       >
-                        {copiedText === 'Prime List' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        {copiedText === "Prime List" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                       </Button>
                     </div>
 
                     <div className="max-h-64 overflow-y-auto p-4 bg-muted rounded text-sm font-mono">
                       {generatedPrimes.map((prime, index) => (
-                        <span key={index} className="inline-block mr-2 mb-1">
+                        <span
+                          key={index}
+                          className="inline-block mr-2 mb-1"
+                        >
                           {formatNumber(prime)}
-                          {index < generatedPrimes.length - 1 ? ',' : ''}
+                          {index < generatedPrimes.length - 1 ? "," : ""}
                         </span>
                       ))}
                     </div>
@@ -1497,7 +1560,10 @@ const PrimeCheckerCore = () => {
           </TabsContent>
 
           {/* History Tab */}
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent
+            value="history"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Analysis History</CardTitle>
@@ -1508,16 +1574,23 @@ const PrimeCheckerCore = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        {analyses.length} analysis{analyses.length !== 1 ? 'es' : ''} in history
+                        {analyses.length} analysis{analyses.length !== 1 ? "es" : ""} in history
                       </span>
-                      <Button onClick={clearAnalyses} variant="outline" size="sm">
+                      <Button
+                        onClick={clearAnalyses}
+                        variant="outline"
+                        size="sm"
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Clear History
                       </Button>
                     </div>
 
                     {analyses.map((analysis) => (
-                      <div key={analysis.id} className="border rounded-lg p-4">
+                      <div
+                        key={analysis.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex justify-between items-start mb-2">
                           <div className="font-medium text-sm">
                             {formatNumber(analysis.number)} - {analysis.timestamp.toLocaleString()}
@@ -1525,12 +1598,16 @@ const PrimeCheckerCore = () => {
                           <div className="flex items-center gap-2">
                             <span
                               className={`text-xs px-2 py-1 rounded ${
-                                analysis.isPrime ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                analysis.isPrime ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                               }`}
                             >
-                              {analysis.isPrime ? 'Prime' : 'Composite'}
+                              {analysis.isPrime ? "Prime" : "Composite"}
                             </span>
-                            <Button size="sm" variant="ghost" onClick={() => removeAnalysis(analysis.id)}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeAnalysis(analysis.id)}
+                            >
                               <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
@@ -1542,7 +1619,7 @@ const PrimeCheckerCore = () => {
                               <div className="text-muted-foreground">Test Time</div>
                             </div>
                             <div>
-                              <div className="font-medium">{analysis.algorithm.replace(/_/g, ' ')}</div>
+                              <div className="font-medium">{analysis.algorithm.replace(/_/g, " ")}</div>
                               <div className="text-muted-foreground">Algorithm</div>
                             </div>
                             <div>
@@ -1562,18 +1639,22 @@ const PrimeCheckerCore = () => {
                             onClick={() => {
                               setNumberInput(analysis.number.toString())
                               setCurrentAnalysis(analysis)
-                              setActiveTab('checker')
+                              setActiveTab("checker")
                             }}
                           >
                             <Eye className="h-3 w-3" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => exportAnalysis(analysis, 'json')}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => exportAnalysis(analysis, "json")}
+                          >
                             <Download className="h-3 w-3" />
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => copyToClipboard(analysis.number.toString(), 'Number')}
+                            onClick={() => copyToClipboard(analysis.number.toString(), "Number")}
                           >
                             <Copy className="h-3 w-3" />
                           </Button>
@@ -1593,7 +1674,10 @@ const PrimeCheckerCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Number Templates</CardTitle>
@@ -1605,7 +1689,7 @@ const PrimeCheckerCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1616,11 +1700,11 @@ const PrimeCheckerCore = () => {
                             <span className="text-xs px-2 py-1 bg-muted rounded">{template.category}</span>
                             <span
                               className={`text-xs px-2 py-1 rounded ${
-                                template.difficulty === 'simple'
-                                  ? 'bg-green-100 text-green-800'
-                                  : template.difficulty === 'medium'
-                                    ? 'bg-yellow-100 text-yellow-800'
-                                    : 'bg-red-100 text-red-800'
+                                template.difficulty === "simple"
+                                  ? "bg-green-100 text-green-800"
+                                  : template.difficulty === "medium"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
                               }`}
                             >
                               {template.difficulty}
@@ -1631,13 +1715,13 @@ const PrimeCheckerCore = () => {
                         <div>
                           <div className="text-xs font-medium mb-1">Numbers ({template.numbers.length}):</div>
                           <div className="text-xs text-muted-foreground">
-                            {template.numbers.slice(0, 5).map(formatNumber).join(', ')}
-                            {template.numbers.length > 5 ? '...' : ''}
+                            {template.numbers.slice(0, 5).map(formatNumber).join(", ")}
+                            {template.numbers.length > 5 ? "..." : ""}
                           </div>
                         </div>
                         <div>
                           <div className="text-xs font-medium mb-1">Use Cases:</div>
-                          <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                          <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                         </div>
                       </div>
                     </div>
@@ -1648,7 +1732,10 @@ const PrimeCheckerCore = () => {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-4">
+          <TabsContent
+            value="settings"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Algorithm Settings</CardTitle>

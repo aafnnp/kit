@@ -1,13 +1,13 @@
-import { useCallback, useState, useMemo, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
-import { useTranslation } from 'react-i18next'
+import { useCallback, useState, useMemo, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 import {
   Download,
   Trash2,
@@ -27,8 +27,8 @@ import {
   EyeOff,
   Minimize2,
   Maximize2,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   JSONProcessingResult,
   JSONStatistics,
@@ -39,8 +39,8 @@ import type {
   JSONValidation,
   JSONOperation,
   ExportFormat,
-} from '@/types/json-pretty'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/json-pretty"
+import { formatFileSize } from "@/lib/utils"
 // Utility functions
 
 // JSON processing functions
@@ -54,7 +54,7 @@ const validateJSON = (input: string): JSONValidation => {
 
   if (!input.trim()) {
     validation.isValid = false
-    validation.errors.push({ message: 'JSON input cannot be empty' })
+    validation.errors.push({ message: "JSON input cannot be empty" })
     return validation
   }
 
@@ -70,7 +70,7 @@ const validateJSON = (input: string): JSONValidation => {
       let column: number | undefined
 
       if (position !== undefined) {
-        const lines = input.substring(0, position).split('\n')
+        const lines = input.substring(0, position).split("\n")
         line = lines.length
         column = lines[lines.length - 1].length + 1
       }
@@ -81,26 +81,26 @@ const validateJSON = (input: string): JSONValidation => {
         column,
       })
     } else {
-      validation.errors.push({ message: 'Unknown JSON parsing error' })
+      validation.errors.push({ message: "Unknown JSON parsing error" })
     }
     return validation
   }
 
   // Additional validations and suggestions
-  if (input.includes('\t')) {
-    validation.warnings.push('Contains tab characters - consider using spaces for indentation')
+  if (input.includes("\t")) {
+    validation.warnings.push("Contains tab characters - consider using spaces for indentation")
   }
 
   if (input.length > 1000000) {
-    validation.warnings.push('Large JSON file - processing may be slow')
+    validation.warnings.push("Large JSON file - processing may be slow")
   }
 
   // Check for potential issues
-  if (input.includes('undefined')) {
+  if (input.includes("undefined")) {
     validation.suggestions.push('Contains "undefined" strings - ensure these are intentional')
   }
 
-  if (input.includes('NaN')) {
+  if (input.includes("NaN")) {
     validation.suggestions.push('Contains "NaN" strings - these are not valid JSON values')
   }
 
@@ -111,7 +111,7 @@ const validateJSON = (input: string): JSONValidation => {
 const analyzeJSON = (input: string): JSONStatistics => {
   const stats: JSONStatistics = {
     size: new Blob([input]).size,
-    lines: input.split('\n').length,
+    lines: input.split("\n").length,
     depth: 0,
     keys: 0,
     arrays: 0,
@@ -142,20 +142,20 @@ const analyzeValue = (
   depth: number,
   visited: Set<any>,
   keyCount: Map<string, number>,
-  path: string = ''
+  path: string = ""
 ): void => {
   stats.depth = Math.max(stats.depth, depth)
 
   if (value === null) {
     stats.nullValues++
     stats.primitives++
-  } else if (typeof value === 'boolean') {
+  } else if (typeof value === "boolean") {
     stats.booleans++
     stats.primitives++
-  } else if (typeof value === 'number') {
+  } else if (typeof value === "number") {
     stats.numbers++
     stats.primitives++
-  } else if (typeof value === 'string') {
+  } else if (typeof value === "string") {
     stats.strings++
     stats.primitives++
   } else if (Array.isArray(value)) {
@@ -172,7 +172,7 @@ const analyzeValue = (
     })
 
     visited.delete(value)
-  } else if (typeof value === 'object') {
+  } else if (typeof value === "object") {
     stats.objects++
 
     if (visited.has(value)) {
@@ -207,20 +207,20 @@ const processJSON = (input: string, operation: JSONOperation, settings: JSONSett
       return {
         id: nanoid(),
         input,
-        output: '',
+        output: "",
         operation,
         isValid: false,
-        error: validation.errors.map((e) => e.message).join('; '),
+        error: validation.errors.map((e) => e.message).join("; "),
         statistics: analyzeJSON(input),
         createdAt: new Date(),
       }
     }
 
     const parsed = JSON.parse(input)
-    let output = ''
+    let output = ""
 
     switch (operation) {
-      case 'format':
+      case "format":
         if (settings.sortKeys) {
           output = JSON.stringify(sortObjectKeys(parsed), null, settings.indentSize)
         } else {
@@ -228,24 +228,24 @@ const processJSON = (input: string, operation: JSONOperation, settings: JSONSett
         }
         break
 
-      case 'minify':
+      case "minify":
         output = JSON.stringify(parsed)
         break
 
-      case 'validate':
-        output = 'Valid JSON ✓'
+      case "validate":
+        output = "Valid JSON ✓"
         break
 
-      case 'analyze':
+      case "analyze":
         const stats = analyzeJSON(input)
         output = JSON.stringify(stats, null, 2)
         break
 
-      case 'escape':
+      case "escape":
         output = JSON.stringify(input)
         break
 
-      case 'unescape':
+      case "unescape":
         try {
           output = JSON.parse(input)
         } catch {
@@ -270,10 +270,10 @@ const processJSON = (input: string, operation: JSONOperation, settings: JSONSett
     return {
       id: nanoid(),
       input,
-      output: '',
+      output: "",
       operation,
       isValid: false,
-      error: error instanceof Error ? error.message : 'Processing failed',
+      error: error instanceof Error ? error.message : "Processing failed",
       statistics: analyzeJSON(input),
       createdAt: new Date(),
     }
@@ -284,7 +284,7 @@ const processJSON = (input: string, operation: JSONOperation, settings: JSONSett
 const sortObjectKeys = (obj: any): any => {
   if (Array.isArray(obj)) {
     return obj.map(sortObjectKeys)
-  } else if (obj !== null && typeof obj === 'object') {
+  } else if (obj !== null && typeof obj === "object") {
     const sorted: any = {}
     Object.keys(obj)
       .sort()
@@ -299,23 +299,23 @@ const sortObjectKeys = (obj: any): any => {
 // JSON templates for common use cases
 const jsonTemplates: JSONTemplate[] = [
   {
-    id: 'simple-object',
-    name: 'Simple Object',
-    description: 'Basic JSON object structure',
-    category: 'Basic',
+    id: "simple-object",
+    name: "Simple Object",
+    description: "Basic JSON object structure",
+    category: "Basic",
     content: `{
   "name": "John Doe",
   "age": 30,
   "email": "john@example.com",
   "active": true
 }`,
-    useCase: ['API responses', 'Configuration files', 'Data modeling'],
+    useCase: ["API responses", "Configuration files", "Data modeling"],
   },
   {
-    id: 'array-of-objects',
-    name: 'Array of Objects',
-    description: 'JSON array containing multiple objects',
-    category: 'Collections',
+    id: "array-of-objects",
+    name: "Array of Objects",
+    description: "JSON array containing multiple objects",
+    category: "Collections",
     content: `[
   {
     "id": 1,
@@ -330,13 +330,13 @@ const jsonTemplates: JSONTemplate[] = [
     "inStock": false
   }
 ]`,
-    useCase: ['Product catalogs', 'User lists', 'API collections'],
+    useCase: ["Product catalogs", "User lists", "API collections"],
   },
   {
-    id: 'nested-structure',
-    name: 'Nested Structure',
-    description: 'Complex nested JSON with multiple levels',
-    category: 'Complex',
+    id: "nested-structure",
+    name: "Nested Structure",
+    description: "Complex nested JSON with multiple levels",
+    category: "Complex",
     content: `{
   "user": {
     "profile": {
@@ -358,13 +358,13 @@ const jsonTemplates: JSONTemplate[] = [
     }
   }
 }`,
-    useCase: ['User profiles', 'Configuration systems', 'Complex data structures'],
+    useCase: ["User profiles", "Configuration systems", "Complex data structures"],
   },
   {
-    id: 'api-response',
-    name: 'API Response',
-    description: 'Typical REST API response format',
-    category: 'API',
+    id: "api-response",
+    name: "API Response",
+    description: "Typical REST API response format",
+    category: "API",
     content: `{
   "status": "success",
   "data": {
@@ -382,13 +382,13 @@ const jsonTemplates: JSONTemplate[] = [
     "limit": 10
   }
 }`,
-    useCase: ['REST APIs', 'GraphQL responses', 'Microservices'],
+    useCase: ["REST APIs", "GraphQL responses", "Microservices"],
   },
   {
-    id: 'config-file',
-    name: 'Configuration File',
-    description: 'Application configuration structure',
-    category: 'Configuration',
+    id: "config-file",
+    name: "Configuration File",
+    description: "Application configuration structure",
+    category: "Configuration",
     content: `{
   "app": {
     "name": "MyApp",
@@ -408,13 +408,13 @@ const jsonTemplates: JSONTemplate[] = [
     }
   }
 }`,
-    useCase: ['App configuration', 'Environment settings', 'Feature flags'],
+    useCase: ["App configuration", "Environment settings", "Feature flags"],
   },
   {
-    id: 'geojson',
-    name: 'GeoJSON',
-    description: 'Geographic data in JSON format',
-    category: 'Specialized',
+    id: "geojson",
+    name: "GeoJSON",
+    description: "Geographic data in JSON format",
+    category: "Specialized",
     content: `{
   "type": "FeatureCollection",
   "features": [
@@ -431,7 +431,7 @@ const jsonTemplates: JSONTemplate[] = [
     }
   ]
 }`,
-    useCase: ['Mapping applications', 'Location data', 'Geographic APIs'],
+    useCase: ["Mapping applications", "Location data", "Geographic APIs"],
   },
 ]
 
@@ -482,8 +482,8 @@ const useJSONProcessing = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch processing error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch processing failed')
+        console.error("Batch processing error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch processing failed")
       }
     },
     []
@@ -529,10 +529,10 @@ const useJSONSearch = (jsonString: string, searchTerm: string) => {
       const parsed = JSON.parse(jsonString)
       const matches: Array<{ path: string; value: any; line?: number }> = []
 
-      const searchInValue = (value: any, path: string = '') => {
-        if (typeof value === 'string' && value.toLowerCase().includes(searchTerm.toLowerCase())) {
+      const searchInValue = (value: any, path: string = "") => {
+        if (typeof value === "string" && value.toLowerCase().includes(searchTerm.toLowerCase())) {
           matches.push({ path, value })
-        } else if (typeof value === 'object' && value !== null) {
+        } else if (typeof value === "object" && value !== null) {
           if (Array.isArray(value)) {
             value.forEach((item, index) => {
               searchInValue(item, `${path}[${index}]`)
@@ -551,7 +551,7 @@ const useJSONSearch = (jsonString: string, searchTerm: string) => {
       searchInValue(parsed)
 
       // Simple highlighting (could be enhanced)
-      const highlightedJSON = jsonString.replace(new RegExp(searchTerm, 'gi'), `<mark>$&</mark>`)
+      const highlightedJSON = jsonString.replace(new RegExp(searchTerm, "gi"), `<mark>$&</mark>`)
 
       return {
         matches,
@@ -569,37 +569,37 @@ const useJSONSearch = (jsonString: string, searchTerm: string) => {
 // Export functionality
 const useJSONExport = () => {
   const exportResults = useCallback((results: JSONProcessingResult[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(results, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromResults(results)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromResults(results)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromResults(results)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `json-processing${extension}`
     document.body.appendChild(link)
@@ -610,7 +610,7 @@ const useJSONExport = () => {
 
   const exportBatch = useCallback(
     (batch: JSONBatch) => {
-      exportResults(batch.results, 'json', `json-batch-${batch.id}.json`)
+      exportResults(batch.results, "json", `json-batch-${batch.id}.json`)
       toast.success(`Exported ${batch.results.length} JSON processing results`)
     },
     [exportResults]
@@ -629,13 +629,13 @@ const useJSONExport = () => {
 
     const csvContent = [
       [
-        'Batch ID',
-        'Result Count',
-        'Valid Count',
-        'Invalid Count',
-        'Average Size (bytes)',
-        'Success Rate (%)',
-        'Created At',
+        "Batch ID",
+        "Result Count",
+        "Valid Count",
+        "Invalid Count",
+        "Average Size (bytes)",
+        "Success Rate (%)",
+        "Created At",
       ],
       ...stats.map((stat) => [
         stat.batchId,
@@ -647,20 +647,20 @@ const useJSONExport = () => {
         stat.createdAt,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'json-statistics.csv'
+    link.download = "json-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportResults, exportBatch, exportStatistics }
@@ -680,8 +680,8 @@ Results:
 ${results
   .map((result, i) => {
     return `${i + 1}. Operation: ${result.operation}
-   Status: ${result.isValid ? 'Valid' : 'Invalid'}
-   ${result.error ? `Error: ${result.error}` : ''}
+   Status: ${result.isValid ? "Valid" : "Invalid"}
+   ${result.error ? `Error: ${result.error}` : ""}
    Size: ${formatFileSize(result.statistics.size)}
    Lines: ${result.statistics.lines}
    Depth: ${result.statistics.depth}
@@ -690,7 +690,7 @@ ${results
    Keys: ${result.statistics.keys}
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
@@ -699,14 +699,14 @@ Statistics:
 
 const generateCSVFromResults = (results: JSONProcessingResult[]): string => {
   const rows = [
-    ['Operation', 'Valid', 'Error', 'Size (bytes)', 'Lines', 'Depth', 'Objects', 'Arrays', 'Keys', 'Created At'],
+    ["Operation", "Valid", "Error", "Size (bytes)", "Lines", "Depth", "Objects", "Arrays", "Keys", "Created At"],
   ]
 
   results.forEach((result) => {
     rows.push([
       result.operation,
-      result.isValid ? 'Yes' : 'No',
-      result.error || '',
+      result.isValid ? "Yes" : "No",
+      result.error || "",
       result.statistics.size.toString(),
       result.statistics.lines.toString(),
       result.statistics.depth.toString(),
@@ -717,7 +717,7 @@ const generateCSVFromResults = (results: JSONProcessingResult[]): string => {
     ])
   })
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 }
 
 const generateXMLFromResults = (results: JSONProcessingResult[]): string => {
@@ -735,7 +735,7 @@ const generateXMLFromResults = (results: JSONProcessingResult[]): string => {
     <result>
       <operation>${result.operation}</operation>
       <valid>${result.isValid}</valid>
-      ${result.error ? `<error>${result.error}</error>` : ''}
+      ${result.error ? `<error>${result.error}</error>` : ""}
       <statistics>
         <size>${result.statistics.size}</size>
         <lines>${result.statistics.lines}</lines>
@@ -747,7 +747,7 @@ const generateXMLFromResults = (results: JSONProcessingResult[]): string => {
       <createdAt>${result.createdAt.toISOString()}</createdAt>
     </result>`
       )
-      .join('')}
+      .join("")}
   </results>
 </jsonProcessingResults>`
 }
@@ -759,13 +759,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -778,13 +778,13 @@ const useCopyToClipboard = () => {
  */
 const JSONPrettyCore = () => {
   const { i18n } = useTranslation()
-  const [activeTab, setActiveTab] = useState<'processor' | 'batch' | 'analyzer' | 'templates'>('processor')
-  const [input, setInput] = useState('')
+  const [activeTab, setActiveTab] = useState<"processor" | "batch" | "analyzer" | "templates">("processor")
+  const [input, setInput] = useState("")
   const [currentResult, setCurrentResult] = useState<JSONProcessingResult | null>(null)
   const [batches, setBatches] = useState<JSONBatch[]>([])
-  const [batchInput, setBatchInput] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
-  const [searchTerm, setSearchTerm] = useState('')
+  const [batchInput, setBatchInput] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
+  const [searchTerm, setSearchTerm] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [showStatistics, setShowStatistics] = useState(false)
   const [settings, setSettings] = useState<JSONSettings>({
@@ -794,7 +794,7 @@ const JSONPrettyCore = () => {
     validateSchema: false,
     showStatistics: true,
     realTimeProcessing: true,
-    exportFormat: 'json',
+    exportFormat: "json",
     maxDepth: 100,
     maxSize: 10485760, // 10MB
   })
@@ -803,7 +803,7 @@ const JSONPrettyCore = () => {
   const { exportResults, exportBatch, exportStatistics } = useJSONExport()
   const { copyToClipboard, copiedText } = useCopyToClipboard()
   const realTimeValidation = useRealTimeValidation(input)
-  const searchResults = useJSONSearch(currentResult?.output || '', searchTerm)
+  const searchResults = useJSONSearch(currentResult?.output || "", searchTerm)
 
   // Apply template
   const applyTemplate = useCallback((templateId: string) => {
@@ -819,7 +819,7 @@ const JSONPrettyCore = () => {
   const handleProcessSingle = useCallback(
     async (operation: JSONOperation) => {
       if (!input.trim()) {
-        toast.error('Please enter JSON content to process')
+        toast.error("Please enter JSON content to process")
         return
       }
 
@@ -845,16 +845,16 @@ const JSONPrettyCore = () => {
 
   // Handle batch processing
   const handleProcessBatch = useCallback(async () => {
-    const lines = batchInput.split('\n').filter((line) => line.trim())
+    const lines = batchInput.split("\n").filter((line) => line.trim())
 
     if (lines.length === 0) {
-      toast.error('Please enter JSON content to process')
+      toast.error("Please enter JSON content to process")
       return
     }
 
     const inputs = lines.map((line) => ({
       content: line.trim(),
-      operation: 'format' as JSONOperation,
+      operation: "format" as JSONOperation,
     }))
 
     setIsProcessing(true)
@@ -863,7 +863,7 @@ const JSONPrettyCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Processed ${batch.results.length} JSON items`)
     } catch (error) {
-      toast.error('Failed to process batch')
+      toast.error("Failed to process batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -874,7 +874,7 @@ const JSONPrettyCore = () => {
   useEffect(() => {
     if (settings.realTimeProcessing && input.trim() && realTimeValidation.isValid) {
       const timer = setTimeout(() => {
-        handleProcessSingle('format')
+        handleProcessSingle("format")
       }, 500)
       return () => clearTimeout(timer)
     }
@@ -890,18 +890,21 @@ const JSONPrettyCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Code className="h-5 w-5" aria-hidden="true" />
-              {i18n.language.startsWith('en') ? 'JSON Formatter & Analyzer' : 'JSON 格式化与分析工具'}
+              <Code className="h-5 w-5" />
+              {i18n.language.startsWith("en") ? "JSON Formatter & Analyzer" : "JSON 格式化与分析工具"}
             </CardTitle>
             <CardDescription>
-              {i18n.language.startsWith('en')
-                ? 'Advanced JSON processing tool with formatting, validation, analysis, and batch processing capabilities. Format, minify, validate, and analyze JSON with comprehensive error reporting and statistics. Use keyboard navigation: Tab to move between controls, Enter or Space to activate buttons.'
-                : '高级 JSON 处理工具，具有格式化、验证、分析和批处理功能。格式化、压缩、验证和分析 JSON，提供全面的错误报告和统计信息。使用键盘导航：Tab 键在控件之间移动，Enter 或空格键激活按钮。'}
+              {i18n.language.startsWith("en")
+                ? "Advanced JSON processing tool with formatting, validation, analysis, and batch processing capabilities. Format, minify, validate, and analyze JSON with comprehensive error reporting and statistics. Use keyboard navigation: Tab to move between controls, Enter or Space to activate buttons."
+                : "高级 JSON 处理工具，具有格式化、验证、分析和批处理功能。格式化、压缩、验证和分析 JSON，提供全面的错误报告和统计信息。使用键盘导航：Tab 键在控件之间移动，Enter 或空格键激活按钮。"}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -909,70 +912,87 @@ const JSONPrettyCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'processor' | 'batch' | 'analyzer' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "processor" | "batch" | "analyzer" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="processor" className="flex items-center gap-2">
+            <TabsTrigger
+              value="processor"
+              className="flex items-center gap-2"
+            >
               <Code className="h-4 w-4" />
-              {i18n.language.startsWith('en') ? 'JSON Processor' : 'JSON 处理器'}
+              {i18n.language.startsWith("en") ? "JSON Processor" : "JSON 处理器"}
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
-              {i18n.language.startsWith('en') ? 'Batch Processing' : '批量处理'}
+              {i18n.language.startsWith("en") ? "Batch Processing" : "批量处理"}
             </TabsTrigger>
-            <TabsTrigger value="analyzer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analyzer"
+              className="flex items-center gap-2"
+            >
               <Search className="h-4 w-4" />
-              {i18n.language.startsWith('en') ? 'JSON Analyzer' : 'JSON 分析器'}
+              {i18n.language.startsWith("en") ? "JSON Analyzer" : "JSON 分析器"}
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
-              {i18n.language.startsWith('en') ? 'Templates' : '模板'}
+              {i18n.language.startsWith("en") ? "Templates" : "模板"}
             </TabsTrigger>
           </TabsList>
 
           {/* JSON Processor Tab */}
-          <TabsContent value="processor" className="space-y-4">
+          <TabsContent
+            value="processor"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Input Section */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <FileText className="h-5 w-5" />
-                    {i18n.language.startsWith('en') ? 'JSON Input' : 'JSON 输入'}
+                    {i18n.language.startsWith("en") ? "JSON Input" : "JSON 输入"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="json-input" className="text-sm font-medium">
-                      {i18n.language.startsWith('en') ? 'JSON Content' : 'JSON 内容'}
+                    <Label
+                      htmlFor="json-input"
+                      className="text-sm font-medium"
+                    >
+                      {i18n.language.startsWith("en") ? "JSON Content" : "JSON 内容"}
                     </Label>
                     <Textarea
                       id="json-input"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder={
-                        i18n.language.startsWith('en')
-                          ? 'Enter or paste your JSON here...'
-                          : '在此输入或粘贴您的 JSON...'
+                        i18n.language.startsWith("en")
+                          ? "Enter or paste your JSON here..."
+                          : "在此输入或粘贴您的 JSON..."
                       }
                       className="mt-2 min-h-[200px] font-mono"
-                      aria-label={i18n.language.startsWith('en') ? 'JSON input for processing' : '用于处理的 JSON 输入'}
                     />
                     {settings.realTimeProcessing && input && (
                       <div className="mt-2 text-sm">
                         {realTimeValidation.isValid ? (
                           <div className="text-green-600 flex items-center gap-1">
                             <CheckCircle2 className="h-4 w-4" />
-                            {i18n.language.startsWith('en') ? 'Valid JSON' : '有效的 JSON'}
+                            {i18n.language.startsWith("en") ? "Valid JSON" : "有效的 JSON"}
                           </div>
                         ) : realTimeValidation.error ? (
                           <div className="text-red-600 flex items-center gap-1">
                             <AlertCircle className="h-4 w-4" />
-                            {i18n.language.startsWith('en')
+                            {i18n.language.startsWith("en")
                               ? realTimeValidation.error
                               : realTimeValidation.error
-                                  .replace('JSON input cannot be empty', 'JSON 输入不能为空')
-                                  .replace('Unknown JSON parsing error', '未知的 JSON 解析错误')}
+                                  .replace("JSON input cannot be empty", "JSON 输入不能为空")
+                                  .replace("Unknown JSON parsing error", "未知的 JSON 解析错误")}
                           </div>
                         ) : null}
                       </div>
@@ -988,8 +1008,11 @@ const JSONPrettyCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, realTimeProcessing: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="real-time-processing" className="text-sm">
-                        {i18n.language.startsWith('en') ? 'Real-time processing' : '实时处理'}
+                      <Label
+                        htmlFor="real-time-processing"
+                        className="text-sm"
+                      >
+                        {i18n.language.startsWith("en") ? "Real-time processing" : "实时处理"}
                       </Label>
                     </div>
 
@@ -1001,8 +1024,11 @@ const JSONPrettyCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, sortKeys: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="sort-keys" className="text-sm">
-                        {i18n.language.startsWith('en') ? 'Sort object keys alphabetically' : '按字母顺序排序对象键'}
+                      <Label
+                        htmlFor="sort-keys"
+                        className="text-sm"
+                      >
+                        {i18n.language.startsWith("en") ? "Sort object keys alphabetically" : "按字母顺序排序对象键"}
                       </Label>
                     </div>
 
@@ -1014,15 +1040,21 @@ const JSONPrettyCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, showStatistics: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="show-statistics" className="text-sm">
-                        {i18n.language.startsWith('en') ? 'Show detailed statistics' : '显示详细统计信息'}
+                      <Label
+                        htmlFor="show-statistics"
+                        className="text-sm"
+                      >
+                        {i18n.language.startsWith("en") ? "Show detailed statistics" : "显示详细统计信息"}
                       </Label>
                     </div>
                   </div>
 
                   <div>
-                    <Label htmlFor="indent-size" className="text-sm font-medium">
-                      {i18n.language.startsWith('en')
+                    <Label
+                      htmlFor="indent-size"
+                      className="text-sm font-medium"
+                    >
+                      {i18n.language.startsWith("en")
                         ? `Indent Size: ${settings.indentSize}`
                         : `缩进大小: ${settings.indentSize}`}
                     </Label>
@@ -1042,7 +1074,7 @@ const JSONPrettyCore = () => {
 
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     <Button
-                      onClick={() => handleProcessSingle('format')}
+                      onClick={() => handleProcessSingle("format")}
                       disabled={!input.trim() || isProcessing}
                       size="sm"
                     >
@@ -1051,54 +1083,54 @@ const JSONPrettyCore = () => {
                       ) : (
                         <Maximize2 className="mr-2 h-3 w-3" />
                       )}
-                      {i18n.language.startsWith('en') ? 'Format' : '格式化'}
+                      {i18n.language.startsWith("en") ? "Format" : "格式化"}
                     </Button>
                     <Button
-                      onClick={() => handleProcessSingle('minify')}
+                      onClick={() => handleProcessSingle("minify")}
                       disabled={!input.trim() || isProcessing}
                       size="sm"
                       variant="outline"
                     >
                       <Minimize2 className="mr-2 h-3 w-3" />
-                      {i18n.language.startsWith('en') ? 'Minify' : '最小化'}
+                      {i18n.language.startsWith("en") ? "Minify" : "最小化"}
                     </Button>
                     <Button
-                      onClick={() => handleProcessSingle('validate')}
+                      onClick={() => handleProcessSingle("validate")}
                       disabled={!input.trim() || isProcessing}
                       size="sm"
                       variant="outline"
                     >
                       <CheckCircle2 className="mr-2 h-3 w-3" />
-                      {i18n.language.startsWith('en') ? 'Validate' : '验证'}
+                      {i18n.language.startsWith("en") ? "Validate" : "验证"}
                     </Button>
                     <Button
-                      onClick={() => handleProcessSingle('analyze')}
+                      onClick={() => handleProcessSingle("analyze")}
                       disabled={!input.trim() || isProcessing}
                       size="sm"
                       variant="outline"
                     >
                       <Search className="mr-2 h-3 w-3" />
-                      {i18n.language.startsWith('en') ? 'Analyze' : '分析'}
+                      {i18n.language.startsWith("en") ? "Analyze" : "分析"}
                     </Button>
                     <Button
-                      onClick={() => handleProcessSingle('escape')}
+                      onClick={() => handleProcessSingle("escape")}
                       disabled={!input.trim() || isProcessing}
                       size="sm"
                       variant="outline"
                     >
                       <Code className="mr-2 h-3 w-3" />
-                      {i18n.language.startsWith('en') ? 'Escape' : '转义'}
+                      {i18n.language.startsWith("en") ? "Escape" : "转义"}
                     </Button>
                     <Button
                       onClick={() => {
-                        setInput('')
+                        setInput("")
                         setCurrentResult(null)
                       }}
                       variant="outline"
                       size="sm"
                     >
                       <RotateCcw className="mr-2 h-3 w-3" />
-                      {i18n.language.startsWith('en') ? 'Clear' : '清除'}
+                      {i18n.language.startsWith("en") ? "Clear" : "清除"}
                     </Button>
                   </div>
                 </CardContent>
@@ -1109,7 +1141,7 @@ const JSONPrettyCore = () => {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <CheckCircle2 className="h-5 w-5" />
-                    {i18n.language.startsWith('en') ? 'Processing Results' : '处理结果'}
+                    {i18n.language.startsWith("en") ? "Processing Results" : "处理结果"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -1117,28 +1149,28 @@ const JSONPrettyCore = () => {
                     <div className="space-y-4">
                       <div className="p-3 border rounded-lg">
                         <div className="text-sm font-medium mb-2">
-                          {i18n.language.startsWith('en') ? 'Operation' : '操作'}: {currentResult.operation}
+                          {i18n.language.startsWith("en") ? "Operation" : "操作"}: {currentResult.operation}
                         </div>
                         <div className="text-sm">
                           <div>
-                            <strong>{i18n.language.startsWith('en') ? 'Status' : '状态'}:</strong>{' '}
+                            <strong>{i18n.language.startsWith("en") ? "Status" : "状态"}:</strong>{" "}
                             {currentResult.isValid
-                              ? i18n.language.startsWith('en')
-                                ? 'Success'
-                                : '成功'
-                              : i18n.language.startsWith('en')
-                                ? 'Failed'
-                                : '失败'}
+                              ? i18n.language.startsWith("en")
+                                ? "Success"
+                                : "成功"
+                              : i18n.language.startsWith("en")
+                                ? "Failed"
+                                : "失败"}
                           </div>
                           {currentResult.error && (
                             <div className="text-red-600 mt-1">
-                              <strong>{i18n.language.startsWith('en') ? 'Error' : '错误'}:</strong>
-                              {i18n.language.startsWith('en')
+                              <strong>{i18n.language.startsWith("en") ? "Error" : "错误"}:</strong>
+                              {i18n.language.startsWith("en")
                                 ? currentResult.error
-                                : typeof currentResult.error === 'string'
+                                : typeof currentResult.error === "string"
                                   ? currentResult.error
-                                      .replace('JSON input cannot be empty', 'JSON 输入不能为空')
-                                      .replace('Unknown JSON parsing error', '未知的 JSON 解析错误')
+                                      .replace("JSON input cannot be empty", "JSON 输入不能为空")
+                                      .replace("Unknown JSON parsing error", "未知的 JSON 解析错误")
                                   : currentResult.error}
                             </div>
                           )}
@@ -1151,21 +1183,25 @@ const JSONPrettyCore = () => {
                           <div className="border rounded-lg p-3">
                             <div className="flex items-center justify-between mb-2">
                               <Label className="font-medium text-sm">
-                                {i18n.language.startsWith('en') ? 'Output' : '输出'}
+                                {i18n.language.startsWith("en") ? "Output" : "输出"}
                               </Label>
                               <div className="flex gap-2">
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  onClick={() => copyToClipboard(currentResult.output, 'JSON Output')}
+                                  onClick={() => copyToClipboard(currentResult.output, "JSON Output")}
                                 >
-                                  {copiedText === 'JSON Output' ? (
+                                  {copiedText === "JSON Output" ? (
                                     <Check className="h-4 w-4" />
                                   ) : (
                                     <Copy className="h-4 w-4" />
                                   )}
                                 </Button>
-                                <Button size="sm" variant="ghost" onClick={() => setShowStatistics(!showStatistics)}>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setShowStatistics(!showStatistics)}
+                                >
                                   {showStatistics ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </Button>
                               </div>
@@ -1181,48 +1217,48 @@ const JSONPrettyCore = () => {
                           {settings.showStatistics && showStatistics && (
                             <div className="border rounded-lg p-3">
                               <Label className="font-medium text-sm mb-3 block">
-                                {i18n.language.startsWith('en') ? 'JSON Statistics' : 'JSON 统计信息'}
+                                {i18n.language.startsWith("en") ? "JSON Statistics" : "JSON 统计信息"}
                               </Label>
                               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                                 <div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Size' : '大小'}:</strong>{' '}
+                                    <strong>{i18n.language.startsWith("en") ? "Size" : "大小"}:</strong>{" "}
                                     {formatFileSize(currentResult.statistics.size)}
                                   </div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Lines' : '行数'}:</strong>{' '}
+                                    <strong>{i18n.language.startsWith("en") ? "Lines" : "行数"}:</strong>{" "}
                                     {currentResult.statistics.lines}
                                   </div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Depth' : '深度'}:</strong>{' '}
+                                    <strong>{i18n.language.startsWith("en") ? "Depth" : "深度"}:</strong>{" "}
                                     {currentResult.statistics.depth}
                                   </div>
                                 </div>
                                 <div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Objects' : '对象'}:</strong>{' '}
+                                    <strong>{i18n.language.startsWith("en") ? "Objects" : "对象"}:</strong>{" "}
                                     {currentResult.statistics.objects}
                                   </div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Arrays' : '数组'}:</strong>{' '}
+                                    <strong>{i18n.language.startsWith("en") ? "Arrays" : "数组"}:</strong>{" "}
                                     {currentResult.statistics.arrays}
                                   </div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Keys' : '键'}:</strong>{' '}
+                                    <strong>{i18n.language.startsWith("en") ? "Keys" : "键"}:</strong>{" "}
                                     {currentResult.statistics.keys}
                                   </div>
                                 </div>
                                 <div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Strings' : '字符串'}:</strong>{' '}
+                                    <strong>{i18n.language.startsWith("en") ? "Strings" : "字符串"}:</strong>{" "}
                                     {currentResult.statistics.strings}
                                   </div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Numbers' : '数字'}:</strong>{' '}
+                                    <strong>{i18n.language.startsWith("en") ? "Numbers" : "数字"}:</strong>{" "}
                                     {currentResult.statistics.numbers}
                                   </div>
                                   <div>
-                                    <strong>{i18n.language.startsWith('en') ? 'Booleans' : '布尔值'}:</strong>{' '}
+                                    <strong>{i18n.language.startsWith("en") ? "Booleans" : "布尔值"}:</strong>{" "}
                                     {currentResult.statistics.booleans}
                                   </div>
                                 </div>
@@ -1230,16 +1266,16 @@ const JSONPrettyCore = () => {
                               {currentResult.statistics.duplicateKeys.length > 0 && (
                                 <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
                                   <div className="text-sm text-yellow-800">
-                                    <strong>{i18n.language.startsWith('en') ? 'Duplicate Keys' : '重复键'}:</strong>{' '}
-                                    {currentResult.statistics.duplicateKeys.join(', ')}
+                                    <strong>{i18n.language.startsWith("en") ? "Duplicate Keys" : "重复键"}:</strong>{" "}
+                                    {currentResult.statistics.duplicateKeys.join(", ")}
                                   </div>
                                 </div>
                               )}
                               {currentResult.statistics.circularReferences && (
                                 <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded">
                                   <div className="text-sm text-red-800">
-                                    <strong>{i18n.language.startsWith('en') ? 'Warning' : '警告'}:</strong>{' '}
-                                    {i18n.language.startsWith('en') ? 'Circular references detected' : '检测到循环引用'}
+                                    <strong>{i18n.language.startsWith("en") ? "Warning" : "警告"}:</strong>{" "}
+                                    {i18n.language.startsWith("en") ? "Circular references detected" : "检测到循环引用"}
                                   </div>
                                 </div>
                               )}
@@ -1249,35 +1285,38 @@ const JSONPrettyCore = () => {
                           {/* Search */}
                           <div className="border rounded-lg p-3">
                             <Label className="font-medium text-sm mb-2 block">
-                              {i18n.language.startsWith('en') ? 'Search in JSON' : '在 JSON 中搜索'}
+                              {i18n.language.startsWith("en") ? "Search in JSON" : "在 JSON 中搜索"}
                             </Label>
                             <Input
                               value={searchTerm}
                               onChange={(e) => setSearchTerm(e.target.value)}
                               placeholder={
-                                i18n.language.startsWith('en') ? 'Search for keys or values...' : '搜索键或值...'
+                                i18n.language.startsWith("en") ? "Search for keys or values..." : "搜索键或值..."
                               }
                               className="mb-2"
                             />
                             {searchResults.matches.length > 0 && (
                               <div className="text-sm">
                                 <div className="font-medium mb-2">
-                                  {i18n.language.startsWith('en')
+                                  {i18n.language.startsWith("en")
                                     ? `Found ${searchResults.matches.length} matches:`
                                     : `找到 ${searchResults.matches.length} 个匹配项：`}
                                 </div>
                                 <div className="space-y-1 max-h-32 overflow-y-auto">
                                   {searchResults.matches.slice(0, 10).map((match, index) => (
-                                    <div key={index} className="text-xs bg-muted p-1 rounded">
-                                      <strong>{i18n.language.startsWith('en') ? 'Path' : '路径'}:</strong>{' '}
-                                      {match.path || (i18n.language.startsWith('en') ? 'root' : '根')} →{' '}
-                                      <strong>{i18n.language.startsWith('en') ? 'Value' : '值'}:</strong>{' '}
+                                    <div
+                                      key={index}
+                                      className="text-xs bg-muted p-1 rounded"
+                                    >
+                                      <strong>{i18n.language.startsWith("en") ? "Path" : "路径"}:</strong>{" "}
+                                      {match.path || (i18n.language.startsWith("en") ? "root" : "根")} →{" "}
+                                      <strong>{i18n.language.startsWith("en") ? "Value" : "值"}:</strong>{" "}
                                       {JSON.stringify(match.value)}
                                     </div>
                                   ))}
                                   {searchResults.matches.length > 10 && (
                                     <div className="text-xs text-muted-foreground">
-                                      {i18n.language.startsWith('en')
+                                      {i18n.language.startsWith("en")
                                         ? `... and ${searchResults.matches.length - 10} more matches`
                                         : `... 还有 ${searchResults.matches.length - 10} 个更多匹配项`}
                                     </div>
@@ -1292,16 +1331,16 @@ const JSONPrettyCore = () => {
                           <div className="flex items-center gap-2 text-red-800">
                             <AlertCircle className="h-4 w-4" />
                             <span className="font-medium">
-                              {i18n.language.startsWith('en') ? 'Processing Error' : '处理错误'}
+                              {i18n.language.startsWith("en") ? "Processing Error" : "处理错误"}
                             </span>
                           </div>
                           <div className="text-red-700 text-sm mt-1">
                             {currentResult.error &&
-                              (i18n.language.startsWith('en')
+                              (i18n.language.startsWith("en")
                                 ? currentResult.error
                                 : currentResult.error
-                                    .replace('JSON input cannot be empty', 'JSON 输入不能为空')
-                                    .replace('Unknown JSON parsing error', '未知的 JSON 解析错误'))}
+                                    .replace("JSON input cannot be empty", "JSON 输入不能为空")
+                                    .replace("Unknown JSON parsing error", "未知的 JSON 解析错误"))}
                           </div>
                         </div>
                       )}
@@ -1314,7 +1353,7 @@ const JSONPrettyCore = () => {
                             size="sm"
                           >
                             <Download className="mr-2 h-4 w-4" />
-                            {i18n.language.startsWith('en') ? 'Export Result' : '导出结果'}
+                            {i18n.language.startsWith("en") ? "Export Result" : "导出结果"}
                           </Button>
                         </div>
                       )}
@@ -1323,12 +1362,12 @@ const JSONPrettyCore = () => {
                     <div className="text-center py-8">
                       <Code className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                       <h3 className="text-lg font-semibold mb-2">
-                        {i18n.language.startsWith('en') ? 'No JSON Processed' : '未处理 JSON'}
+                        {i18n.language.startsWith("en") ? "No JSON Processed" : "未处理 JSON"}
                       </h3>
                       <p className="text-muted-foreground mb-4">
-                        {i18n.language.startsWith('en')
-                          ? 'Enter JSON content and select an operation to see results'
-                          : '输入 JSON 内容并选择一个操作以查看结果'}
+                        {i18n.language.startsWith("en")
+                          ? "Enter JSON content and select an operation to see results"
+                          : "输入 JSON 内容并选择一个操作以查看结果"}
                       </p>
                     </div>
                   )}
@@ -1338,24 +1377,30 @@ const JSONPrettyCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Shuffle className="h-5 w-5" />
-                  {i18n.language.startsWith('en') ? 'Batch JSON Processing' : '批量 JSON 处理'}
+                  {i18n.language.startsWith("en") ? "Batch JSON Processing" : "批量 JSON 处理"}
                 </CardTitle>
                 <CardDescription>
-                  {i18n.language.startsWith('en')
-                    ? 'Process multiple JSON items at once (one per line)'
-                    : '一次处理多个 JSON 项（每行一个）'}
+                  {i18n.language.startsWith("en")
+                    ? "Process multiple JSON items at once (one per line)"
+                    : "一次处理多个 JSON 项（每行一个）"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-input" className="text-sm font-medium">
-                      {i18n.language.startsWith('en') ? 'JSON Items (one per line)' : 'JSON 项（每行一个）'}
+                    <Label
+                      htmlFor="batch-input"
+                      className="text-sm font-medium"
+                    >
+                      {i18n.language.startsWith("en") ? "JSON Items (one per line)" : "JSON 项（每行一个）"}
                     </Label>
                     <Textarea
                       id="batch-input"
@@ -1363,22 +1408,27 @@ const JSONPrettyCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder='{"name": "Item 1"}&#10;{"name": "Item 2"}&#10;{"name": "Item 3"}'
                       className="mt-2 min-h-[120px] font-mono"
-                      aria-label={i18n.language.startsWith('en') ? 'Batch JSON input' : '批量 JSON 输入'}
                     />
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleProcessBatch} disabled={!batchInput.trim() || isProcessing}>
+                    <Button
+                      onClick={handleProcessBatch}
+                      disabled={!batchInput.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
                         <Zap className="mr-2 h-4 w-4" />
                       )}
-                      {i18n.language.startsWith('en') ? 'Process Batch' : '处理批量'}
+                      {i18n.language.startsWith("en") ? "Process Batch" : "处理批量"}
                     </Button>
-                    <Button onClick={() => setBatchInput('')} variant="outline">
+                    <Button
+                      onClick={() => setBatchInput("")}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
-                      {i18n.language.startsWith('en') ? 'Clear' : '清除'}
+                      {i18n.language.startsWith("en") ? "Clear" : "清除"}
                     </Button>
                   </div>
                 </div>
@@ -1390,7 +1440,7 @@ const JSONPrettyCore = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">
-                    {i18n.language.startsWith('en')
+                    {i18n.language.startsWith("en")
                       ? `Batch Results (${batches.length})`
                       : `批量结果 (${batches.length})`}
                   </CardTitle>
@@ -1398,25 +1448,32 @@ const JSONPrettyCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">
-                              {i18n.language.startsWith('en')
+                              {i18n.language.startsWith("en")
                                 ? `${batch.count} items processed`
                                 : `已处理 ${batch.count} 个项目`}
                             </h4>
                             <div className="text-sm text-muted-foreground">
-                              {batch.createdAt.toLocaleString()} •{' '}
-                              {i18n.language.startsWith('en')
+                              {batch.createdAt.toLocaleString()} •{" "}
+                              {i18n.language.startsWith("en")
                                 ? `${batch.statistics.successRate.toFixed(1)}% success rate`
                                 : `${batch.statistics.successRate.toFixed(1)}% 成功率`}
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportBatch(batch)}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportBatch(batch)}
+                            >
                               <Download className="mr-2 h-4 w-4" />
-                              {i18n.language.startsWith('en') ? 'Export' : '导出'}
+                              {i18n.language.startsWith("en") ? "Export" : "导出"}
                             </Button>
                             <Button
                               size="sm"
@@ -1430,17 +1487,17 @@ const JSONPrettyCore = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-3">
                           <div>
-                            <span className="font-medium">{i18n.language.startsWith('en') ? 'Valid' : '有效'}:</span>{' '}
+                            <span className="font-medium">{i18n.language.startsWith("en") ? "Valid" : "有效"}:</span>{" "}
                             {batch.statistics.validCount}
                           </div>
                           <div>
-                            <span className="font-medium">{i18n.language.startsWith('en') ? 'Invalid' : '无效'}:</span>{' '}
+                            <span className="font-medium">{i18n.language.startsWith("en") ? "Invalid" : "无效"}:</span>{" "}
                             {batch.statistics.invalidCount}
                           </div>
                           <div>
                             <span className="font-medium">
-                              {i18n.language.startsWith('en') ? 'Avg Size' : '平均大小'}:
-                            </span>{' '}
+                              {i18n.language.startsWith("en") ? "Avg Size" : "平均大小"}:
+                            </span>{" "}
                             {formatFileSize(batch.statistics.averageSize)}
                           </div>
                         </div>
@@ -1448,41 +1505,44 @@ const JSONPrettyCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.results.slice(0, 5).map((result) => (
-                              <div key={result.id} className="text-xs border rounded p-2">
+                              <div
+                                key={result.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">
                                     {result.input.substring(0, 50)}...
                                   </span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      result.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      result.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
                                     {result.isValid
-                                      ? i18n.language.startsWith('en')
-                                        ? 'Valid'
-                                        : '有效'
-                                      : i18n.language.startsWith('en')
-                                        ? 'Invalid'
-                                        : '无效'}
+                                      ? i18n.language.startsWith("en")
+                                        ? "Valid"
+                                        : "有效"
+                                      : i18n.language.startsWith("en")
+                                        ? "Invalid"
+                                        : "无效"}
                                   </span>
                                 </div>
                                 {result.isValid && (
                                   <div className="text-muted-foreground mt-1">
-                                    {i18n.language.startsWith('en') ? 'Size' : '大小'}:{' '}
+                                    {i18n.language.startsWith("en") ? "Size" : "大小"}:{" "}
                                     {formatFileSize(result.statistics.size)} •
-                                    {i18n.language.startsWith('en') ? 'Objects' : '对象'}: {result.statistics.objects} •
-                                    {i18n.language.startsWith('en') ? 'Arrays' : '数组'}: {result.statistics.arrays}
+                                    {i18n.language.startsWith("en") ? "Objects" : "对象"}: {result.statistics.objects} •
+                                    {i18n.language.startsWith("en") ? "Arrays" : "数组"}: {result.statistics.arrays}
                                   </div>
                                 )}
                                 {result.error && (
                                   <div className="text-red-600 mt-1">
-                                    {i18n.language.startsWith('en')
+                                    {i18n.language.startsWith("en")
                                       ? result.error
-                                      : typeof result.error === 'string'
+                                      : typeof result.error === "string"
                                         ? result.error
-                                            .replace('JSON input cannot be empty', 'JSON 输入不能为空')
-                                            .replace('Unknown JSON parsing error', '未知的 JSON 解析错误')
+                                            .replace("JSON input cannot be empty", "JSON 输入不能为空")
+                                            .replace("Unknown JSON parsing error", "未知的 JSON 解析错误")
                                         : result.error}
                                   </div>
                                 )}
@@ -1490,8 +1550,8 @@ const JSONPrettyCore = () => {
                             ))}
                             {batch.results.length > 5 && (
                               <div className="text-xs text-muted-foreground text-center">
-                                ...{' '}
-                                {i18n.language.startsWith('en')
+                                ...{" "}
+                                {i18n.language.startsWith("en")
                                   ? `and ${batch.results.length - 5} more items`
                                   : `还有 ${batch.results.length - 5} 个项目`}
                               </div>
@@ -1507,17 +1567,20 @@ const JSONPrettyCore = () => {
           </TabsContent>
 
           {/* JSON Analyzer Tab */}
-          <TabsContent value="analyzer" className="space-y-4">
+          <TabsContent
+            value="analyzer"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Search className="h-5 w-5" />
-                  {i18n.language.startsWith('en') ? 'JSON Structure Analyzer' : 'JSON结构分析器'}
+                  {i18n.language.startsWith("en") ? "JSON Structure Analyzer" : "JSON结构分析器"}
                 </CardTitle>
                 <CardDescription>
-                  {i18n.language.startsWith('en')
-                    ? 'Detailed analysis of JSON structure and content'
-                    : 'JSON结构和内容的详细分析'}
+                  {i18n.language.startsWith("en")
+                    ? "Detailed analysis of JSON structure and content"
+                    : "JSON结构和内容的详细分析"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1527,22 +1590,22 @@ const JSONPrettyCore = () => {
                       <Card>
                         <CardHeader className="pb-2">
                           <CardTitle className="text-sm">
-                            {i18n.language.startsWith('en') ? 'Structure' : '结构'}
+                            {i18n.language.startsWith("en") ? "Structure" : "结构"}
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
                           <div>
-                            {i18n.language.startsWith('en') ? 'Size' : '大小'}:{' '}
+                            {i18n.language.startsWith("en") ? "Size" : "大小"}:{" "}
                             {formatFileSize(currentResult.statistics.size)}
                           </div>
                           <div>
-                            {i18n.language.startsWith('en') ? 'Lines' : '行数'}: {currentResult.statistics.lines}
+                            {i18n.language.startsWith("en") ? "Lines" : "行数"}: {currentResult.statistics.lines}
                           </div>
                           <div>
-                            {i18n.language.startsWith('en') ? 'Depth' : '深度'}: {currentResult.statistics.depth}
+                            {i18n.language.startsWith("en") ? "Depth" : "深度"}: {currentResult.statistics.depth}
                           </div>
                           <div>
-                            {i18n.language.startsWith('en') ? 'Keys' : '键'}: {currentResult.statistics.keys}
+                            {i18n.language.startsWith("en") ? "Keys" : "键"}: {currentResult.statistics.keys}
                           </div>
                         </CardContent>
                       </Card>
@@ -1550,18 +1613,18 @@ const JSONPrettyCore = () => {
                       <Card>
                         <CardHeader className="pb-2">
                           <CardTitle className="text-sm">
-                            {i18n.language.startsWith('en') ? 'Objects & Arrays' : '对象和数组'}
+                            {i18n.language.startsWith("en") ? "Objects & Arrays" : "对象和数组"}
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
                           <div>
-                            {i18n.language.startsWith('en') ? 'Objects' : '对象'}: {currentResult.statistics.objects}
+                            {i18n.language.startsWith("en") ? "Objects" : "对象"}: {currentResult.statistics.objects}
                           </div>
                           <div>
-                            {i18n.language.startsWith('en') ? 'Arrays' : '数组'}: {currentResult.statistics.arrays}
+                            {i18n.language.startsWith("en") ? "Arrays" : "数组"}: {currentResult.statistics.arrays}
                           </div>
                           <div>
-                            {i18n.language.startsWith('en') ? 'Primitives' : '基本类型'}:{' '}
+                            {i18n.language.startsWith("en") ? "Primitives" : "基本类型"}:{" "}
                             {currentResult.statistics.primitives}
                           </div>
                         </CardContent>
@@ -1570,22 +1633,22 @@ const JSONPrettyCore = () => {
                       <Card>
                         <CardHeader className="pb-2">
                           <CardTitle className="text-sm">
-                            {i18n.language.startsWith('en') ? 'Data Types' : '数据类型'}
+                            {i18n.language.startsWith("en") ? "Data Types" : "数据类型"}
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
                           <div>
-                            {i18n.language.startsWith('en') ? 'Strings' : '字符串'}: {currentResult.statistics.strings}
+                            {i18n.language.startsWith("en") ? "Strings" : "字符串"}: {currentResult.statistics.strings}
                           </div>
                           <div>
-                            {i18n.language.startsWith('en') ? 'Numbers' : '数字'}: {currentResult.statistics.numbers}
+                            {i18n.language.startsWith("en") ? "Numbers" : "数字"}: {currentResult.statistics.numbers}
                           </div>
                           <div>
-                            {i18n.language.startsWith('en') ? 'Booleans' : '布尔值'}:{' '}
+                            {i18n.language.startsWith("en") ? "Booleans" : "布尔值"}:{" "}
                             {currentResult.statistics.booleans}
                           </div>
                           <div>
-                            {i18n.language.startsWith('en') ? 'Nulls' : '空值'}: {currentResult.statistics.nullValues}
+                            {i18n.language.startsWith("en") ? "Nulls" : "空值"}: {currentResult.statistics.nullValues}
                           </div>
                         </CardContent>
                       </Card>
@@ -1596,25 +1659,25 @@ const JSONPrettyCore = () => {
                       <Card>
                         <CardHeader className="pb-2">
                           <CardTitle className="text-sm text-yellow-700">
-                            {i18n.language.startsWith('en') ? 'Potential Issues' : '潜在问题'}
+                            {i18n.language.startsWith("en") ? "Potential Issues" : "潜在问题"}
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2">
                           {currentResult.statistics.duplicateKeys.length > 0 && (
                             <div className="p-2 bg-yellow-50 border border-yellow-200 rounded">
                               <div className="text-sm text-yellow-800">
-                                <strong>{i18n.language.startsWith('en') ? 'Duplicate Keys' : '重复键'}:</strong>{' '}
-                                {currentResult.statistics.duplicateKeys.join(', ')}
+                                <strong>{i18n.language.startsWith("en") ? "Duplicate Keys" : "重复键"}:</strong>{" "}
+                                {currentResult.statistics.duplicateKeys.join(", ")}
                               </div>
                             </div>
                           )}
                           {currentResult.statistics.circularReferences && (
                             <div className="p-2 bg-red-50 border border-red-200 rounded">
                               <div className="text-sm text-red-800">
-                                <strong>{i18n.language.startsWith('en') ? 'Circular References' : '循环引用'}:</strong>
-                                {i18n.language.startsWith('en')
-                                  ? 'Detected in the JSON structure'
-                                  : '在JSON结构中检测到'}
+                                <strong>{i18n.language.startsWith("en") ? "Circular References" : "循环引用"}:</strong>
+                                {i18n.language.startsWith("en")
+                                  ? "Detected in the JSON structure"
+                                  : "在JSON结构中检测到"}
                               </div>
                             </div>
                           )}
@@ -1626,12 +1689,12 @@ const JSONPrettyCore = () => {
                   <div className="text-center py-8">
                     <Search className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                     <h3 className="text-lg font-semibold mb-2">
-                      {i18n.language.startsWith('en') ? 'No Analysis Available' : '无可用分析'}
+                      {i18n.language.startsWith("en") ? "No Analysis Available" : "无可用分析"}
                     </h3>
                     <p className="text-muted-foreground mb-4">
-                      {i18n.language.startsWith('en')
-                        ? 'Process valid JSON in the Processor tab to see detailed analysis'
-                        : '在处理器选项卡中处理有效的JSON以查看详细分析'}
+                      {i18n.language.startsWith("en")
+                        ? "Process valid JSON in the Processor tab to see detailed analysis"
+                        : "在处理器选项卡中处理有效的JSON以查看详细分析"}
                     </p>
                   </div>
                 )}
@@ -1640,17 +1703,20 @@ const JSONPrettyCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <BookOpen className="h-5 w-5" />
-                  {i18n.language.startsWith('en') ? 'JSON Templates' : 'JSON模板'}
+                  {i18n.language.startsWith("en") ? "JSON Templates" : "JSON模板"}
                 </CardTitle>
                 <CardDescription>
-                  {i18n.language.startsWith('en')
-                    ? 'Common JSON structures for various use cases'
-                    : '适用于各种用例的常见JSON结构'}
+                  {i18n.language.startsWith("en")
+                    ? "Common JSON structures for various use cases"
+                    : "适用于各种用例的常见JSON结构"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1659,29 +1725,29 @@ const JSONPrettyCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <h4 className="font-medium text-sm">
-                            {i18n.language.startsWith('en') ? template.name : template.name}
+                            {i18n.language.startsWith("en") ? template.name : template.name}
                           </h4>
                           <span className="text-xs px-2 py-1 bg-muted rounded">
-                            {i18n.language.startsWith('en') ? template.category : template.category}
+                            {i18n.language.startsWith("en") ? template.category : template.category}
                           </span>
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {i18n.language.startsWith('en') ? template.description : template.description}
+                          {i18n.language.startsWith("en") ? template.description : template.description}
                         </div>
                         <div className="font-mono text-xs bg-muted p-2 rounded max-h-32 overflow-y-auto">
                           {template.content}
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>{i18n.language.startsWith('en') ? 'Use cases' : '用例'}:</strong>{' '}
-                            {template.useCase.join(', ')}
+                            <strong>{i18n.language.startsWith("en") ? "Use cases" : "用例"}:</strong>{" "}
+                            {template.useCase.join(", ")}
                           </div>
                         )}
                       </div>
@@ -1697,14 +1763,17 @@ const JSONPrettyCore = () => {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Settings className="h-5 w-5" />
-                {i18n.language.startsWith('en') ? 'Processing Settings' : '处理设置'}
+                {i18n.language.startsWith("en") ? "Processing Settings" : "处理设置"}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
-                    {i18n.language.startsWith('en') ? 'Export Format' : '导出格式'}
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
+                    {i18n.language.startsWith("en") ? "Export Format" : "导出格式"}
                   </Label>
                   <Select
                     value={settings.exportFormat}
@@ -1716,15 +1785,18 @@ const JSONPrettyCore = () => {
                     <SelectContent>
                       <SelectItem value="json">JSON</SelectItem>
                       <SelectItem value="csv">CSV</SelectItem>
-                      <SelectItem value="txt">{i18n.language.startsWith('en') ? 'Text' : '文本'}</SelectItem>
+                      <SelectItem value="txt">{i18n.language.startsWith("en") ? "Text" : "文本"}</SelectItem>
                       <SelectItem value="xml">XML</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
-                  <Label htmlFor="max-depth" className="text-sm font-medium">
-                    {i18n.language.startsWith('en')
+                  <Label
+                    htmlFor="max-depth"
+                    className="text-sm font-medium"
+                  >
+                    {i18n.language.startsWith("en")
                       ? `Max Depth: ${settings.maxDepth}`
                       : `最大深度: ${settings.maxDepth}`}
                   </Label>
@@ -1744,9 +1816,12 @@ const JSONPrettyCore = () => {
 
               {batches.length > 0 && (
                 <div className="flex gap-2 pt-4 border-t">
-                  <Button onClick={() => exportStatistics(batches)} variant="outline">
+                  <Button
+                    onClick={() => exportStatistics(batches)}
+                    variant="outline"
+                  >
                     <Download className="mr-2 h-4 w-4" />
-                    {i18n.language.startsWith('en') ? 'Export Statistics' : '导出统计信息'}
+                    {i18n.language.startsWith("en") ? "Export Statistics" : "导出统计信息"}
                   </Button>
                 </div>
               )}

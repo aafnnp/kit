@@ -1,12 +1,12 @@
-import { useCallback, useState, useMemo, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -21,8 +21,8 @@ import {
   Clock,
   BookOpen,
   Calculator,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   TimeDifference,
   Duration,
@@ -36,87 +36,87 @@ import type {
   DurationFormat,
   DurationPrecision,
   ExportFormat,
-} from '@/types/time-diff'
+} from "@/types/time-diff"
 // Enhanced Types
 
 // Common timezones
 const COMMON_TIMEZONES = [
-  'UTC',
-  'America/New_York',
-  'America/Los_Angeles',
-  'America/Chicago',
-  'America/Denver',
-  'Europe/London',
-  'Europe/Paris',
-  'Europe/Berlin',
-  'Asia/Tokyo',
-  'Asia/Shanghai',
-  'Asia/Kolkata',
-  'Australia/Sydney',
-  'Pacific/Auckland',
+  "UTC",
+  "America/New_York",
+  "America/Los_Angeles",
+  "America/Chicago",
+  "America/Denver",
+  "Europe/London",
+  "Europe/Paris",
+  "Europe/Berlin",
+  "Asia/Tokyo",
+  "Asia/Shanghai",
+  "Asia/Kolkata",
+  "Australia/Sydney",
+  "Pacific/Auckland",
 ]
 
 // Date parsing and validation
 const parseDate = (input: string, format: DateFormat): DateValidation => {
   if (!input.trim()) {
-    return { isValid: false, error: 'Date input cannot be empty' }
+    return { isValid: false, error: "Date input cannot be empty" }
   }
 
   try {
     let date: Date
 
     switch (format) {
-      case 'unix':
+      case "unix":
         const unixSeconds = Number(input)
         if (isNaN(unixSeconds)) {
-          return { isValid: false, error: 'Invalid Unix timestamp' }
+          return { isValid: false, error: "Invalid Unix timestamp" }
         }
         date = new Date(unixSeconds * 1000)
         break
 
-      case 'unix-ms':
+      case "unix-ms":
         const unixMs = Number(input)
         if (isNaN(unixMs)) {
-          return { isValid: false, error: 'Invalid Unix milliseconds timestamp' }
+          return { isValid: false, error: "Invalid Unix milliseconds timestamp" }
         }
         date = new Date(unixMs)
         break
 
-      case 'iso8601':
+      case "iso8601":
         date = new Date(input)
         if (isNaN(date.getTime())) {
-          return { isValid: false, error: 'Invalid ISO 8601 format' }
+          return { isValid: false, error: "Invalid ISO 8601 format" }
         }
         break
 
-      case 'rfc2822':
+      case "rfc2822":
         date = new Date(input)
         if (isNaN(date.getTime())) {
-          return { isValid: false, error: 'Invalid RFC 2822 format' }
+          return { isValid: false, error: "Invalid RFC 2822 format" }
         }
         break
 
-      case 'local':
-      case 'custom':
+      case "local":
+      case "custom":
       default:
         date = new Date(input)
         if (isNaN(date.getTime())) {
-          return { isValid: false, error: 'Invalid date format' }
+          return { isValid: false, error: "Invalid date format" }
         }
         break
     }
 
     // Additional validation for reasonable date ranges
-    const minDate = new Date('1900-01-01')
-    const maxDate = new Date('2100-12-31')
+    const minDate = new Date("1900-01-01")
+    const maxDate = new Date("2100-12-31")
 
     if (date < minDate || date > maxDate) {
-      return { isValid: false, error: 'Date must be between 1900 and 2100' }
+      return { isValid: false, error: "Date must be between 1900 and 2100" }
     }
 
     return { isValid: true, parsedDate: date }
   } catch (error) {
-    return { isValid: false, error: 'Failed to parse date' }
+    return { isValid: false, error: "Failed to parse date" }
   }
 }
 
@@ -185,15 +185,15 @@ const calculateDuration = (startDate: Date, endDate: Date): Duration => {
 
   // Generate human readable format
   const parts: string[] = []
-  if (breakdown.years > 0) parts.push(`${breakdown.years} year${breakdown.years > 1 ? 's' : ''}`)
-  if (breakdown.months > 0) parts.push(`${breakdown.months} month${breakdown.months > 1 ? 's' : ''}`)
-  if (breakdown.weeks > 0) parts.push(`${breakdown.weeks} week${breakdown.weeks > 1 ? 's' : ''}`)
-  if (breakdown.days > 0) parts.push(`${breakdown.days} day${breakdown.days > 1 ? 's' : ''}`)
-  if (breakdown.hours > 0) parts.push(`${breakdown.hours} hour${breakdown.hours > 1 ? 's' : ''}`)
-  if (breakdown.minutes > 0) parts.push(`${breakdown.minutes} minute${breakdown.minutes > 1 ? 's' : ''}`)
-  if (breakdown.seconds > 0) parts.push(`${breakdown.seconds} second${breakdown.seconds > 1 ? 's' : ''}`)
+  if (breakdown.years > 0) parts.push(`${breakdown.years} year${breakdown.years > 1 ? "s" : ""}`)
+  if (breakdown.months > 0) parts.push(`${breakdown.months} month${breakdown.months > 1 ? "s" : ""}`)
+  if (breakdown.weeks > 0) parts.push(`${breakdown.weeks} week${breakdown.weeks > 1 ? "s" : ""}`)
+  if (breakdown.days > 0) parts.push(`${breakdown.days} day${breakdown.days > 1 ? "s" : ""}`)
+  if (breakdown.hours > 0) parts.push(`${breakdown.hours} hour${breakdown.hours > 1 ? "s" : ""}`)
+  if (breakdown.minutes > 0) parts.push(`${breakdown.minutes} minute${breakdown.minutes > 1 ? "s" : ""}`)
+  if (breakdown.seconds > 0) parts.push(`${breakdown.seconds} second${breakdown.seconds > 1 ? "s" : ""}`)
 
-  const humanReadable = parts.length > 0 ? parts.join(', ') : '0 seconds'
+  const humanReadable = parts.length > 0 ? parts.join(", ") : "0 seconds"
 
   // Generate relative time
   const relative = generateRelativeTime(startDate, endDate)
@@ -221,71 +221,71 @@ const generateRelativeTime = (startDate: Date, endDate: Date): string => {
   const current = now.getTime()
 
   if (start <= current && current <= end) {
-    return 'Currently in progress'
+    return "Currently in progress"
   } else if (end < current) {
-    return 'Completed in the past'
+    return "Completed in the past"
   } else if (start > current) {
-    return 'Will occur in the future'
+    return "Will occur in the future"
   }
 
-  return 'Time period'
+  return "Time period"
 }
 
 // Time difference templates
 const timeDiffTemplates: TimeDiffTemplate[] = [
   {
-    id: 'project-duration',
-    name: 'Project Duration',
-    description: 'Calculate project timeline from start to end',
-    category: 'Business',
-    startDate: '2024-01-01',
-    endDate: '2024-12-31',
-    useCase: ['Project planning', 'Timeline estimation', 'Milestone tracking'],
+    id: "project-duration",
+    name: "Project Duration",
+    description: "Calculate project timeline from start to end",
+    category: "Business",
+    startDate: "2024-01-01",
+    endDate: "2024-12-31",
+    useCase: ["Project planning", "Timeline estimation", "Milestone tracking"],
   },
   {
-    id: 'age-calculation',
-    name: 'Age Calculation',
-    description: 'Calculate age from birth date to current date',
-    category: 'Personal',
-    startDate: '1990-01-01',
-    endDate: new Date().toISOString().split('T')[0],
-    useCase: ['Age verification', 'Birthday calculations', 'Life milestones'],
+    id: "age-calculation",
+    name: "Age Calculation",
+    description: "Calculate age from birth date to current date",
+    category: "Personal",
+    startDate: "1990-01-01",
+    endDate: new Date().toISOString().split("T")[0],
+    useCase: ["Age verification", "Birthday calculations", "Life milestones"],
   },
   {
-    id: 'event-countdown',
-    name: 'Event Countdown',
-    description: 'Time remaining until a future event',
-    category: 'Events',
-    startDate: new Date().toISOString().split('T')[0],
-    endDate: '2024-12-25',
-    useCase: ['Holiday countdown', 'Event planning', 'Deadline tracking'],
+    id: "event-countdown",
+    name: "Event Countdown",
+    description: "Time remaining until a future event",
+    category: "Events",
+    startDate: new Date().toISOString().split("T")[0],
+    endDate: "2024-12-25",
+    useCase: ["Holiday countdown", "Event planning", "Deadline tracking"],
   },
   {
-    id: 'work-period',
-    name: 'Work Period',
-    description: 'Calculate employment duration',
-    category: 'Business',
-    startDate: '2020-01-01',
-    endDate: new Date().toISOString().split('T')[0],
-    useCase: ['Employment history', 'Service years', 'Experience calculation'],
+    id: "work-period",
+    name: "Work Period",
+    description: "Calculate employment duration",
+    category: "Business",
+    startDate: "2020-01-01",
+    endDate: new Date().toISOString().split("T")[0],
+    useCase: ["Employment history", "Service years", "Experience calculation"],
   },
   {
-    id: 'vacation-length',
-    name: 'Vacation Length',
-    description: 'Calculate vacation or leave duration',
-    category: 'Personal',
-    startDate: '2024-07-01',
-    endDate: '2024-07-14',
-    useCase: ['Vacation planning', 'Leave requests', 'Time off tracking'],
+    id: "vacation-length",
+    name: "Vacation Length",
+    description: "Calculate vacation or leave duration",
+    category: "Personal",
+    startDate: "2024-07-01",
+    endDate: "2024-07-14",
+    useCase: ["Vacation planning", "Leave requests", "Time off tracking"],
   },
   {
-    id: 'subscription-period',
-    name: 'Subscription Period',
-    description: 'Calculate subscription or membership duration',
-    category: 'Business',
-    startDate: '2024-01-01',
-    endDate: '2025-01-01',
-    useCase: ['Subscription tracking', 'Membership duration', 'Billing cycles'],
+    id: "subscription-period",
+    name: "Subscription Period",
+    description: "Calculate subscription or membership duration",
+    category: "Business",
+    startDate: "2024-01-01",
+    endDate: "2025-01-01",
+    useCase: ["Subscription tracking", "Membership duration", "Billing cycles"],
   },
 ]
 
@@ -332,8 +332,8 @@ const useTimeDiffCalculation = () => {
                 seconds: 0,
                 milliseconds: 0,
               },
-              humanReadable: '',
-              relative: '',
+              humanReadable: "",
+              relative: "",
             },
             businessDays: 0,
             isValid: false,
@@ -371,8 +371,8 @@ const useTimeDiffCalculation = () => {
                 seconds: 0,
                 milliseconds: 0,
               },
-              humanReadable: '',
-              relative: '',
+              humanReadable: "",
+              relative: "",
             },
             businessDays: 0,
             isValid: false,
@@ -401,7 +401,7 @@ const useTimeDiffCalculation = () => {
           createdAt: new Date(),
         }
       } catch (error) {
-        console.error('Time diff calculation error:', error)
+        console.error("Time diff calculation error:", error)
         return {
           id: nanoid(),
           startDate: new Date(),
@@ -430,12 +430,12 @@ const useTimeDiffCalculation = () => {
               seconds: 0,
               milliseconds: 0,
             },
-            humanReadable: '',
-            relative: '',
+            humanReadable: "",
+            relative: "",
           },
           businessDays: 0,
           isValid: false,
-          error: error instanceof Error ? error.message : 'Calculation failed',
+          error: error instanceof Error ? error.message : "Calculation failed",
           createdAt: new Date(),
         }
       }
@@ -489,8 +489,8 @@ const useTimeDiffCalculation = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch calculation error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch calculation failed')
+        console.error("Batch calculation error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch calculation failed")
       }
     },
     [calculateSingle]
@@ -523,37 +523,37 @@ const useRealTimeValidation = (input: string, format: DateFormat, timezone: stri
 // Export functionality
 const useTimeDiffExport = () => {
   const exportTimeDiffs = useCallback((calculations: TimeDifference[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(calculations, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromTimeDiffs(calculations)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromTimeDiffs(calculations)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromTimeDiffs(calculations)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `time-differences${extension}`
     document.body.appendChild(link)
@@ -564,7 +564,7 @@ const useTimeDiffExport = () => {
 
   const exportBatch = useCallback(
     (batch: TimeDiffBatch) => {
-      exportTimeDiffs(batch.calculations, 'json', `time-diff-batch-${batch.id}.json`)
+      exportTimeDiffs(batch.calculations, "json", `time-diff-batch-${batch.id}.json`)
       toast.success(`Exported ${batch.calculations.length} time difference calculations`)
     },
     [exportTimeDiffs]
@@ -583,13 +583,13 @@ const useTimeDiffExport = () => {
 
     const csvContent = [
       [
-        'Batch ID',
-        'Calculation Count',
-        'Valid Count',
-        'Invalid Count',
-        'Average Duration (days)',
-        'Success Rate (%)',
-        'Created At',
+        "Batch ID",
+        "Calculation Count",
+        "Valid Count",
+        "Invalid Count",
+        "Average Duration (days)",
+        "Success Rate (%)",
+        "Created At",
       ],
       ...stats.map((stat) => [
         stat.batchId,
@@ -601,20 +601,20 @@ const useTimeDiffExport = () => {
         stat.createdAt,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'time-diff-statistics.csv'
+    link.download = "time-diff-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportTimeDiffs, exportBatch, exportStatistics }
@@ -637,12 +637,12 @@ ${calculations
    Duration: ${calc.duration.humanReadable}
    Total Days: ${calc.duration.totalDays}
    Business Days: ${calc.businessDays}
-   Status: ${calc.isValid ? 'Valid' : 'Invalid'}
-   ${calc.error ? `Error: ${calc.error}` : ''}
+   Status: ${calc.isValid ? "Valid" : "Invalid"}
+   ${calc.error ? `Error: ${calc.error}` : ""}
    Relative: ${calc.duration.relative}
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((calculations.filter((calc) => calc.isValid).length / calculations.length) * 100).toFixed(1)}%
@@ -652,17 +652,17 @@ Statistics:
 const generateCSVFromTimeDiffs = (calculations: TimeDifference[]): string => {
   const rows = [
     [
-      'Start Date',
-      'End Date',
-      'Start Format',
-      'End Format',
-      'Total Days',
-      'Business Days',
-      'Human Readable',
-      'Relative',
-      'Valid',
-      'Error',
-      'Timezone',
+      "Start Date",
+      "End Date",
+      "Start Format",
+      "End Format",
+      "Total Days",
+      "Business Days",
+      "Human Readable",
+      "Relative",
+      "Valid",
+      "Error",
+      "Timezone",
     ],
   ]
 
@@ -676,13 +676,13 @@ const generateCSVFromTimeDiffs = (calculations: TimeDifference[]): string => {
       calc.businessDays.toString(),
       calc.duration.humanReadable,
       calc.duration.relative,
-      calc.isValid ? 'Yes' : 'No',
-      calc.error || '',
+      calc.isValid ? "Yes" : "No",
+      calc.error || "",
       calc.timezone,
     ])
   })
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 }
 
 const generateXMLFromTimeDiffs = (calculations: TimeDifference[]): string => {
@@ -709,11 +709,11 @@ const generateXMLFromTimeDiffs = (calculations: TimeDifference[]): string => {
       </duration>
       <businessDays>${calc.businessDays}</businessDays>
       <valid>${calc.isValid}</valid>
-      ${calc.error ? `<error>${calc.error}</error>` : ''}
+      ${calc.error ? `<error>${calc.error}</error>` : ""}
       <timezone>${calc.timezone}</timezone>
     </calculation>`
       )
-      .join('')}
+      .join("")}
   </calculations>
 </timeDifferences>`
 }
@@ -725,13 +725,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -743,25 +743,25 @@ const useCopyToClipboard = () => {
  * Features: Advanced time difference calculation, timezone support, batch processing, comprehensive analysis
  */
 const TimeDiffCore = () => {
-  const [activeTab, setActiveTab] = useState<'calculator' | 'batch' | 'templates'>('calculator')
-  const [startInput, setStartInput] = useState('')
-  const [endInput, setEndInput] = useState('')
-  const [startFormat, setStartFormat] = useState<DateFormat>('local')
-  const [endFormat, setEndFormat] = useState<DateFormat>('local')
+  const [activeTab, setActiveTab] = useState<"calculator" | "batch" | "templates">("calculator")
+  const [startInput, setStartInput] = useState("")
+  const [endInput, setEndInput] = useState("")
+  const [startFormat, setStartFormat] = useState<DateFormat>("local")
+  const [endFormat, setEndFormat] = useState<DateFormat>("local")
   const [currentResult, setCurrentResult] = useState<TimeDifference | null>(null)
   const [batches, setBatches] = useState<TimeDiffBatch[]>([])
-  const [batchInput, setBatchInput] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [batchInput, setBatchInput] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [settings, setSettings] = useState<TimeDiffSettings>({
-    defaultTimezone: 'UTC',
+    defaultTimezone: "UTC",
     includeBusinessDays: true,
     includeTime: true,
-    outputFormat: 'detailed',
-    exportFormat: 'json',
+    outputFormat: "detailed",
+    exportFormat: "json",
     realTimeCalculation: true,
     showRelativeTime: true,
-    precision: 'days',
+    precision: "days",
   })
 
   const { calculateSingle, calculateBatch } = useTimeDiffCalculation()
@@ -776,8 +776,8 @@ const TimeDiffCore = () => {
     if (template) {
       setStartInput(template.startDate)
       setEndInput(template.endDate)
-      setStartFormat('local')
-      setEndFormat('local')
+      setStartFormat("local")
+      setEndFormat("local")
       setSelectedTemplate(templateId)
       toast.success(`Applied template: ${template.name}`)
     }
@@ -786,7 +786,7 @@ const TimeDiffCore = () => {
   // Handle single calculation
   const handleCalculateSingle = useCallback(async () => {
     if (!startInput.trim() || !endInput.trim()) {
-      toast.error('Please enter both start and end dates')
+      toast.error("Please enter both start and end dates")
       return
     }
 
@@ -796,12 +796,12 @@ const TimeDiffCore = () => {
       setCurrentResult(result)
 
       if (result.isValid) {
-        toast.success('Time difference calculated successfully')
+        toast.success("Time difference calculated successfully")
       } else {
-        toast.error(result.error || 'Calculation failed')
+        toast.error(result.error || "Calculation failed")
       }
     } catch (error) {
-      toast.error('Failed to calculate time difference')
+      toast.error("Failed to calculate time difference")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -810,16 +810,16 @@ const TimeDiffCore = () => {
 
   // Handle batch calculation
   const handleCalculateBatch = useCallback(async () => {
-    const lines = batchInput.split('\n').filter((line) => line.trim())
+    const lines = batchInput.split("\n").filter((line) => line.trim())
 
     if (lines.length === 0) {
-      toast.error('Please enter date pairs to calculate')
+      toast.error("Please enter date pairs to calculate")
       return
     }
 
     const pairs = lines
       .map((line) => {
-        const parts = line.split(',').map((p) => p.trim())
+        const parts = line.split(",").map((p) => p.trim())
         if (parts.length >= 2) {
           return {
             start: parts[0],
@@ -833,7 +833,7 @@ const TimeDiffCore = () => {
       .filter(Boolean) as Array<{ start: string; end: string; startFormat: DateFormat; endFormat: DateFormat }>
 
     if (pairs.length === 0) {
-      toast.error('Please enter valid date pairs (comma-separated)')
+      toast.error("Please enter valid date pairs (comma-separated)")
       return
     }
 
@@ -843,7 +843,7 @@ const TimeDiffCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Calculated ${batch.calculations.length} time differences`)
     } catch (error) {
-      toast.error('Failed to calculate batch')
+      toast.error("Failed to calculate batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -883,12 +883,15 @@ const TimeDiffCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Calculator className="h-5 w-5" aria-hidden="true" />
+              <Calculator className="h-5 w-5" />
               Time Difference Calculator & Analyzer
             </CardTitle>
             <CardDescription>
@@ -900,24 +903,39 @@ const TimeDiffCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'calculator' | 'batch' | 'templates')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "calculator" | "batch" | "templates")}
+        >
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="calculator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="calculator"
+              className="flex items-center gap-2"
+            >
               <Calculator className="h-4 w-4" />
               Time Calculator
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates & Examples
             </TabsTrigger>
           </TabsList>
 
           {/* Time Calculator Tab */}
-          <TabsContent value="calculator" className="space-y-4">
+          <TabsContent
+            value="calculator"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Input Section */}
               <Card>
@@ -929,7 +947,10 @@ const TimeDiffCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="start-date" className="text-sm font-medium">
+                    <Label
+                      htmlFor="start-date"
+                      className="text-sm font-medium"
+                    >
                       Start Date
                     </Label>
                     <Input
@@ -938,7 +959,6 @@ const TimeDiffCore = () => {
                       onChange={(e) => setStartInput(e.target.value)}
                       placeholder="Enter start date/time..."
                       className="mt-2"
-                      aria-label="Start date input"
                     />
                     {settings.realTimeCalculation && startInput && (
                       <div className="mt-2 text-sm">
@@ -958,7 +978,10 @@ const TimeDiffCore = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="end-date" className="text-sm font-medium">
+                    <Label
+                      htmlFor="end-date"
+                      className="text-sm font-medium"
+                    >
                       End Date
                     </Label>
                     <Input
@@ -967,7 +990,6 @@ const TimeDiffCore = () => {
                       onChange={(e) => setEndInput(e.target.value)}
                       placeholder="Enter end date/time..."
                       className="mt-2"
-                      aria-label="End date input"
                     />
                     {settings.realTimeCalculation && endInput && (
                       <div className="mt-2 text-sm">
@@ -988,10 +1010,16 @@ const TimeDiffCore = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="start-format" className="text-sm font-medium">
+                      <Label
+                        htmlFor="start-format"
+                        className="text-sm font-medium"
+                      >
                         Start Format
                       </Label>
-                      <Select value={startFormat} onValueChange={(value: DateFormat) => setStartFormat(value)}>
+                      <Select
+                        value={startFormat}
+                        onValueChange={(value: DateFormat) => setStartFormat(value)}
+                      >
                         <SelectTrigger className="mt-2">
                           <SelectValue />
                         </SelectTrigger>
@@ -1007,10 +1035,16 @@ const TimeDiffCore = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="end-format" className="text-sm font-medium">
+                      <Label
+                        htmlFor="end-format"
+                        className="text-sm font-medium"
+                      >
                         End Format
                       </Label>
-                      <Select value={endFormat} onValueChange={(value: DateFormat) => setEndFormat(value)}>
+                      <Select
+                        value={endFormat}
+                        onValueChange={(value: DateFormat) => setEndFormat(value)}
+                      >
                         <SelectTrigger className="mt-2">
                           <SelectValue />
                         </SelectTrigger>
@@ -1027,7 +1061,10 @@ const TimeDiffCore = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="timezone" className="text-sm font-medium">
+                    <Label
+                      htmlFor="timezone"
+                      className="text-sm font-medium"
+                    >
                       Timezone
                     </Label>
                     <Select
@@ -1039,7 +1076,10 @@ const TimeDiffCore = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {COMMON_TIMEZONES.map((tz) => (
-                          <SelectItem key={tz} value={tz}>
+                          <SelectItem
+                            key={tz}
+                            value={tz}
+                          >
                             {tz}
                           </SelectItem>
                         ))}
@@ -1056,7 +1096,10 @@ const TimeDiffCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, realTimeCalculation: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="real-time-calculation" className="text-sm">
+                      <Label
+                        htmlFor="real-time-calculation"
+                        className="text-sm"
+                      >
                         Real-time calculation
                       </Label>
                     </div>
@@ -1069,7 +1112,10 @@ const TimeDiffCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, includeBusinessDays: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="include-business-days" className="text-sm">
+                      <Label
+                        htmlFor="include-business-days"
+                        className="text-sm"
+                      >
                         Include business days calculation
                       </Label>
                     </div>
@@ -1082,7 +1128,10 @@ const TimeDiffCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, showRelativeTime: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="show-relative-time" className="text-sm">
+                      <Label
+                        htmlFor="show-relative-time"
+                        className="text-sm"
+                      >
                         Show relative time descriptions
                       </Label>
                     </div>
@@ -1102,8 +1151,8 @@ const TimeDiffCore = () => {
                     </Button>
                     <Button
                       onClick={() => {
-                        setStartInput('')
-                        setEndInput('')
+                        setStartInput("")
+                        setEndInput("")
                         setCurrentResult(null)
                       }}
                       variant="outline"
@@ -1168,9 +1217,9 @@ const TimeDiffCore = () => {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => copyToClipboard(currentResult.duration.humanReadable, 'Duration')}
+                                onClick={() => copyToClipboard(currentResult.duration.humanReadable, "Duration")}
                               >
-                                {copiedText === 'Duration' ? (
+                                {copiedText === "Duration" ? (
                                   <Check className="h-4 w-4" />
                                 ) : (
                                   <Copy className="h-4 w-4" />
@@ -1289,7 +1338,10 @@ const TimeDiffCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1303,7 +1355,10 @@ const TimeDiffCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-input"
+                      className="text-sm font-medium"
+                    >
                       Date Pairs (start,end per line)
                     </Label>
                     <Textarea
@@ -1312,12 +1367,14 @@ const TimeDiffCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="2024-01-01,2024-01-15&#10;2023-12-01,2024-01-01&#10;1990-01-01,2024-01-01"
                       className="mt-2 min-h-[120px] font-mono"
-                      aria-label="Batch date pairs input"
                     />
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleCalculateBatch} disabled={!batchInput.trim() || isProcessing}>
+                    <Button
+                      onClick={handleCalculateBatch}
+                      disabled={!batchInput.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1325,7 +1382,10 @@ const TimeDiffCore = () => {
                       )}
                       Calculate Batch
                     </Button>
-                    <Button onClick={() => setBatchInput('')} variant="outline">
+                    <Button
+                      onClick={() => setBatchInput("")}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Clear
                     </Button>
@@ -1343,7 +1403,10 @@ const TimeDiffCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} calculations processed</h4>
@@ -1353,7 +1416,11 @@ const TimeDiffCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportBatch(batch)}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportBatch(batch)}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export
                             </Button>
@@ -1375,7 +1442,7 @@ const TimeDiffCore = () => {
                             <span className="font-medium">Invalid:</span> {batch.statistics.invalidCount}
                           </div>
                           <div>
-                            <span className="font-medium">Avg Duration:</span>{' '}
+                            <span className="font-medium">Avg Duration:</span>{" "}
                             {batch.statistics.averageDuration.toFixed(1)} days
                           </div>
                         </div>
@@ -1383,17 +1450,20 @@ const TimeDiffCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.calculations.slice(0, 5).map((calc) => (
-                              <div key={calc.id} className="text-xs border rounded p-2">
+                              <div
+                                key={calc.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">
                                     {calc.startInput} → {calc.endInput}
                                   </span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      calc.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      calc.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {calc.isValid ? 'Valid' : 'Invalid'}
+                                    {calc.isValid ? "Valid" : "Invalid"}
                                   </span>
                                 </div>
                                 {calc.isValid && (
@@ -1420,7 +1490,10 @@ const TimeDiffCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1435,7 +1508,7 @@ const TimeDiffCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1451,7 +1524,7 @@ const TimeDiffCore = () => {
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>Use cases:</strong> {template.useCase.join(', ')}
+                            <strong>Use cases:</strong> {template.useCase.join(", ")}
                           </div>
                         )}
                       </div>
@@ -1473,7 +1546,10 @@ const TimeDiffCore = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="output-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="output-format"
+                    className="text-sm font-medium"
+                  >
                     Output Format
                   </Label>
                   <Select
@@ -1493,7 +1569,10 @@ const TimeDiffCore = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -1514,7 +1593,10 @@ const TimeDiffCore = () => {
               </div>
 
               <div>
-                <Label htmlFor="precision" className="text-sm font-medium">
+                <Label
+                  htmlFor="precision"
+                  className="text-sm font-medium"
+                >
                   Precision Level
                 </Label>
                 <Select
@@ -1543,7 +1625,10 @@ const TimeDiffCore = () => {
                     onChange={(e) => setSettings((prev) => ({ ...prev, includeTime: e.target.checked }))}
                     className="rounded border-input"
                   />
-                  <Label htmlFor="include-time" className="text-sm">
+                  <Label
+                    htmlFor="include-time"
+                    className="text-sm"
+                  >
                     Include time components in calculations
                   </Label>
                 </div>
@@ -1551,7 +1636,10 @@ const TimeDiffCore = () => {
 
               {batches.length > 0 && (
                 <div className="flex gap-2 pt-4 border-t">
-                  <Button onClick={() => exportStatistics(batches)} variant="outline">
+                  <Button
+                    onClick={() => exportStatistics(batches)}
+                    variant="outline"
+                  >
                     <Download className="mr-2 h-4 w-4" />
                     Export Statistics
                   </Button>

@@ -1,11 +1,11 @@
-import { useCallback, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -25,9 +25,9 @@ import {
   Accessibility,
   Pipette,
   Layers,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
-import { useDragAndDrop } from '@/hooks/use-drag-drop'
+} from "lucide-react"
+import { nanoid } from "nanoid"
+import { useDragAndDrop } from "@/hooks/use-drag-drop"
 import type {
   RGB,
   HSL,
@@ -44,22 +44,22 @@ import type {
   ColorTemplate,
   CMYK,
   LAB,
-} from '@/types/color-picker'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/color-picker"
+import { formatFileSize } from "@/lib/utils"
 
 // Utility functions
 
 const validateColorFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
-  const allowedTypes = ['.json', '.ase', '.aco', '.css', '.scss', '.txt']
+  const allowedTypes = [".json", ".ase", ".aco", ".css", ".scss", ".txt"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 10MB' }
+    return { isValid: false, error: "File size must be less than 10MB" }
   }
 
-  const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+  const extension = "." + file.name.split(".").pop()?.toLowerCase()
   if (!allowedTypes.includes(extension)) {
-    return { isValid: false, error: 'Only JSON, ASE, ACO, CSS, SCSS, and TXT files are supported' }
+    return { isValid: false, error: "Only JSON, ASE, ACO, CSS, SCSS, and TXT files are supported" }
   }
 
   return { isValid: true }
@@ -80,7 +80,7 @@ const hexToRgb = (hex: string): RGB => {
 const rgbToHex = (rgb: RGB): string => {
   const toHex = (c: number) => {
     const hex = Math.round(c).toString(16)
-    return hex.length === 1 ? '0' + hex : hex
+    return hex.length === 1 ? "0" + hex : hex
   }
   return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`
 }
@@ -291,24 +291,24 @@ const generateColorHarmony = (baseColor: string, type: HarmonyType): string[] =>
   const hsl = rgbToHsl(rgb)
 
   switch (type) {
-    case 'complementary':
+    case "complementary":
       return [baseColor, rgbToHex(hslToRgb({ ...hsl, h: (hsl.h + 180) % 360 }))]
 
-    case 'analogous':
+    case "analogous":
       return [
         baseColor,
         rgbToHex(hslToRgb({ ...hsl, h: (hsl.h + 30) % 360 })),
         rgbToHex(hslToRgb({ ...hsl, h: (hsl.h - 30 + 360) % 360 })),
       ]
 
-    case 'triadic':
+    case "triadic":
       return [
         baseColor,
         rgbToHex(hslToRgb({ ...hsl, h: (hsl.h + 120) % 360 })),
         rgbToHex(hslToRgb({ ...hsl, h: (hsl.h + 240) % 360 })),
       ]
 
-    case 'tetradic':
+    case "tetradic":
       return [
         baseColor,
         rgbToHex(hslToRgb({ ...hsl, h: (hsl.h + 90) % 360 })),
@@ -316,7 +316,7 @@ const generateColorHarmony = (baseColor: string, type: HarmonyType): string[] =>
         rgbToHex(hslToRgb({ ...hsl, h: (hsl.h + 270) % 360 })),
       ]
 
-    case 'monochromatic':
+    case "monochromatic":
       return [
         rgbToHex(hslToRgb({ ...hsl, l: Math.max(10, hsl.l - 40) })),
         rgbToHex(hslToRgb({ ...hsl, l: Math.max(10, hsl.l - 20) })),
@@ -325,7 +325,7 @@ const generateColorHarmony = (baseColor: string, type: HarmonyType): string[] =>
         rgbToHex(hslToRgb({ ...hsl, l: Math.min(90, hsl.l + 40) })),
       ]
 
-    case 'split-complementary':
+    case "split-complementary":
       return [
         baseColor,
         rgbToHex(hslToRgb({ ...hsl, h: (hsl.h + 150) % 360 })),
@@ -360,46 +360,46 @@ const createColor = (hex: string): Color => {
 // Color templates
 const colorTemplates: ColorTemplate[] = [
   {
-    id: 'material',
-    name: 'Material Design',
-    description: 'Google Material Design color palette',
-    colors: ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4'],
-    category: 'Design System',
+    id: "material",
+    name: "Material Design",
+    description: "Google Material Design color palette",
+    colors: ["#F44336", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4"],
+    category: "Design System",
   },
   {
-    id: 'bootstrap',
-    name: 'Bootstrap Colors',
-    description: 'Bootstrap framework color scheme',
-    colors: ['#007bff', '#6c757d', '#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6f42c1', '#e83e8c'],
-    category: 'Framework',
+    id: "bootstrap",
+    name: "Bootstrap Colors",
+    description: "Bootstrap framework color scheme",
+    colors: ["#007bff", "#6c757d", "#28a745", "#ffc107", "#dc3545", "#17a2b8", "#6f42c1", "#e83e8c"],
+    category: "Framework",
   },
   {
-    id: 'tailwind',
-    name: 'Tailwind CSS',
-    description: 'Tailwind CSS default palette',
-    colors: ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'],
-    category: 'Framework',
+    id: "tailwind",
+    name: "Tailwind CSS",
+    description: "Tailwind CSS default palette",
+    colors: ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"],
+    category: "Framework",
   },
   {
-    id: 'sunset',
-    name: 'Sunset Palette',
-    description: 'Warm sunset inspired colors',
-    colors: ['#FF6B6B', '#FF8E53', '#FF6B9D', '#C44569', '#F8B500', '#FF7675', '#FDCB6E', '#E17055'],
-    category: 'Nature',
+    id: "sunset",
+    name: "Sunset Palette",
+    description: "Warm sunset inspired colors",
+    colors: ["#FF6B6B", "#FF8E53", "#FF6B9D", "#C44569", "#F8B500", "#FF7675", "#FDCB6E", "#E17055"],
+    category: "Nature",
   },
   {
-    id: 'ocean',
-    name: 'Ocean Depths',
-    description: 'Cool ocean inspired colors',
-    colors: ['#0984e3', '#74b9ff', '#00b894', '#00cec9', '#6c5ce7', '#a29bfe', '#fd79a8', '#fdcb6e'],
-    category: 'Nature',
+    id: "ocean",
+    name: "Ocean Depths",
+    description: "Cool ocean inspired colors",
+    colors: ["#0984e3", "#74b9ff", "#00b894", "#00cec9", "#6c5ce7", "#a29bfe", "#fd79a8", "#fdcb6e"],
+    category: "Nature",
   },
   {
-    id: 'monochrome',
-    name: 'Monochrome',
-    description: 'Grayscale color palette',
-    colors: ['#000000', '#2d3436', '#636e72', '#b2bec3', '#ddd', '#f1f2f6', '#ffffff'],
-    category: 'Neutral',
+    id: "monochrome",
+    name: "Monochrome",
+    description: "Grayscale color palette",
+    colors: ["#000000", "#2d3436", "#636e72", "#b2bec3", "#ddd", "#f1f2f6", "#ffffff"],
+    category: "Neutral",
   },
 ]
 
@@ -414,12 +414,12 @@ const processColorData = (colors: string[], settings: ColorSettings): ColorData 
     // Generate palette
     const palette: ColorPalette = {
       primary: primaryColor,
-      complementary: generateColorHarmony(primaryColor.hex, 'complementary').map(createColor),
-      analogous: generateColorHarmony(primaryColor.hex, 'analogous').map(createColor),
-      triadic: generateColorHarmony(primaryColor.hex, 'triadic').map(createColor),
-      tetradic: generateColorHarmony(primaryColor.hex, 'tetradic').map(createColor),
-      monochromatic: generateColorHarmony(primaryColor.hex, 'monochromatic').map(createColor),
-      splitComplementary: generateColorHarmony(primaryColor.hex, 'split-complementary').map(createColor),
+      complementary: generateColorHarmony(primaryColor.hex, "complementary").map(createColor),
+      analogous: generateColorHarmony(primaryColor.hex, "analogous").map(createColor),
+      triadic: generateColorHarmony(primaryColor.hex, "triadic").map(createColor),
+      tetradic: generateColorHarmony(primaryColor.hex, "tetradic").map(createColor),
+      monochromatic: generateColorHarmony(primaryColor.hex, "monochromatic").map(createColor),
+      splitComplementary: generateColorHarmony(primaryColor.hex, "split-complementary").map(createColor),
     }
 
     // Calculate statistics
@@ -461,7 +461,7 @@ const processColorData = (colors: string[], settings: ColorSettings): ColorData 
       format: settings.format,
     }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'Color processing failed')
+    throw new Error(error instanceof Error ? error.message : "Color processing failed")
   }
 }
 
@@ -471,8 +471,8 @@ const useColorProcessing = () => {
     try {
       return processColorData(colors, settings)
     } catch (error) {
-      console.error('Color processing error:', error)
-      throw new Error(error instanceof Error ? error.message : 'Color processing failed')
+      console.error("Color processing error:", error)
+      throw new Error(error instanceof Error ? error.message : "Color processing failed")
     }
   }, [])
 
@@ -480,8 +480,8 @@ const useColorProcessing = () => {
     try {
       return generateColorHarmony(baseColor, harmonyType)
     } catch (error) {
-      console.error('Palette generation error:', error)
-      throw new Error(error instanceof Error ? error.message : 'Palette generation failed')
+      console.error("Palette generation error:", error)
+      throw new Error(error instanceof Error ? error.message : "Palette generation failed")
     }
   }, [])
 
@@ -489,7 +489,7 @@ const useColorProcessing = () => {
     async (files: ColorFile[], settings: ColorSettings): Promise<ColorFile[]> => {
       return Promise.all(
         files.map(async (file) => {
-          if (file.status !== 'pending') return file
+          if (file.status !== "pending") return file
 
           try {
             // Parse colors from file content
@@ -498,15 +498,15 @@ const useColorProcessing = () => {
 
             return {
               ...file,
-              status: 'completed' as const,
+              status: "completed" as const,
               colorData,
               processedAt: new Date(),
             }
           } catch (error) {
             return {
               ...file,
-              status: 'error' as const,
-              error: error instanceof Error ? error.message : 'Processing failed',
+              status: "error" as const,
+              error: error instanceof Error ? error.message : "Processing failed",
             }
           }
         })
@@ -522,23 +522,23 @@ const useColorProcessing = () => {
 const parseColorsFromContent = (content: string, fileType: string): string[] => {
   const colors: string[] = []
 
-  if (fileType.includes('json')) {
+  if (fileType.includes("json")) {
     try {
       const data = JSON.parse(content)
       if (Array.isArray(data)) {
-        colors.push(...data.filter((item) => typeof item === 'string' && isValidHex(item)))
+        colors.push(...data.filter((item) => typeof item === "string" && isValidHex(item)))
       } else if (data.colors && Array.isArray(data.colors)) {
-        colors.push(...data.colors.filter((item: unknown) => typeof item === 'string' && isValidHex(item as string)))
+        colors.push(...data.colors.filter((item: unknown) => typeof item === "string" && isValidHex(item as string)))
       }
     } catch (error) {
-      throw new Error('Invalid JSON format')
+      throw new Error("Invalid JSON format")
     }
-  } else if (fileType.includes('css') || fileType.includes('scss')) {
+  } else if (fileType.includes("css") || fileType.includes("scss")) {
     // Extract hex colors from CSS
     const hexMatches = content.match(/#[a-fA-F0-9]{6}|#[a-fA-F0-9]{3}/g)
     if (hexMatches) {
       colors.push(
-        ...hexMatches.map((hex) => (hex.length === 4 ? '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3] : hex))
+        ...hexMatches.map((hex) => (hex.length === 4 ? "#" + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3] : hex))
       )
     }
   } else {
@@ -546,13 +546,13 @@ const parseColorsFromContent = (content: string, fileType: string): string[] => 
     const hexMatches = content.match(/#[a-fA-F0-9]{6}|#[a-fA-F0-9]{3}/g)
     if (hexMatches) {
       colors.push(
-        ...hexMatches.map((hex) => (hex.length === 4 ? '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3] : hex))
+        ...hexMatches.map((hex) => (hex.length === 4 ? "#" + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3] : hex))
       )
     }
   }
 
   if (colors.length === 0) {
-    throw new Error('No valid colors found in file')
+    throw new Error("No valid colors found in file")
   }
 
   return [...new Set(colors)] // Remove duplicates
@@ -568,7 +568,7 @@ const useRealTimeColorAnalysis = (color: string, settings: ColorSettings) => {
     if (!color || !isValidHex(color)) {
       return {
         colorData: null,
-        error: color ? 'Invalid color format' : null,
+        error: color ? "Invalid color format" : null,
         isEmpty: !color,
       }
     }
@@ -583,7 +583,7 @@ const useRealTimeColorAnalysis = (color: string, settings: ColorSettings) => {
     } catch (error) {
       return {
         colorData: null,
-        error: error instanceof Error ? error.message : 'Color analysis failed',
+        error: error instanceof Error ? error.message : "Color analysis failed",
         isEmpty: false,
       }
     }
@@ -610,17 +610,17 @@ const useFileProcessing = () => {
             name: file.name,
             content,
             size: file.size,
-            type: file.type || 'text/plain',
-            status: 'pending',
+            type: file.type || "text/plain",
+            status: "pending",
           }
 
           resolve(colorFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsText(file)
     })
   }, [])
@@ -630,17 +630,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
-            type: files[index].type || 'text/plain',
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            type: files[index].type || "text/plain",
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -654,22 +654,22 @@ const useFileProcessing = () => {
 // Export functionality
 const useColorExport = () => {
   const exportPalette = useCallback((colorData: ColorData, format: string, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'css':
+      case "css":
         content = generateCSSPalette(colorData.colors)
-        mimeType = 'text/css'
-        extension = '.css'
+        mimeType = "text/css"
+        extension = ".css"
         break
-      case 'scss':
+      case "scss":
         content = generateSCSSPalette(colorData.colors)
-        mimeType = 'text/scss'
-        extension = '.scss'
+        mimeType = "text/scss"
+        extension = ".scss"
         break
-      case 'json':
+      case "json":
         content = JSON.stringify(
           {
             colors: colorData.colors.map((c) => ({
@@ -687,21 +687,21 @@ const useColorExport = () => {
           null,
           2
         )
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'ase':
+      case "ase":
         content = generateASEPalette(colorData.colors)
-        mimeType = 'application/octet-stream'
-        extension = '.ase'
+        mimeType = "application/octet-stream"
+        extension = ".ase"
         break
       default:
-        content = colorData.colors.map((c) => c.hex).join('\n')
+        content = colorData.colors.map((c) => c.hex).join("\n")
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `color-palette${extension}`
     document.body.appendChild(link)
@@ -715,14 +715,14 @@ const useColorExport = () => {
       const completedFiles = files.filter((f) => f.colorData)
 
       if (completedFiles.length === 0) {
-        toast.error('No color palettes to export')
+        toast.error("No color palettes to export")
         return
       }
 
       completedFiles.forEach((file) => {
         if (file.colorData) {
-          const baseName = file.name.replace(/\.[^/.]+$/, '')
-          exportPalette(file.colorData, 'json', `${baseName}-palette.json`)
+          const baseName = file.name.replace(/\.[^/.]+$/, "")
+          exportPalette(file.colorData, "json", `${baseName}-palette.json`)
         }
       })
 
@@ -747,14 +747,14 @@ const useColorExport = () => {
 
     const csvContent = [
       [
-        'Filename',
-        'Original Size',
-        'Total Colors',
-        'Avg Brightness',
-        'Avg Saturation',
-        'Accessibility Score',
-        'Processing Time',
-        'Status',
+        "Filename",
+        "Original Size",
+        "Total Colors",
+        "Avg Brightness",
+        "Avg Saturation",
+        "Accessibility Score",
+        "Processing Time",
+        "Status",
       ],
       ...stats.map((stat) => [
         stat.filename,
@@ -767,20 +767,20 @@ const useColorExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'color-processing-statistics.csv'
+    link.download = "color-processing-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportPalette, exportBatch, exportStatistics }
@@ -788,11 +788,11 @@ const useColorExport = () => {
 
 // Generate export formats
 const generateCSSPalette = (colors: Color[]): string => {
-  return `:root {\n${colors.map((color, index) => `  --color-${index + 1}: ${color.hex};`).join('\n')}\n}`
+  return `:root {\n${colors.map((color, index) => `  --color-${index + 1}: ${color.hex};`).join("\n")}\n}`
 }
 
 const generateSCSSPalette = (colors: Color[]): string => {
-  return colors.map((color, index) => `$color-${index + 1}: ${color.hex};`).join('\n')
+  return colors.map((color, index) => `$color-${index + 1}: ${color.hex};`).join("\n")
 }
 
 const generateASEPalette = (colors: Color[]): string => {
@@ -800,15 +800,15 @@ const generateASEPalette = (colors: Color[]): string => {
   // In a real implementation, this would generate proper binary ASE format
   return JSON.stringify(
     {
-      version: '1.0',
+      version: "1.0",
       groups: [
         {
-          name: 'Generated Palette',
+          name: "Generated Palette",
           colors: colors.map((color, index) => ({
             name: `Color ${index + 1}`,
-            model: 'RGB',
+            model: "RGB",
             color: [color.rgb.r / 255, color.rgb.g / 255, color.rgb.b / 255],
-            type: 'global',
+            type: "global",
           })),
         },
       ],
@@ -825,37 +825,37 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
   const copyColorValue = useCallback(
     async (color: Color, format: ColorFormat, label?: string) => {
-      let value = ''
+      let value = ""
 
       switch (format) {
-        case 'hex':
+        case "hex":
           value = color.hex
           break
-        case 'rgb':
+        case "rgb":
           value = `rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b})`
           break
-        case 'hsl':
+        case "hsl":
           value = `hsl(${color.hsl.h}, ${color.hsl.s}%, ${color.hsl.l}%)`
           break
-        case 'hsv':
+        case "hsv":
           value = `hsv(${color.hsv.h}, ${color.hsv.s}%, ${color.hsv.v}%)`
           break
-        case 'cmyk':
+        case "cmyk":
           value = `cmyk(${color.cmyk.c}%, ${color.cmyk.m}%, ${color.cmyk.y}%, ${color.cmyk.k}%)`
           break
-        case 'lab':
+        case "lab":
           value = `lab(${color.lab.l}, ${color.lab.a}, ${color.lab.b})`
           break
         default:
@@ -875,18 +875,18 @@ const useCopyToClipboard = () => {
  * Features: Real-time color analysis, palette generation, batch processing, accessibility checking
  */
 const ColorPickerCore = () => {
-  const [activeTab, setActiveTab] = useState<'picker' | 'files'>('picker')
-  const [currentColor, setCurrentColor] = useState('#3498db')
+  const [activeTab, setActiveTab] = useState<"picker" | "files">("picker")
+  const [currentColor, setCurrentColor] = useState("#3498db")
   const [files, setFiles] = useState<ColorFile[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('material')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("material")
   const [settings, setSettings] = useState<ColorSettings>({
-    format: 'hex',
+    format: "hex",
     paletteSize: 5,
-    harmonyType: 'complementary',
+    harmonyType: "complementary",
     includeAccessibility: true,
     generateNames: false,
-    sortBy: 'hue',
+    sortBy: "hue",
   })
 
   const { generatePalette, processBatch } = useColorProcessing()
@@ -906,13 +906,13 @@ const ColorPickerCore = () => {
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
     }, []),
     {
-      accept: ['.json', '.ase', '.aco', '.css', '.scss', '.txt'],
+      accept: [".json", ".ase", ".aco", ".css", ".scss", ".txt"],
       multiple: true,
     }
   )
@@ -934,7 +934,7 @@ const ColorPickerCore = () => {
         const palette = generatePalette(currentColor, harmonyType)
         return palette
       } catch (error) {
-        toast.error('Failed to generate palette')
+        toast.error("Failed to generate palette")
         return []
       }
     },
@@ -943,9 +943,9 @@ const ColorPickerCore = () => {
 
   // Process all files
   const processFiles = useCallback(async () => {
-    const pendingFiles = files.filter((f) => f.status === 'pending')
+    const pendingFiles = files.filter((f) => f.status === "pending")
     if (pendingFiles.length === 0) {
-      toast.error('No files to process')
+      toast.error("No files to process")
       return
     }
 
@@ -958,9 +958,9 @@ const ColorPickerCore = () => {
           return updated || file
         })
       )
-      toast.success('Files processed successfully!')
+      toast.success("Files processed successfully!")
     } catch (error) {
-      toast.error('Failed to process files')
+      toast.error("Failed to process files")
     } finally {
       setIsProcessing(false)
     }
@@ -969,7 +969,7 @@ const ColorPickerCore = () => {
   // Clear all files
   const clearAll = useCallback(() => {
     setFiles([])
-    toast.success('All files cleared')
+    toast.success("All files cleared")
   }, [])
 
   // Remove specific file
@@ -997,7 +997,7 @@ const ColorPickerCore = () => {
     return {
       totalFiles: files.length,
       completedFiles: completedFiles.length,
-      failedFiles: files.filter((f) => f.status === 'error').length,
+      failedFiles: files.filter((f) => f.status === "error").length,
       totalColors,
       averageAccessibility,
       averageProcessingTime,
@@ -1014,12 +1014,15 @@ const ColorPickerCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Palette className="h-5 w-5" aria-hidden="true" />
+              <Palette className="h-5 w-5" />
               Color Picker & Palette Generator
             </CardTitle>
             <CardDescription>
@@ -1030,20 +1033,32 @@ const ColorPickerCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'picker' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "picker" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="picker" className="flex items-center gap-2">
+            <TabsTrigger
+              value="picker"
+              className="flex items-center gap-2"
+            >
               <Pipette className="h-4 w-4" />
               Color Picker
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* Color Picker Tab */}
-          <TabsContent value="picker" className="space-y-4">
+          <TabsContent
+            value="picker"
+            className="space-y-4"
+          >
             {/* Color Templates */}
             <Card>
               <CardHeader>
@@ -1057,7 +1072,7 @@ const ColorPickerCore = () => {
                   {colorTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -1100,7 +1115,6 @@ const ColorPickerCore = () => {
                         value={currentColor}
                         onChange={(e) => setCurrentColor(e.target.value)}
                         className="w-32 h-32 border-2 border-gray-300 rounded-lg cursor-pointer"
-                        aria-label="Color picker"
                       />
                       <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-center">
                         <div className="font-mono text-sm font-medium">{currentColor}</div>
@@ -1122,9 +1136,9 @@ const ColorPickerCore = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => copyToClipboard(currentColor, 'color value')}
+                          onClick={() => copyToClipboard(currentColor, "color value")}
                         >
-                          {copiedText === 'color value' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          {copiedText === "color value" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         </Button>
                       </div>
                     </div>
@@ -1177,7 +1191,10 @@ const ColorPickerCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, includeAccessibility: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="includeAccessibility" className="text-sm">
+                      <Label
+                        htmlFor="includeAccessibility"
+                        className="text-sm"
+                      >
                         Include Accessibility Analysis
                       </Label>
                     </div>
@@ -1215,7 +1232,10 @@ const ColorPickerCore = () => {
                             CMYK: `cmyk(${colorAnalysis.colorData.colors[0].cmyk.c}%, ${colorAnalysis.colorData.colors[0].cmyk.m}%, ${colorAnalysis.colorData.colors[0].cmyk.y}%, ${colorAnalysis.colorData.colors[0].cmyk.k}%)`,
                             LAB: `lab(${colorAnalysis.colorData.colors[0].lab.l}, ${colorAnalysis.colorData.colors[0].lab.a}, ${colorAnalysis.colorData.colors[0].lab.b})`,
                           }).map(([format, value]) => (
-                            <div key={format} className="flex items-center justify-between p-2 bg-muted/30 rounded">
+                            <div
+                              key={format}
+                              className="flex items-center justify-between p-2 bg-muted/30 rounded"
+                            >
                               <div>
                                 <span className="font-medium text-xs">{format}:</span>
                                 <span className="font-mono text-sm ml-2">{value}</span>
@@ -1288,33 +1308,33 @@ const ColorPickerCore = () => {
                           <div className="flex justify-between items-center p-2 bg-muted/30 rounded">
                             <span className="text-sm">AA Normal:</span>
                             <span
-                              className={`text-sm font-medium ${colorAnalysis.colorData.colors[0].accessibility.wcagAA.normal ? 'text-green-600' : 'text-red-600'}`}
+                              className={`text-sm font-medium ${colorAnalysis.colorData.colors[0].accessibility.wcagAA.normal ? "text-green-600" : "text-red-600"}`}
                             >
-                              {colorAnalysis.colorData.colors[0].accessibility.wcagAA.normal ? 'Pass' : 'Fail'}
+                              {colorAnalysis.colorData.colors[0].accessibility.wcagAA.normal ? "Pass" : "Fail"}
                             </span>
                           </div>
                           <div className="flex justify-between items-center p-2 bg-muted/30 rounded">
                             <span className="text-sm">AA Large:</span>
                             <span
-                              className={`text-sm font-medium ${colorAnalysis.colorData.colors[0].accessibility.wcagAA.large ? 'text-green-600' : 'text-red-600'}`}
+                              className={`text-sm font-medium ${colorAnalysis.colorData.colors[0].accessibility.wcagAA.large ? "text-green-600" : "text-red-600"}`}
                             >
-                              {colorAnalysis.colorData.colors[0].accessibility.wcagAA.large ? 'Pass' : 'Fail'}
+                              {colorAnalysis.colorData.colors[0].accessibility.wcagAA.large ? "Pass" : "Fail"}
                             </span>
                           </div>
                           <div className="flex justify-between items-center p-2 bg-muted/30 rounded">
                             <span className="text-sm">AAA Normal:</span>
                             <span
-                              className={`text-sm font-medium ${colorAnalysis.colorData.colors[0].accessibility.wcagAAA.normal ? 'text-green-600' : 'text-red-600'}`}
+                              className={`text-sm font-medium ${colorAnalysis.colorData.colors[0].accessibility.wcagAAA.normal ? "text-green-600" : "text-red-600"}`}
                             >
-                              {colorAnalysis.colorData.colors[0].accessibility.wcagAAA.normal ? 'Pass' : 'Fail'}
+                              {colorAnalysis.colorData.colors[0].accessibility.wcagAAA.normal ? "Pass" : "Fail"}
                             </span>
                           </div>
                           <div className="flex justify-between items-center p-2 bg-muted/30 rounded">
                             <span className="text-sm">AAA Large:</span>
                             <span
-                              className={`text-sm font-medium ${colorAnalysis.colorData.colors[0].accessibility.wcagAAA.large ? 'text-green-600' : 'text-red-600'}`}
+                              className={`text-sm font-medium ${colorAnalysis.colorData.colors[0].accessibility.wcagAAA.large ? "text-green-600" : "text-red-600"}`}
                             >
-                              {colorAnalysis.colorData.colors[0].accessibility.wcagAAA.large ? 'Pass' : 'Fail'}
+                              {colorAnalysis.colorData.colors[0].accessibility.wcagAAA.large ? "Pass" : "Fail"}
                             </span>
                           </div>
                         </div>
@@ -1326,11 +1346,11 @@ const ColorPickerCore = () => {
                         <Label className="text-sm font-medium">Color Blind Safety</Label>
                         <div className="mt-2 p-3 bg-muted/30 rounded">
                           <span
-                            className={`text-sm font-medium ${colorAnalysis.colorData.colors[0].accessibility.colorBlindSafe ? 'text-green-600' : 'text-orange-600'}`}
+                            className={`text-sm font-medium ${colorAnalysis.colorData.colors[0].accessibility.colorBlindSafe ? "text-green-600" : "text-orange-600"}`}
                           >
                             {colorAnalysis.colorData.colors[0].accessibility.colorBlindSafe
-                              ? 'Color Blind Safe'
-                              : 'May be difficult for color blind users'}
+                              ? "Color Blind Safe"
+                              : "May be difficult for color blind users"}
                           </span>
                         </div>
                       </div>
@@ -1376,7 +1396,7 @@ const ColorPickerCore = () => {
                       onClick={() => {
                         const palette = generateCurrentPalette(settings.harmonyType)
                         if (palette.length > 0) {
-                          copyToClipboard(palette.join(', '), 'color palette')
+                          copyToClipboard(palette.join(", "), "color palette")
                         }
                       }}
                     >
@@ -1387,7 +1407,10 @@ const ColorPickerCore = () => {
 
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                     {generateCurrentPalette(settings.harmonyType).map((color, index) => (
-                      <div key={index} className="space-y-2">
+                      <div
+                        key={index}
+                        className="space-y-2"
+                      >
                         <div
                           className="w-full h-20 rounded-lg border-2 border-gray-300 cursor-pointer transition-transform hover:scale-105"
                           style={{ backgroundColor: color }}
@@ -1422,10 +1445,10 @@ const ColorPickerCore = () => {
                         variant="outline"
                         onClick={() => {
                           const randomColor =
-                            '#' +
+                            "#" +
                             Math.floor(Math.random() * 16777215)
                               .toString(16)
-                              .padStart(6, '0')
+                              .padStart(6, "0")
                           setCurrentColor(randomColor)
                         }}
                       >
@@ -1443,22 +1466,34 @@ const ColorPickerCore = () => {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex flex-wrap gap-3 justify-center">
-                    <Button onClick={() => exportPalette(colorAnalysis.colorData!, 'css')} variant="outline">
+                    <Button
+                      onClick={() => exportPalette(colorAnalysis.colorData!, "css")}
+                      variant="outline"
+                    >
                       <Download className="mr-2 h-4 w-4" />
                       Export CSS
                     </Button>
 
-                    <Button onClick={() => exportPalette(colorAnalysis.colorData!, 'scss')} variant="outline">
+                    <Button
+                      onClick={() => exportPalette(colorAnalysis.colorData!, "scss")}
+                      variant="outline"
+                    >
                       <Code className="mr-2 h-4 w-4" />
                       Export SCSS
                     </Button>
 
-                    <Button onClick={() => exportPalette(colorAnalysis.colorData!, 'json')} variant="outline">
+                    <Button
+                      onClick={() => exportPalette(colorAnalysis.colorData!, "json")}
+                      variant="outline"
+                    >
                       <FileText className="mr-2 h-4 w-4" />
                       Export JSON
                     </Button>
 
-                    <Button onClick={() => exportPalette(colorAnalysis.colorData!, 'ase')} variant="outline">
+                    <Button
+                      onClick={() => exportPalette(colorAnalysis.colorData!, "ase")}
+                      variant="outline"
+                    >
                       <Palette className="mr-2 h-4 w-4" />
                       Export ASE
                     </Button>
@@ -1469,15 +1504,18 @@ const ColorPickerCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             {/* File Upload */}
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1485,9 +1523,8 @@ const ColorPickerCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop color palette files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1498,7 +1535,11 @@ const ColorPickerCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your color palette files here, or click to select files
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1512,7 +1553,6 @@ const ColorPickerCore = () => {
                     accept=".json,.ase,.aco,.css,.scss,.txt"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select color palette files"
                   />
                 </div>
               </CardContent>
@@ -1566,7 +1606,7 @@ const ColorPickerCore = () => {
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Button
                       onClick={processFiles}
-                      disabled={isProcessing || files.every((f) => f.status !== 'pending')}
+                      disabled={isProcessing || files.every((f) => f.status !== "pending")}
                       className="min-w-32"
                     >
                       {isProcessing ? (
@@ -1600,7 +1640,11 @@ const ColorPickerCore = () => {
                       Export Statistics
                     </Button>
 
-                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                    <Button
+                      onClick={clearAll}
+                      variant="destructive"
+                      disabled={isProcessing}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
@@ -1618,14 +1662,20 @@ const ColorPickerCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground space-y-1">
@@ -1634,7 +1684,7 @@ const ColorPickerCore = () => {
                                 <span className="font-medium"> Type:</span> {file.type}
                               </div>
 
-                              {file.status === 'completed' && file.colorData && (
+                              {file.status === "completed" && file.colorData && (
                                 <div className="mt-2">
                                   <div className="text-xs font-medium mb-1">Colors Processed:</div>
                                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
@@ -1663,8 +1713,8 @@ const ColorPickerCore = () => {
                                 </div>
                               )}
 
-                              {file.status === 'pending' && <div className="text-blue-600">Ready for processing</div>}
-                              {file.status === 'processing' && (
+                              {file.status === "pending" && <div className="text-blue-600">Ready for processing</div>}
+                              {file.status === "processing" && (
                                 <div className="text-blue-600 flex items-center gap-2">
                                   <Loader2 className="h-4 w-4 animate-spin" />
                                   Processing...
@@ -1675,7 +1725,7 @@ const ColorPickerCore = () => {
                           </div>
 
                           <div className="flex-shrink-0 flex items-center gap-2">
-                            {file.status === 'completed' && file.colorData && (
+                            {file.status === "completed" && file.colorData && (
                               <>
                                 <Button
                                   size="sm"
@@ -1683,11 +1733,10 @@ const ColorPickerCore = () => {
                                   onClick={() =>
                                     exportPalette(
                                       file.colorData!,
-                                      'json',
-                                      file.name.replace(/\.[^/.]+$/, '-palette.json')
+                                      "json",
+                                      file.name.replace(/\.[^/.]+$/, "-palette.json")
                                     )
                                   }
-                                  aria-label={`Export palette for ${file.name}`}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1696,9 +1745,8 @@ const ColorPickerCore = () => {
                                   size="sm"
                                   variant="outline"
                                   onClick={() =>
-                                    copyToClipboard(file.colorData!.colors.map((c) => c.hex).join(', '), file.id)
+                                    copyToClipboard(file.colorData!.colors.map((c) => c.hex).join(", "), file.id)
                                   }
-                                  aria-label={`Copy colors from ${file.name}`}
                                 >
                                   {copiedText === file.id ? (
                                     <Check className="h-4 w-4" />
@@ -1713,7 +1761,6 @@ const ColorPickerCore = () => {
                               size="sm"
                               variant="ghost"
                               onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

@@ -1,12 +1,12 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -23,8 +23,8 @@ import {
   Check,
   BarChart3,
   BookOpen,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   TextFile,
   PDFResult,
@@ -34,44 +34,44 @@ import type {
   PageSize,
   FontFamily,
   TextAlign,
-} from '@/types/text-to-pdf'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/text-to-pdf"
+import { formatFileSize } from "@/lib/utils"
 
 // Utility functions
 
 const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
   const allowedTypes = [
-    '.txt',
-    '.text',
-    '.log',
-    '.csv',
-    '.json',
-    '.md',
-    '.markdown',
-    '.js',
-    '.ts',
-    '.jsx',
-    '.tsx',
-    '.py',
-    '.java',
-    '.cpp',
-    '.c',
-    '.h',
-    '.css',
-    '.html',
-    '.xml',
-    '.yaml',
-    '.yml',
+    ".txt",
+    ".text",
+    ".log",
+    ".csv",
+    ".json",
+    ".md",
+    ".markdown",
+    ".js",
+    ".ts",
+    ".jsx",
+    ".tsx",
+    ".py",
+    ".java",
+    ".cpp",
+    ".c",
+    ".h",
+    ".css",
+    ".html",
+    ".xml",
+    ".yaml",
+    ".yml",
   ]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 50MB' }
+    return { isValid: false, error: "File size must be less than 50MB" }
   }
 
-  const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+  const extension = "." + file.name.split(".").pop()?.toLowerCase()
   if (!allowedTypes.includes(extension)) {
-    return { isValid: false, error: 'Only text files are supported' }
+    return { isValid: false, error: "Only text files are supported" }
   }
 
   return { isValid: true }
@@ -80,90 +80,90 @@ const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
 // PDF Templates
 const pdfTemplates: PDFTemplate[] = [
   {
-    id: 'default',
-    name: 'Default',
-    description: 'Standard document with basic formatting',
+    id: "default",
+    name: "Default",
+    description: "Standard document with basic formatting",
     settings: {
-      pageSize: 'A4',
-      orientation: 'portrait',
-      font: { family: 'Arial', size: 12, lineHeight: 1.5 },
+      pageSize: "A4",
+      orientation: "portrait",
+      font: { family: "Arial", size: 12, lineHeight: 1.5 },
       styling: {
-        textAlign: 'left',
-        textColor: '#000000',
-        backgroundColor: '#ffffff',
+        textAlign: "left",
+        textColor: "#000000",
+        backgroundColor: "#ffffff",
         enableSyntaxHighlighting: false,
       },
     },
-    preview: 'Simple, clean layout with standard margins',
+    preview: "Simple, clean layout with standard margins",
   },
   {
-    id: 'report',
-    name: 'Report',
-    description: 'Professional report with headers and footers',
+    id: "report",
+    name: "Report",
+    description: "Professional report with headers and footers",
     settings: {
-      pageSize: 'A4',
-      orientation: 'portrait',
-      font: { family: 'Times', size: 11, lineHeight: 1.6 },
-      header: { enabled: true, text: 'Report Title', fontSize: 14, alignment: 'center' },
-      footer: { enabled: true, text: 'Confidential', fontSize: 9, alignment: 'center', showPageNumbers: true },
-      tableOfContents: { enabled: true, title: 'Table of Contents', maxDepth: 3 },
+      pageSize: "A4",
+      orientation: "portrait",
+      font: { family: "Times", size: 11, lineHeight: 1.6 },
+      header: { enabled: true, text: "Report Title", fontSize: 14, alignment: "center" },
+      footer: { enabled: true, text: "Confidential", fontSize: 9, alignment: "center", showPageNumbers: true },
+      tableOfContents: { enabled: true, title: "Table of Contents", maxDepth: 3 },
     },
-    preview: 'Professional layout with headers, footers, and table of contents',
+    preview: "Professional layout with headers, footers, and table of contents",
   },
   {
-    id: 'code',
-    name: 'Code Documentation',
-    description: 'Optimized for code and technical documentation',
+    id: "code",
+    name: "Code Documentation",
+    description: "Optimized for code and technical documentation",
     settings: {
-      pageSize: 'A4',
-      orientation: 'portrait',
-      font: { family: 'Courier', size: 10, lineHeight: 1.4 },
+      pageSize: "A4",
+      orientation: "portrait",
+      font: { family: "Courier", size: 10, lineHeight: 1.4 },
       styling: {
-        textAlign: 'left',
+        textAlign: "left",
         enableSyntaxHighlighting: true,
-        textColor: '',
-        backgroundColor: '',
+        textColor: "",
+        backgroundColor: "",
       },
       margins: { top: 20, right: 15, bottom: 20, left: 15 },
     },
-    preview: 'Monospace font with syntax highlighting for code',
+    preview: "Monospace font with syntax highlighting for code",
   },
   {
-    id: 'book',
-    name: 'Book',
-    description: 'Book-style layout with justified text',
+    id: "book",
+    name: "Book",
+    description: "Book-style layout with justified text",
     settings: {
-      pageSize: 'A5',
-      orientation: 'portrait',
-      font: { family: 'Georgia', size: 11, lineHeight: 1.8 },
+      pageSize: "A5",
+      orientation: "portrait",
+      font: { family: "Georgia", size: 11, lineHeight: 1.8 },
       styling: {
-        textAlign: 'justify',
-        textColor: '',
-        backgroundColor: '',
+        textAlign: "justify",
+        textColor: "",
+        backgroundColor: "",
         enableSyntaxHighlighting: false,
       },
       margins: { top: 25, right: 20, bottom: 25, left: 25 },
-      footer: { enabled: true, text: '', fontSize: 9, alignment: 'center', showPageNumbers: true },
+      footer: { enabled: true, text: "", fontSize: 9, alignment: "center", showPageNumbers: true },
     },
-    preview: 'Book-style layout with justified text and page numbers',
+    preview: "Book-style layout with justified text and page numbers",
   },
   {
-    id: 'presentation',
-    name: 'Presentation',
-    description: 'Large text for presentations and handouts',
+    id: "presentation",
+    name: "Presentation",
+    description: "Large text for presentations and handouts",
     settings: {
-      pageSize: 'A4',
-      orientation: 'landscape',
-      font: { family: 'Helvetica', size: 16, lineHeight: 2.0 },
+      pageSize: "A4",
+      orientation: "landscape",
+      font: { family: "Helvetica", size: 16, lineHeight: 2.0 },
       styling: {
-        textAlign: 'center',
-        textColor: '',
-        backgroundColor: '',
+        textAlign: "center",
+        textColor: "",
+        backgroundColor: "",
         enableSyntaxHighlighting: false,
       },
       margins: { top: 30, right: 30, bottom: 30, left: 30 },
     },
-    preview: 'Large text in landscape orientation for presentations',
+    preview: "Large text in landscape orientation for presentations",
   },
 ]
 
@@ -173,7 +173,7 @@ const generatePDF = async (content: string, settings: PDFSettings, filename: str
 
   try {
     // For now, we'll use the existing API but with enhanced settings
-    const BASE_URL = 'https://services-iota-sand.vercel.app'
+    const BASE_URL = "https://services-iota-sand.vercel.app"
 
     const requestBody = {
       title: settings.metadata.title || filename,
@@ -192,9 +192,9 @@ const generatePDF = async (content: string, settings: PDFSettings, filename: str
     }
 
     const response = await fetch(`${BASE_URL}/pdf/export`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(requestBody),
     })
@@ -223,14 +223,14 @@ const generatePDF = async (content: string, settings: PDFSettings, filename: str
 
     return result
   } catch (error) {
-    console.error('PDF generation error:', error)
-    throw new Error(error instanceof Error ? error.message : 'PDF generation failed')
+    console.error("PDF generation error:", error)
+    throw new Error(error instanceof Error ? error.message : "PDF generation failed")
   }
 }
 
 // Download PDF file
 const downloadPDF = (result: PDFResult): void => {
-  const link = document.createElement('a')
+  const link = document.createElement("a")
   link.href = result.url
   link.download = result.filename
   document.body.appendChild(link)
@@ -245,8 +245,8 @@ const usePDFGeneration = () => {
       try {
         return await generatePDF(content, settings, filename)
       } catch (error) {
-        console.error('PDF generation error:', error)
-        throw new Error(error instanceof Error ? error.message : 'PDF generation failed')
+        console.error("PDF generation error:", error)
+        throw new Error(error instanceof Error ? error.message : "PDF generation failed")
       }
     },
     []
@@ -256,23 +256,23 @@ const usePDFGeneration = () => {
     async (files: TextFile[], settings: PDFSettings): Promise<TextFile[]> => {
       return Promise.all(
         files.map(async (file) => {
-          if (file.status !== 'pending') return file
+          if (file.status !== "pending") return file
 
           try {
-            const filename = file.name.replace(/\.[^/.]+$/, '.pdf')
+            const filename = file.name.replace(/\.[^/.]+$/, ".pdf")
             const result = await generateSinglePDF(file.content, settings, filename)
 
             return {
               ...file,
-              status: 'completed' as const,
+              status: "completed" as const,
               pdfResult: result,
               processedAt: new Date(),
             }
           } catch (error) {
             return {
               ...file,
-              status: 'error' as const,
-              error: error instanceof Error ? error.message : 'PDF generation failed',
+              status: "error" as const,
+              error: error instanceof Error ? error.message : "PDF generation failed",
             }
           }
         })
@@ -301,7 +301,7 @@ const useRealTimePDFPreview = (content: string, settings: PDFSettings) => {
     const words = content.trim().split(/\s+/)
     const wordCount = words.length
     const characterCount = content.length
-    const lineCount = content.split('\n').length
+    const lineCount = content.split("\n").length
 
     // Estimate pages based on words per page (varies by font size and margins)
     const wordsPerPage = Math.max(200, 400 - (settings.font.size - 10) * 20)
@@ -344,17 +344,17 @@ const useFileProcessing = () => {
             name: file.name,
             content,
             size: file.size,
-            type: file.type || 'text/plain',
-            status: 'pending',
+            type: file.type || "text/plain",
+            status: "pending",
           }
 
           resolve(textFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsText(file)
     })
   }, [])
@@ -364,17 +364,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
-            type: files[index].type || 'text/plain',
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            type: files[index].type || "text/plain",
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -396,7 +396,7 @@ const usePDFExport = () => {
     const completedFiles = files.filter((f) => f.pdfResult)
 
     if (completedFiles.length === 0) {
-      toast.error('No PDFs to export')
+      toast.error("No PDFs to export")
       return
     }
 
@@ -422,7 +422,7 @@ const usePDFExport = () => {
       }))
 
     const csvContent = [
-      ['Filename', 'Original Size', 'PDF Size', 'Pages', 'Generation Time', 'Status'],
+      ["Filename", "Original Size", "PDF Size", "Pages", "Generation Time", "Status"],
       ...stats.map((stat) => [
         stat.filename,
         stat.originalSize,
@@ -432,20 +432,20 @@ const usePDFExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'pdf-generation-statistics.csv'
+    link.download = "pdf-generation-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportSingle, exportBatch, exportStatistics }
@@ -458,13 +458,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -479,9 +479,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -494,14 +494,14 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
 
       const files = Array.from(e.dataTransfer.files).filter(
         (file) =>
-          file.type === 'text/plain' ||
+          file.type === "text/plain" ||
           file.name.match(/\.(txt|text|log|csv|json|md|markdown|js|ts|jsx|tsx|py|java|cpp|c|h|css|html|xml|yaml|yml)$/i)
       )
 
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only text files')
+        toast.error("Please drop only text files")
       }
     },
     [onFilesDropped]
@@ -515,7 +515,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -535,16 +535,16 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time preview, file upload, batch processing, customizable templates
  */
 const TextToPDFCore = () => {
-  const [activeTab, setActiveTab] = useState<'converter' | 'files'>('converter')
+  const [activeTab, setActiveTab] = useState<"converter" | "files">("converter")
   const [text, setText] = useState(
-    'Welcome to the Enhanced Text to PDF Converter!\n\nThis tool allows you to convert text to PDF with advanced customization options including:\n\n• Multiple page sizes and orientations\n• Custom fonts and styling\n• Headers and footers\n• Table of contents\n• Batch processing\n• Professional templates\n\nTry editing this text and see the real-time statistics update!'
+    "Welcome to the Enhanced Text to PDF Converter!\n\nThis tool allows you to convert text to PDF with advanced customization options including:\n\n• Multiple page sizes and orientations\n• Custom fonts and styling\n• Headers and footers\n• Table of contents\n• Batch processing\n• Professional templates\n\nTry editing this text and see the real-time statistics update!"
   )
   const [files, setFiles] = useState<TextFile[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('default')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("default")
   const [settings, setSettings] = useState<PDFSettings>({
-    pageSize: 'A4',
-    orientation: 'portrait',
+    pageSize: "A4",
+    orientation: "portrait",
     margins: {
       top: 20,
       right: 20,
@@ -552,39 +552,39 @@ const TextToPDFCore = () => {
       left: 20,
     },
     font: {
-      family: 'Arial',
+      family: "Arial",
       size: 12,
       lineHeight: 1.5,
     },
     styling: {
-      textAlign: 'left',
-      textColor: '#000000',
-      backgroundColor: '#ffffff',
+      textAlign: "left",
+      textColor: "#000000",
+      backgroundColor: "#ffffff",
       enableSyntaxHighlighting: false,
     },
     header: {
       enabled: false,
-      text: '',
+      text: "",
       fontSize: 12,
-      alignment: 'center',
+      alignment: "center",
     },
     footer: {
       enabled: false,
-      text: '',
+      text: "",
       fontSize: 10,
-      alignment: 'center',
+      alignment: "center",
       showPageNumbers: false,
     },
     tableOfContents: {
       enabled: false,
-      title: 'Table of Contents',
+      title: "Table of Contents",
       maxDepth: 3,
     },
     metadata: {
-      title: 'Document',
-      author: '',
-      subject: '',
-      keywords: '',
+      title: "Document",
+      author: "",
+      subject: "",
+      keywords: "",
     },
   })
 
@@ -605,7 +605,7 @@ const TextToPDFCore = () => {
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
@@ -628,17 +628,17 @@ const TextToPDFCore = () => {
   // Generate single PDF
   const handleGeneratePDF = useCallback(async () => {
     if (!text.trim()) {
-      toast.error('Please enter some text')
+      toast.error("Please enter some text")
       return
     }
 
     setIsProcessing(true)
     try {
-      const filename = `${settings.metadata.title || 'document'}.pdf`
+      const filename = `${settings.metadata.title || "document"}.pdf`
       const result = await generateSinglePDF(text, settings, filename)
       exportSingle(result)
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'PDF generation failed')
+      toast.error(error instanceof Error ? error.message : "PDF generation failed")
     } finally {
       setIsProcessing(false)
     }
@@ -646,9 +646,9 @@ const TextToPDFCore = () => {
 
   // Process all files
   const processFiles = useCallback(async () => {
-    const pendingFiles = files.filter((f) => f.status === 'pending')
+    const pendingFiles = files.filter((f) => f.status === "pending")
     if (pendingFiles.length === 0) {
-      toast.error('No files to process')
+      toast.error("No files to process")
       return
     }
 
@@ -661,9 +661,9 @@ const TextToPDFCore = () => {
           return updated || file
         })
       )
-      toast.success('Files processed successfully!')
+      toast.success("Files processed successfully!")
     } catch (error) {
-      toast.error('Failed to process files')
+      toast.error("Failed to process files")
     } finally {
       setIsProcessing(false)
     }
@@ -672,7 +672,7 @@ const TextToPDFCore = () => {
   // Clear all files
   const clearAll = useCallback(() => {
     setFiles([])
-    toast.success('All files cleared')
+    toast.success("All files cleared")
   }, [])
 
   // Remove specific file
@@ -685,7 +685,7 @@ const TextToPDFCore = () => {
     if (files.length === 0) return null
 
     const completedFiles = files.filter((f) => f.pdfResult)
-    const failedFiles = files.filter((f) => f.status === 'error')
+    const failedFiles = files.filter((f) => f.status === "error")
 
     return {
       totalFiles: files.length,
@@ -710,12 +710,15 @@ const TextToPDFCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileDown className="h-5 w-5" aria-hidden="true" />
+              <FileDown className="h-5 w-5" />
               Text to PDF Converter
             </CardTitle>
             <CardDescription>
@@ -726,20 +729,32 @@ const TextToPDFCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'converter' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "converter" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="converter" className="flex items-center gap-2">
+            <TabsTrigger
+              value="converter"
+              className="flex items-center gap-2"
+            >
               <Code className="h-4 w-4" />
               Text Converter
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* Text Converter Tab */}
-          <TabsContent value="converter" className="space-y-4">
+          <TabsContent
+            value="converter"
+            className="space-y-4"
+          >
             {/* Template Selection */}
             <Card>
               <CardHeader>
@@ -753,7 +768,7 @@ const TextToPDFCore = () => {
                   {pdfTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -802,7 +817,7 @@ const TextToPDFCore = () => {
                     <Label htmlFor="orientation">Orientation</Label>
                     <Select
                       value={settings.orientation}
-                      onValueChange={(value: 'portrait' | 'landscape') =>
+                      onValueChange={(value: "portrait" | "landscape") =>
                         setSettings((prev) => ({ ...prev, orientation: value }))
                       }
                     >
@@ -907,7 +922,10 @@ const TextToPDFCore = () => {
                   <Label>Margins (mm)</Label>
                   <div className="grid grid-cols-4 gap-2">
                     <div className="space-y-1">
-                      <Label htmlFor="marginTop" className="text-xs">
+                      <Label
+                        htmlFor="marginTop"
+                        className="text-xs"
+                      >
                         Top
                       </Label>
                       <Input
@@ -925,7 +943,10 @@ const TextToPDFCore = () => {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="marginRight" className="text-xs">
+                      <Label
+                        htmlFor="marginRight"
+                        className="text-xs"
+                      >
                         Right
                       </Label>
                       <Input
@@ -943,7 +964,10 @@ const TextToPDFCore = () => {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="marginBottom" className="text-xs">
+                      <Label
+                        htmlFor="marginBottom"
+                        className="text-xs"
+                      >
                         Bottom
                       </Label>
                       <Input
@@ -961,7 +985,10 @@ const TextToPDFCore = () => {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="marginLeft" className="text-xs">
+                      <Label
+                        htmlFor="marginLeft"
+                        className="text-xs"
+                      >
                         Left
                       </Label>
                       <Input
@@ -995,10 +1022,10 @@ const TextToPDFCore = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => copyToClipboard(text, 'text content')}
+                      onClick={() => copyToClipboard(text, "text content")}
                       disabled={!text}
                     >
-                      {copiedText === 'text content' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {copiedText === "text content" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     </Button>
                   </div>
                   <Textarea
@@ -1007,7 +1034,6 @@ const TextToPDFCore = () => {
                     onChange={(e) => setText(e.target.value)}
                     placeholder="Enter your text content here..."
                     className="min-h-[300px] font-mono"
-                    aria-label="Text content input"
                   />
                 </div>
               </CardContent>
@@ -1149,15 +1175,18 @@ const TextToPDFCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             {/* File Upload */}
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1165,9 +1194,8 @@ const TextToPDFCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop text files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1178,7 +1206,11 @@ const TextToPDFCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your text files here, or click to select files
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1192,7 +1224,6 @@ const TextToPDFCore = () => {
                     accept=".txt,.log,.csv,.json,.md,.markdown,.js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.h,.css,.html,.xml,.yaml,.yml"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select text files"
                   />
                 </div>
               </CardContent>
@@ -1244,7 +1275,7 @@ const TextToPDFCore = () => {
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Button
                       onClick={processFiles}
-                      disabled={isProcessing || files.every((f) => f.status !== 'pending')}
+                      disabled={isProcessing || files.every((f) => f.status !== "pending")}
                       className="min-w-32"
                     >
                       {isProcessing ? (
@@ -1278,7 +1309,11 @@ const TextToPDFCore = () => {
                       Export Statistics
                     </Button>
 
-                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                    <Button
+                      onClick={clearAll}
+                      variant="destructive"
+                      disabled={isProcessing}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
@@ -1296,14 +1331,20 @@ const TextToPDFCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground space-y-1">
@@ -1312,7 +1353,7 @@ const TextToPDFCore = () => {
                                 <span className="font-medium"> Type:</span> {file.type}
                               </div>
 
-                              {file.status === 'completed' && file.pdfResult && (
+                              {file.status === "completed" && file.pdfResult && (
                                 <div className="mt-2">
                                   <div className="text-xs font-medium mb-1">PDF Generated:</div>
                                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
@@ -1323,8 +1364,8 @@ const TextToPDFCore = () => {
                                 </div>
                               )}
 
-                              {file.status === 'pending' && <div className="text-blue-600">Ready for processing</div>}
-                              {file.status === 'processing' && (
+                              {file.status === "pending" && <div className="text-blue-600">Ready for processing</div>}
+                              {file.status === "processing" && (
                                 <div className="text-blue-600 flex items-center gap-2">
                                   <Loader2 className="h-4 w-4 animate-spin" />
                                   Processing...
@@ -1335,13 +1376,12 @@ const TextToPDFCore = () => {
                           </div>
 
                           <div className="flex-shrink-0 flex items-center gap-2">
-                            {file.status === 'completed' && file.pdfResult && (
+                            {file.status === "completed" && file.pdfResult && (
                               <>
                                 <Button
                                   size="sm"
                                   variant="outline"
                                   onClick={() => exportSingle(file.pdfResult!)}
-                                  aria-label={`Download PDF for ${file.name}`}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1350,7 +1390,6 @@ const TextToPDFCore = () => {
                                   size="sm"
                                   variant="outline"
                                   onClick={() => copyToClipboard(file.content, file.id)}
-                                  aria-label={`Copy content of ${file.name}`}
                                 >
                                   {copiedText === file.id ? (
                                     <Check className="h-4 w-4" />
@@ -1365,7 +1404,6 @@ const TextToPDFCore = () => {
                               size="sm"
                               variant="ghost"
                               onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

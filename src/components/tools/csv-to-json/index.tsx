@@ -1,11 +1,11 @@
-import { useCallback, useState, useMemo, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -25,8 +25,8 @@ import {
   EyeOff,
   Braces,
   FileSpreadsheet,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import {
   ConversionSettings,
   ConversionResult,
@@ -40,19 +40,19 @@ import {
   type DataTypeCount,
   type ExportFormat,
   type CSVQuoting,
-} from '@/types/csv-to-json'
-import type { CSVRow, JSONArray } from '@/types/tool-types'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/csv-to-json"
+import type { CSVRow, JSONArray } from "@/types/tool-types"
+import { formatFileSize } from "@/lib/utils"
 
 const detectDelimiter = (csvText: string): string => {
-  const delimiters = [',', ';', '\t', '|']
-  const firstLine = csvText.split('\n')[0]
+  const delimiters = [",", ";", "\t", "|"]
+  const firstLine = csvText.split("\n")[0]
 
   let maxCount = 0
-  let detectedDelimiter = ','
+  let detectedDelimiter = ","
 
   delimiters.forEach((delimiter) => {
-    const count = (firstLine.match(new RegExp(`\\${delimiter}`, 'g')) || []).length
+    const count = (firstLine.match(new RegExp(`\\${delimiter}`, "g")) || []).length
     if (count > maxCount) {
       maxCount = count
       detectedDelimiter = delimiter
@@ -65,7 +65,7 @@ const detectDelimiter = (csvText: string): string => {
 // CSV parsing functions
 const parseCSVLine = (line: string, delimiter: string, quoteChar: string): string[] => {
   const result: string[] = []
-  let current = ''
+  let current = ""
   let inQuotes = false
   let i = 0
 
@@ -85,7 +85,7 @@ const parseCSVLine = (line: string, delimiter: string, quoteChar: string): strin
       }
     } else if (char === delimiter && !inQuotes) {
       result.push(current.trim())
-      current = ''
+      current = ""
       i++
     } else {
       current += char
@@ -101,10 +101,10 @@ const csvToJson = (csvText: string, settings: ConversionSettings): CSVRow[] => {
   const lines = csvText.split(/\r?\n/).filter((line) => (settings.skipEmptyLines ? line.trim() : true))
 
   if (lines.length === 0) {
-    throw new Error('Empty CSV data')
+    throw new Error("Empty CSV data")
   }
 
-  const delimiter = settings.delimiter === 'auto' ? detectDelimiter(csvText) : settings.delimiter
+  const delimiter = settings.delimiter === "auto" ? detectDelimiter(csvText) : settings.delimiter
   let headers: string[] = []
   let dataLines = lines
 
@@ -122,18 +122,18 @@ const csvToJson = (csvText: string, settings: ConversionSettings): CSVRow[] => {
     const row: CSVRow = {}
 
     headers.forEach((header, index) => {
-      let value = values[index] || ''
+      let value = values[index] || ""
 
       if (settings.trimWhitespace) {
         value = value.trim()
       }
 
       // Type inference
-      if (value === '') {
+      if (value === "") {
         row[header] = null
-      } else if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
-        row[header] = value.toLowerCase() === 'true'
-      } else if (!isNaN(Number(value)) && value !== '') {
+      } else if (value.toLowerCase() === "true" || value.toLowerCase() === "false") {
+        row[header] = value.toLowerCase() === "true"
+      } else if (!isNaN(Number(value)) && value !== "") {
         row[header] = Number(value)
       } else {
         row[header] = value
@@ -149,13 +149,13 @@ const csvToJson = (csvText: string, settings: ConversionSettings): CSVRow[] => {
 // JSON to CSV functions
 const jsonToCsv = (jsonData: JSONArray, settings: ConversionSettings): string => {
   if (!Array.isArray(jsonData) || jsonData.length === 0) {
-    throw new Error('JSON must be an array of objects')
+    throw new Error("JSON must be an array of objects")
   }
 
   // Extract all unique keys
   const allKeys = new Set<string>()
   jsonData.forEach((item) => {
-    if (typeof item === 'object' && item !== null) {
+    if (typeof item === "object" && item !== null) {
       Object.keys(item).forEach((key) => allKeys.add(key))
     }
   })
@@ -174,8 +174,8 @@ const jsonToCsv = (jsonData: JSONArray, settings: ConversionSettings): string =>
       const value = item[header]
 
       if (value === null || value === undefined) {
-        return ''
-      } else if (typeof value === 'object') {
+        return ""
+      } else if (typeof value === "object") {
         return JSON.stringify(value)
       } else {
         return String(value)
@@ -185,24 +185,24 @@ const jsonToCsv = (jsonData: JSONArray, settings: ConversionSettings): string =>
     lines.push(formatCSVLine(values, settings))
   })
 
-  return lines.join('\n')
+  return lines.join("\n")
 }
 
 const formatCSVLine = (values: string[], settings: ConversionSettings): string => {
   return values
     .map((value) => {
       const needsQuoting =
-        settings.csvQuoting === 'all' ||
-        (settings.csvQuoting === 'minimal' &&
+        settings.csvQuoting === "all" ||
+        (settings.csvQuoting === "minimal" &&
           (value.includes(settings.delimiter) ||
             value.includes(settings.quoteChar) ||
-            value.includes('\n') ||
-            value.includes('\r'))) ||
-        (settings.csvQuoting === 'non-numeric' && isNaN(Number(value)))
+            value.includes("\n") ||
+            value.includes("\r"))) ||
+        (settings.csvQuoting === "non-numeric" && isNaN(Number(value)))
 
       if (needsQuoting) {
         // Escape quotes by doubling them
-        const escapedValue = value.replace(new RegExp(settings.quoteChar, 'g'), settings.quoteChar + settings.quoteChar)
+        const escapedValue = value.replace(new RegExp(settings.quoteChar, "g"), settings.quoteChar + settings.quoteChar)
         return `${settings.quoteChar}${escapedValue}${settings.quoteChar}`
       }
 
@@ -225,27 +225,27 @@ const analyzeData = (input: string, direction: ConversionDirection, settings: Co
     qualityScore: 100,
   }
 
-  if (direction === 'csv-to-json') {
+  if (direction === "csv-to-json") {
     // Analyze CSV
     const lines = input.split(/\r?\n/)
 
     // Check for special characters
-    if (input.includes('\t')) {
+    if (input.includes("\t")) {
       analysis.hasSpecialChars = true
-      analysis.suggestedImprovements.push('Consider using tab delimiter for tab-separated data')
+      analysis.suggestedImprovements.push("Consider using tab delimiter for tab-separated data")
     }
 
-    if (input.includes(';')) {
-      analysis.suggestedImprovements.push('Consider using semicolon delimiter for European CSV format')
+    if (input.includes(";")) {
+      analysis.suggestedImprovements.push("Consider using semicolon delimiter for European CSV format")
     }
 
     // Check for inconsistent column counts
-    const delimiter = settings.delimiter === 'auto' ? detectDelimiter(input) : settings.delimiter
+    const delimiter = settings.delimiter === "auto" ? detectDelimiter(input) : settings.delimiter
     const columnCounts = lines.map((line) => parseCSVLine(line, delimiter, settings.quoteChar).length)
     const uniqueCounts = [...new Set(columnCounts)]
 
     if (uniqueCounts.length > 1) {
-      analysis.dataIssues.push('Inconsistent number of columns across rows')
+      analysis.dataIssues.push("Inconsistent number of columns across rows")
       analysis.qualityScore -= 20
     }
   } else {
@@ -257,19 +257,19 @@ const analyzeData = (input: string, direction: ConversionDirection, settings: Co
         // Check for nested objects
         const hasNested = parsed.some(
           (item) =>
-            typeof item === 'object' && Object.values(item).some((value) => typeof value === 'object' && value !== null)
+            typeof item === "object" && Object.values(item).some((value) => typeof value === "object" && value !== null)
         )
 
         if (hasNested) {
           analysis.hasNestedData = true
-          analysis.suggestedImprovements.push('Nested objects will be stringified in CSV format')
+          analysis.suggestedImprovements.push("Nested objects will be stringified in CSV format")
         }
       } else {
-        analysis.dataIssues.push('JSON should be an array of objects for CSV conversion')
+        analysis.dataIssues.push("JSON should be an array of objects for CSV conversion")
         analysis.qualityScore -= 30
       }
     } catch {
-      analysis.dataIssues.push('Invalid JSON format')
+      analysis.dataIssues.push("Invalid JSON format")
       analysis.qualityScore -= 50
     }
   }
@@ -280,10 +280,10 @@ const analyzeData = (input: string, direction: ConversionDirection, settings: Co
 // CSV/JSON templates
 const conversionTemplates: CSVTemplate[] = [
   {
-    id: 'simple-table',
-    name: 'Simple Table',
-    description: 'Basic table with headers and simple data types',
-    category: 'Basic',
+    id: "simple-table",
+    name: "Simple Table",
+    description: "Basic table with headers and simple data types",
+    category: "Basic",
     csvExample: `name,age,email,active
 John Doe,30,john@example.com,true
 Jane Smith,25,jane@example.com,false
@@ -308,13 +308,13 @@ Bob Johnson,35,bob@example.com,true`,
     "active": true
   }
 ]`,
-    useCase: ['User data', 'Contact lists', 'Simple databases'],
+    useCase: ["User data", "Contact lists", "Simple databases"],
   },
   {
-    id: 'sales-data',
-    name: 'Sales Data',
-    description: 'Sales records with dates and numbers',
-    category: 'Business',
+    id: "sales-data",
+    name: "Sales Data",
+    description: "Sales records with dates and numbers",
+    category: "Business",
     csvExample: `date,product,quantity,price,total
 2024-01-15,Widget A,10,29.99,299.90
 2024-01-16,Widget B,5,39.99,199.95
@@ -342,13 +342,13 @@ Bob Johnson,35,bob@example.com,true`,
     "total": 159.92
   }
 ]`,
-    useCase: ['Sales reports', 'Financial data', 'E-commerce analytics'],
+    useCase: ["Sales reports", "Financial data", "E-commerce analytics"],
   },
   {
-    id: 'semicolon-csv',
-    name: 'Semicolon Delimited',
-    description: 'European CSV format with semicolon delimiter',
-    category: 'Formats',
+    id: "semicolon-csv",
+    name: "Semicolon Delimited",
+    description: "European CSV format with semicolon delimiter",
+    category: "Formats",
     csvExample: `name;country;population;gdp
 France;FR;67000000;2.94
 Germany;DE;83000000;4.26
@@ -373,13 +373,13 @@ Italy;IT;60000000;2.11`,
     "gdp": 2.11
   }
 ]`,
-    useCase: ['European data', 'Localized formats', 'International datasets'],
+    useCase: ["European data", "Localized formats", "International datasets"],
   },
   {
-    id: 'quoted-data',
-    name: 'Quoted Fields',
-    description: 'CSV with quoted fields containing special characters',
-    category: 'Complex',
+    id: "quoted-data",
+    name: "Quoted Fields",
+    description: "CSV with quoted fields containing special characters",
+    category: "Complex",
     csvExample: `title,description,tags,status
 "Product A","High-quality widget, best in class","widget,premium,new",active
 "Product B","Budget option, ""good value""","widget,budget,sale",inactive
@@ -404,13 +404,13 @@ Italy;IT;60000000;2.11`,
     "status": "active"
   }
 ]`,
-    useCase: ['Product catalogs', 'Content management', 'Complex text data'],
+    useCase: ["Product catalogs", "Content management", "Complex text data"],
   },
   {
-    id: 'nested-json',
-    name: 'Nested JSON',
-    description: 'JSON with nested objects (flattened in CSV)',
-    category: 'Complex',
+    id: "nested-json",
+    name: "Nested JSON",
+    description: "JSON with nested objects (flattened in CSV)",
+    category: "Complex",
     csvExample: `id,name,address,metadata
 1,John Doe,"{""street"":""123 Main St"",""city"":""New York""}","{""created"":""2024-01-15"",""source"":""web""}"
 2,Jane Smith,"{""street"":""456 Oak Ave"",""city"":""Los Angeles""}","{""created"":""2024-01-16"",""source"":""mobile""}"`,
@@ -440,7 +440,7 @@ Italy;IT;60000000;2.11`,
     }
   }
 ]`,
-    useCase: ['API responses', 'Complex data structures', 'Database exports'],
+    useCase: ["API responses", "Complex data structures", "Database exports"],
   },
 ]
 
@@ -455,17 +455,17 @@ const validateData = (input: string, direction: ConversionDirection): DataValida
 
   if (!input.trim()) {
     validation.isValid = false
-    validation.errors.push({ message: 'Input cannot be empty' })
+    validation.errors.push({ message: "Input cannot be empty" })
     return validation
   }
 
-  if (direction === 'csv-to-json') {
+  if (direction === "csv-to-json") {
     // Validate CSV
     const lines = input.split(/\r?\n/).filter((line) => line.trim())
 
     if (lines.length === 0) {
       validation.isValid = false
-      validation.errors.push({ message: 'No valid CSV lines found' })
+      validation.errors.push({ message: "No valid CSV lines found" })
       return validation
     }
 
@@ -475,7 +475,7 @@ const validateData = (input: string, direction: ConversionDirection): DataValida
     const firstLineTabs = (lines[0].match(/\t/g) || []).length
 
     if (firstLineCommas === 0 && firstLineSemicolons === 0 && firstLineTabs === 0) {
-      validation.warnings.push('No common delimiters detected - data may be in single column')
+      validation.warnings.push("No common delimiters detected - data may be in single column")
     }
   } else {
     // Validate JSON
@@ -483,9 +483,9 @@ const validateData = (input: string, direction: ConversionDirection): DataValida
       const parsed = JSON.parse(input)
 
       if (!Array.isArray(parsed)) {
-        validation.warnings.push('JSON should be an array for optimal CSV conversion')
+        validation.warnings.push("JSON should be an array for optimal CSV conversion")
       } else if (parsed.length === 0) {
-        validation.warnings.push('Empty array will produce empty CSV')
+        validation.warnings.push("Empty array will produce empty CSV")
       } else {
         // Check for consistent object structure
         const firstKeys = Object.keys(parsed[0] || {})
@@ -506,7 +506,7 @@ const validateData = (input: string, direction: ConversionDirection): DataValida
           line: extractLineFromError(error.message),
         })
       } else {
-        validation.errors.push({ message: 'Unknown JSON parsing error' })
+        validation.errors.push({ message: "Unknown JSON parsing error" })
       }
     }
   }
@@ -529,14 +529,14 @@ const useDataConversion = () => {
         let output: string
         let dataMetrics: DataMetrics
 
-        if (direction === 'csv-to-json') {
+        if (direction === "csv-to-json") {
           const jsonData = csvToJson(input, settings)
           output = JSON.stringify(jsonData, null, settings.jsonIndentation)
 
           // Calculate metrics for CSV input
           const lines = input.split(/\r?\n/).filter((line) => line.trim())
-          const delimiter = settings.delimiter === 'auto' ? detectDelimiter(input) : settings.delimiter
-          const firstLine = parseCSVLine(lines[0] || '', delimiter, settings.quoteChar)
+          const delimiter = settings.delimiter === "auto" ? detectDelimiter(input) : settings.delimiter
+          const firstLine = parseCSVLine(lines[0] || "", delimiter, settings.quoteChar)
           const dataLines = settings.hasHeaders ? lines.slice(1) : lines
 
           // Calculate empty values in CSV
@@ -551,7 +551,7 @@ const useDataConversion = () => {
             totalCells: (lines.length - (settings.hasHeaders ? 1 : 0)) * firstLine.length,
             emptyValues: emptyValuesCount,
             dataTypes: analyzeDataTypes(jsonData),
-            encoding: 'UTF-8',
+            encoding: "UTF-8",
           }
         } else {
           const jsonData = JSON.parse(input)
@@ -561,8 +561,8 @@ const useDataConversion = () => {
           // Calculate empty values in JSON (null, undefined, empty strings)
           const emptyValuesCount = Array.isArray(jsonData)
             ? jsonData.reduce((count, item) => {
-                if (typeof item === 'object' && item !== null) {
-                  return count + Object.values(item).filter((v) => v === null || v === undefined || v === '').length
+                if (typeof item === "object" && item !== null) {
+                  return count + Object.values(item).filter((v) => v === null || v === undefined || v === "").length
                 }
                 return count
               }, 0)
@@ -574,7 +574,7 @@ const useDataConversion = () => {
             totalCells: Array.isArray(jsonData) ? jsonData.length * Object.keys(jsonData[0] || {}).length : 0,
             emptyValues: emptyValuesCount,
             dataTypes: analyzeDataTypes(jsonData),
-            encoding: 'UTF-8',
+            encoding: "UTF-8",
           }
         }
 
@@ -594,8 +594,8 @@ const useDataConversion = () => {
           statistics: {
             inputSize,
             outputSize,
-            inputLines: input.split('\n').length,
-            outputLines: output.split('\n').length,
+            inputLines: input.split("\n").length,
+            outputLines: output.split("\n").length,
             processingTime,
             dataMetrics,
             compressionRatio: outputSize / inputSize,
@@ -610,14 +610,14 @@ const useDataConversion = () => {
         return {
           id: nanoid(),
           input,
-          output: '',
+          output: "",
           direction,
           isValid: false,
-          error: error instanceof Error ? error.message : 'Conversion failed',
+          error: error instanceof Error ? error.message : "Conversion failed",
           statistics: {
             inputSize: new Blob([input]).size,
             outputSize: 0,
-            inputLines: input.split('\n').length,
+            inputLines: input.split("\n").length,
             outputLines: 0,
             processingTime,
             dataMetrics: {
@@ -626,7 +626,7 @@ const useDataConversion = () => {
               totalCells: 0,
               emptyValues: 0,
               dataTypes: { strings: 0, numbers: 0, booleans: 0, nulls: 0, dates: 0, objects: 0, arrays: 0 },
-              encoding: 'UTF-8',
+              encoding: "UTF-8",
             },
             compressionRatio: 0,
           },
@@ -674,8 +674,8 @@ const useDataConversion = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch conversion error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch conversion failed')
+        console.error("Batch conversion error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch conversion failed")
       }
     },
     [convertSingle]
@@ -699,11 +699,11 @@ const analyzeDataTypes = (data: JSONArray | CSVRow[]): DataTypeCount => {
   const analyzeValue = (value: unknown) => {
     if (value === null || value === undefined) {
       counts.nulls++
-    } else if (typeof value === 'boolean') {
+    } else if (typeof value === "boolean") {
       counts.booleans++
-    } else if (typeof value === 'number') {
+    } else if (typeof value === "number") {
       counts.numbers++
-    } else if (typeof value === 'string') {
+    } else if (typeof value === "string") {
       // Check if it's a date string
       if (!isNaN(Date.parse(value)) && value.match(/^\d{4}-\d{2}-\d{2}/)) {
         counts.dates++
@@ -713,7 +713,7 @@ const analyzeDataTypes = (data: JSONArray | CSVRow[]): DataTypeCount => {
     } else if (Array.isArray(value)) {
       counts.arrays++
       value.forEach(analyzeValue)
-    } else if (typeof value === 'object') {
+    } else if (typeof value === "object") {
       counts.objects++
       Object.values(value).forEach(analyzeValue)
     }
@@ -721,7 +721,7 @@ const analyzeDataTypes = (data: JSONArray | CSVRow[]): DataTypeCount => {
 
   if (Array.isArray(data)) {
     data.forEach((item) => {
-      if (typeof item === 'object' && item !== null) {
+      if (typeof item === "object" && item !== null) {
         Object.values(item).forEach(analyzeValue)
       } else {
         analyzeValue(item)
@@ -764,13 +764,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -780,19 +780,19 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useDataExport = () => {
   const exportResults = useCallback((results: ConversionResult[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'csv':
+      case "csv":
         content = results
-          .map((result) => (result.direction === 'json-to-csv' ? result.output : result.input))
-          .join('\n\n')
-        mimeType = 'text/csv'
-        extension = '.csv'
+          .map((result) => (result.direction === "json-to-csv" ? result.output : result.input))
+          .join("\n\n")
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'json':
+      case "json":
         const jsonData = results.map((result) => ({
           id: result.id,
           direction: result.direction,
@@ -805,20 +805,20 @@ const useDataExport = () => {
           createdAt: result.createdAt,
         }))
         content = JSON.stringify(jsonData, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromResults(results)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `csv-json-conversion${extension}`
     document.body.appendChild(link)
@@ -844,16 +844,16 @@ Results:
 ${results
   .map((result, i) => {
     return `${i + 1}. Direction: ${result.direction}
-   Status: ${result.isValid ? 'Valid' : 'Invalid'}
-   ${result.error ? `Error: ${result.error}` : ''}
+   Status: ${result.isValid ? "Valid" : "Invalid"}
+   ${result.error ? `Error: ${result.error}` : ""}
    Input Size: ${formatFileSize(result.statistics.inputSize)}
    Output Size: ${formatFileSize(result.statistics.outputSize)}
    Processing Time: ${result.statistics.processingTime.toFixed(2)}ms
    Data: ${result.statistics.dataMetrics.rowCount} rows, ${result.statistics.dataMetrics.columnCount} columns
-   Quality Score: ${result.analysis?.qualityScore || 'N/A'}
+   Quality Score: ${result.analysis?.qualityScore || "N/A"}
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
@@ -866,28 +866,28 @@ Statistics:
  * Features: Advanced CSV/JSON conversion, validation, analysis, batch processing, comprehensive format support
  */
 const CSVJSONCore = () => {
-  const [activeTab, setActiveTab] = useState<'converter' | 'batch' | 'analyzer' | 'templates'>('converter')
-  const [input, setInput] = useState('')
-  const [direction, setDirection] = useState<ConversionDirection>('csv-to-json')
+  const [activeTab, setActiveTab] = useState<"converter" | "batch" | "analyzer" | "templates">("converter")
+  const [input, setInput] = useState("")
+  const [direction, setDirection] = useState<ConversionDirection>("csv-to-json")
   const [currentResult, setCurrentResult] = useState<ConversionResult | null>(null)
   const [batches, setBatches] = useState<ConversionBatch[]>([])
-  const [batchInput, setBatchInput] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [batchInput, setBatchInput] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [showAnalysis, setShowAnalysis] = useState(false)
   const [settings, setSettings] = useState<ConversionSettings>({
-    delimiter: ',',
+    delimiter: ",",
     quoteChar: '"',
     escapeChar: '"',
     hasHeaders: true,
     skipEmptyLines: true,
     trimWhitespace: true,
     realTimeConversion: true,
-    exportFormat: 'json',
+    exportFormat: "json",
     jsonIndentation: 2,
-    csvQuoting: 'minimal',
-    dateFormat: 'ISO',
-    numberFormat: 'auto',
+    csvQuoting: "minimal",
+    dateFormat: "ISO",
+    numberFormat: "auto",
   })
 
   const { convertSingle, convertBatch } = useDataConversion()
@@ -900,7 +900,7 @@ const CSVJSONCore = () => {
     (templateId: string) => {
       const template = conversionTemplates.find((t) => t.id === templateId)
       if (template) {
-        if (direction === 'csv-to-json') {
+        if (direction === "csv-to-json") {
           setInput(template.csvExample)
         } else {
           setInput(template.jsonExample)
@@ -908,8 +908,8 @@ const CSVJSONCore = () => {
         setSelectedTemplate(templateId)
 
         // Auto-detect settings from template
-        if (template.csvExample.includes(';')) {
-          setSettings((prev) => ({ ...prev, delimiter: ';' }))
+        if (template.csvExample.includes(";")) {
+          setSettings((prev) => ({ ...prev, delimiter: ";" }))
         }
 
         toast.success(`Applied template: ${template.name}`)
@@ -921,7 +921,7 @@ const CSVJSONCore = () => {
   // Handle single conversion
   const handleConvertSingle = useCallback(async () => {
     if (!input.trim()) {
-      toast.error('Please enter data to convert')
+      toast.error("Please enter data to convert")
       return
     }
 
@@ -931,12 +931,12 @@ const CSVJSONCore = () => {
       setCurrentResult(result)
 
       if (result.isValid) {
-        toast.success(`${direction === 'csv-to-json' ? 'CSV to JSON' : 'JSON to CSV'} conversion completed`)
+        toast.success(`${direction === "csv-to-json" ? "CSV to JSON" : "JSON to CSV"} conversion completed`)
       } else {
-        toast.error(result.error || 'Conversion failed')
+        toast.error(result.error || "Conversion failed")
       }
     } catch (error) {
-      toast.error('Failed to convert data')
+      toast.error("Failed to convert data")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -945,17 +945,17 @@ const CSVJSONCore = () => {
 
   // Handle batch processing
   const handleConvertBatch = useCallback(async () => {
-    const lines = batchInput.split('\n').filter((line) => line.trim())
+    const lines = batchInput.split("\n").filter((line) => line.trim())
 
     if (lines.length === 0) {
-      toast.error('Please enter data to process')
+      toast.error("Please enter data to process")
       return
     }
 
     // Parse batch input format: direction:data
     const inputs = lines
       .map((line, _index) => {
-        const colonIndex = line.indexOf(':')
+        const colonIndex = line.indexOf(":")
         if (colonIndex === -1) {
           return {
             content: line.trim(),
@@ -966,16 +966,16 @@ const CSVJSONCore = () => {
         const directionStr = line.substring(0, colonIndex).trim()
         const content = line.substring(colonIndex + 1).trim()
 
-        const parsedDirection: ConversionDirection = directionStr.toLowerCase().includes('json')
-          ? 'json-to-csv'
-          : 'csv-to-json'
+        const parsedDirection: ConversionDirection = directionStr.toLowerCase().includes("json")
+          ? "json-to-csv"
+          : "csv-to-json"
 
         return { content, direction: parsedDirection }
       })
       .filter((input) => input.content)
 
     if (inputs.length === 0) {
-      toast.error('No valid data found')
+      toast.error("No valid data found")
       return
     }
 
@@ -985,7 +985,7 @@ const CSVJSONCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Processed ${batch.results.length} conversions`)
     } catch (error) {
-      toast.error('Failed to process batch')
+      toast.error("Failed to process batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -1004,7 +1004,7 @@ const CSVJSONCore = () => {
 
   // Toggle conversion direction
   const toggleDirection = useCallback(() => {
-    const newDirection: ConversionDirection = direction === 'csv-to-json' ? 'json-to-csv' : 'csv-to-json'
+    const newDirection: ConversionDirection = direction === "csv-to-json" ? "json-to-csv" : "csv-to-json"
     setDirection(newDirection)
 
     // Swap input/output if there's a current result
@@ -1013,7 +1013,7 @@ const CSVJSONCore = () => {
       setCurrentResult(null)
     }
 
-    toast.success(`Switched to ${newDirection === 'csv-to-json' ? 'CSV to JSON' : 'JSON to CSV'} mode`)
+    toast.success(`Switched to ${newDirection === "csv-to-json" ? "CSV to JSON" : "JSON to CSV"} mode`)
   }, [direction, currentResult])
 
   return (
@@ -1026,15 +1026,18 @@ const CSVJSONCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <div className="flex items-center gap-2">
-                <FileSpreadsheet className="h-5 w-5" aria-hidden="true" />
-                <ArrowLeftRight className="h-4 w-4" aria-hidden="true" />
-                <Braces className="h-5 w-5" aria-hidden="true" />
+                <FileSpreadsheet className="h-5 w-5" />
+                <ArrowLeftRight className="h-4 w-4" />
+                <Braces className="h-5 w-5" />
               </div>
               CSV ⇄ JSON Bidirectional Converter
             </CardTitle>
@@ -1049,75 +1052,97 @@ const CSVJSONCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'converter' | 'batch' | 'analyzer' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "converter" | "batch" | "analyzer" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="converter" className="flex items-center gap-2">
+            <TabsTrigger
+              value="converter"
+              className="flex items-center gap-2"
+            >
               <ArrowLeftRight className="h-4 w-4" />
               Converter
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
-            <TabsTrigger value="analyzer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analyzer"
+              className="flex items-center gap-2"
+            >
               <Search className="h-4 w-4" />
               Data Analyzer
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* Converter Tab */}
-          <TabsContent value="converter" className="space-y-4">
+          <TabsContent
+            value="converter"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Input Section */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    {direction === 'csv-to-json' ? (
+                    {direction === "csv-to-json" ? (
                       <FileSpreadsheet className="h-5 w-5" />
                     ) : (
                       <Braces className="h-5 w-5" />
                     )}
-                    {direction === 'csv-to-json' ? 'CSV Input' : 'JSON Input'}
+                    {direction === "csv-to-json" ? "CSV Input" : "JSON Input"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-2 mb-4">
-                    <Button onClick={toggleDirection} variant="outline" size="sm" className="flex items-center gap-2">
+                    <Button
+                      onClick={toggleDirection}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
                       <ArrowLeftRight className="h-4 w-4" />
-                      Switch to {direction === 'csv-to-json' ? 'JSON → CSV' : 'CSV → JSON'}
+                      Switch to {direction === "csv-to-json" ? "JSON → CSV" : "CSV → JSON"}
                     </Button>
                     <div className="text-sm text-muted-foreground">
-                      Current: {direction === 'csv-to-json' ? 'CSV → JSON' : 'JSON → CSV'}
+                      Current: {direction === "csv-to-json" ? "CSV → JSON" : "JSON → CSV"}
                     </div>
                   </div>
 
                   <div>
-                    <Label htmlFor="data-input" className="text-sm font-medium">
-                      {direction === 'csv-to-json' ? 'CSV Data' : 'JSON Data'}
+                    <Label
+                      htmlFor="data-input"
+                      className="text-sm font-medium"
+                    >
+                      {direction === "csv-to-json" ? "CSV Data" : "JSON Data"}
                     </Label>
                     <Textarea
                       id="data-input"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder={
-                        direction === 'csv-to-json'
-                          ? 'Enter or paste your CSV data here...'
-                          : 'Enter or paste your JSON data here...'
+                        direction === "csv-to-json"
+                          ? "Enter or paste your CSV data here..."
+                          : "Enter or paste your JSON data here..."
                       }
                       className="mt-2 min-h-[200px] font-mono"
-                      aria-label={`${direction === 'csv-to-json' ? 'CSV' : 'JSON'} input for conversion`}
                     />
                     {settings.realTimeConversion && input && (
                       <div className="mt-2 text-sm">
                         {inputValidation.isValid ? (
                           <div className="text-green-600 flex items-center gap-1">
                             <CheckCircle2 className="h-4 w-4" />
-                            Valid {direction === 'csv-to-json' ? 'CSV' : 'JSON'}
+                            Valid {direction === "csv-to-json" ? "CSV" : "JSON"}
                           </div>
                         ) : inputValidation.error ? (
                           <div className="text-red-600 flex items-center gap-1">
@@ -1130,13 +1155,16 @@ const CSVJSONCore = () => {
                   </div>
 
                   {/* CSV-specific settings */}
-                  {direction === 'csv-to-json' && (
+                  {direction === "csv-to-json" && (
                     <div className="space-y-3 border-t pt-4">
                       <Label className="text-sm font-medium">CSV Settings</Label>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <Label htmlFor="delimiter" className="text-xs">
+                          <Label
+                            htmlFor="delimiter"
+                            className="text-xs"
+                          >
                             Delimiter
                           </Label>
                           <Select
@@ -1157,7 +1185,10 @@ const CSVJSONCore = () => {
                         </div>
 
                         <div>
-                          <Label htmlFor="quote-char" className="text-xs">
+                          <Label
+                            htmlFor="quote-char"
+                            className="text-xs"
+                          >
                             Quote Character
                           </Label>
                           <Select
@@ -1184,7 +1215,10 @@ const CSVJSONCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, hasHeaders: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="has-headers" className="text-xs">
+                          <Label
+                            htmlFor="has-headers"
+                            className="text-xs"
+                          >
                             First row contains headers
                           </Label>
                         </div>
@@ -1197,7 +1231,10 @@ const CSVJSONCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, skipEmptyLines: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="skip-empty" className="text-xs">
+                          <Label
+                            htmlFor="skip-empty"
+                            className="text-xs"
+                          >
                             Skip empty lines
                           </Label>
                         </div>
@@ -1210,7 +1247,10 @@ const CSVJSONCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, trimWhitespace: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="trim-whitespace" className="text-xs">
+                          <Label
+                            htmlFor="trim-whitespace"
+                            className="text-xs"
+                          >
                             Trim whitespace
                           </Label>
                         </div>
@@ -1219,13 +1259,16 @@ const CSVJSONCore = () => {
                   )}
 
                   {/* JSON-specific settings */}
-                  {direction === 'json-to-csv' && (
+                  {direction === "json-to-csv" && (
                     <div className="space-y-3 border-t pt-4">
                       <Label className="text-sm font-medium">CSV Output Settings</Label>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <Label htmlFor="csv-delimiter" className="text-xs">
+                          <Label
+                            htmlFor="csv-delimiter"
+                            className="text-xs"
+                          >
                             Delimiter
                           </Label>
                           <Select
@@ -1245,7 +1288,10 @@ const CSVJSONCore = () => {
                         </div>
 
                         <div>
-                          <Label htmlFor="csv-quoting" className="text-xs">
+                          <Label
+                            htmlFor="csv-quoting"
+                            className="text-xs"
+                          >
                             Quoting
                           </Label>
                           <Select
@@ -1278,24 +1324,31 @@ const CSVJSONCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, realTimeConversion: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="real-time-conversion" className="text-sm">
+                      <Label
+                        htmlFor="real-time-conversion"
+                        className="text-sm"
+                      >
                         Real-time conversion
                       </Label>
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleConvertSingle} disabled={!input.trim() || isProcessing} className="flex-1">
+                    <Button
+                      onClick={handleConvertSingle}
+                      disabled={!input.trim() || isProcessing}
+                      className="flex-1"
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
                         <ArrowRight className="mr-2 h-4 w-4" />
                       )}
-                      Convert {direction === 'csv-to-json' ? 'to JSON' : 'to CSV'}
+                      Convert {direction === "csv-to-json" ? "to JSON" : "to CSV"}
                     </Button>
                     <Button
                       onClick={() => {
-                        setInput('')
+                        setInput("")
                         setCurrentResult(null)
                       }}
                       variant="outline"
@@ -1310,7 +1363,10 @@ const CSVJSONCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-yellow-800">Warnings:</h4>
                       <div className="text-xs space-y-1">
                         {inputValidation.warnings.map((warning, index) => (
-                          <div key={index} className="text-yellow-700">
+                          <div
+                            key={index}
+                            className="text-yellow-700"
+                          >
                             {warning}
                           </div>
                         ))}
@@ -1324,12 +1380,12 @@ const CSVJSONCore = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    {direction === 'csv-to-json' ? (
+                    {direction === "csv-to-json" ? (
                       <Braces className="h-5 w-5" />
                     ) : (
                       <FileSpreadsheet className="h-5 w-5" />
                     )}
-                    {direction === 'csv-to-json' ? 'JSON Output' : 'CSV Output'}
+                    {direction === "csv-to-json" ? "JSON Output" : "CSV Output"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -1337,11 +1393,11 @@ const CSVJSONCore = () => {
                     <div className="space-y-4">
                       <div className="p-3 border rounded-lg">
                         <div className="text-sm font-medium mb-2">
-                          Conversion: {currentResult.direction === 'csv-to-json' ? 'CSV → JSON' : 'JSON → CSV'}
+                          Conversion: {currentResult.direction === "csv-to-json" ? "CSV → JSON" : "JSON → CSV"}
                         </div>
                         <div className="text-sm">
                           <div>
-                            <strong>Status:</strong> {currentResult.isValid ? 'Success' : 'Failed'}
+                            <strong>Status:</strong> {currentResult.isValid ? "Success" : "Failed"}
                           </div>
                           {currentResult.error && (
                             <div className="text-red-600 mt-1">
@@ -1357,7 +1413,7 @@ const CSVJSONCore = () => {
                           <div className="border rounded-lg p-3">
                             <div className="flex items-center justify-between mb-2">
                               <Label className="font-medium text-sm">
-                                Converted {direction === 'csv-to-json' ? 'JSON' : 'CSV'}
+                                Converted {direction === "csv-to-json" ? "JSON" : "CSV"}
                               </Label>
                               <div className="flex gap-2">
                                 <Button
@@ -1366,17 +1422,21 @@ const CSVJSONCore = () => {
                                   onClick={() =>
                                     copyToClipboard(
                                       currentResult.output,
-                                      `${direction === 'csv-to-json' ? 'JSON' : 'CSV'} Data`
+                                      `${direction === "csv-to-json" ? "JSON" : "CSV"} Data`
                                     )
                                   }
                                 >
-                                  {copiedText === `${direction === 'csv-to-json' ? 'JSON' : 'CSV'} Data` ? (
+                                  {copiedText === `${direction === "csv-to-json" ? "JSON" : "CSV"} Data` ? (
                                     <Check className="h-4 w-4" />
                                   ) : (
                                     <Copy className="h-4 w-4" />
                                   )}
                                 </Button>
-                                <Button size="sm" variant="ghost" onClick={() => setShowAnalysis(!showAnalysis)}>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setShowAnalysis(!showAnalysis)}
+                                >
                                   {showAnalysis ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </Button>
                               </div>
@@ -1417,11 +1477,11 @@ const CSVJSONCore = () => {
                               </div>
                               <div>
                                 <div>
-                                  <strong>Compression:</strong>{' '}
+                                  <strong>Compression:</strong>{" "}
                                   {(currentResult.statistics.compressionRatio * 100).toFixed(1)}%
                                 </div>
                                 <div>
-                                  <strong>Quality Score:</strong> {currentResult.analysis?.qualityScore || 'N/A'}
+                                  <strong>Quality Score:</strong> {currentResult.analysis?.qualityScore || "N/A"}
                                 </div>
                                 <div>
                                   <strong>Encoding:</strong> {currentResult.statistics.dataMetrics.encoding}
@@ -1438,7 +1498,7 @@ const CSVJSONCore = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   <div>
                                     <div>
-                                      <strong>Has Headers:</strong> {currentResult.analysis.hasHeaders ? 'Yes' : 'No'}
+                                      <strong>Has Headers:</strong> {currentResult.analysis.hasHeaders ? "Yes" : "No"}
                                     </div>
                                     <div>
                                       <strong>Delimiter:</strong> {currentResult.analysis.delimiter}
@@ -1449,12 +1509,12 @@ const CSVJSONCore = () => {
                                   </div>
                                   <div>
                                     <div>
-                                      <strong>Has Nested Data:</strong>{' '}
-                                      {currentResult.analysis.hasNestedData ? 'Yes' : 'No'}
+                                      <strong>Has Nested Data:</strong>{" "}
+                                      {currentResult.analysis.hasNestedData ? "Yes" : "No"}
                                     </div>
                                     <div>
-                                      <strong>Has Special Chars:</strong>{' '}
-                                      {currentResult.analysis.hasSpecialChars ? 'Yes' : 'No'}
+                                      <strong>Has Special Chars:</strong>{" "}
+                                      {currentResult.analysis.hasSpecialChars ? "Yes" : "No"}
                                     </div>
                                     <div>
                                       <strong>Quality Score:</strong> {currentResult.analysis.qualityScore}/100
@@ -1523,7 +1583,7 @@ const CSVJSONCore = () => {
                       </div>
                       <h3 className="text-lg font-semibold mb-2">No Conversion Result</h3>
                       <p className="text-muted-foreground mb-4">
-                        Enter {direction === 'csv-to-json' ? 'CSV' : 'JSON'} data and convert to see results
+                        Enter {direction === "csv-to-json" ? "CSV" : "JSON"} data and convert to see results
                       </p>
                     </div>
                   )}
@@ -1533,7 +1593,10 @@ const CSVJSONCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1545,7 +1608,10 @@ const CSVJSONCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-input"
+                      className="text-sm font-medium"
+                    >
                       Conversion Definitions (direction:data per line)
                     </Label>
                     <Textarea
@@ -1554,7 +1620,6 @@ const CSVJSONCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder='csv:name,age,email&#10;John,30,john@example.com&#10;json:[{"name":"John","age":30}]&#10;csv:product,price&#10;Widget,29.99'
                       className="mt-2 min-h-[120px] font-mono"
-                      aria-label="Batch conversion input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
                       Format: <code>csv:data</code> or <code>json:data</code> (one per line)
@@ -1562,7 +1627,10 @@ const CSVJSONCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleConvertBatch} disabled={!batchInput.trim() || isProcessing}>
+                    <Button
+                      onClick={handleConvertBatch}
+                      disabled={!batchInput.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1570,7 +1638,10 @@ const CSVJSONCore = () => {
                       )}
                       Process Batch
                     </Button>
-                    <Button onClick={() => setBatchInput('')} variant="outline">
+                    <Button
+                      onClick={() => setBatchInput("")}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Clear
                     </Button>
@@ -1588,7 +1659,10 @@ const CSVJSONCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} conversions processed</h4>
@@ -1598,7 +1672,11 @@ const CSVJSONCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportResults(batch.results, 'json')}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportResults(batch.results, "json")}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export
                             </Button>
@@ -1620,7 +1698,7 @@ const CSVJSONCore = () => {
                             <span className="font-medium">Invalid:</span> {batch.statistics.invalidCount}
                           </div>
                           <div>
-                            <span className="font-medium">Avg Quality:</span>{' '}
+                            <span className="font-medium">Avg Quality:</span>{" "}
                             {batch.statistics.averageQuality.toFixed(1)}
                           </div>
                         </div>
@@ -1628,21 +1706,24 @@ const CSVJSONCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.results.slice(0, 5).map((result) => (
-                              <div key={result.id} className="text-xs border rounded p-2">
+                              <div
+                                key={result.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">{result.direction}</span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      result.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      result.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {result.isValid ? 'Valid' : 'Invalid'}
+                                    {result.isValid ? "Valid" : "Invalid"}
                                   </span>
                                 </div>
                                 {result.isValid && (
                                   <div className="text-muted-foreground mt-1">
-                                    Rows: {result.statistics.dataMetrics.rowCount} • Cols:{' '}
-                                    {result.statistics.dataMetrics.columnCount} • Time:{' '}
+                                    Rows: {result.statistics.dataMetrics.rowCount} • Cols:{" "}
+                                    {result.statistics.dataMetrics.columnCount} • Time:{" "}
                                     {result.statistics.processingTime.toFixed(2)}ms
                                   </div>
                                 )}
@@ -1665,7 +1746,10 @@ const CSVJSONCore = () => {
           </TabsContent>
 
           {/* Data Analyzer Tab */}
-          <TabsContent value="analyzer" className="space-y-4">
+          <TabsContent
+            value="analyzer"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1707,7 +1791,7 @@ const CSVJSONCore = () => {
                           <CardTitle className="text-sm">Quality Metrics</CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
-                          <div>Quality Score: {currentResult.analysis?.qualityScore || 'N/A'}/100</div>
+                          <div>Quality Score: {currentResult.analysis?.qualityScore || "N/A"}/100</div>
                           <div>Processing Time: {currentResult.statistics.processingTime.toFixed(2)}ms</div>
                           <div>Compression: {(currentResult.statistics.compressionRatio * 100).toFixed(1)}%</div>
                           <div>Encoding: {currentResult.statistics.dataMetrics.encoding}</div>
@@ -1727,7 +1811,10 @@ const CSVJSONCore = () => {
                               <CardContent>
                                 <ul className="text-sm space-y-1">
                                   {currentResult.analysis.suggestedImprovements.map((suggestion, index) => (
-                                    <li key={index} className="flex items-center gap-2">
+                                    <li
+                                      key={index}
+                                      className="flex items-center gap-2"
+                                    >
                                       <CheckCircle2 className="h-3 w-3 text-blue-600" />
                                       {suggestion}
                                     </li>
@@ -1745,7 +1832,10 @@ const CSVJSONCore = () => {
                               <CardContent>
                                 <ul className="text-sm space-y-1">
                                   {currentResult.analysis.dataIssues.map((issue, index) => (
-                                    <li key={index} className="flex items-center gap-2">
+                                    <li
+                                      key={index}
+                                      className="flex items-center gap-2"
+                                    >
                                       <AlertCircle className="h-3 w-3 text-red-600" />
                                       {issue}
                                     </li>
@@ -1771,7 +1861,10 @@ const CSVJSONCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1786,7 +1879,7 @@ const CSVJSONCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1812,7 +1905,7 @@ const CSVJSONCore = () => {
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>Use cases:</strong> {template.useCase.join(', ')}
+                            <strong>Use cases:</strong> {template.useCase.join(", ")}
                           </div>
                         )}
                       </div>
@@ -1834,7 +1927,10 @@ const CSVJSONCore = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -1853,7 +1949,10 @@ const CSVJSONCore = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="json-indent" className="text-sm font-medium">
+                  <Label
+                    htmlFor="json-indent"
+                    className="text-sm font-medium"
+                  >
                     JSON Indentation: {settings.jsonIndentation}
                   </Label>
                   <div className="mt-2 flex items-center gap-4">
@@ -1875,7 +1974,7 @@ const CSVJSONCore = () => {
                   <Button
                     onClick={() => {
                       const allResults = batches.flatMap((batch) => batch.results)
-                      exportResults(allResults, 'txt', 'csv-json-statistics.txt')
+                      exportResults(allResults, "txt", "csv-json-statistics.txt")
                     }}
                     variant="outline"
                   >

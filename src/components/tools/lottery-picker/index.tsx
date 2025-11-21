@@ -1,12 +1,12 @@
-import { useCallback, useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -21,8 +21,8 @@ import {
   Trophy,
   Target,
   Sparkles,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   LotteryItem,
   LotteryResult,
@@ -37,15 +37,15 @@ import type {
   LotteryValidation,
   SelectionMode,
   ExportFormat,
-} from '@/types/lottery-picker'
+} from "@/types/lottery-picker"
 
 // Utility functions
 
 // Lottery generation functions
-const parseItems = (input: string, separators: string[] = [',', '，', ';', '；', '\n']): LotteryItem[] => {
+const parseItems = (input: string, separators: string[] = [",", "，", ";", "；", "\n"]): LotteryItem[] => {
   if (!input.trim()) return []
 
-  const pattern = new RegExp(`[${separators.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('')}]+`)
+  const pattern = new RegExp(`[${separators.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("")}]+`)
   const items = input
     .split(pattern)
     .filter(Boolean)
@@ -57,7 +57,7 @@ const parseItems = (input: string, separators: string[] = [',', '，', ';', '；
     value,
     weight: 1,
     category: detectCategory(value),
-    description: '',
+    description: "",
     isSelected: false,
     selectionCount: 0,
   }))
@@ -65,12 +65,12 @@ const parseItems = (input: string, separators: string[] = [',', '，', ';', '；
 
 const detectCategory = (value: string): string => {
   // Simple category detection based on content
-  if (/^\d+$/.test(value)) return 'Number'
-  if (/^[A-Za-z]+$/.test(value)) return 'Name'
-  if (value.includes('@')) return 'Email'
-  if (/^https?:\/\//.test(value)) return 'URL'
-  if (value.length > 50) return 'Description'
-  return 'General'
+  if (/^\d+$/.test(value)) return "Number"
+  if (/^[A-Za-z]+$/.test(value)) return "Name"
+  if (value.includes("@")) return "Email"
+  if (/^https?:\/\//.test(value)) return "URL"
+  if (value.length > 50) return "Description"
+  return "General"
 }
 
 const performLottery = (items: LotteryItem[], settings: LotterySettings): LotteryResult => {
@@ -80,22 +80,22 @@ const performLottery = (items: LotteryItem[], settings: LotterySettings): Lotter
   let selectedItems: LotteryItem[] = []
 
   switch (settings.selectionMode) {
-    case 'single':
+    case "single":
       selectedItems = selectSingle(sortedItems, settings)
       break
-    case 'multiple':
+    case "multiple":
       selectedItems = selectMultiple(sortedItems, settings)
       break
-    case 'weighted':
+    case "weighted":
       selectedItems = selectWeighted(sortedItems, settings)
       break
-    case 'tournament':
+    case "tournament":
       selectedItems = selectTournament(sortedItems)
       break
-    case 'elimination':
+    case "elimination":
       selectedItems = selectElimination(sortedItems, settings)
       break
-    case 'round-robin':
+    case "round-robin":
       selectedItems = selectRoundRobin(sortedItems)
       break
     default:
@@ -136,7 +136,7 @@ const filterItems = (items: LotteryItem[], filterSettings: FilterSettings): Lott
 
     // Exclude patterns
     for (const pattern of filterSettings.excludePatterns) {
-      const regex = new RegExp(pattern, filterSettings.caseSensitive ? 'g' : 'gi')
+      const regex = new RegExp(pattern, filterSettings.caseSensitive ? "g" : "gi")
       if (regex.test(item.value)) return false
     }
 
@@ -144,7 +144,7 @@ const filterItems = (items: LotteryItem[], filterSettings: FilterSettings): Lott
     if (filterSettings.includePatterns.length > 0) {
       let matches = false
       for (const pattern of filterSettings.includePatterns) {
-        const regex = new RegExp(pattern, filterSettings.caseSensitive ? 'g' : 'gi')
+        const regex = new RegExp(pattern, filterSettings.caseSensitive ? "g" : "gi")
         if (regex.test(item.value)) {
           matches = true
           break
@@ -164,21 +164,21 @@ const sortItems = (items: LotteryItem[], sortSettings: SortSettings): LotteryIte
     let comparison = 0
 
     switch (sortSettings.sortBy) {
-      case 'alphabetical':
+      case "alphabetical":
         comparison = a.value.localeCompare(b.value)
         break
-      case 'weight':
+      case "weight":
         comparison = a.weight - b.weight
         break
-      case 'category':
-        comparison = (a.category || '').localeCompare(b.category || '')
+      case "category":
+        comparison = (a.category || "").localeCompare(b.category || "")
         break
-      case 'random':
+      case "random":
         comparison = Math.random() - 0.5
         break
     }
 
-    return sortSettings.sortOrder === 'desc' ? -comparison : comparison
+    return sortSettings.sortOrder === "desc" ? -comparison : comparison
   })
 
   return sorted
@@ -319,7 +319,7 @@ const calculateStatistics = (allItems: LotteryItem[]): LotteryStatistics => {
 
   allItems.forEach((item) => {
     selectionDistribution[item.value] = item.selectionCount
-    const category = item.category || 'Unknown'
+    const category = item.category || "Unknown"
     categoryDistribution[category] = (categoryDistribution[category] || 0) + 1
   })
 
@@ -349,20 +349,20 @@ const calculateStatistics = (allItems: LotteryItem[]): LotteryStatistics => {
 // Lottery Templates
 const lotteryTemplates: LotteryTemplate[] = [
   {
-    id: 'simple-names',
-    name: 'Simple Names',
-    description: 'Basic name lottery for simple selections',
-    category: 'General',
-    items: ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Henry'],
+    id: "simple-names",
+    name: "Simple Names",
+    description: "Basic name lottery for simple selections",
+    category: "General",
+    items: ["Alice", "Bob", "Charlie", "Diana", "Eve", "Frank", "Grace", "Henry"],
     settings: {
-      selectionMode: 'single',
+      selectionMode: "single",
       selectionCount: 1,
       allowDuplicates: false,
       useWeights: false,
       excludePrevious: false,
       animationEnabled: true,
       soundEnabled: false,
-      customSeparators: [',', ';', '\n'],
+      customSeparators: [",", ";", "\n"],
       filterSettings: {
         enabled: false,
         minLength: 1,
@@ -373,29 +373,29 @@ const lotteryTemplates: LotteryTemplate[] = [
       },
       sortSettings: {
         enabled: false,
-        sortBy: 'random',
-        sortOrder: 'asc',
+        sortBy: "random",
+        sortOrder: "asc",
       },
     },
-    useCase: ['Team selection', 'Random picking', 'Name drawing', 'Simple lottery'],
-    examples: ['Picking a winner', 'Selecting team members', 'Random name selection', 'Door prize drawing'],
-    preview: 'Simple single-selection lottery',
+    useCase: ["Team selection", "Random picking", "Name drawing", "Simple lottery"],
+    examples: ["Picking a winner", "Selecting team members", "Random name selection", "Door prize drawing"],
+    preview: "Simple single-selection lottery",
   },
   {
-    id: 'team-picker',
-    name: 'Team Picker',
-    description: 'Select multiple people for teams or groups',
-    category: 'Teams',
-    items: ['Alex', 'Beth', 'Chris', 'Dana', 'Ethan', 'Fiona', 'George', 'Hannah', 'Ian', 'Julia'],
+    id: "team-picker",
+    name: "Team Picker",
+    description: "Select multiple people for teams or groups",
+    category: "Teams",
+    items: ["Alex", "Beth", "Chris", "Dana", "Ethan", "Fiona", "George", "Hannah", "Ian", "Julia"],
     settings: {
-      selectionMode: 'multiple',
+      selectionMode: "multiple",
       selectionCount: 3,
       allowDuplicates: false,
       useWeights: false,
       excludePrevious: true,
       animationEnabled: true,
       soundEnabled: true,
-      customSeparators: [',', ';', '\n'],
+      customSeparators: [",", ";", "\n"],
       filterSettings: {
         enabled: false,
         minLength: 1,
@@ -406,34 +406,34 @@ const lotteryTemplates: LotteryTemplate[] = [
       },
       sortSettings: {
         enabled: false,
-        sortBy: 'random',
-        sortOrder: 'asc',
+        sortBy: "random",
+        sortOrder: "asc",
       },
     },
-    useCase: ['Team formation', 'Group selection', 'Committee picking', 'Project teams'],
+    useCase: ["Team formation", "Group selection", "Committee picking", "Project teams"],
     examples: [
-      'Forming work teams',
-      'Selecting committee members',
-      'Creating study groups',
-      'Picking project partners',
+      "Forming work teams",
+      "Selecting committee members",
+      "Creating study groups",
+      "Picking project partners",
     ],
-    preview: 'Multi-selection team formation',
+    preview: "Multi-selection team formation",
   },
   {
-    id: 'weighted-prizes',
-    name: 'Weighted Prizes',
-    description: 'Prize lottery with different winning probabilities',
-    category: 'Prizes',
-    items: ['Grand Prize', 'Second Prize', 'Third Prize', 'Consolation Prize', 'Thank You Gift'],
+    id: "weighted-prizes",
+    name: "Weighted Prizes",
+    description: "Prize lottery with different winning probabilities",
+    category: "Prizes",
+    items: ["Grand Prize", "Second Prize", "Third Prize", "Consolation Prize", "Thank You Gift"],
     settings: {
-      selectionMode: 'weighted',
+      selectionMode: "weighted",
       selectionCount: 1,
       allowDuplicates: true,
       useWeights: true,
       excludePrevious: false,
       animationEnabled: true,
       soundEnabled: true,
-      customSeparators: [',', ';', '\n'],
+      customSeparators: [",", ";", "\n"],
       filterSettings: {
         enabled: false,
         minLength: 1,
@@ -444,38 +444,38 @@ const lotteryTemplates: LotteryTemplate[] = [
       },
       sortSettings: {
         enabled: true,
-        sortBy: 'weight',
-        sortOrder: 'desc',
+        sortBy: "weight",
+        sortOrder: "desc",
       },
     },
-    useCase: ['Prize drawings', 'Raffle systems', 'Reward distribution', 'Contest winners'],
-    examples: ['Company raffle', 'Contest prizes', 'Reward system', 'Lucky draw'],
-    preview: 'Weighted probability prize selection',
+    useCase: ["Prize drawings", "Raffle systems", "Reward distribution", "Contest winners"],
+    examples: ["Company raffle", "Contest prizes", "Reward system", "Lucky draw"],
+    preview: "Weighted probability prize selection",
   },
   {
-    id: 'tournament-bracket',
-    name: 'Tournament Bracket',
-    description: 'Tournament-style elimination selection',
-    category: 'Competition',
+    id: "tournament-bracket",
+    name: "Tournament Bracket",
+    description: "Tournament-style elimination selection",
+    category: "Competition",
     items: [
-      'Team Alpha',
-      'Team Beta',
-      'Team Gamma',
-      'Team Delta',
-      'Team Epsilon',
-      'Team Zeta',
-      'Team Eta',
-      'Team Theta',
+      "Team Alpha",
+      "Team Beta",
+      "Team Gamma",
+      "Team Delta",
+      "Team Epsilon",
+      "Team Zeta",
+      "Team Eta",
+      "Team Theta",
     ],
     settings: {
-      selectionMode: 'tournament',
+      selectionMode: "tournament",
       selectionCount: 1,
       allowDuplicates: false,
       useWeights: false,
       excludePrevious: false,
       animationEnabled: true,
       soundEnabled: true,
-      customSeparators: [',', ';', '\n'],
+      customSeparators: [",", ";", "\n"],
       filterSettings: {
         enabled: false,
         minLength: 1,
@@ -486,38 +486,38 @@ const lotteryTemplates: LotteryTemplate[] = [
       },
       sortSettings: {
         enabled: true,
-        sortBy: 'random',
-        sortOrder: 'asc',
+        sortBy: "random",
+        sortOrder: "asc",
       },
     },
-    useCase: ['Tournament selection', 'Competition brackets', 'Elimination games', 'Championship draws'],
-    examples: ['Sports tournaments', 'Game competitions', 'Debate tournaments', 'Contest brackets'],
-    preview: 'Tournament-style elimination',
+    useCase: ["Tournament selection", "Competition brackets", "Elimination games", "Championship draws"],
+    examples: ["Sports tournaments", "Game competitions", "Debate tournaments", "Contest brackets"],
+    preview: "Tournament-style elimination",
   },
   {
-    id: 'restaurant-picker',
-    name: 'Restaurant Picker',
-    description: 'Choose where to eat with elimination process',
-    category: 'Lifestyle',
+    id: "restaurant-picker",
+    name: "Restaurant Picker",
+    description: "Choose where to eat with elimination process",
+    category: "Lifestyle",
     items: [
-      'Italian Restaurant',
-      'Chinese Takeout',
-      'Mexican Grill',
-      'Burger Joint',
-      'Sushi Bar',
-      'Pizza Place',
-      'Thai Kitchen',
-      'Indian Cuisine',
+      "Italian Restaurant",
+      "Chinese Takeout",
+      "Mexican Grill",
+      "Burger Joint",
+      "Sushi Bar",
+      "Pizza Place",
+      "Thai Kitchen",
+      "Indian Cuisine",
     ],
     settings: {
-      selectionMode: 'elimination',
+      selectionMode: "elimination",
       selectionCount: 1,
       allowDuplicates: false,
       useWeights: false,
       excludePrevious: false,
       animationEnabled: true,
       soundEnabled: false,
-      customSeparators: [',', ';', '\n'],
+      customSeparators: [",", ";", "\n"],
       filterSettings: {
         enabled: false,
         minLength: 1,
@@ -528,29 +528,29 @@ const lotteryTemplates: LotteryTemplate[] = [
       },
       sortSettings: {
         enabled: false,
-        sortBy: 'random',
-        sortOrder: 'asc',
+        sortBy: "random",
+        sortOrder: "asc",
       },
     },
-    useCase: ['Decision making', 'Food choices', 'Activity selection', 'Option elimination'],
-    examples: ['Choosing restaurants', 'Picking activities', 'Selecting movies', 'Decision assistance'],
-    preview: 'Elimination-based decision making',
+    useCase: ["Decision making", "Food choices", "Activity selection", "Option elimination"],
+    examples: ["Choosing restaurants", "Picking activities", "Selecting movies", "Decision assistance"],
+    preview: "Elimination-based decision making",
   },
   {
-    id: 'round-robin-scheduler',
-    name: 'Round Robin Scheduler',
-    description: 'Fair scheduling with round-robin selection',
-    category: 'Scheduling',
-    items: ['Monday Shift', 'Tuesday Shift', 'Wednesday Shift', 'Thursday Shift', 'Friday Shift', 'Weekend Shift'],
+    id: "round-robin-scheduler",
+    name: "Round Robin Scheduler",
+    description: "Fair scheduling with round-robin selection",
+    category: "Scheduling",
+    items: ["Monday Shift", "Tuesday Shift", "Wednesday Shift", "Thursday Shift", "Friday Shift", "Weekend Shift"],
     settings: {
-      selectionMode: 'round-robin',
+      selectionMode: "round-robin",
       selectionCount: 1,
       allowDuplicates: false,
       useWeights: false,
       excludePrevious: true,
       animationEnabled: false,
       soundEnabled: false,
-      customSeparators: [',', ';', '\n'],
+      customSeparators: [",", ";", "\n"],
       filterSettings: {
         enabled: false,
         minLength: 1,
@@ -561,13 +561,13 @@ const lotteryTemplates: LotteryTemplate[] = [
       },
       sortSettings: {
         enabled: true,
-        sortBy: 'alphabetical',
-        sortOrder: 'asc',
+        sortBy: "alphabetical",
+        sortOrder: "asc",
       },
     },
-    useCase: ['Work scheduling', 'Fair rotation', 'Task assignment', 'Duty roster'],
-    examples: ['Work shifts', 'Cleaning duties', 'Presentation order', 'Meeting rotation'],
-    preview: 'Fair round-robin scheduling',
+    useCase: ["Work scheduling", "Fair rotation", "Task assignment", "Duty roster"],
+    examples: ["Work shifts", "Cleaning duties", "Presentation order", "Meeting rotation"],
+    preview: "Fair round-robin scheduling",
   },
 ]
 
@@ -585,15 +585,15 @@ const validateLottery = (items: LotteryItem[], settings: LotterySettings): Lotte
   if (items.length === 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'No items provided for lottery',
-      type: 'items',
-      severity: 'error',
+      message: "No items provided for lottery",
+      type: "items",
+      severity: "error",
     })
     validation.qualityScore -= 50
   }
 
-  if (items.length === 1 && settings.selectionMode === 'multiple' && settings.selectionCount > 1) {
-    validation.warnings.push('Only one item available but multiple selection requested')
+  if (items.length === 1 && settings.selectionMode === "multiple" && settings.selectionCount > 1) {
+    validation.warnings.push("Only one item available but multiple selection requested")
     validation.qualityScore -= 10
   }
 
@@ -601,7 +601,7 @@ const validateLottery = (items: LotteryItem[], settings: LotterySettings): Lotte
   const duplicates = findDuplicateItems(items)
   if (duplicates.length > 0) {
     validation.warnings.push(`Found ${duplicates.length} duplicate items`)
-    validation.suggestions.push('Consider removing duplicates or using weights')
+    validation.suggestions.push("Consider removing duplicates or using weights")
     validation.qualityScore -= 5
   }
 
@@ -609,9 +609,9 @@ const validateLottery = (items: LotteryItem[], settings: LotterySettings): Lotte
   if (settings.selectionCount <= 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Selection count must be greater than 0',
-      type: 'settings',
-      severity: 'error',
+      message: "Selection count must be greater than 0",
+      type: "settings",
+      severity: "error",
     })
     validation.qualityScore -= 20
   }
@@ -619,9 +619,9 @@ const validateLottery = (items: LotteryItem[], settings: LotterySettings): Lotte
   if (settings.selectionCount > items.length && !settings.allowDuplicates) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Selection count exceeds available items (duplicates not allowed)',
-      type: 'settings',
-      severity: 'error',
+      message: "Selection count exceeds available items (duplicates not allowed)",
+      type: "settings",
+      severity: "error",
     })
     validation.qualityScore -= 15
   }
@@ -630,17 +630,17 @@ const validateLottery = (items: LotteryItem[], settings: LotterySettings): Lotte
   if (settings.useWeights) {
     const totalWeight = items.reduce((sum, item) => sum + item.weight, 0)
     if (totalWeight === 0) {
-      validation.warnings.push('All items have zero weight')
-      validation.suggestions.push('Assign positive weights to items')
+      validation.warnings.push("All items have zero weight")
+      validation.suggestions.push("Assign positive weights to items")
       validation.qualityScore -= 15
     }
 
     const negativeWeights = items.filter((item) => item.weight < 0)
     if (negativeWeights.length > 0) {
       validation.errors.push({
-        message: 'Items cannot have negative weights',
-        type: 'weights',
-        severity: 'error',
+        message: "Items cannot have negative weights",
+        type: "weights",
+        severity: "error",
       })
       validation.isValid = false
       validation.qualityScore -= 20
@@ -651,21 +651,21 @@ const validateLottery = (items: LotteryItem[], settings: LotterySettings): Lotte
   if (settings.filterSettings.enabled) {
     const filteredItems = filterItems(items, settings.filterSettings)
     if (filteredItems.length === 0) {
-      validation.warnings.push('All items filtered out by current filter settings')
-      validation.suggestions.push('Adjust filter settings to include more items')
+      validation.warnings.push("All items filtered out by current filter settings")
+      validation.suggestions.push("Adjust filter settings to include more items")
       validation.qualityScore -= 25
     }
   }
 
   // Quality suggestions
   if (validation.qualityScore >= 90) {
-    validation.suggestions.push('Excellent lottery configuration')
+    validation.suggestions.push("Excellent lottery configuration")
   } else if (validation.qualityScore >= 70) {
-    validation.suggestions.push('Good lottery setup, minor improvements possible')
+    validation.suggestions.push("Good lottery setup, minor improvements possible")
   } else if (validation.qualityScore >= 50) {
-    validation.suggestions.push('Lottery configuration needs improvement')
+    validation.suggestions.push("Lottery configuration needs improvement")
   } else {
-    validation.suggestions.push('Lottery configuration has significant issues')
+    validation.suggestions.push("Lottery configuration has significant issues")
   }
 
   return validation
@@ -715,10 +715,10 @@ const useLotteryPicker = () => {
       try {
         const batch: LotteryBatch = {
           id: nanoid(),
-          name: batchSettings.namingPattern || 'Lottery Batch',
+          name: batchSettings.namingPattern || "Lottery Batch",
           results: [],
           settings: batchSettings,
-          status: 'processing',
+          status: "processing",
           progress: 0,
           statistics: {
             totalIterations: 0,
@@ -744,7 +744,7 @@ const useLotteryPicker = () => {
             const progress = ((i + 1) / batchSettings.iterations) * 100
             batch.progress = progress
           } catch (error) {
-            console.error('Failed to perform lottery draw:', error)
+            console.error("Failed to perform lottery draw:", error)
           }
         }
 
@@ -777,7 +777,7 @@ const useLotteryPicker = () => {
         }
 
         batch.results = batchResults
-        batch.status = 'completed'
+        batch.status = "completed"
         batch.progress = 100
         batch.statistics = statistics
         batch.completedAt = new Date()
@@ -816,13 +816,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -832,44 +832,44 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useLotteryExport = () => {
   const exportResult = useCallback((result: LotteryResult, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(result, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromResult(result)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'txt':
+      case "txt":
         content = generateTextFromResult(result)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromResult(result)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'yaml':
+      case "yaml":
         content = generateYAMLFromResult(result)
-        mimeType = 'text/yaml'
-        extension = '.yaml'
+        mimeType = "text/yaml"
+        extension = ".yaml"
         break
       default:
-        content = result.selectedItems.map((item) => item.value).join('\n')
+        content = result.selectedItems.map((item) => item.value).join("\n")
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `lottery-result-${result.id}${extension}`
     document.body.appendChild(link)
@@ -880,9 +880,9 @@ const useLotteryExport = () => {
 
   const exportBatch = useCallback((batch: LotteryBatch) => {
     const content = JSON.stringify(batch, null, 2)
-    const blob = new Blob([content], { type: 'application/json;charset=utf-8' })
+    const blob = new Blob([content], { type: "application/json;charset=utf-8" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = `${batch.name}.json`
     document.body.appendChild(link)
@@ -896,22 +896,22 @@ const useLotteryExport = () => {
 
 // Helper functions for export formats
 const generateCSVFromResult = (result: LotteryResult): string => {
-  const headers = ['Selected Item', 'Weight', 'Category', 'Selection Count', 'Timestamp']
+  const headers = ["Selected Item", "Weight", "Category", "Selection Count", "Timestamp"]
   const rows = result.selectedItems.map((item) => [
     item.value,
     item.weight.toString(),
-    item.category || '',
+    item.category || "",
     item.selectionCount.toString(),
     result.timestamp.toISOString(),
   ])
 
-  return [headers.join(','), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
+  return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
 }
 
 const generateTextFromResult = (result: LotteryResult): string => {
   return `Lottery Result - ${result.timestamp.toLocaleString()}
 Selection Mode: ${result.selectionMode}
-Selected Items: ${result.selectedItems.map((item) => item.value).join(', ')}
+Selected Items: ${result.selectedItems.map((item) => item.value).join(", ")}
 
 Statistics:
 - Total Items: ${result.statistics.totalItems}
@@ -930,11 +930,11 @@ const generateXMLFromResult = (result: LotteryResult): string => {
     <item>
       <value>${item.value}</value>
       <weight>${item.weight}</weight>
-      <category>${item.category || ''}</category>
+      <category>${item.category || ""}</category>
       <selectionCount>${item.selectionCount}</selectionCount>
     </item>`
       )
-      .join('')}
+      .join("")}
   </selectedItems>
   <statistics>
     <totalItems>${result.statistics.totalItems}</totalItems>
@@ -953,10 +953,10 @@ ${result.selectedItems
   .map(
     (item) => `  - value: ${item.value}
     weight: ${item.weight}
-    category: ${item.category || ''}
+    category: ${item.category || ""}
     selectionCount: ${item.selectionCount}`
   )
-  .join('\n')}
+  .join("\n")}
 statistics:
   totalItems: ${result.statistics.totalItems}
   fairnessScore: ${result.statistics.fairnessScore}
@@ -968,20 +968,20 @@ statistics:
  * Features: Advanced lottery selection, customization, analysis, and batch processing
  */
 const LotteryPickerCore = () => {
-  const [activeTab, setActiveTab] = useState<'picker' | 'batch' | 'history' | 'templates'>('picker')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<"picker" | "batch" | "history" | "templates">("picker")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [currentResult, setCurrentResult] = useState<LotteryResult | null>(null)
   const [items, setItems] = useState<LotteryItem[]>([])
-  const [inputText, setInputText] = useState('')
+  const [inputText, setInputText] = useState("")
   const [settings, setSettings] = useState<LotterySettings>({
-    selectionMode: 'single',
+    selectionMode: "single",
     selectionCount: 1,
     allowDuplicates: false,
     useWeights: false,
     excludePrevious: false,
     animationEnabled: true,
     soundEnabled: false,
-    customSeparators: [',', '，', ';', '；', '\n'],
+    customSeparators: [",", "，", ";", "；", "\n"],
     filterSettings: {
       enabled: false,
       minLength: 1,
@@ -992,8 +992,8 @@ const LotteryPickerCore = () => {
     },
     sortSettings: {
       enabled: false,
-      sortBy: 'random',
-      sortOrder: 'asc',
+      sortBy: "random",
+      sortOrder: "asc",
     },
   })
 
@@ -1011,7 +1011,7 @@ const LotteryPickerCore = () => {
   const applyTemplate = useCallback((templateId: string) => {
     const template = lotteryTemplates.find((t) => t.id === templateId)
     if (template) {
-      setInputText(template.items.join('\n'))
+      setInputText(template.items.join("\n"))
       setSettings((prev) => ({ ...prev, ...template.settings }))
       setSelectedTemplate(templateId)
       toast.success(`Applied template: ${template.name}`)
@@ -1039,12 +1039,12 @@ const LotteryPickerCore = () => {
       setCurrentResult(result)
 
       if (result.selectedItems.length > 0) {
-        toast.success(`Selected: ${result.selectedItems.map((item) => item.value).join(', ')}`)
+        toast.success(`Selected: ${result.selectedItems.map((item) => item.value).join(", ")}`)
       } else {
-        toast.error('No items were selected')
+        toast.error("No items were selected")
       }
     } catch (error) {
-      toast.error('Failed to perform lottery draw')
+      toast.error("Failed to perform lottery draw")
       console.error(error)
     }
   }, [items, settings, performDraw])
@@ -1059,12 +1059,15 @@ const LotteryPickerCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Gift className="h-5 w-5" aria-hidden="true" />
+              <Gift className="h-5 w-5" />
               Lottery Picker & Management Tool
             </CardTitle>
             <CardDescription>
@@ -1078,29 +1081,44 @@ const LotteryPickerCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'picker' | 'batch' | 'history' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "picker" | "batch" | "history" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="picker" className="flex items-center gap-2">
+            <TabsTrigger
+              value="picker"
+              className="flex items-center gap-2"
+            >
               <Target className="h-4 w-4" />
               Picker
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Layers className="h-4 w-4" />
               Batch
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* Lottery Picker Tab */}
-          <TabsContent value="picker" className="space-y-4">
+          <TabsContent
+            value="picker"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Picker Settings */}
               <Card>
@@ -1113,7 +1131,10 @@ const LotteryPickerCore = () => {
                 <CardContent className="space-y-4">
                   {/* Items Input */}
                   <div>
-                    <Label htmlFor="items-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="items-input"
+                      className="text-sm font-medium"
+                    >
                       Items to Pick From
                     </Label>
                     <Textarea
@@ -1129,7 +1150,10 @@ const LotteryPickerCore = () => {
 
                   {/* Selection Mode */}
                   <div>
-                    <Label htmlFor="selection-mode" className="text-sm font-medium">
+                    <Label
+                      htmlFor="selection-mode"
+                      className="text-sm font-medium"
+                    >
                       Selection Mode
                     </Label>
                     <Select
@@ -1153,9 +1177,12 @@ const LotteryPickerCore = () => {
                   </div>
 
                   {/* Selection Count */}
-                  {settings.selectionMode === 'multiple' && (
+                  {settings.selectionMode === "multiple" && (
                     <div>
-                      <Label htmlFor="selection-count" className="text-sm font-medium">
+                      <Label
+                        htmlFor="selection-count"
+                        className="text-sm font-medium"
+                      >
                         Number to Select
                       </Label>
                       <Input
@@ -1185,7 +1212,10 @@ const LotteryPickerCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, allowDuplicates: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="allow-duplicates" className="text-xs">
+                        <Label
+                          htmlFor="allow-duplicates"
+                          className="text-xs"
+                        >
                           Allow duplicate selections
                         </Label>
                       </div>
@@ -1198,7 +1228,10 @@ const LotteryPickerCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, useWeights: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="use-weights" className="text-xs">
+                        <Label
+                          htmlFor="use-weights"
+                          className="text-xs"
+                        >
                           Use weighted selection
                         </Label>
                       </div>
@@ -1211,7 +1244,10 @@ const LotteryPickerCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, excludePrevious: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="exclude-previous" className="text-xs">
+                        <Label
+                          htmlFor="exclude-previous"
+                          className="text-xs"
+                        >
                           Exclude previously selected items
                         </Label>
                       </div>
@@ -1224,7 +1260,10 @@ const LotteryPickerCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, animationEnabled: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="animation-enabled" className="text-xs">
+                        <Label
+                          htmlFor="animation-enabled"
+                          className="text-xs"
+                        >
                           Enable selection animation
                         </Label>
                       </div>
@@ -1232,17 +1271,21 @@ const LotteryPickerCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleDraw} disabled={isProcessing || items.length === 0} className="flex-1">
+                    <Button
+                      onClick={handleDraw}
+                      disabled={isProcessing || items.length === 0}
+                      className="flex-1"
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
                         <Sparkles className="mr-2 h-4 w-4" />
                       )}
-                      {isProcessing ? 'Drawing...' : 'Draw Lottery'}
+                      {isProcessing ? "Drawing..." : "Draw Lottery"}
                     </Button>
                     <Button
                       onClick={() => {
-                        setInputText('')
+                        setInputText("")
                         setItems([])
                         setCurrentResult(null)
                       }}
@@ -1272,11 +1315,14 @@ const LotteryPickerCore = () => {
                           {currentResult.selectedItems.length > 0 ? (
                             <div className="space-y-3">
                               <div className="text-2xl font-bold text-primary">
-                                🎉 Winner{currentResult.selectedItems.length > 1 ? 's' : ''}!
+                                🎉 Winner{currentResult.selectedItems.length > 1 ? "s" : ""}!
                               </div>
                               <div className="space-y-2">
                                 {currentResult.selectedItems.map((item, index) => (
-                                  <div key={item.id} className="text-lg font-semibold p-2 bg-white rounded border">
+                                  <div
+                                    key={item.id}
+                                    className="text-lg font-semibold p-2 bg-white rounded border"
+                                  >
                                     {currentResult.selectedItems.length > 1 && (
                                       <span className="text-sm text-muted-foreground mr-2">#{index + 1}</span>
                                     )}
@@ -1334,10 +1380,10 @@ const LotteryPickerCore = () => {
                               <div
                                 className={`h-1 rounded-full ${
                                   currentResult.statistics.fairnessScore >= 80
-                                    ? 'bg-green-500'
+                                    ? "bg-green-500"
                                     : currentResult.statistics.fairnessScore >= 60
-                                      ? 'bg-orange-500'
-                                      : 'bg-red-500'
+                                      ? "bg-orange-500"
+                                      : "bg-red-500"
                                 }`}
                                 style={{ width: `${currentResult.statistics.fairnessScore}%` }}
                               ></div>
@@ -1350,10 +1396,10 @@ const LotteryPickerCore = () => {
                               <div
                                 className={`h-1 rounded-full ${
                                   currentResult.statistics.randomnessScore >= 80
-                                    ? 'bg-green-500'
+                                    ? "bg-green-500"
                                     : currentResult.statistics.randomnessScore >= 60
-                                      ? 'bg-orange-500'
-                                      : 'bg-red-500'
+                                      ? "bg-orange-500"
+                                      : "bg-red-500"
                                 }`}
                                 style={{ width: `${currentResult.statistics.randomnessScore}%` }}
                               ></div>
@@ -1368,7 +1414,7 @@ const LotteryPickerCore = () => {
                               {Object.entries(currentResult.statistics.categoryDistribution)
                                 .slice(0, 2)
                                 .map(([cat, count]) => `${cat}: ${count}`)
-                                .join(', ')}
+                                .join(", ")}
                             </div>
                           </div>
                         </div>
@@ -1376,29 +1422,41 @@ const LotteryPickerCore = () => {
 
                       {/* Export Options */}
                       <div className="flex gap-2 pt-4 border-t">
-                        <Button onClick={() => exportResult(currentResult, 'json')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportResult(currentResult, "json")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           JSON
                         </Button>
-                        <Button onClick={() => exportResult(currentResult, 'csv')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportResult(currentResult, "csv")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           CSV
                         </Button>
-                        <Button onClick={() => exportResult(currentResult, 'txt')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportResult(currentResult, "txt")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           TXT
                         </Button>
                         <Button
                           onClick={() =>
                             copyToClipboard(
-                              currentResult.selectedItems.map((item) => item.value).join('\n'),
-                              'Selected Items'
+                              currentResult.selectedItems.map((item) => item.value).join("\n"),
+                              "Selected Items"
                             )
                           }
                           variant="outline"
                           size="sm"
                         >
-                          {copiedText === 'Selected Items' ? (
+                          {copiedText === "Selected Items" ? (
                             <Check className="h-4 w-4" />
                           ) : (
                             <Copy className="h-4 w-4" />
@@ -1424,7 +1482,10 @@ const LotteryPickerCore = () => {
           </TabsContent>
 
           {/* Placeholder for other tabs */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Batch Lottery Processing</CardTitle>
@@ -1440,7 +1501,10 @@ const LotteryPickerCore = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent
+            value="history"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Lottery History</CardTitle>
@@ -1450,14 +1514,17 @@ const LotteryPickerCore = () => {
                 {results.length > 0 ? (
                   <div className="space-y-4">
                     {results.slice(0, 10).map((result) => (
-                      <div key={result.id} className="border rounded-lg p-4">
+                      <div
+                        key={result.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex justify-between items-start mb-2">
                           <div className="font-medium text-sm">{result.timestamp.toLocaleString()}</div>
                           <div className="text-xs text-muted-foreground">{result.selectionMode}</div>
                         </div>
                         <div className="space-y-2">
                           <div className="text-sm">
-                            <strong>Selected:</strong> {result.selectedItems.map((item) => item.value).join(', ')}
+                            <strong>Selected:</strong> {result.selectedItems.map((item) => item.value).join(", ")}
                           </div>
                           <div className="grid grid-cols-3 gap-4 text-xs text-muted-foreground">
                             <div>Items: {result.statistics.totalItems}</div>
@@ -1466,10 +1533,18 @@ const LotteryPickerCore = () => {
                           </div>
                         </div>
                         <div className="flex gap-2 mt-3">
-                          <Button size="sm" variant="outline" onClick={() => exportResult(result, 'json')}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => exportResult(result, "json")}
+                          >
                             <Download className="h-3 w-3" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => removeResult(result.id)}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => removeResult(result.id)}
+                          >
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
@@ -1492,7 +1567,10 @@ const LotteryPickerCore = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Lottery Templates</CardTitle>
@@ -1504,7 +1582,7 @@ const LotteryPickerCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1517,17 +1595,17 @@ const LotteryPickerCore = () => {
                         <div className="space-y-2">
                           <div>
                             <div className="text-xs font-medium mb-1">Use Cases:</div>
-                            <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Examples:</div>
-                            <div className="text-xs text-muted-foreground">{template.examples.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.examples.join(", ")}</div>
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Items ({template.items.length}):</div>
                             <div className="text-xs text-muted-foreground">
-                              {template.items.slice(0, 3).join(', ')}
-                              {template.items.length > 3 ? '...' : ''}
+                              {template.items.slice(0, 3).join(", ")}
+                              {template.items.length > 3 ? "..." : ""}
                             </div>
                           </div>
                         </div>

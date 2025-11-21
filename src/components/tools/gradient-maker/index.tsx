@@ -1,12 +1,12 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -26,8 +26,8 @@ import {
   Layers,
   Image as ImageIcon,
   Paintbrush,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   GradientFile,
   Gradient,
@@ -40,8 +40,8 @@ import type {
   RadialShape,
   RadialSize,
   ExportFormat,
-} from '@/types/gradient-maker'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/gradient-maker"
+import { formatFileSize } from "@/lib/utils"
 // Types
 
 // Enums
@@ -50,15 +50,15 @@ import { formatFileSize } from '@/lib/utils'
 
 const validateGradientFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
-  const allowedTypes = ['.json', '.css', '.scss', '.svg', '.txt']
+  const allowedTypes = [".json", ".css", ".scss", ".svg", ".txt"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 10MB' }
+    return { isValid: false, error: "File size must be less than 10MB" }
   }
 
-  const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+  const extension = "." + file.name.split(".").pop()?.toLowerCase()
   if (!allowedTypes.includes(extension)) {
-    return { isValid: false, error: 'Only JSON, CSS, SCSS, SVG, and TXT files are supported' }
+    return { isValid: false, error: "Only JSON, CSS, SCSS, SVG, and TXT files are supported" }
   }
 
   return { isValid: true }
@@ -66,14 +66,14 @@ const validateGradientFile = (file: File): { isValid: boolean; error?: string } 
 
 // Preset directions for linear gradients
 const presetDirections = [
-  { label: '→', value: 90, name: 'Right' },
-  { label: '↓', value: 180, name: 'Down' },
-  { label: '←', value: 270, name: 'Left' },
-  { label: '↑', value: 0, name: 'Up' },
-  { label: '↘', value: 135, name: 'Down Right' },
-  { label: '↙', value: 225, name: 'Down Left' },
-  { label: '↖', value: 315, name: 'Up Left' },
-  { label: '↗', value: 45, name: 'Up Right' },
+  { label: "→", value: 90, name: "Right" },
+  { label: "↓", value: 180, name: "Down" },
+  { label: "←", value: 270, name: "Left" },
+  { label: "↑", value: 0, name: "Up" },
+  { label: "↘", value: 135, name: "Down Right" },
+  { label: "↙", value: 225, name: "Down Left" },
+  { label: "↖", value: 315, name: "Up Left" },
+  { label: "↗", value: 45, name: "Up Right" },
 ]
 
 // Gradient generation functions
@@ -85,9 +85,9 @@ const generateLinearGradient = (colors: ColorStop[], angle: number, repeating: b
       const color = opacity < 1 ? hexToRgba(stop.color, opacity) : stop.color
       return `${color} ${stop.position}%`
     })
-    .join(', ')
+    .join(", ")
 
-  const gradientType = repeating ? 'repeating-linear-gradient' : 'linear-gradient'
+  const gradientType = repeating ? "repeating-linear-gradient" : "linear-gradient"
   return `${gradientType}(${angle}deg, ${colorStops})`
 }
 
@@ -105,9 +105,9 @@ const generateRadialGradient = (
       const color = opacity < 1 ? hexToRgba(stop.color, opacity) : stop.color
       return `${color} ${stop.position}%`
     })
-    .join(', ')
+    .join(", ")
 
-  const gradientType = repeating ? 'repeating-radial-gradient' : 'radial-gradient'
+  const gradientType = repeating ? "repeating-radial-gradient" : "radial-gradient"
   const positionStr = `${position.x}% ${position.y}%`
   return `${gradientType}(${shape} ${size} at ${positionStr}, ${colorStops})`
 }
@@ -120,7 +120,7 @@ const generateConicGradient = (colors: ColorStop[], angle: number, position: Rad
       const color = opacity < 1 ? hexToRgba(stop.color, opacity) : stop.color
       return `${color} ${stop.position * 3.6}deg`
     })
-    .join(', ')
+    .join(", ")
 
   const positionStr = `${position.x}% ${position.y}%`
   return `conic-gradient(from ${angle}deg at ${positionStr}, ${colorStops})`
@@ -129,9 +129,9 @@ const generateConicGradient = (colors: ColorStop[], angle: number, position: Rad
 const generateSVGGradient = (gradient: Gradient): string => {
   const { id, type, colors, angle, position } = gradient
 
-  let gradientElement = ''
+  let gradientElement = ""
 
-  if (type === 'linear' || type === 'repeating-linear') {
+  if (type === "linear" || type === "repeating-linear") {
     const x1 = Math.cos(((angle! - 90) * Math.PI) / 180) * 50 + 50
     const y1 = Math.sin(((angle! - 90) * Math.PI) / 180) * 50 + 50
     const x2 = Math.cos(((angle! + 90) * Math.PI) / 180) * 50 + 50
@@ -144,9 +144,9 @@ const generateSVGGradient = (gradient: Gradient): string => {
             const opacity = stop.opacity !== undefined ? stop.opacity / 100 : 1
             return `<stop offset="${stop.position}%" stop-color="${stop.color}" stop-opacity="${opacity}" />`
           })
-          .join('\n        ')}
+          .join("\n        ")}
       </linearGradient>`
-  } else if (type === 'radial' || type === 'repeating-radial') {
+  } else if (type === "radial" || type === "repeating-radial") {
     gradientElement = `
       <radialGradient id="${id}" cx="${position?.x || 50}%" cy="${position?.y || 50}%">
         ${colors
@@ -154,7 +154,7 @@ const generateSVGGradient = (gradient: Gradient): string => {
             const opacity = stop.opacity !== undefined ? stop.opacity / 100 : 1
             return `<stop offset="${stop.position}%" stop-color="${stop.color}" stop-opacity="${opacity}" />`
           })
-          .join('\n        ')}
+          .join("\n        ")}
       </radialGradient>`
   }
 
@@ -248,23 +248,23 @@ const createGradient = (
 ): Gradient => {
   const id = nanoid()
 
-  let css = ''
+  let css = ""
   switch (type) {
-    case 'linear':
-    case 'repeating-linear':
+    case "linear":
+    case "repeating-linear":
       css = generateLinearGradient(colors, angle || 90, repeating)
       break
-    case 'radial':
-    case 'repeating-radial':
+    case "radial":
+    case "repeating-radial":
       css = generateRadialGradient(
         colors,
         position || { x: 50, y: 50 },
-        shape || 'circle',
-        size || 'farthest-corner',
+        shape || "circle",
+        size || "farthest-corner",
         repeating
       )
       break
-    case 'conic':
+    case "conic":
       css = generateConicGradient(colors, angle || 0, position || { x: 50, y: 50 })
       break
   }
@@ -289,104 +289,104 @@ const createGradient = (
 // Gradient templates
 const gradientTemplates: GradientTemplate[] = [
   {
-    id: 'sunset',
-    name: 'Sunset',
-    description: 'Warm sunset colors',
-    category: 'Nature',
+    id: "sunset",
+    name: "Sunset",
+    description: "Warm sunset colors",
+    category: "Nature",
     gradient: {
-      type: 'linear',
+      type: "linear",
       colors: [
-        { id: '1', color: '#ff7e5f', position: 0 },
-        { id: '2', color: '#feb47b', position: 100 },
+        { id: "1", color: "#ff7e5f", position: 0 },
+        { id: "2", color: "#feb47b", position: 100 },
       ],
       angle: 45,
     },
-    preview: 'linear-gradient(45deg, #ff7e5f 0%, #feb47b 100%)',
+    preview: "linear-gradient(45deg, #ff7e5f 0%, #feb47b 100%)",
   },
   {
-    id: 'ocean',
-    name: 'Ocean Blue',
-    description: 'Deep ocean gradient',
-    category: 'Nature',
+    id: "ocean",
+    name: "Ocean Blue",
+    description: "Deep ocean gradient",
+    category: "Nature",
     gradient: {
-      type: 'linear',
+      type: "linear",
       colors: [
-        { id: '1', color: '#2196F3', position: 0 },
-        { id: '2', color: '#21CBF3', position: 100 },
+        { id: "1", color: "#2196F3", position: 0 },
+        { id: "2", color: "#21CBF3", position: 100 },
       ],
       angle: 135,
     },
-    preview: 'linear-gradient(135deg, #2196F3 0%, #21CBF3 100%)',
+    preview: "linear-gradient(135deg, #2196F3 0%, #21CBF3 100%)",
   },
   {
-    id: 'purple-rain',
-    name: 'Purple Rain',
-    description: 'Purple to pink gradient',
-    category: 'Vibrant',
+    id: "purple-rain",
+    name: "Purple Rain",
+    description: "Purple to pink gradient",
+    category: "Vibrant",
     gradient: {
-      type: 'linear',
+      type: "linear",
       colors: [
-        { id: '1', color: '#667eea', position: 0 },
-        { id: '2', color: '#764ba2', position: 100 },
+        { id: "1", color: "#667eea", position: 0 },
+        { id: "2", color: "#764ba2", position: 100 },
       ],
       angle: 90,
     },
-    preview: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+    preview: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)",
   },
   {
-    id: 'green-forest',
-    name: 'Green Forest',
-    description: 'Fresh forest greens',
-    category: 'Nature',
+    id: "green-forest",
+    name: "Green Forest",
+    description: "Fresh forest greens",
+    category: "Nature",
     gradient: {
-      type: 'linear',
+      type: "linear",
       colors: [
-        { id: '1', color: '#134e5e', position: 0 },
-        { id: '2', color: '#71b280', position: 100 },
+        { id: "1", color: "#134e5e", position: 0 },
+        { id: "2", color: "#71b280", position: 100 },
       ],
       angle: 180,
     },
-    preview: 'linear-gradient(180deg, #134e5e 0%, #71b280 100%)',
+    preview: "linear-gradient(180deg, #134e5e 0%, #71b280 100%)",
   },
   {
-    id: 'radial-burst',
-    name: 'Radial Burst',
-    description: 'Radial gradient from center',
-    category: 'Radial',
+    id: "radial-burst",
+    name: "Radial Burst",
+    description: "Radial gradient from center",
+    category: "Radial",
     gradient: {
-      type: 'radial',
+      type: "radial",
       colors: [
-        { id: '1', color: '#ff9a9e', position: 0 },
-        { id: '2', color: '#fecfef', position: 50 },
-        { id: '3', color: '#fecfef', position: 100 },
+        { id: "1", color: "#ff9a9e", position: 0 },
+        { id: "2", color: "#fecfef", position: 50 },
+        { id: "3", color: "#fecfef", position: 100 },
       ],
       position: { x: 50, y: 50 },
-      shape: 'circle',
-      size: 'farthest-corner',
+      shape: "circle",
+      size: "farthest-corner",
     },
-    preview: 'radial-gradient(circle at 50% 50%, #ff9a9e 0%, #fecfef 50%, #fecfef 100%)',
+    preview: "radial-gradient(circle at 50% 50%, #ff9a9e 0%, #fecfef 50%, #fecfef 100%)",
   },
   {
-    id: 'conic-rainbow',
-    name: 'Conic Rainbow',
-    description: 'Rainbow conic gradient',
-    category: 'Conic',
+    id: "conic-rainbow",
+    name: "Conic Rainbow",
+    description: "Rainbow conic gradient",
+    category: "Conic",
     gradient: {
-      type: 'conic',
+      type: "conic",
       colors: [
-        { id: '1', color: '#ff0000', position: 0 },
-        { id: '2', color: '#ff8000', position: 16.67 },
-        { id: '3', color: '#ffff00', position: 33.33 },
-        { id: '4', color: '#80ff00', position: 50 },
-        { id: '5', color: '#00ff80', position: 66.67 },
-        { id: '6', color: '#0080ff', position: 83.33 },
-        { id: '7', color: '#8000ff', position: 100 },
+        { id: "1", color: "#ff0000", position: 0 },
+        { id: "2", color: "#ff8000", position: 16.67 },
+        { id: "3", color: "#ffff00", position: 33.33 },
+        { id: "4", color: "#80ff00", position: 50 },
+        { id: "5", color: "#00ff80", position: 66.67 },
+        { id: "6", color: "#0080ff", position: 83.33 },
+        { id: "7", color: "#8000ff", position: 100 },
       ],
       angle: 0,
       position: { x: 50, y: 50 },
     },
     preview:
-      'conic-gradient(from 0deg at 50% 50%, #ff0000 0deg, #ff8000 60deg, #ffff00 120deg, #80ff00 180deg, #00ff80 240deg, #0080ff 300deg, #8000ff 360deg)',
+      "conic-gradient(from 0deg at 50% 50%, #ff0000 0deg, #ff8000 60deg, #ffff00 120deg, #80ff00 180deg, #00ff80 240deg, #0080ff 300deg, #8000ff 360deg)",
   },
 ]
 
@@ -419,7 +419,7 @@ const useRealTimeGradient = (
     } catch (error) {
       return {
         gradient: null,
-        error: error instanceof Error ? error.message : 'Gradient generation failed',
+        error: error instanceof Error ? error.message : "Gradient generation failed",
         isEmpty: false,
       }
     }
@@ -446,17 +446,17 @@ const useFileProcessing = () => {
             name: file.name,
             content,
             size: file.size,
-            type: file.type || 'text/plain',
-            status: 'pending',
+            type: file.type || "text/plain",
+            status: "pending",
           }
 
           resolve(gradientFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsText(file)
     })
   }, [])
@@ -466,17 +466,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
-            type: files[index].type || 'text/plain',
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            type: files[index].type || "text/plain",
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -490,27 +490,27 @@ const useFileProcessing = () => {
 // Export functionality
 const useGradientExport = () => {
   const exportGradient = useCallback((gradient: Gradient, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'css':
+      case "css":
         content = `.gradient {\n  background: ${gradient.css};\n}`
-        mimeType = 'text/css'
-        extension = '.css'
+        mimeType = "text/css"
+        extension = ".css"
         break
-      case 'scss':
+      case "scss":
         content = `$gradient: ${gradient.css};\n\n.gradient {\n  background: $gradient;\n}`
-        mimeType = 'text/scss'
-        extension = '.scss'
+        mimeType = "text/scss"
+        extension = ".scss"
         break
-      case 'svg':
+      case "svg":
         content = gradient.svg
-        mimeType = 'image/svg+xml'
-        extension = '.svg'
+        mimeType = "image/svg+xml"
+        extension = ".svg"
         break
-      case 'json':
+      case "json":
         content = JSON.stringify(
           {
             id: gradient.id,
@@ -527,8 +527,8 @@ const useGradientExport = () => {
           null,
           2
         )
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
       default:
         content = gradient.css
@@ -536,7 +536,7 @@ const useGradientExport = () => {
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `gradient${extension}`
     document.body.appendChild(link)
@@ -550,15 +550,15 @@ const useGradientExport = () => {
       const completedFiles = files.filter((f) => f.gradientData)
 
       if (completedFiles.length === 0) {
-        toast.error('No gradients to export')
+        toast.error("No gradients to export")
         return
       }
 
       completedFiles.forEach((file) => {
         if (file.gradientData) {
           file.gradientData.gradients.forEach((gradient, index) => {
-            const baseName = file.name.replace(/\.[^/.]+$/, '')
-            exportGradient(gradient, 'css', `${baseName}-gradient-${index + 1}.css`)
+            const baseName = file.name.replace(/\.[^/.]+$/, "")
+            exportGradient(gradient, "css", `${baseName}-gradient-${index + 1}.css`)
           })
         }
       })
@@ -584,14 +584,14 @@ const useGradientExport = () => {
 
     const csvContent = [
       [
-        'Filename',
-        'Original Size',
-        'Total Gradients',
-        'Avg Color Stops',
-        'Avg Contrast Ratio',
-        'Accessibility Score',
-        'Processing Time',
-        'Status',
+        "Filename",
+        "Original Size",
+        "Total Gradients",
+        "Avg Color Stops",
+        "Avg Contrast Ratio",
+        "Accessibility Score",
+        "Processing Time",
+        "Status",
       ],
       ...stats.map((stat) => [
         stat.filename,
@@ -604,20 +604,20 @@ const useGradientExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'gradient-statistics.csv'
+    link.download = "gradient-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportGradient, exportBatch, exportStatistics }
@@ -630,13 +630,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -651,9 +651,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -669,7 +669,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only JSON, CSS, SCSS, SVG, or TXT files')
+        toast.error("Please drop only JSON, CSS, SCSS, SVG, or TXT files")
       }
     },
     [onFilesDropped]
@@ -683,7 +683,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -703,27 +703,27 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time gradient generation, multiple types, batch processing, accessibility analysis
  */
 const GradientMakerCore = () => {
-  const [activeTab, setActiveTab] = useState<'maker' | 'files'>('maker')
-  const [gradientType, setGradientType] = useState<GradientType>('linear')
+  const [activeTab, setActiveTab] = useState<"maker" | "files">("maker")
+  const [gradientType, setGradientType] = useState<GradientType>("linear")
   const [colors, setColors] = useState<ColorStop[]>([
-    { id: '1', color: '#ff7e5f', position: 0 },
-    { id: '2', color: '#feb47b', position: 100 },
+    { id: "1", color: "#ff7e5f", position: 0 },
+    { id: "2", color: "#feb47b", position: 100 },
   ])
   const [angle, setAngle] = useState(90)
   const [position, setPosition] = useState<RadialPosition>({ x: 50, y: 50 })
-  const [shape, setShape] = useState<RadialShape>('circle')
-  const [size, setSize] = useState<RadialSize>('farthest-corner')
+  const [shape, setShape] = useState<RadialShape>("circle")
+  const [size, setSize] = useState<RadialSize>("farthest-corner")
   const [repeating, setRepeating] = useState(false)
   const [files, setFiles] = useState<GradientFile[]>([])
   const [_, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('sunset')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("sunset")
   const [settings] = useState<GradientSettings>({
-    defaultType: 'linear',
+    defaultType: "linear",
     maxColorStops: 10,
     includeAccessibility: true,
     generateSVG: true,
     optimizeOutput: false,
-    exportFormat: 'css',
+    exportFormat: "css",
   })
 
   const { exportGradient } = useGradientExport()
@@ -742,7 +742,7 @@ const GradientMakerCore = () => {
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
@@ -774,7 +774,7 @@ const GradientMakerCore = () => {
         ...prev,
         {
           id: nanoid(),
-          color: '#ffffff',
+          color: "#ffffff",
           position: Math.min(newPosition, 100),
         },
       ])
@@ -804,12 +804,15 @@ const GradientMakerCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Paintbrush className="h-5 w-5" aria-hidden="true" />
+              <Paintbrush className="h-5 w-5" />
               Gradient Maker
             </CardTitle>
             <CardDescription>
@@ -821,20 +824,32 @@ const GradientMakerCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'maker' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "maker" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="maker" className="flex items-center gap-2">
+            <TabsTrigger
+              value="maker"
+              className="flex items-center gap-2"
+            >
               <Palette className="h-4 w-4" />
               Gradient Maker
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* Gradient Maker Tab */}
-          <TabsContent value="maker" className="space-y-4">
+          <TabsContent
+            value="maker"
+            className="space-y-4"
+          >
             {/* Gradient Templates */}
             <Card>
               <CardHeader>
@@ -848,7 +863,7 @@ const GradientMakerCore = () => {
                   {gradientTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -876,7 +891,10 @@ const GradientMakerCore = () => {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="gradient-type">Gradient Type</Label>
-                    <Select value={gradientType} onValueChange={(value: GradientType) => setGradientType(value)}>
+                    <Select
+                      value={gradientType}
+                      onValueChange={(value: GradientType) => setGradientType(value)}
+                    >
                       <SelectTrigger id="gradient-type">
                         <SelectValue />
                       </SelectTrigger>
@@ -890,7 +908,7 @@ const GradientMakerCore = () => {
                     </Select>
                   </div>
 
-                  {(gradientType === 'linear' || gradientType === 'repeating-linear' || gradientType === 'conic') && (
+                  {(gradientType === "linear" || gradientType === "repeating-linear" || gradientType === "conic") && (
                     <div className="space-y-2">
                       <Label htmlFor="angle">Angle: {angle}°</Label>
                       <Input
@@ -907,7 +925,7 @@ const GradientMakerCore = () => {
                           <Button
                             key={preset.value}
                             size="sm"
-                            variant={angle === preset.value ? 'default' : 'outline'}
+                            variant={angle === preset.value ? "default" : "outline"}
                             onClick={() => setAngle(preset.value)}
                             title={preset.name}
                           >
@@ -918,7 +936,7 @@ const GradientMakerCore = () => {
                     </div>
                   )}
 
-                  {(gradientType === 'radial' || gradientType === 'repeating-radial' || gradientType === 'conic') && (
+                  {(gradientType === "radial" || gradientType === "repeating-radial" || gradientType === "conic") && (
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
@@ -945,11 +963,14 @@ const GradientMakerCore = () => {
                         </div>
                       </div>
 
-                      {(gradientType === 'radial' || gradientType === 'repeating-radial') && (
+                      {(gradientType === "radial" || gradientType === "repeating-radial") && (
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-2">
                             <Label htmlFor="shape">Shape</Label>
-                            <Select value={shape} onValueChange={(value: RadialShape) => setShape(value)}>
+                            <Select
+                              value={shape}
+                              onValueChange={(value: RadialShape) => setShape(value)}
+                            >
                               <SelectTrigger id="shape">
                                 <SelectValue />
                               </SelectTrigger>
@@ -961,7 +982,10 @@ const GradientMakerCore = () => {
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="size">Size</Label>
-                            <Select value={size} onValueChange={(value: RadialSize) => setSize(value)}>
+                            <Select
+                              value={size}
+                              onValueChange={(value: RadialSize) => setSize(value)}
+                            >
                               <SelectTrigger id="size">
                                 <SelectValue />
                               </SelectTrigger>
@@ -986,7 +1010,10 @@ const GradientMakerCore = () => {
                       onChange={(e) => setRepeating(e.target.checked)}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="repeating" className="text-sm">
+                    <Label
+                      htmlFor="repeating"
+                      className="text-sm"
+                    >
                       Repeating Gradient
                     </Label>
                   </div>
@@ -1025,9 +1052,9 @@ const GradientMakerCore = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => copyToClipboard(gradientPreview.gradient!.css, 'CSS gradient')}
+                            onClick={() => copyToClipboard(gradientPreview.gradient!.css, "CSS gradient")}
                           >
-                            {copiedText === 'CSS gradient' ? (
+                            {copiedText === "CSS gradient" ? (
                               <Check className="h-4 w-4" />
                             ) : (
                               <Copy className="h-4 w-4" />
@@ -1066,7 +1093,11 @@ const GradientMakerCore = () => {
                     <Label className="text-sm font-medium">
                       Colors ({colors.length}/{settings.maxColorStops})
                     </Label>
-                    <Button size="sm" onClick={addColorStop} disabled={colors.length >= settings.maxColorStops}>
+                    <Button
+                      size="sm"
+                      onClick={addColorStop}
+                      disabled={colors.length >= settings.maxColorStops}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Color
                     </Button>
@@ -1074,11 +1105,18 @@ const GradientMakerCore = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {colors.map((colorStop, index) => (
-                      <div key={colorStop.id} className="border rounded-lg p-3 space-y-3">
+                      <div
+                        key={colorStop.id}
+                        className="border rounded-lg p-3 space-y-3"
+                      >
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium">Color {index + 1}</span>
                           {colors.length > 2 && (
-                            <Button size="sm" variant="ghost" onClick={() => removeColorStop(colorStop.id)}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeColorStop(colorStop.id)}
+                            >
                               <Minus className="h-4 w-4" />
                             </Button>
                           )}
@@ -1149,10 +1187,10 @@ const GradientMakerCore = () => {
                         const randomColors = colors.map((c) => ({
                           ...c,
                           color:
-                            '#' +
+                            "#" +
                             Math.floor(Math.random() * 16777215)
                               .toString(16)
-                              .padStart(6, '0'),
+                              .padStart(6, "0"),
                         }))
                         setColors(randomColors)
                       }}
@@ -1205,11 +1243,11 @@ const GradientMakerCore = () => {
                         <Label className="text-sm font-medium">WCAG Compliance</Label>
                         <div className="mt-2 p-3 bg-muted/30 rounded">
                           <span
-                            className={`font-medium ${gradientPreview.gradient.accessibility.wcagCompliant ? 'text-green-600' : 'text-red-600'}`}
+                            className={`font-medium ${gradientPreview.gradient.accessibility.wcagCompliant ? "text-green-600" : "text-red-600"}`}
                           >
                             {gradientPreview.gradient.accessibility.wcagCompliant
-                              ? 'WCAG AA Compliant'
-                              : 'Not WCAG AA Compliant'}
+                              ? "WCAG AA Compliant"
+                              : "Not WCAG AA Compliant"}
                           </span>
                         </div>
                       </div>
@@ -1220,11 +1258,11 @@ const GradientMakerCore = () => {
                         <Label className="text-sm font-medium">Color Blind Safety</Label>
                         <div className="mt-2 p-3 bg-muted/30 rounded">
                           <span
-                            className={`font-medium ${gradientPreview.gradient.accessibility.colorBlindSafe ? 'text-green-600' : 'text-orange-600'}`}
+                            className={`font-medium ${gradientPreview.gradient.accessibility.colorBlindSafe ? "text-green-600" : "text-orange-600"}`}
                           >
                             {gradientPreview.gradient.accessibility.colorBlindSafe
-                              ? 'Color Blind Safe'
-                              : 'May be difficult for color blind users'}
+                              ? "Color Blind Safe"
+                              : "May be difficult for color blind users"}
                           </span>
                         </div>
                       </div>
@@ -1256,28 +1294,40 @@ const GradientMakerCore = () => {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex flex-wrap gap-3 justify-center">
-                    <Button onClick={() => exportGradient(gradientPreview.gradient!, 'css')} variant="outline">
+                    <Button
+                      onClick={() => exportGradient(gradientPreview.gradient!, "css")}
+                      variant="outline"
+                    >
                       <Download className="mr-2 h-4 w-4" />
                       Export CSS
                     </Button>
 
-                    <Button onClick={() => exportGradient(gradientPreview.gradient!, 'scss')} variant="outline">
+                    <Button
+                      onClick={() => exportGradient(gradientPreview.gradient!, "scss")}
+                      variant="outline"
+                    >
                       <Code className="mr-2 h-4 w-4" />
                       Export SCSS
                     </Button>
 
-                    <Button onClick={() => exportGradient(gradientPreview.gradient!, 'svg')} variant="outline">
+                    <Button
+                      onClick={() => exportGradient(gradientPreview.gradient!, "svg")}
+                      variant="outline"
+                    >
                       <ImageIcon className="mr-2 h-4 w-4" />
                       Export SVG
                     </Button>
 
-                    <Button onClick={() => exportGradient(gradientPreview.gradient!, 'json')} variant="outline">
+                    <Button
+                      onClick={() => exportGradient(gradientPreview.gradient!, "json")}
+                      variant="outline"
+                    >
                       <FileText className="mr-2 h-4 w-4" />
                       Export JSON
                     </Button>
 
                     <Button
-                      onClick={() => copyToClipboard(gradientPreview.gradient!.css, 'gradient CSS')}
+                      onClick={() => copyToClipboard(gradientPreview.gradient!.css, "gradient CSS")}
                       variant="outline"
                     >
                       <Copy className="mr-2 h-4 w-4" />
@@ -1290,14 +1340,17 @@ const GradientMakerCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1305,9 +1358,8 @@ const GradientMakerCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop gradient files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1318,7 +1370,11 @@ const GradientMakerCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your gradient files here, or click to select files
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1332,7 +1388,6 @@ const GradientMakerCore = () => {
                     accept=".json,.css,.scss,.svg,.txt"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select gradient files"
                   />
                 </div>
               </CardContent>
@@ -1346,19 +1401,25 @@ const GradientMakerCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground">
                               <span className="font-medium">Size:</span> {formatFileSize(file.size)}
                             </div>
-                            {file.status === 'completed' && file.gradientData && (
+                            {file.status === "completed" && file.gradientData && (
                               <div className="mt-2 text-xs">
                                 {file.gradientData.statistics.totalGradients} gradients processed
                               </div>

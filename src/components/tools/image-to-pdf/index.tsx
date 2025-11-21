@@ -1,19 +1,19 @@
-import React, { useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { toast } from 'sonner'
-import { Upload, Download, Loader2, Trash2, BarChart3 } from 'lucide-react'
-import { PDFDocument } from 'pdf-lib'
-import { nanoid } from 'nanoid'
-import type { ImageToPdfFile, ImageToPdfSettings, ImageToPdfStats } from '@/types/image-to-pdf'
+import React, { useCallback, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from "sonner"
+import { Upload, Download, Loader2, Trash2, BarChart3 } from "lucide-react"
+import { PDFDocument } from "pdf-lib"
+import { nanoid } from "nanoid"
+import type { ImageToPdfFile, ImageToPdfSettings, ImageToPdfStats } from "@/types/image-to-pdf"
 
 // 默认设置
 const defaultSettings: ImageToPdfSettings = {
-  pageSize: 'A4',
-  orientation: 'portrait',
+  pageSize: "A4",
+  orientation: "portrait",
   margin: 10,
   quality: 0.92,
   batch: false,
@@ -35,7 +35,7 @@ function useImageFiles() {
       name: file.name,
       size: file.size,
       type: file.type,
-      status: 'pending',
+      status: "pending",
     }))
     setFiles((prev) => [...prev, ...newFiles])
   }, [])
@@ -60,8 +60,8 @@ const PAGE_SIZES: Record<string, [number, number]> = {
 }
 
 const getPageSize = (size: string, orientation: string): [number, number] => {
-  const [w, h] = PAGE_SIZES[size] || PAGE_SIZES['A4']
-  return orientation === 'landscape' ? [h, w] : [w, h]
+  const [w, h] = PAGE_SIZES[size] || PAGE_SIZES["A4"]
+  return orientation === "landscape" ? [h, w] : [w, h]
 }
 
 // PDF 生成核心逻辑
@@ -76,13 +76,13 @@ async function imagesToPdf(
     const file = files[i]
     const imgBytes = await file.file.arrayBuffer()
     let img
-    if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
+    if (file.type === "image/jpeg" || file.type === "image/jpg") {
       img = await pdfDoc.embedJpg(imgBytes)
-    } else if (file.type === 'image/png') {
+    } else if (file.type === "image/png") {
       img = await pdfDoc.embedPng(imgBytes)
     } else {
       // 其它格式转为 PNG
-      toast.warning('部分图片格式暂不直接支持，已尝试自动转为 PNG')
+      toast.warning("部分图片格式暂不直接支持，已尝试自动转为 PNG")
       img = await pdfDoc.embedPng(imgBytes)
     }
     const imgDims = img.scale(1)
@@ -146,11 +146,11 @@ const ImageToPdf = () => {
       // 将 Uint8Array 安全复制到新的 ArrayBuffer，确保类型为 ArrayBuffer
       const ab = new ArrayBuffer(pdfBytes.byteLength)
       new Uint8Array(ab).set(pdfBytes)
-      const blob = new Blob([ab], { type: 'application/pdf' })
+      const blob = new Blob([ab], { type: "application/pdf" })
       const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
+      const a = document.createElement("a")
       a.href = url
-      a.download = 'images.pdf'
+      a.download = "images.pdf"
       a.click()
       URL.revokeObjectURL(url)
       setStats({
@@ -161,8 +161,8 @@ const ImageToPdf = () => {
       })
       toast.success(`PDF 导出成功，共 ${files.length} 页，用时 ${(t1 - t0).toFixed(0)}ms`)
     } catch (e: any) {
-      setError(e.message || 'PDF 生成失败')
-      toast.error(e.message || 'PDF 生成失败')
+      setError(e.message || "PDF 生成失败")
+      toast.error(e.message || "PDF 生成失败")
     } finally {
       setLoading(false)
       setProgress(0)
@@ -170,7 +170,7 @@ const ImageToPdf = () => {
   }, [files, settings, setError])
 
   return (
-    <Card className="max-w-2xl mx-auto mt-6" aria-label="图片转 PDF 工具">
+    <Card className="max-w-2xl mx-auto mt-6">
       <CardHeader>
         <CardTitle>图片转 PDF（Image to PDF）</CardTitle>
         <CardDescription>支持批量、格式、纸张、边距、拖拽上传，全面对齐其它图片工具体验</CardDescription>
@@ -179,8 +179,11 @@ const ImageToPdf = () => {
         {/* 参数设置区 */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <Label htmlFor="pageSize">纸张大小</Label>
-          <Select value={settings.pageSize} onValueChange={(v) => setSettings((s) => ({ ...s, pageSize: v as any }))}>
-            <SelectTrigger id="pageSize" aria-label="纸张大小">
+          <Select
+            value={settings.pageSize}
+            onValueChange={(v) => setSettings((s) => ({ ...s, pageSize: v as any }))}
+          >
+            <SelectTrigger id="pageSize">
               <SelectValue>{settings.pageSize}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -195,7 +198,7 @@ const ImageToPdf = () => {
             value={settings.orientation}
             onValueChange={(v) => setSettings((s) => ({ ...s, orientation: v as any }))}
           >
-            <SelectTrigger id="orientation" aria-label="页面方向">
+            <SelectTrigger id="orientation">
               <SelectValue>{settings.orientation}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -211,7 +214,6 @@ const ImageToPdf = () => {
             max={100}
             value={settings.margin}
             onChange={(e) => setSettings((s) => ({ ...s, margin: Number(e.target.value) }))}
-            aria-label="边距"
           />
           <Label htmlFor="quality">图片质量</Label>
           <Input
@@ -222,28 +224,37 @@ const ImageToPdf = () => {
             step={0.01}
             value={settings.quality}
             onChange={(e) => setSettings((s) => ({ ...s, quality: Number(e.target.value) }))}
-            aria-label="图片质量"
           />
         </div>
         {/* 拖拽上传区 */}
         <div
           className="border-2 border-dashed rounded p-6 text-center mb-4 cursor-pointer hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
           tabIndex={0}
-          aria-label="拖拽图片到此处或点击上传"
           onDrop={onDrop}
           onDragOver={(e) => e.preventDefault()}
-          onClick={() => document.getElementById('image-upload')?.click()}
+          onClick={() => document.getElementById("image-upload")?.click()}
         >
           <Upload className="mx-auto mb-2" />
           拖拽图片到此处，或点击上传
-          <input id="image-upload" type="file" accept="image/*" multiple className="hidden" onChange={onFileChange} />
+          <input
+            id="image-upload"
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={onFileChange}
+          />
         </div>
         {/* 文件列表 */}
         {files.length > 0 && (
           <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
               <span>已选图片（{files.length}）</span>
-              <Button variant="ghost" size="sm" onClick={clearFiles} aria-label="清空图片">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFiles}
+              >
                 <Trash2 className="mr-1" />
                 清空
               </Button>
@@ -254,15 +265,17 @@ const ImageToPdf = () => {
                   key={f.id}
                   className="flex flex-col items-center border rounded p-2"
                   tabIndex={0}
-                  aria-label={`图片 ${f.name}`}
                 >
-                  <img src={f.url} alt={f.name} className="w-full h-auto mb-2 border rounded" />
+                  <img
+                    src={f.url}
+                    alt={f.name}
+                    className="w-full h-auto mb-2 border rounded"
+                  />
                   <div className="font-mono text-xs select-all break-all mb-1">{f.name}</div>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => removeFile(f.id)}
-                    aria-label={`移除图片 ${f.name}`}
                   >
                     <Trash2 className="mr-1" />
                     移除
@@ -273,20 +286,19 @@ const ImageToPdf = () => {
           </div>
         )}
         {/* 错误提示 */}
-        {error && (
-          <div className="text-red-600 mb-2" role="alert">
-            {error}
-          </div>
-        )}
+        {error && <div className="text-red-600 mb-2">{error}</div>}
         {/* 进度条 */}
         {loading && (
-          <div className="w-full bg-gray-200 rounded h-2 mb-2" aria-label="生成进度">
-            <div className="bg-blue-500 h-2 rounded" style={{ width: `${Math.round(progress * 100)}%` }} />
+          <div className="w-full bg-gray-200 rounded h-2 mb-2">
+            <div
+              className="bg-blue-500 h-2 rounded"
+              style={{ width: `${Math.round(progress * 100)}%` }}
+            />
           </div>
         )}
         {/* 统计信息 */}
         {stats && (
-          <div className="mb-2 text-sm text-muted-foreground flex items-center gap-4" aria-label="统计信息">
+          <div className="mb-2 text-sm text-muted-foreground flex items-center gap-4">
             <BarChart3 className="mr-1" />
             <span>图片数：{stats.totalImages}</span>
             <span>PDF页数：{stats.pageCount}</span>
@@ -294,7 +306,11 @@ const ImageToPdf = () => {
           </div>
         )}
         {/* 生成 PDF 按钮 */}
-        <Button disabled={files.length === 0 || loading} aria-busy={loading} className="w-full" onClick={handleExport}>
+        <Button
+          disabled={files.length === 0 || loading}
+          className="w-full"
+          onClick={handleExport}
+        >
           {loading ? <Loader2 className="animate-spin mr-2" /> : <Download className="mr-2" />}生成 PDF
         </Button>
       </CardContent>

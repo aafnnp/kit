@@ -1,12 +1,12 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -23,8 +23,8 @@ import {
   Zap,
   Square,
   Circle,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   BorderRadius,
   BorderRadiusCorners,
@@ -35,22 +35,22 @@ import type {
   BorderRadiusUnit,
   ExportFormat,
   BorderRadiusFile,
-} from '@/types/border-radius'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/border-radius"
+import { formatFileSize } from "@/lib/utils"
 
 // Utility functions
 
 const validateBorderRadiusFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
-  const allowedTypes = ['.json', '.css', '.scss', '.txt']
+  const allowedTypes = [".json", ".css", ".scss", ".txt"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 10MB' }
+    return { isValid: false, error: "File size must be less than 10MB" }
   }
 
-  const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+  const extension = "." + file.name.split(".").pop()?.toLowerCase()
   if (!allowedTypes.includes(extension)) {
-    return { isValid: false, error: 'Only JSON, CSS, SCSS, and TXT files are supported' }
+    return { isValid: false, error: "Only JSON, CSS, SCSS, and TXT files are supported" }
   }
 
   return { isValid: true }
@@ -104,28 +104,28 @@ const analyzeBorderRadiusAccessibility = (corners: BorderRadiusCorners): BorderR
 
   // Check uniformity
   const uniqueValues = [...new Set(values)]
-  const uniformity = uniqueValues.length === 1 ? 'uniform' : 'mixed'
+  const uniformity = uniqueValues.length === 1 ? "uniform" : "mixed"
 
   // Determine readability impact
   const maxRadius = Math.max(...values)
-  let readabilityImpact: 'none' | 'minimal' | 'moderate' = 'none'
+  let readabilityImpact: "none" | "minimal" | "moderate" = "none"
 
-  if (maxRadius > 50) readabilityImpact = 'moderate'
-  else if (maxRadius > 20) readabilityImpact = 'minimal'
+  if (maxRadius > 50) readabilityImpact = "moderate"
+  else if (maxRadius > 20) readabilityImpact = "minimal"
 
   // Design consistency
-  let designConsistency: 'consistent' | 'varied' | 'chaotic' = 'consistent'
+  let designConsistency: "consistent" | "varied" | "chaotic" = "consistent"
   const variance = Math.max(...values) - Math.min(...values)
 
-  if (variance > 30) designConsistency = 'chaotic'
-  else if (variance > 10) designConsistency = 'varied'
+  if (variance > 30) designConsistency = "chaotic"
+  else if (variance > 10) designConsistency = "varied"
 
   // Usability score (0-100)
   let usabilityScore = 100
-  if (readabilityImpact === 'minimal') usabilityScore -= 10
-  if (readabilityImpact === 'moderate') usabilityScore -= 25
-  if (designConsistency === 'varied') usabilityScore -= 10
-  if (designConsistency === 'chaotic') usabilityScore -= 30
+  if (readabilityImpact === "minimal") usabilityScore -= 10
+  if (readabilityImpact === "moderate") usabilityScore -= 25
+  if (designConsistency === "varied") usabilityScore -= 10
+  if (designConsistency === "chaotic") usabilityScore -= 30
 
   return {
     uniformity,
@@ -139,15 +139,15 @@ const analyzeBorderRadiusAccessibility = (corners: BorderRadiusCorners): BorderR
 const createBorderRadius = (type: BorderRadiusType, corners: BorderRadiusCorners): BorderRadius => {
   const id = nanoid()
 
-  let css = ''
+  let css = ""
   switch (type) {
-    case 'uniform':
+    case "uniform":
       css = generateUniformBorderRadius(corners.topLeft, corners.unit)
       break
-    case 'individual':
+    case "individual":
       css = generateIndividualBorderRadius(corners)
       break
-    case 'percentage':
+    case "percentage":
       css = generatePercentageBorderRadius(corners)
       break
   }
@@ -166,136 +166,136 @@ const createBorderRadius = (type: BorderRadiusType, corners: BorderRadiusCorners
 // Border radius templates
 const borderRadiusTemplates: BorderRadiusTemplate[] = [
   {
-    id: 'none',
-    name: 'None',
-    description: 'No border radius',
-    category: 'Basic',
+    id: "none",
+    name: "None",
+    description: "No border radius",
+    category: "Basic",
     borderRadius: {
-      type: 'uniform',
-      corners: { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0, unit: 'px' },
+      type: "uniform",
+      corners: { topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0, unit: "px" },
     },
-    preview: '0px',
+    preview: "0px",
   },
   {
-    id: 'small',
-    name: 'Small',
-    description: 'Small rounded corners',
-    category: 'Basic',
+    id: "small",
+    name: "Small",
+    description: "Small rounded corners",
+    category: "Basic",
     borderRadius: {
-      type: 'uniform',
-      corners: { topLeft: 4, topRight: 4, bottomRight: 4, bottomLeft: 4, unit: 'px' },
+      type: "uniform",
+      corners: { topLeft: 4, topRight: 4, bottomRight: 4, bottomLeft: 4, unit: "px" },
     },
-    preview: '4px',
+    preview: "4px",
   },
   {
-    id: 'medium',
-    name: 'Medium',
-    description: 'Medium rounded corners',
-    category: 'Basic',
+    id: "medium",
+    name: "Medium",
+    description: "Medium rounded corners",
+    category: "Basic",
     borderRadius: {
-      type: 'uniform',
-      corners: { topLeft: 8, topRight: 8, bottomRight: 8, bottomLeft: 8, unit: 'px' },
+      type: "uniform",
+      corners: { topLeft: 8, topRight: 8, bottomRight: 8, bottomLeft: 8, unit: "px" },
     },
-    preview: '8px',
+    preview: "8px",
   },
   {
-    id: 'large',
-    name: 'Large',
-    description: 'Large rounded corners',
-    category: 'Basic',
+    id: "large",
+    name: "Large",
+    description: "Large rounded corners",
+    category: "Basic",
     borderRadius: {
-      type: 'uniform',
-      corners: { topLeft: 16, topRight: 16, bottomRight: 16, bottomLeft: 16, unit: 'px' },
+      type: "uniform",
+      corners: { topLeft: 16, topRight: 16, bottomRight: 16, bottomLeft: 16, unit: "px" },
     },
-    preview: '16px',
+    preview: "16px",
   },
   {
-    id: 'xl',
-    name: 'Extra Large',
-    description: 'Extra large rounded corners',
-    category: 'Basic',
+    id: "xl",
+    name: "Extra Large",
+    description: "Extra large rounded corners",
+    category: "Basic",
     borderRadius: {
-      type: 'uniform',
-      corners: { topLeft: 24, topRight: 24, bottomRight: 24, bottomLeft: 24, unit: 'px' },
+      type: "uniform",
+      corners: { topLeft: 24, topRight: 24, bottomRight: 24, bottomLeft: 24, unit: "px" },
     },
-    preview: '24px',
+    preview: "24px",
   },
   {
-    id: 'full',
-    name: 'Full',
-    description: 'Fully rounded (circular)',
-    category: 'Special',
+    id: "full",
+    name: "Full",
+    description: "Fully rounded (circular)",
+    category: "Special",
     borderRadius: {
-      type: 'percentage',
-      corners: { topLeft: 50, topRight: 50, bottomRight: 50, bottomLeft: 50, unit: '%' },
+      type: "percentage",
+      corners: { topLeft: 50, topRight: 50, bottomRight: 50, bottomLeft: 50, unit: "%" },
     },
-    preview: '50%',
+    preview: "50%",
   },
   {
-    id: 'pill',
-    name: 'Pill',
-    description: 'Pill-shaped (9999px)',
-    category: 'Special',
+    id: "pill",
+    name: "Pill",
+    description: "Pill-shaped (9999px)",
+    category: "Special",
     borderRadius: {
-      type: 'uniform',
-      corners: { topLeft: 9999, topRight: 9999, bottomRight: 9999, bottomLeft: 9999, unit: 'px' },
+      type: "uniform",
+      corners: { topLeft: 9999, topRight: 9999, bottomRight: 9999, bottomLeft: 9999, unit: "px" },
     },
-    preview: '9999px',
+    preview: "9999px",
   },
   {
-    id: 'top-only',
-    name: 'Top Only',
-    description: 'Rounded top corners only',
-    category: 'Individual',
+    id: "top-only",
+    name: "Top Only",
+    description: "Rounded top corners only",
+    category: "Individual",
     borderRadius: {
-      type: 'individual',
-      corners: { topLeft: 12, topRight: 12, bottomRight: 0, bottomLeft: 0, unit: 'px' },
+      type: "individual",
+      corners: { topLeft: 12, topRight: 12, bottomRight: 0, bottomLeft: 0, unit: "px" },
     },
-    preview: '12px 12px 0 0',
+    preview: "12px 12px 0 0",
   },
   {
-    id: 'bottom-only',
-    name: 'Bottom Only',
-    description: 'Rounded bottom corners only',
-    category: 'Individual',
+    id: "bottom-only",
+    name: "Bottom Only",
+    description: "Rounded bottom corners only",
+    category: "Individual",
     borderRadius: {
-      type: 'individual',
-      corners: { topLeft: 0, topRight: 0, bottomRight: 12, bottomLeft: 12, unit: 'px' },
+      type: "individual",
+      corners: { topLeft: 0, topRight: 0, bottomRight: 12, bottomLeft: 12, unit: "px" },
     },
-    preview: '0 0 12px 12px',
+    preview: "0 0 12px 12px",
   },
   {
-    id: 'left-only',
-    name: 'Left Only',
-    description: 'Rounded left corners only',
-    category: 'Individual',
+    id: "left-only",
+    name: "Left Only",
+    description: "Rounded left corners only",
+    category: "Individual",
     borderRadius: {
-      type: 'individual',
-      corners: { topLeft: 12, topRight: 0, bottomRight: 0, bottomLeft: 12, unit: 'px' },
+      type: "individual",
+      corners: { topLeft: 12, topRight: 0, bottomRight: 0, bottomLeft: 12, unit: "px" },
     },
-    preview: '12px 0 0 12px',
+    preview: "12px 0 0 12px",
   },
   {
-    id: 'right-only',
-    name: 'Right Only',
-    description: 'Rounded right corners only',
-    category: 'Individual',
+    id: "right-only",
+    name: "Right Only",
+    description: "Rounded right corners only",
+    category: "Individual",
     borderRadius: {
-      type: 'individual',
-      corners: { topLeft: 0, topRight: 12, bottomRight: 12, bottomLeft: 0, unit: 'px' },
+      type: "individual",
+      corners: { topLeft: 0, topRight: 12, bottomRight: 12, bottomLeft: 0, unit: "px" },
     },
-    preview: '0 12px 12px 0',
+    preview: "0 12px 12px 0",
   },
   {
-    id: 'asymmetric',
-    name: 'Asymmetric',
-    description: 'Different radius for each corner',
-    category: 'Creative',
+    id: "asymmetric",
+    name: "Asymmetric",
+    description: "Different radius for each corner",
+    category: "Creative",
     borderRadius: {
-      type: 'individual',
-      corners: { topLeft: 20, topRight: 5, bottomRight: 15, bottomLeft: 10, unit: 'px' },
+      type: "individual",
+      corners: { topLeft: 20, topRight: 5, bottomRight: 15, bottomLeft: 10, unit: "px" },
     },
-    preview: '20px 5px 15px 10px',
+    preview: "20px 5px 15px 10px",
   },
 ]
 
@@ -312,7 +312,7 @@ const useRealTimeBorderRadius = (type: BorderRadiusType, corners: BorderRadiusCo
     } catch (error) {
       return {
         borderRadius: null,
-        error: error instanceof Error ? error.message : 'Border radius generation failed',
+        error: error instanceof Error ? error.message : "Border radius generation failed",
         isEmpty: false,
       }
     }
@@ -339,17 +339,17 @@ const useFileProcessing = () => {
             name: file.name,
             content,
             size: file.size,
-            type: file.type || 'text/plain',
-            status: 'pending',
+            type: file.type || "text/plain",
+            status: "pending",
           }
 
           resolve(borderRadiusFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsText(file)
     })
   }, [])
@@ -359,17 +359,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
-            type: files[index].type || 'text/plain',
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            type: files[index].type || "text/plain",
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -383,27 +383,27 @@ const useFileProcessing = () => {
 // Export functionality
 const useBorderRadiusExport = () => {
   const exportBorderRadius = useCallback((borderRadius: BorderRadius, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'css':
+      case "css":
         content = `.border-radius {\n  ${borderRadius.css}\n}`
-        mimeType = 'text/css'
-        extension = '.css'
+        mimeType = "text/css"
+        extension = ".css"
         break
-      case 'scss':
-        content = `$border-radius: ${borderRadius.css.split(': ')[1]};\n\n.border-radius {\n  border-radius: $border-radius;\n}`
-        mimeType = 'text/scss'
-        extension = '.scss'
+      case "scss":
+        content = `$border-radius: ${borderRadius.css.split(": ")[1]};\n\n.border-radius {\n  border-radius: $border-radius;\n}`
+        mimeType = "text/scss"
+        extension = ".scss"
         break
-      case 'tailwind':
+      case "tailwind":
         content = generateTailwindClasses(borderRadius)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
-      case 'json':
+      case "json":
         content = JSON.stringify(
           {
             id: borderRadius.id,
@@ -415,8 +415,8 @@ const useBorderRadiusExport = () => {
           null,
           2
         )
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
       default:
         content = borderRadius.css
@@ -424,7 +424,7 @@ const useBorderRadiusExport = () => {
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `border-radius${extension}`
     document.body.appendChild(link)
@@ -438,15 +438,15 @@ const useBorderRadiusExport = () => {
       const completedFiles = files.filter((f) => f.borderRadiusData)
 
       if (completedFiles.length === 0) {
-        toast.error('No border radius configurations to export')
+        toast.error("No border radius configurations to export")
         return
       }
 
       completedFiles.forEach((file) => {
         if (file.borderRadiusData) {
           file.borderRadiusData.borderRadii.forEach((borderRadius, index) => {
-            const baseName = file.name.replace(/\.[^/.]+$/, '')
-            exportBorderRadius(borderRadius, 'css', `${baseName}-border-radius-${index + 1}.css`)
+            const baseName = file.name.replace(/\.[^/.]+$/, "")
+            exportBorderRadius(borderRadius, "css", `${baseName}-border-radius-${index + 1}.css`)
           })
         }
       })
@@ -464,7 +464,7 @@ const useBorderRadiusExport = () => {
         originalSize: formatFileSize(file.size),
         totalBorderRadii: file.borderRadiusData!.statistics.totalBorderRadii,
         averageRadius: file.borderRadiusData!.statistics.averageRadius.toFixed(1),
-        uniformityRatio: (file.borderRadiusData!.statistics.uniformityRatio * 100).toFixed(1) + '%',
+        uniformityRatio: (file.borderRadiusData!.statistics.uniformityRatio * 100).toFixed(1) + "%",
         accessibilityScore: file.borderRadiusData!.statistics.accessibilityScore.toFixed(1),
         processingTime: `${file.borderRadiusData!.statistics.processingTime.toFixed(2)}ms`,
         status: file.status,
@@ -472,14 +472,14 @@ const useBorderRadiusExport = () => {
 
     const csvContent = [
       [
-        'Filename',
-        'Original Size',
-        'Total Border Radii',
-        'Avg Radius',
-        'Uniformity Ratio',
-        'Accessibility Score',
-        'Processing Time',
-        'Status',
+        "Filename",
+        "Original Size",
+        "Total Border Radii",
+        "Avg Radius",
+        "Uniformity Ratio",
+        "Accessibility Score",
+        "Processing Time",
+        "Status",
       ],
       ...stats.map((stat) => [
         stat.filename,
@@ -492,20 +492,20 @@ const useBorderRadiusExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'border-radius-statistics.csv'
+    link.download = "border-radius-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportBorderRadius, exportBatch, exportStatistics }
@@ -523,15 +523,15 @@ const generateTailwindClasses = (borderRadius: BorderRadius): string => {
   ) {
     // Uniform radius
     const radius = corners.topLeft
-    if (radius === 0) return 'rounded-none'
-    if (radius <= 2) return 'rounded-sm'
-    if (radius <= 4) return 'rounded'
-    if (radius <= 6) return 'rounded-md'
-    if (radius <= 8) return 'rounded-lg'
-    if (radius <= 12) return 'rounded-xl'
-    if (radius <= 16) return 'rounded-2xl'
-    if (radius <= 24) return 'rounded-3xl'
-    if (radius >= 9999) return 'rounded-full'
+    if (radius === 0) return "rounded-none"
+    if (radius <= 2) return "rounded-sm"
+    if (radius <= 4) return "rounded"
+    if (radius <= 6) return "rounded-md"
+    if (radius <= 8) return "rounded-lg"
+    if (radius <= 12) return "rounded-xl"
+    if (radius <= 16) return "rounded-2xl"
+    if (radius <= 24) return "rounded-3xl"
+    if (radius >= 9999) return "rounded-full"
     return `rounded-[${radius}px]`
   }
 
@@ -546,13 +546,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -567,9 +567,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -585,7 +585,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only JSON, CSS, SCSS, or TXT files')
+        toast.error("Please drop only JSON, CSS, SCSS, or TXT files")
       }
     },
     [onFilesDropped]
@@ -599,7 +599,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -619,25 +619,25 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time border radius generation, multiple types, batch processing, accessibility analysis
  */
 const BorderRadiusCore = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'files'>('generator')
-  const [borderRadiusType, setBorderRadiusType] = useState<BorderRadiusType>('uniform')
+  const [activeTab, setActiveTab] = useState<"generator" | "files">("generator")
+  const [borderRadiusType, setBorderRadiusType] = useState<BorderRadiusType>("uniform")
   const [corners, setCorners] = useState<BorderRadiusCorners>({
     topLeft: 8,
     topRight: 8,
     bottomRight: 8,
     bottomLeft: 8,
-    unit: 'px',
+    unit: "px",
   })
   const [files, setFiles] = useState<BorderRadiusFile[]>([])
   const [_, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('medium')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("medium")
   const [settings, setSettings] = useState<BorderRadiusSettings>({
-    defaultType: 'uniform',
-    defaultUnit: 'px',
+    defaultType: "uniform",
+    defaultUnit: "px",
     maxRadius: 100,
     includeAccessibility: true,
     optimizeOutput: false,
-    exportFormat: 'css',
+    exportFormat: "css",
   })
 
   const { exportBorderRadius } = useBorderRadiusExport()
@@ -656,7 +656,7 @@ const BorderRadiusCore = () => {
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
@@ -676,7 +676,7 @@ const BorderRadiusCore = () => {
   }, [])
 
   // Corner management
-  const updateCorner = useCallback((corner: keyof Omit<BorderRadiusCorners, 'unit'>, value: number) => {
+  const updateCorner = useCallback((corner: keyof Omit<BorderRadiusCorners, "unit">, value: number) => {
     setCorners((prev) => ({ ...prev, [corner]: value }))
   }, [])
 
@@ -704,12 +704,15 @@ const BorderRadiusCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Circle className="h-5 w-5" aria-hidden="true" />
+              <Circle className="h-5 w-5" />
               Border Radius Generator
             </CardTitle>
             <CardDescription>
@@ -721,20 +724,32 @@ const BorderRadiusCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'generator' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "generator" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <Circle className="h-4 w-4" />
               Border Radius Generator
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* Border Radius Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             {/* Border Radius Templates */}
             <Card>
               <CardHeader>
@@ -748,7 +763,7 @@ const BorderRadiusCore = () => {
                   {borderRadiusTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -793,7 +808,10 @@ const BorderRadiusCore = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="unit">Unit</Label>
-                    <Select value={corners.unit} onValueChange={(value: BorderRadiusUnit) => updateUnit(value)}>
+                    <Select
+                      value={corners.unit}
+                      onValueChange={(value: BorderRadiusUnit) => updateUnit(value)}
+                    >
                       <SelectTrigger id="unit">
                         <SelectValue />
                       </SelectTrigger>
@@ -806,7 +824,7 @@ const BorderRadiusCore = () => {
                     </Select>
                   </div>
 
-                  {borderRadiusType === 'uniform' && (
+                  {borderRadiusType === "uniform" && (
                     <div className="space-y-2">
                       <Label htmlFor="uniform-radius">
                         Radius: {corners.topLeft}
@@ -816,7 +834,7 @@ const BorderRadiusCore = () => {
                         id="uniform-radius"
                         type="range"
                         min="0"
-                        max={corners.unit === '%' ? '50' : '100'}
+                        max={corners.unit === "%" ? "50" : "100"}
                         value={corners.topLeft}
                         onChange={(e) => setUniformRadius(Number(e.target.value))}
                         className="w-full"
@@ -824,7 +842,7 @@ const BorderRadiusCore = () => {
                       <Input
                         type="number"
                         min="0"
-                        max={corners.unit === '%' ? 50 : 100}
+                        max={corners.unit === "%" ? 50 : 100}
                         value={corners.topLeft}
                         onChange={(e) => setUniformRadius(Number(e.target.value))}
                         className="w-full"
@@ -832,7 +850,7 @@ const BorderRadiusCore = () => {
                     </div>
                   )}
 
-                  {borderRadiusType === 'individual' && (
+                  {borderRadiusType === "individual" && (
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
@@ -844,15 +862,15 @@ const BorderRadiusCore = () => {
                             id="top-left"
                             type="range"
                             min="0"
-                            max={corners.unit === '%' ? '50' : '100'}
+                            max={corners.unit === "%" ? "50" : "100"}
                             value={corners.topLeft}
-                            onChange={(e) => updateCorner('topLeft', Number(e.target.value))}
+                            onChange={(e) => updateCorner("topLeft", Number(e.target.value))}
                           />
                           <Input
                             type="number"
                             min="0"
                             value={corners.topLeft}
-                            onChange={(e) => updateCorner('topLeft', Number(e.target.value))}
+                            onChange={(e) => updateCorner("topLeft", Number(e.target.value))}
                             className="text-sm"
                           />
                         </div>
@@ -865,15 +883,15 @@ const BorderRadiusCore = () => {
                             id="top-right"
                             type="range"
                             min="0"
-                            max={corners.unit === '%' ? '50' : '100'}
+                            max={corners.unit === "%" ? "50" : "100"}
                             value={corners.topRight}
-                            onChange={(e) => updateCorner('topRight', Number(e.target.value))}
+                            onChange={(e) => updateCorner("topRight", Number(e.target.value))}
                           />
                           <Input
                             type="number"
                             min="0"
                             value={corners.topRight}
-                            onChange={(e) => updateCorner('topRight', Number(e.target.value))}
+                            onChange={(e) => updateCorner("topRight", Number(e.target.value))}
                             className="text-sm"
                           />
                         </div>
@@ -888,15 +906,15 @@ const BorderRadiusCore = () => {
                             id="bottom-left"
                             type="range"
                             min="0"
-                            max={corners.unit === '%' ? '50' : '100'}
+                            max={corners.unit === "%" ? "50" : "100"}
                             value={corners.bottomLeft}
-                            onChange={(e) => updateCorner('bottomLeft', Number(e.target.value))}
+                            onChange={(e) => updateCorner("bottomLeft", Number(e.target.value))}
                           />
                           <Input
                             type="number"
                             min="0"
                             value={corners.bottomLeft}
-                            onChange={(e) => updateCorner('bottomLeft', Number(e.target.value))}
+                            onChange={(e) => updateCorner("bottomLeft", Number(e.target.value))}
                             className="text-sm"
                           />
                         </div>
@@ -909,15 +927,15 @@ const BorderRadiusCore = () => {
                             id="bottom-right"
                             type="range"
                             min="0"
-                            max={corners.unit === '%' ? '50' : '100'}
+                            max={corners.unit === "%" ? "50" : "100"}
                             value={corners.bottomRight}
-                            onChange={(e) => updateCorner('bottomRight', Number(e.target.value))}
+                            onChange={(e) => updateCorner("bottomRight", Number(e.target.value))}
                           />
                           <Input
                             type="number"
                             min="0"
                             value={corners.bottomRight}
-                            onChange={(e) => updateCorner('bottomRight', Number(e.target.value))}
+                            onChange={(e) => updateCorner("bottomRight", Number(e.target.value))}
                             className="text-sm"
                           />
                         </div>
@@ -925,7 +943,7 @@ const BorderRadiusCore = () => {
                     </div>
                   )}
 
-                  {borderRadiusType === 'percentage' && (
+                  {borderRadiusType === "percentage" && (
                     <div className="space-y-2">
                       <Label htmlFor="percentage-radius">Radius: {corners.topLeft}%</Label>
                       <Input
@@ -956,7 +974,10 @@ const BorderRadiusCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, includeAccessibility: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="accessibility" className="text-sm">
+                    <Label
+                      htmlFor="accessibility"
+                      className="text-sm"
+                    >
                       Include Accessibility Analysis
                     </Label>
                   </div>
@@ -986,7 +1007,7 @@ const BorderRadiusCore = () => {
                         <div
                           className="w-32 h-32 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600"
                           style={{
-                            borderRadius: borderRadiusPreview.borderRadius.css.split(': ')[1].replace(';', ''),
+                            borderRadius: borderRadiusPreview.borderRadius.css.split(": ")[1].replace(";", ""),
                           }}
                         />
                       </div>
@@ -998,9 +1019,9 @@ const BorderRadiusCore = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => copyToClipboard(borderRadiusPreview.borderRadius!.css, 'CSS border radius')}
+                            onClick={() => copyToClipboard(borderRadiusPreview.borderRadius!.css, "CSS border radius")}
                           >
-                            {copiedText === 'CSS border radius' ? (
+                            {copiedText === "CSS border radius" ? (
                               <Check className="h-4 w-4" />
                             ) : (
                               <Copy className="h-4 w-4" />
@@ -1045,7 +1066,7 @@ const BorderRadiusCore = () => {
                     size="sm"
                     variant="outline"
                     onClick={() => {
-                      setCorners({ topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0, unit: 'px' })
+                      setCorners({ topLeft: 0, topRight: 0, bottomRight: 0, bottomLeft: 0, unit: "px" })
                     }}
                   >
                     <RotateCcw className="h-4 w-4 mr-2" />
@@ -1062,9 +1083,9 @@ const BorderRadiusCore = () => {
                         topRight: 50,
                         bottomRight: 50,
                         bottomLeft: 50,
-                        unit: '%',
+                        unit: "%",
                       }))
-                      setBorderRadiusType('percentage')
+                      setBorderRadiusType("percentage")
                     }}
                   >
                     <Square className="h-4 w-4 mr-2" />
@@ -1090,11 +1111,11 @@ const BorderRadiusCore = () => {
                         <Label className="text-sm font-medium">Uniformity</Label>
                         <div className="mt-2 p-3 bg-muted/30 rounded">
                           <span
-                            className={`font-medium ${borderRadiusPreview.borderRadius.accessibility.uniformity === 'uniform' ? 'text-green-600' : 'text-yellow-600'}`}
+                            className={`font-medium ${borderRadiusPreview.borderRadius.accessibility.uniformity === "uniform" ? "text-green-600" : "text-yellow-600"}`}
                           >
-                            {borderRadiusPreview.borderRadius.accessibility.uniformity === 'uniform'
-                              ? 'Uniform'
-                              : 'Mixed'}
+                            {borderRadiusPreview.borderRadius.accessibility.uniformity === "uniform"
+                              ? "Uniform"
+                              : "Mixed"}
                           </span>
                         </div>
                       </div>
@@ -1104,11 +1125,11 @@ const BorderRadiusCore = () => {
                         <div className="mt-2 p-3 bg-muted/30 rounded">
                           <span
                             className={`font-medium ${
-                              borderRadiusPreview.borderRadius.accessibility.designConsistency === 'consistent'
-                                ? 'text-green-600'
-                                : borderRadiusPreview.borderRadius.accessibility.designConsistency === 'varied'
-                                  ? 'text-yellow-600'
-                                  : 'text-red-600'
+                              borderRadiusPreview.borderRadius.accessibility.designConsistency === "consistent"
+                                ? "text-green-600"
+                                : borderRadiusPreview.borderRadius.accessibility.designConsistency === "varied"
+                                  ? "text-yellow-600"
+                                  : "text-red-600"
                             }`}
                           >
                             {borderRadiusPreview.borderRadius.accessibility.designConsistency.charAt(0).toUpperCase() +
@@ -1124,15 +1145,15 @@ const BorderRadiusCore = () => {
                         <div className="mt-2 p-3 bg-muted/30 rounded">
                           <span
                             className={`font-medium ${
-                              borderRadiusPreview.borderRadius.accessibility.readabilityImpact === 'none'
-                                ? 'text-green-600'
-                                : borderRadiusPreview.borderRadius.accessibility.readabilityImpact === 'minimal'
-                                  ? 'text-green-600'
-                                  : 'text-yellow-600'
+                              borderRadiusPreview.borderRadius.accessibility.readabilityImpact === "none"
+                                ? "text-green-600"
+                                : borderRadiusPreview.borderRadius.accessibility.readabilityImpact === "minimal"
+                                  ? "text-green-600"
+                                  : "text-yellow-600"
                             }`}
                           >
                             {borderRadiusPreview.borderRadius.accessibility.readabilityImpact.charAt(0).toUpperCase() +
-                              borderRadiusPreview.borderRadius.accessibility.readabilityImpact.slice(1)}{' '}
+                              borderRadiusPreview.borderRadius.accessibility.readabilityImpact.slice(1)}{" "}
                             Impact
                           </span>
                         </div>
@@ -1166,7 +1187,7 @@ const BorderRadiusCore = () => {
                 <CardContent className="pt-6">
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Button
-                      onClick={() => exportBorderRadius(borderRadiusPreview.borderRadius!, 'css')}
+                      onClick={() => exportBorderRadius(borderRadiusPreview.borderRadius!, "css")}
                       variant="outline"
                     >
                       <Download className="mr-2 h-4 w-4" />
@@ -1174,7 +1195,7 @@ const BorderRadiusCore = () => {
                     </Button>
 
                     <Button
-                      onClick={() => exportBorderRadius(borderRadiusPreview.borderRadius!, 'scss')}
+                      onClick={() => exportBorderRadius(borderRadiusPreview.borderRadius!, "scss")}
                       variant="outline"
                     >
                       <Code className="mr-2 h-4 w-4" />
@@ -1182,7 +1203,7 @@ const BorderRadiusCore = () => {
                     </Button>
 
                     <Button
-                      onClick={() => exportBorderRadius(borderRadiusPreview.borderRadius!, 'tailwind')}
+                      onClick={() => exportBorderRadius(borderRadiusPreview.borderRadius!, "tailwind")}
                       variant="outline"
                     >
                       <Zap className="mr-2 h-4 w-4" />
@@ -1190,7 +1211,7 @@ const BorderRadiusCore = () => {
                     </Button>
 
                     <Button
-                      onClick={() => exportBorderRadius(borderRadiusPreview.borderRadius!, 'json')}
+                      onClick={() => exportBorderRadius(borderRadiusPreview.borderRadius!, "json")}
                       variant="outline"
                     >
                       <FileText className="mr-2 h-4 w-4" />
@@ -1198,7 +1219,7 @@ const BorderRadiusCore = () => {
                     </Button>
 
                     <Button
-                      onClick={() => copyToClipboard(borderRadiusPreview.borderRadius!.css, 'border radius CSS')}
+                      onClick={() => copyToClipboard(borderRadiusPreview.borderRadius!.css, "border radius CSS")}
                       variant="outline"
                     >
                       <Copy className="mr-2 h-4 w-4" />
@@ -1211,14 +1232,17 @@ const BorderRadiusCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1226,9 +1250,8 @@ const BorderRadiusCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop border radius files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1239,7 +1262,11 @@ const BorderRadiusCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your border radius configuration files here, or click to select files
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1253,7 +1280,6 @@ const BorderRadiusCore = () => {
                     accept=".json,.css,.scss,.txt"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select border radius files"
                   />
                 </div>
               </CardContent>
@@ -1267,19 +1293,25 @@ const BorderRadiusCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground">
                               <span className="font-medium">Size:</span> {formatFileSize(file.size)}
                             </div>
-                            {file.status === 'completed' && file.borderRadiusData && (
+                            {file.status === "completed" && file.borderRadiusData && (
                               <div className="mt-2 text-xs">
                                 {file.borderRadiusData.statistics.totalBorderRadii} border radius configurations
                                 processed

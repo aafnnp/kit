@@ -1,11 +1,11 @@
-import { useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -20,42 +20,42 @@ import {
   Layers,
   Image,
   Barcode as BarcodeIcon,
-} from 'lucide-react'
-import { useBarcodeGenerator, useBarcodeExport, validateBarcodeSettings, barcodeTemplates } from './hooks'
-import { useCopyToClipboard } from '@/hooks/use-clipboard'
-import { BarcodeResult, BarcodeSettings, BarcodeFormat } from '@/types/barcode-generator'
+} from "lucide-react"
+import { useBarcodeGenerator, useBarcodeExport, validateBarcodeSettings, barcodeTemplates } from "./hooks"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
+import { BarcodeResult, BarcodeSettings, BarcodeFormat } from "@/types/barcode-generator"
 
 /**
  * Enhanced Barcode Generator & Management Tool
  * Features: Advanced barcode generation, customization, analysis, and batch processing
  */
 const BarcodeGeneratorCore = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'batch' | 'gallery' | 'templates'>('generator')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<"generator" | "batch" | "gallery" | "templates">("generator")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [currentBarcode, setCurrentBarcode] = useState<BarcodeResult | null>(null)
   const [settings, setSettings] = useState<BarcodeSettings>({
-    content: '123456789012',
-    format: 'CODE128',
+    content: "123456789012",
+    format: "CODE128",
     width: 2,
     height: 80,
     displayValue: true,
-    backgroundColor: '#ffffff',
-    lineColor: '#000000',
+    backgroundColor: "#ffffff",
+    lineColor: "#000000",
     fontSize: 12,
-    fontFamily: 'Arial',
-    textAlign: 'center',
-    textPosition: 'bottom',
+    fontFamily: "Arial",
+    textAlign: "center",
+    textPosition: "bottom",
     textMargin: 5,
     margin: 15,
     customization: {
       showBorder: false,
       borderWidth: 1,
-      borderColor: '#000000',
+      borderColor: "#000000",
       showQuietZone: true,
       quietZoneSize: 10,
       customFont: false,
-      fontWeight: 'normal',
-      textCase: 'none',
+      fontWeight: "normal",
+      textCase: "none",
     },
   })
 
@@ -99,12 +99,12 @@ const BarcodeGeneratorCore = () => {
       setCurrentBarcode(result)
 
       if (result.isValid) {
-        toast.success('Barcode generated successfully')
+        toast.success("Barcode generated successfully")
       } else {
-        toast.error(result.error || 'Barcode generation failed')
+        toast.error(result.error || "Barcode generation failed")
       }
     } catch (error) {
-      toast.error('Failed to generate barcode')
+      toast.error("Failed to generate barcode")
       console.error(error)
     }
   }, [settings, generateBarcode])
@@ -119,12 +119,15 @@ const BarcodeGeneratorCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarcodeIcon className="h-5 w-5" aria-hidden="true" />
+              <BarcodeIcon className="h-5 w-5" />
               Barcode Generator & Management Tool
             </CardTitle>
             <CardDescription>
@@ -138,29 +141,44 @@ const BarcodeGeneratorCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'generator' | 'batch' | 'gallery' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "generator" | "batch" | "gallery" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <BarcodeIcon className="h-4 w-4" />
               Generator
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Layers className="h-4 w-4" />
               Batch
             </TabsTrigger>
-            <TabsTrigger value="gallery" className="flex items-center gap-2">
+            <TabsTrigger
+              value="gallery"
+              className="flex items-center gap-2"
+            >
               <Image className="h-4 w-4" />
               Gallery
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* Barcode Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Generator Settings */}
               <Card>
@@ -173,7 +191,10 @@ const BarcodeGeneratorCore = () => {
                 <CardContent className="space-y-4">
                   {/* Content Input */}
                   <div>
-                    <Label htmlFor="content" className="text-sm font-medium">
+                    <Label
+                      htmlFor="content"
+                      className="text-sm font-medium"
+                    >
                       Content
                     </Label>
                     <Input
@@ -188,7 +209,10 @@ const BarcodeGeneratorCore = () => {
 
                   {/* Format Selection */}
                   <div>
-                    <Label htmlFor="format" className="text-sm font-medium">
+                    <Label
+                      htmlFor="format"
+                      className="text-sm font-medium"
+                    >
                       Barcode Format
                     </Label>
                     <Select
@@ -216,7 +240,10 @@ const BarcodeGeneratorCore = () => {
                   {/* Basic Settings */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="width" className="text-sm font-medium">
+                      <Label
+                        htmlFor="width"
+                        className="text-sm font-medium"
+                      >
                         Bar Width
                       </Label>
                       <Input
@@ -231,7 +258,10 @@ const BarcodeGeneratorCore = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="height" className="text-sm font-medium">
+                      <Label
+                        htmlFor="height"
+                        className="text-sm font-medium"
+                      >
                         Height (px)
                       </Label>
                       <Input
@@ -249,7 +279,10 @@ const BarcodeGeneratorCore = () => {
                   {/* Colors */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="line-color" className="text-sm font-medium">
+                      <Label
+                        htmlFor="line-color"
+                        className="text-sm font-medium"
+                      >
                         Bar Color
                       </Label>
                       <div className="flex gap-2 mt-2">
@@ -269,7 +302,10 @@ const BarcodeGeneratorCore = () => {
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="background-color" className="text-sm font-medium">
+                      <Label
+                        htmlFor="background-color"
+                        className="text-sm font-medium"
+                      >
                         Background Color
                       </Label>
                       <div className="flex gap-2 mt-2">
@@ -300,7 +336,10 @@ const BarcodeGeneratorCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, displayValue: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="display-value" className="text-sm">
+                      <Label
+                        htmlFor="display-value"
+                        className="text-sm"
+                      >
                         Display text below barcode
                       </Label>
                     </div>
@@ -308,7 +347,10 @@ const BarcodeGeneratorCore = () => {
                     {settings.displayValue && (
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="font-size" className="text-xs">
+                          <Label
+                            htmlFor="font-size"
+                            className="text-xs"
+                          >
                             Font Size
                           </Label>
                           <Input
@@ -324,12 +366,15 @@ const BarcodeGeneratorCore = () => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="text-align" className="text-xs">
+                          <Label
+                            htmlFor="text-align"
+                            className="text-xs"
+                          >
                             Text Alignment
                           </Label>
                           <Select
                             value={settings.textAlign}
-                            onValueChange={(value: 'left' | 'center' | 'right') =>
+                            onValueChange={(value: "left" | "center" | "right") =>
                               setSettings((prev) => ({ ...prev, textAlign: value }))
                             }
                           >
@@ -363,28 +408,28 @@ const BarcodeGeneratorCore = () => {
                     <Button
                       onClick={() =>
                         setSettings({
-                          content: '123456789012',
-                          format: 'CODE128',
+                          content: "123456789012",
+                          format: "CODE128",
                           width: 2,
                           height: 80,
                           displayValue: true,
-                          backgroundColor: '#ffffff',
-                          lineColor: '#000000',
+                          backgroundColor: "#ffffff",
+                          lineColor: "#000000",
                           fontSize: 12,
-                          fontFamily: 'Arial',
-                          textAlign: 'center',
-                          textPosition: 'bottom',
+                          fontFamily: "Arial",
+                          textAlign: "center",
+                          textPosition: "bottom",
                           textMargin: 5,
                           margin: 15,
                           customization: {
                             showBorder: false,
                             borderWidth: 1,
-                            borderColor: '#000000',
+                            borderColor: "#000000",
                             showQuietZone: true,
                             quietZoneSize: 10,
                             customFont: false,
-                            fontWeight: 'normal',
-                            textCase: 'none',
+                            fontWeight: "normal",
+                            textCase: "none",
                           },
                         })
                       }
@@ -411,19 +456,26 @@ const BarcodeGeneratorCore = () => {
                       {/* Barcode Display */}
                       <div className="flex justify-center">
                         <div className="p-4 border rounded-lg bg-muted/50 w-full">
-                          <div className="w-full justify-center" style={{ height: previewHeight }}>
+                          <div
+                            className="w-full justify-center"
+                            style={{ height: previewHeight }}
+                          >
                             {currentBarcode.svgString ? (
                               <div
                                 className="w-full h-full"
                                 dangerouslySetInnerHTML={{
                                   __html: currentBarcode.svgString.replace(
-                                    '<svg ',
+                                    "<svg ",
                                     '<svg preserveAspectRatio="none" width="100%" height="100%" '
                                   ),
                                 }}
                               />
                             ) : currentBarcode.dataUrl ? (
-                              <img src={currentBarcode.dataUrl} alt="Generated Barcode" className="w-full h-full" />
+                              <img
+                                src={currentBarcode.dataUrl}
+                                alt="Generated Barcode"
+                                className="w-full h-full"
+                              />
                             ) : currentBarcode.isValid ? (
                               <div className="w-full h-full" />
                             ) : (
@@ -450,10 +502,10 @@ const BarcodeGeneratorCore = () => {
                         </div>
                         <div>
                           <div>
-                            <strong>Text Display:</strong> {currentBarcode.displayValue ? '✅ Yes' : '❌ No'}
+                            <strong>Text Display:</strong> {currentBarcode.displayValue ? "✅ Yes" : "❌ No"}
                           </div>
                           <div>
-                            <strong>Valid:</strong> {currentBarcode.isValid ? '✅ Yes' : '❌ No'}
+                            <strong>Valid:</strong> {currentBarcode.isValid ? "✅ Yes" : "❌ No"}
                           </div>
                           <div>
                             <strong>Created:</strong> {currentBarcode.createdAt.toLocaleTimeString()}
@@ -484,10 +536,10 @@ const BarcodeGeneratorCore = () => {
                                 <div
                                   className={`h-1 rounded-full ${
                                     currentBarcode.analysis.readability.readabilityScore >= 80
-                                      ? 'bg-green-500'
+                                      ? "bg-green-500"
                                       : currentBarcode.analysis.readability.readabilityScore >= 60
-                                        ? 'bg-orange-500'
-                                        : 'bg-red-500'
+                                        ? "bg-orange-500"
+                                        : "bg-red-500"
                                   }`}
                                   style={{ width: `${currentBarcode.analysis.readability.readabilityScore}%` }}
                                 ></div>
@@ -502,10 +554,10 @@ const BarcodeGeneratorCore = () => {
                                 <div
                                   className={`h-1 rounded-full ${
                                     currentBarcode.analysis.optimization.overallOptimization >= 80
-                                      ? 'bg-green-500'
+                                      ? "bg-green-500"
                                       : currentBarcode.analysis.optimization.overallOptimization >= 60
-                                        ? 'bg-orange-500'
-                                        : 'bg-red-500'
+                                        ? "bg-orange-500"
+                                        : "bg-red-500"
                                   }`}
                                   style={{ width: `${currentBarcode.analysis.optimization.overallOptimization}%` }}
                                 ></div>
@@ -518,10 +570,10 @@ const BarcodeGeneratorCore = () => {
                                 <div
                                   className={`h-1 rounded-full ${
                                     currentBarcode.analysis.security.security_score >= 80
-                                      ? 'bg-green-500'
+                                      ? "bg-green-500"
                                       : currentBarcode.analysis.security.security_score >= 60
-                                        ? 'bg-orange-500'
-                                        : 'bg-red-500'
+                                        ? "bg-orange-500"
+                                        : "bg-red-500"
                                   }`}
                                   style={{ width: `${currentBarcode.analysis.security.security_score}%` }}
                                 ></div>
@@ -536,10 +588,10 @@ const BarcodeGeneratorCore = () => {
                                 <div
                                   className={`h-1 rounded-full ${
                                     (currentBarcode.metadata?.qualityScore || 0) >= 80
-                                      ? 'bg-green-500'
+                                      ? "bg-green-500"
                                       : (currentBarcode.metadata?.qualityScore || 0) >= 60
-                                        ? 'bg-orange-500'
-                                        : 'bg-red-500'
+                                        ? "bg-orange-500"
+                                        : "bg-red-500"
                                   }`}
                                   style={{ width: `${currentBarcode.metadata?.qualityScore || 0}%` }}
                                 ></div>
@@ -552,7 +604,10 @@ const BarcodeGeneratorCore = () => {
                               <h5 className="font-medium text-sm mb-2 text-blue-800">Recommendations</h5>
                               <ul className="text-sm space-y-1">
                                 {currentBarcode.analysis.recommendations.map((rec, index) => (
-                                  <li key={index} className="flex items-center gap-2 text-blue-700">
+                                  <li
+                                    key={index}
+                                    className="flex items-center gap-2 text-blue-700"
+                                  >
                                     <CheckCircle2 className="h-3 w-3" />
                                     {rec}
                                   </li>
@@ -566,7 +621,10 @@ const BarcodeGeneratorCore = () => {
                               <h5 className="font-medium text-sm mb-2 text-orange-800">Warnings</h5>
                               <ul className="text-sm space-y-1">
                                 {currentBarcode.analysis.warnings.map((warning, index) => (
-                                  <li key={index} className="flex items-center gap-2 text-orange-700">
+                                  <li
+                                    key={index}
+                                    className="flex items-center gap-2 text-orange-700"
+                                  >
                                     <AlertCircle className="h-3 w-3" />
                                     {warning}
                                   </li>
@@ -580,23 +638,31 @@ const BarcodeGeneratorCore = () => {
                       {/* Download Options */}
                       {currentBarcode.isValid && (
                         <div className="flex gap-2 pt-4 border-t">
-                          <Button onClick={() => downloadBarcode(currentBarcode)} variant="outline" className="flex-1">
+                          <Button
+                            onClick={() => downloadBarcode(currentBarcode)}
+                            variant="outline"
+                            className="flex-1"
+                          >
                             <Download className="mr-2 h-4 w-4" />
                             Download PNG
                           </Button>
-                          <Button onClick={() => downloadSVG(currentBarcode)} variant="outline" className="flex-1">
+                          <Button
+                            onClick={() => downloadSVG(currentBarcode)}
+                            variant="outline"
+                            className="flex-1"
+                          >
                             <Download className="mr-2 h-4 w-4" />
                             Download SVG
                           </Button>
                           <Button
                             onClick={() =>
                               currentBarcode.dataUrl
-                                ? copyImageToClipboard(currentBarcode.dataUrl, 'Barcode Image')
-                                : toast.error('No image to copy')
+                                ? copyImageToClipboard(currentBarcode.dataUrl, "Barcode Image")
+                                : toast.error("No image to copy")
                             }
                             variant="outline"
                           >
-                            {copiedText === 'Barcode Image' ? (
+                            {copiedText === "Barcode Image" ? (
                               <Check className="h-4 w-4" />
                             ) : (
                               <Copy className="h-4 w-4" />
@@ -620,7 +686,10 @@ const BarcodeGeneratorCore = () => {
           </TabsContent>
 
           {/* Placeholder for other tabs */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Batch Barcode Generation</CardTitle>
@@ -636,7 +705,10 @@ const BarcodeGeneratorCore = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="gallery" className="space-y-4">
+          <TabsContent
+            value="gallery"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Barcode Gallery</CardTitle>
@@ -646,17 +718,23 @@ const BarcodeGeneratorCore = () => {
                 {barcodes.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {barcodes.slice(0, 12).map((barcode) => (
-                      <div key={barcode.id} className="border rounded-lg p-4">
+                      <div
+                        key={barcode.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex justify-center mb-3">
                           {barcode.dataUrl ? (
                             <img
                               src={barcode.dataUrl}
                               alt="Barcode"
                               className="max-w-full h-auto"
-                              style={{ maxHeight: '80px' }}
+                              style={{ maxHeight: "80px" }}
                             />
                           ) : barcode.isValid ? (
-                            <div className="w-full" dangerouslySetInnerHTML={{ __html: barcode.svgString || '' }} />
+                            <div
+                              className="w-full"
+                              dangerouslySetInnerHTML={{ __html: barcode.svgString || "" }}
+                            />
                           ) : (
                             <div className="w-24 h-12 bg-gray-200 rounded flex items-center justify-center">
                               <BarcodeIcon className="h-6 w-6 text-gray-400" />
@@ -683,7 +761,11 @@ const BarcodeGeneratorCore = () => {
                           >
                             <Download className="h-3 w-3" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => removeBarcode(barcode.id)}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => removeBarcode(barcode.id)}
+                          >
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
@@ -701,7 +783,10 @@ const BarcodeGeneratorCore = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Barcode Templates</CardTitle>
@@ -713,7 +798,7 @@ const BarcodeGeneratorCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -726,11 +811,11 @@ const BarcodeGeneratorCore = () => {
                         <div className="space-y-2">
                           <div>
                             <div className="text-xs font-medium mb-1">Use Cases:</div>
-                            <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Examples:</div>
-                            <div className="text-xs text-muted-foreground">{template.examples.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.examples.join(", ")}</div>
                           </div>
                         </div>
                       </div>

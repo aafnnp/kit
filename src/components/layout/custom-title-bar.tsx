@@ -108,7 +108,6 @@ export function CustomTitleBar() {
                 padding: 0,
               }}
               onClick={handleClose}
-              aria-label="Close"
             />
             <button
               type="button"
@@ -123,7 +122,6 @@ export function CustomTitleBar() {
                 padding: 0,
               }}
               onClick={handleMinimize}
-              aria-label="Minimize"
             />
             <button
               type="button"
@@ -138,7 +136,6 @@ export function CustomTitleBar() {
                 padding: 0,
               }}
               onClick={handleMaximize}
-              aria-label={isMaximized ? "Restore" : "Maximize"}
             />
           </div>
         )}
@@ -156,7 +153,6 @@ export function CustomTitleBar() {
             size="sm"
             className="h-8 w-10 rounded-none hover:bg-muted/50"
             onClick={handleMinimize}
-            aria-label="Minimize"
           >
             <IconMinus className="h-4 w-4" />
           </Button>
@@ -165,7 +161,6 @@ export function CustomTitleBar() {
             size="sm"
             className="h-8 w-10 rounded-none hover:bg-muted/50"
             onClick={handleMaximize}
-            aria-label={isMaximized ? "Restore" : "Maximize"}
           >
             {isMaximized ? <IconChevronUp className="h-4 w-4 rotate-180" /> : <IconSquare className="h-3 w-3" />}
           </Button>
@@ -174,7 +169,6 @@ export function CustomTitleBar() {
             size="sm"
             className="h-8 w-10 rounded-none hover:bg-destructive/90 hover:text-destructive-foreground"
             onClick={handleClose}
-            aria-label="Close"
           >
             <IconX className="h-4 w-4" />
           </Button>

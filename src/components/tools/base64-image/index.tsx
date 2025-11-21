@@ -1,12 +1,12 @@
-import React, { useCallback, useState, useEffect, useRef } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useState, useEffect, useRef } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -30,7 +30,7 @@ import {
   Maximize2,
   Minimize2,
   Palette,
-} from 'lucide-react'
+} from "lucide-react"
 import {
   ImageProcessingResult,
   ProcessingBatch,
@@ -38,34 +38,34 @@ import {
   ConversionDirection,
   ImageFormat,
   ExportFormat,
-} from '@/types/base64-image'
-import { formatFileSize } from '@/lib/utils'
-import { imageTemplates, useImageProcessing, useRealTimeValidation, useCopyToClipboard, useImageExport } from './hooks'
+} from "@/types/base64-image"
+import { formatFileSize } from "@/lib/utils"
+import { imageTemplates, useImageProcessing, useRealTimeValidation, useCopyToClipboard, useImageExport } from "./hooks"
 
 /**
  * Enhanced Base64 ⇄ Image Bidirectional Converter
  * Features: Advanced image processing, Base64 conversion, validation, analysis, batch processing
  */
 const Base64ImageCore = () => {
-  const [activeTab, setActiveTab] = useState<'converter' | 'batch' | 'analyzer' | 'templates'>('converter')
-  const [input, setInput] = useState('')
+  const [activeTab, setActiveTab] = useState<"converter" | "batch" | "analyzer" | "templates">("converter")
+  const [input, setInput] = useState("")
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [direction, setDirection] = useState<ConversionDirection>('base64-to-image')
+  const [direction, setDirection] = useState<ConversionDirection>("base64-to-image")
   const [currentResult, setCurrentResult] = useState<ImageProcessingResult | null>(null)
   const [batches, setBatches] = useState<ProcessingBatch[]>([])
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [showAnalysis, setShowAnalysis] = useState(false)
   const [imagePreviewExpanded, setImagePreviewExpanded] = useState(false)
   const [settings, setSettings] = useState<ProcessingSettings>({
-    outputFormat: 'png',
+    outputFormat: "png",
     quality: 90,
     maxWidth: 0,
     maxHeight: 0,
     includeDataUrlPrefix: true,
     realTimeProcessing: true,
-    exportFormat: 'base64',
+    exportFormat: "base64",
     compressionLevel: 6,
     preserveMetadata: false,
     autoOptimize: false,
@@ -84,7 +84,7 @@ const Base64ImageCore = () => {
     const template = imageTemplates.find((t) => t.id === templateId)
     if (template) {
       setInput(template.base64Example)
-      setDirection('base64-to-image')
+      setDirection("base64-to-image")
       setSelectedTemplate(templateId)
       toast.success(`Applied template: ${template.name}`)
     }
@@ -92,15 +92,15 @@ const Base64ImageCore = () => {
 
   // Handle single processing
   const handleProcessSingle = useCallback(async () => {
-    const inputData = direction === 'image-to-base64' ? selectedFile : input
+    const inputData = direction === "image-to-base64" ? selectedFile : input
 
     if (!inputData) {
-      toast.error(`Please ${direction === 'image-to-base64' ? 'select an image file' : 'enter Base64 data'} to process`)
+      toast.error(`Please ${direction === "image-to-base64" ? "select an image file" : "enter Base64 data"} to process`)
       return
     }
 
-    if (direction === 'base64-to-image' && !inputValidation.isValid) {
-      toast.error(inputValidation.error || 'Invalid input')
+    if (direction === "base64-to-image" && !inputValidation.isValid) {
+      toast.error(inputValidation.error || "Invalid input")
       return
     }
 
@@ -110,13 +110,13 @@ const Base64ImageCore = () => {
       setCurrentResult(result)
 
       if (result.isValid) {
-        const directionText = direction === 'image-to-base64' ? 'Image to Base64' : 'Base64 to Image'
+        const directionText = direction === "image-to-base64" ? "Image to Base64" : "Base64 to Image"
         toast.success(`${directionText} conversion completed`)
       } else {
-        toast.error(result.error || 'Processing failed')
+        toast.error(result.error || "Processing failed")
       }
     } catch (error) {
-      toast.error('Failed to process image')
+      toast.error("Failed to process image")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -126,7 +126,7 @@ const Base64ImageCore = () => {
   // Handle batch processing
   const handleProcessBatch = useCallback(async () => {
     if (selectedFiles.length === 0) {
-      toast.error('Please select image files to process')
+      toast.error("Please select image files to process")
       return
     }
 
@@ -134,14 +134,14 @@ const Base64ImageCore = () => {
     try {
       const inputs = selectedFiles.map((file) => ({
         content: file,
-        direction: 'image-to-base64' as ConversionDirection,
+        direction: "image-to-base64" as ConversionDirection,
       }))
 
       const batch = await processBatch(inputs, settings)
       setBatches((prev) => [batch, ...prev])
       toast.success(`Processed ${batch.results.length} images`)
     } catch (error) {
-      toast.error('Failed to process batch')
+      toast.error("Failed to process batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -174,24 +174,24 @@ const Base64ImageCore = () => {
 
   // Toggle conversion direction
   const toggleDirection = useCallback(() => {
-    const newDirection: ConversionDirection = direction === 'base64-to-image' ? 'image-to-base64' : 'base64-to-image'
+    const newDirection: ConversionDirection = direction === "base64-to-image" ? "image-to-base64" : "base64-to-image"
     setDirection(newDirection)
 
     // Clear current inputs and results
-    setInput('')
+    setInput("")
     setSelectedFile(null)
     setCurrentResult(null)
 
     if (fileInputRef.current) {
-      fileInputRef.current.value = ''
+      fileInputRef.current.value = ""
     }
 
-    toast.success(`Switched to ${newDirection === 'base64-to-image' ? 'Base64 to Image' : 'Image to Base64'} mode`)
+    toast.success(`Switched to ${newDirection === "base64-to-image" ? "Base64 to Image" : "Image to Base64"} mode`)
   }, [direction])
 
   // Auto-process when real-time processing is enabled
   useEffect(() => {
-    if (settings.realTimeProcessing && direction === 'base64-to-image' && input.trim() && inputValidation.isValid) {
+    if (settings.realTimeProcessing && direction === "base64-to-image" && input.trim() && inputValidation.isValid) {
       const timer = setTimeout(() => {
         handleProcessSingle()
       }, 500)
@@ -209,15 +209,18 @@ const Base64ImageCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <div className="flex items-center gap-2">
-                <Image className="h-5 w-5" aria-hidden="true" />
-                <ArrowLeftRight className="h-4 w-4" aria-hidden="true" />
-                <FileText className="h-5 w-5" aria-hidden="true" />
+                <Image className="h-5 w-5" />
+                <ArrowLeftRight className="h-4 w-4" />
+                <FileText className="h-5 w-5" />
               </div>
               Base64 ⇄ Image Bidirectional Converter
             </CardTitle>
@@ -233,52 +236,75 @@ const Base64ImageCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'converter' | 'batch' | 'analyzer' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "converter" | "batch" | "analyzer" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="converter" className="flex items-center gap-2">
+            <TabsTrigger
+              value="converter"
+              className="flex items-center gap-2"
+            >
               <ArrowLeftRight className="h-4 w-4" />
               Converter
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
-            <TabsTrigger value="analyzer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analyzer"
+              className="flex items-center gap-2"
+            >
               <Search className="h-4 w-4" />
               Image Analyzer
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* Converter Tab */}
-          <TabsContent value="converter" className="space-y-4">
+          <TabsContent
+            value="converter"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Input Section */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    {direction === 'base64-to-image' ? <FileText className="h-5 w-5" /> : <Image className="h-5 w-5" />}
-                    {direction === 'base64-to-image' ? 'Base64 Input' : 'Image Input'}
+                    {direction === "base64-to-image" ? <FileText className="h-5 w-5" /> : <Image className="h-5 w-5" />}
+                    {direction === "base64-to-image" ? "Base64 Input" : "Image Input"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-2 mb-4">
-                    <Button onClick={toggleDirection} variant="outline" size="sm" className="flex items-center gap-2">
+                    <Button
+                      onClick={toggleDirection}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
                       <ArrowLeftRight className="h-4 w-4" />
-                      Switch to {direction === 'base64-to-image' ? 'Image → Base64' : 'Base64 → Image'}
+                      Switch to {direction === "base64-to-image" ? "Image → Base64" : "Base64 → Image"}
                     </Button>
                     <div className="text-sm text-muted-foreground">
-                      Current: {direction === 'base64-to-image' ? 'Base64 → Image' : 'Image → Base64'}
+                      Current: {direction === "base64-to-image" ? "Base64 → Image" : "Image → Base64"}
                     </div>
                   </div>
 
-                  {direction === 'base64-to-image' ? (
+                  {direction === "base64-to-image" ? (
                     <div>
-                      <Label htmlFor="base64-input" className="text-sm font-medium">
+                      <Label
+                        htmlFor="base64-input"
+                        className="text-sm font-medium"
+                      >
                         Base64 Data
                       </Label>
                       <Textarea
@@ -287,7 +313,6 @@ const Base64ImageCore = () => {
                         onChange={(e) => setInput(e.target.value)}
                         placeholder="Enter or paste Base64 image data here..."
                         className="mt-2 min-h-[120px] font-mono"
-                        aria-label="Base64 input for image conversion"
                       />
                       {settings.realTimeProcessing && input && (
                         <div className="mt-2 text-sm">
@@ -307,7 +332,10 @@ const Base64ImageCore = () => {
                     </div>
                   ) : (
                     <div>
-                      <Label htmlFor="image-input" className="text-sm font-medium">
+                      <Label
+                        htmlFor="image-input"
+                        className="text-sm font-medium"
+                      >
                         Select Image File
                       </Label>
                       <div className="mt-2">
@@ -318,7 +346,6 @@ const Base64ImageCore = () => {
                           accept="image/*"
                           onChange={handleFileSelect}
                           className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                          aria-label="Select image file for Base64 conversion"
                         />
                       </div>
                       {selectedFile && (
@@ -334,13 +361,16 @@ const Base64ImageCore = () => {
                   )}
 
                   {/* Processing Settings */}
-                  {direction === 'image-to-base64' && (
+                  {direction === "image-to-base64" && (
                     <div className="space-y-3 border-t pt-4">
                       <Label className="text-sm font-medium">Image Processing Settings</Label>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <Label htmlFor="output-format" className="text-xs">
+                          <Label
+                            htmlFor="output-format"
+                            className="text-xs"
+                          >
                             Output Format
                           </Label>
                           <Select
@@ -362,7 +392,10 @@ const Base64ImageCore = () => {
                         </div>
 
                         <div>
-                          <Label htmlFor="quality" className="text-xs">
+                          <Label
+                            htmlFor="quality"
+                            className="text-xs"
+                          >
                             Quality: {settings.quality}%
                           </Label>
                           <div className="mt-1">
@@ -381,13 +414,16 @@ const Base64ImageCore = () => {
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <Label htmlFor="max-width" className="text-xs">
+                          <Label
+                            htmlFor="max-width"
+                            className="text-xs"
+                          >
                             Max Width (0 = no limit)
                           </Label>
                           <Input
                             id="max-width"
                             type="number"
-                            value={settings.maxWidth || ''}
+                            value={settings.maxWidth || ""}
                             onChange={(e) =>
                               setSettings((prev) => ({ ...prev, maxWidth: parseInt(e.target.value) || 0 }))
                             }
@@ -397,13 +433,16 @@ const Base64ImageCore = () => {
                         </div>
 
                         <div>
-                          <Label htmlFor="max-height" className="text-xs">
+                          <Label
+                            htmlFor="max-height"
+                            className="text-xs"
+                          >
                             Max Height (0 = no limit)
                           </Label>
                           <Input
                             id="max-height"
                             type="number"
-                            value={settings.maxHeight || ''}
+                            value={settings.maxHeight || ""}
                             onChange={(e) =>
                               setSettings((prev) => ({ ...prev, maxHeight: parseInt(e.target.value) || 0 }))
                             }
@@ -424,7 +463,10 @@ const Base64ImageCore = () => {
                             }
                             className="rounded border-input"
                           />
-                          <Label htmlFor="include-dataurl" className="text-xs">
+                          <Label
+                            htmlFor="include-dataurl"
+                            className="text-xs"
+                          >
                             Include data URL prefix
                           </Label>
                         </div>
@@ -437,7 +479,10 @@ const Base64ImageCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, autoOptimize: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="auto-optimize" className="text-xs">
+                          <Label
+                            htmlFor="auto-optimize"
+                            className="text-xs"
+                          >
                             Auto-optimize image
                           </Label>
                         </div>
@@ -454,7 +499,10 @@ const Base64ImageCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, realTimeProcessing: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="real-time-processing" className="text-sm">
+                      <Label
+                        htmlFor="real-time-processing"
+                        className="text-sm"
+                      >
                         Real-time processing
                       </Label>
                     </div>
@@ -464,8 +512,8 @@ const Base64ImageCore = () => {
                     <Button
                       onClick={handleProcessSingle}
                       disabled={
-                        (direction === 'base64-to-image' && (!input.trim() || !inputValidation.isValid)) ||
-                        (direction === 'image-to-base64' && !selectedFile) ||
+                        (direction === "base64-to-image" && (!input.trim() || !inputValidation.isValid)) ||
+                        (direction === "image-to-base64" && !selectedFile) ||
                         isProcessing
                       }
                       className="flex-1"
@@ -475,15 +523,15 @@ const Base64ImageCore = () => {
                       ) : (
                         <ArrowRight className="mr-2 h-4 w-4" />
                       )}
-                      Convert {direction === 'base64-to-image' ? 'to Image' : 'to Base64'}
+                      Convert {direction === "base64-to-image" ? "to Image" : "to Base64"}
                     </Button>
                     <Button
                       onClick={() => {
-                        setInput('')
+                        setInput("")
                         setSelectedFile(null)
                         setCurrentResult(null)
                         if (fileInputRef.current) {
-                          fileInputRef.current.value = ''
+                          fileInputRef.current.value = ""
                         }
                       }}
                       variant="outline"
@@ -498,7 +546,10 @@ const Base64ImageCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-yellow-800">Warnings:</h4>
                       <div className="text-xs space-y-1">
                         {inputValidation.warnings.map((warning, index) => (
-                          <div key={index} className="text-yellow-700">
+                          <div
+                            key={index}
+                            className="text-yellow-700"
+                          >
                             {warning}
                           </div>
                         ))}
@@ -512,8 +563,8 @@ const Base64ImageCore = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    {direction === 'base64-to-image' ? <Image className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
-                    {direction === 'base64-to-image' ? 'Image Preview' : 'Base64 Output'}
+                    {direction === "base64-to-image" ? <Image className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
+                    {direction === "base64-to-image" ? "Image Preview" : "Base64 Output"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -521,12 +572,12 @@ const Base64ImageCore = () => {
                     <div className="space-y-4">
                       <div className="p-3 border rounded-lg">
                         <div className="text-sm font-medium mb-2">
-                          Conversion:{' '}
-                          {currentResult.direction === 'base64-to-image' ? 'Base64 → Image' : 'Image → Base64'}
+                          Conversion:{" "}
+                          {currentResult.direction === "base64-to-image" ? "Base64 → Image" : "Image → Base64"}
                         </div>
                         <div className="text-sm">
                           <div>
-                            <strong>Status:</strong> {currentResult.isValid ? 'Success' : 'Failed'}
+                            <strong>Status:</strong> {currentResult.isValid ? "Success" : "Failed"}
                           </div>
                           {currentResult.error && (
                             <div className="text-red-600 mt-1">
@@ -539,7 +590,7 @@ const Base64ImageCore = () => {
                       {currentResult.isValid ? (
                         <div className="space-y-4">
                           {/* Image Preview or Base64 Output */}
-                          {direction === 'base64-to-image' ? (
+                          {direction === "base64-to-image" ? (
                             <div className="border rounded-lg p-3">
                               <div className="flex items-center justify-between mb-2">
                                 <Label className="font-medium text-sm">Image Preview</Label>
@@ -555,7 +606,11 @@ const Base64ImageCore = () => {
                                       <Maximize2 className="h-4 w-4" />
                                     )}
                                   </Button>
-                                  <Button size="sm" variant="ghost" onClick={() => setShowAnalysis(!showAnalysis)}>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setShowAnalysis(!showAnalysis)}
+                                  >
                                     {showAnalysis ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                   </Button>
                                 </div>
@@ -565,9 +620,9 @@ const Base64ImageCore = () => {
                                   src={currentResult.output}
                                   alt="Converted from Base64"
                                   className={`border rounded ${
-                                    imagePreviewExpanded ? 'max-w-full max-h-96' : 'max-w-xs max-h-40'
+                                    imagePreviewExpanded ? "max-w-full max-h-96" : "max-w-xs max-h-40"
                                   }`}
-                                  style={{ objectFit: 'contain' }}
+                                  style={{ objectFit: "contain" }}
                                 />
                               </div>
                             </div>
@@ -579,15 +634,19 @@ const Base64ImageCore = () => {
                                   <Button
                                     size="sm"
                                     variant="ghost"
-                                    onClick={() => copyToClipboard(currentResult.output, 'Base64 Data')}
+                                    onClick={() => copyToClipboard(currentResult.output, "Base64 Data")}
                                   >
-                                    {copiedText === 'Base64 Data' ? (
+                                    {copiedText === "Base64 Data" ? (
                                       <Check className="h-4 w-4" />
                                     ) : (
                                       <Copy className="h-4 w-4" />
                                     )}
                                   </Button>
-                                  <Button size="sm" variant="ghost" onClick={() => setShowAnalysis(!showAnalysis)}>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setShowAnalysis(!showAnalysis)}
+                                  >
                                     {showAnalysis ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                   </Button>
                                 </div>
@@ -613,22 +672,22 @@ const Base64ImageCore = () => {
                                   <strong>Format:</strong> {currentResult.statistics.imageMetadata.format.toUpperCase()}
                                 </div>
                                 <div>
-                                  <strong>Aspect Ratio:</strong>{' '}
+                                  <strong>Aspect Ratio:</strong>{" "}
                                   {currentResult.statistics.imageMetadata.aspectRatio.toFixed(2)}
                                 </div>
                               </div>
                               <div>
                                 <div>
-                                  <strong>Pixel Count:</strong>{' '}
+                                  <strong>Pixel Count:</strong>{" "}
                                   {currentResult.statistics.imageMetadata.pixelCount.toLocaleString()}
                                 </div>
                                 <div>
-                                  <strong>Est. Colors:</strong>{' '}
+                                  <strong>Est. Colors:</strong>{" "}
                                   {currentResult.statistics.imageMetadata.estimatedColors.toLocaleString()}
                                 </div>
                                 <div>
-                                  <strong>Transparency:</strong>{' '}
-                                  {currentResult.statistics.imageMetadata.hasTransparency ? 'Yes' : 'No'}
+                                  <strong>Transparency:</strong>{" "}
+                                  {currentResult.statistics.imageMetadata.hasTransparency ? "Yes" : "No"}
                                 </div>
                               </div>
                               <div>
@@ -655,24 +714,24 @@ const Base64ImageCore = () => {
                                   <strong>Size Category:</strong> {currentResult.statistics.qualityMetrics.sizeCategory}
                                 </div>
                                 <div>
-                                  <strong>Compression:</strong>{' '}
+                                  <strong>Compression:</strong>{" "}
                                   {currentResult.statistics.qualityMetrics.compressionEfficiency.toFixed(1)}%
                                 </div>
                               </div>
                               <div>
                                 <div>
-                                  <strong>Data URL Overhead:</strong>{' '}
+                                  <strong>Data URL Overhead:</strong>{" "}
                                   {currentResult.statistics.qualityMetrics.dataUrlOverhead.toFixed(1)}%
                                 </div>
                                 <div>
-                                  <strong>Base64 Efficiency:</strong>{' '}
+                                  <strong>Base64 Efficiency:</strong>{" "}
                                   {currentResult.statistics.qualityMetrics.base64Efficiency.toFixed(1)}%
                                 </div>
                               </div>
                               <div>
                                 <div>
-                                  <strong>Quality Score:</strong>{' '}
-                                  {currentResult.analysis?.qualityScore?.toFixed(1) || 'N/A'}/100
+                                  <strong>Quality Score:</strong>{" "}
+                                  {currentResult.analysis?.qualityScore?.toFixed(1) || "N/A"}/100
                                 </div>
                                 <div>
                                   <strong>MIME Type:</strong> {currentResult.statistics.imageMetadata.mimeType}
@@ -689,14 +748,14 @@ const Base64ImageCore = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   <div>
                                     <div>
-                                      <strong>Valid Image:</strong> {currentResult.analysis.isValidImage ? 'Yes' : 'No'}
+                                      <strong>Valid Image:</strong> {currentResult.analysis.isValidImage ? "Yes" : "No"}
                                     </div>
                                     <div>
-                                      <strong>Has Data URL Prefix:</strong>{' '}
-                                      {currentResult.analysis.hasDataUrlPrefix ? 'Yes' : 'No'}
+                                      <strong>Has Data URL Prefix:</strong>{" "}
+                                      {currentResult.analysis.hasDataUrlPrefix ? "Yes" : "No"}
                                     </div>
                                     <div>
-                                      <strong>Optimized:</strong> {currentResult.analysis.isOptimized ? 'Yes' : 'No'}
+                                      <strong>Optimized:</strong> {currentResult.analysis.isOptimized ? "Yes" : "No"}
                                     </div>
                                   </div>
                                   <div>
@@ -708,7 +767,7 @@ const Base64ImageCore = () => {
                                       <strong>Format Issues:</strong> {currentResult.analysis.imageIssues.length}
                                     </div>
                                     <div>
-                                      <strong>Recommendations:</strong>{' '}
+                                      <strong>Recommendations:</strong>{" "}
                                       {currentResult.analysis.formatRecommendations.length}
                                     </div>
                                   </div>
@@ -788,9 +847,9 @@ const Base64ImageCore = () => {
                       </div>
                       <h3 className="text-lg font-semibold mb-2">No Conversion Result</h3>
                       <p className="text-muted-foreground mb-4">
-                        {direction === 'base64-to-image'
-                          ? 'Enter Base64 data and convert to see image preview'
-                          : 'Select an image file and convert to see Base64 output'}
+                        {direction === "base64-to-image"
+                          ? "Enter Base64 data and convert to see image preview"
+                          : "Select an image file and convert to see Base64 output"}
                       </p>
                     </div>
                   )}
@@ -800,7 +859,10 @@ const Base64ImageCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -812,7 +874,10 @@ const Base64ImageCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-file-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-file-input"
+                      className="text-sm font-medium"
+                    >
                       Select Multiple Image Files
                     </Label>
                     <div className="mt-2">
@@ -824,7 +889,6 @@ const Base64ImageCore = () => {
                         multiple
                         onChange={handleBatchFileSelect}
                         className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                        aria-label="Select multiple image files for batch processing"
                       />
                     </div>
                     {selectedFiles.length > 0 && (
@@ -838,7 +902,10 @@ const Base64ImageCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleProcessBatch} disabled={selectedFiles.length === 0 || isProcessing}>
+                    <Button
+                      onClick={handleProcessBatch}
+                      disabled={selectedFiles.length === 0 || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -850,7 +917,7 @@ const Base64ImageCore = () => {
                       onClick={() => {
                         setSelectedFiles([])
                         if (batchFileInputRef.current) {
-                          batchFileInputRef.current.value = ''
+                          batchFileInputRef.current.value = ""
                         }
                       }}
                       variant="outline"
@@ -872,7 +939,10 @@ const Base64ImageCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} images processed</h4>
@@ -882,7 +952,11 @@ const Base64ImageCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportResults(batch.results, 'base64')}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportResults(batch.results, "base64")}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export
                             </Button>
@@ -904,7 +978,7 @@ const Base64ImageCore = () => {
                             <span className="font-medium">Invalid:</span> {batch.statistics.invalidCount}
                           </div>
                           <div>
-                            <span className="font-medium">Avg Quality:</span>{' '}
+                            <span className="font-medium">Avg Quality:</span>{" "}
                             {batch.statistics.averageQuality.toFixed(1)}
                           </div>
                         </div>
@@ -912,15 +986,18 @@ const Base64ImageCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.results.slice(0, 5).map((result) => (
-                              <div key={result.id} className="text-xs border rounded p-2">
+                              <div
+                                key={result.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">{result.input}</span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      result.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      result.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {result.isValid ? 'Valid' : 'Invalid'}
+                                    {result.isValid ? "Valid" : "Invalid"}
                                   </span>
                                 </div>
                                 {result.isValid && (
@@ -950,7 +1027,10 @@ const Base64ImageCore = () => {
           </TabsContent>
 
           {/* Image Analyzer Tab */}
-          <TabsContent value="analyzer" className="space-y-4">
+          <TabsContent
+            value="analyzer"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -983,7 +1063,7 @@ const Base64ImageCore = () => {
                           <CardTitle className="text-sm">Quality Metrics</CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
-                          <div>Quality Score: {currentResult.analysis?.qualityScore?.toFixed(1) || 'N/A'}/100</div>
+                          <div>Quality Score: {currentResult.analysis?.qualityScore?.toFixed(1) || "N/A"}/100</div>
                           <div>Size Category: {currentResult.statistics.qualityMetrics.sizeCategory}</div>
                           <div>
                             Compression: {currentResult.statistics.qualityMetrics.compressionEfficiency.toFixed(1)}%
@@ -1022,7 +1102,10 @@ const Base64ImageCore = () => {
                               <CardContent>
                                 <ul className="text-sm space-y-1">
                                   {currentResult.analysis.suggestedImprovements.map((suggestion, index) => (
-                                    <li key={index} className="flex items-center gap-2">
+                                    <li
+                                      key={index}
+                                      className="flex items-center gap-2"
+                                    >
                                       <CheckCircle2 className="h-3 w-3 text-blue-600" />
                                       {suggestion}
                                     </li>
@@ -1040,7 +1123,10 @@ const Base64ImageCore = () => {
                               <CardContent>
                                 <ul className="text-sm space-y-1">
                                   {currentResult.analysis.formatRecommendations.map((rec, index) => (
-                                    <li key={index} className="flex items-center gap-2">
+                                    <li
+                                      key={index}
+                                      className="flex items-center gap-2"
+                                    >
                                       <Palette className="h-3 w-3 text-green-600" />
                                       {rec}
                                     </li>
@@ -1058,7 +1144,10 @@ const Base64ImageCore = () => {
                               <CardContent>
                                 <ul className="text-sm space-y-1">
                                   {currentResult.analysis.imageIssues.map((issue, index) => (
-                                    <li key={index} className="flex items-center gap-2">
+                                    <li
+                                      key={index}
+                                      className="flex items-center gap-2"
+                                    >
                                       <AlertCircle className="h-3 w-3 text-red-600" />
                                       {issue}
                                     </li>
@@ -1084,7 +1173,10 @@ const Base64ImageCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1099,7 +1191,7 @@ const Base64ImageCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1117,7 +1209,7 @@ const Base64ImageCore = () => {
                                 src={template.base64Example}
                                 alt={template.name}
                                 className="max-w-16 max-h-16 border rounded"
-                                style={{ objectFit: 'contain' }}
+                                style={{ objectFit: "contain" }}
                               />
                             </div>
                           </div>
@@ -1135,7 +1227,7 @@ const Base64ImageCore = () => {
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>Use cases:</strong> {template.useCase.join(', ')}
+                            <strong>Use cases:</strong> {template.useCase.join(", ")}
                           </div>
                         )}
                       </div>
@@ -1157,7 +1249,10 @@ const Base64ImageCore = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -1177,7 +1272,10 @@ const Base64ImageCore = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="compression-level" className="text-sm font-medium">
+                  <Label
+                    htmlFor="compression-level"
+                    className="text-sm font-medium"
+                  >
                     Compression Level: {settings.compressionLevel}
                   </Label>
                   <div className="mt-2 flex items-center gap-4">
@@ -1199,7 +1297,7 @@ const Base64ImageCore = () => {
                   <Button
                     onClick={() => {
                       const allResults = batches.flatMap((batch) => batch.results)
-                      exportResults(allResults, 'txt', 'base64-image-statistics.txt')
+                      exportResults(allResults, "txt", "base64-image-statistics.txt")
                     }}
                     variant="outline"
                   >

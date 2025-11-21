@@ -1,12 +1,12 @@
-import { useCallback, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -35,8 +35,8 @@ import {
   Flag,
   Navigation,
   Activity,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   IPLookupResult,
   IPInfo,
@@ -50,7 +50,7 @@ import type {
   IPTemplate,
   IPValidation,
   ExportFormat,
-} from '@/types/ip-info'
+} from "@/types/ip-info"
 
 // Utility functions
 
@@ -62,7 +62,7 @@ const performIPLookup = async (
   // Simulate API call delay
   await new Promise((resolve) => setTimeout(resolve, Math.random() * 1000 + 500))
 
-  const ipVersion = ip.includes(':') ? 6 : 4
+  const ipVersion = ip.includes(":") ? 6 : 4
   const isPrivate = isPrivateIP(ip)
   const isReserved = isReservedIP(ip)
 
@@ -70,23 +70,23 @@ const performIPLookup = async (
   const ipInfo: IPInfo = {
     ip,
     version: ipVersion,
-    type: isPrivate ? 'private' : isReserved ? 'reserved' : 'public',
+    type: isPrivate ? "private" : isReserved ? "reserved" : "public",
     isValid: true,
-    hostname: ip.includes('8.8.8.8') ? 'dns.google' : ip.includes('1.1.1.1') ? 'one.one.one.one' : undefined,
-    reverseDNS: ip.includes('8.8.8.8') ? 'dns.google.' : undefined,
+    hostname: ip.includes("8.8.8.8") ? "dns.google" : ip.includes("1.1.1.1") ? "one.one.one.one" : undefined,
+    reverseDNS: ip.includes("8.8.8.8") ? "dns.google." : undefined,
     asn: {
-      asn: ip.includes('8.8.8.8') ? 15169 : ip.includes('1.1.1.1') ? 13335 : 12345,
-      name: ip.includes('8.8.8.8') ? 'GOOGLE' : ip.includes('1.1.1.1') ? 'CLOUDFLARENET' : 'EXAMPLE-ASN',
-      description: ip.includes('8.8.8.8')
-        ? 'Google LLC'
-        : ip.includes('1.1.1.1')
-          ? 'Cloudflare, Inc.'
-          : 'Example Organization',
-      country: 'US',
-      registry: 'ARIN',
-      cidr: ip.includes('8.8.8.8') ? '8.8.8.0/24' : '1.1.1.0/24',
-      routes: [ip.includes('8.8.8.8') ? '8.8.8.0/24' : '1.1.1.0/24'],
-      peers: ip.includes('8.8.8.8') ? 1500 : 800,
+      asn: ip.includes("8.8.8.8") ? 15169 : ip.includes("1.1.1.1") ? 13335 : 12345,
+      name: ip.includes("8.8.8.8") ? "GOOGLE" : ip.includes("1.1.1.1") ? "CLOUDFLARENET" : "EXAMPLE-ASN",
+      description: ip.includes("8.8.8.8")
+        ? "Google LLC"
+        : ip.includes("1.1.1.1")
+          ? "Cloudflare, Inc."
+          : "Example Organization",
+      country: "US",
+      registry: "ARIN",
+      cidr: ip.includes("8.8.8.8") ? "8.8.8.0/24" : "1.1.1.0/24",
+      routes: [ip.includes("8.8.8.8") ? "8.8.8.0/24" : "1.1.1.0/24"],
+      peers: ip.includes("8.8.8.8") ? 1500 : 800,
     },
   }
 
@@ -94,21 +94,21 @@ const performIPLookup = async (
   let geolocation: GeolocationInfo | undefined
   if (settings.includeGeolocation && !isPrivate && !isReserved) {
     geolocation = {
-      country: ip.includes('8.8.8.8') ? 'United States' : ip.includes('1.1.1.1') ? 'United States' : 'Unknown',
-      countryCode: ip.includes('8.8.8.8') ? 'US' : ip.includes('1.1.1.1') ? 'US' : 'XX',
-      region: ip.includes('8.8.8.8') ? 'California' : ip.includes('1.1.1.1') ? 'California' : 'Unknown',
-      regionCode: ip.includes('8.8.8.8') ? 'CA' : ip.includes('1.1.1.1') ? 'CA' : 'XX',
-      city: ip.includes('8.8.8.8') ? 'Mountain View' : ip.includes('1.1.1.1') ? 'San Francisco' : 'Unknown',
-      zipCode: ip.includes('8.8.8.8') ? '94043' : ip.includes('1.1.1.1') ? '94107' : undefined,
-      latitude: ip.includes('8.8.8.8') ? 37.4056 : ip.includes('1.1.1.1') ? 37.7749 : 0,
-      longitude: ip.includes('8.8.8.8') ? -122.0775 : ip.includes('1.1.1.1') ? -122.4194 : 0,
-      timezone: 'America/Los_Angeles',
-      utcOffset: '-08:00',
+      country: ip.includes("8.8.8.8") ? "United States" : ip.includes("1.1.1.1") ? "United States" : "Unknown",
+      countryCode: ip.includes("8.8.8.8") ? "US" : ip.includes("1.1.1.1") ? "US" : "XX",
+      region: ip.includes("8.8.8.8") ? "California" : ip.includes("1.1.1.1") ? "California" : "Unknown",
+      regionCode: ip.includes("8.8.8.8") ? "CA" : ip.includes("1.1.1.1") ? "CA" : "XX",
+      city: ip.includes("8.8.8.8") ? "Mountain View" : ip.includes("1.1.1.1") ? "San Francisco" : "Unknown",
+      zipCode: ip.includes("8.8.8.8") ? "94043" : ip.includes("1.1.1.1") ? "94107" : undefined,
+      latitude: ip.includes("8.8.8.8") ? 37.4056 : ip.includes("1.1.1.1") ? 37.7749 : 0,
+      longitude: ip.includes("8.8.8.8") ? -122.0775 : ip.includes("1.1.1.1") ? -122.4194 : 0,
+      timezone: "America/Los_Angeles",
+      utcOffset: "-08:00",
       accuracy: 95,
-      isp: ip.includes('8.8.8.8') ? 'Google LLC' : ip.includes('1.1.1.1') ? 'Cloudflare, Inc.' : 'Unknown ISP',
-      organization: ip.includes('8.8.8.8') ? 'Google LLC' : ip.includes('1.1.1.1') ? 'Cloudflare, Inc.' : 'Unknown Org',
-      connectionType: 'broadband',
-      usageType: 'datacenter',
+      isp: ip.includes("8.8.8.8") ? "Google LLC" : ip.includes("1.1.1.1") ? "Cloudflare, Inc." : "Unknown ISP",
+      organization: ip.includes("8.8.8.8") ? "Google LLC" : ip.includes("1.1.1.1") ? "Cloudflare, Inc." : "Unknown Org",
+      connectionType: "broadband",
+      usageType: "datacenter",
     }
   }
 
@@ -117,16 +117,16 @@ const performIPLookup = async (
   if (settings.includeSecurityAnalysis) {
     security = {
       isThreat: false,
-      threatLevel: 'low',
+      threatLevel: "low",
       threatTypes: [],
       isProxy: false,
       isVPN: false,
       isTor: false,
       isBot: false,
       isMalicious: false,
-      reputation: ip.includes('8.8.8.8') || ip.includes('1.1.1.1') ? 95 : 75,
+      reputation: ip.includes("8.8.8.8") || ip.includes("1.1.1.1") ? 95 : 75,
       blacklists: [],
-      securityScore: ip.includes('8.8.8.8') || ip.includes('1.1.1.1') ? 95 : 80,
+      securityScore: ip.includes("8.8.8.8") || ip.includes("1.1.1.1") ? 95 : 80,
       riskFactors: [],
       recommendations: [],
     }
@@ -136,17 +136,17 @@ const performIPLookup = async (
   let network: NetworkInfo | undefined
   if (settings.includeNetworkAnalysis) {
     network = {
-      asn: ip.includes('8.8.8.8') ? 15169 : ip.includes('1.1.1.1') ? 13335 : 12345,
-      asnOrg: ip.includes('8.8.8.8') ? 'Google LLC' : ip.includes('1.1.1.1') ? 'Cloudflare, Inc.' : 'Example Org',
-      isp: ip.includes('8.8.8.8') ? 'Google LLC' : ip.includes('1.1.1.1') ? 'Cloudflare, Inc.' : 'Unknown ISP',
-      connectionType: 'fiber',
-      speed: 'high',
-      domain: ip.includes('8.8.8.8') ? 'google.com' : ip.includes('1.1.1.1') ? 'cloudflare.com' : undefined,
-      routes: [ip.includes('8.8.8.8') ? '8.8.8.0/24' : '1.1.1.0/24'],
-      peers: ip.includes('8.8.8.8') ? 1500 : 800,
-      prefixes: [ip.includes('8.8.8.8') ? '8.8.8.0/24' : '1.1.1.0/24'],
-      registeredCountry: 'US',
-      allocatedDate: '2010-01-01',
+      asn: ip.includes("8.8.8.8") ? 15169 : ip.includes("1.1.1.1") ? 13335 : 12345,
+      asnOrg: ip.includes("8.8.8.8") ? "Google LLC" : ip.includes("1.1.1.1") ? "Cloudflare, Inc." : "Example Org",
+      isp: ip.includes("8.8.8.8") ? "Google LLC" : ip.includes("1.1.1.1") ? "Cloudflare, Inc." : "Unknown ISP",
+      connectionType: "fiber",
+      speed: "high",
+      domain: ip.includes("8.8.8.8") ? "google.com" : ip.includes("1.1.1.1") ? "cloudflare.com" : undefined,
+      routes: [ip.includes("8.8.8.8") ? "8.8.8.0/24" : "1.1.1.0/24"],
+      peers: ip.includes("8.8.8.8") ? 1500 : 800,
+      prefixes: [ip.includes("8.8.8.8") ? "8.8.8.0/24" : "1.1.1.0/24"],
+      registeredCountry: "US",
+      allocatedDate: "2010-01-01",
     }
   }
 
@@ -154,12 +154,12 @@ const performIPLookup = async (
 }
 
 const isPrivateIP = (ip: string): boolean => {
-  if (ip.includes(':')) {
+  if (ip.includes(":")) {
     // IPv6 private ranges
-    return ip.startsWith('fc') || ip.startsWith('fd') || ip.startsWith('fe80')
+    return ip.startsWith("fc") || ip.startsWith("fd") || ip.startsWith("fe80")
   } else {
     // IPv4 private ranges
-    const parts = ip.split('.').map(Number)
+    const parts = ip.split(".").map(Number)
     if (parts.length !== 4) return false
 
     return (
@@ -172,12 +172,12 @@ const isPrivateIP = (ip: string): boolean => {
 }
 
 const isReservedIP = (ip: string): boolean => {
-  if (ip.includes(':')) {
+  if (ip.includes(":")) {
     // IPv6 reserved ranges
-    return ip.startsWith('::1') || ip.startsWith('::') || ip.startsWith('2001:db8')
+    return ip.startsWith("::1") || ip.startsWith("::") || ip.startsWith("2001:db8")
   } else {
     // IPv4 reserved ranges
-    const parts = ip.split('.').map(Number)
+    const parts = ip.split(".").map(Number)
     if (parts.length !== 4) return false
 
     return (
@@ -199,9 +199,9 @@ const analyzeIP = (
   const analysis: IPAnalysis = {
     isValidIP: true,
     ipVersion: ipInfo.version,
-    isPublic: ipInfo.type === 'public',
-    isPrivate: ipInfo.type === 'private',
-    isReserved: ipInfo.type === 'reserved',
+    isPublic: ipInfo.type === "public",
+    isPrivate: ipInfo.type === "private",
+    isReserved: ipInfo.type === "reserved",
     hasGeolocation: !!geolocation,
     hasSecurityInfo: !!security,
     hasNetworkInfo: !!network,
@@ -222,41 +222,41 @@ const analyzeIP = (
   }
 
   // Quality assessment
-  if (!geolocation && ipInfo.type === 'public') {
+  if (!geolocation && ipInfo.type === "public") {
     analysis.qualityScore -= 20
-    analysis.suggestedActions.push('Enable geolocation lookup for better analysis')
+    analysis.suggestedActions.push("Enable geolocation lookup for better analysis")
   }
 
   if (!security) {
     analysis.qualityScore -= 15
-    analysis.suggestedActions.push('Enable security analysis for threat detection')
+    analysis.suggestedActions.push("Enable security analysis for threat detection")
   }
 
   if (!network) {
     analysis.qualityScore -= 10
-    analysis.suggestedActions.push('Enable network analysis for infrastructure details')
+    analysis.suggestedActions.push("Enable network analysis for infrastructure details")
   }
 
   // Security assessment
   if (security) {
     if (security.isThreat) {
-      analysis.securityIssues.push('IP flagged as potential threat')
+      analysis.securityIssues.push("IP flagged as potential threat")
       analysis.qualityScore -= 30
     }
 
     if (security.isProxy || security.isVPN) {
-      analysis.securityIssues.push('IP is using proxy/VPN service')
+      analysis.securityIssues.push("IP is using proxy/VPN service")
       analysis.privacyScore += 20 // Higher privacy score for VPN/proxy
     }
 
     if (security.reputation < 50) {
-      analysis.securityIssues.push('Low reputation score')
+      analysis.securityIssues.push("Low reputation score")
       analysis.qualityScore -= 20
     }
   }
 
   // Privacy assessment
-  if (ipInfo.type === 'private') {
+  if (ipInfo.type === "private") {
     analysis.privacyScore = 100
   } else if (geolocation) {
     analysis.privacyScore -= 30 // Public IP with geolocation reduces privacy
@@ -264,12 +264,12 @@ const analyzeIP = (
 
   // Performance assessment
   if (network) {
-    if (network.connectionType === 'dialup') {
-      analysis.performanceIssues.push('Slow connection type detected')
+    if (network.connectionType === "dialup") {
+      analysis.performanceIssues.push("Slow connection type detected")
     }
 
     if (network.peers < 10) {
-      analysis.performanceIssues.push('Limited network connectivity')
+      analysis.performanceIssues.push("Limited network connectivity")
     }
   }
 
@@ -279,64 +279,64 @@ const analyzeIP = (
 // IP templates
 const ipTemplates: IPTemplate[] = [
   {
-    id: 'public-dns',
-    name: 'Public DNS Servers',
-    description: 'Analysis of popular public DNS servers',
-    category: 'DNS',
-    ips: ['8.8.8.8', '8.8.4.4', '1.1.1.1', '1.0.0.1'],
-    analysisTypes: ['geolocation', 'security', 'network'],
-    useCase: ['DNS performance testing', 'Network troubleshooting', 'Security analysis'],
-    examples: ['Google DNS servers', 'Cloudflare DNS servers', 'Performance comparison'],
+    id: "public-dns",
+    name: "Public DNS Servers",
+    description: "Analysis of popular public DNS servers",
+    category: "DNS",
+    ips: ["8.8.8.8", "8.8.4.4", "1.1.1.1", "1.0.0.1"],
+    analysisTypes: ["geolocation", "security", "network"],
+    useCase: ["DNS performance testing", "Network troubleshooting", "Security analysis"],
+    examples: ["Google DNS servers", "Cloudflare DNS servers", "Performance comparison"],
   },
   {
-    id: 'private-networks',
-    name: 'Private Network Ranges',
-    description: 'Analysis of private IP address ranges',
-    category: 'Network',
-    ips: ['192.168.1.1', '10.0.0.1', '172.16.0.1', '169.254.1.1'],
-    analysisTypes: ['network', 'security'],
-    useCase: ['Network configuration', 'Security assessment', 'Infrastructure analysis'],
-    examples: ['Home router IPs', 'Corporate network ranges', 'Link-local addresses'],
+    id: "private-networks",
+    name: "Private Network Ranges",
+    description: "Analysis of private IP address ranges",
+    category: "Network",
+    ips: ["192.168.1.1", "10.0.0.1", "172.16.0.1", "169.254.1.1"],
+    analysisTypes: ["network", "security"],
+    useCase: ["Network configuration", "Security assessment", "Infrastructure analysis"],
+    examples: ["Home router IPs", "Corporate network ranges", "Link-local addresses"],
   },
   {
-    id: 'cloud-providers',
-    name: 'Cloud Provider IPs',
-    description: 'Analysis of major cloud provider IP ranges',
-    category: 'Cloud',
-    ips: ['52.86.0.1', '13.107.42.14', '104.16.0.1', '151.101.1.140'],
-    analysisTypes: ['geolocation', 'security', 'network'],
-    useCase: ['Cloud service identification', 'CDN analysis', 'Performance testing'],
-    examples: ['AWS IP ranges', 'Azure endpoints', 'CDN edge servers'],
+    id: "cloud-providers",
+    name: "Cloud Provider IPs",
+    description: "Analysis of major cloud provider IP ranges",
+    category: "Cloud",
+    ips: ["52.86.0.1", "13.107.42.14", "104.16.0.1", "151.101.1.140"],
+    analysisTypes: ["geolocation", "security", "network"],
+    useCase: ["Cloud service identification", "CDN analysis", "Performance testing"],
+    examples: ["AWS IP ranges", "Azure endpoints", "CDN edge servers"],
   },
   {
-    id: 'security-analysis',
-    name: 'Security Analysis',
-    description: 'Comprehensive security analysis of IP addresses',
-    category: 'Security',
-    ips: ['185.220.101.1', '198.96.155.3', '89.234.157.254', '45.33.32.156'],
-    analysisTypes: ['security', 'geolocation'],
-    useCase: ['Threat detection', 'Reputation checking', 'Blacklist verification'],
-    examples: ['Known threat IPs', 'Proxy/VPN detection', 'Reputation analysis'],
+    id: "security-analysis",
+    name: "Security Analysis",
+    description: "Comprehensive security analysis of IP addresses",
+    category: "Security",
+    ips: ["185.220.101.1", "198.96.155.3", "89.234.157.254", "45.33.32.156"],
+    analysisTypes: ["security", "geolocation"],
+    useCase: ["Threat detection", "Reputation checking", "Blacklist verification"],
+    examples: ["Known threat IPs", "Proxy/VPN detection", "Reputation analysis"],
   },
   {
-    id: 'ipv6-analysis',
-    name: 'IPv6 Analysis',
-    description: 'Analysis of IPv6 addresses and ranges',
-    category: 'IPv6',
-    ips: ['2001:4860:4860::8888', '2606:4700:4700::1111', 'fe80::1', '::1'],
-    analysisTypes: ['geolocation', 'network'],
-    useCase: ['IPv6 deployment', 'Dual-stack testing', 'Modern network analysis'],
-    examples: ['Google IPv6 DNS', 'Cloudflare IPv6', 'Link-local IPv6', 'Loopback IPv6'],
+    id: "ipv6-analysis",
+    name: "IPv6 Analysis",
+    description: "Analysis of IPv6 addresses and ranges",
+    category: "IPv6",
+    ips: ["2001:4860:4860::8888", "2606:4700:4700::1111", "fe80::1", "::1"],
+    analysisTypes: ["geolocation", "network"],
+    useCase: ["IPv6 deployment", "Dual-stack testing", "Modern network analysis"],
+    examples: ["Google IPv6 DNS", "Cloudflare IPv6", "Link-local IPv6", "Loopback IPv6"],
   },
   {
-    id: 'geolocation-test',
-    name: 'Geolocation Testing',
-    description: 'Test geolocation accuracy across different regions',
-    category: 'Geolocation',
-    ips: ['8.8.8.8', '208.67.222.222', '77.88.8.8', '114.114.114.114'],
-    analysisTypes: ['geolocation', 'network'],
-    useCase: ['Location accuracy testing', 'Regional analysis', 'ISP identification'],
-    examples: ['US-based IPs', 'European IPs', 'Asian IPs', 'Global distribution'],
+    id: "geolocation-test",
+    name: "Geolocation Testing",
+    description: "Test geolocation accuracy across different regions",
+    category: "Geolocation",
+    ips: ["8.8.8.8", "208.67.222.222", "77.88.8.8", "114.114.114.114"],
+    analysisTypes: ["geolocation", "network"],
+    useCase: ["Location accuracy testing", "Regional analysis", "ISP identification"],
+    examples: ["US-based IPs", "European IPs", "Asian IPs", "Global distribution"],
   },
 ]
 
@@ -352,9 +352,9 @@ const validateIP = (ip: string): IPValidation => {
   if (!ip || ip.trim().length === 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'IP address cannot be empty',
-      type: 'format',
-      severity: 'error',
+      message: "IP address cannot be empty",
+      type: "format",
+      severity: "error",
     })
     return validation
   }
@@ -367,7 +367,7 @@ const validateIP = (ip: string): IPValidation => {
 
   if (ipv4Match) {
     validation.ipVersion = 4
-    validation.ipType = 'IPv4'
+    validation.ipType = "IPv4"
 
     // Validate IPv4 octets
     const octets = ipv4Match.slice(1).map(Number)
@@ -376,19 +376,19 @@ const validateIP = (ip: string): IPValidation => {
         validation.isValid = false
         validation.errors.push({
           message: `Invalid IPv4 octet: ${octets[i]} (must be 0-255)`,
-          type: 'range',
-          severity: 'error',
+          type: "range",
+          severity: "error",
         })
       }
     }
 
     // Check for special ranges
     if (isPrivateIP(trimmedIP)) {
-      validation.ipType = 'Private IPv4'
-      validation.warnings.push('This is a private IP address')
+      validation.ipType = "Private IPv4"
+      validation.warnings.push("This is a private IP address")
     } else if (isReservedIP(trimmedIP)) {
-      validation.ipType = 'Reserved IPv4'
-      validation.warnings.push('This is a reserved IP address')
+      validation.ipType = "Reserved IPv4"
+      validation.warnings.push("This is a reserved IP address")
     }
 
     return validation
@@ -400,18 +400,18 @@ const validateIP = (ip: string): IPValidation => {
 
   if (ipv6Regex.test(trimmedIP) || ipv6CompressedRegex.test(trimmedIP)) {
     validation.ipVersion = 6
-    validation.ipType = 'IPv6'
+    validation.ipType = "IPv6"
 
     // Check for special IPv6 ranges
-    if (trimmedIP.startsWith('::1')) {
-      validation.ipType = 'IPv6 Loopback'
-      validation.warnings.push('This is the IPv6 loopback address')
-    } else if (trimmedIP.startsWith('fe80:')) {
-      validation.ipType = 'IPv6 Link-Local'
-      validation.warnings.push('This is a link-local IPv6 address')
-    } else if (trimmedIP.startsWith('fc') || trimmedIP.startsWith('fd')) {
-      validation.ipType = 'IPv6 Private'
-      validation.warnings.push('This is a private IPv6 address')
+    if (trimmedIP.startsWith("::1")) {
+      validation.ipType = "IPv6 Loopback"
+      validation.warnings.push("This is the IPv6 loopback address")
+    } else if (trimmedIP.startsWith("fe80:")) {
+      validation.ipType = "IPv6 Link-Local"
+      validation.warnings.push("This is a link-local IPv6 address")
+    } else if (trimmedIP.startsWith("fc") || trimmedIP.startsWith("fd")) {
+      validation.ipType = "IPv6 Private"
+      validation.warnings.push("This is a private IPv6 address")
     }
 
     return validation
@@ -420,18 +420,18 @@ const validateIP = (ip: string): IPValidation => {
   // If we get here, it's not a valid IP
   validation.isValid = false
   validation.errors.push({
-    message: 'Invalid IP address format',
-    type: 'format',
-    severity: 'error',
+    message: "Invalid IP address format",
+    type: "format",
+    severity: "error",
   })
 
   // Provide suggestions
-  if (trimmedIP.includes('.') && trimmedIP.split('.').length === 4) {
-    validation.suggestions.push('Check IPv4 format: each octet must be 0-255')
-  } else if (trimmedIP.includes(':')) {
-    validation.suggestions.push('Check IPv6 format: use hexadecimal digits and colons')
+  if (trimmedIP.includes(".") && trimmedIP.split(".").length === 4) {
+    validation.suggestions.push("Check IPv4 format: each octet must be 0-255")
+  } else if (trimmedIP.includes(":")) {
+    validation.suggestions.push("Check IPv6 format: use hexadecimal digits and colons")
   } else {
-    validation.suggestions.push('Enter a valid IPv4 (e.g., 192.168.1.1) or IPv6 (e.g., 2001:db8::1) address')
+    validation.suggestions.push("Enter a valid IPv4 (e.g., 192.168.1.1) or IPv6 (e.g., 2001:db8::1) address")
   }
 
   return validation
@@ -471,7 +471,7 @@ const useIPLookup = () => {
             hopCount: Math.floor(Math.random() * 15) + 5,
             latency: responseTime,
             packetLoss: Math.random() * 2,
-            bandwidth: network?.speed || 'unknown',
+            bandwidth: network?.speed || "unknown",
             mtu: 1500,
             routingPath: network?.routes || [],
           },
@@ -487,7 +487,7 @@ const useIPLookup = () => {
         id: nanoid(),
         ip,
         isValid: false,
-        error: error instanceof Error ? error.message : 'IP lookup failed',
+        error: error instanceof Error ? error.message : "IP lookup failed",
         statistics: {
           ipLength: ip.length,
           processingTime,
@@ -500,7 +500,7 @@ const useIPLookup = () => {
             hopCount: 0,
             latency: 0,
             packetLoss: 0,
-            bandwidth: 'unknown',
+            bandwidth: "unknown",
             mtu: 0,
             routingPath: [],
           },
@@ -584,8 +584,8 @@ const useIPLookup = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch processing error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch processing failed')
+        console.error("Batch processing error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch processing failed")
       }
     },
     [performLookup]
@@ -626,13 +626,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -642,12 +642,12 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useIPExport = () => {
   const exportResults = useCallback((results: IPLookupResult[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         const jsonData = results.map((result) => ({
           id: result.id,
           ip: result.ip,
@@ -662,50 +662,50 @@ const useIPExport = () => {
           createdAt: result.createdAt,
         }))
         content = JSON.stringify(jsonData, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         const csvHeaders = [
-          'IP Address',
-          'Valid',
-          'IP Version',
-          'Type',
-          'Country',
-          'City',
-          'ISP',
-          'ASN',
-          'Security Score',
-          'Threat Level',
-          'Quality Score',
-          'Processing Time',
+          "IP Address",
+          "Valid",
+          "IP Version",
+          "Type",
+          "Country",
+          "City",
+          "ISP",
+          "ASN",
+          "Security Score",
+          "Threat Level",
+          "Quality Score",
+          "Processing Time",
         ]
         const csvRows: string[] = []
         results.forEach((result) => {
           csvRows.push(
             [
               result.ip,
-              result.isValid ? 'Yes' : 'No',
-              result.ipInfo?.version?.toString() || '',
-              result.ipInfo?.type || '',
-              result.geolocation?.country || '',
-              result.geolocation?.city || '',
-              result.geolocation?.isp || '',
-              result.ipInfo?.asn?.asn?.toString() || '',
-              result.security?.securityScore?.toString() || '',
-              result.security?.threatLevel || '',
-              result.analysis?.qualityScore?.toString() || '',
+              result.isValid ? "Yes" : "No",
+              result.ipInfo?.version?.toString() || "",
+              result.ipInfo?.type || "",
+              result.geolocation?.country || "",
+              result.geolocation?.city || "",
+              result.geolocation?.isp || "",
+              result.ipInfo?.asn?.asn?.toString() || "",
+              result.security?.securityScore?.toString() || "",
+              result.security?.threatLevel || "",
+              result.analysis?.qualityScore?.toString() || "",
               result.statistics.processingTime.toFixed(2),
             ]
               .map((field) => `"${field.replace(/"/g, '""')}"`)
-              .join(',')
+              .join(",")
           )
         })
-        content = [csvHeaders.join(','), ...csvRows].join('\n')
-        mimeType = 'text/csv'
-        extension = '.csv'
+        content = [csvHeaders.join(","), ...csvRows].join("\n")
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         const xmlData = results
           .map(
             (result) => `
@@ -714,19 +714,19 @@ const useIPExport = () => {
     <valid>${result.isValid}</valid>
     <ipInfo>
       <version>${result.ipInfo?.version || 0}</version>
-      <type>${result.ipInfo?.type || ''}</type>
-      <hostname>${result.ipInfo?.hostname || ''}</hostname>
+      <type>${result.ipInfo?.type || ""}</type>
+      <hostname>${result.ipInfo?.hostname || ""}</hostname>
     </ipInfo>
     <geolocation>
-      <country>${result.geolocation?.country || ''}</country>
-      <city>${result.geolocation?.city || ''}</city>
+      <country>${result.geolocation?.country || ""}</country>
+      <city>${result.geolocation?.city || ""}</city>
       <latitude>${result.geolocation?.latitude || 0}</latitude>
       <longitude>${result.geolocation?.longitude || 0}</longitude>
-      <isp>${result.geolocation?.isp || ''}</isp>
+      <isp>${result.geolocation?.isp || ""}</isp>
     </geolocation>
     <security>
       <securityScore>${result.security?.securityScore || 0}</securityScore>
-      <threatLevel>${result.security?.threatLevel || 'unknown'}</threatLevel>
+      <threatLevel>${result.security?.threatLevel || "unknown"}</threatLevel>
       <isThreat>${result.security?.isThreat || false}</isThreat>
     </security>
     <analysis>
@@ -736,22 +736,22 @@ const useIPExport = () => {
     </analysis>
   </ipLookup>`
           )
-          .join('')
+          .join("")
         content = `<?xml version="1.0" encoding="UTF-8"?>\n<ipLookupResults>${xmlData}\n</ipLookupResults>`
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromResults(results)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `ip-analysis-results${extension}`
     document.body.appendChild(link)
@@ -777,12 +777,12 @@ IP Analysis Results:
 ${results
   .map((result, i) => {
     return `${i + 1}. IP Address: ${result.ip}
-   Status: ${result.isValid ? 'Valid' : 'Invalid'}
-   ${result.error ? `Error: ${result.error}` : ''}
-   IP Version: ${result.ipInfo?.version || 'Unknown'}
-   IP Type: ${result.ipInfo?.type || 'Unknown'}
+   Status: ${result.isValid ? "Valid" : "Invalid"}
+   ${result.error ? `Error: ${result.error}` : ""}
+   IP Version: ${result.ipInfo?.version || "Unknown"}
+   IP Type: ${result.ipInfo?.type || "Unknown"}
    Processing Time: ${result.statistics.processingTime.toFixed(2)}ms
-   Quality Score: ${result.analysis?.qualityScore || 'N/A'}/100
+   Quality Score: ${result.analysis?.qualityScore || "N/A"}/100
 
    ${
      result.geolocation
@@ -793,7 +793,7 @@ ${results
    - Coordinates: ${result.geolocation.latitude}, ${result.geolocation.longitude}
    - Timezone: ${result.geolocation.timezone}
    `
-       : 'No geolocation data'
+       : "No geolocation data"
    }
 
    ${
@@ -801,11 +801,11 @@ ${results
        ? `Security:
    - Security Score: ${result.security.securityScore}/100
    - Threat Level: ${result.security.threatLevel}
-   - Is Threat: ${result.security.isThreat ? 'Yes' : 'No'}
-   - Is Proxy/VPN: ${result.security.isProxy || result.security.isVPN ? 'Yes' : 'No'}
+   - Is Threat: ${result.security.isThreat ? "Yes" : "No"}
+   - Is Proxy/VPN: ${result.security.isProxy || result.security.isVPN ? "Yes" : "No"}
    - Reputation: ${result.security.reputation}/100
    `
-       : 'No security data'
+       : "No security data"
    }
 
    ${
@@ -816,11 +816,11 @@ ${results
    - Connection Type: ${result.network.connectionType}
    - Allocated: ${result.network.allocatedDate}
    `
-       : 'No network data'
+       : "No network data"
    }
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
@@ -835,12 +835,12 @@ Statistics:
  * Features: Advanced IP lookup, geolocation, security analysis, network information
  */
 const IPInfoCore = () => {
-  const [activeTab, setActiveTab] = useState<'lookup' | 'batch' | 'analyzer' | 'templates'>('lookup')
-  const [ip, setIP] = useState('')
+  const [activeTab, setActiveTab] = useState<"lookup" | "batch" | "analyzer" | "templates">("lookup")
+  const [ip, setIP] = useState("")
   const [currentResult, setCurrentResult] = useState<IPLookupResult | null>(null)
   const [batches, setBatches] = useState<ProcessingBatch[]>([])
-  const [batchInput, setBatchInput] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [batchInput, setBatchInput] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [showDetailedAnalysis, setShowDetailedAnalysis] = useState(false)
   const [settings, setSettings] = useState<ProcessingSettings>({
@@ -851,7 +851,7 @@ const IPInfoCore = () => {
     timeout: 5000,
     retryAttempts: 3,
     useCache: true,
-    exportFormat: 'json',
+    exportFormat: "json",
     realTimeLookup: false,
     maxResults: 100,
     privacyMode: false,
@@ -875,12 +875,12 @@ const IPInfoCore = () => {
   // Handle single lookup
   const handleLookup = useCallback(async () => {
     if (!ip.trim()) {
-      toast.error('Please enter an IP address')
+      toast.error("Please enter an IP address")
       return
     }
 
     if (!ipValidation.isValid) {
-      toast.error('Please enter a valid IP address')
+      toast.error("Please enter a valid IP address")
       return
     }
 
@@ -892,10 +892,10 @@ const IPInfoCore = () => {
       if (result.isValid) {
         toast.success(`IP analysis completed successfully`)
       } else {
-        toast.error(result.error || 'IP lookup failed')
+        toast.error(result.error || "IP lookup failed")
       }
     } catch (error) {
-      toast.error('Failed to perform IP lookup')
+      toast.error("Failed to perform IP lookup")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -905,12 +905,12 @@ const IPInfoCore = () => {
   // Handle batch processing
   const handleProcessBatch = useCallback(async () => {
     const ips = batchInput
-      .split('\n')
+      .split("\n")
       .filter((line) => line.trim())
       .map((line) => line.trim())
 
     if (ips.length === 0) {
-      toast.error('Please enter IP addresses to analyze')
+      toast.error("Please enter IP addresses to analyze")
       return
     }
 
@@ -920,7 +920,7 @@ const IPInfoCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Processed ${batch.results.length} IP addresses`)
     } catch (error) {
-      toast.error('Failed to process batch')
+      toast.error("Failed to process batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -937,12 +937,15 @@ const IPInfoCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Monitor className="h-5 w-5" aria-hidden="true" />
+              <Monitor className="h-5 w-5" />
               IP Info & Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -957,29 +960,44 @@ const IPInfoCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'lookup' | 'batch' | 'analyzer' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "lookup" | "batch" | "analyzer" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="lookup" className="flex items-center gap-2">
+            <TabsTrigger
+              value="lookup"
+              className="flex items-center gap-2"
+            >
               <Search className="h-4 w-4" />
               IP Lookup
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Analysis
             </TabsTrigger>
-            <TabsTrigger value="analyzer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analyzer"
+              className="flex items-center gap-2"
+            >
               <Shield className="h-4 w-4" />
               IP Analyzer
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* IP Lookup Tab */}
-          <TabsContent value="lookup" className="space-y-4">
+          <TabsContent
+            value="lookup"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Lookup Input */}
               <Card>
@@ -991,7 +1009,10 @@ const IPInfoCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="ip-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="ip-input"
+                      className="text-sm font-medium"
+                    >
                       IP Address
                     </Label>
                     <Input
@@ -1000,7 +1021,6 @@ const IPInfoCore = () => {
                       onChange={(e) => setIP(e.target.value)}
                       placeholder="Enter IP address (e.g., 8.8.8.8 or 2001:4860:4860::8888)"
                       className="mt-2"
-                      aria-label="IP address for analysis"
                     />
                     {ip && (
                       <div className="mt-2 text-sm">
@@ -1032,7 +1052,10 @@ const IPInfoCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeGeolocation: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-geolocation" className="text-xs">
+                        <Label
+                          htmlFor="include-geolocation"
+                          className="text-xs"
+                        >
                           Include geolocation data
                         </Label>
                       </div>
@@ -1047,7 +1070,10 @@ const IPInfoCore = () => {
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-security" className="text-xs">
+                        <Label
+                          htmlFor="include-security"
+                          className="text-xs"
+                        >
                           Include security analysis
                         </Label>
                       </div>
@@ -1062,7 +1088,10 @@ const IPInfoCore = () => {
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-network" className="text-xs">
+                        <Label
+                          htmlFor="include-network"
+                          className="text-xs"
+                        >
                           Include network analysis
                         </Label>
                       </div>
@@ -1075,7 +1104,10 @@ const IPInfoCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, privacyMode: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="privacy-mode" className="text-xs">
+                        <Label
+                          htmlFor="privacy-mode"
+                          className="text-xs"
+                        >
                           Privacy mode (limit data collection)
                         </Label>
                       </div>
@@ -1083,7 +1115,10 @@ const IPInfoCore = () => {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="timeout" className="text-xs">
+                        <Label
+                          htmlFor="timeout"
+                          className="text-xs"
+                        >
                           Timeout (ms)
                         </Label>
                         <Input
@@ -1100,7 +1135,10 @@ const IPInfoCore = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor="retry-attempts" className="text-xs">
+                        <Label
+                          htmlFor="retry-attempts"
+                          className="text-xs"
+                        >
                           Retry Attempts
                         </Label>
                         <Input
@@ -1133,7 +1171,7 @@ const IPInfoCore = () => {
                     </Button>
                     <Button
                       onClick={() => {
-                        setIP('')
+                        setIP("")
                         setCurrentResult(null)
                       }}
                       variant="outline"
@@ -1148,7 +1186,10 @@ const IPInfoCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-yellow-800">Warnings:</h4>
                       <div className="text-xs space-y-1">
                         {ipValidation.warnings.map((warning, index) => (
-                          <div key={index} className="text-yellow-700">
+                          <div
+                            key={index}
+                            className="text-yellow-700"
+                          >
                             {warning}
                           </div>
                         ))}
@@ -1161,7 +1202,10 @@ const IPInfoCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-blue-800">Suggestions:</h4>
                       <div className="text-xs space-y-1">
                         {ipValidation.suggestions.map((suggestion, index) => (
-                          <div key={index} className="text-blue-700">
+                          <div
+                            key={index}
+                            className="text-blue-700"
+                          >
                             {suggestion}
                           </div>
                         ))}
@@ -1178,7 +1222,11 @@ const IPInfoCore = () => {
                     <Server className="h-5 w-5" />
                     IP Analysis Results
                     <div className="ml-auto">
-                      <Button size="sm" variant="ghost" onClick={() => setShowDetailedAnalysis(!showDetailedAnalysis)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowDetailedAnalysis(!showDetailedAnalysis)}
+                      >
                         {showDetailedAnalysis ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
@@ -1191,13 +1239,13 @@ const IPInfoCore = () => {
                         <div className="text-sm font-medium mb-2">IP Address: {currentResult.ip}</div>
                         <div className="text-sm">
                           <div>
-                            <strong>Status:</strong> {currentResult.isValid ? 'Valid' : 'Invalid'}
+                            <strong>Status:</strong> {currentResult.isValid ? "Valid" : "Invalid"}
                           </div>
                           <div>
-                            <strong>IP Version:</strong> IPv{currentResult.ipInfo?.version || 'Unknown'}
+                            <strong>IP Version:</strong> IPv{currentResult.ipInfo?.version || "Unknown"}
                           </div>
                           <div>
-                            <strong>Type:</strong> {currentResult.ipInfo?.type || 'Unknown'}
+                            <strong>Type:</strong> {currentResult.ipInfo?.type || "Unknown"}
                           </div>
                           <div>
                             <strong>Processing Time:</strong> {currentResult.statistics.processingTime.toFixed(2)}ms
@@ -1222,9 +1270,9 @@ const IPInfoCore = () => {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => copyToClipboard(currentResult.ip, 'IP Address')}
+                                onClick={() => copyToClipboard(currentResult.ip, "IP Address")}
                               >
-                                {copiedText === 'IP Address' ? (
+                                {copiedText === "IP Address" ? (
                                   <Check className="h-4 w-4" />
                                 ) : (
                                   <Copy className="h-4 w-4" />
@@ -1235,7 +1283,7 @@ const IPInfoCore = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                               <div>
                                 <div>
-                                  <strong>IP Address:</strong>{' '}
+                                  <strong>IP Address:</strong>{" "}
                                   <span className="font-mono">{currentResult.ipInfo.ip}</span>
                                 </div>
                                 <div>
@@ -1257,7 +1305,7 @@ const IPInfoCore = () => {
                                   </div>
                                 )}
                                 <div>
-                                  <strong>Valid:</strong> {currentResult.ipInfo.isValid ? '✅ Yes' : '❌ No'}
+                                  <strong>Valid:</strong> {currentResult.ipInfo.isValid ? "✅ Yes" : "❌ No"}
                                 </div>
                               </div>
                             </div>
@@ -1277,11 +1325,11 @@ const IPInfoCore = () => {
                                   onClick={() =>
                                     copyToClipboard(
                                       `${currentResult.geolocation!.latitude}, ${currentResult.geolocation!.longitude}`,
-                                      'Coordinates'
+                                      "Coordinates"
                                     )
                                   }
                                 >
-                                  {copiedText === 'Coordinates' ? (
+                                  {copiedText === "Coordinates" ? (
                                     <Check className="h-4 w-4" />
                                   ) : (
                                     <Copy className="h-4 w-4" />
@@ -1314,7 +1362,7 @@ const IPInfoCore = () => {
                                 <div>
                                   <div className="flex items-center gap-2">
                                     <Navigation className="h-4 w-4" />
-                                    <strong>Coordinates:</strong> {currentResult.geolocation.latitude},{' '}
+                                    <strong>Coordinates:</strong> {currentResult.geolocation.latitude},{" "}
                                     {currentResult.geolocation.longitude}
                                   </div>
                                   <div className="flex items-center gap-2">
@@ -1368,38 +1416,38 @@ const IPInfoCore = () => {
                                     <strong>Threat Level:</strong>
                                     <span
                                       className={`ml-1 px-2 py-1 rounded text-xs ${
-                                        currentResult.security.threatLevel === 'high'
-                                          ? 'bg-red-100 text-red-800'
-                                          : currentResult.security.threatLevel === 'medium'
-                                            ? 'bg-orange-100 text-orange-800'
-                                            : 'bg-green-100 text-green-800'
+                                        currentResult.security.threatLevel === "high"
+                                          ? "bg-red-100 text-red-800"
+                                          : currentResult.security.threatLevel === "medium"
+                                            ? "bg-orange-100 text-orange-800"
+                                            : "bg-green-100 text-green-800"
                                       }`}
                                     >
                                       {currentResult.security.threatLevel}
                                     </span>
                                   </div>
                                   <div>
-                                    <strong>Is Threat:</strong> {currentResult.security.isThreat ? '⚠️ Yes' : '✅ No'}
+                                    <strong>Is Threat:</strong> {currentResult.security.isThreat ? "⚠️ Yes" : "✅ No"}
                                   </div>
                                 </div>
                                 <div>
                                   <div>
-                                    <strong>Proxy/VPN:</strong>{' '}
+                                    <strong>Proxy/VPN:</strong>{" "}
                                     {currentResult.security.isProxy || currentResult.security.isVPN
-                                      ? '⚠️ Yes'
-                                      : '✅ No'}
+                                      ? "⚠️ Yes"
+                                      : "✅ No"}
                                   </div>
                                   <div>
-                                    <strong>Tor Exit:</strong> {currentResult.security.isTor ? '⚠️ Yes' : '✅ No'}
+                                    <strong>Tor Exit:</strong> {currentResult.security.isTor ? "⚠️ Yes" : "✅ No"}
                                   </div>
                                 </div>
                                 <div>
                                   <div>
-                                    <strong>Bot/Crawler:</strong> {currentResult.security.isBot ? '⚠️ Yes' : '✅ No'}
+                                    <strong>Bot/Crawler:</strong> {currentResult.security.isBot ? "⚠️ Yes" : "✅ No"}
                                   </div>
                                   <div>
-                                    <strong>Malicious:</strong>{' '}
-                                    {currentResult.security.isMalicious ? '⚠️ Yes' : '✅ No'}
+                                    <strong>Malicious:</strong>{" "}
+                                    {currentResult.security.isMalicious ? "⚠️ Yes" : "✅ No"}
                                   </div>
                                 </div>
                                 <div>
@@ -1417,7 +1465,10 @@ const IPInfoCore = () => {
                                   <h5 className="font-medium text-sm mb-2 text-red-800">Risk Factors</h5>
                                   <ul className="text-sm space-y-1">
                                     {currentResult.security.riskFactors.map((risk, index) => (
-                                      <li key={index} className="flex items-center gap-2 text-red-700">
+                                      <li
+                                        key={index}
+                                        className="flex items-center gap-2 text-red-700"
+                                      >
                                         <AlertCircle className="h-3 w-3" />
                                         {risk}
                                       </li>
@@ -1431,7 +1482,10 @@ const IPInfoCore = () => {
                                   <h5 className="font-medium text-sm mb-2 text-blue-800">Security Recommendations</h5>
                                   <ul className="text-sm space-y-1">
                                     {currentResult.security.recommendations.map((rec, index) => (
-                                      <li key={index} className="flex items-center gap-2 text-blue-700">
+                                      <li
+                                        key={index}
+                                        className="flex items-center gap-2 text-blue-700"
+                                      >
                                         <CheckCircle2 className="h-3 w-3" />
                                         {rec}
                                       </li>
@@ -1501,7 +1555,10 @@ const IPInfoCore = () => {
                                         <strong>Routes:</strong>
                                         <div className="mt-1 space-y-1">
                                           {currentResult.network.routes.slice(0, 3).map((route, index) => (
-                                            <div key={index} className="font-mono text-xs bg-muted px-2 py-1 rounded">
+                                            <div
+                                              key={index}
+                                              className="font-mono text-xs bg-muted px-2 py-1 rounded"
+                                            >
                                               {route}
                                             </div>
                                           ))}
@@ -1537,10 +1594,10 @@ const IPInfoCore = () => {
                                       <div
                                         className={`h-2 rounded-full ${
                                           currentResult.analysis.qualityScore >= 80
-                                            ? 'bg-green-500'
+                                            ? "bg-green-500"
                                             : currentResult.analysis.qualityScore >= 60
-                                              ? 'bg-orange-500'
-                                              : 'bg-red-500'
+                                              ? "bg-orange-500"
+                                              : "bg-red-500"
                                         }`}
                                         style={{ width: `${currentResult.analysis.qualityScore}%` }}
                                       ></div>
@@ -1554,10 +1611,10 @@ const IPInfoCore = () => {
                                       <div
                                         className={`h-2 rounded-full ${
                                           currentResult.analysis.reliabilityScore >= 80
-                                            ? 'bg-green-500'
+                                            ? "bg-green-500"
                                             : currentResult.analysis.reliabilityScore >= 60
-                                              ? 'bg-orange-500'
-                                              : 'bg-red-500'
+                                              ? "bg-orange-500"
+                                              : "bg-red-500"
                                         }`}
                                         style={{ width: `${currentResult.analysis.reliabilityScore}%` }}
                                       ></div>
@@ -1571,10 +1628,10 @@ const IPInfoCore = () => {
                                       <div
                                         className={`h-2 rounded-full ${
                                           currentResult.analysis.privacyScore >= 80
-                                            ? 'bg-green-500'
+                                            ? "bg-green-500"
                                             : currentResult.analysis.privacyScore >= 60
-                                              ? 'bg-orange-500'
-                                              : 'bg-red-500'
+                                              ? "bg-orange-500"
+                                              : "bg-red-500"
                                         }`}
                                         style={{ width: `${currentResult.analysis.privacyScore}%` }}
                                       ></div>
@@ -1589,17 +1646,17 @@ const IPInfoCore = () => {
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                                   <div>
                                     <div>
-                                      <strong>Public IP:</strong> {currentResult.analysis.isPublic ? '✅ Yes' : '❌ No'}
+                                      <strong>Public IP:</strong> {currentResult.analysis.isPublic ? "✅ Yes" : "❌ No"}
                                     </div>
                                     <div>
-                                      <strong>Private IP:</strong>{' '}
-                                      {currentResult.analysis.isPrivate ? '✅ Yes' : '❌ No'}
+                                      <strong>Private IP:</strong>{" "}
+                                      {currentResult.analysis.isPrivate ? "✅ Yes" : "❌ No"}
                                     </div>
                                   </div>
                                   <div>
                                     <div>
-                                      <strong>Reserved IP:</strong>{' '}
-                                      {currentResult.analysis.isReserved ? '✅ Yes' : '❌ No'}
+                                      <strong>Reserved IP:</strong>{" "}
+                                      {currentResult.analysis.isReserved ? "✅ Yes" : "❌ No"}
                                     </div>
                                     <div>
                                       <strong>IP Version:</strong> IPv{currentResult.analysis.ipVersion}
@@ -1607,12 +1664,12 @@ const IPInfoCore = () => {
                                   </div>
                                   <div>
                                     <div>
-                                      <strong>Has Geolocation:</strong>{' '}
-                                      {currentResult.analysis.hasGeolocation ? '✅ Yes' : '❌ No'}
+                                      <strong>Has Geolocation:</strong>{" "}
+                                      {currentResult.analysis.hasGeolocation ? "✅ Yes" : "❌ No"}
                                     </div>
                                     <div>
-                                      <strong>Has Security Info:</strong>{' '}
-                                      {currentResult.analysis.hasSecurityInfo ? '✅ Yes' : '❌ No'}
+                                      <strong>Has Security Info:</strong>{" "}
+                                      {currentResult.analysis.hasSecurityInfo ? "✅ Yes" : "❌ No"}
                                     </div>
                                   </div>
                                 </div>
@@ -1630,7 +1687,10 @@ const IPInfoCore = () => {
                                       </Label>
                                       <ul className="text-sm space-y-1">
                                         {currentResult.analysis.securityIssues.map((issue, index) => (
-                                          <li key={index} className="flex items-center gap-2">
+                                          <li
+                                            key={index}
+                                            className="flex items-center gap-2"
+                                          >
                                             <AlertCircle className="h-3 w-3 text-red-600" />
                                             {issue}
                                           </li>
@@ -1646,7 +1706,10 @@ const IPInfoCore = () => {
                                       </Label>
                                       <ul className="text-sm space-y-1">
                                         {currentResult.analysis.performanceIssues.map((issue, index) => (
-                                          <li key={index} className="flex items-center gap-2">
+                                          <li
+                                            key={index}
+                                            className="flex items-center gap-2"
+                                          >
                                             <Clock className="h-3 w-3 text-orange-600" />
                                             {issue}
                                           </li>
@@ -1662,7 +1725,10 @@ const IPInfoCore = () => {
                                       </Label>
                                       <ul className="text-sm space-y-1">
                                         {currentResult.analysis.suggestedActions.map((action, index) => (
-                                          <li key={index} className="flex items-center gap-2">
+                                          <li
+                                            key={index}
+                                            className="flex items-center gap-2"
+                                          >
                                             <CheckCircle2 className="h-3 w-3 text-blue-600" />
                                             {action}
                                           </li>
@@ -1748,7 +1814,10 @@ const IPInfoCore = () => {
           </TabsContent>
 
           {/* Batch Analysis Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1760,7 +1829,10 @@ const IPInfoCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-input"
+                      className="text-sm font-medium"
+                    >
                       IP Addresses (one per line)
                     </Label>
                     <Textarea
@@ -1769,7 +1841,6 @@ const IPInfoCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="8.8.8.8&#10;1.1.1.1&#10;192.168.1.1&#10;2001:4860:4860::8888"
                       className="mt-2 min-h-[200px] font-mono text-sm"
-                      aria-label="Batch IP analysis input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
                       Enter one IP address per line (supports both IPv4 and IPv6)
@@ -1777,7 +1848,10 @@ const IPInfoCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleProcessBatch} disabled={!batchInput.trim() || isProcessing}>
+                    <Button
+                      onClick={handleProcessBatch}
+                      disabled={!batchInput.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1785,7 +1859,10 @@ const IPInfoCore = () => {
                       )}
                       Analyze Batch
                     </Button>
-                    <Button onClick={() => setBatchInput('')} variant="outline">
+                    <Button
+                      onClick={() => setBatchInput("")}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Clear
                     </Button>
@@ -1803,7 +1880,10 @@ const IPInfoCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} IP addresses processed</h4>
@@ -1813,7 +1893,11 @@ const IPInfoCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportResults(batch.results, 'csv')}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportResults(batch.results, "csv")}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export CSV
                             </Button>
@@ -1835,11 +1919,11 @@ const IPInfoCore = () => {
                             <span className="font-medium">Invalid:</span> {batch.statistics.invalidCount}
                           </div>
                           <div>
-                            <span className="font-medium">Avg Quality:</span>{' '}
+                            <span className="font-medium">Avg Quality:</span>{" "}
                             {batch.statistics.averageQuality.toFixed(1)}
                           </div>
                           <div>
-                            <span className="font-medium">Avg Security:</span>{' '}
+                            <span className="font-medium">Avg Security:</span>{" "}
                             {batch.statistics.averageSecurity.toFixed(1)}
                           </div>
                         </div>
@@ -1852,7 +1936,10 @@ const IPInfoCore = () => {
                               {Object.entries(batch.statistics.geolocationDistribution)
                                 .slice(0, 5)
                                 .map(([country, count]) => (
-                                  <div key={country} className="flex justify-between text-xs">
+                                  <div
+                                    key={country}
+                                    className="flex justify-between text-xs"
+                                  >
                                     <span>{country}:</span>
                                     <span>{count}</span>
                                   </div>
@@ -1863,14 +1950,17 @@ const IPInfoCore = () => {
                             <h5 className="font-medium text-sm mb-2">Security Distribution</h5>
                             <div className="space-y-1">
                               {Object.entries(batch.statistics.securityDistribution).map(([level, count]) => (
-                                <div key={level} className="flex justify-between text-xs">
+                                <div
+                                  key={level}
+                                  className="flex justify-between text-xs"
+                                >
                                   <span
                                     className={
-                                      level === 'low'
-                                        ? 'text-green-600'
-                                        : level === 'medium'
-                                          ? 'text-orange-600'
-                                          : 'text-red-600'
+                                      level === "low"
+                                        ? "text-green-600"
+                                        : level === "medium"
+                                          ? "text-orange-600"
+                                          : "text-red-600"
                                     }
                                   >
                                     {level}:
@@ -1886,7 +1976,10 @@ const IPInfoCore = () => {
                               {Object.entries(batch.statistics.networkDistribution)
                                 .slice(0, 5)
                                 .map(([isp, count]) => (
-                                  <div key={isp} className="flex justify-between text-xs">
+                                  <div
+                                    key={isp}
+                                    className="flex justify-between text-xs"
+                                  >
                                     <span className="truncate">{isp}:</span>
                                     <span>{count}</span>
                                   </div>
@@ -1898,22 +1991,25 @@ const IPInfoCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.results.slice(0, 5).map((result) => (
-                              <div key={result.id} className="text-xs border rounded p-2">
+                              <div
+                                key={result.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">{result.ip}</span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      result.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      result.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {result.isValid ? 'Valid' : 'Invalid'}
+                                    {result.isValid ? "Valid" : "Invalid"}
                                   </span>
                                 </div>
                                 {result.isValid && result.geolocation && (
                                   <div className="text-muted-foreground mt-1">
-                                    {result.geolocation.country} • {result.geolocation.city} • {result.geolocation.isp}{' '}
-                                    • Quality: {result.analysis?.qualityScore || 'N/A'}/100 • Security:{' '}
-                                    {result.security?.securityScore || 'N/A'}/100 •
+                                    {result.geolocation.country} • {result.geolocation.city} • {result.geolocation.isp}{" "}
+                                    • Quality: {result.analysis?.qualityScore || "N/A"}/100 • Security:{" "}
+                                    {result.security?.securityScore || "N/A"}/100 •
                                     {result.statistics.processingTime.toFixed(2)}ms
                                   </div>
                                 )}
@@ -1936,7 +2032,10 @@ const IPInfoCore = () => {
           </TabsContent>
 
           {/* IP Analyzer Tab */}
-          <TabsContent value="analyzer" className="space-y-4">
+          <TabsContent
+            value="analyzer"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1956,35 +2055,35 @@ const IPInfoCore = () => {
                       <CardContent className="text-sm space-y-2">
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                           <div
-                            className={`p-3 rounded-lg ${currentResult.security?.isThreat ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'}`}
+                            className={`p-3 rounded-lg ${currentResult.security?.isThreat ? "bg-red-50 border border-red-200" : "bg-green-50 border border-green-200"}`}
                           >
                             <div className="font-medium">Threat Status</div>
-                            <div className={currentResult.security?.isThreat ? 'text-red-700' : 'text-green-700'}>
-                              {currentResult.security?.isThreat ? 'Threat Detected' : 'Clean'}
+                            <div className={currentResult.security?.isThreat ? "text-red-700" : "text-green-700"}>
+                              {currentResult.security?.isThreat ? "Threat Detected" : "Clean"}
                             </div>
                           </div>
                           <div
-                            className={`p-3 rounded-lg ${currentResult.security?.isProxy || currentResult.security?.isVPN ? 'bg-orange-50 border border-orange-200' : 'bg-green-50 border border-green-200'}`}
+                            className={`p-3 rounded-lg ${currentResult.security?.isProxy || currentResult.security?.isVPN ? "bg-orange-50 border border-orange-200" : "bg-green-50 border border-green-200"}`}
                           >
                             <div className="font-medium">Proxy/VPN</div>
                             <div
                               className={
                                 currentResult.security?.isProxy || currentResult.security?.isVPN
-                                  ? 'text-orange-700'
-                                  : 'text-green-700'
+                                  ? "text-orange-700"
+                                  : "text-green-700"
                               }
                             >
                               {currentResult.security?.isProxy || currentResult.security?.isVPN
-                                ? 'Detected'
-                                : 'Not Detected'}
+                                ? "Detected"
+                                : "Not Detected"}
                             </div>
                           </div>
                           <div
-                            className={`p-3 rounded-lg ${currentResult.security?.isMalicious ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'}`}
+                            className={`p-3 rounded-lg ${currentResult.security?.isMalicious ? "bg-red-50 border border-red-200" : "bg-green-50 border border-green-200"}`}
                           >
                             <div className="font-medium">Malicious Activity</div>
-                            <div className={currentResult.security?.isMalicious ? 'text-red-700' : 'text-green-700'}>
-                              {currentResult.security?.isMalicious ? 'Detected' : 'Not Detected'}
+                            <div className={currentResult.security?.isMalicious ? "text-red-700" : "text-green-700"}>
+                              {currentResult.security?.isMalicious ? "Detected" : "Not Detected"}
                             </div>
                           </div>
                         </div>
@@ -1994,10 +2093,10 @@ const IPInfoCore = () => {
                             <div
                               className={`h-2 rounded-full ${
                                 (currentResult.security?.securityScore || 0) >= 80
-                                  ? 'bg-green-500'
+                                  ? "bg-green-500"
                                   : (currentResult.security?.securityScore || 0) >= 50
-                                    ? 'bg-orange-500'
-                                    : 'bg-red-500'
+                                    ? "bg-orange-500"
+                                    : "bg-red-500"
                               }`}
                               style={{ width: `${currentResult.security?.securityScore || 0}%` }}
                             ></div>
@@ -2043,13 +2142,19 @@ const IPInfoCore = () => {
                           </CardHeader>
                           <CardContent className="text-sm space-y-2">
                             {currentResult.security?.recommendations.map((rec, index) => (
-                              <div key={index} className="flex items-center gap-2 p-2 bg-blue-50 rounded">
+                              <div
+                                key={index}
+                                className="flex items-center gap-2 p-2 bg-blue-50 rounded"
+                              >
                                 <Shield className="h-4 w-4 text-blue-600" />
                                 <span>{rec}</span>
                               </div>
                             ))}
                             {currentResult.analysis?.suggestedActions.map((action, index) => (
-                              <div key={index} className="flex items-center gap-2 p-2 bg-green-50 rounded">
+                              <div
+                                key={index}
+                                className="flex items-center gap-2 p-2 bg-green-50 rounded"
+                              >
                                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                                 <span>{action}</span>
                               </div>
@@ -2072,7 +2177,10 @@ const IPInfoCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -2087,7 +2195,7 @@ const IPInfoCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -2102,7 +2210,10 @@ const IPInfoCore = () => {
                             <div className="text-xs font-medium mb-1">Analysis Types:</div>
                             <div className="flex flex-wrap gap-1">
                               {template.analysisTypes.map((type, index) => (
-                                <span key={index} className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                                <span
+                                  key={index}
+                                  className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded"
+                                >
                                   {type}
                                 </span>
                               ))}
@@ -2111,14 +2222,14 @@ const IPInfoCore = () => {
                           <div>
                             <div className="text-xs font-medium mb-1">Example IPs:</div>
                             <div className="text-xs text-muted-foreground font-mono">
-                              {template.ips.slice(0, 2).join(', ')}
-                              {template.ips.length > 2 && '...'}
+                              {template.ips.slice(0, 2).join(", ")}
+                              {template.ips.length > 2 && "..."}
                             </div>
                           </div>
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>Use cases:</strong> {template.useCase.join(', ')}
+                            <strong>Use cases:</strong> {template.useCase.join(", ")}
                           </div>
                         )}
                       </div>
@@ -2140,7 +2251,10 @@ const IPInfoCore = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -2160,7 +2274,10 @@ const IPInfoCore = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="max-results" className="text-sm font-medium">
+                  <Label
+                    htmlFor="max-results"
+                    className="text-sm font-medium"
+                  >
                     Max Results
                   </Label>
                   <Input
@@ -2180,7 +2297,7 @@ const IPInfoCore = () => {
                   <Button
                     onClick={() => {
                       const allResults = batches.flatMap((batch) => batch.results)
-                      exportResults(allResults, 'txt', 'ip-analysis-report.txt')
+                      exportResults(allResults, "txt", "ip-analysis-report.txt")
                     }}
                     variant="outline"
                   >

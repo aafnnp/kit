@@ -1,12 +1,12 @@
-import { useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -25,8 +25,8 @@ import {
   Calculator,
   Equal,
   SquareFunction,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   MatrixOperation,
   Matrix,
@@ -36,13 +36,13 @@ import type {
   MatrixValidation,
   OperationType,
   ExportFormat,
-} from '@/types/matrix-math'
-import { useMatrixOperations as useMatrixOperationsWorker } from './hooks'
+} from "@/types/matrix-math"
+import { useMatrixOperations as useMatrixOperationsWorker } from "./hooks"
 
 // Utility functions
 
 const formatNumber = (num: number, precision: number = 6): string => {
-  if (Math.abs(num) < 1e-10) return '0'
+  if (Math.abs(num) < 1e-10) return "0"
   if (Math.abs(num) > 1e6 || Math.abs(num) < 1e-3) {
     return num.toExponential(precision)
   }
@@ -185,7 +185,7 @@ const analyzeMatrixProperties = (data: number[][]): MatrixProperties => {
 // Basic matrix operations
 const addMatrices = (a: Matrix, b: Matrix): Matrix => {
   if (a.rows !== b.rows || a.cols !== b.cols) {
-    throw new Error('Matrices must have the same dimensions for addition')
+    throw new Error("Matrices must have the same dimensions for addition")
   }
 
   const result = a.data.map((row, i) => row.map((val, j) => val + b.data[i][j]))
@@ -195,7 +195,7 @@ const addMatrices = (a: Matrix, b: Matrix): Matrix => {
 
 const subtractMatrices = (a: Matrix, b: Matrix): Matrix => {
   if (a.rows !== b.rows || a.cols !== b.cols) {
-    throw new Error('Matrices must have the same dimensions for subtraction')
+    throw new Error("Matrices must have the same dimensions for subtraction")
   }
 
   const result = a.data.map((row, i) => row.map((val, j) => val - b.data[i][j]))
@@ -205,7 +205,7 @@ const subtractMatrices = (a: Matrix, b: Matrix): Matrix => {
 
 const multiplyMatrices = (a: Matrix, b: Matrix): Matrix => {
   if (a.cols !== b.rows) {
-    throw new Error('Number of columns in first matrix must equal number of rows in second matrix')
+    throw new Error("Number of columns in first matrix must equal number of rows in second matrix")
   }
 
   const result = Array(a.rows)
@@ -337,11 +337,11 @@ const luDecomposition = (data: number[][]): { L: number[][]; U: number[][] } => 
 
 const inverseMatrix = (matrix: Matrix): Matrix => {
   if (!matrix.properties.isSquare) {
-    throw new Error('Matrix must be square to calculate inverse')
+    throw new Error("Matrix must be square to calculate inverse")
   }
 
   if (!matrix.properties.isInvertible) {
-    throw new Error('Matrix is not invertible (determinant is zero)')
+    throw new Error("Matrix is not invertible (determinant is zero)")
   }
 
   const n = matrix.rows
@@ -389,7 +389,7 @@ const inverseMatrix = (matrix: Matrix): Matrix => {
 
 const matrixPower = (matrix: Matrix, power: number): Matrix => {
   if (!matrix.properties.isSquare) {
-    throw new Error('Matrix must be square for exponentiation')
+    throw new Error("Matrix must be square for exponentiation")
   }
 
   if (power === 0) {
@@ -421,19 +421,19 @@ const matrixPower = (matrix: Matrix, power: number): Matrix => {
 }
 
 // Matrix analysis functions
-const calculateNorm = (matrix: Matrix, type: 'frobenius' | '1' | 'inf' = 'frobenius'): number => {
+const calculateNorm = (matrix: Matrix, type: "frobenius" | "1" | "inf" = "frobenius"): number => {
   switch (type) {
-    case 'frobenius':
+    case "frobenius":
       return Math.sqrt(matrix.data.reduce((sum, row) => sum + row.reduce((rowSum, val) => rowSum + val * val, 0), 0))
 
-    case '1':
+    case "1":
       return Math.max(
         ...Array(matrix.cols)
           .fill(0)
           .map((_, j) => matrix.data.reduce((sum, row) => sum + Math.abs(row[j]), 0))
       )
 
-    case 'inf':
+    case "inf":
       return Math.max(...matrix.data.map((row) => row.reduce((sum, val) => sum + Math.abs(val), 0)))
 
     default:
@@ -448,8 +448,8 @@ const calculateConditionNumber = (matrix: Matrix): number => {
 
   try {
     const inverse = inverseMatrix(matrix)
-    const normA = calculateNorm(matrix, 'frobenius')
-    const normInv = calculateNorm(inverse, 'frobenius')
+    const normA = calculateNorm(matrix, "frobenius")
+    const normInv = calculateNorm(inverse, "frobenius")
     return normA * normInv
   } catch {
     return Number.POSITIVE_INFINITY
@@ -470,65 +470,65 @@ const executeMatrixOperation = (operation: OperationType, matrices: Matrix[], pa
   const startTime = performance.now()
 
   let result: Matrix | number | null = null
-  let algorithmUsed = ''
+  let algorithmUsed = ""
 
   try {
     switch (operation) {
-      case 'add':
-        if (matrices.length !== 2) throw new Error('Addition requires exactly 2 matrices')
+      case "add":
+        if (matrices.length !== 2) throw new Error("Addition requires exactly 2 matrices")
         result = addMatrices(matrices[0], matrices[1])
-        algorithmUsed = 'Element-wise addition'
+        algorithmUsed = "Element-wise addition"
         break
 
-      case 'subtract':
-        if (matrices.length !== 2) throw new Error('Subtraction requires exactly 2 matrices')
+      case "subtract":
+        if (matrices.length !== 2) throw new Error("Subtraction requires exactly 2 matrices")
         result = subtractMatrices(matrices[0], matrices[1])
-        algorithmUsed = 'Element-wise subtraction'
+        algorithmUsed = "Element-wise subtraction"
         break
 
-      case 'multiply':
-        if (matrices.length !== 2) throw new Error('Multiplication requires exactly 2 matrices')
+      case "multiply":
+        if (matrices.length !== 2) throw new Error("Multiplication requires exactly 2 matrices")
         result = multiplyMatrices(matrices[0], matrices[1])
-        algorithmUsed = 'Standard matrix multiplication'
+        algorithmUsed = "Standard matrix multiplication"
         break
 
-      case 'transpose':
-        if (matrices.length !== 1) throw new Error('Transpose requires exactly 1 matrix')
+      case "transpose":
+        if (matrices.length !== 1) throw new Error("Transpose requires exactly 1 matrix")
         result = transposeMatrix(matrices[0])
-        algorithmUsed = 'Matrix transposition'
+        algorithmUsed = "Matrix transposition"
         break
 
-      case 'inverse':
-        if (matrices.length !== 1) throw new Error('Inverse requires exactly 1 matrix')
+      case "inverse":
+        if (matrices.length !== 1) throw new Error("Inverse requires exactly 1 matrix")
         result = inverseMatrix(matrices[0])
-        algorithmUsed = 'Gaussian elimination'
+        algorithmUsed = "Gaussian elimination"
         break
 
-      case 'determinant':
-        if (matrices.length !== 1) throw new Error('Determinant requires exactly 1 matrix')
-        if (!matrices[0].properties.isSquare) throw new Error('Determinant requires a square matrix')
+      case "determinant":
+        if (matrices.length !== 1) throw new Error("Determinant requires exactly 1 matrix")
+        if (!matrices[0].properties.isSquare) throw new Error("Determinant requires a square matrix")
         result = calculateDeterminant(matrices[0].data)
-        algorithmUsed = matrices[0].rows <= 3 ? 'Direct calculation' : 'LU decomposition'
+        algorithmUsed = matrices[0].rows <= 3 ? "Direct calculation" : "LU decomposition"
         break
 
-      case 'trace':
-        if (matrices.length !== 1) throw new Error('Trace requires exactly 1 matrix')
-        if (!matrices[0].properties.isSquare) throw new Error('Trace requires a square matrix')
+      case "trace":
+        if (matrices.length !== 1) throw new Error("Trace requires exactly 1 matrix")
+        if (!matrices[0].properties.isSquare) throw new Error("Trace requires a square matrix")
         result = matrices[0].properties.trace || 0
-        algorithmUsed = 'Diagonal sum'
+        algorithmUsed = "Diagonal sum"
         break
 
-      case 'rank':
-        if (matrices.length !== 1) throw new Error('Rank requires exactly 1 matrix')
+      case "rank":
+        if (matrices.length !== 1) throw new Error("Rank requires exactly 1 matrix")
         result = matrices[0].properties.rank
-        algorithmUsed = 'Gaussian elimination'
+        algorithmUsed = "Gaussian elimination"
         break
 
-      case 'power':
-        if (matrices.length !== 1) throw new Error('Power requires exactly 1 matrix')
+      case "power":
+        if (matrices.length !== 1) throw new Error("Power requires exactly 1 matrix")
         const power = params?.power || 2
         result = matrixPower(matrices[0], power)
-        algorithmUsed = 'Binary exponentiation'
+        algorithmUsed = "Binary exponentiation"
         break
 
       default:
@@ -573,20 +573,20 @@ const calculateOperationComplexity = (operation: OperationType, matrices: Matrix
   const n = matrix.cols
 
   switch (operation) {
-    case 'add':
-    case 'subtract':
+    case "add":
+    case "subtract":
       return m * n
-    case 'multiply':
+    case "multiply":
       const matrix2 = matrices[1]
       return m * n * matrix2.cols
-    case 'transpose':
+    case "transpose":
       return m * n
-    case 'inverse':
+    case "inverse":
       return Math.pow(m, 3)
-    case 'determinant':
+    case "determinant":
       return Math.pow(m, 3)
-    case 'trace':
-    case 'rank':
+    case "trace":
+    case "rank":
       return Math.pow(m, 2)
     default:
       return m * n
@@ -628,7 +628,7 @@ const calculateMemoryUsage = (matrices: Matrix[], result: Matrix | number | null
     usage += matrix.rows * matrix.cols * 8 // 8 bytes per number
   }
 
-  if (result && typeof result === 'object') {
+  if (result && typeof result === "object") {
     usage += result.rows * result.cols * 8
   }
 
@@ -655,7 +655,7 @@ const parseMatrixString = (input: string): number[][] => {
     let cleaned = input.trim()
 
     // Remove outer brackets if present
-    cleaned = cleaned.replace(/^\[|\]$/g, '')
+    cleaned = cleaned.replace(/^\[|\]$/g, "")
 
     // Split by semicolon or newline for rows
     const rows = cleaned
@@ -665,7 +665,7 @@ const parseMatrixString = (input: string): number[][] => {
 
     const matrix = rows.map((row) => {
       // Remove brackets and split by comma or space
-      const cleanRow = row.replace(/^\[|\]$/g, '').trim()
+      const cleanRow = row.replace(/^\[|\]$/g, "").trim()
       const values = cleanRow.split(/[,\s]+/).filter((val) => val.length > 0)
 
       return values.map((val) => {
@@ -679,12 +679,12 @@ const parseMatrixString = (input: string): number[][] => {
 
     // Validate rectangular matrix
     if (matrix.length === 0) {
-      throw new Error('Matrix cannot be empty')
+      throw new Error("Matrix cannot be empty")
     }
 
     const cols = matrix[0].length
     if (cols === 0) {
-      throw new Error('Matrix rows cannot be empty')
+      throw new Error("Matrix rows cannot be empty")
     }
 
     for (let i = 1; i < matrix.length; i++) {
@@ -714,8 +714,8 @@ const validateMatrixOperation = (operation: OperationType, matrices: Matrix[]): 
     validation.isValid = false
     validation.errors.push({
       message: `Operation '${operation}' requires ${expectedCount} matrix(es), got ${matrices.length}`,
-      type: 'operation',
-      severity: 'error',
+      type: "operation",
+      severity: "error",
     })
     validation.qualityScore -= 50
     return validation
@@ -723,50 +723,50 @@ const validateMatrixOperation = (operation: OperationType, matrices: Matrix[]): 
 
   // Operation-specific validations
   switch (operation) {
-    case 'add':
-    case 'subtract':
+    case "add":
+    case "subtract":
       if (matrices[0].rows !== matrices[1].rows || matrices[0].cols !== matrices[1].cols) {
         validation.isValid = false
         validation.errors.push({
-          message: 'Matrices must have the same dimensions for addition/subtraction',
-          type: 'dimension',
-          severity: 'error',
+          message: "Matrices must have the same dimensions for addition/subtraction",
+          type: "dimension",
+          severity: "error",
         })
         validation.qualityScore -= 40
       }
       break
 
-    case 'multiply':
+    case "multiply":
       if (matrices[0].cols !== matrices[1].rows) {
         validation.isValid = false
         validation.errors.push({
-          message: 'Number of columns in first matrix must equal number of rows in second matrix',
-          type: 'dimension',
-          severity: 'error',
+          message: "Number of columns in first matrix must equal number of rows in second matrix",
+          type: "dimension",
+          severity: "error",
         })
         validation.qualityScore -= 40
       }
       break
 
-    case 'inverse':
-    case 'determinant':
-    case 'trace':
+    case "inverse":
+    case "determinant":
+    case "trace":
       if (!matrices[0].properties.isSquare) {
         validation.isValid = false
         validation.errors.push({
           message: `Operation '${operation}' requires a square matrix`,
-          type: 'dimension',
-          severity: 'error',
+          type: "dimension",
+          severity: "error",
         })
         validation.qualityScore -= 40
       }
 
-      if (operation === 'inverse' && !matrices[0].properties.isInvertible) {
+      if (operation === "inverse" && !matrices[0].properties.isInvertible) {
         validation.isValid = false
         validation.errors.push({
-          message: 'Matrix is not invertible (determinant is zero or near zero)',
-          type: 'numerical',
-          severity: 'error',
+          message: "Matrix is not invertible (determinant is zero or near zero)",
+          type: "numerical",
+          severity: "error",
         })
         validation.qualityScore -= 30
       }
@@ -776,34 +776,34 @@ const validateMatrixOperation = (operation: OperationType, matrices: Matrix[]): 
   // General warnings
   for (const matrix of matrices) {
     if (matrix.rows > 10 || matrix.cols > 10) {
-      validation.warnings.push('Large matrices may impact performance')
+      validation.warnings.push("Large matrices may impact performance")
       validation.qualityScore -= 5
     }
 
     if (calculateSparsity(matrix) > 0.8) {
-      validation.suggestions.push('Consider using sparse matrix algorithms for better performance')
+      validation.suggestions.push("Consider using sparse matrix algorithms for better performance")
       validation.qualityScore -= 5
     }
 
     const condition = calculateConditionNumber(matrix)
     if (condition > 1e12) {
-      validation.warnings.push('Matrix is ill-conditioned - results may be numerically unstable')
+      validation.warnings.push("Matrix is ill-conditioned - results may be numerically unstable")
       validation.qualityScore -= 15
     } else if (condition > 1e6) {
-      validation.warnings.push('Matrix has high condition number - be cautious of numerical errors')
+      validation.warnings.push("Matrix has high condition number - be cautious of numerical errors")
       validation.qualityScore -= 10
     }
   }
 
   // Quality suggestions
   if (validation.qualityScore >= 90) {
-    validation.suggestions.push('Excellent matrix setup for computation')
+    validation.suggestions.push("Excellent matrix setup for computation")
   } else if (validation.qualityScore >= 70) {
-    validation.suggestions.push('Good matrices with minor considerations')
+    validation.suggestions.push("Good matrices with minor considerations")
   } else if (validation.qualityScore >= 50) {
-    validation.suggestions.push('Matrices need improvement for optimal computation')
+    validation.suggestions.push("Matrices need improvement for optimal computation")
   } else {
-    validation.suggestions.push('Matrices have significant issues')
+    validation.suggestions.push("Matrices have significant issues")
   }
 
   return validation
@@ -811,16 +811,16 @@ const validateMatrixOperation = (operation: OperationType, matrices: Matrix[]): 
 
 const getExpectedMatrixCount = (operation: OperationType): number => {
   switch (operation) {
-    case 'add':
-    case 'subtract':
-    case 'multiply':
+    case "add":
+    case "subtract":
+    case "multiply":
       return 2
-    case 'transpose':
-    case 'inverse':
-    case 'determinant':
-    case 'trace':
-    case 'rank':
-    case 'power':
+    case "transpose":
+    case "inverse":
+    case "determinant":
+    case "trace":
+    case "rank":
+    case "power":
       return 1
     default:
       return 1
@@ -830,10 +830,10 @@ const getExpectedMatrixCount = (operation: OperationType): number => {
 // Matrix templates
 const matrixTemplates: MatrixTemplate[] = [
   {
-    id: 'basic-2x2',
-    name: 'Basic 2×2 Matrices',
-    description: 'Simple 2×2 matrices for basic operations',
-    category: 'Basic',
+    id: "basic-2x2",
+    name: "Basic 2×2 Matrices",
+    description: "Simple 2×2 matrices for basic operations",
+    category: "Basic",
     matrices: [
       createMatrix(2, 2, [
         [1, 2],
@@ -844,15 +844,15 @@ const matrixTemplates: MatrixTemplate[] = [
         [7, 8],
       ]),
     ],
-    operation: 'add',
-    useCase: ['Learning', 'Basic operations', 'Introduction to matrices'],
-    difficulty: 'simple',
+    operation: "add",
+    useCase: ["Learning", "Basic operations", "Introduction to matrices"],
+    difficulty: "simple",
   },
   {
-    id: 'identity-matrices',
-    name: 'Identity Matrices',
-    description: 'Identity matrices for multiplication properties',
-    category: 'Special',
+    id: "identity-matrices",
+    name: "Identity Matrices",
+    description: "Identity matrices for multiplication properties",
+    category: "Special",
     matrices: [
       createMatrix(3, 3, [
         [2, 1, 0],
@@ -861,15 +861,15 @@ const matrixTemplates: MatrixTemplate[] = [
       ]),
       createIdentityMatrix(3),
     ],
-    operation: 'multiply',
-    useCase: ['Identity properties', 'Matrix multiplication', 'Linear algebra'],
-    difficulty: 'simple',
+    operation: "multiply",
+    useCase: ["Identity properties", "Matrix multiplication", "Linear algebra"],
+    difficulty: "simple",
   },
   {
-    id: 'symmetric-matrix',
-    name: 'Symmetric Matrix',
-    description: 'Symmetric matrix for eigenvalue analysis',
-    category: 'Special',
+    id: "symmetric-matrix",
+    name: "Symmetric Matrix",
+    description: "Symmetric matrix for eigenvalue analysis",
+    category: "Special",
     matrices: [
       createMatrix(3, 3, [
         [4, 1, 2],
@@ -877,30 +877,30 @@ const matrixTemplates: MatrixTemplate[] = [
         [2, 0, 5],
       ]),
     ],
-    operation: 'determinant',
-    useCase: ['Eigenvalues', 'Symmetric properties', 'Quadratic forms'],
-    difficulty: 'medium',
+    operation: "determinant",
+    useCase: ["Eigenvalues", "Symmetric properties", "Quadratic forms"],
+    difficulty: "medium",
   },
   {
-    id: 'rotation-matrix',
-    name: 'Rotation Matrix',
-    description: '2D rotation matrix (45 degrees)',
-    category: 'Geometric',
+    id: "rotation-matrix",
+    name: "Rotation Matrix",
+    description: "2D rotation matrix (45 degrees)",
+    category: "Geometric",
     matrices: [
       createMatrix(2, 2, [
         [Math.cos(Math.PI / 4), -Math.sin(Math.PI / 4)],
         [Math.sin(Math.PI / 4), Math.cos(Math.PI / 4)],
       ]),
     ],
-    operation: 'inverse',
-    useCase: ['Rotations', 'Computer graphics', 'Geometric transformations'],
-    difficulty: 'medium',
+    operation: "inverse",
+    useCase: ["Rotations", "Computer graphics", "Geometric transformations"],
+    difficulty: "medium",
   },
   {
-    id: 'singular-matrix',
-    name: 'Singular Matrix',
-    description: 'Non-invertible matrix for rank analysis',
-    category: 'Special',
+    id: "singular-matrix",
+    name: "Singular Matrix",
+    description: "Non-invertible matrix for rank analysis",
+    category: "Special",
     matrices: [
       createMatrix(3, 3, [
         [1, 2, 3],
@@ -908,15 +908,15 @@ const matrixTemplates: MatrixTemplate[] = [
         [1, 2, 3],
       ]),
     ],
-    operation: 'rank',
-    useCase: ['Rank analysis', 'Linear dependence', 'Null space'],
-    difficulty: 'medium',
+    operation: "rank",
+    useCase: ["Rank analysis", "Linear dependence", "Null space"],
+    difficulty: "medium",
   },
   {
-    id: 'large-sparse',
-    name: 'Large Sparse Matrix',
-    description: 'Large matrix with many zeros',
-    category: 'Performance',
+    id: "large-sparse",
+    name: "Large Sparse Matrix",
+    description: "Large matrix with many zeros",
+    category: "Performance",
     matrices: [
       createMatrix(5, 5, [
         [1, 0, 0, 0, 2],
@@ -926,15 +926,15 @@ const matrixTemplates: MatrixTemplate[] = [
         [6, 0, 0, 0, 7],
       ]),
     ],
-    operation: 'transpose',
-    useCase: ['Sparse matrices', 'Performance testing', 'Large systems'],
-    difficulty: 'medium',
+    operation: "transpose",
+    useCase: ["Sparse matrices", "Performance testing", "Large systems"],
+    difficulty: "medium",
   },
   {
-    id: 'ill-conditioned',
-    name: 'Ill-conditioned Matrix',
-    description: 'Matrix with high condition number',
-    category: 'Numerical',
+    id: "ill-conditioned",
+    name: "Ill-conditioned Matrix",
+    description: "Matrix with high condition number",
+    category: "Numerical",
     matrices: [
       createMatrix(3, 3, [
         [1, 1, 1],
@@ -942,24 +942,24 @@ const matrixTemplates: MatrixTemplate[] = [
         [1, 1, 1.0001],
       ]),
     ],
-    operation: 'inverse',
-    useCase: ['Numerical stability', 'Condition numbers', 'Error analysis'],
-    difficulty: 'complex',
+    operation: "inverse",
+    useCase: ["Numerical stability", "Condition numbers", "Error analysis"],
+    difficulty: "complex",
   },
   {
-    id: 'matrix-power',
-    name: 'Matrix Powers',
-    description: 'Matrix for exponentiation testing',
-    category: 'Advanced',
+    id: "matrix-power",
+    name: "Matrix Powers",
+    description: "Matrix for exponentiation testing",
+    category: "Advanced",
     matrices: [
       createMatrix(2, 2, [
         [2, 1],
         [0, 2],
       ]),
     ],
-    operation: 'power',
-    useCase: ['Matrix exponentiation', 'Markov chains', 'Recurrence relations'],
-    difficulty: 'complex',
+    operation: "power",
+    useCase: ["Matrix exponentiation", "Markov chains", "Recurrence relations"],
+    difficulty: "complex",
   },
 ]
 
@@ -995,7 +995,7 @@ const useMatrixOperations = () => {
         return await executeWorkerOperation(operation, matrices, params)
       } catch (error) {
         // 如果Web Worker失败，回退到本地计算
-        console.warn('Web Worker failed, falling back to local computation:', error)
+        console.warn("Web Worker failed, falling back to local computation:", error)
         const result = executeMatrixOperation(operation, matrices, params)
         setOperations((prev) => [result, ...prev.slice(0, 99)])
         return result
@@ -1030,13 +1030,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -1046,40 +1046,40 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useMatrixExport = () => {
   const exportOperation = useCallback((operation: MatrixOperation, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(operation, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromOperation(operation)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'txt':
+      case "txt":
         content = generateTextFromOperation(operation)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
-      case 'matlab':
+      case "matlab":
         content = generateMatlabFromOperation(operation)
-        mimeType = 'text/plain'
-        extension = '.m'
+        mimeType = "text/plain"
+        extension = ".m"
         break
-      case 'python':
+      case "python":
         content = generatePythonFromOperation(operation)
-        mimeType = 'text/plain'
-        extension = '.py'
+        mimeType = "text/plain"
+        extension = ".py"
         break
-      case 'latex':
+      case "latex":
         content = generateLatexFromOperation(operation)
-        mimeType = 'text/plain'
-        extension = '.tex'
+        mimeType = "text/plain"
+        extension = ".tex"
         break
       default:
         content = generateTextFromOperation(operation)
@@ -1088,7 +1088,7 @@ const useMatrixExport = () => {
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `matrix-operation-${operation.id}${extension}`
     document.body.appendChild(link)
@@ -1098,39 +1098,39 @@ const useMatrixExport = () => {
   }, [])
 
   const exportMatrix = useCallback((matrix: Matrix, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(matrix, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
-        content = matrix.data.map((row) => row.join(',')).join('\n')
-        mimeType = 'text/csv'
-        extension = '.csv'
+      case "csv":
+        content = matrix.data.map((row) => row.join(",")).join("\n")
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'matlab':
-        content = `${matrix.name} = [${matrix.data.map((row) => row.join(' ')).join('; ')}];`
-        mimeType = 'text/plain'
-        extension = '.m'
+      case "matlab":
+        content = `${matrix.name} = [${matrix.data.map((row) => row.join(" ")).join("; ")}];`
+        mimeType = "text/plain"
+        extension = ".m"
         break
-      case 'python':
-        content = `import numpy as np\n${matrix.name} = np.array([${matrix.data.map((row) => `[${row.join(', ')}]`).join(', ')}])`
-        mimeType = 'text/plain'
-        extension = '.py'
+      case "python":
+        content = `import numpy as np\n${matrix.name} = np.array([${matrix.data.map((row) => `[${row.join(", ")}]`).join(", ")}])`
+        mimeType = "text/plain"
+        extension = ".py"
         break
       default:
-        content = matrix.data.map((row) => row.join('\t')).join('\n')
+        content = matrix.data.map((row) => row.join("\t")).join("\n")
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `matrix-${matrix.id}${extension}`
     document.body.appendChild(link)
@@ -1144,23 +1144,23 @@ const useMatrixExport = () => {
 
 // Helper functions for export formats
 const generateCSVFromOperation = (operation: MatrixOperation): string => {
-  const headers = ['Property', 'Value']
+  const headers = ["Property", "Value"]
   const rows = [
-    ['Operation', operation.operation],
-    ['Operation Time (ms)', operation.metadata.operationTime.toFixed(2)],
-    ['Algorithm', operation.metadata.algorithmUsed],
-    ['Complexity', operation.metadata.complexity.toString()],
-    ['Numerical Stability', operation.metadata.numericalStability.toFixed(3)],
-    ['Memory Usage (bytes)', operation.metadata.memoryUsage.toString()],
+    ["Operation", operation.operation],
+    ["Operation Time (ms)", operation.metadata.operationTime.toFixed(2)],
+    ["Algorithm", operation.metadata.algorithmUsed],
+    ["Complexity", operation.metadata.complexity.toString()],
+    ["Numerical Stability", operation.metadata.numericalStability.toFixed(3)],
+    ["Memory Usage (bytes)", operation.metadata.memoryUsage.toString()],
   ]
 
-  if (typeof operation.result === 'number') {
-    rows.push(['Result', operation.result.toString()])
+  if (typeof operation.result === "number") {
+    rows.push(["Result", operation.result.toString()])
   } else if (operation.result) {
-    rows.push(['Result Dimensions', `${operation.result.rows}×${operation.result.cols}`])
+    rows.push(["Result Dimensions", `${operation.result.rows}×${operation.result.cols}`])
   }
 
-  return [headers.join(','), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
+  return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
 }
 
 const generateTextFromOperation = (operation: MatrixOperation): string => {
@@ -1173,18 +1173,18 @@ const generateTextFromOperation = (operation: MatrixOperation): string => {
   content += `=== INPUT MATRICES ===\n`
   operation.matrices.forEach((matrix, index) => {
     content += `Matrix ${index + 1} (${matrix.rows}×${matrix.cols}):\n`
-    content += matrix.data.map((row) => row.map((val) => formatNumber(val)).join('\t')).join('\n')
-    content += '\n\n'
+    content += matrix.data.map((row) => row.map((val) => formatNumber(val)).join("\t")).join("\n")
+    content += "\n\n"
   })
 
   content += `=== RESULT ===\n`
-  if (typeof operation.result === 'number') {
+  if (typeof operation.result === "number") {
     content += `Scalar Result: ${formatNumber(operation.result)}\n`
   } else if (operation.result) {
     content += `Result Matrix (${operation.result.rows}×${operation.result.cols}):\n`
-    content += operation.result.data.map((row) => row.map((val) => formatNumber(val)).join('\t')).join('\n')
+    content += operation.result.data.map((row) => row.map((val) => formatNumber(val)).join("\t")).join("\n")
   } else {
-    content += 'No result\n'
+    content += "No result\n"
   }
 
   content += `\n=== PERFORMANCE ===\n`
@@ -1201,35 +1201,35 @@ const generateMatlabFromOperation = (operation: MatrixOperation): string => {
   content += `% Generated on ${operation.timestamp.toLocaleString()}\n\n`
 
   operation.matrices.forEach((matrix, index) => {
-    content += `A${index + 1} = [${matrix.data.map((row) => row.join(' ')).join('; ')}];\n`
+    content += `A${index + 1} = [${matrix.data.map((row) => row.join(" ")).join("; ")}];\n`
   })
 
-  content += '\n'
+  content += "\n"
 
   switch (operation.operation) {
-    case 'add':
-      content += 'result = A1 + A2;\n'
+    case "add":
+      content += "result = A1 + A2;\n"
       break
-    case 'subtract':
-      content += 'result = A1 - A2;\n'
+    case "subtract":
+      content += "result = A1 - A2;\n"
       break
-    case 'multiply':
-      content += 'result = A1 * A2;\n'
+    case "multiply":
+      content += "result = A1 * A2;\n"
       break
-    case 'transpose':
+    case "transpose":
       content += "result = A1';\n"
       break
-    case 'inverse':
-      content += 'result = inv(A1);\n'
+    case "inverse":
+      content += "result = inv(A1);\n"
       break
-    case 'determinant':
-      content += 'result = det(A1);\n'
+    case "determinant":
+      content += "result = det(A1);\n"
       break
-    case 'trace':
-      content += 'result = trace(A1);\n'
+    case "trace":
+      content += "result = trace(A1);\n"
       break
-    case 'rank':
-      content += 'result = rank(A1);\n'
+    case "rank":
+      content += "result = rank(A1);\n"
       break
   }
 
@@ -1242,35 +1242,35 @@ const generatePythonFromOperation = (operation: MatrixOperation): string => {
   content += `import numpy as np\n\n`
 
   operation.matrices.forEach((matrix, index) => {
-    content += `A${index + 1} = np.array([${matrix.data.map((row) => `[${row.join(', ')}]`).join(', ')}])\n`
+    content += `A${index + 1} = np.array([${matrix.data.map((row) => `[${row.join(", ")}]`).join(", ")}])\n`
   })
 
-  content += '\n'
+  content += "\n"
 
   switch (operation.operation) {
-    case 'add':
-      content += 'result = A1 + A2\n'
+    case "add":
+      content += "result = A1 + A2\n"
       break
-    case 'subtract':
-      content += 'result = A1 - A2\n'
+    case "subtract":
+      content += "result = A1 - A2\n"
       break
-    case 'multiply':
-      content += 'result = np.dot(A1, A2)\n'
+    case "multiply":
+      content += "result = np.dot(A1, A2)\n"
       break
-    case 'transpose':
-      content += 'result = A1.T\n'
+    case "transpose":
+      content += "result = A1.T\n"
       break
-    case 'inverse':
-      content += 'result = np.linalg.inv(A1)\n'
+    case "inverse":
+      content += "result = np.linalg.inv(A1)\n"
       break
-    case 'determinant':
-      content += 'result = np.linalg.det(A1)\n'
+    case "determinant":
+      content += "result = np.linalg.det(A1)\n"
       break
-    case 'trace':
-      content += 'result = np.trace(A1)\n'
+    case "trace":
+      content += "result = np.trace(A1)\n"
       break
-    case 'rank':
-      content += 'result = np.linalg.matrix_rank(A1)\n'
+    case "rank":
+      content += "result = np.linalg.matrix_rank(A1)\n"
       break
   }
 
@@ -1286,16 +1286,16 @@ const generateLatexFromOperation = (operation: MatrixOperation): string => {
   operation.matrices.forEach((matrix, index) => {
     content += `\\subsection{Matrix ${index + 1}}\n`
     content += `\\[\n\\begin{bmatrix}\n`
-    content += matrix.data.map((row) => row.map((val) => formatNumber(val)).join(' & ')).join(' \\\\\n')
+    content += matrix.data.map((row) => row.map((val) => formatNumber(val)).join(" & ")).join(" \\\\\n")
     content += `\n\\end{bmatrix}\n\\]\n\n`
   })
 
-  if (operation.result && typeof operation.result === 'object') {
+  if (operation.result && typeof operation.result === "object") {
     content += `\\subsection{Result}\n`
     content += `\\[\n\\begin{bmatrix}\n`
-    content += operation.result.data.map((row) => row.map((val) => formatNumber(val)).join(' & ')).join(' \\\\\n')
+    content += operation.result.data.map((row) => row.map((val) => formatNumber(val)).join(" & ")).join(" \\\\\n")
     content += `\n\\end{bmatrix}\n\\]\n\n`
-  } else if (typeof operation.result === 'number') {
+  } else if (typeof operation.result === "number") {
     content += `\\subsection{Result}\n`
     content += `\\[${formatNumber(operation.result)}\\]\n\n`
   }
@@ -1309,8 +1309,8 @@ const generateLatexFromOperation = (operation: MatrixOperation): string => {
  * Features: Advanced matrix operations, linear algebra functions, matrix analysis, and comprehensive mathematical computation
  */
 const MatrixMathCore = () => {
-  const [activeTab, setActiveTab] = useState<'calculator' | 'builder' | 'history' | 'templates' | 'settings'>(
-    'calculator'
+  const [activeTab, setActiveTab] = useState<"calculator" | "builder" | "history" | "templates" | "settings">(
+    "calculator"
   )
   const [matrices, setMatrices] = useState<Matrix[]>([
     createMatrix(2, 2, [
@@ -1322,10 +1322,10 @@ const MatrixMathCore = () => {
       [7, 8],
     ]),
   ])
-  const [selectedOperation, setSelectedOperation] = useState<OperationType>('add')
+  const [selectedOperation, setSelectedOperation] = useState<OperationType>("add")
   const [currentResult, setCurrentResult] = useState<MatrixOperation | null>(null)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
-  const [matrixInput, setMatrixInput] = useState<string>('')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
+  const [matrixInput, setMatrixInput] = useState<string>("")
   const [matrixRows, setMatrixRows] = useState(3)
   const [matrixCols, setMatrixCols] = useState(3)
 
@@ -1365,7 +1365,7 @@ const MatrixMathCore = () => {
   // Add matrix from input
   const handleAddMatrix = useCallback(() => {
     if (!matrixInput.trim()) {
-      toast.error('Please enter matrix data')
+      toast.error("Please enter matrix data")
       return
     }
 
@@ -1373,7 +1373,7 @@ const MatrixMathCore = () => {
       const data = parseMatrixString(matrixInput)
       const newMatrix = createMatrix(data.length, data[0].length, data)
       setMatrices((prev) => [...prev, newMatrix])
-      setMatrixInput('')
+      setMatrixInput("")
       toast.success(`Added ${data.length}×${data[0].length} matrix`)
     } catch (error: any) {
       toast.error(`Matrix parsing error: ${error?.message}`)
@@ -1382,21 +1382,21 @@ const MatrixMathCore = () => {
 
   // Create new matrix
   const handleCreateMatrix = useCallback(
-    (type: 'zero' | 'identity' | 'random') => {
+    (type: "zero" | "identity" | "random") => {
       let newMatrix: Matrix
 
       switch (type) {
-        case 'zero':
+        case "zero":
           newMatrix = createZeroMatrix(matrixRows, matrixCols)
           break
-        case 'identity':
+        case "identity":
           if (matrixRows !== matrixCols) {
-            toast.error('Identity matrix must be square')
+            toast.error("Identity matrix must be square")
             return
           }
           newMatrix = createIdentityMatrix(matrixRows)
           break
-        case 'random':
+        case "random":
           newMatrix = createRandomMatrix(matrixRows, matrixCols)
           break
         default:
@@ -1412,12 +1412,12 @@ const MatrixMathCore = () => {
   // Remove matrix
   const handleRemoveMatrix = useCallback((index: number) => {
     setMatrices((prev) => prev.filter((_, i) => i !== index))
-    toast.success('Matrix removed')
+    toast.success("Matrix removed")
   }, [])
 
   // Format matrix for display
   const formatMatrixDisplay = useCallback((matrix: Matrix): string => {
-    return matrix.data.map((row) => '[' + row.map((val) => formatNumber(val, 3)).join(', ') + ']').join('\n')
+    return matrix.data.map((row) => "[" + row.map((val) => formatNumber(val, 3)).join(", ") + "]").join("\n")
   }, [])
 
   return (
@@ -1430,12 +1430,15 @@ const MatrixMathCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {/* <Matrix className="h-5 w-5" aria-hidden="true" /> */}
+              {/* <Matrix className="h-5 w-5"  /> */}
               Matrix Math & Linear Algebra Tool
             </CardTitle>
             <CardDescription>
@@ -1448,32 +1451,53 @@ const MatrixMathCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as any)}
+        >
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="calculator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="calculator"
+              className="flex items-center gap-2"
+            >
               <Calculator className="h-4 w-4" />
               Calculator
             </TabsTrigger>
-            <TabsTrigger value="builder" className="flex items-center gap-2">
+            <TabsTrigger
+              value="builder"
+              className="flex items-center gap-2"
+            >
               <Grid className="h-4 w-4" />
               Builder
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger
+              value="settings"
+              className="flex items-center gap-2"
+            >
               <Settings className="h-4 w-4" />
               Settings
             </TabsTrigger>
           </TabsList>
 
           {/* Matrix Calculator Tab */}
-          <TabsContent value="calculator" className="space-y-4">
+          <TabsContent
+            value="calculator"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Operation Setup */}
               <Card>
@@ -1485,7 +1509,10 @@ const MatrixMathCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="operation" className="text-sm font-medium">
+                    <Label
+                      htmlFor="operation"
+                      className="text-sm font-medium"
+                    >
                       Operation Type
                     </Label>
                     <Select
@@ -1512,12 +1539,19 @@ const MatrixMathCore = () => {
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">Available Matrices ({matrices.length})</Label>
                     {matrices.map((matrix, index) => (
-                      <div key={matrix.id} className="p-3 border rounded-lg">
+                      <div
+                        key={matrix.id}
+                        className="p-3 border rounded-lg"
+                      >
                         <div className="flex justify-between items-start mb-2">
                           <div className="font-medium text-sm">
                             Matrix {index + 1} ({matrix.rows}×{matrix.cols})
                           </div>
-                          <Button size="sm" variant="ghost" onClick={() => handleRemoveMatrix(index)}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleRemoveMatrix(index)}
+                          >
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
@@ -1525,13 +1559,17 @@ const MatrixMathCore = () => {
                           {formatMatrixDisplay(matrix)}
                         </div>
                         <div className="flex gap-2 mt-2">
-                          <Button size="sm" variant="outline" onClick={() => exportMatrix(matrix, 'json')}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => exportMatrix(matrix, "json")}
+                          >
                             <Download className="h-3 w-3" />
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => copyToClipboard(formatMatrixDisplay(matrix), 'Matrix')}
+                            onClick={() => copyToClipboard(formatMatrixDisplay(matrix), "Matrix")}
                           >
                             <Copy className="h-3 w-3" />
                           </Button>
@@ -1550,7 +1588,7 @@ const MatrixMathCore = () => {
                     ) : (
                       <Zap className="mr-2 h-4 w-4" />
                     )}
-                    {isProcessing ? 'Computing...' : `Execute ${selectedOperation}`}
+                    {isProcessing ? "Computing..." : `Execute ${selectedOperation}`}
                   </Button>
                 </CardContent>
               </Card>
@@ -1575,7 +1613,7 @@ const MatrixMathCore = () => {
                       {/* Result Value */}
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">Result</Label>
-                        {typeof currentResult.result === 'number' ? (
+                        {typeof currentResult.result === "number" ? (
                           <div className="p-3 bg-muted rounded-lg text-center">
                             <div className="text-2xl font-bold text-blue-600">{formatNumber(currentResult.result)}</div>
                             <div className="text-sm text-muted-foreground">Scalar Value</div>
@@ -1621,29 +1659,32 @@ const MatrixMathCore = () => {
                       </div>
 
                       {/* Matrix Properties */}
-                      {currentResult.result && typeof currentResult.result === 'object' && (
+                      {currentResult.result && typeof currentResult.result === "object" && (
                         <div className="space-y-2">
                           <Label className="text-sm font-medium">Matrix Properties</Label>
                           <div className="grid grid-cols-2 gap-2 text-xs">
                             {Object.entries(currentResult.result.properties).map(([key, value]) => (
-                              <div key={key} className="flex justify-between p-2 bg-muted rounded">
-                                <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
+                              <div
+                                key={key}
+                                className="flex justify-between p-2 bg-muted rounded"
+                              >
+                                <span className="capitalize">{key.replace(/([A-Z])/g, " $1").trim()}:</span>
                                 <span
                                   className={
-                                    typeof value === 'boolean'
+                                    typeof value === "boolean"
                                       ? value
-                                        ? 'text-green-600'
-                                        : 'text-red-600'
-                                      : 'text-blue-600'
+                                        ? "text-green-600"
+                                        : "text-red-600"
+                                      : "text-blue-600"
                                   }
                                 >
-                                  {typeof value === 'boolean'
+                                  {typeof value === "boolean"
                                     ? value
-                                      ? 'Yes'
-                                      : 'No'
-                                    : typeof value === 'number'
+                                      ? "Yes"
+                                      : "No"
+                                    : typeof value === "number"
                                       ? formatNumber(value)
-                                      : value?.toString() || 'N/A'}
+                                      : value?.toString() || "N/A"}
                                 </span>
                               </div>
                             ))}
@@ -1653,32 +1694,44 @@ const MatrixMathCore = () => {
 
                       {/* Export Options */}
                       <div className="flex gap-2 pt-4 border-t">
-                        <Button onClick={() => exportOperation(currentResult, 'json')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportOperation(currentResult, "json")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           JSON
                         </Button>
-                        <Button onClick={() => exportOperation(currentResult, 'matlab')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportOperation(currentResult, "matlab")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           MATLAB
                         </Button>
-                        <Button onClick={() => exportOperation(currentResult, 'python')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportOperation(currentResult, "python")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           Python
                         </Button>
                         <Button
                           onClick={() => {
                             const resultText =
-                              typeof currentResult.result === 'number'
+                              typeof currentResult.result === "number"
                                 ? currentResult.result.toString()
                                 : currentResult.result
                                   ? formatMatrixDisplay(currentResult.result)
-                                  : 'No result'
-                            copyToClipboard(resultText, 'Result')
+                                  : "No result"
+                            copyToClipboard(resultText, "Result")
                           }}
                           variant="outline"
                           size="sm"
                         >
-                          {copiedText === 'Result' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          {copiedText === "Result" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         </Button>
                       </div>
                     </div>
@@ -1695,7 +1748,10 @@ const MatrixMathCore = () => {
           </TabsContent>
 
           {/* Matrix Builder Tab */}
-          <TabsContent value="builder" className="space-y-4">
+          <TabsContent
+            value="builder"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Matrix Input */}
               <Card>
@@ -1707,7 +1763,10 @@ const MatrixMathCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="matrix-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="matrix-input"
+                      className="text-sm font-medium"
+                    >
                       Matrix Data
                     </Label>
                     <Textarea
@@ -1723,7 +1782,11 @@ const MatrixMathCore = () => {
                     </div>
                   </div>
 
-                  <Button onClick={handleAddMatrix} disabled={!matrixInput.trim()} className="w-full">
+                  <Button
+                    onClick={handleAddMatrix}
+                    disabled={!matrixInput.trim()}
+                    className="w-full"
+                  >
                     <Plus className="mr-2 h-4 w-4" />
                     Add Matrix
                   </Button>
@@ -1741,7 +1804,10 @@ const MatrixMathCore = () => {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="matrix-rows" className="text-sm font-medium">
+                      <Label
+                        htmlFor="matrix-rows"
+                        className="text-sm font-medium"
+                      >
                         Rows
                       </Label>
                       <Input
@@ -1755,7 +1821,10 @@ const MatrixMathCore = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="matrix-cols" className="text-sm font-medium">
+                      <Label
+                        htmlFor="matrix-cols"
+                        className="text-sm font-medium"
+                      >
                         Columns
                       </Label>
                       <Input
@@ -1773,12 +1842,16 @@ const MatrixMathCore = () => {
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Generate Matrix</Label>
                     <div className="grid grid-cols-1 gap-2">
-                      <Button onClick={() => handleCreateMatrix('zero')} variant="outline" className="w-full">
+                      <Button
+                        onClick={() => handleCreateMatrix("zero")}
+                        variant="outline"
+                        className="w-full"
+                      >
                         <CircleDot className="mr-2 h-4 w-4" />
                         Zero Matrix
                       </Button>
                       <Button
-                        onClick={() => handleCreateMatrix('identity')}
+                        onClick={() => handleCreateMatrix("identity")}
                         variant="outline"
                         className="w-full"
                         disabled={matrixRows !== matrixCols}
@@ -1786,7 +1859,11 @@ const MatrixMathCore = () => {
                         <Eye className="mr-2 h-4 w-4" />
                         Identity Matrix
                       </Button>
-                      <Button onClick={() => handleCreateMatrix('random')} variant="outline" className="w-full">
+                      <Button
+                        onClick={() => handleCreateMatrix("random")}
+                        variant="outline"
+                        className="w-full"
+                      >
                         <Shuffle className="mr-2 h-4 w-4" />
                         Random Matrix
                       </Button>
@@ -1816,7 +1893,10 @@ const MatrixMathCore = () => {
           </TabsContent>
 
           {/* History Tab */}
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent
+            value="history"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Operation History</CardTitle>
@@ -1827,16 +1907,23 @@ const MatrixMathCore = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        {operations.length} operation{operations.length !== 1 ? 's' : ''} in history
+                        {operations.length} operation{operations.length !== 1 ? "s" : ""} in history
                       </span>
-                      <Button onClick={clearOperations} variant="outline" size="sm">
+                      <Button
+                        onClick={clearOperations}
+                        variant="outline"
+                        size="sm"
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Clear History
                       </Button>
                     </div>
 
                     {operations.map((operation) => (
-                      <div key={operation.id} className="border rounded-lg p-4">
+                      <div
+                        key={operation.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex justify-between items-start mb-2">
                           <div className="font-medium text-sm">
                             {operation.operation.toUpperCase()} - {operation.timestamp.toLocaleString()}
@@ -1845,22 +1932,26 @@ const MatrixMathCore = () => {
                             <span className="text-xs px-2 py-1 bg-muted rounded">
                               {operation.metadata.algorithmUsed}
                             </span>
-                            <Button size="sm" variant="ghost" onClick={() => removeOperation(operation.id)}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeOperation(operation.id)}
+                            >
                               <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
                         </div>
                         <div className="space-y-2">
                           <div className="text-sm">
-                            <strong>Matrices:</strong> {operation.matrices.map((m) => `${m.rows}×${m.cols}`).join(', ')}
+                            <strong>Matrices:</strong> {operation.matrices.map((m) => `${m.rows}×${m.cols}`).join(", ")}
                           </div>
                           <div className="text-sm">
-                            <strong>Result:</strong>{' '}
-                            {typeof operation.result === 'number'
+                            <strong>Result:</strong>{" "}
+                            {typeof operation.result === "number"
                               ? formatNumber(operation.result)
                               : operation.result
                                 ? `${operation.result.rows}×${operation.result.cols} matrix`
-                                : 'No result'}
+                                : "No result"}
                           </div>
                           <div className="grid grid-cols-4 gap-4 text-xs text-center">
                             <div>
@@ -1889,12 +1980,16 @@ const MatrixMathCore = () => {
                               setMatrices([...operation.matrices])
                               setSelectedOperation(operation.operation)
                               setCurrentResult(operation)
-                              setActiveTab('calculator')
+                              setActiveTab("calculator")
                             }}
                           >
                             <Eye className="h-3 w-3" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => exportOperation(operation, 'json')}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => exportOperation(operation, "json")}
+                          >
                             <Download className="h-3 w-3" />
                           </Button>
                           <Button
@@ -1902,12 +1997,12 @@ const MatrixMathCore = () => {
                             variant="outline"
                             onClick={() => {
                               const resultText =
-                                typeof operation.result === 'number'
+                                typeof operation.result === "number"
                                   ? operation.result.toString()
                                   : operation.result
                                     ? formatMatrixDisplay(operation.result)
-                                    : 'No result'
-                              copyToClipboard(resultText, 'Result')
+                                    : "No result"
+                              copyToClipboard(resultText, "Result")
                             }}
                           >
                             <Copy className="h-3 w-3" />
@@ -1928,7 +2023,10 @@ const MatrixMathCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Matrix Templates</CardTitle>
@@ -1940,7 +2038,7 @@ const MatrixMathCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1951,11 +2049,11 @@ const MatrixMathCore = () => {
                             <span className="text-xs px-2 py-1 bg-muted rounded">{template.category}</span>
                             <span
                               className={`text-xs px-2 py-1 rounded ${
-                                template.difficulty === 'simple'
-                                  ? 'bg-green-100 text-green-800'
-                                  : template.difficulty === 'medium'
-                                    ? 'bg-yellow-100 text-yellow-800'
-                                    : 'bg-red-100 text-red-800'
+                                template.difficulty === "simple"
+                                  ? "bg-green-100 text-green-800"
+                                  : template.difficulty === "medium"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
                               }`}
                             >
                               {template.difficulty}
@@ -1966,7 +2064,7 @@ const MatrixMathCore = () => {
                         <div>
                           <div className="text-xs font-medium mb-1">Matrices ({template.matrices.length}):</div>
                           <div className="text-xs text-muted-foreground">
-                            {template.matrices.map((m) => `${m.rows}×${m.cols}`).join(', ')}
+                            {template.matrices.map((m) => `${m.rows}×${m.cols}`).join(", ")}
                           </div>
                         </div>
                         <div>
@@ -1975,7 +2073,7 @@ const MatrixMathCore = () => {
                         </div>
                         <div>
                           <div className="text-xs font-medium mb-1">Use Cases:</div>
-                          <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                          <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                         </div>
                       </div>
                     </div>
@@ -1986,7 +2084,10 @@ const MatrixMathCore = () => {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-4">
+          <TabsContent
+            value="settings"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Matrix Settings</CardTitle>

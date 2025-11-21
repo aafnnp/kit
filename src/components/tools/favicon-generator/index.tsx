@@ -1,10 +1,10 @@
-import React, { useCallback, useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -23,8 +23,8 @@ import {
   Globe,
   Package,
   Settings,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   FaviconFile,
   FaviconData,
@@ -38,20 +38,20 @@ import type {
   FaviconType,
   FaviconFormat,
   FaviconSize,
-} from '@/types/favicon-generator'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/favicon-generator"
+import { formatFileSize } from "@/lib/utils"
 // Utility functions
 
 const validateImageFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
-  const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp']
+  const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/svg+xml", "image/webp"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 10MB' }
+    return { isValid: false, error: "File size must be less than 10MB" }
   }
 
   if (!allowedTypes.includes(file.type)) {
-    return { isValid: false, error: 'Only PNG, JPEG, SVG, and WebP images are supported' }
+    return { isValid: false, error: "Only PNG, JPEG, SVG, and WebP images are supported" }
   }
 
   return { isValid: true }
@@ -66,15 +66,15 @@ const generateFaviconFromImage = async (
 ): Promise<{ url: string; fileSize: number; metadata: FaviconMetadata }> => {
   return new Promise((resolve, reject) => {
     const img = new Image()
-    img.crossOrigin = 'anonymous'
+    img.crossOrigin = "anonymous"
 
     img.onload = () => {
       try {
-        const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
+        const canvas = document.createElement("canvas")
+        const ctx = canvas.getContext("2d")
 
         if (!ctx) {
-          reject(new Error('Canvas context not available'))
+          reject(new Error("Canvas context not available"))
           return
         }
 
@@ -92,9 +92,9 @@ const generateFaviconFromImage = async (
         const hasTransparency = checkTransparency(imageData)
 
         // Convert to desired format
-        let mimeType = 'image/png'
-        if (format === 'jpg') mimeType = 'image/jpeg'
-        else if (format === 'webp') mimeType = 'image/webp'
+        let mimeType = "image/png"
+        if (format === "jpg") mimeType = "image/jpeg"
+        else if (format === "webp") mimeType = "image/webp"
 
         const dataUrl = canvas.toDataURL(mimeType, quality)
         const fileSize = Math.round((dataUrl.length * 3) / 4) // Approximate file size
@@ -106,7 +106,7 @@ const generateFaviconFromImage = async (
           hasTransparency,
           compressionRatio: fileSize / (size * size * 4),
           processingTime: performance.now(),
-          purpose: ['any'],
+          purpose: ["any"],
         }
 
         resolve({
@@ -119,7 +119,7 @@ const generateFaviconFromImage = async (
       }
     }
 
-    img.onerror = () => reject(new Error('Failed to load image'))
+    img.onerror = () => reject(new Error("Failed to load image"))
     img.src = imageUrl
   })
 }
@@ -135,10 +135,10 @@ const checkTransparency = (imageData: ImageData): boolean => {
 // Standard favicon sizes for different platforms
 const FAVICON_SIZES: Record<FaviconType, FaviconSize[]> = {
   standard: [16, 32, 48],
-  'apple-touch': [152, 167, 180],
+  "apple-touch": [152, 167, 180],
   android: [192, 512],
-  'ms-application': [128, 256],
-  'web-app': [96, 128, 192, 256, 512],
+  "ms-application": [128, 256],
+  "web-app": [96, 128, 192, 256, 512],
 }
 
 // Generate complete favicon set
@@ -152,26 +152,26 @@ const generateFaviconSet = async (imageUrl: string, settings: FaviconSettings): 
     // Collect all sizes to generate based on settings
     if (settings.includeStandardSizes) {
       FAVICON_SIZES.standard.forEach((size) => {
-        sizesToGenerate.push({ size, type: 'standard', format: 'png' })
-        if (size === 32) sizesToGenerate.push({ size, type: 'standard', format: 'ico' })
+        sizesToGenerate.push({ size, type: "standard", format: "png" })
+        if (size === 32) sizesToGenerate.push({ size, type: "standard", format: "ico" })
       })
     }
 
     if (settings.includeAppleSizes) {
-      FAVICON_SIZES['apple-touch'].forEach((size) => {
-        sizesToGenerate.push({ size, type: 'apple-touch', format: 'png' })
+      FAVICON_SIZES["apple-touch"].forEach((size) => {
+        sizesToGenerate.push({ size, type: "apple-touch", format: "png" })
       })
     }
 
     if (settings.includeAndroidSizes) {
       FAVICON_SIZES.android.forEach((size) => {
-        sizesToGenerate.push({ size, type: 'android', format: 'png' })
+        sizesToGenerate.push({ size, type: "android", format: "png" })
       })
     }
 
     if (settings.includeMSApplicationSizes) {
-      FAVICON_SIZES['ms-application'].forEach((size) => {
-        sizesToGenerate.push({ size, type: 'ms-application', format: 'png' })
+      FAVICON_SIZES["ms-application"].forEach((size) => {
+        sizesToGenerate.push({ size, type: "ms-application", format: "png" })
       })
     }
 
@@ -204,19 +204,19 @@ const generateFaviconSet = async (imageUrl: string, settings: FaviconSettings): 
 
     return favicons
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'Favicon generation failed')
+    throw new Error(error instanceof Error ? error.message : "Favicon generation failed")
   }
 }
 
 // Favicon templates
 const faviconTemplates: FaviconTemplate[] = [
   {
-    id: 'basic-web',
-    name: 'Basic Web',
-    description: 'Essential favicons for web browsers',
-    category: 'Web',
+    id: "basic-web",
+    name: "Basic Web",
+    description: "Essential favicons for web browsers",
+    category: "Web",
     sizes: [16, 32, 48],
-    formats: ['ico', 'png'],
+    formats: ["ico", "png"],
     settings: {
       includeStandardSizes: true,
       includeAppleSizes: false,
@@ -227,12 +227,12 @@ const faviconTemplates: FaviconTemplate[] = [
     },
   },
   {
-    id: 'complete-web',
-    name: 'Complete Web',
-    description: 'Comprehensive favicon set for all platforms',
-    category: 'Web',
+    id: "complete-web",
+    name: "Complete Web",
+    description: "Comprehensive favicon set for all platforms",
+    category: "Web",
     sizes: [16, 32, 48, 152, 167, 180, 192, 512],
-    formats: ['ico', 'png'],
+    formats: ["ico", "png"],
     settings: {
       includeStandardSizes: true,
       includeAppleSizes: true,
@@ -243,12 +243,12 @@ const faviconTemplates: FaviconTemplate[] = [
     },
   },
   {
-    id: 'apple-only',
-    name: 'Apple Touch Icons',
-    description: 'Apple device optimized icons',
-    category: 'Mobile',
+    id: "apple-only",
+    name: "Apple Touch Icons",
+    description: "Apple device optimized icons",
+    category: "Mobile",
     sizes: [152, 167, 180],
-    formats: ['png'],
+    formats: ["png"],
     settings: {
       includeStandardSizes: false,
       includeAppleSizes: true,
@@ -259,12 +259,12 @@ const faviconTemplates: FaviconTemplate[] = [
     },
   },
   {
-    id: 'android-pwa',
-    name: 'Android PWA',
-    description: 'Progressive Web App icons for Android',
-    category: 'PWA',
+    id: "android-pwa",
+    name: "Android PWA",
+    description: "Progressive Web App icons for Android",
+    category: "PWA",
     sizes: [192, 512],
-    formats: ['png'],
+    formats: ["png"],
     settings: {
       includeStandardSizes: false,
       includeAppleSizes: false,
@@ -275,12 +275,12 @@ const faviconTemplates: FaviconTemplate[] = [
     },
   },
   {
-    id: 'microsoft',
-    name: 'Microsoft Tiles',
-    description: 'Windows and Microsoft application tiles',
-    category: 'Desktop',
+    id: "microsoft",
+    name: "Microsoft Tiles",
+    description: "Windows and Microsoft application tiles",
+    category: "Desktop",
     sizes: [128, 256],
-    formats: ['png'],
+    formats: ["png"],
     settings: {
       includeStandardSizes: false,
       includeAppleSizes: false,
@@ -291,12 +291,12 @@ const faviconTemplates: FaviconTemplate[] = [
     },
   },
   {
-    id: 'high-res',
-    name: 'High Resolution',
-    description: 'High resolution icons for modern displays',
-    category: 'Quality',
+    id: "high-res",
+    name: "High Resolution",
+    description: "High resolution icons for modern displays",
+    category: "Quality",
     sizes: [256, 512],
-    formats: ['png'],
+    formats: ["png"],
     settings: {
       includeStandardSizes: false,
       includeAppleSizes: false,
@@ -311,20 +311,20 @@ const faviconTemplates: FaviconTemplate[] = [
 // Generate web app manifest
 const generateWebAppManifest = (favicons: GeneratedFavicon[], settings: FaviconSettings): WebAppManifest => {
   const icons: ManifestIcon[] = favicons
-    .filter((f) => f.type === 'android' || f.type === 'web-app')
+    .filter((f) => f.type === "android" || f.type === "web-app")
     .map((f) => ({
       src: f.filename,
       sizes: `${f.size}x${f.size}`,
       type: `image/${f.format}`,
-      purpose: f.metadata.purpose.join(' '),
+      purpose: f.metadata.purpose.join(" "),
     }))
 
   return {
-    name: 'Web Application',
-    short_name: 'WebApp',
-    description: 'Generated web application',
-    start_url: '/',
-    display: 'standalone',
+    name: "Web Application",
+    short_name: "WebApp",
+    description: "Generated web application",
+    start_url: "/",
+    display: "standalone",
     background_color: settings.backgroundColor,
     theme_color: settings.themeColor,
     icons,
@@ -338,10 +338,10 @@ const processFaviconData = (favicons: GeneratedFavicon[], settings: FaviconSetti
   try {
     const typeDistribution: Record<FaviconType, number> = {
       standard: 0,
-      'apple-touch': 0,
+      "apple-touch": 0,
       android: 0,
-      'ms-application': 0,
-      'web-app': 0,
+      "ms-application": 0,
+      "web-app": 0,
     }
 
     const formatDistribution: Record<FaviconFormat, number> = {
@@ -380,7 +380,7 @@ const processFaviconData = (favicons: GeneratedFavicon[], settings: FaviconSetti
       manifest,
     }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'Favicon processing failed')
+    throw new Error(error instanceof Error ? error.message : "Favicon processing failed")
   }
 }
 
@@ -391,8 +391,8 @@ const useFaviconGeneration = () => {
       const favicons = await generateFaviconSet(imageUrl, settings)
       return processFaviconData(favicons, settings)
     } catch (error) {
-      console.error('Favicon generation error:', error)
-      throw new Error(error instanceof Error ? error.message : 'Favicon generation failed')
+      console.error("Favicon generation error:", error)
+      throw new Error(error instanceof Error ? error.message : "Favicon generation failed")
     }
   }, [])
 
@@ -400,22 +400,22 @@ const useFaviconGeneration = () => {
     async (files: FaviconFile[], settings: FaviconSettings): Promise<FaviconFile[]> => {
       return Promise.all(
         files.map(async (file) => {
-          if (file.status !== 'pending') return file
+          if (file.status !== "pending") return file
 
           try {
             const faviconData = await generateFavicons(file.content, settings)
 
             return {
               ...file,
-              status: 'completed' as const,
+              status: "completed" as const,
               faviconData,
               processedAt: new Date(),
             }
           } catch (error) {
             return {
               ...file,
-              status: 'error' as const,
-              error: error instanceof Error ? error.message : 'Processing failed',
+              status: "error" as const,
+              error: error instanceof Error ? error.message : "Processing failed",
             }
           }
         })
@@ -448,16 +448,16 @@ const useFileProcessing = () => {
             content,
             size: file.size,
             type: file.type,
-            status: 'pending',
+            status: "pending",
           }
 
           resolve(faviconFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsDataURL(file)
     })
   }, [])
@@ -467,17 +467,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
             type: files[index].type,
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -491,7 +491,7 @@ const useFileProcessing = () => {
 // Export functionality
 const useFaviconExport = () => {
   const exportFavicon = useCallback((favicon: GeneratedFavicon, filename?: string) => {
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = favicon.url
     link.download = filename || favicon.filename
     document.body.appendChild(link)
@@ -512,12 +512,12 @@ const useFaviconExport = () => {
       // Export manifest if available
       if (faviconData.settings.generateManifest && faviconData.manifest.name) {
         const manifestBlob = new Blob([JSON.stringify(faviconData.manifest, null, 2)], {
-          type: 'application/json',
+          type: "application/json",
         })
         const manifestUrl = URL.createObjectURL(manifestBlob)
-        const link = document.createElement('a')
+        const link = document.createElement("a")
         link.href = manifestUrl
-        link.download = 'manifest.json'
+        link.download = "manifest.json"
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
@@ -531,17 +531,17 @@ const useFaviconExport = () => {
 
   const exportHTML = useCallback((faviconData: FaviconData) => {
     const htmlContent = generateFaviconHTML(faviconData.favicons, faviconData.settings)
-    const blob = new Blob([htmlContent], { type: 'text/html' })
+    const blob = new Blob([htmlContent], { type: "text/html" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'favicon-links.html'
+    link.download = "favicon-links.html"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('HTML code exported')
+    toast.success("HTML code exported")
   }, [])
 
   const exportStatistics = useCallback((files: FaviconFile[]) => {
@@ -560,14 +560,14 @@ const useFaviconExport = () => {
 
     const csvContent = [
       [
-        'Filename',
-        'Original Size',
-        'Total Favicons',
-        'Avg File Size',
-        'Total Package Size',
-        'Optimization Savings',
-        'Processing Time',
-        'Status',
+        "Filename",
+        "Original Size",
+        "Total Favicons",
+        "Avg File Size",
+        "Total Package Size",
+        "Optimization Savings",
+        "Processing Time",
+        "Status",
       ],
       ...stats.map((stat) => [
         stat.filename,
@@ -580,20 +580,20 @@ const useFaviconExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'favicon-statistics.csv'
+    link.download = "favicon-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportFavicon, exportFaviconPackage, exportHTML, exportStatistics }
@@ -604,9 +604,9 @@ const generateFaviconHTML = (favicons: GeneratedFavicon[], settings: FaviconSett
   const links: string[] = []
 
   // Standard favicons
-  const standardFavicons = favicons.filter((f) => f.type === 'standard')
+  const standardFavicons = favicons.filter((f) => f.type === "standard")
   standardFavicons.forEach((favicon) => {
-    if (favicon.format === 'ico') {
+    if (favicon.format === "ico") {
       links.push(`<link rel="icon" type="image/x-icon" href="${favicon.filename}">`)
     } else {
       links.push(
@@ -616,7 +616,7 @@ const generateFaviconHTML = (favicons: GeneratedFavicon[], settings: FaviconSett
   })
 
   // Apple touch icons
-  const appleFavicons = favicons.filter((f) => f.type === 'apple-touch')
+  const appleFavicons = favicons.filter((f) => f.type === "apple-touch")
   appleFavicons.forEach((favicon) => {
     links.push(`<link rel="apple-touch-icon" sizes="${favicon.size}x${favicon.size}" href="${favicon.filename}">`)
   })
@@ -642,7 +642,7 @@ const generateFaviconHTML = (favicons: GeneratedFavicon[], settings: FaviconSett
   <title>Favicon HTML Code</title>
 
   <!-- Favicon Links -->
-${links.map((link) => `  ${link}`).join('\n')}
+${links.map((link) => `  ${link}`).join("\n")}
 
 </head>
 <body>
@@ -659,13 +659,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -680,9 +680,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -693,12 +693,12 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       e.stopPropagation()
       setDragActive(false)
 
-      const files = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith('image/'))
+      const files = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith("image/"))
 
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only image files')
+        toast.error("Please drop only image files")
       }
     },
     [onFilesDropped]
@@ -712,7 +712,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -732,11 +732,11 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time favicon generation, multiple formats, batch processing, comprehensive export
  */
 const FaviconGeneratorCore = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'files'>('generator')
-  const [sourceImage, setSourceImage] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<"generator" | "files">("generator")
+  const [sourceImage, setSourceImage] = useState<string>("")
   const [files, setFiles] = useState<FaviconFile[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('complete-web')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("complete-web")
   const [settings, setSettings] = useState<FaviconSettings>({
     includeStandardSizes: true,
     includeAppleSizes: true,
@@ -744,9 +744,9 @@ const FaviconGeneratorCore = () => {
     includeMSApplicationSizes: true,
     generateManifest: true,
     optimizeImages: true,
-    backgroundColor: '#ffffff',
-    themeColor: '#000000',
-    exportFormat: 'zip',
+    backgroundColor: "#ffffff",
+    themeColor: "#000000",
+    exportFormat: "zip",
   })
   const [generatedFavicons, setGeneratedFavicons] = useState<FaviconData | null>(null)
 
@@ -774,7 +774,7 @@ const FaviconGeneratorCore = () => {
 
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
@@ -794,7 +794,7 @@ const FaviconGeneratorCore = () => {
   // Generate favicons
   const handleGenerateFavicons = useCallback(async () => {
     if (!sourceImage) {
-      toast.error('Please select a source image first')
+      toast.error("Please select a source image first")
       return
     }
 
@@ -804,7 +804,7 @@ const FaviconGeneratorCore = () => {
       setGeneratedFavicons(faviconData)
       toast.success(`Generated ${faviconData.favicons.length} favicon(s)`)
     } catch (error) {
-      toast.error('Failed to generate favicons')
+      toast.error("Failed to generate favicons")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -821,12 +821,15 @@ const FaviconGeneratorCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5" aria-hidden="true" />
+              <Globe className="h-5 w-5" />
               Favicon Generator
             </CardTitle>
             <CardDescription>
@@ -838,20 +841,32 @@ const FaviconGeneratorCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'generator' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "generator" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <ImageIcon className="h-4 w-4" />
               Favicon Generator
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* Favicon Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             {/* Favicon Templates */}
             <Card>
               <CardHeader>
@@ -865,7 +880,7 @@ const FaviconGeneratorCore = () => {
                   {faviconTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -873,7 +888,7 @@ const FaviconGeneratorCore = () => {
                         <div className="font-medium text-sm">{template.name}</div>
                         <div className="text-xs text-muted-foreground mt-1">{template.description}</div>
                         <div className="text-xs font-mono mt-2 p-1 bg-muted/30 rounded">
-                          {template.sizes.join(', ')} • {template.formats.join(', ')}
+                          {template.sizes.join(", ")} • {template.formats.join(", ")}
                         </div>
                       </div>
                     </Button>
@@ -891,8 +906,8 @@ const FaviconGeneratorCore = () => {
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -900,9 +915,8 @@ const FaviconGeneratorCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop image here or click to select image"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -918,11 +932,19 @@ const FaviconGeneratorCore = () => {
                       <div className="space-y-2">
                         <p className="text-sm font-medium">Source image loaded</p>
                         <div className="flex gap-2 justify-center">
-                          <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => fileInputRef.current?.click()}
+                          >
                             <Upload className="mr-2 h-4 w-4" />
                             Change Image
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => setSourceImage('')}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setSourceImage("")}
+                          >
                             <RotateCcw className="mr-2 h-4 w-4" />
                             Clear
                           </Button>
@@ -936,7 +958,10 @@ const FaviconGeneratorCore = () => {
                       <p className="text-muted-foreground mb-4">
                         Drag and drop your image here, or click to select a file
                       </p>
-                      <Button onClick={() => fileInputRef.current?.click()} variant="outline">
+                      <Button
+                        onClick={() => fileInputRef.current?.click()}
+                        variant="outline"
+                      >
                         <FileImage className="mr-2 h-4 w-4" />
                         Choose Image
                       </Button>
@@ -951,7 +976,6 @@ const FaviconGeneratorCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select source image"
                   />
                 </div>
               </CardContent>
@@ -976,7 +1000,10 @@ const FaviconGeneratorCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, includeStandardSizes: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="standard-sizes" className="text-sm flex items-center gap-2">
+                      <Label
+                        htmlFor="standard-sizes"
+                        className="text-sm flex items-center gap-2"
+                      >
                         <Monitor className="h-4 w-4" />
                         Standard Web Favicons (16, 32, 48px)
                       </Label>
@@ -990,7 +1017,10 @@ const FaviconGeneratorCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, includeAppleSizes: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="apple-sizes" className="text-sm flex items-center gap-2">
+                      <Label
+                        htmlFor="apple-sizes"
+                        className="text-sm flex items-center gap-2"
+                      >
                         <Smartphone className="h-4 w-4" />
                         Apple Touch Icons (152, 167, 180px)
                       </Label>
@@ -1004,7 +1034,10 @@ const FaviconGeneratorCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, includeAndroidSizes: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="android-sizes" className="text-sm flex items-center gap-2">
+                      <Label
+                        htmlFor="android-sizes"
+                        className="text-sm flex items-center gap-2"
+                      >
                         <Globe className="h-4 w-4" />
                         Android/PWA Icons (192, 512px)
                       </Label>
@@ -1020,7 +1053,10 @@ const FaviconGeneratorCore = () => {
                         }
                         className="rounded border-input"
                       />
-                      <Label htmlFor="ms-sizes" className="text-sm flex items-center gap-2">
+                      <Label
+                        htmlFor="ms-sizes"
+                        className="text-sm flex items-center gap-2"
+                      >
                         <Package className="h-4 w-4" />
                         Microsoft Tiles (128, 256px)
                       </Label>
@@ -1036,7 +1072,10 @@ const FaviconGeneratorCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, generateManifest: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="generate-manifest" className="text-sm">
+                      <Label
+                        htmlFor="generate-manifest"
+                        className="text-sm"
+                      >
                         Generate Web App Manifest
                       </Label>
                     </div>
@@ -1049,13 +1088,19 @@ const FaviconGeneratorCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, optimizeImages: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="optimize-images" className="text-sm">
+                      <Label
+                        htmlFor="optimize-images"
+                        className="text-sm"
+                      >
                         Optimize Images
                       </Label>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="theme-color" className="text-sm">
+                      <Label
+                        htmlFor="theme-color"
+                        className="text-sm"
+                      >
                         Theme Color
                       </Label>
                       <div className="flex items-center gap-2">
@@ -1076,7 +1121,10 @@ const FaviconGeneratorCore = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="background-color" className="text-sm">
+                      <Label
+                        htmlFor="background-color"
+                        className="text-sm"
+                      >
                         Background Color
                       </Label>
                       <div className="flex items-center gap-2">
@@ -1099,7 +1147,11 @@ const FaviconGeneratorCore = () => {
                 </div>
 
                 <div className="pt-4 border-t">
-                  <Button onClick={handleGenerateFavicons} disabled={!sourceImage || isProcessing} className="w-full">
+                  <Button
+                    onClick={handleGenerateFavicons}
+                    disabled={!sourceImage || isProcessing}
+                    className="w-full"
+                  >
                     {isProcessing ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
@@ -1129,7 +1181,10 @@ const FaviconGeneratorCore = () => {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                       {generatedFavicons.favicons.map((favicon) => (
-                        <div key={favicon.id} className="border rounded-lg p-3 text-center">
+                        <div
+                          key={favicon.id}
+                          className="border rounded-lg p-3 text-center"
+                        >
                           <img
                             src={favicon.url}
                             alt={`${favicon.size}x${favicon.size} favicon`}
@@ -1194,12 +1249,18 @@ const FaviconGeneratorCore = () => {
 
                     {/* Export Actions */}
                     <div className="flex flex-wrap gap-3 justify-center pt-4 border-t">
-                      <Button onClick={() => exportFaviconPackage(generatedFavicons)} variant="outline">
+                      <Button
+                        onClick={() => exportFaviconPackage(generatedFavicons)}
+                        variant="outline"
+                      >
                         <Package className="mr-2 h-4 w-4" />
                         Download All
                       </Button>
 
-                      <Button onClick={() => exportHTML(generatedFavicons)} variant="outline">
+                      <Button
+                        onClick={() => exportHTML(generatedFavicons)}
+                        variant="outline"
+                      >
                         <Code className="mr-2 h-4 w-4" />
                         Export HTML
                       </Button>
@@ -1208,12 +1269,12 @@ const FaviconGeneratorCore = () => {
                         <Button
                           onClick={() => {
                             const manifestBlob = new Blob([JSON.stringify(generatedFavicons.manifest, null, 2)], {
-                              type: 'application/json',
+                              type: "application/json",
                             })
                             const manifestUrl = URL.createObjectURL(manifestBlob)
-                            const link = document.createElement('a')
+                            const link = document.createElement("a")
                             link.href = manifestUrl
-                            link.download = 'manifest.json'
+                            link.download = "manifest.json"
                             document.body.appendChild(link)
                             link.click()
                             document.body.removeChild(link)
@@ -1229,12 +1290,12 @@ const FaviconGeneratorCore = () => {
                       <Button
                         onClick={() => {
                           const htmlCode = generateFaviconHTML(generatedFavicons.favicons, generatedFavicons.settings)
-                          const htmlLinks = htmlCode.match(/<link[^>]*>/g)?.join('\n') || ''
-                          copyToClipboard(htmlLinks, 'HTML favicon links')
+                          const htmlLinks = htmlCode.match(/<link[^>]*>/g)?.join("\n") || ""
+                          copyToClipboard(htmlLinks, "HTML favicon links")
                         }}
                         variant="outline"
                       >
-                        {copiedText === 'HTML favicon links' ? (
+                        {copiedText === "HTML favicon links" ? (
                           <Check className="mr-2 h-4 w-4" />
                         ) : (
                           <Copy className="mr-2 h-4 w-4" />
@@ -1249,14 +1310,17 @@ const FaviconGeneratorCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1264,9 +1328,8 @@ const FaviconGeneratorCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop image files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1277,7 +1340,11 @@ const FaviconGeneratorCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your images here, or click to select files for batch favicon generation
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Images
                   </Button>
@@ -1289,7 +1356,6 @@ const FaviconGeneratorCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select image files"
                   />
                 </div>
               </CardContent>
@@ -1303,7 +1369,10 @@ const FaviconGeneratorCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             {file.content ? (
@@ -1317,13 +1386,16 @@ const FaviconGeneratorCore = () => {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground">
                               <span className="font-medium">Size:</span> {formatFileSize(file.size)}
                             </div>
-                            {file.status === 'completed' && file.faviconData && (
+                            {file.status === "completed" && file.faviconData && (
                               <div className="mt-2 text-xs">
                                 {file.faviconData.statistics.totalFavicons} favicons generated
                               </div>

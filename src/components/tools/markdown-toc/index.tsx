@@ -1,12 +1,12 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -25,8 +25,8 @@ import {
   Link,
   BookOpen,
   Eye,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   MarkdownFile,
   TOCResult,
@@ -38,23 +38,23 @@ import type {
   IndentStyle,
   BulletStyle,
   CaseStyle,
-} from '@/types/markdown-toc'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/markdown-toc"
+import { formatFileSize } from "@/lib/utils"
 // Types
 
 // Utility functions
 
 const validateMarkdownFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
-  const allowedTypes = ['.md', '.markdown', '.txt', '.text']
+  const allowedTypes = [".md", ".markdown", ".txt", ".text"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 50MB' }
+    return { isValid: false, error: "File size must be less than 50MB" }
   }
 
-  const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+  const extension = "." + file.name.split(".").pop()?.toLowerCase()
   if (!allowedTypes.includes(extension)) {
-    return { isValid: false, error: 'Only Markdown and text files are supported (.md, .markdown, .txt)' }
+    return { isValid: false, error: "Only Markdown and text files are supported (.md, .markdown, .txt)" }
   }
 
   return { isValid: true }
@@ -88,10 +88,10 @@ const parseHeadings = (markdown: string): Heading[] => {
 const generateAnchor = (text: string): string => {
   return text
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '') // Remove special characters
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single
-    .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+    .replace(/[^\w\s-]/g, "") // Remove special characters
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-") // Replace multiple hyphens with single
+    .replace(/^-|-$/g, "") // Remove leading/trailing hyphens
 }
 
 const buildHeadingHierarchy = (headings: Heading[]): Heading[] => {
@@ -121,15 +121,15 @@ const generateTOC = (headings: Heading[], settings: TOCSettings): string => {
   const filteredHeadings = filterHeadingsByDepth(headings, settings.minDepth, settings.maxDepth)
 
   switch (settings.format) {
-    case 'markdown':
+    case "markdown":
       return generateMarkdownTOC(filteredHeadings, settings)
-    case 'html':
+    case "html":
       return generateHTMLTOC(filteredHeadings, settings)
-    case 'json':
+    case "json":
       return generateJSONTOC(filteredHeadings, settings)
-    case 'plain':
+    case "plain":
       return generatePlainTOC(filteredHeadings)
-    case 'numbered':
+    case "numbered":
       return generateNumberedTOC(filteredHeadings, settings)
     default:
       return generateMarkdownTOC(filteredHeadings, settings)
@@ -153,31 +153,31 @@ const generateMarkdownTOC = (headings: Heading[], settings: TOCSettings): string
   const generateIndent = (level: number): string => {
     const depth = level - 1
     switch (settings.indentStyle) {
-      case 'spaces':
-        return '  '.repeat(depth)
-      case 'tabs':
-        return '\t'.repeat(depth)
-      case 'none':
-        return ''
+      case "spaces":
+        return "  ".repeat(depth)
+      case "tabs":
+        return "\t".repeat(depth)
+      case "none":
+        return ""
       default:
-        return '  '.repeat(depth)
+        return "  ".repeat(depth)
     }
   }
 
   const getBullet = (_level: number, index: number): string => {
     switch (settings.bulletStyle) {
-      case 'dash':
-        return '- '
-      case 'asterisk':
-        return '* '
-      case 'plus':
-        return '+ '
-      case 'number':
+      case "dash":
+        return "- "
+      case "asterisk":
+        return "* "
+      case "plus":
+        return "+ "
+      case "number":
         return `${index + 1}. `
-      case 'custom':
+      case "custom":
         return `${settings.customPrefix} `
       default:
-        return '- '
+        return "- "
     }
   }
 
@@ -185,21 +185,21 @@ const generateMarkdownTOC = (headings: Heading[], settings: TOCSettings): string
     let formatted = text
 
     if (settings.removeNumbers) {
-      formatted = formatted.replace(/^\d+\.?\s*/, '')
+      formatted = formatted.replace(/^\d+\.?\s*/, "")
     }
 
     if (settings.removeSpecialChars) {
-      formatted = formatted.replace(/[^\w\s]/g, '')
+      formatted = formatted.replace(/[^\w\s]/g, "")
     }
 
     switch (settings.caseStyle) {
-      case 'lowercase':
+      case "lowercase":
         return formatted.toLowerCase()
-      case 'uppercase':
+      case "uppercase":
         return formatted.toUpperCase()
-      case 'title':
+      case "title":
         return formatted.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())
-      case 'sentence':
+      case "sentence":
         return formatted.charAt(0).toUpperCase() + formatted.slice(1).toLowerCase()
       default:
         return formatted
@@ -222,10 +222,10 @@ const generateMarkdownTOC = (headings: Heading[], settings: TOCSettings): string
 
     const childLines = heading.children.map((child, childIndex) => renderHeading(child, level + 1, childIndex))
 
-    return [line, ...childLines].join('\n')
+    return [line, ...childLines].join("\n")
   }
 
-  return headings.map((heading, index) => renderHeading(heading, 1, index)).join('\n')
+  return headings.map((heading, index) => renderHeading(heading, 1, index)).join("\n")
 }
 
 const generateHTMLTOC = (headings: Heading[], settings: TOCSettings): string => {
@@ -233,7 +233,7 @@ const generateHTMLTOC = (headings: Heading[], settings: TOCSettings): string => 
     const text = heading.text
     const anchor = settings.customAnchorPrefix + heading.anchor
 
-    let html = '<li>'
+    let html = "<li>"
     if (settings.includeLinks) {
       html += `<a href="#${anchor}">${text}</a>`
     } else {
@@ -241,14 +241,14 @@ const generateHTMLTOC = (headings: Heading[], settings: TOCSettings): string => 
     }
 
     if (heading.children.length > 0) {
-      html += '<ul>' + heading.children.map(renderHeading).join('') + '</ul>'
+      html += "<ul>" + heading.children.map(renderHeading).join("") + "</ul>"
     }
 
-    html += '</li>'
+    html += "</li>"
     return html
   }
 
-  return '<ul>' + headings.map(renderHeading).join('') + '</ul>'
+  return "<ul>" + headings.map(renderHeading).join("") + "</ul>"
 }
 
 const generateJSONTOC = (headings: Heading[], settings: TOCSettings): string => {
@@ -267,20 +267,20 @@ const generateJSONTOC = (headings: Heading[], settings: TOCSettings): string => 
 
 const generatePlainTOC = (headings: Heading[]): string => {
   const renderHeading = (heading: Heading, level: number): string => {
-    const indent = '  '.repeat(level - 1)
+    const indent = "  ".repeat(level - 1)
     const text = heading.text
     const childLines = heading.children.map((child) => renderHeading(child, level + 1))
 
-    return [indent + text, ...childLines].join('\n')
+    return [indent + text, ...childLines].join("\n")
   }
 
-  return headings.map((heading) => renderHeading(heading, 1)).join('\n')
+  return headings.map((heading) => renderHeading(heading, 1)).join("\n")
 }
 
 const generateNumberedTOC = (headings: Heading[], settings: TOCSettings): string => {
   const renderHeading = (heading: Heading, level: number, numbers: number[]): string => {
-    const indent = '  '.repeat(level - 1)
-    const numberStr = numbers.join('.')
+    const indent = "  ".repeat(level - 1)
+    const numberStr = numbers.join(".")
     const text = heading.text
 
     let line = `${indent}${numberStr}. `
@@ -293,10 +293,10 @@ const generateNumberedTOC = (headings: Heading[], settings: TOCSettings): string
 
     const childLines = heading.children.map((child, index) => renderHeading(child, level + 1, [...numbers, index + 1]))
 
-    return [line, ...childLines].join('\n')
+    return [line, ...childLines].join("\n")
   }
 
-  return headings.map((heading, index) => renderHeading(heading, 1, [index + 1])).join('\n')
+  return headings.map((heading, index) => renderHeading(heading, 1, [index + 1])).join("\n")
 }
 
 // Statistics calculation
@@ -342,79 +342,79 @@ const flattenHeadings = (headings: Heading[]): Heading[] => {
 // TOC Templates
 const tocTemplates: TOCTemplate[] = [
   {
-    id: 'standard',
-    name: 'Standard Markdown',
-    description: 'Standard markdown TOC with dashes and links',
+    id: "standard",
+    name: "Standard Markdown",
+    description: "Standard markdown TOC with dashes and links",
     settings: {
-      format: 'markdown',
+      format: "markdown",
       maxDepth: 6,
       minDepth: 1,
       includeLinks: true,
-      indentStyle: 'spaces',
-      bulletStyle: 'dash',
-      caseStyle: 'original',
+      indentStyle: "spaces",
+      bulletStyle: "dash",
+      caseStyle: "original",
     },
-    example: '- [Introduction](#introduction)\n  - [Getting Started](#getting-started)',
+    example: "- [Introduction](#introduction)\n  - [Getting Started](#getting-started)",
   },
   {
-    id: 'numbered',
-    name: 'Numbered List',
-    description: 'Numbered TOC with hierarchical numbering',
+    id: "numbered",
+    name: "Numbered List",
+    description: "Numbered TOC with hierarchical numbering",
     settings: {
-      format: 'numbered',
+      format: "numbered",
       maxDepth: 4,
       minDepth: 1,
       includeLinks: true,
-      indentStyle: 'spaces',
-      bulletStyle: 'number',
-      caseStyle: 'original',
+      indentStyle: "spaces",
+      bulletStyle: "number",
+      caseStyle: "original",
     },
-    example: '1. [Introduction](#introduction)\n  1.1. [Getting Started](#getting-started)',
+    example: "1. [Introduction](#introduction)\n  1.1. [Getting Started](#getting-started)",
   },
   {
-    id: 'html',
-    name: 'HTML List',
-    description: 'HTML unordered list format',
+    id: "html",
+    name: "HTML List",
+    description: "HTML unordered list format",
     settings: {
-      format: 'html',
+      format: "html",
       maxDepth: 6,
       minDepth: 1,
       includeLinks: true,
-      indentStyle: 'none',
-      bulletStyle: 'dash',
-      caseStyle: 'original',
+      indentStyle: "none",
+      bulletStyle: "dash",
+      caseStyle: "original",
     },
     example: '<ul><li><a href="#introduction">Introduction</a></li></ul>',
   },
   {
-    id: 'plain',
-    name: 'Plain Text',
-    description: 'Simple plain text outline',
+    id: "plain",
+    name: "Plain Text",
+    description: "Simple plain text outline",
     settings: {
-      format: 'plain',
+      format: "plain",
       maxDepth: 6,
       minDepth: 1,
       includeLinks: false,
-      indentStyle: 'spaces',
-      bulletStyle: 'dash',
-      caseStyle: 'original',
+      indentStyle: "spaces",
+      bulletStyle: "dash",
+      caseStyle: "original",
     },
-    example: 'Introduction\n  Getting Started\n    Installation',
+    example: "Introduction\n  Getting Started\n    Installation",
   },
   {
-    id: 'compact',
-    name: 'Compact',
-    description: 'Compact TOC with minimal depth',
+    id: "compact",
+    name: "Compact",
+    description: "Compact TOC with minimal depth",
     settings: {
-      format: 'markdown',
+      format: "markdown",
       maxDepth: 3,
       minDepth: 1,
       includeLinks: true,
-      indentStyle: 'spaces',
-      bulletStyle: 'asterisk',
-      caseStyle: 'original',
+      indentStyle: "spaces",
+      bulletStyle: "asterisk",
+      caseStyle: "original",
     },
-    example: '* [Introduction](#introduction)\n  * [Setup](#setup)',
+    example: "* [Introduction](#introduction)\n  * [Setup](#setup)",
   },
 ]
 
@@ -435,7 +435,7 @@ const processMarkdownTOC = (markdown: string, settings: TOCSettings): TOCResult 
       settings,
     }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'TOC generation failed')
+    throw new Error(error instanceof Error ? error.message : "TOC generation failed")
   }
 }
 
@@ -445,8 +445,8 @@ const useTOCGeneration = () => {
     try {
       return processMarkdownTOC(markdown, settings)
     } catch (error) {
-      console.error('TOC generation error:', error)
-      throw new Error(error instanceof Error ? error.message : 'TOC generation failed')
+      console.error("TOC generation error:", error)
+      throw new Error(error instanceof Error ? error.message : "TOC generation failed")
     }
   }, [])
 
@@ -454,22 +454,22 @@ const useTOCGeneration = () => {
     async (files: MarkdownFile[], settings: TOCSettings): Promise<MarkdownFile[]> => {
       return Promise.all(
         files.map(async (file) => {
-          if (file.status !== 'pending') return file
+          if (file.status !== "pending") return file
 
           try {
             const result = generateTOCFromMarkdown(file.content, settings)
 
             return {
               ...file,
-              status: 'completed' as const,
+              status: "completed" as const,
               tocResult: result,
               processedAt: new Date(),
             }
           } catch (error) {
             return {
               ...file,
-              status: 'error' as const,
-              error: error instanceof Error ? error.message : 'TOC generation failed',
+              status: "error" as const,
+              error: error instanceof Error ? error.message : "TOC generation failed",
             }
           }
         })
@@ -502,7 +502,7 @@ const useRealTimeTOC = (markdown: string, settings: TOCSettings) => {
     } catch (error) {
       return {
         result: null,
-        error: error instanceof Error ? error.message : 'TOC generation failed',
+        error: error instanceof Error ? error.message : "TOC generation failed",
         isEmpty: false,
       }
     }
@@ -529,17 +529,17 @@ const useFileProcessing = () => {
             name: file.name,
             content,
             size: file.size,
-            type: file.type || 'text/plain',
-            status: 'pending',
+            type: file.type || "text/plain",
+            status: "pending",
           }
 
           resolve(markdownFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsText(file)
     })
   }, [])
@@ -549,17 +549,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
-            type: files[index].type || 'text/plain',
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            type: files[index].type || "text/plain",
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -573,13 +573,13 @@ const useFileProcessing = () => {
 // Export functionality
 const useTOCExport = () => {
   const exportTOC = useCallback((result: TOCResult, filename?: string) => {
-    const extension = result.format === 'html' ? '.html' : result.format === 'json' ? '.json' : '.md'
+    const extension = result.format === "html" ? ".html" : result.format === "json" ? ".json" : ".md"
     const mimeType =
-      result.format === 'html' ? 'text/html' : result.format === 'json' ? 'application/json' : 'text/markdown'
+      result.format === "html" ? "text/html" : result.format === "json" ? "application/json" : "text/markdown"
 
     const blob = new Blob([result.toc], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `table-of-contents${extension}`
     document.body.appendChild(link)
@@ -590,11 +590,11 @@ const useTOCExport = () => {
 
   const exportMarkdownWithTOC = useCallback((markdown: string, toc: string, filename?: string) => {
     const content = `${toc}\n\n${markdown}`
-    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
+    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = filename || 'document-with-toc.md'
+    link.download = filename || "document-with-toc.md"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -606,13 +606,13 @@ const useTOCExport = () => {
       const completedFiles = files.filter((f) => f.tocResult)
 
       if (completedFiles.length === 0) {
-        toast.error('No TOCs to export')
+        toast.error("No TOCs to export")
         return
       }
 
       completedFiles.forEach((file) => {
         if (file.tocResult) {
-          const baseName = file.name.replace(/\.[^/.]+$/, '')
+          const baseName = file.name.replace(/\.[^/.]+$/, "")
           exportTOC(file.tocResult, `${baseName}-toc`)
         }
       })
@@ -639,15 +639,15 @@ const useTOCExport = () => {
 
     const csvContent = [
       [
-        'Filename',
-        'Original Size',
-        'Total Headings',
-        'Max Depth',
-        'Avg Depth',
-        'Duplicate Anchors',
-        'Processing Time',
-        'Format',
-        'Status',
+        "Filename",
+        "Original Size",
+        "Total Headings",
+        "Max Depth",
+        "Avg Depth",
+        "Duplicate Anchors",
+        "Processing Time",
+        "Format",
+        "Status",
       ],
       ...stats.map((stat) => [
         stat.filename,
@@ -661,20 +661,20 @@ const useTOCExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'toc-generation-statistics.csv'
+    link.download = "toc-generation-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportTOC, exportMarkdownWithTOC, exportBatch, exportStatistics }
@@ -687,13 +687,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -708,9 +708,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -726,7 +726,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only Markdown or text files')
+        toast.error("Please drop only Markdown or text files")
       }
     },
     [onFilesDropped]
@@ -740,7 +740,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -760,25 +760,25 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time TOC generation, file upload, batch processing, multiple formats
  */
 const MarkdownTOCCore = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'files'>('generator')
+  const [activeTab, setActiveTab] = useState<"generator" | "files">("generator")
   const [markdown, setMarkdown] = useState(
     "# Introduction\n\nThis is a sample markdown document.\n\n## Getting Started\n\nLet's begin with the basics.\n\n### Installation\n\nFirst, install the required dependencies.\n\n### Configuration\n\nNext, configure your settings.\n\n## Advanced Topics\n\nOnce you're comfortable with the basics.\n\n### Performance\n\nOptimizing for better performance.\n\n### Security\n\nBest practices for security."
   )
   const [files, setFiles] = useState<MarkdownFile[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('standard')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("standard")
   const [settings, setSettings] = useState<TOCSettings>({
-    format: 'markdown',
+    format: "markdown",
     maxDepth: 6,
     minDepth: 1,
     includeLinks: true,
-    customPrefix: '-',
-    indentStyle: 'spaces',
-    bulletStyle: 'dash',
-    caseStyle: 'original',
+    customPrefix: "-",
+    indentStyle: "spaces",
+    bulletStyle: "dash",
+    caseStyle: "original",
     removeNumbers: false,
     removeSpecialChars: false,
-    customAnchorPrefix: '',
+    customAnchorPrefix: "",
   })
 
   const { processBatch } = useTOCGeneration()
@@ -798,7 +798,7 @@ const MarkdownTOCCore = () => {
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
@@ -820,9 +820,9 @@ const MarkdownTOCCore = () => {
 
   // Process all files
   const processFiles = useCallback(async () => {
-    const pendingFiles = files.filter((f) => f.status === 'pending')
+    const pendingFiles = files.filter((f) => f.status === "pending")
     if (pendingFiles.length === 0) {
-      toast.error('No files to process')
+      toast.error("No files to process")
       return
     }
 
@@ -835,9 +835,9 @@ const MarkdownTOCCore = () => {
           return updated || file
         })
       )
-      toast.success('Files processed successfully!')
+      toast.success("Files processed successfully!")
     } catch (error) {
-      toast.error('Failed to process files')
+      toast.error("Failed to process files")
     } finally {
       setIsProcessing(false)
     }
@@ -846,7 +846,7 @@ const MarkdownTOCCore = () => {
   // Clear all files
   const clearAll = useCallback(() => {
     setFiles([])
-    toast.success('All files cleared')
+    toast.success("All files cleared")
   }, [])
 
   // Remove specific file
@@ -874,7 +874,7 @@ const MarkdownTOCCore = () => {
     return {
       totalFiles: files.length,
       completedFiles: completedFiles.length,
-      failedFiles: files.filter((f) => f.status === 'error').length,
+      failedFiles: files.filter((f) => f.status === "error").length,
       totalHeadings,
       averageDepth,
       averageProcessingTime,
@@ -891,12 +891,15 @@ const MarkdownTOCCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <List className="h-5 w-5" aria-hidden="true" />
+              <List className="h-5 w-5" />
               Markdown TOC Generator
             </CardTitle>
             <CardDescription>
@@ -907,20 +910,32 @@ const MarkdownTOCCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'generator' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "generator" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               TOC Generator
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* TOC Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             {/* TOC Templates */}
             <Card>
               <CardHeader>
@@ -934,7 +949,7 @@ const MarkdownTOCCore = () => {
                   {tocTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -1069,7 +1084,10 @@ const MarkdownTOCCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, includeLinks: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="includeLinks" className="text-sm">
+                    <Label
+                      htmlFor="includeLinks"
+                      className="text-sm"
+                    >
                       Include Links
                     </Label>
                   </div>
@@ -1082,7 +1100,10 @@ const MarkdownTOCCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, removeNumbers: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="removeNumbers" className="text-sm">
+                    <Label
+                      htmlFor="removeNumbers"
+                      className="text-sm"
+                    >
                       Remove Numbers
                     </Label>
                   </div>
@@ -1095,13 +1116,16 @@ const MarkdownTOCCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, removeSpecialChars: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="removeSpecialChars" className="text-sm">
+                    <Label
+                      htmlFor="removeSpecialChars"
+                      className="text-sm"
+                    >
                       Remove Special Chars
                     </Label>
                   </div>
                 </div>
 
-                {settings.bulletStyle === 'custom' && (
+                {settings.bulletStyle === "custom" && (
                   <div className="space-y-2">
                     <Label htmlFor="customPrefix">Custom Prefix</Label>
                     <Input
@@ -1140,10 +1164,10 @@ const MarkdownTOCCore = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => copyToClipboard(markdown, 'markdown content')}
+                        onClick={() => copyToClipboard(markdown, "markdown content")}
                         disabled={!markdown}
                       >
-                        {copiedText === 'markdown content' ? (
+                        {copiedText === "markdown content" ? (
                           <Check className="h-4 w-4" />
                         ) : (
                           <Copy className="h-4 w-4" />
@@ -1156,7 +1180,6 @@ const MarkdownTOCCore = () => {
                       onChange={(e) => setMarkdown(e.target.value)}
                       placeholder="Enter your Markdown content here..."
                       className="min-h-[300px] font-mono"
-                      aria-label="Markdown content input"
                     />
                   </div>
                 </CardContent>
@@ -1172,9 +1195,9 @@ const MarkdownTOCCore = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => copyToClipboard(tocPreview.result!.toc, 'TOC')}
+                          onClick={() => copyToClipboard(tocPreview.result!.toc, "TOC")}
                         >
-                          {copiedText === 'TOC' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          {copiedText === "TOC" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         </Button>
                       )}
                     </div>
@@ -1195,7 +1218,6 @@ const MarkdownTOCCore = () => {
                         value={tocPreview.result.toc}
                         readOnly
                         className="min-h-[300px] font-mono"
-                        aria-label="Generated table of contents"
                       />
                     </div>
                   ) : (
@@ -1248,7 +1270,10 @@ const MarkdownTOCCore = () => {
                     <Label className="text-sm font-medium">Headings by Level</Label>
                     <div className="mt-2 grid grid-cols-6 gap-2">
                       {[1, 2, 3, 4, 5, 6].map((level) => (
-                        <div key={level} className="text-center p-2 bg-muted/30 rounded">
+                        <div
+                          key={level}
+                          className="text-center p-2 bg-muted/30 rounded"
+                        >
                           <div className="text-lg font-bold">
                             {tocPreview.result!.statistics.headingsByLevel[level] || 0}
                           </div>
@@ -1266,8 +1291,8 @@ const MarkdownTOCCore = () => {
                         <span className="font-medium">Duplicate Anchors Detected</span>
                       </div>
                       <p className="text-sm text-yellow-600 dark:text-yellow-300 mt-1">
-                        The following anchors appear multiple times:{' '}
-                        {tocPreview.result.statistics.duplicateAnchors.join(', ')}
+                        The following anchors appear multiple times:{" "}
+                        {tocPreview.result.statistics.duplicateAnchors.join(", ")}
                       </p>
                     </div>
                   )}
@@ -1280,18 +1305,24 @@ const MarkdownTOCCore = () => {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex flex-wrap gap-3 justify-center">
-                    <Button onClick={() => exportTOC(tocPreview.result!)} variant="outline">
+                    <Button
+                      onClick={() => exportTOC(tocPreview.result!)}
+                      variant="outline"
+                    >
                       <Download className="mr-2 h-4 w-4" />
                       Export TOC
                     </Button>
 
-                    <Button onClick={() => exportMarkdownWithTOC(markdown, tocPreview.result!.toc)} variant="outline">
+                    <Button
+                      onClick={() => exportMarkdownWithTOC(markdown, tocPreview.result!.toc)}
+                      variant="outline"
+                    >
                       <FileText className="mr-2 h-4 w-4" />
                       Export with TOC
                     </Button>
 
                     <Button
-                      onClick={() => copyToClipboard(tocPreview.result!.toc, 'table of contents')}
+                      onClick={() => copyToClipboard(tocPreview.result!.toc, "table of contents")}
                       variant="outline"
                     >
                       <Copy className="mr-2 h-4 w-4" />
@@ -1304,15 +1335,18 @@ const MarkdownTOCCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             {/* File Upload */}
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1320,9 +1354,8 @@ const MarkdownTOCCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop Markdown files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1333,7 +1366,11 @@ const MarkdownTOCCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your Markdown files here, or click to select files
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1347,7 +1384,6 @@ const MarkdownTOCCore = () => {
                     accept=".md,.markdown,.txt"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select Markdown files"
                   />
                 </div>
               </CardContent>
@@ -1399,7 +1435,7 @@ const MarkdownTOCCore = () => {
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Button
                       onClick={processFiles}
-                      disabled={isProcessing || files.every((f) => f.status !== 'pending')}
+                      disabled={isProcessing || files.every((f) => f.status !== "pending")}
                       className="min-w-32"
                     >
                       {isProcessing ? (
@@ -1433,7 +1469,11 @@ const MarkdownTOCCore = () => {
                       Export Statistics
                     </Button>
 
-                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                    <Button
+                      onClick={clearAll}
+                      variant="destructive"
+                      disabled={isProcessing}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
@@ -1451,14 +1491,20 @@ const MarkdownTOCCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground space-y-1">
@@ -1467,7 +1513,7 @@ const MarkdownTOCCore = () => {
                                 <span className="font-medium"> Type:</span> {file.type}
                               </div>
 
-                              {file.status === 'completed' && file.tocResult && (
+                              {file.status === "completed" && file.tocResult && (
                                 <div className="mt-2">
                                   <div className="text-xs font-medium mb-1">TOC Generated:</div>
                                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
@@ -1479,8 +1525,8 @@ const MarkdownTOCCore = () => {
                                 </div>
                               )}
 
-                              {file.status === 'pending' && <div className="text-blue-600">Ready for processing</div>}
-                              {file.status === 'processing' && (
+                              {file.status === "pending" && <div className="text-blue-600">Ready for processing</div>}
+                              {file.status === "processing" && (
                                 <div className="text-blue-600 flex items-center gap-2">
                                   <Loader2 className="h-4 w-4 animate-spin" />
                                   Processing...
@@ -1491,13 +1537,12 @@ const MarkdownTOCCore = () => {
                           </div>
 
                           <div className="flex-shrink-0 flex items-center gap-2">
-                            {file.status === 'completed' && file.tocResult && (
+                            {file.status === "completed" && file.tocResult && (
                               <>
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => exportTOC(file.tocResult!, file.name.replace(/\.[^/.]+$/, '-toc'))}
-                                  aria-label={`Export TOC for ${file.name}`}
+                                  onClick={() => exportTOC(file.tocResult!, file.name.replace(/\.[^/.]+$/, "-toc"))}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1506,7 +1551,6 @@ const MarkdownTOCCore = () => {
                                   size="sm"
                                   variant="outline"
                                   onClick={() => copyToClipboard(file.tocResult!.toc, file.id)}
-                                  aria-label={`Copy TOC from ${file.name}`}
                                 >
                                   {copiedText === file.id ? (
                                     <Check className="h-4 w-4" />
@@ -1521,7 +1565,6 @@ const MarkdownTOCCore = () => {
                               size="sm"
                               variant="ghost"
                               onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

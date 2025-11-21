@@ -1,11 +1,11 @@
-import React, { useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Upload,
@@ -20,9 +20,9 @@ import {
   ArrowUp,
   ArrowDown,
   Combine,
-} from 'lucide-react'
-import { PDFDocument, degrees } from 'pdf-lib'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { PDFDocument, degrees } from "pdf-lib"
+import { nanoid } from "nanoid"
 import type {
   PDFFile,
   PDFPageInfo,
@@ -33,8 +33,8 @@ import type {
   ProcessingSettings,
   PDFTemplate,
   PDFValidation,
-} from '@/types/merge-pdf'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/merge-pdf"
+import { formatFileSize } from "@/lib/utils"
 
 // Utility functions
 
@@ -56,7 +56,7 @@ const processPDFFile = async (file: File): Promise<PDFFile> => {
     const keywords =
       pdfDoc
         .getKeywords()
-        ?.split(',')
+        ?.split(",")
         .map((k) => k.trim()) || []
 
     // Extract page information
@@ -117,7 +117,7 @@ const processPDFFile = async (file: File): Promise<PDFFile> => {
       name: file.name,
       size: file.size,
       isValid: false,
-      error: error instanceof Error ? error.message : 'Failed to process PDF',
+      error: error instanceof Error ? error.message : "Failed to process PDF",
       createdAt: new Date(),
     }
   }
@@ -144,9 +144,9 @@ const mergePDFs = async (
 
     // Set metadata for merged PDF
     if (settings.includeMetadata) {
-      mergedPdf.setTitle(settings.outputFileName.replace('.pdf', ''))
-      mergedPdf.setCreator('PDF Merge Tool')
-      mergedPdf.setProducer('Enhanced PDF Merger')
+      mergedPdf.setTitle(settings.outputFileName.replace(".pdf", ""))
+      mergedPdf.setCreator("PDF Merge Tool")
+      mergedPdf.setProducer("Enhanced PDF Merger")
       mergedPdf.setCreationDate(new Date())
     }
 
@@ -194,19 +194,19 @@ const mergePDFs = async (
 
         // Adjust position based on settings
         switch (settings.watermark!.position) {
-          case 'top-left':
+          case "top-left":
             x = 50
             y = height - 50
             break
-          case 'top-right':
+          case "top-right":
             x = width - 50
             y = height - 50
             break
-          case 'bottom-left':
+          case "bottom-left":
             x = 50
             y = 50
             break
-          case 'bottom-right':
+          case "bottom-right":
             x = width - 50
             y = 50
             break
@@ -250,7 +250,7 @@ const mergePDFs = async (
       },
     }
   } catch (error) {
-    throw new Error(`PDF merge failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    throw new Error(`PDF merge failed: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 }
 
@@ -273,120 +273,120 @@ const calculateQualityScore = (_pdfFiles: PDFFile[], settings: MergeSettings): n
 // PDF templates
 const pdfTemplates: PDFTemplate[] = [
   {
-    id: 'basic-merge',
-    name: 'Basic Merge',
-    description: 'Simple PDF merging with default settings',
-    category: 'Basic',
+    id: "basic-merge",
+    name: "Basic Merge",
+    description: "Simple PDF merging with default settings",
+    category: "Basic",
     settings: {
-      outputFileName: 'merged-document.pdf',
-      pageOrder: 'original',
+      outputFileName: "merged-document.pdf",
+      pageOrder: "original",
       includeBookmarks: true,
       includeMetadata: true,
       optimizeSize: false,
       removeBlankPages: false,
-      quality: 'high',
+      quality: "high",
       compression: false,
     },
-    useCase: ['Document combination', 'Report compilation', 'File consolidation'],
-    examples: ['Merge multiple reports', 'Combine contract pages', 'Consolidate presentations'],
+    useCase: ["Document combination", "Report compilation", "File consolidation"],
+    examples: ["Merge multiple reports", "Combine contract pages", "Consolidate presentations"],
   },
   {
-    id: 'optimized-merge',
-    name: 'Optimized Merge',
-    description: 'PDF merging with size optimization',
-    category: 'Optimization',
+    id: "optimized-merge",
+    name: "Optimized Merge",
+    description: "PDF merging with size optimization",
+    category: "Optimization",
     settings: {
-      outputFileName: 'optimized-merged.pdf',
-      pageOrder: 'original',
+      outputFileName: "optimized-merged.pdf",
+      pageOrder: "original",
       includeBookmarks: true,
       includeMetadata: true,
       optimizeSize: true,
       removeBlankPages: true,
-      quality: 'medium',
+      quality: "medium",
       compression: true,
     },
-    useCase: ['File size reduction', 'Email attachments', 'Web distribution'],
-    examples: ['Compress large documents', 'Optimize for email', 'Reduce storage space'],
+    useCase: ["File size reduction", "Email attachments", "Web distribution"],
+    examples: ["Compress large documents", "Optimize for email", "Reduce storage space"],
   },
   {
-    id: 'presentation-merge',
-    name: 'Presentation Merge',
-    description: 'Merge presentation slides with high quality',
-    category: 'Presentation',
+    id: "presentation-merge",
+    name: "Presentation Merge",
+    description: "Merge presentation slides with high quality",
+    category: "Presentation",
     settings: {
-      outputFileName: 'presentation-merged.pdf',
-      pageOrder: 'original',
+      outputFileName: "presentation-merged.pdf",
+      pageOrder: "original",
       includeBookmarks: false,
       includeMetadata: true,
       optimizeSize: false,
       removeBlankPages: true,
-      quality: 'high',
+      quality: "high",
       compression: false,
     },
-    useCase: ['Slide compilation', 'Training materials', 'Conference presentations'],
-    examples: ['Combine slide decks', 'Merge training modules', 'Consolidate presentations'],
+    useCase: ["Slide compilation", "Training materials", "Conference presentations"],
+    examples: ["Combine slide decks", "Merge training modules", "Consolidate presentations"],
   },
   {
-    id: 'document-archive',
-    name: 'Document Archive',
-    description: 'Archive multiple documents with metadata preservation',
-    category: 'Archive',
+    id: "document-archive",
+    name: "Document Archive",
+    description: "Archive multiple documents with metadata preservation",
+    category: "Archive",
     settings: {
-      outputFileName: 'document-archive.pdf',
-      pageOrder: 'original',
+      outputFileName: "document-archive.pdf",
+      pageOrder: "original",
       includeBookmarks: true,
       includeMetadata: true,
       optimizeSize: true,
       removeBlankPages: false,
-      quality: 'medium',
+      quality: "medium",
       compression: true,
     },
-    useCase: ['Document archiving', 'Record keeping', 'Digital storage'],
-    examples: ['Archive contracts', 'Store invoices', 'Preserve documents'],
+    useCase: ["Document archiving", "Record keeping", "Digital storage"],
+    examples: ["Archive contracts", "Store invoices", "Preserve documents"],
   },
   {
-    id: 'watermarked-merge',
-    name: 'Watermarked Merge',
-    description: 'Merge PDFs with watermark protection',
-    category: 'Security',
+    id: "watermarked-merge",
+    name: "Watermarked Merge",
+    description: "Merge PDFs with watermark protection",
+    category: "Security",
     settings: {
-      outputFileName: 'watermarked-merged.pdf',
-      pageOrder: 'original',
+      outputFileName: "watermarked-merged.pdf",
+      pageOrder: "original",
       includeBookmarks: true,
       includeMetadata: true,
       optimizeSize: false,
       removeBlankPages: false,
-      quality: 'high',
+      quality: "high",
       compression: false,
       watermark: {
         enabled: true,
-        text: 'CONFIDENTIAL',
+        text: "CONFIDENTIAL",
         opacity: 0.3,
-        position: 'center',
+        position: "center",
         fontSize: 48,
-        color: '#FF0000',
+        color: "#FF0000",
       },
     },
-    useCase: ['Confidential documents', 'Draft protection', 'Copyright marking'],
-    examples: ['Mark confidential files', 'Protect drafts', 'Add copyright notice'],
+    useCase: ["Confidential documents", "Draft protection", "Copyright marking"],
+    examples: ["Mark confidential files", "Protect drafts", "Add copyright notice"],
   },
   {
-    id: 'custom-order',
-    name: 'Custom Order Merge',
-    description: 'Merge PDFs with custom page ordering',
-    category: 'Custom',
+    id: "custom-order",
+    name: "Custom Order Merge",
+    description: "Merge PDFs with custom page ordering",
+    category: "Custom",
     settings: {
-      outputFileName: 'custom-order-merged.pdf',
-      pageOrder: 'custom',
+      outputFileName: "custom-order-merged.pdf",
+      pageOrder: "custom",
       includeBookmarks: true,
       includeMetadata: true,
       optimizeSize: false,
       removeBlankPages: false,
-      quality: 'high',
+      quality: "high",
       compression: false,
     },
-    useCase: ['Custom arrangement', 'Specific ordering', 'Manual organization'],
-    examples: ['Reorder chapters', 'Custom page sequence', 'Manual arrangement'],
+    useCase: ["Custom arrangement", "Specific ordering", "Manual organization"],
+    examples: ["Reorder chapters", "Custom page sequence", "Manual arrangement"],
   },
 ]
 
@@ -400,12 +400,12 @@ const validatePDFFile = (file: File): PDFValidation => {
   }
 
   // File type validation
-  if (file.type !== 'application/pdf') {
+  if (file.type !== "application/pdf") {
     validation.isValid = false
     validation.errors.push({
-      message: 'File is not a PDF',
-      type: 'format',
-      severity: 'error',
+      message: "File is not a PDF",
+      type: "format",
+      severity: "error",
     })
   }
 
@@ -415,29 +415,29 @@ const validatePDFFile = (file: File): PDFValidation => {
     validation.isValid = false
     validation.errors.push({
       message: `File size exceeds ${formatFileSize(maxSize)} limit`,
-      type: 'size',
-      severity: 'error',
+      type: "size",
+      severity: "error",
     })
   }
 
   // File size warnings
   if (file.size > 50 * 1024 * 1024) {
-    validation.warnings.push('Large file size may affect processing performance')
+    validation.warnings.push("Large file size may affect processing performance")
   }
 
   if (file.size < 1024) {
-    validation.warnings.push('File size is very small, may be corrupted')
+    validation.warnings.push("File size is very small, may be corrupted")
   }
 
   // File name validation
   if (file.name.length > 255) {
-    validation.warnings.push('File name is very long')
-    validation.suggestions.push('Consider shortening the file name')
+    validation.warnings.push("File name is very long")
+    validation.suggestions.push("Consider shortening the file name")
   }
 
   if (!/^[\w\-. ]+\.pdf$/i.test(file.name)) {
-    validation.warnings.push('File name contains special characters')
-    validation.suggestions.push('Use only letters, numbers, spaces, hyphens, and dots')
+    validation.warnings.push("File name contains special characters")
+    validation.suggestions.push("Use only letters, numbers, spaces, hyphens, and dots")
   }
 
   return validation
@@ -452,7 +452,7 @@ const usePDFMerger = () => {
       id: nanoid(),
       files,
       settings,
-      status: 'pending',
+      status: "pending",
       progress: 0,
       createdAt: new Date(),
     }
@@ -464,12 +464,12 @@ const usePDFMerger = () => {
   const processMergeOperation = useCallback(
     async (operationId: string) => {
       setOperations((prev) =>
-        prev.map((op) => (op.id === operationId ? { ...op, status: 'processing' as const, progress: 0 } : op))
+        prev.map((op) => (op.id === operationId ? { ...op, status: "processing" as const, progress: 0 } : op))
       )
 
       try {
         const operation = operations.find((op) => op.id === operationId)
-        if (!operation) throw new Error('Operation not found')
+        if (!operation) throw new Error("Operation not found")
 
         const result = await mergePDFs(operation.files, operation.settings, (progress) => {
           setOperations((prev) => prev.map((op) => (op.id === operationId ? { ...op, progress } : op)))
@@ -492,7 +492,7 @@ const usePDFMerger = () => {
         // Copy into a fresh Uint8Array to guarantee ArrayBuffer (not SharedArrayBuffer)
         const bytesCopy = new Uint8Array(pdfBytes.byteLength)
         bytesCopy.set(pdfBytes)
-        const blob = new Blob([bytesCopy.buffer], { type: 'application/pdf' })
+        const blob = new Blob([bytesCopy.buffer], { type: "application/pdf" })
         const downloadUrl = URL.createObjectURL(blob)
 
         setOperations((prev) =>
@@ -500,7 +500,7 @@ const usePDFMerger = () => {
             op.id === operationId
               ? {
                   ...op,
-                  status: 'completed' as const,
+                  status: "completed" as const,
                   progress: 100,
                   result: { ...result, downloadUrl },
                   completedAt: new Date(),
@@ -516,8 +516,8 @@ const usePDFMerger = () => {
             op.id === operationId
               ? {
                   ...op,
-                  status: 'failed' as const,
-                  error: error instanceof Error ? error.message : 'Merge failed',
+                  status: "failed" as const,
+                  error: error instanceof Error ? error.message : "Merge failed",
                 }
               : op
           )
@@ -595,7 +595,7 @@ const usePDFFileProcessor = () => {
         toast.success(`Added ${newFiles.length} PDF file(s)`)
       }
     } catch (error) {
-      toast.error('Failed to process files')
+      toast.error("Failed to process files")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -673,13 +673,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -690,7 +690,7 @@ const useCopyToClipboard = () => {
 const usePDFExport = () => {
   const downloadPDF = useCallback((blob: Blob, filename: string) => {
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename
     document.body.appendChild(link)
@@ -700,13 +700,13 @@ const usePDFExport = () => {
   }, [])
 
   const exportOperationReport = useCallback(
-    (operations: MergeOperation[], format: 'txt' | 'json' | 'csv') => {
-      let content = ''
-      let mimeType = 'text/plain'
-      let extension = '.txt'
+    (operations: MergeOperation[], format: "txt" | "json" | "csv") => {
+      let content = ""
+      let mimeType = "text/plain"
+      let extension = ".txt"
 
       switch (format) {
-        case 'json':
+        case "json":
           const jsonData = operations.map((op) => ({
             id: op.id,
             status: op.status,
@@ -719,20 +719,20 @@ const usePDFExport = () => {
             completedAt: op.completedAt,
           }))
           content = JSON.stringify(jsonData, null, 2)
-          mimeType = 'application/json'
-          extension = '.json'
+          mimeType = "application/json"
+          extension = ".json"
           break
-        case 'csv':
+        case "csv":
           const csvHeaders = [
-            'Operation ID',
-            'Status',
-            'Files Count',
-            'Total Pages',
-            'Output Filename',
-            'Processing Time (ms)',
-            'File Size',
-            'Created At',
-            'Completed At',
+            "Operation ID",
+            "Status",
+            "Files Count",
+            "Total Pages",
+            "Output Filename",
+            "Processing Time (ms)",
+            "File Size",
+            "Created At",
+            "Completed At",
           ]
           const csvRows = operations.map((op) =>
             [
@@ -741,19 +741,19 @@ const usePDFExport = () => {
               op.files.length.toString(),
               op.files.reduce((sum, file) => sum + (file.pageCount || 0), 0).toString(),
               op.settings.outputFileName,
-              op.result?.processingTime?.toFixed(2) || '',
-              op.result?.fileSize ? formatFileSize(op.result.fileSize) : '',
+              op.result?.processingTime?.toFixed(2) || "",
+              op.result?.fileSize ? formatFileSize(op.result.fileSize) : "",
               op.createdAt.toISOString(),
-              op.completedAt?.toISOString() || '',
+              op.completedAt?.toISOString() || "",
             ]
               .map((field) => `"${field.replace(/"/g, '""')}"`)
-              .join(',')
+              .join(",")
           )
-          content = [csvHeaders.join(','), ...csvRows].join('\n')
-          mimeType = 'text/csv'
-          extension = '.csv'
+          content = [csvHeaders.join(","), ...csvRows].join("\n")
+          mimeType = "text/csv"
+          extension = ".csv"
           break
-        case 'txt':
+        case "txt":
         default:
           content = generateTextReport(operations)
           break
@@ -775,8 +775,8 @@ const generateTextReport = (operations: MergeOperation[]): string => {
 
 Generated: ${new Date().toLocaleString()}
 Total Operations: ${operations.length}
-Successful Operations: ${operations.filter((op) => op.status === 'completed').length}
-Failed Operations: ${operations.filter((op) => op.status === 'failed').length}
+Successful Operations: ${operations.filter((op) => op.status === "completed").length}
+Failed Operations: ${operations.filter((op) => op.status === "failed").length}
 
 Operation Details:
 ${operations
@@ -787,19 +787,19 @@ ${operations
    Total Pages: ${op.files.reduce((sum, file) => sum + (file.pageCount || 0), 0)}
    Output: ${op.settings.outputFileName}
    Created: ${op.createdAt.toLocaleString()}
-   ${op.completedAt ? `Completed: ${op.completedAt.toLocaleString()}` : ''}
-   ${op.result ? `Processing Time: ${op.result.processingTime.toFixed(2)}ms` : ''}
-   ${op.result ? `File Size: ${formatFileSize(op.result.fileSize)}` : ''}
-   ${op.error ? `Error: ${op.error}` : ''}
+   ${op.completedAt ? `Completed: ${op.completedAt.toLocaleString()}` : ""}
+   ${op.result ? `Processing Time: ${op.result.processingTime.toFixed(2)}ms` : ""}
+   ${op.result ? `File Size: ${formatFileSize(op.result.fileSize)}` : ""}
+   ${op.error ? `Error: ${op.error}` : ""}
 
    Files:
-   ${op.files.map((file, j) => `   ${j + 1}. ${file.name} (${formatFileSize(file.size)}, ${file.pageCount || 0} pages)`).join('\n')}
+   ${op.files.map((file, j) => `   ${j + 1}. ${file.name} (${formatFileSize(file.size)}, ${file.pageCount || 0} pages)`).join("\n")}
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
-- Success Rate: ${((operations.filter((op) => op.status === 'completed').length / operations.length) * 100).toFixed(1)}%
+- Success Rate: ${((operations.filter((op) => op.status === "completed").length / operations.length) * 100).toFixed(1)}%
 - Total Files Processed: ${operations.reduce((sum, op) => sum + op.files.length, 0)}
 - Total Pages Processed: ${operations.reduce((sum, op) => sum + op.files.reduce((fileSum, file) => fileSum + (file.pageCount || 0), 0), 0)}
 - Average Processing Time: ${(operations.filter((op) => op.result).reduce((sum, op) => sum + (op.result!.processingTime || 0), 0) / operations.filter((op) => op.result).length || 0).toFixed(2)}ms
@@ -811,26 +811,26 @@ Statistics:
  * Features: Advanced PDF merging, page selection, watermarks, optimization, batch processing
  */
 const MergePDFCore = () => {
-  const [activeTab, setActiveTab] = useState<'merge' | 'batch' | 'settings' | 'templates'>('merge')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<"merge" | "batch" | "settings" | "templates">("merge")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [settings, setSettings] = useState<MergeSettings>({
-    outputFileName: 'merged-document.pdf',
-    pageOrder: 'original',
+    outputFileName: "merged-document.pdf",
+    pageOrder: "original",
     includeBookmarks: true,
     includeMetadata: true,
     optimizeSize: false,
     removeBlankPages: false,
-    quality: 'high',
+    quality: "high",
     compression: false,
   })
   const [processingSettings, setProcessingSettings] = useState<ProcessingSettings>({
     maxFileSize: 100 * 1024 * 1024, // 100MB
     maxFiles: 50,
-    allowedFormats: ['application/pdf'],
+    allowedFormats: ["application/pdf"],
     autoOptimize: false,
     preserveQuality: true,
     enableParallelProcessing: false,
-    exportFormat: 'pdf',
+    exportFormat: "pdf",
     realTimePreview: false,
   })
 
@@ -858,7 +858,7 @@ const MergePDFCore = () => {
         addFiles(fileList)
       }
       // Reset input value to allow re-uploading the same file
-      event.target.value = ''
+      event.target.value = ""
     },
     [addFiles]
   )
@@ -867,11 +867,11 @@ const MergePDFCore = () => {
   const handleDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault()
-      const droppedFiles = Array.from(event.dataTransfer.files).filter((file) => file.type === 'application/pdf')
+      const droppedFiles = Array.from(event.dataTransfer.files).filter((file) => file.type === "application/pdf")
       if (droppedFiles.length > 0) {
         addFiles(droppedFiles)
       } else {
-        toast.error('Please drop PDF files only')
+        toast.error("Please drop PDF files only")
       }
     },
     [addFiles]
@@ -884,22 +884,22 @@ const MergePDFCore = () => {
   // Handle merge
   const handleMerge = useCallback(async () => {
     if (files.length < 2) {
-      toast.error('Please add at least 2 PDF files to merge')
+      toast.error("Please add at least 2 PDF files to merge")
       return
     }
 
     const validFiles = files.filter((file) => file.isValid)
     if (validFiles.length < 2) {
-      toast.error('Please add at least 2 valid PDF files to merge')
+      toast.error("Please add at least 2 valid PDF files to merge")
       return
     }
 
     try {
       const operation = createMergeOperation(validFiles, settings)
       await processMergeOperation(operation.id)
-      toast.success('PDF merge completed successfully!')
+      toast.success("PDF merge completed successfully!")
     } catch (error) {
-      toast.error(`Merge failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      toast.error(`Merge failed: ${error instanceof Error ? error.message : "Unknown error"}`)
     }
   }, [files, settings, createMergeOperation, processMergeOperation])
 
@@ -913,12 +913,15 @@ const MergePDFCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Combine className="h-5 w-5" aria-hidden="true" />
+              <Combine className="h-5 w-5" />
               PDF Merge & Processing Tool
             </CardTitle>
             <CardDescription>
@@ -932,29 +935,44 @@ const MergePDFCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'merge' | 'batch' | 'settings' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "merge" | "batch" | "settings" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="merge" className="flex items-center gap-2">
+            <TabsTrigger
+              value="merge"
+              className="flex items-center gap-2"
+            >
               <Combine className="h-4 w-4" />
               PDF Merge
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Files className="h-4 w-4" />
               Batch Operations
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger
+              value="settings"
+              className="flex items-center gap-2"
+            >
               <Settings className="h-4 w-4" />
               Settings
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* PDF Merge Tab */}
-          <TabsContent value="merge" className="space-y-4">
+          <TabsContent
+            value="merge"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* File Upload */}
               <Card>
@@ -997,7 +1015,11 @@ const MergePDFCore = () => {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <Label className="text-sm font-medium">Uploaded Files ({files.length})</Label>
-                        <Button size="sm" variant="outline" onClick={clearFiles}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={clearFiles}
+                        >
                           <Trash2 className="h-4 w-4 mr-2" />
                           Clear All
                         </Button>
@@ -1005,12 +1027,15 @@ const MergePDFCore = () => {
 
                       <div className="space-y-2 max-h-64 overflow-y-auto">
                         {files.map((file, index) => (
-                          <div key={file.id} className="border rounded-lg p-3">
+                          <div
+                            key={file.id}
+                            className="border rounded-lg p-3"
+                          >
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3 flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
                                   <span className="text-sm font-medium">{index + 1}.</span>
-                                  <FileText className={`h-4 w-4 ${file.isValid ? 'text-green-600' : 'text-red-600'}`} />
+                                  <FileText className={`h-4 w-4 ${file.isValid ? "text-green-600" : "text-red-600"}`} />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="text-sm font-medium truncate">{file.name}</div>
@@ -1038,7 +1063,11 @@ const MergePDFCore = () => {
                                 >
                                   <ArrowDown className="h-4 w-4" />
                                 </Button>
-                                <Button size="sm" variant="ghost" onClick={() => removeFile(file.id)}>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => removeFile(file.id)}
+                                >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
@@ -1075,8 +1104,8 @@ const MergePDFCore = () => {
                                       onClick={() => togglePageSelection(file.id, page.pageNumber)}
                                       className={`text-xs p-1 rounded border ${
                                         page.selected
-                                          ? 'bg-primary text-primary-foreground border-primary'
-                                          : 'bg-muted hover:bg-muted/80 border-border'
+                                          ? "bg-primary text-primary-foreground border-primary"
+                                          : "bg-muted hover:bg-muted/80 border-border"
                                       }`}
                                     >
                                       {page.pageNumber}
@@ -1101,7 +1130,10 @@ const MergePDFCore = () => {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="output-filename" className="text-xs">
+                        <Label
+                          htmlFor="output-filename"
+                          className="text-xs"
+                        >
                           Output Filename
                         </Label>
                         <Input
@@ -1112,12 +1144,15 @@ const MergePDFCore = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="quality" className="text-xs">
+                        <Label
+                          htmlFor="quality"
+                          className="text-xs"
+                        >
                           Quality
                         </Label>
                         <Select
                           value={settings.quality}
-                          onValueChange={(value: 'high' | 'medium' | 'low') =>
+                          onValueChange={(value: "high" | "medium" | "low") =>
                             setSettings((prev) => ({ ...prev, quality: value }))
                           }
                         >
@@ -1142,7 +1177,10 @@ const MergePDFCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, optimizeSize: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="optimize-size" className="text-xs">
+                        <Label
+                          htmlFor="optimize-size"
+                          className="text-xs"
+                        >
                           Optimize file size
                         </Label>
                       </div>
@@ -1155,7 +1193,10 @@ const MergePDFCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeBookmarks: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-bookmarks" className="text-xs">
+                        <Label
+                          htmlFor="include-bookmarks"
+                          className="text-xs"
+                        >
                           Include bookmarks
                         </Label>
                       </div>
@@ -1168,7 +1209,10 @@ const MergePDFCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, removeBlankPages: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="remove-blank" className="text-xs">
+                        <Label
+                          htmlFor="remove-blank"
+                          className="text-xs"
+                        >
                           Remove blank pages
                         </Label>
                       </div>
@@ -1205,7 +1249,11 @@ const MergePDFCore = () => {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <Label className="text-sm font-medium">Recent Operations ({operations.length})</Label>
-                        <Button size="sm" variant="outline" onClick={clearOperations}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={clearOperations}
+                        >
                           <Trash2 className="h-4 w-4 mr-2" />
                           Clear All
                         </Button>
@@ -1213,7 +1261,10 @@ const MergePDFCore = () => {
 
                       <div className="space-y-3 max-h-96 overflow-y-auto">
                         {operations.map((operation) => (
-                          <div key={operation.id} className="border rounded-lg p-4">
+                          <div
+                            key={operation.id}
+                            className="border rounded-lg p-4"
+                          >
                             <div className="flex items-center justify-between mb-3">
                               <div>
                                 <div className="font-medium text-sm">{operation.settings.outputFileName}</div>
@@ -1224,25 +1275,29 @@ const MergePDFCore = () => {
                               <div className="flex items-center gap-2">
                                 <span
                                   className={`px-2 py-1 rounded text-xs ${
-                                    operation.status === 'completed'
-                                      ? 'bg-green-100 text-green-800'
-                                      : operation.status === 'failed'
-                                        ? 'bg-red-100 text-red-800'
-                                        : operation.status === 'processing'
-                                          ? 'bg-blue-100 text-blue-800'
-                                          : 'bg-gray-100 text-gray-800'
+                                    operation.status === "completed"
+                                      ? "bg-green-100 text-green-800"
+                                      : operation.status === "failed"
+                                        ? "bg-red-100 text-red-800"
+                                        : operation.status === "processing"
+                                          ? "bg-blue-100 text-blue-800"
+                                          : "bg-gray-100 text-gray-800"
                                   }`}
                                 >
                                   {operation.status}
                                 </span>
-                                <Button size="sm" variant="ghost" onClick={() => removeOperation(operation.id)}>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => removeOperation(operation.id)}
+                                >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </div>
                             </div>
 
                             {/* Progress Bar */}
-                            {operation.status === 'processing' && (
+                            {operation.status === "processing" && (
                               <div className="mb-3">
                                 <div className="flex items-center justify-between text-xs mb-1">
                                   <span>Processing...</span>
@@ -1264,7 +1319,7 @@ const MergePDFCore = () => {
                                   <strong>Files:</strong> {operation.files.length}
                                 </div>
                                 <div>
-                                  <strong>Total Pages:</strong>{' '}
+                                  <strong>Total Pages:</strong>{" "}
                                   {operation.files.reduce((sum, file) => sum + (file.pageCount || 0), 0)}
                                 </div>
                                 {operation.result && (
@@ -1296,13 +1351,13 @@ const MergePDFCore = () => {
                             </div>
 
                             {/* Download Button */}
-                            {operation.status === 'completed' && operation.result?.downloadUrl && (
+                            {operation.status === "completed" && operation.result?.downloadUrl && (
                               <div className="mt-3 pt-3 border-t">
                                 <div className="flex gap-2">
                                   <Button
                                     size="sm"
                                     onClick={() => {
-                                      const link = document.createElement('a')
+                                      const link = document.createElement("a")
                                       link.href = operation.result!.downloadUrl!
                                       link.download = operation.settings.outputFileName
                                       link.click()
@@ -1315,9 +1370,9 @@ const MergePDFCore = () => {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => copyToClipboard(operation.result!.downloadUrl!, 'Download URL')}
+                                    onClick={() => copyToClipboard(operation.result!.downloadUrl!, "Download URL")}
                                   >
-                                    {copiedText === 'Download URL' ? (
+                                    {copiedText === "Download URL" ? (
                                       <Check className="h-4 w-4" />
                                     ) : (
                                       <Copy className="h-4 w-4" />
@@ -1334,13 +1389,13 @@ const MergePDFCore = () => {
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                                   <div>
                                     <div>
-                                      <strong>Compression:</strong>{' '}
+                                      <strong>Compression:</strong>{" "}
                                       {(operation.result.statistics.compressionRatio * 100).toFixed(1)}%
                                     </div>
                                   </div>
                                   <div>
                                     <div>
-                                      <strong>Savings:</strong>{' '}
+                                      <strong>Savings:</strong>{" "}
                                       {formatFileSize(operation.result.statistics.optimizationSavings)}
                                     </div>
                                   </div>
@@ -1363,11 +1418,19 @@ const MergePDFCore = () => {
 
                       {/* Export Operations Report */}
                       <div className="flex gap-2 pt-4 border-t">
-                        <Button size="sm" variant="outline" onClick={() => exportOperationReport(operations, 'txt')}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => exportOperationReport(operations, "txt")}
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           Export Report
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => exportOperationReport(operations, 'csv')}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => exportOperationReport(operations, "csv")}
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           Export CSV
                         </Button>
@@ -1388,7 +1451,10 @@ const MergePDFCore = () => {
           </TabsContent>
 
           {/* Batch Operations Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1411,7 +1477,10 @@ const MergePDFCore = () => {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-4">
+          <TabsContent
+            value="settings"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1427,7 +1496,10 @@ const MergePDFCore = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="settings-filename" className="text-sm font-medium">
+                      <Label
+                        htmlFor="settings-filename"
+                        className="text-sm font-medium"
+                      >
                         Default Output Filename
                       </Label>
                       <Input
@@ -1439,12 +1511,15 @@ const MergePDFCore = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="page-order" className="text-sm font-medium">
+                      <Label
+                        htmlFor="page-order"
+                        className="text-sm font-medium"
+                      >
                         Page Order
                       </Label>
                       <Select
                         value={settings.pageOrder}
-                        onValueChange={(value: 'original' | 'reverse' | 'custom') =>
+                        onValueChange={(value: "original" | "reverse" | "custom") =>
                           setSettings((prev) => ({ ...prev, pageOrder: value }))
                         }
                       >
@@ -1460,12 +1535,15 @@ const MergePDFCore = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="quality-setting" className="text-sm font-medium">
+                      <Label
+                        htmlFor="quality-setting"
+                        className="text-sm font-medium"
+                      >
                         Quality
                       </Label>
                       <Select
                         value={settings.quality}
-                        onValueChange={(value: 'high' | 'medium' | 'low') =>
+                        onValueChange={(value: "high" | "medium" | "low") =>
                           setSettings((prev) => ({ ...prev, quality: value }))
                         }
                       >
@@ -1490,7 +1568,10 @@ const MergePDFCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, includeBookmarks: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="settings-bookmarks" className="text-sm">
+                      <Label
+                        htmlFor="settings-bookmarks"
+                        className="text-sm"
+                      >
                         Include bookmarks from source PDFs
                       </Label>
                     </div>
@@ -1503,7 +1584,10 @@ const MergePDFCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, includeMetadata: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="settings-metadata" className="text-sm">
+                      <Label
+                        htmlFor="settings-metadata"
+                        className="text-sm"
+                      >
                         Include metadata in merged PDF
                       </Label>
                     </div>
@@ -1516,7 +1600,10 @@ const MergePDFCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, optimizeSize: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="settings-optimize" className="text-sm">
+                      <Label
+                        htmlFor="settings-optimize"
+                        className="text-sm"
+                      >
                         Optimize file size (may reduce quality)
                       </Label>
                     </div>
@@ -1529,7 +1616,10 @@ const MergePDFCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, compression: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="settings-compression" className="text-sm">
+                      <Label
+                        htmlFor="settings-compression"
+                        className="text-sm"
+                      >
                         Enable compression
                       </Label>
                     </div>
@@ -1542,7 +1632,10 @@ const MergePDFCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, removeBlankPages: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="settings-blank-pages" className="text-sm">
+                      <Label
+                        htmlFor="settings-blank-pages"
+                        className="text-sm"
+                      >
                         Remove blank pages
                       </Label>
                     </div>
@@ -1564,17 +1657,20 @@ const MergePDFCore = () => {
                           watermark: {
                             ...prev.watermark,
                             enabled: e.target.checked,
-                            text: prev.watermark?.text || 'CONFIDENTIAL',
+                            text: prev.watermark?.text || "CONFIDENTIAL",
                             opacity: prev.watermark?.opacity || 0.3,
-                            position: prev.watermark?.position || 'center',
+                            position: prev.watermark?.position || "center",
                             fontSize: prev.watermark?.fontSize || 48,
-                            color: prev.watermark?.color || '#FF0000',
+                            color: prev.watermark?.color || "#FF0000",
                           },
                         }))
                       }
                       className="rounded border-input"
                     />
-                    <Label htmlFor="watermark-enabled" className="text-sm">
+                    <Label
+                      htmlFor="watermark-enabled"
+                      className="text-sm"
+                    >
                       Add watermark to merged PDF
                     </Label>
                   </div>
@@ -1582,7 +1678,10 @@ const MergePDFCore = () => {
                   {settings.watermark?.enabled && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-6">
                       <div>
-                        <Label htmlFor="watermark-text" className="text-sm font-medium">
+                        <Label
+                          htmlFor="watermark-text"
+                          className="text-sm font-medium"
+                        >
                           Watermark Text
                         </Label>
                         <Input
@@ -1599,13 +1698,16 @@ const MergePDFCore = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor="watermark-position" className="text-sm font-medium">
+                        <Label
+                          htmlFor="watermark-position"
+                          className="text-sm font-medium"
+                        >
                           Position
                         </Label>
                         <Select
                           value={settings.watermark.position}
                           onValueChange={(
-                            value: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+                            value: "center" | "top-left" | "top-right" | "bottom-left" | "bottom-right"
                           ) =>
                             setSettings((prev) => ({
                               ...prev,
@@ -1627,7 +1729,10 @@ const MergePDFCore = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor="watermark-opacity" className="text-sm font-medium">
+                        <Label
+                          htmlFor="watermark-opacity"
+                          className="text-sm font-medium"
+                        >
                           Opacity ({Math.round((settings.watermark.opacity || 0.3) * 100)}%)
                         </Label>
                         <input
@@ -1648,7 +1753,10 @@ const MergePDFCore = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor="watermark-size" className="text-sm font-medium">
+                        <Label
+                          htmlFor="watermark-size"
+                          className="text-sm font-medium"
+                        >
                           Font Size
                         </Label>
                         <Input
@@ -1676,7 +1784,10 @@ const MergePDFCore = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="max-file-size" className="text-sm font-medium">
+                      <Label
+                        htmlFor="max-file-size"
+                        className="text-sm font-medium"
+                      >
                         Max File Size (MB)
                       </Label>
                       <Input
@@ -1696,7 +1807,10 @@ const MergePDFCore = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="max-files" className="text-sm font-medium">
+                      <Label
+                        htmlFor="max-files"
+                        className="text-sm font-medium"
+                      >
                         Max Files per Operation
                       </Label>
                       <Input
@@ -1725,7 +1839,10 @@ const MergePDFCore = () => {
                         onChange={(e) => setProcessingSettings((prev) => ({ ...prev, autoOptimize: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="auto-optimize" className="text-sm">
+                      <Label
+                        htmlFor="auto-optimize"
+                        className="text-sm"
+                      >
                         Auto-optimize large files
                       </Label>
                     </div>
@@ -1740,7 +1857,10 @@ const MergePDFCore = () => {
                         }
                         className="rounded border-input"
                       />
-                      <Label htmlFor="preserve-quality" className="text-sm">
+                      <Label
+                        htmlFor="preserve-quality"
+                        className="text-sm"
+                      >
                         Preserve original quality when possible
                       </Label>
                     </div>
@@ -1751,7 +1871,10 @@ const MergePDFCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1766,7 +1889,7 @@ const MergePDFCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1781,19 +1904,19 @@ const MergePDFCore = () => {
                             <div className="text-xs font-medium mb-1">Settings:</div>
                             <div className="text-xs text-muted-foreground">
                               Quality: {template.settings.quality} •
-                              {template.settings.optimizeSize ? ' Optimized' : ' Standard'} •
-                              {template.settings.includeBookmarks ? ' Bookmarks' : ' No Bookmarks'}
-                              {template.settings.watermark?.enabled ? ' • Watermarked' : ''}
+                              {template.settings.optimizeSize ? " Optimized" : " Standard"} •
+                              {template.settings.includeBookmarks ? " Bookmarks" : " No Bookmarks"}
+                              {template.settings.watermark?.enabled ? " • Watermarked" : ""}
                             </div>
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Use Cases:</div>
-                            <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                           </div>
                         </div>
                         {template.examples.length > 0 && (
                           <div className="text-xs">
-                            <strong>Examples:</strong> {template.examples.join(', ')}
+                            <strong>Examples:</strong> {template.examples.join(", ")}
                           </div>
                         )}
                       </div>

@@ -1,11 +1,11 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -24,8 +24,8 @@ import {
   Shuffle,
   Accessibility,
   ArrowLeftRight,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   ColorConversionFile,
   ConversionData,
@@ -41,23 +41,23 @@ import type {
   ConversionSettings,
   ConversionTemplate,
   ColorFormat,
-} from '@/types/hex-rgb'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/hex-rgb"
+import { formatFileSize } from "@/lib/utils"
 // Types
 
 // Utility functions
 
 const validateColorFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
-  const allowedTypes = ['.json', '.css', '.scss', '.txt', '.csv']
+  const allowedTypes = [".json", ".css", ".scss", ".txt", ".csv"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 10MB' }
+    return { isValid: false, error: "File size must be less than 10MB" }
   }
 
-  const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+  const extension = "." + file.name.split(".").pop()?.toLowerCase()
   if (!allowedTypes.includes(extension)) {
-    return { isValid: false, error: 'Only JSON, CSS, SCSS, TXT, and CSV files are supported' }
+    return { isValid: false, error: "Only JSON, CSS, SCSS, TXT, and CSV files are supported" }
   }
 
   return { isValid: true }
@@ -66,15 +66,15 @@ const validateColorFile = (file: File): { isValid: boolean; error?: string } => 
 // Enhanced color conversion functions
 const hexToRgb = (hex: string): RGB | null => {
   // Remove # if present and validate
-  const cleanHex = hex.replace('#', '')
+  const cleanHex = hex.replace("#", "")
 
   // Handle 3-digit hex
   if (cleanHex.length === 3) {
     const expandedHex = cleanHex
-      .split('')
+      .split("")
       .map((char) => char + char)
-      .join('')
-    return hexToRgb('#' + expandedHex)
+      .join("")
+    return hexToRgb("#" + expandedHex)
   }
 
   // Handle 6-digit hex
@@ -95,7 +95,7 @@ const hexToRgb = (hex: string): RGB | null => {
 const rgbToHex = (rgb: RGB): string => {
   const toHex = (c: number) => {
     const hex = Math.round(Math.max(0, Math.min(255, c))).toString(16)
-    return hex.length === 1 ? '0' + hex : hex
+    return hex.length === 1 ? "0" + hex : hex
   }
   return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`
 }
@@ -219,10 +219,10 @@ const parseColorFromString = (colorStr: string, format: ColorFormat): RGB | null
   const trimmed = colorStr.trim()
 
   switch (format) {
-    case 'hex':
+    case "hex":
       return hexToRgb(trimmed)
 
-    case 'rgb':
+    case "rgb":
       const rgbMatch = trimmed.match(/rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/)
       if (rgbMatch) {
         return {
@@ -244,10 +244,10 @@ const parseColorFromString = (colorStr: string, format: ColorFormat): RGB | null
 
     default:
       // Try to auto-detect
-      if (trimmed.startsWith('#')) {
+      if (trimmed.startsWith("#")) {
         return hexToRgb(trimmed)
-      } else if (trimmed.includes('rgb')) {
-        return parseColorFromString(trimmed, 'rgb')
+      } else if (trimmed.includes("rgb")) {
+        return parseColorFromString(trimmed, "rgb")
       }
       return null
   }
@@ -309,17 +309,17 @@ const isColorBlindSafe = (rgb: RGB): boolean => {
 // Format color to string
 const formatColorToString = (color: ConvertedColor, format: ColorFormat, preserveCase: boolean = false): string => {
   switch (format) {
-    case 'hex':
+    case "hex":
       return preserveCase ? color.hex : color.hex.toUpperCase()
-    case 'rgb':
+    case "rgb":
       return `rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b})`
-    case 'hsl':
+    case "hsl":
       return `hsl(${color.hsl.h}, ${color.hsl.s}%, ${color.hsl.l}%)`
-    case 'hsv':
+    case "hsv":
       return `hsv(${color.hsv.h}, ${color.hsv.s}%, ${color.hsv.v}%)`
-    case 'cmyk':
+    case "cmyk":
       return `cmyk(${color.cmyk.c}%, ${color.cmyk.m}%, ${color.cmyk.y}%, ${color.cmyk.k}%)`
-    case 'lab':
+    case "lab":
       return `lab(${color.lab.l}, ${color.lab.a}, ${color.lab.b})`
     default:
       return color.hex
@@ -336,7 +336,7 @@ const createColorConversion = (input: string, inputFormat: ColorFormat): ColorCo
       originalFormat: inputFormat,
       converted: {} as ConvertedColor,
       isValid: false,
-      error: 'Invalid color format',
+      error: "Invalid color format",
     }
   }
 
@@ -361,51 +361,51 @@ const createColorConversion = (input: string, inputFormat: ColorFormat): ColorCo
 // Conversion templates
 const conversionTemplates: ConversionTemplate[] = [
   {
-    id: 'hex-to-rgb',
-    name: 'HEX to RGB',
-    description: 'Convert hexadecimal colors to RGB format',
-    inputFormat: 'hex',
-    outputFormat: 'rgb',
+    id: "hex-to-rgb",
+    name: "HEX to RGB",
+    description: "Convert hexadecimal colors to RGB format",
+    inputFormat: "hex",
+    outputFormat: "rgb",
     examples: [
-      { input: '#FF0000', output: 'rgb(255, 0, 0)' },
-      { input: '#00FF00', output: 'rgb(0, 255, 0)' },
-      { input: '#0000FF', output: 'rgb(0, 0, 255)' },
+      { input: "#FF0000", output: "rgb(255, 0, 0)" },
+      { input: "#00FF00", output: "rgb(0, 255, 0)" },
+      { input: "#0000FF", output: "rgb(0, 0, 255)" },
     ],
   },
   {
-    id: 'rgb-to-hex',
-    name: 'RGB to HEX',
-    description: 'Convert RGB colors to hexadecimal format',
-    inputFormat: 'rgb',
-    outputFormat: 'hex',
+    id: "rgb-to-hex",
+    name: "RGB to HEX",
+    description: "Convert RGB colors to hexadecimal format",
+    inputFormat: "rgb",
+    outputFormat: "hex",
     examples: [
-      { input: 'rgb(255, 0, 0)', output: '#FF0000' },
-      { input: 'rgb(0, 255, 0)', output: '#00FF00' },
-      { input: 'rgb(0, 0, 255)', output: '#0000FF' },
+      { input: "rgb(255, 0, 0)", output: "#FF0000" },
+      { input: "rgb(0, 255, 0)", output: "#00FF00" },
+      { input: "rgb(0, 0, 255)", output: "#0000FF" },
     ],
   },
   {
-    id: 'hex-to-hsl',
-    name: 'HEX to HSL',
-    description: 'Convert hexadecimal colors to HSL format',
-    inputFormat: 'hex',
-    outputFormat: 'hsl',
+    id: "hex-to-hsl",
+    name: "HEX to HSL",
+    description: "Convert hexadecimal colors to HSL format",
+    inputFormat: "hex",
+    outputFormat: "hsl",
     examples: [
-      { input: '#FF0000', output: 'hsl(0, 100%, 50%)' },
-      { input: '#00FF00', output: 'hsl(120, 100%, 50%)' },
-      { input: '#0000FF', output: 'hsl(240, 100%, 50%)' },
+      { input: "#FF0000", output: "hsl(0, 100%, 50%)" },
+      { input: "#00FF00", output: "hsl(120, 100%, 50%)" },
+      { input: "#0000FF", output: "hsl(240, 100%, 50%)" },
     ],
   },
   {
-    id: 'rgb-to-cmyk',
-    name: 'RGB to CMYK',
-    description: 'Convert RGB colors to CMYK format for printing',
-    inputFormat: 'rgb',
-    outputFormat: 'cmyk',
+    id: "rgb-to-cmyk",
+    name: "RGB to CMYK",
+    description: "Convert RGB colors to CMYK format for printing",
+    inputFormat: "rgb",
+    outputFormat: "cmyk",
     examples: [
-      { input: 'rgb(255, 0, 0)', output: 'cmyk(0%, 100%, 100%, 0%)' },
-      { input: 'rgb(0, 255, 0)', output: 'cmyk(100%, 0%, 100%, 0%)' },
-      { input: 'rgb(0, 0, 255)', output: 'cmyk(100%, 100%, 0%, 0%)' },
+      { input: "rgb(255, 0, 0)", output: "cmyk(0%, 100%, 100%, 0%)" },
+      { input: "rgb(0, 255, 0)", output: "cmyk(100%, 0%, 100%, 0%)" },
+      { input: "rgb(0, 0, 255)", output: "cmyk(100%, 100%, 0%, 0%)" },
     ],
   },
 ]
@@ -463,7 +463,7 @@ const processColorConversions = (colors: string[], settings: ConversionSettings)
       settings,
     }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'Color conversion failed')
+    throw new Error(error instanceof Error ? error.message : "Color conversion failed")
   }
 }
 
@@ -473,8 +473,8 @@ const useColorConversion = () => {
     try {
       return createColorConversion(input, inputFormat)
     } catch (error) {
-      console.error('Color conversion error:', error)
-      throw new Error(error instanceof Error ? error.message : 'Color conversion failed')
+      console.error("Color conversion error:", error)
+      throw new Error(error instanceof Error ? error.message : "Color conversion failed")
     }
   }, [])
 
@@ -482,8 +482,8 @@ const useColorConversion = () => {
     try {
       return processColorConversions(colors, settings)
     } catch (error) {
-      console.error('Batch conversion error:', error)
-      throw new Error(error instanceof Error ? error.message : 'Batch conversion failed')
+      console.error("Batch conversion error:", error)
+      throw new Error(error instanceof Error ? error.message : "Batch conversion failed")
     }
   }, [])
 
@@ -491,7 +491,7 @@ const useColorConversion = () => {
     async (files: ColorConversionFile[], settings: ConversionSettings): Promise<ColorConversionFile[]> => {
       return Promise.all(
         files.map(async (file) => {
-          if (file.status !== 'pending') return file
+          if (file.status !== "pending") return file
 
           try {
             // Parse colors from file content
@@ -500,15 +500,15 @@ const useColorConversion = () => {
 
             return {
               ...file,
-              status: 'completed' as const,
+              status: "completed" as const,
               conversionData,
               processedAt: new Date(),
             }
           } catch (error) {
             return {
               ...file,
-              status: 'error' as const,
-              error: error instanceof Error ? error.message : 'Processing failed',
+              status: "error" as const,
+              error: error instanceof Error ? error.message : "Processing failed",
             }
           }
         })
@@ -524,36 +524,36 @@ const useColorConversion = () => {
 const parseColorsFromContent = (content: string, fileType: string): string[] => {
   const colors: string[] = []
 
-  if (fileType.includes('json')) {
+  if (fileType.includes("json")) {
     try {
       const data = JSON.parse(content)
       if (Array.isArray(data)) {
-        colors.push(...data.filter((item) => typeof item === 'string'))
+        colors.push(...data.filter((item) => typeof item === "string"))
       } else if (data.colors && Array.isArray(data.colors)) {
-        colors.push(...data.colors.filter((item: any) => typeof item === 'string'))
+        colors.push(...data.colors.filter((item: any) => typeof item === "string"))
       }
     } catch (error) {
-      throw new Error('Invalid JSON format')
+      throw new Error("Invalid JSON format")
     }
-  } else if (fileType.includes('css') || fileType.includes('scss')) {
+  } else if (fileType.includes("css") || fileType.includes("scss")) {
     // Extract colors from CSS
     const hexMatches = content.match(/#[a-fA-F0-9]{6}|#[a-fA-F0-9]{3}/g)
     const rgbMatches = content.match(/rgb\s*\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)/g)
 
     if (hexMatches) {
       colors.push(
-        ...hexMatches.map((hex) => (hex.length === 4 ? '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3] : hex))
+        ...hexMatches.map((hex) => (hex.length === 4 ? "#" + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3] : hex))
       )
     }
     if (rgbMatches) {
       colors.push(...rgbMatches)
     }
-  } else if (fileType.includes('csv')) {
+  } else if (fileType.includes("csv")) {
     // Parse CSV format
-    const lines = content.split('\n').filter((line) => line.trim())
+    const lines = content.split("\n").filter((line) => line.trim())
     lines.forEach((line) => {
-      const values = line.split(',').map((v) => v.trim())
-      colors.push(...values.filter((v) => v.startsWith('#') || v.includes('rgb')))
+      const values = line.split(",").map((v) => v.trim())
+      colors.push(...values.filter((v) => v.startsWith("#") || v.includes("rgb")))
     })
   } else {
     // Extract colors from plain text
@@ -562,7 +562,7 @@ const parseColorsFromContent = (content: string, fileType: string): string[] => 
 
     if (hexMatches) {
       colors.push(
-        ...hexMatches.map((hex) => (hex.length === 4 ? '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3] : hex))
+        ...hexMatches.map((hex) => (hex.length === 4 ? "#" + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3] : hex))
       )
     }
     if (rgbMatches) {
@@ -571,7 +571,7 @@ const parseColorsFromContent = (content: string, fileType: string): string[] => 
   }
 
   if (colors.length === 0) {
-    throw new Error('No valid colors found in file')
+    throw new Error("No valid colors found in file")
   }
 
   return [...new Set(colors)] // Remove duplicates
@@ -598,7 +598,7 @@ const useRealTimeConversion = (input: string, inputFormat: ColorFormat, outputFo
     } catch (error) {
       return {
         conversion: null,
-        error: error instanceof Error ? error.message : 'Conversion failed',
+        error: error instanceof Error ? error.message : "Conversion failed",
         isEmpty: false,
       }
     }
@@ -625,17 +625,17 @@ const useFileProcessing = () => {
             name: file.name,
             content,
             size: file.size,
-            type: file.type || 'text/plain',
-            status: 'pending',
+            type: file.type || "text/plain",
+            status: "pending",
           }
 
           resolve(colorFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsText(file)
     })
   }, [])
@@ -645,17 +645,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
-            type: files[index].type || 'text/plain',
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            type: files[index].type || "text/plain",
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -669,22 +669,22 @@ const useFileProcessing = () => {
 // Export functionality
 const useColorExport = () => {
   const exportConversions = useCallback((conversionData: ConversionData, format: string, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'css':
+      case "css":
         content = generateCSSExport(conversionData.conversions)
-        mimeType = 'text/css'
-        extension = '.css'
+        mimeType = "text/css"
+        extension = ".css"
         break
-      case 'scss':
+      case "scss":
         content = generateSCSSExport(conversionData.conversions)
-        mimeType = 'text/scss'
-        extension = '.scss'
+        mimeType = "text/scss"
+        extension = ".scss"
         break
-      case 'json':
+      case "json":
         content = JSON.stringify(
           {
             conversions: conversionData.conversions.map((c) => ({
@@ -710,24 +710,24 @@ const useColorExport = () => {
           null,
           2
         )
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVExport(conversionData.conversions)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
       default:
         content = conversionData.conversions
           .filter((c) => c.isValid)
           .map((c) => formatColorToString(c.converted, conversionData.settings.outputFormat))
-          .join('\n')
+          .join("\n")
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `color-conversions${extension}`
     document.body.appendChild(link)
@@ -741,14 +741,14 @@ const useColorExport = () => {
       const completedFiles = files.filter((f) => f.conversionData)
 
       if (completedFiles.length === 0) {
-        toast.error('No color conversions to export')
+        toast.error("No color conversions to export")
         return
       }
 
       completedFiles.forEach((file) => {
         if (file.conversionData) {
-          const baseName = file.name.replace(/\.[^/.]+$/, '')
-          exportConversions(file.conversionData, 'json', `${baseName}-conversions.json`)
+          const baseName = file.name.replace(/\.[^/.]+$/, "")
+          exportConversions(file.conversionData, "json", `${baseName}-conversions.json`)
         }
       })
 
@@ -773,14 +773,14 @@ const useColorExport = () => {
 
     const csvContent = [
       [
-        'Filename',
-        'Original Size',
-        'Total Conversions',
-        'Successful',
-        'Failed',
-        'Avg Accessibility Score',
-        'Processing Time',
-        'Status',
+        "Filename",
+        "Original Size",
+        "Total Conversions",
+        "Successful",
+        "Failed",
+        "Avg Accessibility Score",
+        "Processing Time",
+        "Status",
       ],
       ...stats.map((stat) => [
         stat.filename,
@@ -793,20 +793,20 @@ const useColorExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'color-conversion-statistics.csv'
+    link.download = "color-conversion-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportConversions, exportBatch, exportStatistics }
@@ -817,32 +817,32 @@ const generateCSSExport = (conversions: ColorConversion[]): string => {
   const validConversions = conversions.filter((c) => c.isValid)
   return `:root {\n${validConversions
     .map((conversion, index) => `  --color-${index + 1}: ${conversion.converted.hex};`)
-    .join('\n')}\n}`
+    .join("\n")}\n}`
 }
 
 const generateSCSSExport = (conversions: ColorConversion[]): string => {
   const validConversions = conversions.filter((c) => c.isValid)
-  return validConversions.map((conversion, index) => `$color-${index + 1}: ${conversion.converted.hex};`).join('\n')
+  return validConversions.map((conversion, index) => `$color-${index + 1}: ${conversion.converted.hex};`).join("\n")
 }
 
 const generateCSVExport = (conversions: ColorConversion[]): string => {
-  const headers = ['Original', 'Original Format', 'HEX', 'RGB', 'HSL', 'HSV', 'CMYK', 'LAB', 'Valid', 'Error']
+  const headers = ["Original", "Original Format", "HEX", "RGB", "HSL", "HSV", "CMYK", "LAB", "Valid", "Error"]
   const rows = conversions.map((c) => [
     c.original,
     c.originalFormat,
-    c.isValid ? c.converted.hex : '',
-    c.isValid ? `rgb(${c.converted.rgb.r}, ${c.converted.rgb.g}, ${c.converted.rgb.b})` : '',
-    c.isValid ? `hsl(${c.converted.hsl.h}, ${c.converted.hsl.s}%, ${c.converted.hsl.l}%)` : '',
-    c.isValid ? `hsv(${c.converted.hsv.h}, ${c.converted.hsv.s}%, ${c.converted.hsv.v}%)` : '',
+    c.isValid ? c.converted.hex : "",
+    c.isValid ? `rgb(${c.converted.rgb.r}, ${c.converted.rgb.g}, ${c.converted.rgb.b})` : "",
+    c.isValid ? `hsl(${c.converted.hsl.h}, ${c.converted.hsl.s}%, ${c.converted.hsl.l}%)` : "",
+    c.isValid ? `hsv(${c.converted.hsv.h}, ${c.converted.hsv.s}%, ${c.converted.hsv.v}%)` : "",
     c.isValid
       ? `cmyk(${c.converted.cmyk.c}%, ${c.converted.cmyk.m}%, ${c.converted.cmyk.y}%, ${c.converted.cmyk.k}%)`
-      : '',
-    c.isValid ? `lab(${c.converted.lab.l}, ${c.converted.lab.a}, ${c.converted.lab.b})` : '',
-    c.isValid ? 'Yes' : 'No',
-    c.error || '',
+      : "",
+    c.isValid ? `lab(${c.converted.lab.l}, ${c.converted.lab.a}, ${c.converted.lab.b})` : "",
+    c.isValid ? "Yes" : "No",
+    c.error || "",
   ])
 
-  return [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+  return [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 }
 
 // Copy to clipboard functionality
@@ -852,13 +852,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -881,9 +881,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -899,7 +899,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only JSON, CSS, SCSS, TXT, or CSV files')
+        toast.error("Please drop only JSON, CSS, SCSS, TXT, or CSV files")
       }
     },
     [onFilesDropped]
@@ -913,7 +913,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -933,14 +933,14 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time color conversion, batch processing, multiple formats, accessibility checking
  */
 const HexRgbCore = () => {
-  const [activeTab, setActiveTab] = useState<'converter' | 'files'>('converter')
-  const [inputColor, setInputColor] = useState('#3498db')
+  const [activeTab, setActiveTab] = useState<"converter" | "files">("converter")
+  const [inputColor, setInputColor] = useState("#3498db")
   const [files, setFiles] = useState<ColorConversionFile[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('hex-to-rgb')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("hex-to-rgb")
   const [settings, setSettings] = useState<ConversionSettings>({
-    inputFormat: 'hex',
-    outputFormat: 'rgb',
+    inputFormat: "hex",
+    outputFormat: "rgb",
     includeAccessibility: true,
     validateColors: true,
     preserveCase: false,
@@ -964,7 +964,7 @@ const HexRgbCore = () => {
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
@@ -990,9 +990,9 @@ const HexRgbCore = () => {
 
   // Process all files
   const processFiles = useCallback(async () => {
-    const pendingFiles = files.filter((f) => f.status === 'pending')
+    const pendingFiles = files.filter((f) => f.status === "pending")
     if (pendingFiles.length === 0) {
-      toast.error('No files to process')
+      toast.error("No files to process")
       return
     }
 
@@ -1005,9 +1005,9 @@ const HexRgbCore = () => {
           return updated || file
         })
       )
-      toast.success('Files processed successfully!')
+      toast.success("Files processed successfully!")
     } catch (error) {
-      toast.error('Failed to process files')
+      toast.error("Failed to process files")
     } finally {
       setIsProcessing(false)
     }
@@ -1016,7 +1016,7 @@ const HexRgbCore = () => {
   // Clear all files
   const clearAll = useCallback(() => {
     setFiles([])
-    toast.success('All files cleared')
+    toast.success("All files cleared")
   }, [])
 
   // Remove specific file
@@ -1051,7 +1051,7 @@ const HexRgbCore = () => {
     return {
       totalFiles: files.length,
       completedFiles: completedFiles.length,
-      failedFiles: files.filter((f) => f.status === 'error').length,
+      failedFiles: files.filter((f) => f.status === "error").length,
       totalConversions,
       successfulConversions,
       averageAccessibility,
@@ -1069,12 +1069,15 @@ const HexRgbCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ArrowLeftRight className="h-5 w-5" aria-hidden="true" />
+              <ArrowLeftRight className="h-5 w-5" />
               HEX-RGB Color Converter
             </CardTitle>
             <CardDescription>
@@ -1085,20 +1088,32 @@ const HexRgbCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'converter' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "converter" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="converter" className="flex items-center gap-2">
+            <TabsTrigger
+              value="converter"
+              className="flex items-center gap-2"
+            >
               <Palette className="h-4 w-4" />
               Color Converter
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* Color Converter Tab */}
-          <TabsContent value="converter" className="space-y-4">
+          <TabsContent
+            value="converter"
+            className="space-y-4"
+          >
             {/* Conversion Templates */}
             <Card>
               <CardHeader>
@@ -1112,7 +1127,7 @@ const HexRgbCore = () => {
                   {conversionTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -1121,7 +1136,10 @@ const HexRgbCore = () => {
                         <div className="text-xs text-muted-foreground mt-1">{template.description}</div>
                         <div className="text-xs font-mono mt-2 space-y-1">
                           {template.examples.slice(0, 2).map((example, index) => (
-                            <div key={index} className="bg-muted/30 px-2 py-1 rounded">
+                            <div
+                              key={index}
+                              className="bg-muted/30 px-2 py-1 rounded"
+                            >
                               {example.input} → {example.output}
                             </div>
                           ))}
@@ -1144,10 +1162,9 @@ const HexRgbCore = () => {
                     <div className="relative">
                       <Input
                         type="color"
-                        value={inputColor.startsWith('#') ? inputColor : '#000000'}
+                        value={inputColor.startsWith("#") ? inputColor : "#000000"}
                         onChange={(e) => setInputColor(e.target.value)}
                         className="w-32 h-32 border-2 border-gray-300 rounded-lg cursor-pointer"
-                        aria-label="Color picker"
                       />
                       <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-center">
                         <div className="font-mono text-sm font-medium">{inputColor}</div>
@@ -1166,8 +1183,12 @@ const HexRgbCore = () => {
                           placeholder="Enter color value..."
                           className="font-mono"
                         />
-                        <Button size="sm" variant="outline" onClick={() => copyToClipboard(inputColor, 'input color')}>
-                          {copiedText === 'input color' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => copyToClipboard(inputColor, "input color")}
+                        >
+                          {copiedText === "input color" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         </Button>
                       </div>
                     </div>
@@ -1227,7 +1248,10 @@ const HexRgbCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, includeAccessibility: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="includeAccessibility" className="text-sm">
+                        <Label
+                          htmlFor="includeAccessibility"
+                          className="text-sm"
+                        >
                           Include Accessibility
                         </Label>
                       </div>
@@ -1240,7 +1264,10 @@ const HexRgbCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, preserveCase: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="preserveCase" className="text-sm">
+                        <Label
+                          htmlFor="preserveCase"
+                          className="text-sm"
+                        >
                           Preserve Case
                         </Label>
                       </div>
@@ -1293,11 +1320,11 @@ const HexRgbCore = () => {
                             copyColorValue(
                               conversionResult.conversion!.converted,
                               settings.outputFormat,
-                              'converted color'
+                              "converted color"
                             )
                           }
                         >
-                          {copiedText === 'converted color' ? (
+                          {copiedText === "converted color" ? (
                             <Check className="h-4 w-4" />
                           ) : (
                             <Copy className="h-4 w-4" />
@@ -1317,7 +1344,10 @@ const HexRgbCore = () => {
                             CMYK: `cmyk(${conversionResult.conversion.converted.cmyk.c}%, ${conversionResult.conversion.converted.cmyk.m}%, ${conversionResult.conversion.converted.cmyk.y}%, ${conversionResult.conversion.converted.cmyk.k}%)`,
                             LAB: `lab(${conversionResult.conversion.converted.lab.l}, ${conversionResult.conversion.converted.lab.a}, ${conversionResult.conversion.converted.lab.b})`,
                           }).map(([format, value]) => (
-                            <div key={format} className="flex items-center justify-between p-2 bg-muted/30 rounded">
+                            <div
+                              key={format}
+                              className="flex items-center justify-between p-2 bg-muted/30 rounded"
+                            >
                               <div>
                                 <span className="font-medium text-xs">{format}:</span>
                                 <span className="font-mono text-sm ml-2">{value}</span>
@@ -1390,33 +1420,33 @@ const HexRgbCore = () => {
                           <div className="flex justify-between items-center p-2 bg-muted/30 rounded">
                             <span className="text-sm">AA Normal:</span>
                             <span
-                              className={`text-sm font-medium ${conversionResult.conversion.converted.accessibility.wcagAA.normal ? 'text-green-600' : 'text-red-600'}`}
+                              className={`text-sm font-medium ${conversionResult.conversion.converted.accessibility.wcagAA.normal ? "text-green-600" : "text-red-600"}`}
                             >
-                              {conversionResult.conversion.converted.accessibility.wcagAA.normal ? 'Pass' : 'Fail'}
+                              {conversionResult.conversion.converted.accessibility.wcagAA.normal ? "Pass" : "Fail"}
                             </span>
                           </div>
                           <div className="flex justify-between items-center p-2 bg-muted/30 rounded">
                             <span className="text-sm">AA Large:</span>
                             <span
-                              className={`text-sm font-medium ${conversionResult.conversion.converted.accessibility.wcagAA.large ? 'text-green-600' : 'text-red-600'}`}
+                              className={`text-sm font-medium ${conversionResult.conversion.converted.accessibility.wcagAA.large ? "text-green-600" : "text-red-600"}`}
                             >
-                              {conversionResult.conversion.converted.accessibility.wcagAA.large ? 'Pass' : 'Fail'}
+                              {conversionResult.conversion.converted.accessibility.wcagAA.large ? "Pass" : "Fail"}
                             </span>
                           </div>
                           <div className="flex justify-between items-center p-2 bg-muted/30 rounded">
                             <span className="text-sm">AAA Normal:</span>
                             <span
-                              className={`text-sm font-medium ${conversionResult.conversion.converted.accessibility.wcagAAA.normal ? 'text-green-600' : 'text-red-600'}`}
+                              className={`text-sm font-medium ${conversionResult.conversion.converted.accessibility.wcagAAA.normal ? "text-green-600" : "text-red-600"}`}
                             >
-                              {conversionResult.conversion.converted.accessibility.wcagAAA.normal ? 'Pass' : 'Fail'}
+                              {conversionResult.conversion.converted.accessibility.wcagAAA.normal ? "Pass" : "Fail"}
                             </span>
                           </div>
                           <div className="flex justify-between items-center p-2 bg-muted/30 rounded">
                             <span className="text-sm">AAA Large:</span>
                             <span
-                              className={`text-sm font-medium ${conversionResult.conversion.converted.accessibility.wcagAAA.large ? 'text-green-600' : 'text-red-600'}`}
+                              className={`text-sm font-medium ${conversionResult.conversion.converted.accessibility.wcagAAA.large ? "text-green-600" : "text-red-600"}`}
                             >
-                              {conversionResult.conversion.converted.accessibility.wcagAAA.large ? 'Pass' : 'Fail'}
+                              {conversionResult.conversion.converted.accessibility.wcagAAA.large ? "Pass" : "Fail"}
                             </span>
                           </div>
                         </div>
@@ -1428,11 +1458,11 @@ const HexRgbCore = () => {
                         <Label className="text-sm font-medium">Color Blind Safety</Label>
                         <div className="mt-2 p-3 bg-muted/30 rounded">
                           <span
-                            className={`text-sm font-medium ${conversionResult.conversion.converted.accessibility.colorBlindSafe ? 'text-green-600' : 'text-orange-600'}`}
+                            className={`text-sm font-medium ${conversionResult.conversion.converted.accessibility.colorBlindSafe ? "text-green-600" : "text-orange-600"}`}
                           >
                             {conversionResult.conversion.converted.accessibility.colorBlindSafe
-                              ? 'Color Blind Safe'
-                              : 'May be difficult for color blind users'}
+                              ? "Color Blind Safe"
+                              : "May be difficult for color blind users"}
                           </span>
                         </div>
                       </div>
@@ -1446,10 +1476,10 @@ const HexRgbCore = () => {
                             className="w-full"
                             onClick={() => {
                               const randomColor =
-                                '#' +
+                                "#" +
                                 Math.floor(Math.random() * 16777215)
                                   .toString(16)
-                                  .padStart(6, '0')
+                                  .padStart(6, "0")
                               setInputColor(randomColor)
                             }}
                           >
@@ -1488,7 +1518,7 @@ const HexRgbCore = () => {
                     <Button
                       onClick={() => {
                         const singleConversion = convertBatch([inputColor], settings)
-                        exportConversions(singleConversion, 'css')
+                        exportConversions(singleConversion, "css")
                       }}
                       variant="outline"
                     >
@@ -1499,7 +1529,7 @@ const HexRgbCore = () => {
                     <Button
                       onClick={() => {
                         const singleConversion = convertBatch([inputColor], settings)
-                        exportConversions(singleConversion, 'json')
+                        exportConversions(singleConversion, "json")
                       }}
                       variant="outline"
                     >
@@ -1510,7 +1540,7 @@ const HexRgbCore = () => {
                     <Button
                       onClick={() => {
                         const singleConversion = convertBatch([inputColor], settings)
-                        exportConversions(singleConversion, 'csv')
+                        exportConversions(singleConversion, "csv")
                       }}
                       variant="outline"
                     >
@@ -1526,7 +1556,7 @@ const HexRgbCore = () => {
                             settings.outputFormat,
                             settings.preserveCase
                           ),
-                          'converted color'
+                          "converted color"
                         )
                       }
                       variant="outline"
@@ -1541,15 +1571,18 @@ const HexRgbCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             {/* File Upload */}
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1557,9 +1590,8 @@ const HexRgbCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop color files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1570,7 +1602,11 @@ const HexRgbCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your color files here, or click to select files
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1584,7 +1620,6 @@ const HexRgbCore = () => {
                     accept=".json,.css,.scss,.txt,.csv"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select color files"
                   />
                 </div>
               </CardContent>
@@ -1636,7 +1671,7 @@ const HexRgbCore = () => {
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Button
                       onClick={processFiles}
-                      disabled={isProcessing || files.every((f) => f.status !== 'pending')}
+                      disabled={isProcessing || files.every((f) => f.status !== "pending")}
                       className="min-w-32"
                     >
                       {isProcessing ? (
@@ -1670,7 +1705,11 @@ const HexRgbCore = () => {
                       Export Statistics
                     </Button>
 
-                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                    <Button
+                      onClick={clearAll}
+                      variant="destructive"
+                      disabled={isProcessing}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
@@ -1688,14 +1727,20 @@ const HexRgbCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground space-y-1">
@@ -1704,7 +1749,7 @@ const HexRgbCore = () => {
                                 <span className="font-medium"> Type:</span> {file.type}
                               </div>
 
-                              {file.status === 'completed' && file.conversionData && (
+                              {file.status === "completed" && file.conversionData && (
                                 <div className="mt-2">
                                   <div className="text-xs font-medium mb-1">Conversions Processed:</div>
                                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
@@ -1736,8 +1781,8 @@ const HexRgbCore = () => {
                                 </div>
                               )}
 
-                              {file.status === 'pending' && <div className="text-blue-600">Ready for processing</div>}
-                              {file.status === 'processing' && (
+                              {file.status === "pending" && <div className="text-blue-600">Ready for processing</div>}
+                              {file.status === "processing" && (
                                 <div className="text-blue-600 flex items-center gap-2">
                                   <Loader2 className="h-4 w-4 animate-spin" />
                                   Processing...
@@ -1748,7 +1793,7 @@ const HexRgbCore = () => {
                           </div>
 
                           <div className="flex-shrink-0 flex items-center gap-2">
-                            {file.status === 'completed' && file.conversionData && (
+                            {file.status === "completed" && file.conversionData && (
                               <>
                                 <Button
                                   size="sm"
@@ -1756,11 +1801,10 @@ const HexRgbCore = () => {
                                   onClick={() =>
                                     exportConversions(
                                       file.conversionData!,
-                                      'json',
-                                      file.name.replace(/\.[^/.]+$/, '-conversions.json')
+                                      "json",
+                                      file.name.replace(/\.[^/.]+$/, "-conversions.json")
                                     )
                                   }
-                                  aria-label={`Export conversions for ${file.name}`}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1774,10 +1818,9 @@ const HexRgbCore = () => {
                                       .map((c) =>
                                         formatColorToString(c.converted, settings.outputFormat, settings.preserveCase)
                                       )
-                                      .join(', ')
+                                      .join(", ")
                                     copyToClipboard(validConversions, file.id)
                                   }}
-                                  aria-label={`Copy conversions from ${file.name}`}
                                 >
                                   {copiedText === file.id ? (
                                     <Check className="h-4 w-4" />
@@ -1792,7 +1835,6 @@ const HexRgbCore = () => {
                               size="sm"
                               variant="ghost"
                               onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

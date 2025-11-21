@@ -1,11 +1,11 @@
-import React, { useCallback, useRef, useState, useMemo, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Upload,
   Download,
@@ -31,24 +31,24 @@ import {
   Save,
   Monitor,
   Crop,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
-import type { ImageFile, ResizeSettings, PresetDimension, ResizeStats, HistoryEntry } from '@/types/image-resize'
-import { formatFileSize } from '@/lib/utils'
+} from "lucide-react"
+import { nanoid } from "nanoid"
+import type { ImageFile, ResizeSettings, PresetDimension, ResizeStats, HistoryEntry } from "@/types/image-resize"
+import { formatFileSize } from "@/lib/utils"
 // Enhanced Types
 
 // Utility functions
 
 const validateImageFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 100 * 1024 * 1024 // 100MB
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/bmp', 'image/svg+xml']
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/bmp", "image/svg+xml"]
 
   if (!allowedTypes.includes(file.type)) {
-    return { isValid: false, error: 'Unsupported file format. Please use JPEG, PNG, WebP, GIF, BMP, or SVG.' }
+    return { isValid: false, error: "Unsupported file format. Please use JPEG, PNG, WebP, GIF, BMP, or SVG." }
   }
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size too large. Maximum size is 100MB.' }
+    return { isValid: false, error: "File size too large. Maximum size is 100MB." }
   }
 
   return { isValid: true }
@@ -58,147 +58,147 @@ const validateImageFile = (file: File): { isValid: boolean; error?: string } => 
 const presetDimensions: PresetDimension[] = [
   // Social Media
   {
-    name: 'Instagram Post',
+    name: "Instagram Post",
     width: 1080,
     height: 1080,
-    category: 'social',
-    description: 'Perfect square format for Instagram feed posts',
-    aspectRatio: '1:1',
-    useCase: 'Instagram feed posts, profile pictures',
+    category: "social",
+    description: "Perfect square format for Instagram feed posts",
+    aspectRatio: "1:1",
+    useCase: "Instagram feed posts, profile pictures",
   },
   {
-    name: 'Instagram Story',
+    name: "Instagram Story",
     width: 1080,
     height: 1920,
-    category: 'social',
-    description: 'Vertical format for Instagram and Facebook stories',
-    aspectRatio: '9:16',
-    useCase: 'Instagram stories, Facebook stories, vertical video',
+    category: "social",
+    description: "Vertical format for Instagram and Facebook stories",
+    aspectRatio: "9:16",
+    useCase: "Instagram stories, Facebook stories, vertical video",
   },
   {
-    name: 'Facebook Cover',
+    name: "Facebook Cover",
     width: 1200,
     height: 630,
-    category: 'social',
-    description: 'Facebook page cover photo dimensions',
-    aspectRatio: '1.91:1',
-    useCase: 'Facebook cover photos, LinkedIn company banners',
+    category: "social",
+    description: "Facebook page cover photo dimensions",
+    aspectRatio: "1.91:1",
+    useCase: "Facebook cover photos, LinkedIn company banners",
   },
   {
-    name: 'Twitter Header',
+    name: "Twitter Header",
     width: 1500,
     height: 500,
-    category: 'social',
-    description: 'Twitter profile header banner',
-    aspectRatio: '3:1',
-    useCase: 'Twitter headers, wide banner graphics',
+    category: "social",
+    description: "Twitter profile header banner",
+    aspectRatio: "3:1",
+    useCase: "Twitter headers, wide banner graphics",
   },
   {
-    name: 'LinkedIn Banner',
+    name: "LinkedIn Banner",
     width: 1584,
     height: 396,
-    category: 'social',
-    description: 'LinkedIn personal profile banner',
-    aspectRatio: '4:1',
-    useCase: 'LinkedIn profile banners, professional headers',
+    category: "social",
+    description: "LinkedIn personal profile banner",
+    aspectRatio: "4:1",
+    useCase: "LinkedIn profile banners, professional headers",
   },
 
   // Web
   {
-    name: 'Website Banner',
+    name: "Website Banner",
     width: 1920,
     height: 600,
-    category: 'web',
-    description: 'Full-width website hero banner',
-    aspectRatio: '3.2:1',
-    useCase: 'Website headers, hero banners, landing pages',
+    category: "web",
+    description: "Full-width website hero banner",
+    aspectRatio: "3.2:1",
+    useCase: "Website headers, hero banners, landing pages",
   },
   {
-    name: 'Blog Thumbnail',
+    name: "Blog Thumbnail",
     width: 800,
     height: 450,
-    category: 'web',
-    description: 'Standard blog post thumbnail',
-    aspectRatio: '16:9',
-    useCase: 'Blog thumbnails, article previews, video thumbnails',
+    category: "web",
+    description: "Standard blog post thumbnail",
+    aspectRatio: "16:9",
+    useCase: "Blog thumbnails, article previews, video thumbnails",
   },
   {
-    name: 'Avatar/Profile',
+    name: "Avatar/Profile",
     width: 400,
     height: 400,
-    category: 'web',
-    description: 'Square profile picture format',
-    aspectRatio: '1:1',
-    useCase: 'Profile pictures, avatars, user icons',
+    category: "web",
+    description: "Square profile picture format",
+    aspectRatio: "1:1",
+    useCase: "Profile pictures, avatars, user icons",
   },
 
   // Video
   {
-    name: 'Full HD',
+    name: "Full HD",
     width: 1920,
     height: 1080,
-    category: 'video',
-    description: '1080p high definition video format',
-    aspectRatio: '16:9',
-    useCase: 'HD video, YouTube thumbnails, presentations',
+    category: "video",
+    description: "1080p high definition video format",
+    aspectRatio: "16:9",
+    useCase: "HD video, YouTube thumbnails, presentations",
   },
   {
-    name: 'HD',
+    name: "HD",
     width: 1280,
     height: 720,
-    category: 'video',
-    description: '720p high definition video format',
-    aspectRatio: '16:9',
-    useCase: 'HD video, streaming, web video',
+    category: "video",
+    description: "720p high definition video format",
+    aspectRatio: "16:9",
+    useCase: "HD video, streaming, web video",
   },
   {
-    name: '4K UHD',
+    name: "4K UHD",
     width: 3840,
     height: 2160,
-    category: 'video',
-    description: '4K ultra high definition format',
-    aspectRatio: '16:9',
-    useCase: '4K video, high-resolution displays, professional video',
+    category: "video",
+    description: "4K ultra high definition format",
+    aspectRatio: "16:9",
+    useCase: "4K video, high-resolution displays, professional video",
   },
 
   // Mobile
   {
-    name: 'iPhone 15 Pro',
+    name: "iPhone 15 Pro",
     width: 1179,
     height: 2556,
-    category: 'mobile',
-    description: 'iPhone 15 Pro screen resolution',
-    aspectRatio: '19.5:9',
-    useCase: 'Mobile wallpapers, app screenshots, mobile design',
+    category: "mobile",
+    description: "iPhone 15 Pro screen resolution",
+    aspectRatio: "19.5:9",
+    useCase: "Mobile wallpapers, app screenshots, mobile design",
   },
   {
-    name: 'Android Standard',
+    name: "Android Standard",
     width: 1080,
     height: 1920,
-    category: 'mobile',
-    description: 'Standard Android phone resolution',
-    aspectRatio: '16:9',
-    useCase: 'Android wallpapers, mobile apps, responsive design',
+    category: "mobile",
+    description: "Standard Android phone resolution",
+    aspectRatio: "16:9",
+    useCase: "Android wallpapers, mobile apps, responsive design",
   },
 
   // Print
   {
-    name: 'A4 (300 DPI)',
+    name: "A4 (300 DPI)",
     width: 2480,
     height: 3508,
-    category: 'print',
-    description: 'A4 paper size at print resolution',
-    aspectRatio: '1.41:1',
-    useCase: 'Print documents, flyers, posters',
+    category: "print",
+    description: "A4 paper size at print resolution",
+    aspectRatio: "1.41:1",
+    useCase: "Print documents, flyers, posters",
   },
   {
-    name: 'Letter (300 DPI)',
+    name: "Letter (300 DPI)",
     width: 2550,
     height: 3300,
-    category: 'print',
-    description: 'US Letter size at print resolution',
-    aspectRatio: '1.29:1',
-    useCase: 'US print documents, letters, reports',
+    category: "print",
+    description: "US Letter size at print resolution",
+    aspectRatio: "1.29:1",
+    useCase: "US print documents, letters, reports",
   },
 ]
 
@@ -214,7 +214,7 @@ const useImageResize = () => {
         // Validate file size before processing
         const maxProcessingSize = 200 * 1024 * 1024 // 200MB
         if (file.size > maxProcessingSize) {
-          reject(new Error('Image too large for processing. Please use an image smaller than 200MB.'))
+          reject(new Error("Image too large for processing. Please use an image smaller than 200MB."))
           return
         }
 
@@ -241,12 +241,12 @@ const useImageResize = () => {
               return
             }
 
-            const canvas = document.createElement('canvas')
-            const ctx = canvas.getContext('2d', { alpha: settings.format === 'png' })
+            const canvas = document.createElement("canvas")
+            const ctx = canvas.getContext("2d", { alpha: settings.format === "png" })
 
             if (!ctx) {
               cleanup()
-              reject(new Error('Failed to get canvas context. Your browser may not support this feature.'))
+              reject(new Error("Failed to get canvas context. Your browser may not support this feature."))
               return
             }
 
@@ -254,11 +254,11 @@ const useImageResize = () => {
             let targetWidth = settings.width
             let targetHeight = settings.height
 
-            if (settings.maintainAspectRatio && settings.resizeMode !== 'exact') {
+            if (settings.maintainAspectRatio && settings.resizeMode !== "exact") {
               const aspectRatio = originalDimensions.width / originalDimensions.height
 
               switch (settings.resizeMode) {
-                case 'fit':
+                case "fit":
                   // Fit within bounds while maintaining aspect ratio
                   if (targetWidth / targetHeight > aspectRatio) {
                     targetWidth = targetHeight * aspectRatio
@@ -266,7 +266,7 @@ const useImageResize = () => {
                     targetHeight = targetWidth / aspectRatio
                   }
                   break
-                case 'fill':
+                case "fill":
                   // Fill bounds while maintaining aspect ratio (may crop)
                   if (targetWidth / targetHeight < aspectRatio) {
                     targetWidth = targetHeight * aspectRatio
@@ -274,7 +274,7 @@ const useImageResize = () => {
                     targetHeight = targetWidth / aspectRatio
                   }
                   break
-                case 'stretch':
+                case "stretch":
                   // Use exact dimensions (will distort if aspect ratios don't match)
                   break
               }
@@ -289,10 +289,10 @@ const useImageResize = () => {
 
             // Configure canvas for better quality
             ctx.imageSmoothingEnabled = true
-            ctx.imageSmoothingQuality = 'high'
+            ctx.imageSmoothingQuality = "high"
 
             // Set background color for formats that don't support transparency
-            if (settings.format !== 'png' && settings.backgroundColor) {
+            if (settings.format !== "png" && settings.backgroundColor) {
               ctx.fillStyle = settings.backgroundColor
               ctx.fillRect(0, 0, targetWidth, targetHeight)
             }
@@ -303,7 +303,7 @@ const useImageResize = () => {
             let drawX = 0
             let drawY = 0
 
-            if (settings.resizeMode === 'fill' && settings.maintainAspectRatio) {
+            if (settings.resizeMode === "fill" && settings.maintainAspectRatio) {
               const scaleX = targetWidth / originalDimensions.width
               const scaleY = targetHeight / originalDimensions.height
               const scale = Math.max(scaleX, scaleY)
@@ -319,26 +319,26 @@ const useImageResize = () => {
               ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
             } catch (drawError) {
               cleanup()
-              reject(new Error('Failed to draw image to canvas. The image may be corrupted.'))
+              reject(new Error("Failed to draw image to canvas. The image may be corrupted."))
               return
             }
 
             // Convert to blob with format-specific options
             const mimeType = `image/${settings.format}`
-            const quality = settings.format === 'png' ? undefined : Math.max(0.1, Math.min(1, settings.quality / 100))
+            const quality = settings.format === "png" ? undefined : Math.max(0.1, Math.min(1, settings.quality / 100))
 
             canvas.toBlob(
               (blob) => {
                 cleanup()
 
                 if (!blob) {
-                  reject(new Error('Failed to resize image. Please try a different format or settings.'))
+                  reject(new Error("Failed to resize image. Please try a different format or settings."))
                   return
                 }
 
                 // Validate output size
                 if (blob.size === 0) {
-                  reject(new Error('Resizing resulted in empty file. Please try different settings.'))
+                  reject(new Error("Resizing resulted in empty file. Please try different settings."))
                   return
                 }
 
@@ -355,13 +355,13 @@ const useImageResize = () => {
             )
           } catch (error) {
             cleanup()
-            reject(error instanceof Error ? error : new Error('Unknown resize error'))
+            reject(error instanceof Error ? error : new Error("Unknown resize error"))
           }
         }
 
         img.onerror = () => {
           cleanup()
-          reject(new Error('Failed to load image. Please ensure the file is a valid image format.'))
+          reject(new Error("Failed to load image. Please ensure the file is a valid image format."))
         }
 
         // Create object URL and load image
@@ -369,7 +369,7 @@ const useImageResize = () => {
           objectUrl = URL.createObjectURL(file)
           img.src = objectUrl
         } catch (error) {
-          reject(new Error('Failed to read image file. The file may be corrupted.'))
+          reject(new Error("Failed to read image file. The file may be corrupted."))
         }
       })
     },
@@ -392,7 +392,7 @@ const getImageDimensions = (file: File): Promise<{ width: number; height: number
 
     img.onerror = () => {
       URL.revokeObjectURL(objectUrl)
-      reject(new Error('Failed to load image dimensions'))
+      reject(new Error("Failed to load image dimensions"))
     }
 
     img.src = objectUrl
@@ -410,21 +410,21 @@ const ImageResizeCore = () => {
     width: 800,
     height: 600,
     maintainAspectRatio: true,
-    resizeMode: 'fit',
-    format: 'png',
+    resizeMode: "fit",
+    format: "png",
     quality: 90,
-    backgroundColor: '#ffffff',
-    interpolation: 'lanczos',
+    backgroundColor: "#ffffff",
+    interpolation: "lanczos",
     sharpen: false,
     removeMetadata: true,
   })
   const [dragActive, setDragActive] = useState(false)
-  const [selectedPreset, setSelectedPreset] = useState<string>('')
-  const [activeTab, setActiveTab] = useState('resize')
+  const [selectedPreset, setSelectedPreset] = useState<string>("")
+  const [activeTab, setActiveTab] = useState("resize")
   const [history, setHistory] = useState<HistoryEntry[]>([])
   const [showAdvanced, setShowAdvanced] = useState(false)
-  const [filterStatus] = useState<'all' | 'pending' | 'completed' | 'error'>('all')
-  const [sortBy] = useState<'name' | 'size' | 'dimensions' | 'time'>('name')
+  const [filterStatus] = useState<"all" | "pending" | "completed" | "error">("all")
+  const [sortBy] = useState<"name" | "size" | "dimensions" | "time">("name")
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { resizeImage } = useImageResize()
@@ -434,23 +434,23 @@ const ImageResizeCore = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
-          case 'o':
+          case "o":
             e.preventDefault()
             fileInputRef.current?.click()
             break
-          case 'Enter':
+          case "Enter":
             e.preventDefault()
-            if (images.some((img) => img.status === 'pending') && !isProcessing) {
+            if (images.some((img) => img.status === "pending") && !isProcessing) {
               resizeImages()
             }
             break
-          case 'd':
+          case "d":
             e.preventDefault()
-            if (images.some((img) => img.status === 'completed')) {
+            if (images.some((img) => img.status === "completed")) {
               downloadAll()
             }
             break
-          case 'Delete':
+          case "Delete":
             e.preventDefault()
             if (!isProcessing) {
               clearAll()
@@ -460,8 +460,8 @@ const ImageResizeCore = () => {
       }
     }
 
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
   }, [images, isProcessing])
 
   // Enhanced Utility Functions
@@ -483,7 +483,7 @@ const ImageResizeCore = () => {
 
   // Enhanced Statistics calculation
   const stats: ResizeStats = useMemo(() => {
-    const completedImages = images.filter((img) => img.status === 'completed')
+    const completedImages = images.filter((img) => img.status === "completed")
     const totalOriginalSize = images.reduce((sum, img) => sum + img.originalSize, 0)
     const totalResizedSize = images.reduce((sum, img) => sum + (img.resizedSize || 0), 0)
     const totalSavings = totalOriginalSize - totalResizedSize
@@ -535,7 +535,7 @@ const ImageResizeCore = () => {
   }, [images])
 
   const exportResults = useCallback(() => {
-    const completedImages = images.filter((img) => img.status === 'completed')
+    const completedImages = images.filter((img) => img.status === "completed")
     const exportData = {
       timestamp: new Date().toISOString(),
       settings,
@@ -551,38 +551,38 @@ const ImageResizeCore = () => {
       })),
     }
 
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = `image-resize-results-${new Date().toISOString().split('T')[0]}.json`
+    link.download = `image-resize-results-${new Date().toISOString().split("T")[0]}.json`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
-    toast.success('Results exported successfully')
+    toast.success("Results exported successfully")
   }, [images, settings, stats])
 
   // Filtered and sorted images
   const filteredImages = useMemo(() => {
     let filtered = images
 
-    if (filterStatus !== 'all') {
+    if (filterStatus !== "all") {
       filtered = filtered.filter((img) => img.status === filterStatus)
     }
 
     return filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'name':
+        case "name":
           return a.file.name.localeCompare(b.file.name)
-        case 'size':
+        case "size":
           return b.originalSize - a.originalSize
-        case 'dimensions':
+        case "dimensions":
           return (
             b.originalDimensions.width * b.originalDimensions.height -
             a.originalDimensions.width * a.originalDimensions.height
           )
-        case 'time':
+        case "time":
           return b.timestamp - a.timestamp
         default:
           return 0
@@ -613,7 +613,7 @@ const ImageResizeCore = () => {
           originalUrl,
           originalSize: file.size,
           originalDimensions: dimensions,
-          status: 'pending',
+          status: "pending",
           timestamp: Date.now(),
           aspectRatio: dimensions.width / dimensions.height,
         })
@@ -624,14 +624,12 @@ const ImageResizeCore = () => {
 
     if (newImages.length > 0) {
       setImages((prev) => [...prev, ...newImages])
-      const message = `Added ${newImages.length} image${newImages.length > 1 ? 's' : ''} for resizing`
+      const message = `Added ${newImages.length} image${newImages.length > 1 ? "s" : ""} for resizing`
       toast.success(message)
 
       // Announce to screen readers
-      const announcement = document.createElement('div')
-      announcement.setAttribute('aria-live', 'polite')
-      announcement.setAttribute('aria-atomic', 'true')
-      announcement.className = 'sr-only'
+      const announcement = document.createElement("div")
+      announcement.className = "sr-only"
       announcement.textContent = message
       document.body.appendChild(announcement)
       setTimeout(() => document.body.removeChild(announcement), 1000)
@@ -652,9 +650,9 @@ const ImageResizeCore = () => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -686,9 +684,9 @@ const ImageResizeCore = () => {
 
   // Enhanced Resize logic
   const resizeImages = useCallback(async () => {
-    const pendingImages = images.filter((img) => img.status === 'pending')
+    const pendingImages = images.filter((img) => img.status === "pending")
     if (pendingImages.length === 0) {
-      toast.error('No images to resize')
+      toast.error("No images to resize")
       return
     }
 
@@ -700,7 +698,7 @@ const ImageResizeCore = () => {
         const imageStartTime = Date.now()
 
         // Update status to processing
-        setImages((prev) => prev.map((img) => (img.id === image.id ? { ...img, status: 'processing' } : img)))
+        setImages((prev) => prev.map((img) => (img.id === image.id ? { ...img, status: "processing" } : img)))
 
         const result = await resizeImage(image.file, settings, image.originalDimensions)
         const processingTime = (Date.now() - imageStartTime) / 1000
@@ -711,7 +709,7 @@ const ImageResizeCore = () => {
             img.id === image.id
               ? {
                   ...img,
-                  status: 'completed',
+                  status: "completed",
                   resizedUrl: result.url,
                   resizedSize: result.size,
                   resizedDimensions: result.dimensions,
@@ -722,14 +720,14 @@ const ImageResizeCore = () => {
           )
         )
       } catch (error) {
-        console.error('Resize failed:', error)
+        console.error("Resize failed:", error)
         setImages((prev) =>
           prev.map((img) =>
             img.id === image.id
               ? {
                   ...img,
-                  status: 'error',
-                  error: error instanceof Error ? error.message : 'Resize failed',
+                  status: "error",
+                  error: error instanceof Error ? error.message : "Resize failed",
                 }
               : img
           )
@@ -739,8 +737,8 @@ const ImageResizeCore = () => {
 
     setIsProcessing(false)
     const totalTime = (Date.now() - startTime) / 1000
-    const completedCount = images.filter((img) => img.status === 'completed').length
-    const message = `Resizing completed! ${completedCount} image${completedCount > 1 ? 's' : ''} processed in ${totalTime.toFixed(1)}s.`
+    const completedCount = images.filter((img) => img.status === "completed").length
+    const message = `Resizing completed! ${completedCount} image${completedCount > 1 ? "s" : ""} processed in ${totalTime.toFixed(1)}s.`
     toast.success(message)
 
     // Save to history
@@ -766,10 +764,8 @@ const ImageResizeCore = () => {
     }, 100)
 
     // Announce completion to screen readers
-    const announcement = document.createElement('div')
-    announcement.setAttribute('aria-live', 'assertive')
-    announcement.setAttribute('aria-atomic', 'true')
-    announcement.className = 'sr-only'
+    const announcement = document.createElement("div")
+    announcement.className = "sr-only"
     announcement.textContent = message
     document.body.appendChild(announcement)
     setTimeout(() => document.body.removeChild(announcement), 2000)
@@ -783,17 +779,17 @@ const ImageResizeCore = () => {
       }
     })
     setImages([])
-    toast.success('All images cleared')
+    toast.success("All images cleared")
   }, [images])
 
   const downloadImage = useCallback(
     (image: ImageFile) => {
       if (!image.resizedUrl) return
 
-      const link = document.createElement('a')
+      const link = document.createElement("a")
       link.href = image.resizedUrl
-      const extension = settings.format === 'jpeg' ? 'jpg' : settings.format
-      link.download = `resized_${image.file.name.replace(/\.[^/.]+$/, '')}.${extension}`
+      const extension = settings.format === "jpeg" ? "jpg" : settings.format
+      link.download = `resized_${image.file.name.replace(/\.[^/.]+$/, "")}.${extension}`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -802,7 +798,7 @@ const ImageResizeCore = () => {
   )
 
   const downloadAll = useCallback(() => {
-    const completedImages = images.filter((img) => img.status === 'completed' && img.resizedUrl)
+    const completedImages = images.filter((img) => img.status === "completed" && img.resizedUrl)
     completedImages.forEach((image) => downloadImage(image))
   }, [images, downloadImage])
 
@@ -828,12 +824,15 @@ const ImageResizeCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-6">
+      <div
+        id="main-content"
+        className="flex flex-col gap-6"
+      >
         {/* Enhanced Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ImageIcon className="h-6 w-6" aria-hidden="true" />
+              <ImageIcon className="h-6 w-6" />
               Image Resize & Dimension Tool
             </CardTitle>
             <CardDescription>
@@ -844,32 +843,54 @@ const ImageResizeCore = () => {
         </Card>
 
         {/* Enhanced Tabbed Interface */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="resize" className="flex items-center gap-2">
+            <TabsTrigger
+              value="resize"
+              className="flex items-center gap-2"
+            >
               <Crop className="h-4 w-4" />
               Resize
             </TabsTrigger>
-            <TabsTrigger value="presets" className="flex items-center gap-2">
+            <TabsTrigger
+              value="presets"
+              className="flex items-center gap-2"
+            >
               <Layers className="h-4 w-4" />
               Presets
             </TabsTrigger>
-            <TabsTrigger value="analysis" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analysis"
+              className="flex items-center gap-2"
+            >
               <BarChart3 className="h-4 w-4" />
               Analysis
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
-            <TabsTrigger value="help" className="flex items-center gap-2">
+            <TabsTrigger
+              value="help"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Help
             </TabsTrigger>
           </TabsList>
 
           {/* Resize Tab */}
-          <TabsContent value="resize" className="space-y-6">
+          <TabsContent
+            value="resize"
+            className="space-y-6"
+          >
             {/* Settings Panel */}
             <Card>
               <CardHeader>
@@ -878,9 +899,13 @@ const ImageResizeCore = () => {
                     <Settings className="h-5 w-5" />
                     Resize Settings
                   </span>
-                  <Button variant="outline" size="sm" onClick={() => setShowAdvanced(!showAdvanced)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                  >
                     {showAdvanced ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    {showAdvanced ? 'Hide' : 'Show'} Advanced
+                    {showAdvanced ? "Hide" : "Show"} Advanced
                   </Button>
                 </CardTitle>
               </CardHeader>
@@ -898,10 +923,9 @@ const ImageResizeCore = () => {
                         value={settings.width}
                         onChange={(e) => {
                           setSettings((prev) => ({ ...prev, width: Number(e.target.value) }))
-                          setSelectedPreset('')
+                          setSelectedPreset("")
                         }}
                         className="flex-1"
-                        aria-label={`Width: ${settings.width} pixels`}
                       />
                       <Button
                         size="sm"
@@ -912,7 +936,6 @@ const ImageResizeCore = () => {
                             maintainAspectRatio: !prev.maintainAspectRatio,
                           }))
                         }
-                        aria-label={`${settings.maintainAspectRatio ? 'Unlock' : 'Lock'} aspect ratio`}
                       >
                         {settings.maintainAspectRatio ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
                       </Button>
@@ -930,10 +953,9 @@ const ImageResizeCore = () => {
                         value={settings.height}
                         onChange={(e) => {
                           setSettings((prev) => ({ ...prev, height: Number(e.target.value) }))
-                          setSelectedPreset('')
+                          setSelectedPreset("")
                         }}
                         className="flex-1"
-                        aria-label={`Height: ${settings.height} pixels`}
                       />
                       <Button
                         size="sm"
@@ -945,7 +967,6 @@ const ImageResizeCore = () => {
                             height: 600,
                           }))
                         }
-                        aria-label="Reset dimensions to default"
                       >
                         <RotateCcw className="h-4 w-4" />
                       </Button>
@@ -959,11 +980,11 @@ const ImageResizeCore = () => {
                     <Label htmlFor="resizeMode">Resize Mode</Label>
                     <Select
                       value={settings.resizeMode}
-                      onValueChange={(value: 'exact' | 'fit' | 'fill' | 'stretch') =>
+                      onValueChange={(value: "exact" | "fit" | "fill" | "stretch") =>
                         setSettings((prev) => ({ ...prev, resizeMode: value }))
                       }
                     >
-                      <SelectTrigger id="resizeMode" aria-label="Select resize mode">
+                      <SelectTrigger id="resizeMode">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -979,11 +1000,11 @@ const ImageResizeCore = () => {
                     <Label htmlFor="format">Output Format</Label>
                     <Select
                       value={settings.format}
-                      onValueChange={(value: 'png' | 'jpeg' | 'webp') =>
+                      onValueChange={(value: "png" | "jpeg" | "webp") =>
                         setSettings((prev) => ({ ...prev, format: value }))
                       }
                     >
-                      <SelectTrigger id="format" aria-label="Select output format">
+                      <SelectTrigger id="format">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -994,7 +1015,7 @@ const ImageResizeCore = () => {
                     </Select>
                   </div>
 
-                  {settings.format !== 'png' && (
+                  {settings.format !== "png" && (
                     <div className="space-y-2">
                       <Label htmlFor="quality">Quality: {settings.quality}%</Label>
                       <Input
@@ -1006,7 +1027,6 @@ const ImageResizeCore = () => {
                         value={settings.quality}
                         onChange={(e) => setSettings((prev) => ({ ...prev, quality: Number(e.target.value) }))}
                         className="w-full"
-                        aria-label={`Image quality: ${settings.quality} percent`}
                       />
                     </div>
                   )}
@@ -1025,7 +1045,7 @@ const ImageResizeCore = () => {
                           <Label htmlFor="interpolation">Interpolation Method</Label>
                           <Select
                             value={settings.interpolation}
-                            onValueChange={(value: 'nearest' | 'bilinear' | 'bicubic' | 'lanczos') =>
+                            onValueChange={(value: "nearest" | "bilinear" | "bicubic" | "lanczos") =>
                               setSettings((prev) => ({ ...prev, interpolation: value }))
                             }
                           >
@@ -1062,7 +1082,10 @@ const ImageResizeCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, sharpen: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="sharpen" className="text-sm">
+                          <Label
+                            htmlFor="sharpen"
+                            className="text-sm"
+                          >
                             Apply sharpening filter
                           </Label>
                         </div>
@@ -1075,7 +1098,10 @@ const ImageResizeCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, removeMetadata: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="removeMetadata" className="text-sm">
+                          <Label
+                            htmlFor="removeMetadata"
+                            className="text-sm"
+                          >
                             Remove metadata (EXIF, etc.)
                           </Label>
                         </div>
@@ -1092,8 +1118,8 @@ const ImageResizeCore = () => {
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1101,9 +1127,8 @@ const ImageResizeCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop images here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1112,7 +1137,11 @@ const ImageResizeCore = () => {
                   <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Upload Images</h3>
                   <p className="text-muted-foreground mb-4">Drag and drop your images here, or click to select files</p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1126,7 +1155,6 @@ const ImageResizeCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select image files"
                   />
                 </div>
               </CardContent>
@@ -1164,7 +1192,7 @@ const ImageResizeCore = () => {
                     <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
                       <div className="text-center">
                         <span className="text-blue-700 dark:text-blue-400 font-semibold">
-                          {stats.totalSavings > 0 ? 'Total savings: ' : 'Total increase: '}
+                          {stats.totalSavings > 0 ? "Total savings: " : "Total increase: "}
                           {formatFileSize(Math.abs(stats.totalSavings))}
                         </span>
                       </div>
@@ -1181,7 +1209,7 @@ const ImageResizeCore = () => {
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Button
                       onClick={resizeImages}
-                      disabled={isProcessing || images.every((img) => img.status !== 'pending')}
+                      disabled={isProcessing || images.every((img) => img.status !== "pending")}
                       className="min-w-32"
                     >
                       {isProcessing ? (
@@ -1190,20 +1218,24 @@ const ImageResizeCore = () => {
                           Processing...
                         </>
                       ) : (
-                        'Resize Images'
+                        "Resize Images"
                       )}
                     </Button>
 
                     <Button
                       onClick={downloadAll}
                       variant="outline"
-                      disabled={!images.some((img) => img.status === 'completed')}
+                      disabled={!images.some((img) => img.status === "completed")}
                     >
                       <Download className="mr-2 h-4 w-4" />
                       Download All
                     </Button>
 
-                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                    <Button
+                      onClick={clearAll}
+                      variant="destructive"
+                      disabled={isProcessing}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
@@ -1211,7 +1243,7 @@ const ImageResizeCore = () => {
                     <Button
                       onClick={exportResults}
                       variant="outline"
-                      disabled={!images.some((img) => img.status === 'completed')}
+                      disabled={!images.some((img) => img.status === "completed")}
                     >
                       <Save className="mr-2 h-4 w-4" />
                       Export Results
@@ -1223,7 +1255,10 @@ const ImageResizeCore = () => {
           </TabsContent>
 
           {/* Presets Tab */}
-          <TabsContent value="presets" className="space-y-6">
+          <TabsContent
+            value="presets"
+            className="space-y-6"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1240,7 +1275,7 @@ const ImageResizeCore = () => {
                     <Card
                       key={preset.name}
                       className={`cursor-pointer transition-all hover:shadow-md ${
-                        selectedPreset === preset.name ? 'ring-2 ring-primary' : ''
+                        selectedPreset === preset.name ? "ring-2 ring-primary" : ""
                       }`}
                       onClick={() => applyPreset(preset)}
                     >
@@ -1282,7 +1317,10 @@ const ImageResizeCore = () => {
           </TabsContent>
 
           {/* Analysis Tab */}
-          <TabsContent value="analysis" className="space-y-6">
+          <TabsContent
+            value="analysis"
+            className="space-y-6"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1318,7 +1356,7 @@ const ImageResizeCore = () => {
                         <CardContent className="pt-6">
                           <div className="text-center">
                             <div className="text-3xl font-bold text-green-600">
-                              {stats.processingTime > 0 ? `${stats.processingTime.toFixed(1)}s` : 'N/A'}
+                              {stats.processingTime > 0 ? `${stats.processingTime.toFixed(1)}s` : "N/A"}
                             </div>
                             <div className="text-sm text-muted-foreground">Avg. Processing Time</div>
                           </div>
@@ -1344,15 +1382,21 @@ const ImageResizeCore = () => {
                       <CardContent>
                         <div className="space-y-3">
                           {filteredImages
-                            .filter((img) => img.status === 'completed')
+                            .filter((img) => img.status === "completed")
                             .map((image) => (
-                              <div key={image.id} className="flex items-center gap-4">
+                              <div
+                                key={image.id}
+                                className="flex items-center gap-4"
+                              >
                                 <div className="flex-1 min-w-0">
-                                  <div className="font-medium truncate" title={image.file.name}>
+                                  <div
+                                    className="font-medium truncate"
+                                    title={image.file.name}
+                                  >
                                     {image.file.name}
                                   </div>
                                   <div className="text-sm text-muted-foreground">
-                                    {image.originalDimensions.width}×{image.originalDimensions.height} →{' '}
+                                    {image.originalDimensions.width}×{image.originalDimensions.height} →{" "}
                                     {image.resizedDimensions?.width}×{image.resizedDimensions?.height}
                                   </div>
                                 </div>
@@ -1360,7 +1404,7 @@ const ImageResizeCore = () => {
                                   <div className="text-sm font-medium">
                                     {image.resizedSize && image.originalSize
                                       ? `${(((image.resizedSize - image.originalSize) / image.originalSize) * 100).toFixed(1)}%`
-                                      : 'N/A'}
+                                      : "N/A"}
                                   </div>
                                 </div>
                               </div>
@@ -1375,7 +1419,10 @@ const ImageResizeCore = () => {
           </TabsContent>
 
           {/* History Tab */}
-          <TabsContent value="history" className="space-y-6">
+          <TabsContent
+            value="history"
+            className="space-y-6"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1396,7 +1443,10 @@ const ImageResizeCore = () => {
                 ) : (
                   <div className="space-y-4">
                     {history.map((entry) => (
-                      <Card key={entry.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                      <Card
+                        key={entry.id}
+                        className="cursor-pointer hover:shadow-md transition-shadow"
+                      >
                         <CardContent className="pt-6">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -1430,7 +1480,7 @@ const ImageResizeCore = () => {
                               size="sm"
                               onClick={() => {
                                 setSettings(entry.settings)
-                                toast.success('Settings restored from history')
+                                toast.success("Settings restored from history")
                               }}
                             >
                               <RotateCcw className="h-4 w-4 mr-1" />
@@ -1447,7 +1497,10 @@ const ImageResizeCore = () => {
           </TabsContent>
 
           {/* Help Tab */}
-          <TabsContent value="help" className="space-y-6">
+          <TabsContent
+            value="help"
+            className="space-y-6"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

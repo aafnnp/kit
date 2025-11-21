@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -25,8 +25,8 @@ import {
   Globe,
   Play,
   Pause,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   TimestampItem,
   TimestampOutput,
@@ -38,47 +38,47 @@ import type {
   TimezoneInfo,
   TimestampFormat,
   ExportFormat,
-} from '@/types/unix-timestamp'
+} from "@/types/unix-timestamp"
 
 // Enhanced Types
 // Utility functions
 
 const validateTimestampInput = (input: string, format: TimestampFormat): { isValid: boolean; error?: string } => {
   if (!input.trim()) {
-    return { isValid: false, error: 'Input cannot be empty' }
+    return { isValid: false, error: "Input cannot be empty" }
   }
 
   try {
     switch (format) {
-      case 'unix':
+      case "unix":
         const unixNum = Number(input)
         if (isNaN(unixNum) || unixNum < 0 || unixNum > 2147483647) {
-          return { isValid: false, error: 'Invalid Unix timestamp (must be between 0 and 2147483647)' }
+          return { isValid: false, error: "Invalid Unix timestamp (must be between 0 and 2147483647)" }
         }
         break
-      case 'unix-ms':
+      case "unix-ms":
         const unixMsNum = Number(input)
         if (isNaN(unixMsNum) || unixMsNum < 0) {
-          return { isValid: false, error: 'Invalid Unix milliseconds timestamp' }
+          return { isValid: false, error: "Invalid Unix milliseconds timestamp" }
         }
         break
-      case 'iso8601':
+      case "iso8601":
         const isoDate = new Date(input)
         if (isNaN(isoDate.getTime())) {
-          return { isValid: false, error: 'Invalid ISO 8601 format' }
+          return { isValid: false, error: "Invalid ISO 8601 format" }
         }
         break
-      case 'rfc2822':
+      case "rfc2822":
         const rfcDate = new Date(input)
         if (isNaN(rfcDate.getTime())) {
-          return { isValid: false, error: 'Invalid RFC 2822 format' }
+          return { isValid: false, error: "Invalid RFC 2822 format" }
         }
         break
-      case 'local':
-      case 'utc':
+      case "local":
+      case "utc":
         const date = new Date(input)
         if (isNaN(date.getTime())) {
-          return { isValid: false, error: 'Invalid date format' }
+          return { isValid: false, error: "Invalid date format" }
         }
         break
       default:
@@ -87,7 +87,7 @@ const validateTimestampInput = (input: string, format: TimestampFormat): { isVal
 
     return { isValid: true }
   } catch (error) {
-    return { isValid: false, error: 'Invalid timestamp format' }
+    return { isValid: false, error: "Invalid timestamp format" }
   }
 }
 
@@ -97,18 +97,18 @@ const getTimezoneOffset = (timezone: string): string => {
     const offset = getTimezoneOffsetMinutes(timezone)
     const hours = Math.floor(Math.abs(offset) / 60)
     const minutes = Math.abs(offset) % 60
-    const sign = offset >= 0 ? '+' : '-'
-    return `${sign}${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+    const sign = offset >= 0 ? "+" : "-"
+    return `${sign}${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`
   } catch {
-    return '+00:00'
+    return "+00:00"
   }
 }
 
 const getTimezoneOffsetMinutes = (timezone: string): number => {
   try {
     const date = new Date()
-    const targetDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }))
-    const localDate = new Date(date.toLocaleString('en-US'))
+    const targetDate = new Date(date.toLocaleString("en-US", { timeZone: timezone }))
+    const localDate = new Date(date.toLocaleString("en-US"))
     return (targetDate.getTime() - localDate.getTime()) / 60000
   } catch {
     return 0
@@ -126,16 +126,16 @@ const getRelativeTime = (timestamp: number): string => {
   const years = Math.floor(days / 365)
 
   const future = diff < 0
-  const prefix = future ? 'in ' : ''
-  const suffix = future ? '' : ' ago'
+  const prefix = future ? "in " : ""
+  const suffix = future ? "" : " ago"
 
-  if (years > 0) return `${prefix}${years} year${years > 1 ? 's' : ''}${suffix}`
-  if (months > 0) return `${prefix}${months} month${months > 1 ? 's' : ''}${suffix}`
-  if (days > 0) return `${prefix}${days} day${days > 1 ? 's' : ''}${suffix}`
-  if (hours > 0) return `${prefix}${hours} hour${hours > 1 ? 's' : ''}${suffix}`
-  if (minutes > 0) return `${prefix}${minutes} minute${minutes > 1 ? 's' : ''}${suffix}`
-  if (seconds > 0) return `${prefix}${seconds} second${seconds > 1 ? 's' : ''}${suffix}`
-  return 'just now'
+  if (years > 0) return `${prefix}${years} year${years > 1 ? "s" : ""}${suffix}`
+  if (months > 0) return `${prefix}${months} month${months > 1 ? "s" : ""}${suffix}`
+  if (days > 0) return `${prefix}${days} day${days > 1 ? "s" : ""}${suffix}`
+  if (hours > 0) return `${prefix}${hours} hour${hours > 1 ? "s" : ""}${suffix}`
+  if (minutes > 0) return `${prefix}${minutes} minute${minutes > 1 ? "s" : ""}${suffix}`
+  if (seconds > 0) return `${prefix}${seconds} second${seconds > 1 ? "s" : ""}${suffix}`
+  return "just now"
 }
 
 // Convert timestamp between formats
@@ -143,23 +143,23 @@ const convertTimestamp = (
   input: string,
   inputFormat: TimestampFormat,
   outputFormat: TimestampFormat,
-  timezone: string = 'UTC'
+  timezone: string = "UTC"
 ): TimestampOutput => {
   try {
     let date: Date
 
     // Parse input based on format
     switch (inputFormat) {
-      case 'unix':
+      case "unix":
         date = new Date(Number(input) * 1000)
         break
-      case 'unix-ms':
+      case "unix-ms":
         date = new Date(Number(input))
         break
-      case 'iso8601':
-      case 'rfc2822':
-      case 'local':
-      case 'utc':
+      case "iso8601":
+      case "rfc2822":
+      case "local":
+      case "utc":
         date = new Date(input)
         break
       default:
@@ -169,7 +169,7 @@ const convertTimestamp = (
     if (isNaN(date.getTime())) {
       return {
         format: outputFormat,
-        value: 'Invalid timestamp',
+        value: "Invalid timestamp",
         timezone,
         isValid: false,
       }
@@ -178,22 +178,22 @@ const convertTimestamp = (
     // Convert to output format
     let value: string
     switch (outputFormat) {
-      case 'unix':
+      case "unix":
         value = Math.floor(date.getTime() / 1000).toString()
         break
-      case 'unix-ms':
+      case "unix-ms":
         value = date.getTime().toString()
         break
-      case 'iso8601':
+      case "iso8601":
         value = date.toISOString()
         break
-      case 'rfc2822':
+      case "rfc2822":
         value = date.toUTCString()
         break
-      case 'local':
-        value = date.toLocaleString('en-US', { timeZone: timezone })
+      case "local":
+        value = date.toLocaleString("en-US", { timeZone: timezone })
         break
-      case 'utc':
+      case "utc":
         value = date.toUTCString()
         break
       default:
@@ -210,7 +210,7 @@ const convertTimestamp = (
   } catch (error) {
     return {
       format: outputFormat,
-      value: 'Conversion error',
+      value: "Conversion error",
       timezone,
       isValid: false,
     }
@@ -222,13 +222,13 @@ const convertToMultipleFormats = (
   input: string,
   inputFormat: TimestampFormat,
   outputFormats: TimestampFormat[],
-  timezone: string = 'UTC'
+  timezone: string = "UTC"
 ): TimestampOutput[] => {
   return outputFormats.map((format) => convertTimestamp(input, inputFormat, format, timezone))
 }
 
 // Get current time in all formats
-const getCurrentTime = (timezone: string = 'UTC'): CurrentTime => {
+const getCurrentTime = (timezone: string = "UTC"): CurrentTime => {
   const now = new Date()
   const unix = Math.floor(now.getTime() / 1000)
   const unixMs = now.getTime()
@@ -238,28 +238,28 @@ const getCurrentTime = (timezone: string = 'UTC'): CurrentTime => {
     unixMs,
     iso: now.toISOString(),
     rfc2822: now.toUTCString(),
-    local: now.toLocaleString('en-US', { timeZone: timezone }),
+    local: now.toLocaleString("en-US", { timeZone: timezone }),
     utc: now.toUTCString(),
     timezone,
-    relativeTime: 'now',
+    relativeTime: "now",
   }
 }
 
 // Common timezones
 const COMMON_TIMEZONES = [
-  'UTC',
-  'America/New_York',
-  'America/Los_Angeles',
-  'America/Chicago',
-  'America/Denver',
-  'Europe/London',
-  'Europe/Paris',
-  'Europe/Berlin',
-  'Asia/Tokyo',
-  'Asia/Shanghai',
-  'Asia/Kolkata',
-  'Australia/Sydney',
-  'Pacific/Auckland',
+  "UTC",
+  "America/New_York",
+  "America/Los_Angeles",
+  "America/Chicago",
+  "America/Denver",
+  "Europe/London",
+  "Europe/Paris",
+  "Europe/Berlin",
+  "Asia/Tokyo",
+  "Asia/Shanghai",
+  "Asia/Kolkata",
+  "Australia/Sydney",
+  "Pacific/Auckland",
 ]
 
 // Get timezone info
@@ -273,19 +273,19 @@ const getTimezoneInfo = (timezone: string): TimezoneInfo => {
       offset,
       abbreviation:
         date
-          .toLocaleString('en-US', {
+          .toLocaleString("en-US", {
             timeZone: timezone,
-            timeZoneName: 'short',
+            timeZoneName: "short",
           })
-          .split(' ')
-          .pop() || '',
+          .split(" ")
+          .pop() || "",
       isDST: false, // Simplified - would need more complex logic for accurate DST detection
     }
   } catch {
     return {
       name: timezone,
-      offset: '+00:00',
-      abbreviation: 'UTC',
+      offset: "+00:00",
+      abbreviation: "UTC",
       isDST: false,
     }
   }
@@ -294,94 +294,94 @@ const getTimezoneInfo = (timezone: string): TimezoneInfo => {
 // Timestamp templates with different use cases
 const timestampTemplates: TimestampTemplate[] = [
   {
-    id: 'developer-standard',
-    name: 'Developer Standard',
-    description: 'Common formats for software development',
-    category: 'Development',
+    id: "developer-standard",
+    name: "Developer Standard",
+    description: "Common formats for software development",
+    category: "Development",
     settings: {
-      inputFormat: 'unix',
-      outputFormats: ['unix', 'unix-ms', 'iso8601', 'local'],
-      timezone: 'UTC',
+      inputFormat: "unix",
+      outputFormats: ["unix", "unix-ms", "iso8601", "local"],
+      timezone: "UTC",
       includeRelativeTime: true,
       batchProcessing: true,
       realTimeConversion: true,
     },
-    formats: ['unix', 'unix-ms', 'iso8601', 'local'],
+    formats: ["unix", "unix-ms", "iso8601", "local"],
   },
   {
-    id: 'web-api',
-    name: 'Web API',
-    description: 'Formats commonly used in web APIs',
-    category: 'API',
+    id: "web-api",
+    name: "Web API",
+    description: "Formats commonly used in web APIs",
+    category: "API",
     settings: {
-      inputFormat: 'iso8601',
-      outputFormats: ['iso8601', 'unix', 'rfc2822'],
-      timezone: 'UTC',
+      inputFormat: "iso8601",
+      outputFormats: ["iso8601", "unix", "rfc2822"],
+      timezone: "UTC",
       includeRelativeTime: false,
       batchProcessing: true,
       realTimeConversion: true,
     },
-    formats: ['iso8601', 'unix', 'rfc2822'],
+    formats: ["iso8601", "unix", "rfc2822"],
   },
   {
-    id: 'database-migration',
-    name: 'Database Migration',
-    description: 'Formats for database timestamp migration',
-    category: 'Database',
+    id: "database-migration",
+    name: "Database Migration",
+    description: "Formats for database timestamp migration",
+    category: "Database",
     settings: {
-      inputFormat: 'local',
-      outputFormats: ['unix', 'iso8601', 'utc'],
-      timezone: 'UTC',
+      inputFormat: "local",
+      outputFormats: ["unix", "iso8601", "utc"],
+      timezone: "UTC",
       includeRelativeTime: false,
       batchProcessing: true,
       realTimeConversion: false,
     },
-    formats: ['unix', 'iso8601', 'utc'],
+    formats: ["unix", "iso8601", "utc"],
   },
   {
-    id: 'log-analysis',
-    name: 'Log Analysis',
-    description: 'Formats for analyzing log timestamps',
-    category: 'Analysis',
+    id: "log-analysis",
+    name: "Log Analysis",
+    description: "Formats for analyzing log timestamps",
+    category: "Analysis",
     settings: {
-      inputFormat: 'rfc2822',
-      outputFormats: ['unix', 'local', 'iso8601'],
-      timezone: 'America/New_York',
+      inputFormat: "rfc2822",
+      outputFormats: ["unix", "local", "iso8601"],
+      timezone: "America/New_York",
       includeRelativeTime: true,
       batchProcessing: true,
       realTimeConversion: true,
     },
-    formats: ['unix', 'local', 'iso8601'],
+    formats: ["unix", "local", "iso8601"],
   },
   {
-    id: 'timezone-converter',
-    name: 'Timezone Converter',
-    description: 'Convert between different timezones',
-    category: 'Timezone',
+    id: "timezone-converter",
+    name: "Timezone Converter",
+    description: "Convert between different timezones",
+    category: "Timezone",
     settings: {
-      inputFormat: 'local',
-      outputFormats: ['local', 'utc'],
-      timezone: 'America/Los_Angeles',
+      inputFormat: "local",
+      outputFormats: ["local", "utc"],
+      timezone: "America/Los_Angeles",
       includeRelativeTime: true,
       batchProcessing: false,
       realTimeConversion: true,
     },
-    formats: ['local', 'utc'],
+    formats: ["local", "utc"],
   },
   {
-    id: 'quick-convert',
-    name: 'Quick Convert',
-    description: 'Fast conversion for common use cases',
-    category: 'Quick',
+    id: "quick-convert",
+    name: "Quick Convert",
+    description: "Fast conversion for common use cases",
+    category: "Quick",
     settings: {
-      inputFormat: 'unix',
-      outputFormats: ['local'],
-      timezone: 'UTC',
+      inputFormat: "unix",
+      outputFormats: ["local"],
+      timezone: "UTC",
       includeRelativeTime: true,
       batchProcessing: false,
       realTimeConversion: true,
     },
-    formats: ['local'],
+    formats: ["local"],
   },
 ]
 
@@ -403,7 +403,7 @@ const useTimestampConversion = () => {
             inputType: inputFormat,
             outputs: [],
             timezone,
-            status: 'error',
+            status: "error",
             error: validation.error,
             isValid: false,
           }
@@ -417,20 +417,20 @@ const useTimestampConversion = () => {
           inputType: inputFormat,
           outputs,
           timezone,
-          status: 'completed',
+          status: "completed",
           processedAt: new Date(),
           isValid: outputs.every((o) => o.isValid),
         }
       } catch (error) {
-        console.error('Timestamp conversion error:', error)
+        console.error("Timestamp conversion error:", error)
         return {
           id: nanoid(),
           input,
           inputType: inputFormat,
           outputs: [],
           timezone,
-          status: 'error',
-          error: error instanceof Error ? error.message : 'Conversion failed',
+          status: "error",
+          error: error instanceof Error ? error.message : "Conversion failed",
           isValid: false,
         }
       }
@@ -480,8 +480,8 @@ const useTimestampConversion = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch conversion error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch conversion failed')
+        console.error("Batch conversion error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch conversion failed")
       }
     },
     [convertSingle]
@@ -491,7 +491,7 @@ const useTimestampConversion = () => {
 }
 
 // Real-time timestamp hook
-const useRealTimeTimestamp = (timezone: string = 'UTC') => {
+const useRealTimeTimestamp = (timezone: string = "UTC") => {
   const [currentTime, setCurrentTime] = useState<CurrentTime>(() => getCurrentTime(timezone))
   const [isRunning, setIsRunning] = useState(true)
 
@@ -519,37 +519,37 @@ const useRealTimeTimestamp = (timezone: string = 'UTC') => {
 // Export functionality
 const useTimestampExport = () => {
   const exportTimestamps = useCallback((items: TimestampItem[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(items, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromTimestamps(items)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromTimestamps(items)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromTimestamps(items)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `timestamps${extension}`
     document.body.appendChild(link)
@@ -560,7 +560,7 @@ const useTimestampExport = () => {
 
   const exportBatch = useCallback(
     (batch: TimestampBatch) => {
-      exportTimestamps(batch.items, 'json', `timestamp-batch-${batch.id}.json`)
+      exportTimestamps(batch.items, "json", `timestamp-batch-${batch.id}.json`)
       toast.success(`Exported ${batch.items.length} timestamps`)
     },
     [exportTimestamps]
@@ -577,7 +577,7 @@ const useTimestampExport = () => {
     }))
 
     const csvContent = [
-      ['Batch ID', 'Item Count', 'Valid Count', 'Invalid Count', 'Success Rate (%)', 'Created At'],
+      ["Batch ID", "Item Count", "Valid Count", "Invalid Count", "Success Rate (%)", "Created At"],
       ...stats.map((stat) => [
         stat.batchId,
         stat.itemCount.toString(),
@@ -587,20 +587,20 @@ const useTimestampExport = () => {
         stat.createdAt,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'timestamp-statistics.csv'
+    link.download = "timestamp-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportTimestamps, exportBatch, exportStatistics }
@@ -619,14 +619,14 @@ Invalid Items: ${items.filter((item) => !item.isValid).length}
 Conversions:
 ${items
   .map((item, i) => {
-    const outputs = item.outputs.map((output) => `  ${output.format}: ${output.value}`).join('\n')
+    const outputs = item.outputs.map((output) => `  ${output.format}: ${output.value}`).join("\n")
     return `${i + 1}. Input: ${item.input} (${item.inputType})
 ${outputs}
-   Status: ${item.isValid ? 'Valid' : 'Invalid'}
-   ${item.error ? `Error: ${item.error}` : ''}
+   Status: ${item.isValid ? "Valid" : "Invalid"}
+   ${item.error ? `Error: ${item.error}` : ""}
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((items.filter((item) => item.isValid).length / items.length) * 100).toFixed(1)}%
@@ -635,7 +635,7 @@ Statistics:
 
 const generateCSVFromTimestamps = (items: TimestampItem[]): string => {
   const rows = [
-    ['Input', 'Input Type', 'Output Format', 'Output Value', 'Timezone', 'Relative Time', 'Status', 'Error'],
+    ["Input", "Input Type", "Output Format", "Output Value", "Timezone", "Relative Time", "Status", "Error"],
   ]
 
   items.forEach((item) => {
@@ -643,12 +643,12 @@ const generateCSVFromTimestamps = (items: TimestampItem[]): string => {
       rows.push([
         item.input,
         item.inputType,
-        '',
-        '',
+        "",
+        "",
         item.timezone,
-        '',
-        item.isValid ? 'Valid' : 'Invalid',
-        item.error || '',
+        "",
+        item.isValid ? "Valid" : "Invalid",
+        item.error || "",
       ])
     } else {
       item.outputs.forEach((output) => {
@@ -658,15 +658,15 @@ const generateCSVFromTimestamps = (items: TimestampItem[]): string => {
           output.format,
           output.value,
           output.timezone,
-          output.relativeTime || '',
-          output.isValid ? 'Valid' : 'Invalid',
-          item.error || '',
+          output.relativeTime || "",
+          output.isValid ? "Valid" : "Invalid",
+          item.error || "",
         ])
       })
     }
   })
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 }
 
 const generateXMLFromTimestamps = (items: TimestampItem[]): string => {
@@ -685,8 +685,8 @@ const generateXMLFromTimestamps = (items: TimestampItem[]): string => {
       <input>${item.input}</input>
       <inputType>${item.inputType}</inputType>
       <timezone>${item.timezone}</timezone>
-      <status>${item.isValid ? 'valid' : 'invalid'}</status>
-      ${item.error ? `<error>${item.error}</error>` : ''}
+      <status>${item.isValid ? "valid" : "invalid"}</status>
+      ${item.error ? `<error>${item.error}</error>` : ""}
       <outputs>
         ${item.outputs
           .map(
@@ -695,15 +695,15 @@ const generateXMLFromTimestamps = (items: TimestampItem[]): string => {
           <format>${output.format}</format>
           <value>${output.value}</value>
           <timezone>${output.timezone}</timezone>
-          <relativeTime>${output.relativeTime || ''}</relativeTime>
+          <relativeTime>${output.relativeTime || ""}</relativeTime>
           <valid>${output.isValid}</valid>
         </output>`
           )
-          .join('')}
+          .join("")}
       </outputs>
     </item>`
       )
-      .join('')}
+      .join("")}
   </items>
 </timestamps>`
 }
@@ -715,13 +715,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -733,22 +733,22 @@ const useCopyToClipboard = () => {
  * Features: Multiple formats, timezone support, batch processing, comprehensive analysis
  */
 const UnixTimestampCore = () => {
-  const [activeTab, setActiveTab] = useState<'converter' | 'batch' | 'current'>('converter')
-  const [currentInput, setCurrentInput] = useState('')
+  const [activeTab, setActiveTab] = useState<"converter" | "batch" | "current">("converter")
+  const [currentInput, setCurrentInput] = useState("")
   const [currentResult, setCurrentResult] = useState<TimestampItem | null>(null)
   const [batches, setBatches] = useState<TimestampBatch[]>([])
-  const [batchInput, setBatchInput] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('developer-standard')
+  const [batchInput, setBatchInput] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("developer-standard")
   const [isProcessing, setIsProcessing] = useState(false)
   const [settings, setSettings] = useState<TimestampSettings>({
-    inputFormat: 'unix',
-    outputFormats: ['unix', 'unix-ms', 'iso8601', 'local'],
-    timezone: 'UTC',
+    inputFormat: "unix",
+    outputFormats: ["unix", "unix-ms", "iso8601", "local"],
+    timezone: "UTC",
     includeRelativeTime: true,
     includeTimestamp: true,
     batchProcessing: true,
     realTimeConversion: true,
-    exportFormat: 'json',
+    exportFormat: "json",
     autoRefresh: true,
     refreshInterval: 1000,
   })
@@ -771,7 +771,7 @@ const UnixTimestampCore = () => {
   // Handle single conversion
   const handleConvertSingle = useCallback(async () => {
     if (!currentInput.trim()) {
-      toast.error('Please enter a timestamp to convert')
+      toast.error("Please enter a timestamp to convert")
       return
     }
 
@@ -781,12 +781,12 @@ const UnixTimestampCore = () => {
       setCurrentResult(result)
 
       if (result.isValid) {
-        toast.success('Timestamp converted successfully')
+        toast.success("Timestamp converted successfully")
       } else {
-        toast.error(result.error || 'Conversion failed')
+        toast.error(result.error || "Conversion failed")
       }
     } catch (error) {
-      toast.error('Failed to convert timestamp')
+      toast.error("Failed to convert timestamp")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -795,10 +795,10 @@ const UnixTimestampCore = () => {
 
   // Handle batch conversion
   const handleConvertBatch = useCallback(async () => {
-    const inputs = batchInput.split('\n').filter((line: string) => line.trim())
+    const inputs = batchInput.split("\n").filter((line: string) => line.trim())
 
     if (inputs.length === 0) {
-      toast.error('Please enter timestamps to convert')
+      toast.error("Please enter timestamps to convert")
       return
     }
 
@@ -808,7 +808,7 @@ const UnixTimestampCore = () => {
       setBatches((prev: any) => [batch, ...prev])
       toast.success(`Converted ${batch.items.length} timestamps`)
     } catch (error) {
-      toast.error('Failed to convert batch')
+      toast.error("Failed to convert batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -825,12 +825,15 @@ const UnixTimestampCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" aria-hidden="true" />
+              <Clock className="h-5 w-5" />
               Unix Timestamp & Timezone Converter
             </CardTitle>
             <CardDescription>
@@ -842,24 +845,39 @@ const UnixTimestampCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'converter' | 'batch' | 'current')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "converter" | "batch" | "current")}
+        >
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="converter" className="flex items-center gap-2">
+            <TabsTrigger
+              value="converter"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               Timestamp Converter
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
-            <TabsTrigger value="current" className="flex items-center gap-2">
+            <TabsTrigger
+              value="current"
+              className="flex items-center gap-2"
+            >
               <Timer className="h-4 w-4" />
               Current Time
             </TabsTrigger>
           </TabsList>
 
           {/* Timestamp Converter Tab */}
-          <TabsContent value="converter" className="space-y-4">
+          <TabsContent
+            value="converter"
+            className="space-y-4"
+          >
             {/* Timestamp Templates */}
             <Card>
               <CardHeader>
@@ -873,7 +891,7 @@ const UnixTimestampCore = () => {
                   {timestampTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -903,7 +921,10 @@ const UnixTimestampCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="input-format" className="text-sm font-medium">
+                    <Label
+                      htmlFor="input-format"
+                      className="text-sm font-medium"
+                    >
                       Input Format
                     </Label>
                     <Select
@@ -927,7 +948,10 @@ const UnixTimestampCore = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="timezone" className="text-sm font-medium">
+                    <Label
+                      htmlFor="timezone"
+                      className="text-sm font-medium"
+                    >
                       Timezone
                     </Label>
                     <Select
@@ -939,7 +963,10 @@ const UnixTimestampCore = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {COMMON_TIMEZONES.map((tz) => (
-                          <SelectItem key={tz} value={tz}>
+                          <SelectItem
+                            key={tz}
+                            value={tz}
+                          >
                             {tz} ({getTimezoneOffset(tz)})
                           </SelectItem>
                         ))}
@@ -950,9 +977,12 @@ const UnixTimestampCore = () => {
                   <div>
                     <Label className="text-sm font-medium mb-3 block">Output Formats</Label>
                     <div className="space-y-2">
-                      {(['unix', 'unix-ms', 'iso8601', 'rfc2822', 'local', 'utc'] as TimestampFormat[]).map(
+                      {(["unix", "unix-ms", "iso8601", "rfc2822", "local", "utc"] as TimestampFormat[]).map(
                         (format) => (
-                          <div key={format} className="flex items-center space-x-2">
+                          <div
+                            key={format}
+                            className="flex items-center space-x-2"
+                          >
                             <input
                               id={`format-${format}`}
                               type="checkbox"
@@ -972,18 +1002,21 @@ const UnixTimestampCore = () => {
                               }}
                               className="rounded border-input"
                             />
-                            <Label htmlFor={`format-${format}`} className="text-sm">
-                              {format === 'unix'
-                                ? 'Unix Timestamp (seconds)'
-                                : format === 'unix-ms'
-                                  ? 'Unix Timestamp (milliseconds)'
-                                  : format === 'iso8601'
-                                    ? 'ISO 8601'
-                                    : format === 'rfc2822'
-                                      ? 'RFC 2822'
-                                      : format === 'local'
-                                        ? 'Local Date/Time'
-                                        : 'UTC Date/Time'}
+                            <Label
+                              htmlFor={`format-${format}`}
+                              className="text-sm"
+                            >
+                              {format === "unix"
+                                ? "Unix Timestamp (seconds)"
+                                : format === "unix-ms"
+                                  ? "Unix Timestamp (milliseconds)"
+                                  : format === "iso8601"
+                                    ? "ISO 8601"
+                                    : format === "rfc2822"
+                                      ? "RFC 2822"
+                                      : format === "local"
+                                        ? "Local Date/Time"
+                                        : "UTC Date/Time"}
                             </Label>
                           </div>
                         )
@@ -1002,7 +1035,10 @@ const UnixTimestampCore = () => {
                         }
                         className="rounded border-input"
                       />
-                      <Label htmlFor="include-relative-time" className="text-sm">
+                      <Label
+                        htmlFor="include-relative-time"
+                        className="text-sm"
+                      >
                         Include relative time (e.g., "2 hours ago")
                       </Label>
                     </div>
@@ -1017,14 +1053,20 @@ const UnixTimestampCore = () => {
                         }
                         className="rounded border-input"
                       />
-                      <Label htmlFor="real-time-conversion" className="text-sm">
+                      <Label
+                        htmlFor="real-time-conversion"
+                        className="text-sm"
+                      >
                         Real-time conversion
                       </Label>
                     </div>
                   </div>
 
                   <div>
-                    <Label htmlFor="timestamp-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="timestamp-input"
+                      className="text-sm font-medium"
+                    >
                       Timestamp Input
                     </Label>
                     <Input
@@ -1033,12 +1075,14 @@ const UnixTimestampCore = () => {
                       onChange={(e) => setCurrentInput(e.target.value)}
                       placeholder={`Enter ${settings.inputFormat} timestamp...`}
                       className="mt-2"
-                      aria-label="Timestamp input for conversion"
                     />
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleConvertSingle} disabled={!currentInput.trim() || isProcessing}>
+                    <Button
+                      onClick={handleConvertSingle}
+                      disabled={!currentInput.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1048,7 +1092,7 @@ const UnixTimestampCore = () => {
                     </Button>
                     <Button
                       onClick={() => {
-                        setCurrentInput('')
+                        setCurrentInput("")
                         setCurrentResult(null)
                       }}
                       variant="outline"
@@ -1081,20 +1125,23 @@ const UnixTimestampCore = () => {
                       {currentResult.isValid ? (
                         <div className="space-y-3">
                           {currentResult.outputs.map((output: any, index: number) => (
-                            <div key={index} className="border rounded-lg p-3">
+                            <div
+                              key={index}
+                              className="border rounded-lg p-3"
+                            >
                               <div className="flex items-center justify-between mb-2">
                                 <Label className="font-medium text-sm">
-                                  {output.format === 'unix'
-                                    ? 'Unix Timestamp (seconds)'
-                                    : output.format === 'unix-ms'
-                                      ? 'Unix Timestamp (milliseconds)'
-                                      : output.format === 'iso8601'
-                                        ? 'ISO 8601'
-                                        : output.format === 'rfc2822'
-                                          ? 'RFC 2822'
-                                          : output.format === 'local'
-                                            ? 'Local Date/Time'
-                                            : 'UTC Date/Time'}
+                                  {output.format === "unix"
+                                    ? "Unix Timestamp (seconds)"
+                                    : output.format === "unix-ms"
+                                      ? "Unix Timestamp (milliseconds)"
+                                      : output.format === "iso8601"
+                                        ? "ISO 8601"
+                                        : output.format === "rfc2822"
+                                          ? "RFC 2822"
+                                          : output.format === "local"
+                                            ? "Local Date/Time"
+                                            : "UTC Date/Time"}
                                 </Label>
                                 <Button
                                   size="sm"
@@ -1153,7 +1200,10 @@ const UnixTimestampCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1165,7 +1215,10 @@ const UnixTimestampCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-input"
+                      className="text-sm font-medium"
+                    >
                       Timestamps (one per line)
                     </Label>
                     <Textarea
@@ -1174,12 +1227,14 @@ const UnixTimestampCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder={`Enter ${settings.inputFormat} timestamps, one per line...`}
                       className="mt-2 min-h-[120px] font-mono"
-                      aria-label="Batch timestamp input"
                     />
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleConvertBatch} disabled={!batchInput.trim() || isProcessing}>
+                    <Button
+                      onClick={handleConvertBatch}
+                      disabled={!batchInput.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1187,7 +1242,10 @@ const UnixTimestampCore = () => {
                       )}
                       Convert Batch
                     </Button>
-                    <Button onClick={() => setBatchInput('')} variant="outline">
+                    <Button
+                      onClick={() => setBatchInput("")}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Clear
                     </Button>
@@ -1205,7 +1263,10 @@ const UnixTimestampCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch: any) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} timestamps processed</h4>
@@ -1215,7 +1276,11 @@ const UnixTimestampCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportBatch(batch)}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportBatch(batch)}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export
                             </Button>
@@ -1241,15 +1306,18 @@ const UnixTimestampCore = () => {
                         <div className="mt-3 max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.items.slice(0, 5).map((item: any) => (
-                              <div key={item.id} className="text-xs border rounded p-2">
+                              <div
+                                key={item.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">{item.input}</span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      item.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      item.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {item.isValid ? 'Valid' : 'Invalid'}
+                                    {item.isValid ? "Valid" : "Invalid"}
                                   </span>
                                 </div>
                                 {item.error && <div className="text-red-600 mt-1">{item.error}</div>}
@@ -1271,7 +1339,10 @@ const UnixTimestampCore = () => {
           </TabsContent>
 
           {/* Current Time Tab */}
-          <TabsContent value="current" className="space-y-4">
+          <TabsContent
+            value="current"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -1280,11 +1351,19 @@ const UnixTimestampCore = () => {
                     Current Time ({settings.timezone})
                   </CardTitle>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={toggle}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={toggle}
+                    >
                       {isRunning ? <Pause className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
-                      {isRunning ? 'Pause' : 'Resume'}
+                      {isRunning ? "Pause" : "Resume"}
                     </Button>
-                    <Button size="sm" variant="outline" onClick={refresh}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={refresh}
+                    >
                       <RefreshCw className="mr-2 h-4 w-4" />
                       Refresh
                     </Button>
@@ -1294,17 +1373,24 @@ const UnixTimestampCore = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
-                    { label: 'Unix Timestamp (seconds)', value: currentTime.unix.toString(), key: 'unix' },
-                    { label: 'Unix Timestamp (milliseconds)', value: currentTime.unixMs.toString(), key: 'unix-ms' },
-                    { label: 'ISO 8601', value: currentTime.iso, key: 'iso' },
-                    { label: 'RFC 2822', value: currentTime.rfc2822, key: 'rfc2822' },
-                    { label: 'Local Time', value: currentTime.local, key: 'local' },
-                    { label: 'UTC Time', value: currentTime.utc, key: 'utc' },
+                    { label: "Unix Timestamp (seconds)", value: currentTime.unix.toString(), key: "unix" },
+                    { label: "Unix Timestamp (milliseconds)", value: currentTime.unixMs.toString(), key: "unix-ms" },
+                    { label: "ISO 8601", value: currentTime.iso, key: "iso" },
+                    { label: "RFC 2822", value: currentTime.rfc2822, key: "rfc2822" },
+                    { label: "Local Time", value: currentTime.local, key: "local" },
+                    { label: "UTC Time", value: currentTime.utc, key: "utc" },
                   ].map((item) => (
-                    <div key={item.key} className="border rounded-lg p-3">
+                    <div
+                      key={item.key}
+                      className="border rounded-lg p-3"
+                    >
                       <div className="flex items-center justify-between mb-2">
                         <Label className="font-medium text-sm">{item.label}</Label>
-                        <Button size="sm" variant="ghost" onClick={() => copyToClipboard(item.value, item.label)}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => copyToClipboard(item.value, item.label)}
+                        >
                           {copiedText === item.label ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         </Button>
                       </div>
@@ -1322,7 +1408,7 @@ const UnixTimestampCore = () => {
                       <span className="font-medium">Offset:</span> {getTimezoneOffset(settings.timezone)}
                     </div>
                     <div>
-                      <span className="font-medium">Status:</span> {isRunning ? 'Live' : 'Paused'}
+                      <span className="font-medium">Status:</span> {isRunning ? "Live" : "Paused"}
                     </div>
                   </div>
                 </div>
@@ -1343,7 +1429,10 @@ const UnixTimestampCore = () => {
                     const info = getTimezoneInfo(tz)
                     const time = getCurrentTime(tz)
                     return (
-                      <div key={tz} className="border rounded-lg p-3">
+                      <div
+                        key={tz}
+                        className="border rounded-lg p-3"
+                      >
                         <div className="font-medium text-sm mb-1">{tz}</div>
                         <div className="text-xs text-muted-foreground mb-2">
                           {info.offset} • {info.abbreviation}
@@ -1367,7 +1456,10 @@ const UnixTimestampCore = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="export-format" className="text-sm font-medium">
+                <Label
+                  htmlFor="export-format"
+                  className="text-sm font-medium"
+                >
                   Export Format
                 </Label>
                 <Select
@@ -1397,7 +1489,10 @@ const UnixTimestampCore = () => {
                     onChange={(e) => setSettings((prev: any) => ({ ...prev, includeTimestamp: e.target.checked }))}
                     className="rounded border-input"
                   />
-                  <Label htmlFor="include-timestamp" className="text-sm">
+                  <Label
+                    htmlFor="include-timestamp"
+                    className="text-sm"
+                  >
                     Include timestamp in exports
                   </Label>
                 </div>
@@ -1410,7 +1505,10 @@ const UnixTimestampCore = () => {
                     onChange={(e) => setSettings((prev: any) => ({ ...prev, batchProcessing: e.target.checked }))}
                     className="rounded border-input"
                   />
-                  <Label htmlFor="batch-processing" className="text-sm">
+                  <Label
+                    htmlFor="batch-processing"
+                    className="text-sm"
+                  >
                     Enable batch processing
                   </Label>
                 </div>
@@ -1423,7 +1521,10 @@ const UnixTimestampCore = () => {
                     onChange={(e) => setSettings((prev: any) => ({ ...prev, autoRefresh: e.target.checked }))}
                     className="rounded border-input"
                   />
-                  <Label htmlFor="auto-refresh" className="text-sm">
+                  <Label
+                    htmlFor="auto-refresh"
+                    className="text-sm"
+                  >
                     Auto-refresh current time
                   </Label>
                 </div>
@@ -1431,7 +1532,10 @@ const UnixTimestampCore = () => {
 
               {batches.length > 0 && (
                 <div className="flex gap-2 pt-4 border-t">
-                  <Button onClick={() => exportStatistics(batches)} variant="outline">
+                  <Button
+                    onClick={() => exportStatistics(batches)}
+                    variant="outline"
+                  >
                     <Download className="mr-2 h-4 w-4" />
                     Export Statistics
                   </Button>

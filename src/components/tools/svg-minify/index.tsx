@@ -1,11 +1,11 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Code,
@@ -21,8 +21,8 @@ import {
   BarChart3,
   Settings,
   FileCode,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   SvgFile,
   SvgData,
@@ -35,22 +35,22 @@ import type {
   SvgTemplate,
   OptimizationLevel,
   ExportFormat,
-} from '@/types/svg-minify'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/svg-minify"
+import { formatFileSize } from "@/lib/utils"
 // Types
 
 // Utility functions
 
 const validateSvgFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
-  const allowedTypes = ['image/svg+xml', 'text/xml', 'application/xml', 'text/plain']
+  const allowedTypes = ["image/svg+xml", "text/xml", "application/xml", "text/plain"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 10MB' }
+    return { isValid: false, error: "File size must be less than 10MB" }
   }
 
-  if (!allowedTypes.includes(file.type) && !file.name.toLowerCase().endsWith('.svg')) {
-    return { isValid: false, error: 'Only SVG files are supported' }
+  if (!allowedTypes.includes(file.type) && !file.name.toLowerCase().endsWith(".svg")) {
+    return { isValid: false, error: "Only SVG files are supported" }
   }
 
   return { isValid: true }
@@ -58,30 +58,30 @@ const validateSvgFile = (file: File): { isValid: boolean; error?: string } => {
 
 // SVG optimization functions
 const removeComments = (svg: string): string => {
-  return svg.replace(/<!--[\s\S]*?-->/g, '')
+  return svg.replace(/<!--[\s\S]*?-->/g, "")
 }
 
 const removeWhitespace = (svg: string): string => {
-  return svg.replace(/\s+/g, ' ').replace(/>\s+</g, '><').replace(/\s+>/g, '>').replace(/<\s+/g, '<').trim()
+  return svg.replace(/\s+/g, " ").replace(/>\s+</g, "><").replace(/\s+>/g, ">").replace(/<\s+/g, "<").trim()
 }
 
 const optimizeAttributes = (svg: string): string => {
   let optimized = svg
 
   // Remove default attributes
-  optimized = optimized.replace(/\s+fill="none"/g, '')
-  optimized = optimized.replace(/\s+stroke="none"/g, '')
-  optimized = optimized.replace(/\s+opacity="1"/g, '')
-  optimized = optimized.replace(/\s+fill-opacity="1"/g, '')
-  optimized = optimized.replace(/\s+stroke-opacity="1"/g, '')
+  optimized = optimized.replace(/\s+fill="none"/g, "")
+  optimized = optimized.replace(/\s+stroke="none"/g, "")
+  optimized = optimized.replace(/\s+opacity="1"/g, "")
+  optimized = optimized.replace(/\s+fill-opacity="1"/g, "")
+  optimized = optimized.replace(/\s+stroke-opacity="1"/g, "")
 
   // Optimize numeric values
-  optimized = optimized.replace(/(\d+)\.0+(?=\D)/g, '$1')
-  optimized = optimized.replace(/0+(\d+\.\d+)/g, '$1')
+  optimized = optimized.replace(/(\d+)\.0+(?=\D)/g, "$1")
+  optimized = optimized.replace(/0+(\d+\.\d+)/g, "$1")
 
   // Remove unnecessary quotes from simple values
-  optimized = optimized.replace(/="(\d+)"/g, '=$1')
-  optimized = optimized.replace(/="([a-zA-Z]+)"/g, '=$1')
+  optimized = optimized.replace(/="(\d+)"/g, "=$1")
+  optimized = optimized.replace(/="([a-zA-Z]+)"/g, "=$1")
 
   return optimized
 }
@@ -90,14 +90,14 @@ const simplifyPaths = (svg: string): string => {
   let optimized = svg
 
   // Remove unnecessary path commands
-  optimized = optimized.replace(/([ML])\s*([ML])/g, '$2')
+  optimized = optimized.replace(/([ML])\s*([ML])/g, "$2")
 
   // Optimize path data
-  optimized = optimized.replace(/\s+([ML])/g, '$1')
-  optimized = optimized.replace(/([ML])\s+/g, '$1')
+  optimized = optimized.replace(/\s+([ML])/g, "$1")
+  optimized = optimized.replace(/([ML])\s+/g, "$1")
 
   // Remove trailing zeros in path coordinates
-  optimized = optimized.replace(/(\d+)\.0+(?=\s|[ML]|$)/g, '$1')
+  optimized = optimized.replace(/(\d+)\.0+(?=\s|[ML]|$)/g, "$1")
 
   return optimized
 }
@@ -106,15 +106,15 @@ const removeMetadata = (svg: string): string => {
   let optimized = svg
 
   // Remove XML declaration
-  optimized = optimized.replace(/<\?xml[^>]*\?>\s*/g, '')
+  optimized = optimized.replace(/<\?xml[^>]*\?>\s*/g, "")
 
   // Remove DOCTYPE
-  optimized = optimized.replace(/<!DOCTYPE[^>]*>\s*/g, '')
+  optimized = optimized.replace(/<!DOCTYPE[^>]*>\s*/g, "")
 
   // Remove metadata elements
-  optimized = optimized.replace(/<metadata[\s\S]*?<\/metadata>\s*/g, '')
-  optimized = optimized.replace(/<title[\s\S]*?<\/title>\s*/g, '')
-  optimized = optimized.replace(/<desc[\s\S]*?<\/desc>\s*/g, '')
+  optimized = optimized.replace(/<metadata[\s\S]*?<\/metadata>\s*/g, "")
+  optimized = optimized.replace(/<title[\s\S]*?<\/title>\s*/g, "")
+  optimized = optimized.replace(/<desc[\s\S]*?<\/desc>\s*/g, "")
 
   return optimized
 }
@@ -123,13 +123,13 @@ const removeUnusedElements = (svg: string): string => {
   let optimized = svg
 
   // Remove empty groups
-  optimized = optimized.replace(/<g[^>]*>\s*<\/g>/g, '')
+  optimized = optimized.replace(/<g[^>]*>\s*<\/g>/g, "")
 
   // Remove empty defs
-  optimized = optimized.replace(/<defs[^>]*>\s*<\/defs>/g, '')
+  optimized = optimized.replace(/<defs[^>]*>\s*<\/defs>/g, "")
 
   // Remove empty patterns
-  optimized = optimized.replace(/<pattern[^>]*>\s*<\/pattern>/g, '')
+  optimized = optimized.replace(/<pattern[^>]*>\s*<\/pattern>/g, "")
 
   return optimized
 }
@@ -175,7 +175,7 @@ const analyzeSvgContent = (svg: string): SvgContent => {
     name,
     count: data.count,
     totalLength: data.totalLength,
-    canOptimize: ['fill', 'stroke', 'opacity', 'transform'].includes(name),
+    canOptimize: ["fill", "stroke", "opacity", "transform"].includes(name),
   }))
 
   // Extract metadata
@@ -186,12 +186,12 @@ const analyzeSvgContent = (svg: string): SvgContent => {
   const versionMatch = svg.match(/version="([^"]*)"/)
 
   const metadata: SvgMetadata = {
-    viewBox: viewBoxMatch?.[1] || '',
-    width: widthMatch?.[1] || '',
-    height: heightMatch?.[1] || '',
-    xmlns: xmlnsMatch?.[1] || '',
-    version: versionMatch?.[1] || '',
-    hasComments: svg.includes('<!--'),
+    viewBox: viewBoxMatch?.[1] || "",
+    width: widthMatch?.[1] || "",
+    height: heightMatch?.[1] || "",
+    xmlns: xmlnsMatch?.[1] || "",
+    version: versionMatch?.[1] || "",
+    hasComments: svg.includes("<!--"),
     hasWhitespace: /\s{2,}/.test(svg),
     hasUnusedElements: /<g[^>]*>\s*<\/g>/.test(svg) || /<defs[^>]*>\s*<\/defs>/.test(svg),
   }
@@ -269,19 +269,19 @@ const optimizeSvg = (svg: string, settings: SvgSettings): { optimized: string; s
 
     return { optimized, statistics }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'SVG optimization failed')
+    throw new Error(error instanceof Error ? error.message : "SVG optimization failed")
   }
 }
 
 // SVG optimization templates
 const svgTemplates: SvgTemplate[] = [
   {
-    id: 'web-basic',
-    name: 'Web Basic',
-    description: 'Basic optimization for web usage',
-    category: 'Web',
+    id: "web-basic",
+    name: "Web Basic",
+    description: "Basic optimization for web usage",
+    category: "Web",
     settings: {
-      optimizationLevel: 'basic',
+      optimizationLevel: "basic",
       removeComments: true,
       removeWhitespace: true,
       removeUnusedElements: false,
@@ -290,15 +290,15 @@ const svgTemplates: SvgTemplate[] = [
       removeMetadata: false,
       preserveAccessibility: true,
     },
-    optimizations: ['comments', 'whitespace'],
+    optimizations: ["comments", "whitespace"],
   },
   {
-    id: 'web-aggressive',
-    name: 'Web Aggressive',
-    description: 'Maximum compression for web delivery',
-    category: 'Web',
+    id: "web-aggressive",
+    name: "Web Aggressive",
+    description: "Maximum compression for web delivery",
+    category: "Web",
     settings: {
-      optimizationLevel: 'aggressive',
+      optimizationLevel: "aggressive",
       removeComments: true,
       removeWhitespace: true,
       removeUnusedElements: true,
@@ -307,15 +307,15 @@ const svgTemplates: SvgTemplate[] = [
       removeMetadata: true,
       preserveAccessibility: false,
     },
-    optimizations: ['comments', 'whitespace', 'attributes', 'paths', 'metadata', 'unused'],
+    optimizations: ["comments", "whitespace", "attributes", "paths", "metadata", "unused"],
   },
   {
-    id: 'print-ready',
-    name: 'Print Ready',
-    description: 'Optimized for print while preserving quality',
-    category: 'Print',
+    id: "print-ready",
+    name: "Print Ready",
+    description: "Optimized for print while preserving quality",
+    category: "Print",
     settings: {
-      optimizationLevel: 'basic',
+      optimizationLevel: "basic",
       removeComments: true,
       removeWhitespace: false,
       removeUnusedElements: false,
@@ -324,15 +324,15 @@ const svgTemplates: SvgTemplate[] = [
       removeMetadata: false,
       preserveAccessibility: true,
     },
-    optimizations: ['comments'],
+    optimizations: ["comments"],
   },
   {
-    id: 'icon-optimization',
-    name: 'Icon Optimization',
-    description: 'Optimized for icon usage with path simplification',
-    category: 'Icons',
+    id: "icon-optimization",
+    name: "Icon Optimization",
+    description: "Optimized for icon usage with path simplification",
+    category: "Icons",
     settings: {
-      optimizationLevel: 'aggressive',
+      optimizationLevel: "aggressive",
       removeComments: true,
       removeWhitespace: true,
       removeUnusedElements: true,
@@ -341,15 +341,15 @@ const svgTemplates: SvgTemplate[] = [
       removeMetadata: true,
       preserveAccessibility: false,
     },
-    optimizations: ['comments', 'whitespace', 'attributes', 'paths', 'metadata', 'unused'],
+    optimizations: ["comments", "whitespace", "attributes", "paths", "metadata", "unused"],
   },
   {
-    id: 'accessibility-safe',
-    name: 'Accessibility Safe',
-    description: 'Optimization while preserving accessibility features',
-    category: 'Accessibility',
+    id: "accessibility-safe",
+    name: "Accessibility Safe",
+    description: "Optimization while preserving accessibility features",
+    category: "Accessibility",
     settings: {
-      optimizationLevel: 'basic',
+      optimizationLevel: "basic",
       removeComments: false,
       removeWhitespace: true,
       removeUnusedElements: false,
@@ -358,15 +358,15 @@ const svgTemplates: SvgTemplate[] = [
       removeMetadata: false,
       preserveAccessibility: true,
     },
-    optimizations: ['whitespace'],
+    optimizations: ["whitespace"],
   },
   {
-    id: 'custom-balanced',
-    name: 'Custom Balanced',
-    description: 'Balanced optimization for general use',
-    category: 'General',
+    id: "custom-balanced",
+    name: "Custom Balanced",
+    description: "Balanced optimization for general use",
+    category: "General",
     settings: {
-      optimizationLevel: 'custom',
+      optimizationLevel: "custom",
       removeComments: true,
       removeWhitespace: true,
       removeUnusedElements: true,
@@ -375,7 +375,7 @@ const svgTemplates: SvgTemplate[] = [
       removeMetadata: false,
       preserveAccessibility: true,
     },
-    optimizations: ['comments', 'whitespace', 'attributes', 'unused'],
+    optimizations: ["comments", "whitespace", "attributes", "unused"],
   },
 ]
 
@@ -397,7 +397,7 @@ const processSvgData = (
       settings,
     }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'SVG processing failed')
+    throw new Error(error instanceof Error ? error.message : "SVG processing failed")
   }
 }
 
@@ -408,8 +408,8 @@ const useSvgOptimization = () => {
       const { optimized, statistics } = optimizeSvg(svg, settings)
       return processSvgData(svg, optimized, statistics, settings)
     } catch (error) {
-      console.error('SVG optimization error:', error)
-      throw new Error(error instanceof Error ? error.message : 'SVG optimization failed')
+      console.error("SVG optimization error:", error)
+      throw new Error(error instanceof Error ? error.message : "SVG optimization failed")
     }
   }, [])
 
@@ -417,22 +417,22 @@ const useSvgOptimization = () => {
     async (files: SvgFile[], settings: SvgSettings): Promise<SvgFile[]> => {
       return Promise.all(
         files.map(async (file) => {
-          if (file.status !== 'pending') return file
+          if (file.status !== "pending") return file
 
           try {
             const svgData = await optimizeSvgContent(file.content, settings)
 
             return {
               ...file,
-              status: 'completed' as const,
+              status: "completed" as const,
               svgData,
               processedAt: new Date(),
             }
           } catch (error) {
             return {
               ...file,
-              status: 'error' as const,
-              error: error instanceof Error ? error.message : 'Processing failed',
+              status: "error" as const,
+              error: error instanceof Error ? error.message : "Processing failed",
             }
           }
         })
@@ -475,7 +475,7 @@ const useRealTimeSvg = (svg: string, settings: SvgSettings) => {
     } catch (error) {
       return {
         svgData: null,
-        error: error instanceof Error ? error.message : 'Optimization failed',
+        error: error instanceof Error ? error.message : "Optimization failed",
         isEmpty: false,
       }
     }
@@ -503,16 +503,16 @@ const useFileProcessing = () => {
             content,
             size: file.size,
             type: file.type,
-            status: 'pending',
+            status: "pending",
           }
 
           resolve(svgFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsText(file)
     })
   }, [])
@@ -522,17 +522,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
             type: files[index].type,
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -546,42 +546,42 @@ const useFileProcessing = () => {
 // Export functionality
 const useSvgExport = () => {
   const exportSvg = useCallback((svgData: SvgData, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'image/svg+xml'
-    let extension = '.svg'
+    let content = ""
+    let mimeType = "image/svg+xml"
+    let extension = ".svg"
 
     switch (format) {
-      case 'svg':
+      case "svg":
         content = svgData.optimized.content
-        mimeType = 'image/svg+xml'
-        extension = '.svg'
+        mimeType = "image/svg+xml"
+        extension = ".svg"
         break
-      case 'minified':
+      case "minified":
         content = svgData.optimized.content
-        mimeType = 'image/svg+xml'
-        extension = '.min.svg'
+        mimeType = "image/svg+xml"
+        extension = ".min.svg"
         break
-      case 'gzipped':
+      case "gzipped":
         // Note: Browser can't create gzip, so we'll just export as SVG
         content = svgData.optimized.content
-        mimeType = 'image/svg+xml'
-        extension = '.svg'
+        mimeType = "image/svg+xml"
+        extension = ".svg"
         break
-      case 'base64':
+      case "base64":
         content = btoa(svgData.optimized.content)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
       default:
         content = svgData.optimized.content
-        mimeType = 'image/svg+xml'
-        extension = '.svg'
+        mimeType = "image/svg+xml"
+        extension = ".svg"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `optimized${extension}`
     document.body.appendChild(link)
@@ -595,14 +595,14 @@ const useSvgExport = () => {
       const completedFiles = files.filter((f) => f.svgData)
 
       if (completedFiles.length === 0) {
-        toast.error('No optimized SVG data to export')
+        toast.error("No optimized SVG data to export")
         return
       }
 
       completedFiles.forEach((file) => {
         if (file.svgData) {
-          const baseName = file.name.replace(/\.[^/.]+$/, '')
-          exportSvg(file.svgData, 'minified', `${baseName}.min.svg`)
+          const baseName = file.name.replace(/\.[^/.]+$/, "")
+          exportSvg(file.svgData, "minified", `${baseName}.min.svg`)
         }
       })
 
@@ -628,15 +628,15 @@ const useSvgExport = () => {
 
     const csvContent = [
       [
-        'Filename',
-        'Original Size',
-        'Optimized Size',
-        'Compression',
-        'Space Saved',
-        'Elements Removed',
-        'Attributes Optimized',
-        'Processing Time',
-        'Status',
+        "Filename",
+        "Original Size",
+        "Optimized Size",
+        "Compression",
+        "Space Saved",
+        "Elements Removed",
+        "Attributes Optimized",
+        "Processing Time",
+        "Status",
       ],
       ...stats.map((stat) => [
         stat.filename,
@@ -650,20 +650,20 @@ const useSvgExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'svg-optimization-statistics.csv'
+    link.download = "svg-optimization-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportSvg, exportBatch, exportStatistics }
@@ -676,13 +676,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -697,9 +697,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -711,13 +711,13 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       setDragActive(false)
 
       const files = Array.from(e.dataTransfer.files).filter(
-        (file) => file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg')
+        (file) => file.type === "image/svg+xml" || file.name.toLowerCase().endsWith(".svg")
       )
 
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only SVG files')
+        toast.error("Please drop only SVG files")
       }
     },
     [onFilesDropped]
@@ -731,7 +731,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -751,21 +751,21 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time optimization, multiple levels, batch processing, comprehensive analysis
  */
 const SvgMinifyCore = () => {
-  const [activeTab, setActiveTab] = useState<'minifier' | 'files'>('minifier')
-  const [currentSvg, setCurrentSvg] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<"minifier" | "files">("minifier")
+  const [currentSvg, setCurrentSvg] = useState<string>("")
   const [currentSvgData, setCurrentSvgData] = useState<SvgData | null>(null)
   const [files, setFiles] = useState<SvgFile[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('web-basic')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("web-basic")
   const [settings, setSettings] = useState<SvgSettings>({
-    optimizationLevel: 'basic',
+    optimizationLevel: "basic",
     removeComments: true,
     removeWhitespace: true,
     removeUnusedElements: false,
     optimizeAttributes: false,
     simplifyPaths: false,
     removeMetadata: false,
-    exportFormat: 'svg',
+    exportFormat: "svg",
     preserveAccessibility: true,
   })
 
@@ -792,7 +792,7 @@ const SvgMinifyCore = () => {
 
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
@@ -812,7 +812,7 @@ const SvgMinifyCore = () => {
   // Handle SVG optimization
   const handleOptimize = useCallback(async () => {
     if (!currentSvg.trim()) {
-      toast.error('Please enter SVG content to optimize')
+      toast.error("Please enter SVG content to optimize")
       return
     }
 
@@ -820,9 +820,9 @@ const SvgMinifyCore = () => {
     try {
       const svgData = await optimizeSvgContent(currentSvg, settings)
       setCurrentSvgData(svgData)
-      toast.success('SVG optimized successfully')
+      toast.success("SVG optimized successfully")
     } catch (error) {
-      toast.error('Failed to optimize SVG')
+      toast.error("Failed to optimize SVG")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -846,12 +846,15 @@ const SvgMinifyCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Minimize2 className="h-5 w-5" aria-hidden="true" />
+              <Minimize2 className="h-5 w-5" />
               SVG Minify
             </CardTitle>
             <CardDescription>
@@ -863,20 +866,32 @@ const SvgMinifyCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'minifier' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "minifier" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="minifier" className="flex items-center gap-2">
+            <TabsTrigger
+              value="minifier"
+              className="flex items-center gap-2"
+            >
               <Minimize2 className="h-4 w-4" />
               SVG Minifier
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* SVG Minifier Tab */}
-          <TabsContent value="minifier" className="space-y-4">
+          <TabsContent
+            value="minifier"
+            className="space-y-4"
+          >
             {/* SVG Templates */}
             <Card>
               <CardHeader>
@@ -890,7 +905,7 @@ const SvgMinifyCore = () => {
                   {svgTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -923,19 +938,30 @@ const SvgMinifyCore = () => {
                       value={currentSvg}
                       onChange={(e) => setCurrentSvg(e.target.value)}
                       className="min-h-[300px] font-mono text-sm"
-                      aria-label="Original SVG code input"
                     />
 
                     <div className="flex gap-2">
-                      <Button onClick={() => fileInputRef.current?.click()} variant="outline" size="sm">
+                      <Button
+                        onClick={() => fileInputRef.current?.click()}
+                        variant="outline"
+                        size="sm"
+                      >
                         <Upload className="mr-2 h-4 w-4" />
                         Load File
                       </Button>
-                      <Button onClick={() => setCurrentSvg('')} variant="outline" size="sm">
+                      <Button
+                        onClick={() => setCurrentSvg("")}
+                        variant="outline"
+                        size="sm"
+                      >
                         <RotateCcw className="mr-2 h-4 w-4" />
                         Clear
                       </Button>
-                      <Button onClick={handleOptimize} disabled={!currentSvg.trim() || isProcessing} size="sm">
+                      <Button
+                        onClick={handleOptimize}
+                        disabled={!currentSvg.trim() || isProcessing}
+                        size="sm"
+                      >
                         {isProcessing ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                         ) : (
@@ -951,7 +977,6 @@ const SvgMinifyCore = () => {
                       accept=".svg,image/svg+xml"
                       onChange={handleFileInput}
                       className="hidden"
-                      aria-label="Select SVG file"
                     />
                   </div>
                 </CardContent>
@@ -973,21 +998,20 @@ const SvgMinifyCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     <Textarea
-                      value={currentSvgData?.optimized.content || ''}
+                      value={currentSvgData?.optimized.content || ""}
                       readOnly
                       className="min-h-[300px] font-mono text-sm bg-muted/30"
                       placeholder="Optimized SVG will appear here..."
-                      aria-label="Optimized SVG code output"
                     />
 
                     {currentSvgData && (
                       <div className="flex gap-2">
                         <Button
-                          onClick={() => copyToClipboard(currentSvgData.optimized.content, 'Optimized SVG')}
+                          onClick={() => copyToClipboard(currentSvgData.optimized.content, "Optimized SVG")}
                           variant="outline"
                           size="sm"
                         >
-                          {copiedText === 'Optimized SVG' ? (
+                          {copiedText === "Optimized SVG" ? (
                             <Check className="mr-2 h-4 w-4" />
                           ) : (
                             <Copy className="mr-2 h-4 w-4" />
@@ -1004,9 +1028,9 @@ const SvgMinifyCore = () => {
                         </Button>
                         <Button
                           onClick={() => {
-                            const blob = new Blob([currentSvgData.optimized.content], { type: 'image/svg+xml' })
+                            const blob = new Blob([currentSvgData.optimized.content], { type: "image/svg+xml" })
                             const url = URL.createObjectURL(blob)
-                            window.open(url, '_blank')
+                            window.open(url, "_blank")
                             URL.revokeObjectURL(url)
                           }}
                           variant="outline"
@@ -1104,7 +1128,10 @@ const SvgMinifyCore = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="optimization-level" className="text-sm font-medium">
+                    <Label
+                      htmlFor="optimization-level"
+                      className="text-sm font-medium"
+                    >
                       Optimization Level
                     </Label>
                     <Select
@@ -1125,7 +1152,10 @@ const SvgMinifyCore = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="export-format" className="text-sm font-medium">
+                    <Label
+                      htmlFor="export-format"
+                      className="text-sm font-medium"
+                    >
                       Export Format
                     </Label>
                     <Select
@@ -1153,7 +1183,10 @@ const SvgMinifyCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, removeComments: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="remove-comments" className="text-sm">
+                    <Label
+                      htmlFor="remove-comments"
+                      className="text-sm"
+                    >
                       Remove comments
                     </Label>
                   </div>
@@ -1166,7 +1199,10 @@ const SvgMinifyCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, removeWhitespace: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="remove-whitespace" className="text-sm">
+                    <Label
+                      htmlFor="remove-whitespace"
+                      className="text-sm"
+                    >
                       Remove unnecessary whitespace
                     </Label>
                   </div>
@@ -1179,7 +1215,10 @@ const SvgMinifyCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, optimizeAttributes: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="optimize-attributes" className="text-sm">
+                    <Label
+                      htmlFor="optimize-attributes"
+                      className="text-sm"
+                    >
                       Optimize attributes
                     </Label>
                   </div>
@@ -1192,7 +1231,10 @@ const SvgMinifyCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, simplifyPaths: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="simplify-paths" className="text-sm">
+                    <Label
+                      htmlFor="simplify-paths"
+                      className="text-sm"
+                    >
                       Simplify paths
                     </Label>
                   </div>
@@ -1205,7 +1247,10 @@ const SvgMinifyCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, removeUnusedElements: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="remove-unused" className="text-sm">
+                    <Label
+                      htmlFor="remove-unused"
+                      className="text-sm"
+                    >
                       Remove unused elements
                     </Label>
                   </div>
@@ -1218,7 +1263,10 @@ const SvgMinifyCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, removeMetadata: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="remove-metadata" className="text-sm">
+                    <Label
+                      htmlFor="remove-metadata"
+                      className="text-sm"
+                    >
                       Remove metadata
                     </Label>
                   </div>
@@ -1231,7 +1279,10 @@ const SvgMinifyCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, preserveAccessibility: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="preserve-accessibility" className="text-sm">
+                    <Label
+                      htmlFor="preserve-accessibility"
+                      className="text-sm"
+                    >
                       Preserve accessibility features
                     </Label>
                   </div>
@@ -1241,14 +1292,17 @@ const SvgMinifyCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1256,9 +1310,8 @@ const SvgMinifyCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop SVG files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1269,7 +1322,11 @@ const SvgMinifyCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your SVG files here, or click to select files for batch optimization
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileCode className="mr-2 h-4 w-4" />
                     Choose SVG Files
                   </Button>
@@ -1281,7 +1338,6 @@ const SvgMinifyCore = () => {
                     accept=".svg,image/svg+xml"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select SVG files"
                   />
                 </div>
               </CardContent>
@@ -1295,19 +1351,25 @@ const SvgMinifyCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             <FileCode className="h-8 w-8 text-muted-foreground" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground">
                               <span className="font-medium">Size:</span> {formatFileSize(file.size)}
                             </div>
-                            {file.status === 'completed' && file.svgData && (
+                            {file.status === "completed" && file.svgData && (
                               <div className="mt-2 text-xs">
                                 Optimized • {file.svgData.statistics.compressionRatio.toFixed(1)}% reduction
                               </div>

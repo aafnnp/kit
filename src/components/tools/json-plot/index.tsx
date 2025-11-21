@@ -1,12 +1,12 @@
-import React, { useCallback, useState, useMemo, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useState, useMemo, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -22,8 +22,8 @@ import {
   Grid,
   BarChart3,
   TreePine,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   JSONVisualization,
   ChartConfig,
@@ -35,8 +35,8 @@ import type {
   VisualizationType,
   ExportFormat,
   ViewMode,
-} from '@/types/json-plot'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/json-plot"
+import { formatFileSize } from "@/lib/utils"
 // Utility functions
 
 // JSON analysis and visualization functions
@@ -63,7 +63,7 @@ const analyzeJSON = (data: any): VisualizationMetadata => {
 }
 
 const calculateDepth = (obj: any, currentDepth = 0): number => {
-  if (obj === null || typeof obj !== 'object') return currentDepth
+  if (obj === null || typeof obj !== "object") return currentDepth
 
   if (Array.isArray(obj)) {
     return Math.max(currentDepth, ...obj.map((item) => calculateDepth(item, currentDepth + 1)))
@@ -74,7 +74,7 @@ const calculateDepth = (obj: any, currentDepth = 0): number => {
 }
 
 const countKeys = (obj: any): number => {
-  if (obj === null || typeof obj !== 'object') return 0
+  if (obj === null || typeof obj !== "object") return 0
 
   if (Array.isArray(obj)) {
     return obj.reduce((count, item) => count + countKeys(item), 0)
@@ -102,7 +102,7 @@ const countDataTypes = (obj: any): Record<string, number> => {
     } else if (Array.isArray(value)) {
       types.array++
       value.forEach(countType)
-    } else if (typeof value === 'object') {
+    } else if (typeof value === "object") {
       types.object++
       Object.values(value).forEach(countType)
     } else {
@@ -115,7 +115,7 @@ const countDataTypes = (obj: any): Record<string, number> => {
 }
 
 const countArrays = (obj: any): number => {
-  if (obj === null || typeof obj !== 'object') return 0
+  if (obj === null || typeof obj !== "object") return 0
 
   let count = 0
   if (Array.isArray(obj)) {
@@ -129,7 +129,7 @@ const countArrays = (obj: any): number => {
 }
 
 const countObjects = (obj: any): number => {
-  if (obj === null || typeof obj !== 'object') return 0
+  if (obj === null || typeof obj !== "object") return 0
 
   let count = Array.isArray(obj) ? 0 : 1
 
@@ -143,7 +143,7 @@ const countObjects = (obj: any): number => {
 }
 
 const countPrimitives = (obj: any): number => {
-  if (obj === null || typeof obj !== 'object') return 1
+  if (obj === null || typeof obj !== "object") return 1
 
   let count = 0
   if (Array.isArray(obj)) {
@@ -156,8 +156,8 @@ const countPrimitives = (obj: any): number => {
 }
 
 // Tree visualization functions
-const buildTreeNodes = (data: any, path = '', level = 0, parent?: TreeNode): TreeNode[] => {
-  if (data === null || typeof data !== 'object') {
+const buildTreeNodes = (data: any, path = "", level = 0, parent?: TreeNode): TreeNode[] => {
+  if (data === null || typeof data !== "object") {
     return []
   }
 
@@ -167,7 +167,7 @@ const buildTreeNodes = (data: any, path = '', level = 0, parent?: TreeNode): Tre
     data.forEach((item, index) => {
       const key = `[${index}]`
       const currentPath = path ? `${path}${key}` : key
-      const hasChildren = item !== null && typeof item === 'object'
+      const hasChildren = item !== null && typeof item === "object"
 
       const node: TreeNode = {
         id: nanoid(),
@@ -183,7 +183,7 @@ const buildTreeNodes = (data: any, path = '', level = 0, parent?: TreeNode): Tre
       }
 
       if (hasChildren) {
-        node.children = buildTreeNodes(item, currentPath + '.', level + 1, node)
+        node.children = buildTreeNodes(item, currentPath + ".", level + 1, node)
       }
 
       nodes.push(node)
@@ -191,7 +191,7 @@ const buildTreeNodes = (data: any, path = '', level = 0, parent?: TreeNode): Tre
   } else {
     Object.entries(data).forEach(([key, value]) => {
       const currentPath = path ? `${path}${key}` : key
-      const hasChildren = value !== null && typeof value === 'object'
+      const hasChildren = value !== null && typeof value === "object"
 
       const node: TreeNode = {
         id: nanoid(),
@@ -207,7 +207,7 @@ const buildTreeNodes = (data: any, path = '', level = 0, parent?: TreeNode): Tre
       }
 
       if (hasChildren) {
-        node.children = buildTreeNodes(value, currentPath + '.', level + 1, node)
+        node.children = buildTreeNodes(value, currentPath + ".", level + 1, node)
       }
 
       nodes.push(node)
@@ -218,9 +218,9 @@ const buildTreeNodes = (data: any, path = '', level = 0, parent?: TreeNode): Tre
 }
 
 const getValueType = (value: any): string => {
-  if (value === null) return 'null'
-  if (value === undefined) return 'undefined'
-  if (Array.isArray(value)) return 'array'
+  if (value === null) return "null"
+  if (value === undefined) return "undefined"
+  if (Array.isArray(value)) return "array"
   return typeof value
 }
 
@@ -229,22 +229,22 @@ const extractChartData = (data: any): ChartData | null => {
   try {
     if (Array.isArray(data)) {
       return extractFromArray(data)
-    } else if (typeof data === 'object' && data !== null) {
+    } else if (typeof data === "object" && data !== null) {
       return extractFromObject(data)
     }
     return null
   } catch (error) {
-    console.error('Error extracting chart data:', error)
+    console.error("Error extracting chart data:", error)
     return null
   }
 }
 
 const extractFromArray = (data: any[]): ChartData => {
   // Handle array of objects (most common case)
-  if (data.length > 0 && typeof data[0] === 'object' && data[0] !== null) {
+  if (data.length > 0 && typeof data[0] === "object" && data[0] !== null) {
     const keys = Object.keys(data[0])
-    const numericKeys = keys.filter((key) => data.every((item) => typeof item[key] === 'number'))
-    const stringKeys = keys.filter((key) => data.every((item) => typeof item[key] === 'string'))
+    const numericKeys = keys.filter((key) => data.every((item) => typeof item[key] === "number"))
+    const stringKeys = keys.filter((key) => data.every((item) => typeof item[key] === "string"))
 
     if (numericKeys.length > 0 && stringKeys.length > 0) {
       const labelKey = stringKeys[0]
@@ -271,12 +271,12 @@ const extractFromArray = (data: any[]): ChartData => {
   }
 
   // Handle array of numbers
-  if (data.every((item) => typeof item === 'number')) {
+  if (data.every((item) => typeof item === "number")) {
     return {
       labels: data.map((_, index) => `Item ${index + 1}`),
       datasets: [
         {
-          label: 'Values',
+          label: "Values",
           data: data,
           backgroundColor: generateColors(data.length),
           borderColor: generateColors(data.length, 0.8),
@@ -292,7 +292,7 @@ const extractFromArray = (data: any[]): ChartData => {
   }
 
   // Handle array of strings (frequency count)
-  if (data.every((item) => typeof item === 'string')) {
+  if (data.every((item) => typeof item === "string")) {
     const frequency = data.reduce(
       (acc, item) => {
         acc[item] = (acc[item] || 0) + 1
@@ -308,7 +308,7 @@ const extractFromArray = (data: any[]): ChartData => {
       labels,
       datasets: [
         {
-          label: 'Frequency',
+          label: "Frequency",
           data: values,
           backgroundColor: generateColors(labels.length),
           borderColor: generateColors(labels.length, 0.8),
@@ -323,14 +323,14 @@ const extractFromArray = (data: any[]): ChartData => {
     }
   }
 
-  throw new Error('Unable to extract chart data from array')
+  throw new Error("Unable to extract chart data from array")
 }
 
 const extractFromObject = (data: Record<string, any>): ChartData => {
   const entries = Object.entries(data)
 
   // Handle object with numeric values
-  const numericEntries = entries.filter(([_, value]) => typeof value === 'number')
+  const numericEntries = entries.filter(([_, value]) => typeof value === "number")
   if (numericEntries.length > 0) {
     const labels = numericEntries.map(([key]) => key)
     const values = numericEntries.map(([_, value]) => value)
@@ -339,7 +339,7 @@ const extractFromObject = (data: Record<string, any>): ChartData => {
       labels,
       datasets: [
         {
-          label: 'Values',
+          label: "Values",
           data: values,
           backgroundColor: generateColors(labels.length),
           borderColor: generateColors(labels.length, 0.8),
@@ -354,7 +354,7 @@ const extractFromObject = (data: Record<string, any>): ChartData => {
     }
   }
 
-  throw new Error('Unable to extract chart data from object')
+  throw new Error("Unable to extract chart data from object")
 }
 
 const generateColors = (count: number, alpha = 0.6): string[] => {
@@ -396,9 +396,9 @@ const validateJSONInput = (input: string): JSONValidation => {
   if (!input || input.trim().length === 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'JSON input cannot be empty',
-      type: 'syntax',
-      severity: 'error',
+      message: "JSON input cannot be empty",
+      type: "syntax",
+      severity: "error",
     })
     validation.qualityScore = 0
     return validation
@@ -411,54 +411,54 @@ const validateJSONInput = (input: string): JSONValidation => {
     const size = input.length
     if (size > 1000000) {
       // 1MB
-      validation.warnings.push('Large JSON file may impact visualization performance')
-      validation.suggestions.push('Consider breaking down large JSON files for better visualization')
+      validation.warnings.push("Large JSON file may impact visualization performance")
+      validation.suggestions.push("Consider breaking down large JSON files for better visualization")
       validation.qualityScore -= 10
     }
 
     const depth = calculateDepth(parsed)
     if (depth > 15) {
-      validation.warnings.push('Very deep JSON structure detected')
-      validation.suggestions.push('Deep nesting may make tree visualization difficult to read')
+      validation.warnings.push("Very deep JSON structure detected")
+      validation.suggestions.push("Deep nesting may make tree visualization difficult to read")
       validation.qualityScore -= 15
     }
 
     const keys = countKeys(parsed)
     if (keys > 1000) {
-      validation.warnings.push('High number of keys detected')
-      validation.suggestions.push('Large number of keys may impact visualization performance')
+      validation.warnings.push("High number of keys detected")
+      validation.suggestions.push("Large number of keys may impact visualization performance")
       validation.qualityScore -= 10
     }
 
     // Check for chart visualization potential
     if (Array.isArray(parsed) && parsed.length > 0) {
-      if (typeof parsed[0] === 'object' && parsed[0] !== null) {
+      if (typeof parsed[0] === "object" && parsed[0] !== null) {
         const firstKeys = Object.keys(parsed[0])
-        const hasNumericData = firstKeys.some((key) => parsed.every((item) => typeof item[key] === 'number'))
+        const hasNumericData = firstKeys.some((key) => parsed.every((item) => typeof item[key] === "number"))
         if (hasNumericData) {
-          validation.suggestions.push('This data appears suitable for chart visualization')
+          validation.suggestions.push("This data appears suitable for chart visualization")
         }
       }
     }
   } catch (error) {
     validation.isValid = false
     validation.errors.push({
-      message: error instanceof Error ? error.message : 'Invalid JSON syntax',
-      type: 'syntax',
-      severity: 'error',
+      message: error instanceof Error ? error.message : "Invalid JSON syntax",
+      type: "syntax",
+      severity: "error",
     })
     validation.qualityScore -= 50
   }
 
   // Quality suggestions
   if (validation.qualityScore >= 90) {
-    validation.suggestions.push('Excellent JSON structure for visualization')
+    validation.suggestions.push("Excellent JSON structure for visualization")
   } else if (validation.qualityScore >= 70) {
-    validation.suggestions.push('Good JSON structure with minor visualization considerations')
+    validation.suggestions.push("Good JSON structure with minor visualization considerations")
   } else if (validation.qualityScore >= 50) {
-    validation.suggestions.push('JSON structure may need optimization for better visualization')
+    validation.suggestions.push("JSON structure may need optimization for better visualization")
   } else {
-    validation.suggestions.push('JSON structure has significant issues for visualization')
+    validation.suggestions.push("JSON structure has significant issues for visualization")
   }
 
   return validation
@@ -467,18 +467,18 @@ const validateJSONInput = (input: string): JSONValidation => {
 // JSON Templates
 const jsonTemplates: JSONTemplate[] = [
   {
-    id: 'sales-data',
-    name: 'Sales Data',
-    description: 'Monthly sales data with multiple metrics',
-    category: 'Business',
+    id: "sales-data",
+    name: "Sales Data",
+    description: "Monthly sales data with multiple metrics",
+    category: "Business",
     data: {
       sales: [
-        { month: 'Jan', revenue: 45000, units: 120, profit: 12000 },
-        { month: 'Feb', revenue: 52000, units: 140, profit: 15000 },
-        { month: 'Mar', revenue: 48000, units: 130, profit: 13500 },
-        { month: 'Apr', revenue: 61000, units: 165, profit: 18000 },
-        { month: 'May', revenue: 55000, units: 150, profit: 16000 },
-        { month: 'Jun', revenue: 67000, units: 180, profit: 20000 },
+        { month: "Jan", revenue: 45000, units: 120, profit: 12000 },
+        { month: "Feb", revenue: 52000, units: 140, profit: 15000 },
+        { month: "Mar", revenue: 48000, units: 130, profit: 13500 },
+        { month: "Apr", revenue: 61000, units: 165, profit: 18000 },
+        { month: "May", revenue: 55000, units: 150, profit: 16000 },
+        { month: "Jun", revenue: 67000, units: 180, profit: 20000 },
       ],
       summary: {
         totalRevenue: 328000,
@@ -487,21 +487,21 @@ const jsonTemplates: JSONTemplate[] = [
         averageMonthly: 54667,
       },
     },
-    visualizationType: 'chart',
+    visualizationType: "chart",
     chartConfig: {
-      title: 'Monthly Sales Performance',
-      xAxisKey: 'month',
-      yAxisKey: 'revenue',
+      title: "Monthly Sales Performance",
+      xAxisKey: "month",
+      yAxisKey: "revenue",
       showLegend: true,
       showGrid: true,
     },
-    useCase: ['Business analytics', 'Sales reporting', 'Performance tracking'],
+    useCase: ["Business analytics", "Sales reporting", "Performance tracking"],
   },
   {
-    id: 'user-analytics',
-    name: 'User Analytics',
-    description: 'Website user analytics and demographics',
-    category: 'Analytics',
+    id: "user-analytics",
+    name: "User Analytics",
+    description: "Website user analytics and demographics",
+    category: "Analytics",
     data: {
       users: {
         total: 15420,
@@ -510,11 +510,11 @@ const jsonTemplates: JSONTemplate[] = [
         returning: 9460,
       },
       demographics: [
-        { age: '18-24', count: 3200, percentage: 20.8 },
-        { age: '25-34', count: 4850, percentage: 31.4 },
-        { age: '35-44', count: 3920, percentage: 25.4 },
-        { age: '45-54', count: 2180, percentage: 14.1 },
-        { age: '55+', count: 1270, percentage: 8.2 },
+        { age: "18-24", count: 3200, percentage: 20.8 },
+        { age: "25-34", count: 4850, percentage: 31.4 },
+        { age: "35-44", count: 3920, percentage: 25.4 },
+        { age: "45-54", count: 2180, percentage: 14.1 },
+        { age: "55+", count: 1270, percentage: 8.2 },
       ],
       traffic: {
         organic: 8500,
@@ -523,38 +523,38 @@ const jsonTemplates: JSONTemplate[] = [
         referral: 1620,
       },
     },
-    visualizationType: 'chart',
+    visualizationType: "chart",
     chartConfig: {
-      title: 'User Demographics',
-      labelKey: 'age',
-      valueKey: 'count',
+      title: "User Demographics",
+      labelKey: "age",
+      valueKey: "count",
       showLegend: true,
     },
-    useCase: ['Web analytics', 'User research', 'Marketing insights'],
+    useCase: ["Web analytics", "User research", "Marketing insights"],
   },
   {
-    id: 'product-catalog',
-    name: 'Product Catalog',
-    description: 'E-commerce product catalog with categories',
-    category: 'E-commerce',
+    id: "product-catalog",
+    name: "Product Catalog",
+    description: "E-commerce product catalog with categories",
+    category: "E-commerce",
     data: {
       categories: [
         {
           id: 1,
-          name: 'Electronics',
+          name: "Electronics",
           products: [
-            { id: 101, name: 'Smartphone', price: 699, stock: 45, rating: 4.5 },
-            { id: 102, name: 'Laptop', price: 1299, stock: 23, rating: 4.7 },
-            { id: 103, name: 'Headphones', price: 199, stock: 67, rating: 4.3 },
+            { id: 101, name: "Smartphone", price: 699, stock: 45, rating: 4.5 },
+            { id: 102, name: "Laptop", price: 1299, stock: 23, rating: 4.7 },
+            { id: 103, name: "Headphones", price: 199, stock: 67, rating: 4.3 },
           ],
         },
         {
           id: 2,
-          name: 'Clothing',
+          name: "Clothing",
           products: [
-            { id: 201, name: 'T-Shirt', price: 29, stock: 120, rating: 4.2 },
-            { id: 202, name: 'Jeans', price: 79, stock: 85, rating: 4.4 },
-            { id: 203, name: 'Sneakers', price: 129, stock: 56, rating: 4.6 },
+            { id: 201, name: "T-Shirt", price: 29, stock: 120, rating: 4.2 },
+            { id: 202, name: "Jeans", price: 79, stock: 85, rating: 4.4 },
+            { id: 203, name: "Sneakers", price: 129, stock: 56, rating: 4.6 },
           ],
         },
       ],
@@ -565,28 +565,28 @@ const jsonTemplates: JSONTemplate[] = [
         totalStock: 396,
       },
     },
-    visualizationType: 'tree',
+    visualizationType: "tree",
     chartConfig: {
-      title: 'Product Catalog Structure',
+      title: "Product Catalog Structure",
       showLegend: false,
       responsive: true,
     },
-    useCase: ['Product management', 'Inventory tracking', 'Catalog organization'],
+    useCase: ["Product management", "Inventory tracking", "Catalog organization"],
   },
   {
-    id: 'api-response',
-    name: 'API Response',
-    description: 'Typical REST API response structure',
-    category: 'Development',
+    id: "api-response",
+    name: "API Response",
+    description: "Typical REST API response structure",
+    category: "Development",
     data: {
-      status: 'success',
+      status: "success",
       code: 200,
-      message: 'Data retrieved successfully',
+      message: "Data retrieved successfully",
       data: {
         users: [
-          { id: 1, name: 'John Doe', email: 'john@example.com', active: true },
-          { id: 2, name: 'Jane Smith', email: 'jane@example.com', active: false },
-          { id: 3, name: 'Bob Johnson', email: 'bob@example.com', active: true },
+          { id: 1, name: "John Doe", email: "john@example.com", active: true },
+          { id: 2, name: "Jane Smith", email: "jane@example.com", active: false },
+          { id: 3, name: "Bob Johnson", email: "bob@example.com", active: true },
         ],
         pagination: {
           page: 1,
@@ -597,50 +597,50 @@ const jsonTemplates: JSONTemplate[] = [
         },
       },
       meta: {
-        timestamp: '2023-12-01T10:30:00Z',
-        version: '1.0',
-        requestId: 'req_123456789',
+        timestamp: "2023-12-01T10:30:00Z",
+        version: "1.0",
+        requestId: "req_123456789",
       },
     },
-    visualizationType: 'tree',
+    visualizationType: "tree",
     chartConfig: {
-      title: 'API Response Structure',
+      title: "API Response Structure",
       responsive: true,
       showGrid: false,
     },
-    useCase: ['API development', 'Response validation', 'Documentation'],
+    useCase: ["API development", "Response validation", "Documentation"],
   },
   {
-    id: 'survey-results',
-    name: 'Survey Results',
-    description: 'Customer satisfaction survey results',
-    category: 'Research',
+    id: "survey-results",
+    name: "Survey Results",
+    description: "Customer satisfaction survey results",
+    category: "Research",
     data: [
-      { question: 'Overall Satisfaction', score: 4.2, responses: 150 },
-      { question: 'Product Quality', score: 4.5, responses: 148 },
-      { question: 'Customer Service', score: 3.8, responses: 145 },
-      { question: 'Value for Money', score: 4.0, responses: 152 },
-      { question: 'Recommendation Likelihood', score: 4.3, responses: 149 },
+      { question: "Overall Satisfaction", score: 4.2, responses: 150 },
+      { question: "Product Quality", score: 4.5, responses: 148 },
+      { question: "Customer Service", score: 3.8, responses: 145 },
+      { question: "Value for Money", score: 4.0, responses: 152 },
+      { question: "Recommendation Likelihood", score: 4.3, responses: 149 },
     ],
-    visualizationType: 'chart',
+    visualizationType: "chart",
     chartConfig: {
-      title: 'Customer Satisfaction Survey',
-      xAxisKey: 'question',
-      yAxisKey: 'score',
+      title: "Customer Satisfaction Survey",
+      xAxisKey: "question",
+      yAxisKey: "score",
       showLegend: false,
       showGrid: true,
     },
-    useCase: ['Survey analysis', 'Customer feedback', 'Quality assessment'],
+    useCase: ["Survey analysis", "Customer feedback", "Quality assessment"],
   },
 ]
 
 // Default chart configuration
 const createDefaultChartConfig = (): ChartConfig => ({
-  title: 'JSON Visualization',
+  title: "JSON Visualization",
   width: 800,
   height: 400,
-  theme: 'auto',
-  colors: ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'],
+  theme: "auto",
+  colors: ["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#F97316", "#06B6D4", "#84CC16"],
   showLegend: true,
   showGrid: true,
   showTooltip: true,
@@ -709,13 +709,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -726,35 +726,35 @@ const useCopyToClipboard = () => {
 const useJSONPlotExport = () => {
   const exportVisualization = useCallback(
     (visualization: JSONVisualization, format: ExportFormat, filename?: string) => {
-      let content = ''
-      let mimeType = 'text/plain'
-      let extension = '.txt'
+      let content = ""
+      let mimeType = "text/plain"
+      let extension = ".txt"
 
       switch (format) {
-        case 'json':
+        case "json":
           content = JSON.stringify(visualization.data, null, 2)
-          mimeType = 'application/json'
-          extension = '.json'
+          mimeType = "application/json"
+          extension = ".json"
           break
-        case 'csv':
+        case "csv":
           content = generateCSVFromVisualization(visualization)
-          mimeType = 'text/csv'
-          extension = '.csv'
+          mimeType = "text/csv"
+          extension = ".csv"
           break
-        case 'txt':
+        case "txt":
           content = generateTextFromVisualization(visualization)
-          mimeType = 'text/plain'
-          extension = '.txt'
+          mimeType = "text/plain"
+          extension = ".txt"
           break
-        case 'xml':
+        case "xml":
           content = generateXMLFromVisualization(visualization)
-          mimeType = 'application/xml'
-          extension = '.xml'
+          mimeType = "application/xml"
+          extension = ".xml"
           break
-        case 'yaml':
+        case "yaml":
           content = generateYAMLFromVisualization(visualization)
-          mimeType = 'text/yaml'
-          extension = '.yaml'
+          mimeType = "text/yaml"
+          extension = ".yaml"
           break
         default:
           content = JSON.stringify(visualization.data, null, 2)
@@ -763,7 +763,7 @@ const useJSONPlotExport = () => {
 
       const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
       const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
+      const link = document.createElement("a")
       link.href = url
       link.download = filename || `json-visualization-${visualization.id}${extension}`
       document.body.appendChild(link)
@@ -781,19 +781,19 @@ const useJSONPlotExport = () => {
 const generateCSVFromVisualization = (visualization: JSONVisualization): string => {
   try {
     if (Array.isArray(visualization.data)) {
-      if (visualization.data.length > 0 && typeof visualization.data[0] === 'object') {
+      if (visualization.data.length > 0 && typeof visualization.data[0] === "object") {
         const headers = Object.keys(visualization.data[0])
-        const rows = visualization.data.map((item) => headers.map((header) => JSON.stringify(item[header] || '')))
-        return [headers.join(','), ...rows.map((row) => row.join(','))].join('\n')
+        const rows = visualization.data.map((item) => headers.map((header) => JSON.stringify(item[header] || "")))
+        return [headers.join(","), ...rows.map((row) => row.join(","))].join("\n")
       }
     }
 
     // Fallback for non-tabular data
     return `Key,Value\n${Object.entries(visualization.data)
       .map(([key, value]) => `"${key}","${JSON.stringify(value)}"`)
-      .join('\n')}`
+      .join("\n")}`
   } catch (error) {
-    return 'Error generating CSV format'
+    return "Error generating CSV format"
   }
 }
 
@@ -812,7 +812,7 @@ Processing Time: ${visualization.metadata.processingTime.toFixed(2)}ms
 ${Object.entries(visualization.metadata.dataTypes)
   .filter(([_, count]) => count > 0)
   .map(([type, count]) => `${type}: ${count}`)
-  .join('\n')}
+  .join("\n")}
 
 === JSON DATA ===
 ${JSON.stringify(visualization.data, null, 2)}`
@@ -820,23 +820,23 @@ ${JSON.stringify(visualization.data, null, 2)}`
 
 const generateXMLFromVisualization = (visualization: JSONVisualization): string => {
   const jsonToXml = (obj: any, indent = 0): string => {
-    const spaces = '  '.repeat(indent)
+    const spaces = "  ".repeat(indent)
 
     if (Array.isArray(obj)) {
       return obj
         .map((item, index) => `${spaces}<item index="${index}">\n${jsonToXml(item, indent + 1)}\n${spaces}</item>`)
-        .join('\n')
-    } else if (typeof obj === 'object' && obj !== null) {
+        .join("\n")
+    } else if (typeof obj === "object" && obj !== null) {
       return Object.entries(obj)
         .map(([key, value]) => {
-          const safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_')
-          if (typeof value === 'object') {
+          const safeKey = key.replace(/[^a-zA-Z0-9_]/g, "_")
+          if (typeof value === "object") {
             return `${spaces}<${safeKey}>\n${jsonToXml(value, indent + 1)}\n${spaces}</${safeKey}>`
           } else {
             return `${spaces}<${safeKey}>${String(value)}</${safeKey}>`
           }
         })
-        .join('\n')
+        .join("\n")
     } else {
       return `${spaces}${String(obj)}`
     }
@@ -859,28 +859,28 @@ ${jsonToXml(visualization.data, 2)}
 
 const generateYAMLFromVisualization = (visualization: JSONVisualization): string => {
   const jsonToYaml = (obj: any, indent = 0): string => {
-    const spaces = '  '.repeat(indent)
+    const spaces = "  ".repeat(indent)
 
     if (Array.isArray(obj)) {
       return obj
         .map((item) => {
-          if (typeof item === 'object' && item !== null) {
+          if (typeof item === "object" && item !== null) {
             return `${spaces}- ${jsonToYaml(item, indent + 1).trim()}`
           } else {
             return `${spaces}- ${JSON.stringify(item)}`
           }
         })
-        .join('\n')
-    } else if (typeof obj === 'object' && obj !== null) {
+        .join("\n")
+    } else if (typeof obj === "object" && obj !== null) {
       return Object.entries(obj)
         .map(([key, value]) => {
-          if (typeof value === 'object' && value !== null) {
+          if (typeof value === "object" && value !== null) {
             return `${spaces}${key}:\n${jsonToYaml(value, indent + 1)}`
           } else {
             return `${spaces}${key}: ${JSON.stringify(value)}`
           }
         })
-        .join('\n')
+        .join("\n")
     } else {
       return String(obj)
     }
@@ -903,13 +903,13 @@ ${jsonToYaml(visualization.data, 1)}`
  * Features: Advanced JSON visualization, multiple chart types, interactive plotting, and data analysis
  */
 const JSONPlotCore = () => {
-  const [activeTab, setActiveTab] = useState<'visualize' | 'history' | 'templates' | 'settings'>('visualize')
-  const [jsonInput, setJsonInput] = useState('')
+  const [activeTab, setActiveTab] = useState<"visualize" | "history" | "templates" | "settings">("visualize")
+  const [jsonInput, setJsonInput] = useState("")
   const [currentVisualization, setCurrentVisualization] = useState<JSONVisualization | null>(null)
-  const [visualizationType, setVisualizationType] = useState<VisualizationType>('tree')
+  const [visualizationType, setVisualizationType] = useState<VisualizationType>("tree")
   const [chartConfig, setChartConfig] = useState<ChartConfig>(createDefaultChartConfig())
-  const [viewMode, setViewMode] = useState<ViewMode>('expanded')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [viewMode, setViewMode] = useState<ViewMode>("expanded")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [treeNodes, setTreeNodes] = useState<TreeNode[]>([])
 
   const { visualizations, isProcessing, createVisualization, clearVisualizations, removeVisualization } =
@@ -932,7 +932,7 @@ const JSONPlotCore = () => {
   // Create visualization
   const handleVisualize = useCallback(async () => {
     if (!jsonInput.trim()) {
-      toast.error('Please enter JSON data')
+      toast.error("Please enter JSON data")
       return
     }
 
@@ -947,14 +947,14 @@ const JSONPlotCore = () => {
       setCurrentVisualization(visualization)
 
       // Build tree nodes for tree visualization
-      if (visualizationType === 'tree') {
+      if (visualizationType === "tree") {
         const nodes = buildTreeNodes(visualization.data)
         setTreeNodes(nodes)
       }
 
-      toast.success('JSON visualization created successfully')
+      toast.success("JSON visualization created successfully")
     } catch (error) {
-      toast.error('Failed to create visualization')
+      toast.error("Failed to create visualization")
       console.error(error)
     }
   }, [jsonInput, visualizationType, chartConfig, createVisualization])
@@ -988,12 +988,15 @@ const JSONPlotCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" aria-hidden="true" />
+              <BarChart3 className="h-5 w-5" />
               JSON Plot & Visualization Tool
             </CardTitle>
             <CardDescription>
@@ -1008,29 +1011,44 @@ const JSONPlotCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'visualize' | 'history' | 'templates' | 'settings')}
+          onValueChange={(value) => setActiveTab(value as "visualize" | "history" | "templates" | "settings")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="visualize" className="flex items-center gap-2">
+            <TabsTrigger
+              value="visualize"
+              className="flex items-center gap-2"
+            >
               <BarChart3 className="h-4 w-4" />
               Visualize
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger
+              value="settings"
+              className="flex items-center gap-2"
+            >
               <Settings className="h-4 w-4" />
               Settings
             </TabsTrigger>
           </TabsList>
 
           {/* JSON Visualization Tab */}
-          <TabsContent value="visualize" className="space-y-4">
+          <TabsContent
+            value="visualize"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* JSON Input */}
               <Card>
@@ -1042,7 +1060,10 @@ const JSONPlotCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="json-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="json-input"
+                      className="text-sm font-medium"
+                    >
                       JSON Data
                     </Label>
                     <Textarea
@@ -1057,7 +1078,10 @@ const JSONPlotCore = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="visualization-type" className="text-sm font-medium">
+                      <Label
+                        htmlFor="visualization-type"
+                        className="text-sm font-medium"
+                      >
                         Visualization Type
                       </Label>
                       <Select
@@ -1077,10 +1101,16 @@ const JSONPlotCore = () => {
                       </Select>
                     </div>
                     <div>
-                      <Label htmlFor="view-mode" className="text-sm font-medium">
+                      <Label
+                        htmlFor="view-mode"
+                        className="text-sm font-medium"
+                      >
                         View Mode
                       </Label>
-                      <Select value={viewMode} onValueChange={(value) => setViewMode(value as ViewMode)}>
+                      <Select
+                        value={viewMode}
+                        onValueChange={(value) => setViewMode(value as ViewMode)}
+                      >
                         <SelectTrigger className="mt-2">
                           <SelectValue />
                         </SelectTrigger>
@@ -1095,17 +1125,21 @@ const JSONPlotCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleVisualize} disabled={isProcessing || !jsonInput.trim()} className="flex-1">
+                    <Button
+                      onClick={handleVisualize}
+                      disabled={isProcessing || !jsonInput.trim()}
+                      className="flex-1"
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
                         <BarChart3 className="mr-2 h-4 w-4" />
                       )}
-                      {isProcessing ? 'Processing...' : 'Visualize JSON'}
+                      {isProcessing ? "Processing..." : "Visualize JSON"}
                     </Button>
                     <Button
                       onClick={() => {
-                        setJsonInput('')
+                        setJsonInput("")
                         setCurrentVisualization(null)
                         setTreeNodes([])
                       }}
@@ -1182,7 +1216,10 @@ const JSONPlotCore = () => {
                           {Object.entries(currentVisualization.metadata.dataTypes)
                             .filter(([_, count]) => count > 0)
                             .map(([type, count]) => (
-                              <div key={type} className="text-center p-2 bg-muted rounded">
+                              <div
+                                key={type}
+                                className="text-center p-2 bg-muted rounded"
+                              >
                                 <div className="font-medium">{count}</div>
                                 <div className="text-muted-foreground capitalize">{type}</div>
                               </div>
@@ -1193,7 +1230,7 @@ const JSONPlotCore = () => {
                       {/* Export Options */}
                       <div className="flex gap-2 pt-4 border-t">
                         <Button
-                          onClick={() => exportVisualization(currentVisualization, 'json')}
+                          onClick={() => exportVisualization(currentVisualization, "json")}
                           variant="outline"
                           size="sm"
                         >
@@ -1201,7 +1238,7 @@ const JSONPlotCore = () => {
                           JSON
                         </Button>
                         <Button
-                          onClick={() => exportVisualization(currentVisualization, 'csv')}
+                          onClick={() => exportVisualization(currentVisualization, "csv")}
                           variant="outline"
                           size="sm"
                         >
@@ -1210,12 +1247,12 @@ const JSONPlotCore = () => {
                         </Button>
                         <Button
                           onClick={() =>
-                            copyToClipboard(JSON.stringify(currentVisualization.data, null, 2), 'JSON Data')
+                            copyToClipboard(JSON.stringify(currentVisualization.data, null, 2), "JSON Data")
                           }
                           variant="outline"
                           size="sm"
                         >
-                          {copiedText === 'JSON Data' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          {copiedText === "JSON Data" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         </Button>
                       </div>
                     </div>
@@ -1235,34 +1272,46 @@ const JSONPlotCore = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    {visualizationType === 'tree' && <TreePine className="h-5 w-5" />}
-                    {visualizationType === 'table' && <Grid className="h-5 w-5" />}
-                    {visualizationType === 'chart' && <BarChart3 className="h-5 w-5" />}
-                    {visualizationType === 'raw' && <Code className="h-5 w-5" />}
-                    {visualizationType === 'formatted' && <FileText className="h-5 w-5" />}
+                    {visualizationType === "tree" && <TreePine className="h-5 w-5" />}
+                    {visualizationType === "table" && <Grid className="h-5 w-5" />}
+                    {visualizationType === "chart" && <BarChart3 className="h-5 w-5" />}
+                    {visualizationType === "raw" && <Code className="h-5 w-5" />}
+                    {visualizationType === "formatted" && <FileText className="h-5 w-5" />}
                     {visualizationType.charAt(0).toUpperCase() + visualizationType.slice(1)} View
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="max-h-96 overflow-auto">
-                    {visualizationType === 'tree' && (
+                    {visualizationType === "tree" && (
                       <TreeVisualization
                         nodes={treeNodes}
                         onToggleExpansion={toggleNodeExpansion}
                         viewMode={viewMode}
                       />
                     )}
-                    {visualizationType === 'table' && (
-                      <TableVisualization data={currentVisualization.data} viewMode={viewMode} />
+                    {visualizationType === "table" && (
+                      <TableVisualization
+                        data={currentVisualization.data}
+                        viewMode={viewMode}
+                      />
                     )}
-                    {visualizationType === 'chart' && (
-                      <ChartVisualization data={currentVisualization.data} config={chartConfig} />
+                    {visualizationType === "chart" && (
+                      <ChartVisualization
+                        data={currentVisualization.data}
+                        config={chartConfig}
+                      />
                     )}
-                    {visualizationType === 'raw' && (
-                      <RawVisualization data={currentVisualization.rawJSON} viewMode={viewMode} />
+                    {visualizationType === "raw" && (
+                      <RawVisualization
+                        data={currentVisualization.rawJSON}
+                        viewMode={viewMode}
+                      />
                     )}
-                    {visualizationType === 'formatted' && (
-                      <FormattedVisualization data={currentVisualization.data} viewMode={viewMode} />
+                    {visualizationType === "formatted" && (
+                      <FormattedVisualization
+                        data={currentVisualization.data}
+                        viewMode={viewMode}
+                      />
                     )}
                   </div>
                 </CardContent>
@@ -1271,7 +1320,10 @@ const JSONPlotCore = () => {
           </TabsContent>
 
           {/* History Tab */}
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent
+            value="history"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Visualization History</CardTitle>
@@ -1282,16 +1334,23 @@ const JSONPlotCore = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        {visualizations.length} visualization{visualizations.length !== 1 ? 's' : ''} in history
+                        {visualizations.length} visualization{visualizations.length !== 1 ? "s" : ""} in history
                       </span>
-                      <Button onClick={clearVisualizations} variant="outline" size="sm">
+                      <Button
+                        onClick={clearVisualizations}
+                        variant="outline"
+                        size="sm"
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Clear History
                       </Button>
                     </div>
 
                     {visualizations.map((visualization) => (
-                      <div key={visualization.id} className="border rounded-lg p-4">
+                      <div
+                        key={visualization.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex justify-between items-start mb-2">
                           <div className="font-medium text-sm">
                             {visualization.name} - {visualization.timestamp.toLocaleString()}
@@ -1300,7 +1359,11 @@ const JSONPlotCore = () => {
                             <span className="text-xs px-2 py-1 bg-muted rounded">
                               {visualization.visualizationType}
                             </span>
-                            <Button size="sm" variant="ghost" onClick={() => removeVisualization(visualization.id)}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeVisualization(visualization.id)}
+                            >
                               <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
@@ -1333,7 +1396,7 @@ const JSONPlotCore = () => {
                               setJsonInput(visualization.rawJSON)
                               setVisualizationType(visualization.visualizationType)
                               setCurrentVisualization(visualization)
-                              setActiveTab('visualize')
+                              setActiveTab("visualize")
                             }}
                           >
                             <Eye className="h-3 w-3" />
@@ -1341,14 +1404,14 @@ const JSONPlotCore = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => exportVisualization(visualization, 'json')}
+                            onClick={() => exportVisualization(visualization, "json")}
                           >
                             <Download className="h-3 w-3" />
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => copyToClipboard(visualization.rawJSON, 'JSON Data')}
+                            onClick={() => copyToClipboard(visualization.rawJSON, "JSON Data")}
                           >
                             <Copy className="h-3 w-3" />
                           </Button>
@@ -1368,7 +1431,10 @@ const JSONPlotCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Visualization Templates</CardTitle>
@@ -1380,7 +1446,7 @@ const JSONPlotCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1397,7 +1463,7 @@ const JSONPlotCore = () => {
                         <div className="text-xs text-muted-foreground">{template.description}</div>
                         <div>
                           <div className="text-xs font-medium mb-1">Use Cases:</div>
-                          <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                          <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                         </div>
                       </div>
                     </div>
@@ -1408,7 +1474,10 @@ const JSONPlotCore = () => {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-4">
+          <TabsContent
+            value="settings"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Visualization Settings</CardTitle>
@@ -1420,7 +1489,10 @@ const JSONPlotCore = () => {
                   <h4 className="font-medium">Chart Configuration</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="chart-title" className="text-sm">
+                      <Label
+                        htmlFor="chart-title"
+                        className="text-sm"
+                      >
                         Chart Title
                       </Label>
                       <Input
@@ -1431,13 +1503,16 @@ const JSONPlotCore = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="chart-theme" className="text-sm">
+                      <Label
+                        htmlFor="chart-theme"
+                        className="text-sm"
+                      >
                         Theme
                       </Label>
                       <Select
                         value={chartConfig.theme}
                         onValueChange={(value) =>
-                          setChartConfig((prev) => ({ ...prev, theme: value as 'light' | 'dark' | 'auto' }))
+                          setChartConfig((prev) => ({ ...prev, theme: value as "light" | "dark" | "auto" }))
                         }
                       >
                         <SelectTrigger className="mt-1">
@@ -1453,7 +1528,10 @@ const JSONPlotCore = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="chart-width" className="text-sm">
+                      <Label
+                        htmlFor="chart-width"
+                        className="text-sm"
+                      >
                         Width (px)
                       </Label>
                       <Input
@@ -1469,7 +1547,10 @@ const JSONPlotCore = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="chart-height" className="text-sm">
+                      <Label
+                        htmlFor="chart-height"
+                        className="text-sm"
+                      >
                         Height (px)
                       </Label>
                       <Input
@@ -1499,7 +1580,10 @@ const JSONPlotCore = () => {
                         onChange={(e) => setChartConfig((prev) => ({ ...prev, showLegend: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="show-legend" className="text-sm">
+                      <Label
+                        htmlFor="show-legend"
+                        className="text-sm"
+                      >
                         Show legend
                       </Label>
                     </div>
@@ -1511,7 +1595,10 @@ const JSONPlotCore = () => {
                         onChange={(e) => setChartConfig((prev) => ({ ...prev, showGrid: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="show-grid" className="text-sm">
+                      <Label
+                        htmlFor="show-grid"
+                        className="text-sm"
+                      >
                         Show grid
                       </Label>
                     </div>
@@ -1523,7 +1610,10 @@ const JSONPlotCore = () => {
                         onChange={(e) => setChartConfig((prev) => ({ ...prev, showTooltip: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="show-tooltip" className="text-sm">
+                      <Label
+                        htmlFor="show-tooltip"
+                        className="text-sm"
+                      >
                         Show tooltip
                       </Label>
                     </div>
@@ -1535,7 +1625,10 @@ const JSONPlotCore = () => {
                         onChange={(e) => setChartConfig((prev) => ({ ...prev, animation: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="enable-animation" className="text-sm">
+                      <Label
+                        htmlFor="enable-animation"
+                        className="text-sm"
+                      >
                         Enable animation
                       </Label>
                     </div>
@@ -1544,7 +1637,10 @@ const JSONPlotCore = () => {
 
                 {/* Reset Settings */}
                 <div className="pt-4 border-t">
-                  <Button onClick={() => setChartConfig(createDefaultChartConfig())} variant="outline">
+                  <Button
+                    onClick={() => setChartConfig(createDefaultChartConfig())}
+                    variant="outline"
+                  >
                     <RotateCcw className="mr-2 h-4 w-4" />
                     Reset to Defaults
                   </Button>
@@ -1566,36 +1662,40 @@ const TreeVisualization: React.FC<{
 }> = ({ nodes, onToggleExpansion, viewMode }) => {
   const renderNode = (node: TreeNode): React.ReactNode => {
     const indent = node.level * 20
-    const isCompact = viewMode === 'compact' || viewMode === 'minimal'
+    const isCompact = viewMode === "compact" || viewMode === "minimal"
 
     return (
-      <div key={node.id} style={{ marginLeft: `${indent}px` }} className="mb-1">
+      <div
+        key={node.id}
+        style={{ marginLeft: `${indent}px` }}
+        className="mb-1"
+      >
         <div className="flex items-center gap-2">
           {node.hasChildren && (
             <button
               onClick={() => onToggleExpansion(node.id)}
               className="w-4 h-4 flex items-center justify-center text-xs border rounded hover:bg-muted"
             >
-              {node.isExpanded ? '−' : '+'}
+              {node.isExpanded ? "−" : "+"}
             </button>
           )}
           <span
             className={`font-mono text-sm ${
-              node.type === 'string'
-                ? 'text-green-600'
-                : node.type === 'number'
-                  ? 'text-blue-600'
-                  : node.type === 'boolean'
-                    ? 'text-purple-600'
-                    : node.type === 'null'
-                      ? 'text-gray-500'
-                      : 'text-orange-600'
+              node.type === "string"
+                ? "text-green-600"
+                : node.type === "number"
+                  ? "text-blue-600"
+                  : node.type === "boolean"
+                    ? "text-purple-600"
+                    : node.type === "null"
+                      ? "text-gray-500"
+                      : "text-orange-600"
             }`}
           >
             {node.key}:
           </span>
           {!node.hasChildren && (
-            <span className="text-sm">{node.type === 'string' ? `"${node.value}"` : String(node.value)}</span>
+            <span className="text-sm">{node.type === "string" ? `"${node.value}"` : String(node.value)}</span>
           )}
           {!isCompact && <span className="text-xs text-muted-foreground">({node.type})</span>}
         </div>
@@ -1616,14 +1716,14 @@ const TableVisualization: React.FC<{
   }
 
   const firstItem = data[0]
-  if (typeof firstItem !== 'object' || firstItem === null) {
+  if (typeof firstItem !== "object" || firstItem === null) {
     return (
       <div className="text-center py-8 text-muted-foreground">Array items must be objects for table visualization</div>
     )
   }
 
   const headers = Object.keys(firstItem)
-  const isCompact = viewMode === 'compact' || viewMode === 'minimal'
+  const isCompact = viewMode === "compact" || viewMode === "minimal"
 
   return (
     <div className="overflow-x-auto">
@@ -1631,7 +1731,10 @@ const TableVisualization: React.FC<{
         <thead>
           <tr className="bg-muted">
             {headers.map((header) => (
-              <th key={header} className="border border-gray-300 px-2 py-1 text-left text-sm font-medium">
+              <th
+                key={header}
+                className="border border-gray-300 px-2 py-1 text-left text-sm font-medium"
+              >
                 {header}
               </th>
             ))}
@@ -1639,10 +1742,16 @@ const TableVisualization: React.FC<{
         </thead>
         <tbody>
           {data.slice(0, isCompact ? 10 : 100).map((item, index) => (
-            <tr key={index} className="hover:bg-muted/50">
+            <tr
+              key={index}
+              className="hover:bg-muted/50"
+            >
               {headers.map((header) => (
-                <td key={header} className="border border-gray-300 px-2 py-1 text-sm">
-                  {typeof item[header] === 'object' ? JSON.stringify(item[header]) : String(item[header] || '')}
+                <td
+                  key={header}
+                  className="border border-gray-300 px-2 py-1 text-sm"
+                >
+                  {typeof item[header] === "object" ? JSON.stringify(item[header]) : String(item[header] || "")}
                 </td>
               ))}
             </tr>
@@ -1689,7 +1798,10 @@ const ChartVisualization: React.FC<{
           const percentage = maxValue > 0 ? (value / maxValue) * 100 : 0
 
           return (
-            <div key={index} className="flex items-center gap-2 text-sm">
+            <div
+              key={index}
+              className="flex items-center gap-2 text-sm"
+            >
               <div className="w-20 text-right truncate">{label}:</div>
               <div className="flex-1 bg-gray-200 rounded-full h-4 relative">
                 <div
@@ -1716,8 +1828,8 @@ const RawVisualization: React.FC<{
   data: string
   viewMode: ViewMode
 }> = ({ data, viewMode }) => {
-  const isCompact = viewMode === 'compact' || viewMode === 'minimal'
-  const displayData = isCompact ? data.slice(0, 1000) + (data.length > 1000 ? '...' : '') : data
+  const isCompact = viewMode === "compact" || viewMode === "minimal"
+  const displayData = isCompact ? data.slice(0, 1000) + (data.length > 1000 ? "..." : "") : data
 
   return <pre className="whitespace-pre-wrap font-mono text-xs bg-muted p-4 rounded overflow-auto">{displayData}</pre>
 }
@@ -1727,9 +1839,9 @@ const FormattedVisualization: React.FC<{
   viewMode: ViewMode
 }> = ({ data, viewMode }) => {
   const formattedData = JSON.stringify(data, null, 2)
-  const isCompact = viewMode === 'compact' || viewMode === 'minimal'
+  const isCompact = viewMode === "compact" || viewMode === "minimal"
   const displayData = isCompact
-    ? formattedData.slice(0, 2000) + (formattedData.length > 2000 ? '...' : '')
+    ? formattedData.slice(0, 2000) + (formattedData.length > 2000 ? "..." : "")
     : formattedData
 
   return <pre className="whitespace-pre-wrap font-mono text-xs bg-muted p-4 rounded overflow-auto">{displayData}</pre>

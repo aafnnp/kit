@@ -291,12 +291,6 @@
     border-color: oklch(1 0 0 / 15%);
   }
 
-  /* 优化收藏按钮的深色模式效果 */
-  .dark .group:hover [aria-label*="收藏"] {
-    background: oklch(0.85 0.1 220 / 15%);
-    border-color: oklch(0.85 0.1 220 / 30%);
-  }
-
   /* 优化焦点状态的深色模式效果 */
   .dark .focus-visible\:ring-primary {
     --tw-ring-color: oklch(0.85 0.1 220 / 60%);

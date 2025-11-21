@@ -1,11 +1,11 @@
-import React, { useCallback, useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -23,8 +23,8 @@ import {
   Lightbulb,
   Settings,
   Zap,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   ColorFile,
   ColorData,
@@ -42,22 +42,22 @@ import type {
   ColorFormat,
   PaletteType,
   ExportFormat,
-} from '@/types/random-color'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/random-color"
+import { formatFileSize } from "@/lib/utils"
 
 // Utility functions
 
 const validateColorFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 5 * 1024 * 1024 // 5MB
-  const allowedTypes = ['.json', '.css', '.scss', '.ase', '.gpl', '.txt']
+  const allowedTypes = [".json", ".css", ".scss", ".ase", ".gpl", ".txt"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 5MB' }
+    return { isValid: false, error: "File size must be less than 5MB" }
   }
 
-  const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+  const extension = "." + file.name.split(".").pop()?.toLowerCase()
   if (!allowedTypes.includes(extension)) {
-    return { isValid: false, error: 'Only JSON, CSS, SCSS, ASE, GPL, and TXT files are supported' }
+    return { isValid: false, error: "Only JSON, CSS, SCSS, ASE, GPL, and TXT files are supported" }
   }
 
   return { isValid: true }
@@ -193,10 +193,10 @@ const isColorBlindSafe = (rgb: RGBColor): boolean => {
 // Random color generation
 const generateRandomHex = (): string => {
   return (
-    '#' +
+    "#" +
     Math.floor(Math.random() * 0xffffff)
       .toString(16)
-      .padStart(6, '0')
+      .padStart(6, "0")
   )
 }
 
@@ -255,7 +255,7 @@ const generateColorHarmony = (baseHex: string): ColorHarmony[] => {
   // Complementary
   const complementaryHue = (hsl.h + 180) % 360
   harmonies.push({
-    type: 'complementary',
+    type: "complementary",
     colors: [baseHex, hslToHex({ h: complementaryHue, s: hsl.s, l: hsl.l })],
   })
 
@@ -263,7 +263,7 @@ const generateColorHarmony = (baseHex: string): ColorHarmony[] => {
   const analogous1 = (hsl.h + 30) % 360
   const analogous2 = (hsl.h - 30 + 360) % 360
   harmonies.push({
-    type: 'analogous',
+    type: "analogous",
     colors: [hslToHex({ h: analogous2, s: hsl.s, l: hsl.l }), baseHex, hslToHex({ h: analogous1, s: hsl.s, l: hsl.l })],
   })
 
@@ -271,7 +271,7 @@ const generateColorHarmony = (baseHex: string): ColorHarmony[] => {
   const triadic1 = (hsl.h + 120) % 360
   const triadic2 = (hsl.h + 240) % 360
   harmonies.push({
-    type: 'triadic',
+    type: "triadic",
     colors: [baseHex, hslToHex({ h: triadic1, s: hsl.s, l: hsl.l }), hslToHex({ h: triadic2, s: hsl.s, l: hsl.l })],
   })
 
@@ -280,7 +280,7 @@ const generateColorHarmony = (baseHex: string): ColorHarmony[] => {
   const tetradic2 = (hsl.h + 180) % 360
   const tetradic3 = (hsl.h + 270) % 360
   harmonies.push({
-    type: 'tetradic',
+    type: "tetradic",
     colors: [
       baseHex,
       hslToHex({ h: tetradic1, s: hsl.s, l: hsl.l }),
@@ -293,13 +293,13 @@ const generateColorHarmony = (baseHex: string): ColorHarmony[] => {
   const splitComp1 = (hsl.h + 150) % 360
   const splitComp2 = (hsl.h + 210) % 360
   harmonies.push({
-    type: 'split-complementary',
+    type: "split-complementary",
     colors: [baseHex, hslToHex({ h: splitComp1, s: hsl.s, l: hsl.l }), hslToHex({ h: splitComp2, s: hsl.s, l: hsl.l })],
   })
 
   // Monochromatic
   harmonies.push({
-    type: 'monochromatic',
+    type: "monochromatic",
     colors: [
       hslToHex({ h: hsl.h, s: hsl.s, l: Math.max(10, hsl.l - 30) }),
       hslToHex({ h: hsl.h, s: hsl.s, l: Math.max(10, hsl.l - 15) }),
@@ -340,7 +340,7 @@ const hslToHex = (hsl: HSLColor): string => {
 
   const toHex = (c: number) => {
     const hex = Math.round(c * 255).toString(16)
-    return hex.length === 1 ? '0' + hex : hex
+    return hex.length === 1 ? "0" + hex : hex
   }
 
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`
@@ -349,21 +349,21 @@ const hslToHex = (hsl: HSLColor): string => {
 // Generate color palette
 const generateColorPalette = (type: PaletteType, baseColor?: string, count: number = 5): ColorPalette => {
   const colors: GeneratedColor[] = []
-  let name = ''
-  let description = ''
+  let name = ""
+  let description = ""
 
   switch (type) {
-    case 'random':
-      name = 'Random Palette'
-      description = 'A collection of randomly generated colors'
+    case "random":
+      name = "Random Palette"
+      description = "A collection of randomly generated colors"
       for (let i = 0; i < count; i++) {
         colors.push(generateCompleteColor())
       }
       break
 
-    case 'monochromatic':
-      name = 'Monochromatic Palette'
-      description = 'Variations of a single hue with different saturation and lightness'
+    case "monochromatic":
+      name = "Monochromatic Palette"
+      description = "Variations of a single hue with different saturation and lightness"
       const baseHex = baseColor || generateRandomHex()
       const baseRgb = hexToRgb(baseHex)
       const baseHsl = rgbToHsl(baseRgb)
@@ -456,11 +456,11 @@ const calculateHarmonyScore = (colors: GeneratedColor[]): number => {
 // Color templates
 const colorTemplates: ColorTemplate[] = [
   {
-    id: 'vibrant-random',
-    name: 'Vibrant Random',
-    description: 'Bright and energetic random colors',
-    category: 'Random',
-    type: 'random',
+    id: "vibrant-random",
+    name: "Vibrant Random",
+    description: "Bright and energetic random colors",
+    category: "Random",
+    type: "random",
     baseColors: [],
     settings: {
       paletteSize: 5,
@@ -469,12 +469,12 @@ const colorTemplates: ColorTemplate[] = [
     },
   },
   {
-    id: 'pastel-palette',
-    name: 'Pastel Palette',
-    description: 'Soft and gentle pastel colors',
-    category: 'Mood',
-    type: 'analogous',
-    baseColors: ['#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF'],
+    id: "pastel-palette",
+    name: "Pastel Palette",
+    description: "Soft and gentle pastel colors",
+    category: "Mood",
+    type: "analogous",
+    baseColors: ["#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", "#BAE1FF"],
     settings: {
       paletteSize: 5,
       checkAccessibility: false,
@@ -482,12 +482,12 @@ const colorTemplates: ColorTemplate[] = [
     },
   },
   {
-    id: 'earth-tones',
-    name: 'Earth Tones',
-    description: 'Natural and grounded earth colors',
-    category: 'Nature',
-    type: 'analogous',
-    baseColors: ['#8B4513', '#A0522D', '#CD853F', '#DEB887', '#F4A460'],
+    id: "earth-tones",
+    name: "Earth Tones",
+    description: "Natural and grounded earth colors",
+    category: "Nature",
+    type: "analogous",
+    baseColors: ["#8B4513", "#A0522D", "#CD853F", "#DEB887", "#F4A460"],
     settings: {
       paletteSize: 5,
       checkAccessibility: true,
@@ -495,12 +495,12 @@ const colorTemplates: ColorTemplate[] = [
     },
   },
   {
-    id: 'ocean-blues',
-    name: 'Ocean Blues',
-    description: 'Deep and calming ocean-inspired blues',
-    category: 'Nature',
-    type: 'monochromatic',
-    baseColors: ['#003366', '#0066CC', '#3399FF', '#66B2FF', '#99CCFF'],
+    id: "ocean-blues",
+    name: "Ocean Blues",
+    description: "Deep and calming ocean-inspired blues",
+    category: "Nature",
+    type: "monochromatic",
+    baseColors: ["#003366", "#0066CC", "#3399FF", "#66B2FF", "#99CCFF"],
     settings: {
       paletteSize: 5,
       checkAccessibility: true,
@@ -508,12 +508,12 @@ const colorTemplates: ColorTemplate[] = [
     },
   },
   {
-    id: 'sunset-warm',
-    name: 'Sunset Warm',
-    description: 'Warm sunset colors with orange and red tones',
-    category: 'Mood',
-    type: 'analogous',
-    baseColors: ['#FF6B35', '#F7931E', '#FFD23F', '#FF4081', '#E91E63'],
+    id: "sunset-warm",
+    name: "Sunset Warm",
+    description: "Warm sunset colors with orange and red tones",
+    category: "Mood",
+    type: "analogous",
+    baseColors: ["#FF6B35", "#F7931E", "#FFD23F", "#FF4081", "#E91E63"],
     settings: {
       paletteSize: 5,
       checkAccessibility: false,
@@ -521,12 +521,12 @@ const colorTemplates: ColorTemplate[] = [
     },
   },
   {
-    id: 'forest-greens',
-    name: 'Forest Greens',
-    description: 'Rich forest and nature greens',
-    category: 'Nature',
-    type: 'monochromatic',
-    baseColors: ['#0B5345', '#148F77', '#52C41A', '#7CB342', '#AED581'],
+    id: "forest-greens",
+    name: "Forest Greens",
+    description: "Rich forest and nature greens",
+    category: "Nature",
+    type: "monochromatic",
+    baseColors: ["#0B5345", "#148F77", "#52C41A", "#7CB342", "#AED581"],
     settings: {
       paletteSize: 5,
       checkAccessibility: true,
@@ -534,12 +534,12 @@ const colorTemplates: ColorTemplate[] = [
     },
   },
   {
-    id: 'complementary-bold',
-    name: 'Complementary Bold',
-    description: 'High contrast complementary color pairs',
-    category: 'Contrast',
-    type: 'complementary',
-    baseColors: ['#FF0000', '#00FF00'],
+    id: "complementary-bold",
+    name: "Complementary Bold",
+    description: "High contrast complementary color pairs",
+    category: "Contrast",
+    type: "complementary",
+    baseColors: ["#FF0000", "#00FF00"],
     settings: {
       paletteSize: 2,
       checkAccessibility: true,
@@ -547,12 +547,12 @@ const colorTemplates: ColorTemplate[] = [
     },
   },
   {
-    id: 'triadic-balanced',
-    name: 'Triadic Balanced',
-    description: 'Balanced triadic color harmony',
-    category: 'Harmony',
-    type: 'triadic',
-    baseColors: ['#FF0000', '#00FF00', '#0000FF'],
+    id: "triadic-balanced",
+    name: "Triadic Balanced",
+    description: "Balanced triadic color harmony",
+    category: "Harmony",
+    type: "triadic",
+    baseColors: ["#FF0000", "#00FF00", "#0000FF"],
     settings: {
       paletteSize: 3,
       checkAccessibility: true,
@@ -580,7 +580,7 @@ const processColorData = (colors: GeneratedColor[], palettes: ColorPalette[], se
       complementary: 0,
       triadic: 0,
       tetradic: 0,
-      'split-complementary': 0,
+      "split-complementary": 0,
       random: 0,
     }
 
@@ -619,7 +619,7 @@ const processColorData = (colors: GeneratedColor[], palettes: ColorPalette[], se
       settings,
     }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'Color processing failed')
+    throw new Error(error instanceof Error ? error.message : "Color processing failed")
   }
 }
 
@@ -629,8 +629,8 @@ const useColorGeneration = () => {
     try {
       return generateCompleteColor()
     } catch (error) {
-      console.error('Color generation error:', error)
-      throw new Error(error instanceof Error ? error.message : 'Color generation failed')
+      console.error("Color generation error:", error)
+      throw new Error(error instanceof Error ? error.message : "Color generation failed")
     }
   }, [])
 
@@ -638,8 +638,8 @@ const useColorGeneration = () => {
     try {
       return generateColorPalette(type, baseColor, count)
     } catch (error) {
-      console.error('Palette generation error:', error)
-      throw new Error(error instanceof Error ? error.message : 'Palette generation failed')
+      console.error("Palette generation error:", error)
+      throw new Error(error instanceof Error ? error.message : "Palette generation failed")
     }
   }, [])
 
@@ -648,8 +648,8 @@ const useColorGeneration = () => {
       try {
         return processColorData(colors, palettes, settings)
       } catch (error) {
-        console.error('Batch processing error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch processing failed')
+        console.error("Batch processing error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch processing failed")
       }
     },
     []
@@ -658,25 +658,25 @@ const useColorGeneration = () => {
   const processFiles = useCallback(async (files: ColorFile[], settings: ColorSettings): Promise<ColorFile[]> => {
     return Promise.all(
       files.map(async (file) => {
-        if (file.status !== 'pending') return file
+        if (file.status !== "pending") return file
 
         try {
           // Parse color content and extract colors
           const colors = parseColorFile(file.content, file.type)
-          const palettes = [generateColorPalette('random', undefined, colors.length)]
+          const palettes = [generateColorPalette("random", undefined, colors.length)]
           const colorData = processColorData(colors, palettes, settings)
 
           return {
             ...file,
-            status: 'completed' as const,
+            status: "completed" as const,
             colorData,
             processedAt: new Date(),
           }
         } catch (error) {
           return {
             ...file,
-            status: 'error' as const,
-            error: error instanceof Error ? error.message : 'Processing failed',
+            status: "error" as const,
+            error: error instanceof Error ? error.message : "Processing failed",
           }
         }
       })
@@ -691,11 +691,11 @@ const parseColorFile = (content: string, fileType: string): GeneratedColor[] => 
   const colors: GeneratedColor[] = []
 
   try {
-    if (fileType.includes('json')) {
+    if (fileType.includes("json")) {
       const data = JSON.parse(content)
       if (Array.isArray(data)) {
         data.forEach((item) => {
-          if (typeof item === 'string' && item.match(/^#[0-9A-Fa-f]{6}$/)) {
+          if (typeof item === "string" && item.match(/^#[0-9A-Fa-f]{6}$/)) {
             const rgb = hexToRgb(item)
             colors.push({
               ...generateCompleteColor(),
@@ -724,7 +724,7 @@ const parseColorFile = (content: string, fileType: string): GeneratedColor[] => 
       }
     }
   } catch (error) {
-    console.warn('Failed to parse color file:', error)
+    console.warn("Failed to parse color file:", error)
   }
 
   return colors
@@ -750,17 +750,17 @@ const useFileProcessing = () => {
             name: file.name,
             content,
             size: file.size,
-            type: file.type || 'text/plain',
-            status: 'pending',
+            type: file.type || "text/plain",
+            status: "pending",
           }
 
           resolve(colorFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsText(file)
     })
   }, [])
@@ -770,17 +770,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
-            type: files[index].type || 'text/plain',
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            type: files[index].type || "text/plain",
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -794,12 +794,12 @@ const useFileProcessing = () => {
 // Export functionality
 const useColorExport = () => {
   const exportColor = useCallback((color: GeneratedColor, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(
           {
             id: color.id,
@@ -813,24 +813,24 @@ const useColorExport = () => {
           null,
           2
         )
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'css':
+      case "css":
         content = `:root {
   --color-primary: ${color.hex};
   --color-primary-rgb: ${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b};
   --color-primary-hsl: ${color.hsl.h}, ${color.hsl.s}%, ${color.hsl.l}%;
 }`
-        mimeType = 'text/css'
-        extension = '.css'
+        mimeType = "text/css"
+        extension = ".css"
         break
-      case 'scss':
+      case "scss":
         content = `$primary-color: ${color.hex};
 $primary-rgb: (${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b});
 $primary-hsl: (${color.hsl.h}, ${color.hsl.s}%, ${color.hsl.l}%);`
-        mimeType = 'text/scss'
-        extension = '.scss'
+        mimeType = "text/scss"
+        extension = ".scss"
         break
       default:
         content = color.hex
@@ -838,7 +838,7 @@ $primary-hsl: (${color.hsl.h}, ${color.hsl.s}%, ${color.hsl.l}%);`
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `color${extension}`
     document.body.appendChild(link)
@@ -848,52 +848,52 @@ $primary-hsl: (${color.hsl.h}, ${color.hsl.s}%, ${color.hsl.l}%);`
   }, [])
 
   const exportPalette = useCallback((palette: ColorPalette, format: ExportFormat) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(palette, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'css':
+      case "css":
         content = `:root {
-${palette.colors.map((color, index) => `  --color-${index + 1}: ${color.hex};`).join('\n')}
+${palette.colors.map((color, index) => `  --color-${index + 1}: ${color.hex};`).join("\n")}
 }`
-        mimeType = 'text/css'
-        extension = '.css'
+        mimeType = "text/css"
+        extension = ".css"
         break
-      case 'scss':
-        content = palette.colors.map((color, index) => `$color-${index + 1}: ${color.hex};`).join('\n')
-        mimeType = 'text/scss'
-        extension = '.scss'
+      case "scss":
+        content = palette.colors.map((color, index) => `$color-${index + 1}: ${color.hex};`).join("\n")
+        mimeType = "text/scss"
+        extension = ".scss"
         break
-      case 'ase':
+      case "ase":
         // Adobe Swatch Exchange format (simplified)
-        content = palette.colors.map((color) => color.hex).join('\n')
-        mimeType = 'text/plain'
-        extension = '.ase'
+        content = palette.colors.map((color) => color.hex).join("\n")
+        mimeType = "text/plain"
+        extension = ".ase"
         break
-      case 'gpl':
+      case "gpl":
         // GIMP Palette format
         content = `GIMP Palette
 Name: ${palette.name}
 #
-${palette.colors.map((color) => `${color.rgb.r} ${color.rgb.g} ${color.rgb.b} ${color.hex}`).join('\n')}`
-        mimeType = 'text/plain'
-        extension = '.gpl'
+${palette.colors.map((color) => `${color.rgb.r} ${color.rgb.g} ${color.rgb.b} ${color.hex}`).join("\n")}`
+        mimeType = "text/plain"
+        extension = ".gpl"
         break
       default:
-        content = palette.colors.map((color) => color.hex).join('\n')
+        content = palette.colors.map((color) => color.hex).join("\n")
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = `${palette.name.toLowerCase().replace(/\s+/g, '-')}${extension}`
+    link.download = `${palette.name.toLowerCase().replace(/\s+/g, "-")}${extension}`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -905,14 +905,14 @@ ${palette.colors.map((color) => `${color.rgb.r} ${color.rgb.g} ${color.rgb.b} ${
       const completedFiles = files.filter((f) => f.colorData)
 
       if (completedFiles.length === 0) {
-        toast.error('No color results to export')
+        toast.error("No color results to export")
         return
       }
 
       completedFiles.forEach((file) => {
         if (file.colorData) {
           file.colorData.palettes.forEach((palette) => {
-            exportPalette(palette, 'json')
+            exportPalette(palette, "json")
           })
         }
       })
@@ -938,14 +938,14 @@ ${palette.colors.map((color) => `${color.rgb.r} ${color.rgb.g} ${color.rgb.b} ${
 
     const csvContent = [
       [
-        'Filename',
-        'Original Size',
-        'Total Colors',
-        'Avg Luminance',
-        'Avg Contrast',
-        'Accessibility Score',
-        'Processing Time',
-        'Status',
+        "Filename",
+        "Original Size",
+        "Total Colors",
+        "Avg Luminance",
+        "Avg Contrast",
+        "Accessibility Score",
+        "Processing Time",
+        "Status",
       ],
       ...stats.map((stat) => [
         stat.filename,
@@ -958,20 +958,20 @@ ${palette.colors.map((color) => `${color.rgb.r} ${color.rgb.g} ${color.rgb.b} ${
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'color-statistics.csv'
+    link.download = "color-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportColor, exportPalette, exportBatch, exportStatistics }
@@ -984,13 +984,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -1005,9 +1005,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -1020,16 +1020,16 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
 
       const files = Array.from(e.dataTransfer.files).filter(
         (file) =>
-          file.type.includes('json') ||
-          file.type.includes('css') ||
-          file.type.includes('text') ||
+          file.type.includes("json") ||
+          file.type.includes("css") ||
+          file.type.includes("text") ||
           file.name.match(/\.(json|css|scss|ase|gpl|txt)$/i)
       )
 
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only color palette files (JSON, CSS, SCSS, ASE, GPL, TXT)')
+        toast.error("Please drop only color palette files (JSON, CSS, SCSS, ASE, GPL, TXT)")
       }
     },
     [onFilesDropped]
@@ -1043,7 +1043,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -1063,20 +1063,20 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time color generation, multiple formats, batch processing, color harmony
  */
 const RandomColorCore = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'files'>('generator')
+  const [activeTab, setActiveTab] = useState<"generator" | "files">("generator")
   const [currentColor, setCurrentColor] = useState<GeneratedColor | null>(null)
   const [currentPalette, setCurrentPalette] = useState<ColorPalette | null>(null)
   const [files, setFiles] = useState<ColorFile[]>([])
   const [_, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('vibrant-random')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("vibrant-random")
   const [settings, setSettings] = useState<ColorSettings>({
-    defaultFormat: 'hex',
+    defaultFormat: "hex",
     includeHarmony: true,
     checkAccessibility: true,
     generatePalettes: true,
     paletteSize: 5,
-    exportFormat: 'json',
-    colorSpace: 'sRGB',
+    exportFormat: "json",
+    colorSpace: "sRGB",
   })
 
   const { generateColor, generatePalette } = useColorGeneration()
@@ -1093,7 +1093,7 @@ const RandomColorCore = () => {
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
@@ -1136,11 +1136,11 @@ const RandomColorCore = () => {
       setCurrentColor(newColor)
 
       if (settings.generatePalettes) {
-        const palette = generatePalette('random', newColor.hex, settings.paletteSize)
+        const palette = generatePalette("random", newColor.hex, settings.paletteSize)
         setCurrentPalette(palette)
       }
     } catch (error) {
-      toast.error('Failed to generate color')
+      toast.error("Failed to generate color")
       console.error(error)
     }
   }, [generateColor, generatePalette, settings])
@@ -1156,7 +1156,7 @@ const RandomColorCore = () => {
           setCurrentColor(palette.colors[0])
         }
       } catch (error) {
-        toast.error('Failed to generate palette')
+        toast.error("Failed to generate palette")
         console.error(error)
       }
     },
@@ -1178,12 +1178,15 @@ const RandomColorCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Palette className="h-5 w-5" aria-hidden="true" />
+              <Palette className="h-5 w-5" />
               Random Color Generator
             </CardTitle>
             <CardDescription>
@@ -1195,20 +1198,32 @@ const RandomColorCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'generator' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "generator" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <Zap className="h-4 w-4" />
               Color Generator
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* Color Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             {/* Color Templates */}
             <Card>
               <CardHeader>
@@ -1222,7 +1237,7 @@ const RandomColorCore = () => {
                   {colorTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -1231,7 +1246,11 @@ const RandomColorCore = () => {
                         <div className="text-xs text-muted-foreground mt-1">{template.description}</div>
                         <div className="flex gap-1 mt-2">
                           {template.baseColors.slice(0, 3).map((color, index) => (
-                            <div key={index} className="w-4 h-4 rounded border" style={{ backgroundColor: color }} />
+                            <div
+                              key={index}
+                              className="w-4 h-4 rounded border"
+                              style={{ backgroundColor: color }}
+                            />
                           ))}
                           {template.baseColors.length > 3 && (
                             <div className="text-xs text-muted-foreground">+{template.baseColors.length - 3}</div>
@@ -1257,7 +1276,6 @@ const RandomColorCore = () => {
                         <div
                           className="w-24 h-24 rounded-lg border-2 border-border shadow-sm"
                           style={{ backgroundColor: currentColor.hex }}
-                          aria-label={`Color preview: ${currentColor.hex}`}
                         />
                         <div className="space-y-2">
                           <div>
@@ -1268,16 +1286,20 @@ const RandomColorCore = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => copyToClipboard(currentColor.hex, 'HEX color')}
+                              onClick={() => copyToClipboard(currentColor.hex, "HEX color")}
                             >
-                              {copiedText === 'HEX color' ? (
+                              {copiedText === "HEX color" ? (
                                 <Check className="h-4 w-4 mr-2" />
                               ) : (
                                 <Copy className="h-4 w-4 mr-2" />
                               )}
                               Copy HEX
                             </Button>
-                            <Button size="sm" variant="outline" onClick={() => exportColor(currentColor, 'json')}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportColor(currentColor, "json")}
+                            >
                               <Download className="h-4 w-4 mr-2" />
                               Export
                             </Button>
@@ -1307,7 +1329,7 @@ const RandomColorCore = () => {
                         <div>
                           <Label className="font-medium">CMYK</Label>
                           <div className="font-mono">
-                            cmyk({currentColor.cmyk.c}%, {currentColor.cmyk.m}%, {currentColor.cmyk.y}%,{' '}
+                            cmyk({currentColor.cmyk.c}%, {currentColor.cmyk.m}%, {currentColor.cmyk.y}%,{" "}
                             {currentColor.cmyk.k}%)
                           </div>
                         </div>
@@ -1318,7 +1340,10 @@ const RandomColorCore = () => {
                           <Shuffle className="h-4 w-4 mr-2" />
                           Generate New Color
                         </Button>
-                        <Button variant="outline" onClick={() => handleGeneratePalette('random')}>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleGeneratePalette("random")}
+                        >
                           <Palette className="h-4 w-4 mr-2" />
                           Generate Palette
                         </Button>
@@ -1328,7 +1353,10 @@ const RandomColorCore = () => {
                     <div className="text-center py-16 text-muted-foreground">
                       <Palette className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p>Click generate to create a random color</p>
-                      <Button onClick={handleGenerateColor} className="mt-4">
+                      <Button
+                        onClick={handleGenerateColor}
+                        className="mt-4"
+                      >
                         <Shuffle className="h-4 w-4 mr-2" />
                         Generate Color
                       </Button>
@@ -1358,7 +1386,7 @@ const RandomColorCore = () => {
                         </div>
                         <div>
                           <Label className="font-medium">Type</Label>
-                          <div>{currentColor.metadata.isLight ? 'Light' : 'Dark'}</div>
+                          <div>{currentColor.metadata.isLight ? "Light" : "Dark"}</div>
                         </div>
                         <div>
                           <Label className="font-medium">Contrast</Label>
@@ -1376,20 +1404,20 @@ const RandomColorCore = () => {
                             <div className="flex items-center gap-2">
                               <span
                                 className={
-                                  currentColor.metadata.accessibility.wcagAA ? 'text-green-600' : 'text-red-600'
+                                  currentColor.metadata.accessibility.wcagAA ? "text-green-600" : "text-red-600"
                                 }
                               >
-                                {currentColor.metadata.accessibility.wcagAA ? '✓' : '✗'}
+                                {currentColor.metadata.accessibility.wcagAA ? "✓" : "✗"}
                               </span>
                               <span>WCAG AA compliant</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <span
                                 className={
-                                  currentColor.metadata.accessibility.wcagAAA ? 'text-green-600' : 'text-red-600'
+                                  currentColor.metadata.accessibility.wcagAAA ? "text-green-600" : "text-red-600"
                                 }
                               >
-                                {currentColor.metadata.accessibility.wcagAAA ? '✓' : '✗'}
+                                {currentColor.metadata.accessibility.wcagAAA ? "✓" : "✗"}
                               </span>
                               <span>WCAG AAA compliant</span>
                             </div>
@@ -1397,11 +1425,11 @@ const RandomColorCore = () => {
                               <span
                                 className={
                                   currentColor.metadata.accessibility.colorBlindSafe
-                                    ? 'text-green-600'
-                                    : 'text-orange-600'
+                                    ? "text-green-600"
+                                    : "text-orange-600"
                                 }
                               >
-                                {currentColor.metadata.accessibility.colorBlindSafe ? '✓' : '⚠'}
+                                {currentColor.metadata.accessibility.colorBlindSafe ? "✓" : "⚠"}
                               </span>
                               <span>Colorblind friendly</span>
                             </div>
@@ -1414,9 +1442,12 @@ const RandomColorCore = () => {
                           <Label className="font-medium mb-2 block">Color Harmonies</Label>
                           <div className="space-y-2">
                             {currentColor.metadata.harmony.slice(0, 3).map((harmony) => (
-                              <div key={harmony.type} className="flex items-center gap-2">
+                              <div
+                                key={harmony.type}
+                                className="flex items-center gap-2"
+                              >
                                 <span className="text-sm capitalize min-w-0 flex-1">
-                                  {harmony.type.replace('-', ' ')}
+                                  {harmony.type.replace("-", " ")}
                                 </span>
                                 <div className="flex gap-1">
                                   {harmony.colors.slice(0, 4).map((color, index) => (
@@ -1429,7 +1460,11 @@ const RandomColorCore = () => {
                                     />
                                   ))}
                                 </div>
-                                <Button size="sm" variant="ghost" onClick={() => handleGeneratePalette(harmony.type)}>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleGeneratePalette(harmony.type)}
+                                >
                                   <Target className="h-3 w-3" />
                                 </Button>
                               </div>
@@ -1461,12 +1496,14 @@ const RandomColorCore = () => {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                       {currentPalette.colors.map((color, index) => (
-                        <div key={color.id} className="space-y-2">
+                        <div
+                          key={color.id}
+                          className="space-y-2"
+                        >
                           <div
                             className="w-full h-20 rounded-lg border-2 border-border shadow-sm cursor-pointer"
                             style={{ backgroundColor: color.hex }}
                             onClick={() => setCurrentColor(color)}
-                            aria-label={`Color ${index + 1}: ${color.hex}`}
                           />
                           <div className="text-center">
                             <div className="font-mono text-sm">{color.hex}</div>
@@ -1513,19 +1550,35 @@ const RandomColorCore = () => {
                     </div>
 
                     <div className="flex flex-wrap gap-2 justify-center pt-4 border-t">
-                      <Button size="sm" variant="outline" onClick={() => handleGeneratePalette('monochromatic')}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleGeneratePalette("monochromatic")}
+                      >
                         <Lightbulb className="h-4 w-4 mr-2" />
                         Monochromatic
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleGeneratePalette('analogous')}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleGeneratePalette("analogous")}
+                      >
                         <Droplets className="h-4 w-4 mr-2" />
                         Analogous
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleGeneratePalette('complementary')}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleGeneratePalette("complementary")}
+                      >
                         <Contrast className="h-4 w-4 mr-2" />
                         Complementary
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleGeneratePalette('triadic')}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleGeneratePalette("triadic")}
+                      >
                         <Target className="h-4 w-4 mr-2" />
                         Triadic
                       </Button>
@@ -1554,7 +1607,10 @@ const RandomColorCore = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="palette-size" className="text-sm font-medium">
+                    <Label
+                      htmlFor="palette-size"
+                      className="text-sm font-medium"
+                    >
                       Palette Size
                     </Label>
                     <Input
@@ -1569,7 +1625,10 @@ const RandomColorCore = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="export-format" className="text-sm font-medium">
+                    <Label
+                      htmlFor="export-format"
+                      className="text-sm font-medium"
+                    >
                       Export Format
                     </Label>
                     <Select
@@ -1599,7 +1658,10 @@ const RandomColorCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, includeHarmony: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="include-harmony" className="text-sm">
+                    <Label
+                      htmlFor="include-harmony"
+                      className="text-sm"
+                    >
                       Generate color harmonies
                     </Label>
                   </div>
@@ -1612,7 +1674,10 @@ const RandomColorCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, checkAccessibility: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="check-accessibility" className="text-sm">
+                    <Label
+                      htmlFor="check-accessibility"
+                      className="text-sm"
+                    >
                       Check accessibility compliance
                     </Label>
                   </div>
@@ -1625,7 +1690,10 @@ const RandomColorCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, generatePalettes: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="generate-palettes" className="text-sm">
+                    <Label
+                      htmlFor="generate-palettes"
+                      className="text-sm"
+                    >
                       Auto-generate palettes
                     </Label>
                   </div>
@@ -1635,14 +1703,17 @@ const RandomColorCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1650,9 +1721,8 @@ const RandomColorCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop color palette files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1663,7 +1733,11 @@ const RandomColorCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your color palette files here, or click to select files for batch color analysis
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1677,7 +1751,6 @@ const RandomColorCore = () => {
                     accept=".json,.css,.scss,.ase,.gpl,.txt"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select color palette files"
                   />
                 </div>
               </CardContent>
@@ -1691,19 +1764,25 @@ const RandomColorCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground">
                               <span className="font-medium">Size:</span> {formatFileSize(file.size)}
                             </div>
-                            {file.status === 'completed' && file.colorData && (
+                            {file.status === "completed" && file.colorData && (
                               <div className="mt-2 text-xs">
                                 {file.colorData.statistics.totalColors} colors analyzed
                               </div>

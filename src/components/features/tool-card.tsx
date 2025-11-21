@@ -85,7 +85,7 @@ function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCar
 
   return (
     <Card
-      className="group cursor-pointer transition-all duration-500 ease-out hover:shadow-xl hover:shadow-primary/15 hover:scale-[1.02] border-border/50 hover:border-primary/40 dark:hover:border-primary/50 dark:hover:shadow-primary/25 backdrop-blur-sm touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:-translate-y-1 active:scale-[0.98] active:translate-y-0 will-change-transform tool-card-xs sm:tool-card-mobile md:tool-card-tablet lg:tool-card-desktop"
+      className="group cursor-pointer transition-all duration-500 ease-out hover:shadow-xl hover:shadow-primary/15 hover:scale-[1.02] border border-border/50 hover:border-primary/40 dark:hover:border-primary/50 dark:hover:shadow-primary/25 bg-linear-to-b from-background via-background/80 to-background/95 dark:from-muted/20 dark:via-muted/10 dark:to-background/40 backdrop-blur-xl touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:-translate-y-1 active:scale-[0.98] active:translate-y-0 will-change-transform tool-card-xs sm:tool-card-mobile md:tool-card-tablet lg:tool-card-desktop rounded-2xl"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onMouseEnter={() => {
@@ -94,26 +94,21 @@ function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCar
       }}
       tabIndex={0}
       role="button"
-      aria-label={tool.name}
-      aria-describedby={`tool-desc-${tool.slug}`}
     >
-      <CardHeader className="pb-3 p-3">
+      <CardHeader className="pb-3 p-4 sm:p-5">
         <div className="flex items-start justify-between gap-2">
-          <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
-            <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 dark:group-hover:bg-primary/30 transition-all duration-500 group-hover:scale-110 dark:text-primary-foreground/90 shrink-0 group-hover:shadow-lg group-hover:shadow-primary/20 dark:group-hover:shadow-primary/30">
+          <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
+            <div className="p-2.5 sm:p-3 rounded-2xl bg-linear-to-br from-primary/15 via-primary/10 to-primary/5 text-primary group-hover:from-primary/30 group-hover:via-primary/20 group-hover:to-primary/10 dark:group-hover:from-primary/25 dark:group-hover:via-primary/20 dark:group-hover:to-primary/15 transition-all duration-500 group-hover:scale-110 dark:text-primary-foreground/90 shrink-0 group-hover:shadow-lg group-hover:shadow-primary/20 dark:group-hover:shadow-primary/30 border border-primary/10">
               {IconComponent ? (
-                <IconComponent
-                  className="h-4 w-4 sm:h-5 sm:w-5 transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 dark:drop-shadow-md"
-                  aria-hidden="true"
-                />
+                <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 transition-all duration-500 group-hover:-rotate-6 group-hover:scale-110 dark:drop-shadow-md" />
               ) : (
-                <div className="h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-semibold text-xs sm:text-sm transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 dark:drop-shadow-md">
+                <div className="h-5 w-5 sm:h-6 sm:w-6 flex items-center justify-center font-semibold text-sm sm:text-base transition-all duration-500 group-hover:-rotate-6 group-hover:scale-110 dark:drop-shadow-md">
                   {firstLetter}
                 </div>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-sm font-medium group-hover:text-primary dark:group-hover:text-primary/95 transition-all duration-500 flex items-center gap-2 group-hover:font-semibold">
+              <CardTitle className="text-base sm:text-lg font-semibold tracking-tight group-hover:text-primary dark:group-hover:text-primary/95 transition-all duration-500 flex items-center gap-2">
                 {t(`tools.${tool.slug}`, tool.name)}
                 {tool.href && (
                   <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-90 dark:opacity-70 dark:group-hover:opacity-100 transition-all duration-500 shrink-0 group-hover:scale-110" />
@@ -127,12 +122,11 @@ function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCar
               size="sm"
               onClick={handleFavoriteClick}
               onKeyDown={handleFavoriteKeyDown}
-              className={`h-7 w-7 sm:h-8 sm:w-8 p-0 opacity-60 sm:opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-500 hover:scale-125 focus-visible:scale-125 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:bg-red-50 dark:hover:bg-red-950/30 hover:shadow-lg hover:shadow-red-500/20 dark:hover:shadow-red-400/20 ${
+              className={`h-8 w-8 sm:h-9 sm:w-9 p-0 opacity-70 sm:opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-500 hover:scale-125 focus-visible:scale-125 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:bg-red-50 dark:hover:bg-red-950/30 hover:shadow-lg hover:shadow-red-500/20 dark:hover:shadow-red-400/20 rounded-full ${
                 isFavorite(tool.slug)
                   ? "text-red-500 dark:text-red-400 opacity-100 bg-red-50 dark:bg-red-950/20"
                   : "text-muted-foreground hover:text-red-500 dark:hover:text-red-400"
               }`}
-              aria-label={isFavorite(tool.slug) ? t("favorites.remove") : t("favorites.add")}
               tabIndex={0}
             >
               <Heart
@@ -144,10 +138,10 @@ function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCar
           )}
         </div>
       </CardHeader>
-      <CardContent className="pt-0 p-3 sm:px-6 sm:pb-6">
+      <CardContent className="pt-0 p-4 sm:px-5 sm:pb-5">
         <CardDescription
           id={`tool-desc-${tool.slug}`}
-          className="text-xs sm:text-sm text-muted-foreground dark:text-muted-foreground/90 leading-relaxed group-hover:text-foreground/90 dark:group-hover:text-foreground/85 transition-all duration-500 line-clamp-1 group-hover:font-medium"
+          className="text-xs sm:text-sm text-muted-foreground dark:text-muted-foreground/90 leading-relaxed group-hover:text-foreground/90 dark:group-hover:text-foreground/85 transition-all duration-500 line-clamp-2"
         >
           {t(`tools.${tool.slug}-desc`)}
         </CardDescription>

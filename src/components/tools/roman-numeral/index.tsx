@@ -1,10 +1,10 @@
-import { useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -24,8 +24,8 @@ import {
   ArrowLeftRight,
   Scroll,
   History,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   RomanConversion,
   ConversionMetadata,
@@ -37,80 +37,80 @@ import type {
   RomanTemplate,
   ConversionValidation,
   ExportFormat,
-} from '@/types/roman-numeral'
+} from "@/types/roman-numeral"
 // Utility functions
 
 const formatNumber = (num: number): string => {
-  return new Intl.NumberFormat('en-US').format(num)
+  return new Intl.NumberFormat("en-US").format(num)
 }
 
 // Roman numeral data and constants
 const ROMAN_SYMBOLS: RomanSymbol[] = [
   {
-    symbol: 'I',
+    symbol: "I",
     value: 1,
-    name: 'Unus',
-    origin: 'One finger or tally mark',
-    modernUsage: ['Clock faces', 'Book chapters', 'Movie sequels'],
+    name: "Unus",
+    origin: "One finger or tally mark",
+    modernUsage: ["Clock faces", "Book chapters", "Movie sequels"],
   },
   {
-    symbol: 'V',
+    symbol: "V",
     value: 5,
-    name: 'Quinque',
-    origin: 'Open hand (5 fingers)',
-    modernUsage: ['Clock faces', 'Outline numbering', 'Super Bowl'],
+    name: "Quinque",
+    origin: "Open hand (5 fingers)",
+    modernUsage: ["Clock faces", "Outline numbering", "Super Bowl"],
   },
   {
-    symbol: 'X',
+    symbol: "X",
     value: 10,
-    name: 'Decem',
-    origin: 'Two hands crossed',
-    modernUsage: ['Clock faces', 'Decades', 'Roman numerals in names'],
+    name: "Decem",
+    origin: "Two hands crossed",
+    modernUsage: ["Clock faces", "Decades", "Roman numerals in names"],
   },
   {
-    symbol: 'L',
+    symbol: "L",
     value: 50,
-    name: 'Quinquaginta',
-    origin: 'Half of C (centum)',
-    modernUsage: ['Formal documents', 'Anniversary years'],
+    name: "Quinquaginta",
+    origin: "Half of C (centum)",
+    modernUsage: ["Formal documents", "Anniversary years"],
   },
   {
-    symbol: 'C',
+    symbol: "C",
     value: 100,
-    name: 'Centum',
-    origin: 'First letter of centum (hundred)',
-    modernUsage: ['Century markers', 'Copyright dates'],
+    name: "Centum",
+    origin: "First letter of centum (hundred)",
+    modernUsage: ["Century markers", "Copyright dates"],
   },
   {
-    symbol: 'D',
+    symbol: "D",
     value: 500,
-    name: 'Quingenti',
-    origin: 'Half of M or Φ symbol',
-    modernUsage: ['Formal numbering', 'Historical dates'],
+    name: "Quingenti",
+    origin: "Half of M or Φ symbol",
+    modernUsage: ["Formal numbering", "Historical dates"],
   },
   {
-    symbol: 'M',
+    symbol: "M",
     value: 1000,
-    name: 'Mille',
-    origin: 'First letter of mille (thousand)',
-    modernUsage: ['Year dates', 'Millennium markers', 'Formal documents'],
+    name: "Mille",
+    origin: "First letter of mille (thousand)",
+    modernUsage: ["Year dates", "Millennium markers", "Formal documents"],
   },
 ]
 
 const CONVERSION_MAP = [
-  [1000, 'M'],
-  [900, 'CM'],
-  [500, 'D'],
-  [400, 'CD'],
-  [100, 'C'],
-  [90, 'XC'],
-  [50, 'L'],
-  [40, 'XL'],
-  [10, 'X'],
-  [9, 'IX'],
-  [5, 'V'],
-  [4, 'IV'],
-  [1, 'I'],
+  [1000, "M"],
+  [900, "CM"],
+  [500, "D"],
+  [400, "CD"],
+  [100, "C"],
+  [90, "XC"],
+  [50, "L"],
+  [40, "XL"],
+  [10, "X"],
+  [9, "IX"],
+  [5, "V"],
+  [4, "IV"],
+  [1, "I"],
 ] as const
 
 const ROMAN_TO_ARABIC_MAP: Record<string, number> = {
@@ -132,10 +132,10 @@ const ROMAN_TO_ARABIC_MAP: Record<string, number> = {
 // Enhanced conversion functions
 const toRoman = (num: number): string => {
   if (num <= 0 || num >= 4000) {
-    throw new Error('Number must be between 1 and 3999')
+    throw new Error("Number must be between 1 and 3999")
   }
 
-  let result = ''
+  let result = ""
   let remaining = num
 
   for (const [value, symbol] of CONVERSION_MAP) {
@@ -149,13 +149,13 @@ const toRoman = (num: number): string => {
 }
 
 const fromRoman = (roman: string): number => {
-  if (!roman || typeof roman !== 'string') {
-    throw new Error('Invalid Roman numeral input')
+  if (!roman || typeof roman !== "string") {
+    throw new Error("Invalid Roman numeral input")
   }
 
   const cleanRoman = roman.toUpperCase().trim()
   if (!isValidRomanNumeral(cleanRoman)) {
-    throw new Error('Invalid Roman numeral format')
+    throw new Error("Invalid Roman numeral format")
   }
 
   let result = 0
@@ -252,7 +252,7 @@ const generateRomanBreakdown = (roman: string): RomanBreakdown[] => {
           value: ROMAN_TO_ARABIC_MAP[twoChar],
           count: 1,
           position: position++,
-          type: 'subtractive',
+          type: "subtractive",
           explanation: `${twoChar} represents ${ROMAN_TO_ARABIC_MAP[twoChar]} using subtractive notation`,
         })
         i++ // Skip next character
@@ -263,7 +263,7 @@ const generateRomanBreakdown = (roman: string): RomanBreakdown[] => {
     // Single character
     const oneChar = roman[i]
     if (ROMAN_TO_ARABIC_MAP[oneChar]) {
-      const existingIndex = breakdown.findIndex((b) => b.symbol === oneChar && b.type === 'additive')
+      const existingIndex = breakdown.findIndex((b) => b.symbol === oneChar && b.type === "additive")
       if (existingIndex >= 0) {
         breakdown[existingIndex].count++
       } else {
@@ -272,7 +272,7 @@ const generateRomanBreakdown = (roman: string): RomanBreakdown[] => {
           value: ROMAN_TO_ARABIC_MAP[oneChar],
           count: 1,
           position: position++,
-          type: 'additive',
+          type: "additive",
           explanation: `${oneChar} represents ${ROMAN_TO_ARABIC_MAP[oneChar]} in standard notation`,
         })
       }
@@ -285,31 +285,31 @@ const generateRomanBreakdown = (roman: string): RomanBreakdown[] => {
 const getHistoricalContext = (number: number): HistoricalContext => {
   if (number <= 10) {
     return {
-      period: 'Ancient Rome (753 BC - 476 AD)',
-      usage: 'Basic counting and daily commerce',
-      significance: 'Fundamental numbers used in everyday Roman life',
-      modernApplications: ['Clock faces', 'Basic enumeration', 'Simple lists'],
+      period: "Ancient Rome (753 BC - 476 AD)",
+      usage: "Basic counting and daily commerce",
+      significance: "Fundamental numbers used in everyday Roman life",
+      modernApplications: ["Clock faces", "Basic enumeration", "Simple lists"],
     }
   } else if (number <= 100) {
     return {
-      period: 'Roman Republic (509 BC - 27 BC)',
-      usage: 'Trade, military organization, and civic records',
-      significance: 'Numbers used for organizing legions and commercial transactions',
-      modernApplications: ['Chapter numbering', 'Outline systems', 'Anniversary years'],
+      period: "Roman Republic (509 BC - 27 BC)",
+      usage: "Trade, military organization, and civic records",
+      significance: "Numbers used for organizing legions and commercial transactions",
+      modernApplications: ["Chapter numbering", "Outline systems", "Anniversary years"],
     }
   } else if (number <= 1000) {
     return {
-      period: 'Roman Empire (27 BC - 476 AD)',
-      usage: 'Imperial records, large-scale construction, and administration',
-      significance: 'Numbers representing significant imperial projects and populations',
-      modernApplications: ['Year dates', 'Formal documents', 'Monument inscriptions'],
+      period: "Roman Empire (27 BC - 476 AD)",
+      usage: "Imperial records, large-scale construction, and administration",
+      significance: "Numbers representing significant imperial projects and populations",
+      modernApplications: ["Year dates", "Formal documents", "Monument inscriptions"],
     }
   } else {
     return {
-      period: 'Late Roman Empire (284 AD - 476 AD)',
-      usage: 'Complex administrative records and large-scale imperial projects',
-      significance: 'Numbers representing the vast scale of the Roman Empire',
-      modernApplications: ['Millennium markers', 'Historical dates', 'Formal ceremonies'],
+      period: "Late Roman Empire (284 AD - 476 AD)",
+      usage: "Complex administrative records and large-scale imperial projects",
+      significance: "Numbers representing the vast scale of the Roman Empire",
+      modernApplications: ["Millennium markers", "Historical dates", "Formal ceremonies"],
     }
   }
 }
@@ -319,48 +319,48 @@ const getMathematicalProperties = (number: number): MathematicalProperty[] => {
 
   // Basic properties
   properties.push({
-    name: 'Even/Odd',
-    value: number % 2 === 0 ? 'Even' : 'Odd',
-    description: `${number} is ${number % 2 === 0 ? 'an even' : 'an odd'} number`,
-    category: 'number-theory',
+    name: "Even/Odd",
+    value: number % 2 === 0 ? "Even" : "Odd",
+    description: `${number} is ${number % 2 === 0 ? "an even" : "an odd"} number`,
+    category: "number-theory",
   })
 
   // Prime check
   const isPrime =
     number > 1 && Array.from({ length: Math.sqrt(number) }, (_, i) => i + 2).every((divisor) => number % divisor !== 0)
   properties.push({
-    name: 'Prime',
+    name: "Prime",
     value: isPrime,
-    description: `${number} is ${isPrime ? 'a prime' : 'not a prime'} number`,
-    category: 'number-theory',
+    description: `${number} is ${isPrime ? "a prime" : "not a prime"} number`,
+    category: "number-theory",
   })
 
   // Perfect square
   const sqrt = Math.sqrt(number)
   const isPerfectSquare = sqrt === Math.floor(sqrt)
   properties.push({
-    name: 'Perfect Square',
+    name: "Perfect Square",
     value: isPerfectSquare,
-    description: `${number} is ${isPerfectSquare ? 'a perfect square' : 'not a perfect square'}${isPerfectSquare ? ` (${sqrt}²)` : ''}`,
-    category: 'arithmetic',
+    description: `${number} is ${isPerfectSquare ? "a perfect square" : "not a perfect square"}${isPerfectSquare ? ` (${sqrt}²)` : ""}`,
+    category: "arithmetic",
   })
 
   // Fibonacci check
   const isFibonacci = checkFibonacci(number)
   properties.push({
-    name: 'Fibonacci',
+    name: "Fibonacci",
     value: isFibonacci,
-    description: `${number} is ${isFibonacci ? 'a Fibonacci' : 'not a Fibonacci'} number`,
-    category: 'number-theory',
+    description: `${number} is ${isFibonacci ? "a Fibonacci" : "not a Fibonacci"} number`,
+    category: "number-theory",
   })
 
   // Roman representation complexity
   const roman = toRoman(number)
   properties.push({
-    name: 'Roman Length',
+    name: "Roman Length",
     value: roman.length,
-    description: `Requires ${roman.length} character${roman.length !== 1 ? 's' : ''} in Roman notation`,
-    category: 'representation',
+    description: `Requires ${roman.length} character${roman.length !== 1 ? "s" : ""} in Roman notation`,
+    category: "representation",
   })
 
   return properties
@@ -384,28 +384,28 @@ const getEducationalNotes = (arabic: number, roman: string): string[] => {
 
   // Subtractive notation
   if (
-    roman.includes('IV') ||
-    roman.includes('IX') ||
-    roman.includes('XL') ||
-    roman.includes('XC') ||
-    roman.includes('CD') ||
-    roman.includes('CM')
+    roman.includes("IV") ||
+    roman.includes("IX") ||
+    roman.includes("XL") ||
+    roman.includes("XC") ||
+    roman.includes("CD") ||
+    roman.includes("CM")
   ) {
-    notes.push('This number uses subtractive notation, where a smaller numeral before a larger one means subtraction')
+    notes.push("This number uses subtractive notation, where a smaller numeral before a larger one means subtraction")
   }
 
   // Length efficiency
   if (roman.length > 5) {
-    notes.push('This Roman numeral is relatively long, showing why Arabic numerals became preferred for calculations')
+    notes.push("This Roman numeral is relatively long, showing why Arabic numerals became preferred for calculations")
   }
 
   // Historical significance
-  if (arabic === 1) notes.push('I is the simplest Roman numeral, representing unity')
-  if (arabic === 5) notes.push('V represents an open hand with five fingers')
-  if (arabic === 10) notes.push('X represents two hands crossed, symbolizing ten fingers')
-  if (arabic === 50) notes.push('L originally came from a symbol representing half of C (100)')
+  if (arabic === 1) notes.push("I is the simplest Roman numeral, representing unity")
+  if (arabic === 5) notes.push("V represents an open hand with five fingers")
+  if (arabic === 10) notes.push("X represents two hands crossed, symbolizing ten fingers")
+  if (arabic === 50) notes.push("L originally came from a symbol representing half of C (100)")
   if (arabic === 100) notes.push('C comes from the Latin word "centum" meaning hundred')
-  if (arabic === 500) notes.push('D represents half of the original symbol for 1000')
+  if (arabic === 500) notes.push("D represents half of the original symbol for 1000")
   if (arabic === 1000) notes.push('M comes from the Latin word "mille" meaning thousand')
 
   return notes
@@ -415,37 +415,37 @@ const getCommonUsages = (number: number): string[] => {
   const usages: string[] = []
 
   if (number <= 12) {
-    usages.push('Clock faces and time notation')
+    usages.push("Clock faces and time notation")
   }
 
   if (number <= 50) {
-    usages.push('Chapter and section numbering')
-    usages.push('Outline and list enumeration')
+    usages.push("Chapter and section numbering")
+    usages.push("Outline and list enumeration")
   }
 
   if (number >= 1900 && number <= 2100) {
-    usages.push('Year dates in formal documents')
-    usages.push('Copyright notices')
-    usages.push('Movie and book publication dates')
+    usages.push("Year dates in formal documents")
+    usages.push("Copyright notices")
+    usages.push("Movie and book publication dates")
   }
 
   if (number % 25 === 0 || number % 50 === 0) {
-    usages.push('Anniversary and milestone years')
+    usages.push("Anniversary and milestone years")
   }
 
   if ([1, 2, 3, 4, 5].includes(number)) {
-    usages.push('Movie sequels and series numbering')
-    usages.push('Royal and papal names')
+    usages.push("Movie sequels and series numbering")
+    usages.push("Royal and papal names")
   }
 
-  usages.push('Formal and ceremonial contexts')
-  usages.push('Historical and classical references')
+  usages.push("Formal and ceremonial contexts")
+  usages.push("Historical and classical references")
 
   return usages
 }
 
 // Validation functions
-const validateConversion = (input: string | number, type: 'arabic' | 'roman'): ConversionValidation => {
+const validateConversion = (input: string | number, type: "arabic" | "roman"): ConversionValidation => {
   const validation: ConversionValidation = {
     isValid: true,
     errors: [],
@@ -454,24 +454,24 @@ const validateConversion = (input: string | number, type: 'arabic' | 'roman'): C
     qualityScore: 100,
   }
 
-  if (type === 'arabic') {
-    const num = typeof input === 'number' ? input : parseInt(input as string)
+  if (type === "arabic") {
+    const num = typeof input === "number" ? input : parseInt(input as string)
 
     if (isNaN(num)) {
       validation.isValid = false
       validation.errors.push({
-        message: 'Input must be a valid number',
-        type: 'format',
-        severity: 'error',
+        message: "Input must be a valid number",
+        type: "format",
+        severity: "error",
       })
       validation.qualityScore -= 50
     } else {
       if (num <= 0) {
         validation.isValid = false
         validation.errors.push({
-          message: 'Number must be positive (greater than 0)',
-          type: 'range',
-          severity: 'error',
+          message: "Number must be positive (greater than 0)",
+          type: "range",
+          severity: "error",
         })
         validation.qualityScore -= 40
       }
@@ -479,15 +479,15 @@ const validateConversion = (input: string | number, type: 'arabic' | 'roman'): C
       if (num >= 4000) {
         validation.isValid = false
         validation.errors.push({
-          message: 'Number must be less than 4000 (Roman numeral limitation)',
-          type: 'range',
-          severity: 'error',
+          message: "Number must be less than 4000 (Roman numeral limitation)",
+          type: "range",
+          severity: "error",
         })
         validation.qualityScore -= 40
       }
 
       if (num > 3000) {
-        validation.warnings.push('Very large numbers in Roman numerals become quite long')
+        validation.warnings.push("Very large numbers in Roman numerals become quite long")
         validation.qualityScore -= 10
       }
     }
@@ -497,24 +497,24 @@ const validateConversion = (input: string | number, type: 'arabic' | 'roman'): C
     if (!roman) {
       validation.isValid = false
       validation.errors.push({
-        message: 'Roman numeral cannot be empty',
-        type: 'format',
-        severity: 'error',
+        message: "Roman numeral cannot be empty",
+        type: "format",
+        severity: "error",
       })
       validation.qualityScore -= 50
     } else {
       if (!isValidRomanNumeral(roman)) {
         validation.isValid = false
         validation.errors.push({
-          message: 'Invalid Roman numeral format',
-          type: 'syntax',
-          severity: 'error',
+          message: "Invalid Roman numeral format",
+          type: "syntax",
+          severity: "error",
         })
         validation.qualityScore -= 40
       }
 
       if (roman.length > 15) {
-        validation.warnings.push('Very long Roman numeral - consider if this is correct')
+        validation.warnings.push("Very long Roman numeral - consider if this is correct")
         validation.qualityScore -= 15
       }
     }
@@ -522,13 +522,13 @@ const validateConversion = (input: string | number, type: 'arabic' | 'roman'): C
 
   // Quality suggestions
   if (validation.qualityScore >= 90) {
-    validation.suggestions.push('Perfect input for Roman numeral conversion')
+    validation.suggestions.push("Perfect input for Roman numeral conversion")
   } else if (validation.qualityScore >= 70) {
-    validation.suggestions.push('Good input with minor considerations')
+    validation.suggestions.push("Good input with minor considerations")
   } else if (validation.qualityScore >= 50) {
-    validation.suggestions.push('Input needs improvement')
+    validation.suggestions.push("Input needs improvement")
   } else {
-    validation.suggestions.push('Input has significant issues')
+    validation.suggestions.push("Input has significant issues")
   }
 
   return validation
@@ -537,77 +537,77 @@ const validateConversion = (input: string | number, type: 'arabic' | 'roman'): C
 // Roman numeral templates
 const romanTemplates: RomanTemplate[] = [
   {
-    id: 'basic-numbers',
-    name: 'Basic Numbers (1-10)',
-    description: 'Fundamental Roman numerals for learning',
-    category: 'Educational',
+    id: "basic-numbers",
+    name: "Basic Numbers (1-10)",
+    description: "Fundamental Roman numerals for learning",
+    category: "Educational",
     numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    useCase: ['Learning', 'Basic education', 'Clock reading'],
-    difficulty: 'simple',
+    useCase: ["Learning", "Basic education", "Clock reading"],
+    difficulty: "simple",
   },
   {
-    id: 'clock-numbers',
-    name: 'Clock Numbers (1-12)',
-    description: 'Roman numerals commonly found on clock faces',
-    category: 'Practical',
+    id: "clock-numbers",
+    name: "Clock Numbers (1-12)",
+    description: "Roman numerals commonly found on clock faces",
+    category: "Practical",
     numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    useCase: ['Clock faces', 'Time notation', 'Watch design'],
-    difficulty: 'simple',
+    useCase: ["Clock faces", "Time notation", "Watch design"],
+    difficulty: "simple",
   },
   {
-    id: 'significant-years',
-    name: 'Significant Years',
-    description: 'Important historical years in Roman numerals',
-    category: 'Historical',
+    id: "significant-years",
+    name: "Significant Years",
+    description: "Important historical years in Roman numerals",
+    category: "Historical",
     numbers: [1776, 1969, 2000, 2024],
-    useCase: ['Historical dates', 'Monuments', 'Formal documents'],
-    difficulty: 'medium',
-    historicalSignificance: 'Years marking important historical events',
+    useCase: ["Historical dates", "Monuments", "Formal documents"],
+    difficulty: "medium",
+    historicalSignificance: "Years marking important historical events",
   },
   {
-    id: 'round-numbers',
-    name: 'Round Numbers',
-    description: 'Common round numbers and milestones',
-    category: 'Practical',
+    id: "round-numbers",
+    name: "Round Numbers",
+    description: "Common round numbers and milestones",
+    category: "Practical",
     numbers: [10, 25, 50, 100, 250, 500, 1000],
-    useCase: ['Anniversaries', 'Milestones', 'Formal numbering'],
-    difficulty: 'medium',
+    useCase: ["Anniversaries", "Milestones", "Formal numbering"],
+    difficulty: "medium",
   },
   {
-    id: 'subtractive-examples',
-    name: 'Subtractive Notation',
-    description: 'Examples demonstrating subtractive Roman numeral rules',
-    category: 'Educational',
+    id: "subtractive-examples",
+    name: "Subtractive Notation",
+    description: "Examples demonstrating subtractive Roman numeral rules",
+    category: "Educational",
     numbers: [4, 9, 14, 19, 40, 90, 400, 900],
-    useCase: ['Learning subtractive rules', 'Advanced education'],
-    difficulty: 'medium',
+    useCase: ["Learning subtractive rules", "Advanced education"],
+    difficulty: "medium",
   },
   {
-    id: 'movie-sequels',
-    name: 'Movie Sequels',
-    description: 'Roman numerals commonly used in movie titles',
-    category: 'Popular Culture',
+    id: "movie-sequels",
+    name: "Movie Sequels",
+    description: "Roman numerals commonly used in movie titles",
+    category: "Popular Culture",
     numbers: [2, 3, 4, 5, 6],
-    useCase: ['Movie titles', 'Series numbering', 'Entertainment'],
-    difficulty: 'simple',
+    useCase: ["Movie titles", "Series numbering", "Entertainment"],
+    difficulty: "simple",
   },
   {
-    id: 'super-bowl',
-    name: 'Super Bowl Numbers',
-    description: 'Recent Super Bowl Roman numerals',
-    category: 'Sports',
+    id: "super-bowl",
+    name: "Super Bowl Numbers",
+    description: "Recent Super Bowl Roman numerals",
+    category: "Sports",
     numbers: [50, 51, 52, 53, 54, 55, 56, 57, 58],
-    useCase: ['Sports events', 'Annual numbering', 'Broadcasting'],
-    difficulty: 'medium',
+    useCase: ["Sports events", "Annual numbering", "Broadcasting"],
+    difficulty: "medium",
   },
   {
-    id: 'complex-numbers',
-    name: 'Complex Numbers',
-    description: 'Large numbers demonstrating Roman numeral complexity',
-    category: 'Advanced',
+    id: "complex-numbers",
+    name: "Complex Numbers",
+    description: "Large numbers demonstrating Roman numeral complexity",
+    category: "Advanced",
     numbers: [1984, 2023, 3999, 3888, 2749],
-    useCase: ['Advanced learning', 'Historical analysis', 'Academic study'],
-    difficulty: 'complex',
+    useCase: ["Advanced learning", "Historical analysis", "Academic study"],
+    difficulty: "complex",
   },
 ]
 
@@ -617,7 +617,7 @@ const useRomanConversion = () => {
   const [isProcessing, setIsProcessing] = useState(false)
 
   const performConversion = useCallback(
-    async (input: string | number, type: 'arabic-to-roman' | 'roman-to-arabic'): Promise<RomanConversion> => {
+    async (input: string | number, type: "arabic-to-roman" | "roman-to-arabic"): Promise<RomanConversion> => {
       setIsProcessing(true)
       const startTime = performance.now()
 
@@ -625,8 +625,8 @@ const useRomanConversion = () => {
         let arabicNumber: number
         let romanNumeral: string
 
-        if (type === 'arabic-to-roman') {
-          arabicNumber = typeof input === 'number' ? input : parseInt(input as string)
+        if (type === "arabic-to-roman") {
+          arabicNumber = typeof input === "number" ? input : parseInt(input as string)
           romanNumeral = toRoman(arabicNumber)
         } else {
           romanNumeral = (input as string).toUpperCase().trim()
@@ -638,12 +638,12 @@ const useRomanConversion = () => {
 
         // Generate metadata
         const hasSubtractiveCases =
-          romanNumeral.includes('IV') ||
-          romanNumeral.includes('IX') ||
-          romanNumeral.includes('XL') ||
-          romanNumeral.includes('XC') ||
-          romanNumeral.includes('CD') ||
-          romanNumeral.includes('CM')
+          romanNumeral.includes("IV") ||
+          romanNumeral.includes("IX") ||
+          romanNumeral.includes("XL") ||
+          romanNumeral.includes("XC") ||
+          romanNumeral.includes("CD") ||
+          romanNumeral.includes("CM")
 
         const romanSymbols = ROMAN_SYMBOLS.filter((symbol) => romanNumeral.includes(symbol.symbol))
 
@@ -703,13 +703,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -719,35 +719,35 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useRomanExport = () => {
   const exportConversion = useCallback((conversion: RomanConversion, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(conversion, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromConversion(conversion)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'txt':
+      case "txt":
         content = generateTextFromConversion(conversion)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromConversion(conversion)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'html':
+      case "html":
         content = generateHTMLFromConversion(conversion)
-        mimeType = 'text/html'
-        extension = '.html'
+        mimeType = "text/html"
+        extension = ".html"
         break
       default:
         content = generateTextFromConversion(conversion)
@@ -756,7 +756,7 @@ const useRomanExport = () => {
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `roman-conversion-${conversion.id}${extension}`
     document.body.appendChild(link)
@@ -770,21 +770,21 @@ const useRomanExport = () => {
 
 // Helper functions for export formats
 const generateCSVFromConversion = (conversion: RomanConversion): string => {
-  const headers = ['Property', 'Value']
+  const headers = ["Property", "Value"]
   const rows = [
-    ['Arabic Number', conversion.arabicNumber.toString()],
-    ['Roman Numeral', conversion.romanNumeral],
-    ['Conversion Type', conversion.conversionType],
-    ['Conversion Time (ms)', conversion.metadata.conversionTime.toFixed(2)],
-    ['Roman Length', conversion.metadata.romanLength.toString()],
-    ['Complexity', conversion.metadata.complexity.toString()],
-    ['Has Subtractive Cases', conversion.metadata.hasSubtractiveCases.toString()],
-    ['Historical Period', conversion.analysis.historicalContext.period],
-    ['Common Usage', conversion.analysis.historicalContext.usage],
-    ['Timestamp', conversion.timestamp.toISOString()],
+    ["Arabic Number", conversion.arabicNumber.toString()],
+    ["Roman Numeral", conversion.romanNumeral],
+    ["Conversion Type", conversion.conversionType],
+    ["Conversion Time (ms)", conversion.metadata.conversionTime.toFixed(2)],
+    ["Roman Length", conversion.metadata.romanLength.toString()],
+    ["Complexity", conversion.metadata.complexity.toString()],
+    ["Has Subtractive Cases", conversion.metadata.hasSubtractiveCases.toString()],
+    ["Historical Period", conversion.analysis.historicalContext.period],
+    ["Common Usage", conversion.analysis.historicalContext.usage],
+    ["Timestamp", conversion.timestamp.toISOString()],
   ]
 
-  return [headers.join(','), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
+  return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
 }
 
 const generateTextFromConversion = (conversion: RomanConversion): string => {
@@ -793,16 +793,16 @@ const generateTextFromConversion = (conversion: RomanConversion): string => {
 === CONVERSION ===
 Arabic Number: ${formatNumber(conversion.arabicNumber)}
 Roman Numeral: ${conversion.romanNumeral}
-Conversion Type: ${conversion.conversionType.replace('-', ' to ').toUpperCase()}
+Conversion Type: ${conversion.conversionType.replace("-", " to ").toUpperCase()}
 
 === ANALYSIS ===
 Roman Length: ${conversion.metadata.romanLength} characters
 Complexity Score: ${conversion.metadata.complexity}
-Has Subtractive Notation: ${conversion.metadata.hasSubtractiveCases ? 'Yes' : 'No'}
+Has Subtractive Notation: ${conversion.metadata.hasSubtractiveCases ? "Yes" : "No"}
 Conversion Time: ${conversion.metadata.conversionTime.toFixed(2)} ms
 
 === BREAKDOWN ===
-${conversion.analysis.breakdown.map((b) => `${b.symbol} = ${b.value} (${b.type}, count: ${b.count})`).join('\n')}
+${conversion.analysis.breakdown.map((b) => `${b.symbol} = ${b.value} (${b.type}, count: ${b.count})`).join("\n")}
 
 === HISTORICAL CONTEXT ===
 Period: ${conversion.analysis.historicalContext.period}
@@ -810,13 +810,13 @@ Usage: ${conversion.analysis.historicalContext.usage}
 Significance: ${conversion.analysis.historicalContext.significance}
 
 === MATHEMATICAL PROPERTIES ===
-${conversion.analysis.mathematicalProperties.map((p) => `${p.name}: ${p.value} - ${p.description}`).join('\n')}
+${conversion.analysis.mathematicalProperties.map((p) => `${p.name}: ${p.value} - ${p.description}`).join("\n")}
 
 === EDUCATIONAL NOTES ===
-${conversion.analysis.educationalNotes.join('\n')}
+${conversion.analysis.educationalNotes.join("\n")}
 
 === COMMON USAGES ===
-${conversion.analysis.commonUsages.join('\n')}`
+${conversion.analysis.commonUsages.join("\n")}`
 }
 
 const generateXMLFromConversion = (conversion: RomanConversion): string => {
@@ -842,7 +842,7 @@ const generateXMLFromConversion = (conversion: RomanConversion): string => {
     <breakdown>
       ${conversion.analysis.breakdown
         .map((b) => `<symbol value="${b.value}" type="${b.type}" count="${b.count}">${b.symbol}</symbol>`)
-        .join('\n      ')}
+        .join("\n      ")}
     </breakdown>
   </analysis>
 </romanConversion>`
@@ -870,7 +870,7 @@ const generateHTMLFromConversion = (conversion: RomanConversion): string => {
 
   <div class="conversion">
     <h2>${formatNumber(conversion.arabicNumber)} = ${conversion.romanNumeral}</h2>
-    <p><strong>Conversion Type:</strong> ${conversion.conversionType.replace('-', ' to ').toUpperCase()}</p>
+    <p><strong>Conversion Type:</strong> ${conversion.conversionType.replace("-", " to ").toUpperCase()}</p>
     <p><strong>Roman Length:</strong> ${conversion.metadata.romanLength} characters</p>
     <p><strong>Complexity:</strong> ${conversion.metadata.complexity}</p>
   </div>
@@ -887,7 +887,7 @@ const generateHTMLFromConversion = (conversion: RomanConversion): string => {
         Count: ${b.count}
       </div>`
       )
-      .join('')}
+      .join("")}
   </div>
 
   <h3>Historical Context</h3>
@@ -899,12 +899,12 @@ const generateHTMLFromConversion = (conversion: RomanConversion): string => {
   <ul class="properties">
     ${conversion.analysis.mathematicalProperties
       .map((p) => `<li><strong>${p.name}:</strong> ${p.value} - ${p.description}</li>`)
-      .join('')}
+      .join("")}
   </ul>
 
   <h3>Educational Notes</h3>
   <ul>
-    ${conversion.analysis.educationalNotes.map((note) => `<li>${note}</li>`).join('')}
+    ${conversion.analysis.educationalNotes.map((note) => `<li>${note}</li>`).join("")}
   </ul>
 </body>
 </html>`
@@ -915,14 +915,14 @@ const generateHTMLFromConversion = (conversion: RomanConversion): string => {
  * Features: Advanced conversion, historical context, educational content, and comprehensive analysis
  */
 const RomanNumeralCore = () => {
-  const [activeTab, setActiveTab] = useState<'converter' | 'analysis' | 'history' | 'templates' | 'settings'>(
-    'converter'
+  const [activeTab, setActiveTab] = useState<"converter" | "analysis" | "history" | "templates" | "settings">(
+    "converter"
   )
-  const [arabicInput, setArabicInput] = useState<string>('1')
-  const [romanInput, setRomanInput] = useState<string>('I')
+  const [arabicInput, setArabicInput] = useState<string>("1")
+  const [romanInput, setRomanInput] = useState<string>("I")
   const [currentConversion, setCurrentConversion] = useState<RomanConversion | null>(null)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
-  const [conversionMode, setConversionMode] = useState<'arabic-to-roman' | 'roman-to-arabic'>('arabic-to-roman')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
+  const [conversionMode, setConversionMode] = useState<"arabic-to-roman" | "roman-to-arabic">("arabic-to-roman")
 
   const { conversions, isProcessing, performConversion, clearConversions, removeConversion } = useRomanConversion()
   const { exportConversion } = useRomanExport()
@@ -935,7 +935,7 @@ const RomanNumeralCore = () => {
       const randomNumber = template.numbers[Math.floor(Math.random() * template.numbers.length)]
       setArabicInput(randomNumber.toString())
       setRomanInput(toRoman(randomNumber))
-      setConversionMode('arabic-to-roman')
+      setConversionMode("arabic-to-roman")
       setSelectedTemplate(templateId)
       toast.success(`Applied template: ${template.name}`)
     }
@@ -943,11 +943,11 @@ const RomanNumeralCore = () => {
 
   // Perform conversion
   const handleConvert = useCallback(
-    async (type?: 'arabic-to-roman' | 'roman-to-arabic') => {
+    async (type?: "arabic-to-roman" | "roman-to-arabic") => {
       const conversionType = type || conversionMode
-      const input = conversionType === 'arabic-to-roman' ? arabicInput : romanInput
+      const input = conversionType === "arabic-to-roman" ? arabicInput : romanInput
 
-      const validation = validateConversion(input, conversionType === 'arabic-to-roman' ? 'arabic' : 'roman')
+      const validation = validateConversion(input, conversionType === "arabic-to-roman" ? "arabic" : "roman")
       if (!validation.isValid) {
         toast.error(`Conversion error: ${validation.errors[0]?.message}`)
         return
@@ -958,7 +958,7 @@ const RomanNumeralCore = () => {
         setCurrentConversion(conversion)
 
         // Update the other input field
-        if (conversionType === 'arabic-to-roman') {
+        if (conversionType === "arabic-to-roman") {
           setRomanInput(conversion.romanNumeral)
         } else {
           setArabicInput(conversion.arabicNumber.toString())
@@ -977,11 +977,11 @@ const RomanNumeralCore = () => {
   const handleArabicChange = useCallback(
     (value: string) => {
       setArabicInput(value)
-      setConversionMode('arabic-to-roman')
+      setConversionMode("arabic-to-roman")
 
       if (value && !isNaN(parseInt(value))) {
         const timer = setTimeout(() => {
-          handleConvert('arabic-to-roman')
+          handleConvert("arabic-to-roman")
         }, 500)
 
         return () => clearTimeout(timer)
@@ -993,11 +993,11 @@ const RomanNumeralCore = () => {
   const handleRomanChange = useCallback(
     (value: string) => {
       setRomanInput(value.toUpperCase())
-      setConversionMode('roman-to-arabic')
+      setConversionMode("roman-to-arabic")
 
       if (value.trim()) {
         const timer = setTimeout(() => {
-          handleConvert('roman-to-arabic')
+          handleConvert("roman-to-arabic")
         }, 500)
 
         return () => clearTimeout(timer)
@@ -1008,8 +1008,8 @@ const RomanNumeralCore = () => {
 
   // Swap conversion direction
   const handleSwapMode = useCallback(() => {
-    setConversionMode((prev) => (prev === 'arabic-to-roman' ? 'roman-to-arabic' : 'arabic-to-roman'))
-    toast.success('Conversion direction swapped')
+    setConversionMode((prev) => (prev === "arabic-to-roman" ? "roman-to-arabic" : "arabic-to-roman"))
+    toast.success("Conversion direction swapped")
   }, [])
 
   return (
@@ -1022,12 +1022,15 @@ const RomanNumeralCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Scroll className="h-5 w-5" aria-hidden="true" />
+              <Scroll className="h-5 w-5" />
               Roman Numeral & Classical Number System Tool
             </CardTitle>
             <CardDescription>
@@ -1039,32 +1042,53 @@ const RomanNumeralCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as any)}
+        >
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="converter" className="flex items-center gap-2">
+            <TabsTrigger
+              value="converter"
+              className="flex items-center gap-2"
+            >
               <ArrowLeftRight className="h-4 w-4" />
               Converter
             </TabsTrigger>
-            <TabsTrigger value="analysis" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analysis"
+              className="flex items-center gap-2"
+            >
               <BarChart3 className="h-4 w-4" />
               Analysis
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger
+              value="settings"
+              className="flex items-center gap-2"
+            >
               <Settings className="h-4 w-4" />
               Settings
             </TabsTrigger>
           </TabsList>
 
           {/* Roman Numeral Converter Tab */}
-          <TabsContent value="converter" className="space-y-4">
+          <TabsContent
+            value="converter"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Conversion Input */}
               <Card>
@@ -1077,7 +1101,10 @@ const RomanNumeralCore = () => {
                 <CardContent className="space-y-4">
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="arabic-input" className="text-sm font-medium">
+                      <Label
+                        htmlFor="arabic-input"
+                        className="text-sm font-medium"
+                      >
                         Arabic Number (1-3999)
                       </Label>
                       <Input
@@ -1093,13 +1120,20 @@ const RomanNumeralCore = () => {
                     </div>
 
                     <div className="flex items-center justify-center">
-                      <Button onClick={handleSwapMode} variant="outline" size="sm">
+                      <Button
+                        onClick={handleSwapMode}
+                        variant="outline"
+                        size="sm"
+                      >
                         <ArrowUpDown className="h-4 w-4" />
                       </Button>
                     </div>
 
                     <div>
-                      <Label htmlFor="roman-input" className="text-sm font-medium">
+                      <Label
+                        htmlFor="roman-input"
+                        className="text-sm font-medium"
+                      >
                         Roman Numeral
                       </Label>
                       <Input
@@ -1109,24 +1143,28 @@ const RomanNumeralCore = () => {
                         onChange={(e) => handleRomanChange(e.target.value)}
                         className="mt-2"
                         placeholder="Enter Roman numeral..."
-                        style={{ textTransform: 'uppercase' }}
+                        style={{ textTransform: "uppercase" }}
                       />
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={() => handleConvert()} disabled={isProcessing} className="flex-1">
+                    <Button
+                      onClick={() => handleConvert()}
+                      disabled={isProcessing}
+                      className="flex-1"
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
                         <ArrowLeftRight className="mr-2 h-4 w-4" />
                       )}
-                      {isProcessing ? 'Converting...' : 'Convert'}
+                      {isProcessing ? "Converting..." : "Convert"}
                     </Button>
                     <Button
                       onClick={() => {
-                        setArabicInput('1')
-                        setRomanInput('I')
+                        setArabicInput("1")
+                        setRomanInput("I")
                         setCurrentConversion(null)
                       }}
                       variant="outline"
@@ -1140,17 +1178,17 @@ const RomanNumeralCore = () => {
                     <Label className="text-sm font-medium">Quick Examples</Label>
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { arabic: 4, roman: 'IV' },
-                        { arabic: 9, roman: 'IX' },
-                        { arabic: 2024, roman: 'MMXXIV' },
-                        { arabic: 1776, roman: 'MDCCLXXVI' },
+                        { arabic: 4, roman: "IV" },
+                        { arabic: 9, roman: "IX" },
+                        { arabic: 2024, roman: "MMXXIV" },
+                        { arabic: 1776, roman: "MDCCLXXVI" },
                       ].map((example) => (
                         <Button
                           key={example.arabic}
                           onClick={() => {
                             setArabicInput(example.arabic.toString())
                             setRomanInput(example.roman)
-                            handleConvert('arabic-to-roman')
+                            handleConvert("arabic-to-roman")
                           }}
                           variant="outline"
                           size="sm"
@@ -1185,7 +1223,7 @@ const RomanNumeralCore = () => {
                             {currentConversion.romanNumeral}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {currentConversion.conversionType.replace('-', ' to ').toUpperCase()}
+                            {currentConversion.conversionType.replace("-", " to ").toUpperCase()}
                           </div>
                         </div>
                       </div>
@@ -1195,7 +1233,10 @@ const RomanNumeralCore = () => {
                         <Label className="text-sm font-medium">Symbol Breakdown</Label>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                           {currentConversion.analysis.breakdown.map((symbol, index) => (
-                            <div key={index} className="p-3 border rounded-lg text-center">
+                            <div
+                              key={index}
+                              className="p-3 border rounded-lg text-center"
+                            >
                               <div className="text-lg font-bold font-mono">{symbol.symbol}</div>
                               <div className="text-sm text-muted-foreground">{symbol.value}</div>
                               <div className="text-xs text-muted-foreground">{symbol.type}</div>
@@ -1222,7 +1263,7 @@ const RomanNumeralCore = () => {
                           </div>
                           <div className="text-center">
                             <div className="text-lg font-bold text-orange-600">
-                              {currentConversion.metadata.hasSubtractiveCases ? 'Yes' : 'No'}
+                              {currentConversion.metadata.hasSubtractiveCases ? "Yes" : "No"}
                             </div>
                             <div className="text-xs text-muted-foreground">Subtractive</div>
                           </div>
@@ -1240,7 +1281,10 @@ const RomanNumeralCore = () => {
                         <Label className="text-sm font-medium">Educational Notes</Label>
                         <div className="space-y-1">
                           {currentConversion.analysis.educationalNotes.slice(0, 3).map((note, index) => (
-                            <div key={index} className="text-sm p-2 bg-muted rounded text-muted-foreground">
+                            <div
+                              key={index}
+                              className="text-sm p-2 bg-muted rounded text-muted-foreground"
+                            >
                               {note}
                             </div>
                           ))}
@@ -1249,11 +1293,19 @@ const RomanNumeralCore = () => {
 
                       {/* Export Options */}
                       <div className="flex gap-2 pt-4 border-t">
-                        <Button onClick={() => exportConversion(currentConversion, 'json')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportConversion(currentConversion, "json")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           JSON
                         </Button>
-                        <Button onClick={() => exportConversion(currentConversion, 'html')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportConversion(currentConversion, "html")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           HTML
                         </Button>
@@ -1261,13 +1313,13 @@ const RomanNumeralCore = () => {
                           onClick={() =>
                             copyToClipboard(
                               `${currentConversion.arabicNumber} = ${currentConversion.romanNumeral}`,
-                              'Conversion Result'
+                              "Conversion Result"
                             )
                           }
                           variant="outline"
                           size="sm"
                         >
-                          {copiedText === 'Conversion Result' ? (
+                          {copiedText === "Conversion Result" ? (
                             <Check className="h-4 w-4" />
                           ) : (
                             <Copy className="h-4 w-4" />
@@ -1288,7 +1340,10 @@ const RomanNumeralCore = () => {
           </TabsContent>
 
           {/* Analysis Tab */}
-          <TabsContent value="analysis" className="space-y-4">
+          <TabsContent
+            value="analysis"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1338,7 +1393,10 @@ const RomanNumeralCore = () => {
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {currentConversion.analysis.mathematicalProperties.map((prop, index) => (
-                          <div key={index} className="p-4 border rounded-lg">
+                          <div
+                            key={index}
+                            className="p-4 border rounded-lg"
+                          >
                             <div className="font-medium text-sm mb-1">{prop.name}</div>
                             <div className="text-lg font-bold mb-1">{prop.value.toString()}</div>
                             <div className="text-xs text-muted-foreground">{prop.description}</div>
@@ -1355,7 +1413,10 @@ const RomanNumeralCore = () => {
                       </h4>
                       <div className="space-y-3">
                         {currentConversion.analysis.breakdown.map((symbol, index) => (
-                          <div key={index} className="p-4 border rounded-lg">
+                          <div
+                            key={index}
+                            className="p-4 border rounded-lg"
+                          >
                             <div className="flex items-center justify-between mb-2">
                               <div className="text-2xl font-bold font-mono">{symbol.symbol}</div>
                               <div className="text-right">
@@ -1378,7 +1439,10 @@ const RomanNumeralCore = () => {
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {currentConversion.analysis.commonUsages.map((usage, index) => (
-                          <div key={index} className="p-3 bg-muted rounded text-sm">
+                          <div
+                            key={index}
+                            className="p-3 bg-muted rounded text-sm"
+                          >
                             {usage}
                           </div>
                         ))}
@@ -1397,7 +1461,10 @@ const RomanNumeralCore = () => {
           </TabsContent>
 
           {/* History Tab */}
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent
+            value="history"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Conversion History</CardTitle>
@@ -1408,16 +1475,23 @@ const RomanNumeralCore = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        {conversions.length} conversion{conversions.length !== 1 ? 's' : ''} in history
+                        {conversions.length} conversion{conversions.length !== 1 ? "s" : ""} in history
                       </span>
-                      <Button onClick={clearConversions} variant="outline" size="sm">
+                      <Button
+                        onClick={clearConversions}
+                        variant="outline"
+                        size="sm"
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Clear History
                       </Button>
                     </div>
 
                     {conversions.map((conversion) => (
-                      <div key={conversion.id} className="border rounded-lg p-4">
+                      <div
+                        key={conversion.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex justify-between items-start mb-2">
                           <div className="font-medium text-sm">
                             {formatNumber(conversion.arabicNumber)} = {conversion.romanNumeral}
@@ -1426,14 +1500,18 @@ const RomanNumeralCore = () => {
                             <span className="text-xs px-2 py-1 bg-muted rounded">
                               {conversion.timestamp.toLocaleString()}
                             </span>
-                            <Button size="sm" variant="ghost" onClick={() => removeConversion(conversion.id)}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeConversion(conversion.id)}
+                            >
                               <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
                         </div>
                         <div className="space-y-2">
                           <div className="text-sm">
-                            <strong>Type:</strong> {conversion.conversionType.replace('-', ' to ').toUpperCase()}
+                            <strong>Type:</strong> {conversion.conversionType.replace("-", " to ").toUpperCase()}
                           </div>
                           <div className="grid grid-cols-4 gap-4 text-xs text-center">
                             <div>
@@ -1446,7 +1524,7 @@ const RomanNumeralCore = () => {
                             </div>
                             <div>
                               <div className="font-medium">
-                                {conversion.metadata.hasSubtractiveCases ? 'Yes' : 'No'}
+                                {conversion.metadata.hasSubtractiveCases ? "Yes" : "No"}
                               </div>
                               <div className="text-muted-foreground">Subtractive</div>
                             </div>
@@ -1464,19 +1542,23 @@ const RomanNumeralCore = () => {
                               setArabicInput(conversion.arabicNumber.toString())
                               setRomanInput(conversion.romanNumeral)
                               setCurrentConversion(conversion)
-                              setActiveTab('converter')
+                              setActiveTab("converter")
                             }}
                           >
                             <Eye className="h-3 w-3" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => exportConversion(conversion, 'json')}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => exportConversion(conversion, "json")}
+                          >
                             <Download className="h-3 w-3" />
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() =>
-                              copyToClipboard(`${conversion.arabicNumber} = ${conversion.romanNumeral}`, 'Conversion')
+                              copyToClipboard(`${conversion.arabicNumber} = ${conversion.romanNumeral}`, "Conversion")
                             }
                           >
                             <Copy className="h-3 w-3" />
@@ -1497,7 +1579,10 @@ const RomanNumeralCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Roman Numeral Templates</CardTitle>
@@ -1509,7 +1594,7 @@ const RomanNumeralCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1520,11 +1605,11 @@ const RomanNumeralCore = () => {
                             <span className="text-xs px-2 py-1 bg-muted rounded">{template.category}</span>
                             <span
                               className={`text-xs px-2 py-1 rounded ${
-                                template.difficulty === 'simple'
-                                  ? 'bg-green-100 text-green-800'
-                                  : template.difficulty === 'medium'
-                                    ? 'bg-yellow-100 text-yellow-800'
-                                    : 'bg-red-100 text-red-800'
+                                template.difficulty === "simple"
+                                  ? "bg-green-100 text-green-800"
+                                  : template.difficulty === "medium"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
                               }`}
                             >
                               {template.difficulty}
@@ -1535,13 +1620,13 @@ const RomanNumeralCore = () => {
                         <div>
                           <div className="text-xs font-medium mb-1">Numbers ({template.numbers.length}):</div>
                           <div className="text-xs text-muted-foreground">
-                            {template.numbers.slice(0, 5).join(', ')}
-                            {template.numbers.length > 5 ? '...' : ''}
+                            {template.numbers.slice(0, 5).join(", ")}
+                            {template.numbers.length > 5 ? "..." : ""}
                           </div>
                         </div>
                         <div>
                           <div className="text-xs font-medium mb-1">Use Cases:</div>
-                          <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                          <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                         </div>
                         {template.historicalSignificance && (
                           <div>
@@ -1558,7 +1643,10 @@ const RomanNumeralCore = () => {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-4">
+          <TabsContent
+            value="settings"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Roman Numeral Settings</CardTitle>
@@ -1570,7 +1658,10 @@ const RomanNumeralCore = () => {
                   <h4 className="font-medium">Roman Numeral Symbols</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {ROMAN_SYMBOLS.map((symbol) => (
-                      <div key={symbol.symbol} className="flex items-center gap-3 p-3 border rounded-lg">
+                      <div
+                        key={symbol.symbol}
+                        className="flex items-center gap-3 p-3 border rounded-lg"
+                      >
                         <div className="text-3xl font-bold font-mono w-12 text-center">{symbol.symbol}</div>
                         <div className="flex-1">
                           <div className="font-medium text-sm">
@@ -1578,7 +1669,7 @@ const RomanNumeralCore = () => {
                           </div>
                           <div className="text-xs text-muted-foreground mb-1">{symbol.origin}</div>
                           <div className="text-xs text-muted-foreground">
-                            Modern usage: {symbol.modernUsage.join(', ')}
+                            Modern usage: {symbol.modernUsage.join(", ")}
                           </div>
                         </div>
                       </div>

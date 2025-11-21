@@ -1,11 +1,11 @@
-import { useCallback, useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -22,8 +22,8 @@ import {
   Fingerprint,
   Layers,
   Code,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   UUIDResult,
   UUIDMetadata,
@@ -40,49 +40,49 @@ import type {
   UUIDType,
   UUIDFormat,
   ExportFormat,
-} from '@/types/uuid-generator'
+} from "@/types/uuid-generator"
 
 // Enhanced Types
 
 // UUID generation functions
 const generateUUID = (type: UUIDType, settings?: Partial<GenerationSettings>): string => {
   switch (type) {
-    case 'uuid_v1':
+    case "uuid_v1":
       // Simulate UUID v1 (timestamp-based)
       const timestamp = Date.now().toString(16)
       const random = Math.random().toString(16).substring(2, 14)
       return `${timestamp.substring(0, 8)}-${timestamp.substring(8, 12)}-1${random.substring(0, 3)}-${random.substring(3, 7)}-${random.substring(7, 19)}`
 
-    case 'uuid_v4':
+    case "uuid_v4":
       // Generate UUID v4 (random)
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
         const r = (Math.random() * 16) | 0
-        const v = c === 'x' ? r : (r & 0x3) | 0x8
+        const v = c === "x" ? r : (r & 0x3) | 0x8
         return v.toString(16)
       })
 
-    case 'uuid_v5':
+    case "uuid_v5":
       // Simulate UUID v5 (namespace + name hash)
-      const namespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8'
-      const name = 'example'
+      const namespace = "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+      const name = "example"
       const hash = btoa(namespace + name)
-        .replace(/[^a-f0-9]/gi, '')
+        .replace(/[^a-f0-9]/gi, "")
         .substring(0, 32)
       return `${hash.substring(0, 8)}-${hash.substring(8, 12)}-5${hash.substring(13, 16)}-${hash.substring(16, 20)}-${hash.substring(20, 32)}`
 
-    case 'nanoid':
+    case "nanoid":
       const length = settings?.customLength || 21
       // @ts-ignore
-      const alphabet = settings?.customAlphabet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-'
+      const alphabet = settings?.customAlphabet || "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"
       return nanoid(length)
 
-    case 'ulid':
+    case "ulid":
       // Simulate ULID (Universally Unique Lexicographically Sortable Identifier)
       const time = Date.now().toString(36).toUpperCase()
       const randomPart = Math.random().toString(36).substring(2, 18).toUpperCase()
       return time + randomPart
 
-    case 'cuid':
+    case "cuid":
       // Simulate CUID (Collision-resistant Unique Identifier)
       const timestamp_cuid = Date.now().toString(36)
       const counter = Math.floor(Math.random() * 1000).toString(36)
@@ -90,22 +90,22 @@ const generateUUID = (type: UUIDType, settings?: Partial<GenerationSettings>): s
       const random_cuid = Math.random().toString(36).substring(2, 6)
       return `c${timestamp_cuid}${counter}${fingerprint}${random_cuid}`
 
-    case 'short_uuid':
+    case "short_uuid":
       // Generate short UUID
       return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 
-    case 'custom':
+    case "custom":
       const customLength = settings?.customLength || 16
       const customAlphabet =
-        settings?.customAlphabet || '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-      let result = ''
+        settings?.customAlphabet || "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+      let result = ""
       for (let i = 0; i < customLength; i++) {
         result += customAlphabet.charAt(Math.floor(Math.random() * customAlphabet.length))
       }
       return result
 
     default:
-      return generateUUID('uuid_v4')
+      return generateUUID("uuid_v4")
   }
 }
 
@@ -113,38 +113,38 @@ const formatUUID = (uuid: string, format: UUIDFormat, settings?: Partial<Generat
   let formatted = uuid
 
   // Apply case formatting
-  if (settings?.case === 'uppercase') {
+  if (settings?.case === "uppercase") {
     formatted = formatted.toUpperCase()
-  } else if (settings?.case === 'lowercase') {
+  } else if (settings?.case === "lowercase") {
     formatted = formatted.toLowerCase()
   }
 
   // Apply format-specific transformations
   switch (format) {
-    case 'standard':
+    case "standard":
       // Keep as-is
       break
-    case 'compact':
-      formatted = formatted.replace(/-/g, '')
+    case "compact":
+      formatted = formatted.replace(/-/g, "")
       break
-    case 'braced':
+    case "braced":
       formatted = `{${formatted}}`
       break
-    case 'urn':
+    case "urn":
       formatted = `urn:uuid:${formatted}`
       break
-    case 'base64':
+    case "base64":
       try {
         formatted = btoa(formatted)
-          .replace(/[^A-Za-z0-9]/g, '')
+          .replace(/[^A-Za-z0-9]/g, "")
           .substring(0, 22)
       } catch {
         // Fallback if btoa fails
-        formatted = formatted.replace(/[^A-Za-z0-9]/g, '').substring(0, 22)
+        formatted = formatted.replace(/[^A-Za-z0-9]/g, "").substring(0, 22)
       }
       break
-    case 'hex':
-      formatted = formatted.replace(/-/g, '').toLowerCase()
+    case "hex":
+      formatted = formatted.replace(/-/g, "").toLowerCase()
       break
   }
 
@@ -170,19 +170,19 @@ const analyzeUUID = (uuid: string, type: UUIDType): UUIDAnalysis => {
 
   // Generate recommendations based on analysis
   if (security.security_score < 70) {
-    recommendations.push('Consider using a more secure UUID type for sensitive applications')
+    recommendations.push("Consider using a more secure UUID type for sensitive applications")
   }
 
   if (quality.overall_quality < 80) {
-    recommendations.push('UUID quality could be improved with better randomness')
+    recommendations.push("UUID quality could be improved with better randomness")
   }
 
   if (structure.total_length < 16) {
-    warnings.push('Short UUIDs may have higher collision probability')
+    warnings.push("Short UUIDs may have higher collision probability")
   }
 
-  if (security.predictability === 'high') {
-    warnings.push('UUID may be predictable, avoid for security-sensitive use cases')
+  if (security.predictability === "high") {
+    warnings.push("UUID may be predictable, avoid for security-sensitive use cases")
   }
 
   return {
@@ -196,100 +196,100 @@ const analyzeUUID = (uuid: string, type: UUIDType): UUIDAnalysis => {
 }
 
 const analyzeUUIDStructure = (uuid: string): UUIDStructure => {
-  const segments = uuid.split('-')
+  const segments = uuid.split("-")
   const separators = uuid.match(/-/g) || []
   const hasHyphens = separators.length > 0
-  const hasBraces = uuid.startsWith('{') && uuid.endsWith('}')
+  const hasBraces = uuid.startsWith("{") && uuid.endsWith("}")
 
   // Determine character set
-  let characterSet = 'unknown'
+  let characterSet = "unknown"
   if (/^[0-9a-fA-F-{}]+$/.test(uuid)) {
-    characterSet = 'hexadecimal'
+    characterSet = "hexadecimal"
   } else if (/^[A-Za-z0-9_-]+$/.test(uuid)) {
-    characterSet = 'alphanumeric'
+    characterSet = "alphanumeric"
   } else if (/^[A-Za-z0-9]+$/.test(uuid)) {
-    characterSet = 'alphanumeric_no_special'
+    characterSet = "alphanumeric_no_special"
   }
 
   // Determine case format
-  let caseFormat: 'uppercase' | 'lowercase' | 'mixed' = 'mixed'
+  let caseFormat: "uppercase" | "lowercase" | "mixed" = "mixed"
   if (uuid === uuid.toUpperCase()) {
-    caseFormat = 'uppercase'
+    caseFormat = "uppercase"
   } else if (uuid === uuid.toLowerCase()) {
-    caseFormat = 'lowercase'
+    caseFormat = "lowercase"
   }
 
   return {
     segments,
-    separators: separators.map(() => '-'),
+    separators: separators.map(() => "-"),
     character_set: characterSet,
     case_format: caseFormat,
     has_hyphens: hasHyphens,
     has_braces: hasBraces,
     total_length: uuid.length,
-    data_length: uuid.replace(/[-{}]/g, '').length,
+    data_length: uuid.replace(/[-{}]/g, "").length,
   }
 }
 
 const analyzeUUIDSecurity = (uuid: string, type: UUIDType): UUIDSecurity => {
-  const dataLength = uuid.replace(/[-{}]/g, '').length
+  const dataLength = uuid.replace(/[-{}]/g, "").length
   const entropyBits = dataLength * 4 // Approximate for hex characters
 
-  let predictability: 'low' | 'medium' | 'high' = 'low'
-  let cryptographicStrength: 'weak' | 'moderate' | 'strong' | 'very_strong' = 'strong'
-  let collisionResistance: 'low' | 'medium' | 'high' | 'very_high' = 'high'
+  let predictability: "low" | "medium" | "high" = "low"
+  let cryptographicStrength: "weak" | "moderate" | "strong" | "very_strong" = "strong"
+  let collisionResistance: "low" | "medium" | "high" | "very_high" = "high"
 
   // Analyze based on UUID type
   switch (type) {
-    case 'uuid_v1':
-      predictability = 'high' // Contains timestamp
-      cryptographicStrength = 'moderate'
+    case "uuid_v1":
+      predictability = "high" // Contains timestamp
+      cryptographicStrength = "moderate"
       break
-    case 'uuid_v4':
-      predictability = 'low'
-      cryptographicStrength = 'strong'
+    case "uuid_v4":
+      predictability = "low"
+      cryptographicStrength = "strong"
       break
-    case 'short_uuid':
-      collisionResistance = 'medium'
-      if (dataLength < 16) cryptographicStrength = 'moderate'
+    case "short_uuid":
+      collisionResistance = "medium"
+      if (dataLength < 16) cryptographicStrength = "moderate"
       break
-    case 'custom':
+    case "custom":
       if (dataLength < 12) {
-        cryptographicStrength = 'weak'
-        collisionResistance = 'low'
+        cryptographicStrength = "weak"
+        collisionResistance = "low"
       }
       break
   }
 
   // Calculate security score
   let securityScore = 100
-  if (predictability === 'high') securityScore -= 30
+  if (predictability === "high") securityScore -= 30
   // @ts-ignore
-  if (predictability === 'medium') securityScore -= 15
-  if (cryptographicStrength === 'weak') securityScore -= 40
-  if (cryptographicStrength === 'moderate') securityScore -= 20
-  if (collisionResistance === 'low') securityScore -= 25
-  if (collisionResistance === 'medium') securityScore -= 10
+  if (predictability === "medium") securityScore -= 15
+  if (cryptographicStrength === "weak") securityScore -= 40
+  if (cryptographicStrength === "moderate") securityScore -= 20
+  if (collisionResistance === "low") securityScore -= 25
+  if (collisionResistance === "medium") securityScore -= 10
   if (entropyBits < 64) securityScore -= 20
 
   return {
     predictability,
     entropy_bits: entropyBits,
     cryptographic_strength: cryptographicStrength,
-    timing_attack_resistant: type !== 'uuid_v1',
+    timing_attack_resistant: type !== "uuid_v1",
     collision_resistance: collisionResistance,
     security_score: Math.max(0, securityScore),
   }
 }
 
 const analyzeUUIDQuality = (uuid: string, type: UUIDType): UUIDQuality => {
-  const dataLength = uuid.replace(/[-{}]/g, '').length
+  const dataLength = uuid.replace(/[-{}]/g, "").length
 
   // Calculate uniqueness score based on length and entropy
   let uniquenessScore = Math.min(100, (dataLength / 32) * 100)
 
   // Calculate randomness score
-  const chars = uuid.replace(/[-{}]/g, '').split('')
+  const chars = uuid.replace(/[-{}]/g, "").split("")
   const charFreq: Record<string, number> = {}
   chars.forEach((char) => {
     charFreq[char] = (charFreq[char] || 0) + 1
@@ -300,12 +300,12 @@ const analyzeUUIDQuality = (uuid: string, type: UUIDType): UUIDQuality => {
 
   // Format compliance score
   let formatCompliance = 100
-  if (type === 'uuid_v4' && !uuid.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
+  if (type === "uuid_v4" && !uuid.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
     formatCompliance = 50
   }
 
   // Readability score
-  const readabilityScore = uuid.includes('-') ? 90 : 70
+  const readabilityScore = uuid.includes("-") ? 90 : 70
 
   // Overall quality
   const overallQuality = (uniquenessScore + randomnessScore + formatCompliance + readabilityScore) / 4
@@ -313,13 +313,13 @@ const analyzeUUIDQuality = (uuid: string, type: UUIDType): UUIDQuality => {
   const issues: string[] = []
   const strengths: string[] = []
 
-  if (uniquenessScore < 70) issues.push('Low uniqueness due to short length')
-  if (randomnessScore < 70) issues.push('Poor randomness distribution')
-  if (formatCompliance < 90) issues.push('Non-standard format')
+  if (uniquenessScore < 70) issues.push("Low uniqueness due to short length")
+  if (randomnessScore < 70) issues.push("Poor randomness distribution")
+  if (formatCompliance < 90) issues.push("Non-standard format")
 
-  if (uniquenessScore >= 90) strengths.push('High uniqueness')
-  if (randomnessScore >= 80) strengths.push('Good randomness')
-  if (formatCompliance >= 90) strengths.push('Standard compliant')
+  if (uniquenessScore >= 90) strengths.push("High uniqueness")
+  if (randomnessScore >= 80) strengths.push("Good randomness")
+  if (formatCompliance >= 90) strengths.push("Standard compliant")
 
   return {
     uniqueness_score: uniquenessScore,
@@ -342,34 +342,34 @@ const analyzeUUIDCompatibility = (type: UUIDType): UUIDCompatibility => {
   }
 
   switch (type) {
-    case 'uuid_v4':
-      compatibility.database_systems = ['PostgreSQL', 'MySQL', 'SQL Server', 'Oracle', 'MongoDB']
-      compatibility.programming_languages = ['JavaScript', 'Python', 'Java', 'C#', 'Go', 'Rust', 'PHP']
-      compatibility.web_standards = ['RFC 4122', 'JSON', 'XML', 'REST APIs']
-      compatibility.api_compatibility = ['GraphQL', 'REST', 'gRPC', 'OpenAPI']
+    case "uuid_v4":
+      compatibility.database_systems = ["PostgreSQL", "MySQL", "SQL Server", "Oracle", "MongoDB"]
+      compatibility.programming_languages = ["JavaScript", "Python", "Java", "C#", "Go", "Rust", "PHP"]
+      compatibility.web_standards = ["RFC 4122", "JSON", "XML", "REST APIs"]
+      compatibility.api_compatibility = ["GraphQL", "REST", "gRPC", "OpenAPI"]
       break
-    case 'uuid_v1':
-      compatibility.database_systems = ['PostgreSQL', 'MySQL', 'SQL Server', 'Oracle']
-      compatibility.programming_languages = ['JavaScript', 'Python', 'Java', 'C#']
-      compatibility.web_standards = ['RFC 4122']
-      compatibility.limitations = ['Contains timestamp', 'May reveal system information']
+    case "uuid_v1":
+      compatibility.database_systems = ["PostgreSQL", "MySQL", "SQL Server", "Oracle"]
+      compatibility.programming_languages = ["JavaScript", "Python", "Java", "C#"]
+      compatibility.web_standards = ["RFC 4122"]
+      compatibility.limitations = ["Contains timestamp", "May reveal system information"]
       break
-    case 'nanoid':
-      compatibility.database_systems = ['PostgreSQL', 'MySQL', 'MongoDB', 'Redis']
-      compatibility.programming_languages = ['JavaScript', 'Python', 'Go', 'Rust']
-      compatibility.web_standards = ['URL-safe', 'JSON']
-      compatibility.api_compatibility = ['REST', 'GraphQL']
+    case "nanoid":
+      compatibility.database_systems = ["PostgreSQL", "MySQL", "MongoDB", "Redis"]
+      compatibility.programming_languages = ["JavaScript", "Python", "Go", "Rust"]
+      compatibility.web_standards = ["URL-safe", "JSON"]
+      compatibility.api_compatibility = ["REST", "GraphQL"]
       break
-    case 'ulid':
-      compatibility.database_systems = ['PostgreSQL', 'MySQL', 'MongoDB']
-      compatibility.programming_languages = ['JavaScript', 'Python', 'Go']
-      compatibility.web_standards = ['Lexicographically sortable']
-      compatibility.limitations = ['Contains timestamp']
+    case "ulid":
+      compatibility.database_systems = ["PostgreSQL", "MySQL", "MongoDB"]
+      compatibility.programming_languages = ["JavaScript", "Python", "Go"]
+      compatibility.web_standards = ["Lexicographically sortable"]
+      compatibility.limitations = ["Contains timestamp"]
       break
-    case 'short_uuid':
-      compatibility.database_systems = ['Most databases as string']
-      compatibility.programming_languages = ['Most languages']
-      compatibility.limitations = ['Higher collision probability', 'Not standard compliant']
+    case "short_uuid":
+      compatibility.database_systems = ["Most databases as string"]
+      compatibility.programming_languages = ["Most languages"]
+      compatibility.limitations = ["Higher collision probability", "Not standard compliant"]
       break
   }
 
@@ -379,95 +379,95 @@ const analyzeUUIDCompatibility = (type: UUIDType): UUIDCompatibility => {
 // UUID templates
 const uuidTemplates: UUIDTemplate[] = [
   {
-    id: 'standard-uuid',
-    name: 'Standard UUID v4',
-    description: 'RFC 4122 compliant UUID version 4 with high randomness',
-    category: 'Standard',
-    type: 'uuid_v4',
+    id: "standard-uuid",
+    name: "Standard UUID v4",
+    description: "RFC 4122 compliant UUID version 4 with high randomness",
+    category: "Standard",
+    type: "uuid_v4",
     settings: {
-      type: 'uuid_v4',
-      format: 'standard',
-      case: 'lowercase',
+      type: "uuid_v4",
+      format: "standard",
+      case: "lowercase",
       includeHyphens: true,
       includeBraces: false,
     },
-    useCase: ['Database primary keys', 'API identifiers', 'Session tokens', 'General purpose IDs'],
-    examples: ['550e8400-e29b-41d4-a716-446655440000', 'f47ac10b-58cc-4372-a567-0e02b2c3d479'],
+    useCase: ["Database primary keys", "API identifiers", "Session tokens", "General purpose IDs"],
+    examples: ["550e8400-e29b-41d4-a716-446655440000", "f47ac10b-58cc-4372-a567-0e02b2c3d479"],
   },
   {
-    id: 'compact-uuid',
-    name: 'Compact UUID',
-    description: 'UUID without hyphens for space-efficient storage',
-    category: 'Compact',
-    type: 'uuid_v4',
+    id: "compact-uuid",
+    name: "Compact UUID",
+    description: "UUID without hyphens for space-efficient storage",
+    category: "Compact",
+    type: "uuid_v4",
     settings: {
-      type: 'uuid_v4',
-      format: 'compact',
-      case: 'lowercase',
+      type: "uuid_v4",
+      format: "compact",
+      case: "lowercase",
       includeHyphens: false,
       includeBraces: false,
     },
-    useCase: ['URL parameters', 'Compact storage', 'Mobile applications', 'QR codes'],
-    examples: ['550e8400e29b41d4a716446655440000', 'f47ac10b58cc4372a5670e02b2c3d479'],
+    useCase: ["URL parameters", "Compact storage", "Mobile applications", "QR codes"],
+    examples: ["550e8400e29b41d4a716446655440000", "f47ac10b58cc4372a5670e02b2c3d479"],
   },
   {
-    id: 'nanoid-url-safe',
-    name: 'NanoID URL-Safe',
-    description: 'URL-safe identifier with good entropy and readability',
-    category: 'Modern',
-    type: 'nanoid',
+    id: "nanoid-url-safe",
+    name: "NanoID URL-Safe",
+    description: "URL-safe identifier with good entropy and readability",
+    category: "Modern",
+    type: "nanoid",
     settings: {
-      type: 'nanoid',
+      type: "nanoid",
       customLength: 21,
-      format: 'standard',
-      case: 'lowercase',
+      format: "standard",
+      case: "lowercase",
     },
-    useCase: ['URL slugs', 'File names', 'Short links', 'User-friendly IDs'],
-    examples: ['V1StGXR8_Z5jdHi6B-myT', 'FyPX0_BsVeUBOALMQF3TF'],
+    useCase: ["URL slugs", "File names", "Short links", "User-friendly IDs"],
+    examples: ["V1StGXR8_Z5jdHi6B-myT", "FyPX0_BsVeUBOALMQF3TF"],
   },
   {
-    id: 'ulid-sortable',
-    name: 'ULID Sortable',
-    description: 'Lexicographically sortable identifier with timestamp',
-    category: 'Sortable',
-    type: 'ulid',
+    id: "ulid-sortable",
+    name: "ULID Sortable",
+    description: "Lexicographically sortable identifier with timestamp",
+    category: "Sortable",
+    type: "ulid",
     settings: {
-      type: 'ulid',
-      format: 'standard',
-      case: 'uppercase',
+      type: "ulid",
+      format: "standard",
+      case: "uppercase",
     },
-    useCase: ['Time-ordered records', 'Log entries', 'Event sourcing', 'Distributed systems'],
-    examples: ['01ARZ3NDEKTSV4RRFFQ69G5FAV', '01BX5ZZKBKACTAV9WEVGEMMVS0'],
+    useCase: ["Time-ordered records", "Log entries", "Event sourcing", "Distributed systems"],
+    examples: ["01ARZ3NDEKTSV4RRFFQ69G5FAV", "01BX5ZZKBKACTAV9WEVGEMMVS0"],
   },
   {
-    id: 'short-id',
-    name: 'Short ID',
-    description: 'Short identifier for non-critical applications',
-    category: 'Short',
-    type: 'short_uuid',
+    id: "short-id",
+    name: "Short ID",
+    description: "Short identifier for non-critical applications",
+    category: "Short",
+    type: "short_uuid",
     settings: {
-      type: 'short_uuid',
-      format: 'standard',
-      case: 'lowercase',
+      type: "short_uuid",
+      format: "standard",
+      case: "lowercase",
     },
-    useCase: ['Temporary IDs', 'Internal references', 'Non-critical systems', 'Development'],
-    examples: ['abc123def456', 'xyz789uvw012'],
+    useCase: ["Temporary IDs", "Internal references", "Non-critical systems", "Development"],
+    examples: ["abc123def456", "xyz789uvw012"],
   },
   {
-    id: 'custom-secure',
-    name: 'Custom Secure',
-    description: 'Custom length identifier with high security',
-    category: 'Custom',
-    type: 'custom',
+    id: "custom-secure",
+    name: "Custom Secure",
+    description: "Custom length identifier with high security",
+    category: "Custom",
+    type: "custom",
     settings: {
-      type: 'custom',
+      type: "custom",
       customLength: 32,
-      customAlphabet: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-      format: 'standard',
-      case: 'lowercase',
+      customAlphabet: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+      format: "standard",
+      case: "lowercase",
     },
-    useCase: ['Security tokens', 'API keys', 'Cryptographic applications', 'High-security systems'],
-    examples: ['a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6', 'z9y8x7w6v5u4t3s2r1q0p9o8n7m6l5k4'],
+    useCase: ["Security tokens", "API keys", "Cryptographic applications", "High-security systems"],
+    examples: ["a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6", "z9y8x7w6v5u4t3s2r1q0p9o8n7m6l5k4"],
   },
 ]
 
@@ -483,9 +483,9 @@ const validateUUID = (uuid: string): UUIDValidation => {
   if (!uuid || uuid.trim().length === 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'UUID cannot be empty',
-      type: 'format',
-      severity: 'error',
+      message: "UUID cannot be empty",
+      type: "format",
+      severity: "error",
     })
     return validation
   }
@@ -494,47 +494,47 @@ const validateUUID = (uuid: string): UUIDValidation => {
 
   // Detect UUID type
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(trimmedUuid)) {
-    validation.detectedType = 'uuid_v4'
+    validation.detectedType = "uuid_v4"
   } else if (/^[A-Za-z0-9_-]{21}$/.test(trimmedUuid)) {
-    validation.detectedType = 'nanoid'
+    validation.detectedType = "nanoid"
   } else if (/^[0-9A-Z]{26}$/.test(trimmedUuid)) {
-    validation.detectedType = 'ulid'
+    validation.detectedType = "ulid"
   } else if (/^c[0-9a-z]{24}$/.test(trimmedUuid)) {
-    validation.detectedType = 'cuid'
+    validation.detectedType = "cuid"
   } else if (/^[0-9a-f]{32}$/i.test(trimmedUuid)) {
-    validation.detectedType = 'uuid_v4'
-    validation.warnings.push('UUID appears to be in compact format (no hyphens)')
+    validation.detectedType = "uuid_v4"
+    validation.warnings.push("UUID appears to be in compact format (no hyphens)")
   } else {
-    validation.detectedType = 'custom'
-    validation.warnings.push('Non-standard UUID format detected')
+    validation.detectedType = "custom"
+    validation.warnings.push("Non-standard UUID format detected")
   }
 
   // Length validation
   if (trimmedUuid.length < 8) {
-    validation.warnings.push('UUID is very short, collision probability may be high')
+    validation.warnings.push("UUID is very short, collision probability may be high")
   }
 
   if (trimmedUuid.length > 100) {
-    validation.warnings.push('UUID is very long, may impact performance')
+    validation.warnings.push("UUID is very long, may impact performance")
   }
 
   // Character validation
-  if (!/^[A-Za-z0-9_-]+$/.test(trimmedUuid.replace(/-/g, ''))) {
+  if (!/^[A-Za-z0-9_-]+$/.test(trimmedUuid.replace(/-/g, ""))) {
     validation.errors.push({
-      message: 'UUID contains invalid characters',
-      type: 'character',
-      severity: 'error',
+      message: "UUID contains invalid characters",
+      type: "character",
+      severity: "error",
     })
     validation.isValid = false
   }
 
   // Provide suggestions
-  if (validation.detectedType === 'custom') {
-    validation.suggestions.push('Consider using a standard UUID format for better compatibility')
+  if (validation.detectedType === "custom") {
+    validation.suggestions.push("Consider using a standard UUID format for better compatibility")
   }
 
-  if (!trimmedUuid.includes('-') && trimmedUuid.length === 32) {
-    validation.suggestions.push('Add hyphens for better readability: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
+  if (!trimmedUuid.includes("-") && trimmedUuid.length === 32) {
+    validation.suggestions.push("Add hyphens for better readability: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")
   }
 
   return validation
@@ -547,13 +547,13 @@ const useUUIDGenerator = () => {
   const generateSingleUUID = useCallback((type: UUIDType, settings?: Partial<GenerationSettings>): UUIDResult => {
     try {
       const rawUuid = generateUUID(type, settings)
-      const formattedUuid = formatUUID(rawUuid, settings?.format || 'standard', settings)
+      const formattedUuid = formatUUID(rawUuid, settings?.format || "standard", settings)
 
       const metadata: UUIDMetadata = {
         length: formattedUuid.length,
-        format: settings?.format || 'standard',
-        encoding: 'UTF-8',
-        entropy: formattedUuid.replace(/[-{}]/g, '').length * 4,
+        format: settings?.format || "standard",
+        encoding: "UTF-8",
+        entropy: formattedUuid.replace(/[-{}]/g, "").length * 4,
         randomness: calculateRandomness(formattedUuid),
         collision_probability: calculateCollisionProbability(formattedUuid),
         security_level: getSecurityLevel(type, formattedUuid.length),
@@ -569,7 +569,7 @@ const useUUIDGenerator = () => {
         type,
         version: getUUIDVersion(type),
         variant: getUUIDVariant(type),
-        timestamp: type === 'uuid_v1' || type === 'ulid' ? new Date() : undefined,
+        timestamp: type === "uuid_v1" || type === "ulid" ? new Date() : undefined,
         isValid: true,
         metadata,
         analysis,
@@ -578,10 +578,10 @@ const useUUIDGenerator = () => {
     } catch (error) {
       return {
         id: nanoid(),
-        value: '',
+        value: "",
         type,
         isValid: false,
-        error: error instanceof Error ? error.message : 'UUID generation failed',
+        error: error instanceof Error ? error.message : "UUID generation failed",
         createdAt: new Date(),
       }
     }
@@ -612,7 +612,7 @@ const useUUIDGenerator = () => {
 
       const securityDistribution: Record<string, number> = {}
       validUuids.forEach((uuid) => {
-        const level = uuid.metadata?.security_level || 'unknown'
+        const level = uuid.metadata?.security_level || "unknown"
         securityDistribution[level] = (securityDistribution[level] || 0) + 1
       })
 
@@ -662,7 +662,7 @@ const useUUIDGenerator = () => {
 
 // Helper functions
 const calculateRandomness = (uuid: string): number => {
-  const chars = uuid.replace(/[-{}]/g, '').split('')
+  const chars = uuid.replace(/[-{}]/g, "").split("")
   const charFreq: Record<string, number> = {}
   chars.forEach((char) => {
     charFreq[char] = (charFreq[char] || 0) + 1
@@ -673,64 +673,64 @@ const calculateRandomness = (uuid: string): number => {
 }
 
 const calculateCollisionProbability = (uuid: string): number => {
-  const dataLength = uuid.replace(/[-{}]/g, '').length
+  const dataLength = uuid.replace(/[-{}]/g, "").length
   const entropy = dataLength * 4 // bits for hex characters
 
   // Simplified collision probability calculation
   return Math.pow(2, -entropy / 2)
 }
 
-const getSecurityLevel = (type: UUIDType, length: number): 'low' | 'medium' | 'high' | 'very_high' => {
-  if (type === 'uuid_v1') return 'medium' // Predictable timestamp
-  if (type === 'short_uuid' || length < 16) return 'low'
-  if (type === 'uuid_v4' && length >= 32) return 'very_high'
-  if (type === 'nanoid' || type === 'custom') return 'high'
-  return 'medium'
+const getSecurityLevel = (type: UUIDType, length: number): "low" | "medium" | "high" | "very_high" => {
+  if (type === "uuid_v1") return "medium" // Predictable timestamp
+  if (type === "short_uuid" || length < 16) return "low"
+  if (type === "uuid_v4" && length >= 32) return "very_high"
+  if (type === "nanoid" || type === "custom") return "high"
+  return "medium"
 }
 
 const getUseCases = (type: UUIDType): string[] => {
   switch (type) {
-    case 'uuid_v4':
-      return ['Database primary keys', 'API identifiers', 'Session tokens', 'General purpose IDs']
-    case 'uuid_v1':
-      return ['Time-ordered records', 'Database clustering', 'Distributed systems']
-    case 'nanoid':
-      return ['URL slugs', 'File names', 'Short links', 'User-friendly IDs']
-    case 'ulid':
-      return ['Time-ordered records', 'Log entries', 'Event sourcing']
-    case 'cuid':
-      return ['Client-side generation', 'Collision-resistant IDs']
-    case 'short_uuid':
-      return ['Temporary IDs', 'Internal references', 'Development']
-    case 'custom':
-      return ['Specialized applications', 'Custom requirements']
+    case "uuid_v4":
+      return ["Database primary keys", "API identifiers", "Session tokens", "General purpose IDs"]
+    case "uuid_v1":
+      return ["Time-ordered records", "Database clustering", "Distributed systems"]
+    case "nanoid":
+      return ["URL slugs", "File names", "Short links", "User-friendly IDs"]
+    case "ulid":
+      return ["Time-ordered records", "Log entries", "Event sourcing"]
+    case "cuid":
+      return ["Client-side generation", "Collision-resistant IDs"]
+    case "short_uuid":
+      return ["Temporary IDs", "Internal references", "Development"]
+    case "custom":
+      return ["Specialized applications", "Custom requirements"]
     default:
-      return ['General purpose']
+      return ["General purpose"]
   }
 }
 
 const getStandardsCompliance = (type: UUIDType): string[] => {
   switch (type) {
-    case 'uuid_v4':
-    case 'uuid_v1':
-    case 'uuid_v5':
-      return ['RFC 4122', 'ISO/IEC 9834-8']
-    case 'nanoid':
-      return ['URL-safe', 'Base64-compatible']
-    case 'ulid':
-      return ['Lexicographically sortable', 'Crockford Base32']
+    case "uuid_v4":
+    case "uuid_v1":
+    case "uuid_v5":
+      return ["RFC 4122", "ISO/IEC 9834-8"]
+    case "nanoid":
+      return ["URL-safe", "Base64-compatible"]
+    case "ulid":
+      return ["Lexicographically sortable", "Crockford Base32"]
     default:
-      return ['Custom format']
+      return ["Custom format"]
   }
 }
 
 const getUUIDVersion = (type: UUIDType): number | undefined => {
   switch (type) {
-    case 'uuid_v1':
+    case "uuid_v1":
       return 1
-    case 'uuid_v4':
+    case "uuid_v4":
       return 4
-    case 'uuid_v5':
+    case "uuid_v5":
       return 5
     default:
       return undefined
@@ -739,10 +739,10 @@ const getUUIDVersion = (type: UUIDType): number | undefined => {
 
 const getUUIDVariant = (type: UUIDType): string | undefined => {
   switch (type) {
-    case 'uuid_v1':
-    case 'uuid_v4':
-    case 'uuid_v5':
-      return 'RFC 4122'
+    case "uuid_v1":
+    case "uuid_v4":
+    case "uuid_v5":
+      return "RFC 4122"
     default:
       return undefined
   }
@@ -755,13 +755,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -771,12 +771,12 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useUUIDExport = () => {
   const exportResults = useCallback((results: UUIDResult[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         const jsonData = results.map((result) => ({
           id: result.id,
           value: result.value,
@@ -791,20 +791,20 @@ const useUUIDExport = () => {
           createdAt: result.createdAt,
         }))
         content = JSON.stringify(jsonData, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         const csvHeaders = [
-          'UUID',
-          'Type',
-          'Version',
-          'Valid',
-          'Length',
-          'Security Level',
-          'Quality Score',
-          'Entropy',
-          'Created At',
+          "UUID",
+          "Type",
+          "Version",
+          "Valid",
+          "Length",
+          "Security Level",
+          "Quality Score",
+          "Entropy",
+          "Created At",
         ]
         const csvRows: string[] = []
         results.forEach((result) => {
@@ -812,34 +812,34 @@ const useUUIDExport = () => {
             [
               result.value,
               result.type,
-              result.version?.toString() || '',
-              result.isValid ? 'Yes' : 'No',
-              result.metadata?.length.toString() || '',
-              result.metadata?.security_level || '',
-              result.analysis?.quality.overall_quality?.toFixed(1) || '',
-              result.metadata?.entropy?.toString() || '',
+              result.version?.toString() || "",
+              result.isValid ? "Yes" : "No",
+              result.metadata?.length.toString() || "",
+              result.metadata?.security_level || "",
+              result.analysis?.quality.overall_quality?.toFixed(1) || "",
+              result.metadata?.entropy?.toString() || "",
               result.createdAt.toISOString(),
             ]
               .map((field) => `"${field.replace(/"/g, '""')}"`)
-              .join(',')
+              .join(",")
           )
         })
-        content = [csvHeaders.join(','), ...csvRows].join('\n')
-        mimeType = 'text/csv'
-        extension = '.csv'
+        content = [csvHeaders.join(","), ...csvRows].join("\n")
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         const xmlData = results
           .map(
             (result) => `
   <uuid>
     <value><![CDATA[${result.value}]]></value>
     <type>${result.type}</type>
-    <version>${result.version || ''}</version>
+    <version>${result.version || ""}</version>
     <valid>${result.isValid}</valid>
     <metadata>
       <length>${result.metadata?.length || 0}</length>
-      <securityLevel>${result.metadata?.security_level || ''}</securityLevel>
+      <securityLevel>${result.metadata?.security_level || ""}</securityLevel>
       <entropy>${result.metadata?.entropy || 0}</entropy>
     </metadata>
     <analysis>
@@ -849,22 +849,22 @@ const useUUIDExport = () => {
     <createdAt>${result.createdAt.toISOString()}</createdAt>
   </uuid>`
           )
-          .join('')
+          .join("")
         content = `<?xml version="1.0" encoding="UTF-8"?>\n<uuids>${xmlData}\n</uuids>`
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromResults(results)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `uuid-results${extension}`
     document.body.appendChild(link)
@@ -891,9 +891,9 @@ ${results
   .map((result, i) => {
     return `${i + 1}. UUID: ${result.value}
    Type: ${result.type}
-   Version: ${result.version || 'N/A'}
-   Valid: ${result.isValid ? 'Yes' : 'No'}
-   ${result.error ? `Error: ${result.error}` : ''}
+   Version: ${result.version || "N/A"}
+   Valid: ${result.isValid ? "Yes" : "No"}
+   ${result.error ? `Error: ${result.error}` : ""}
 
    ${
      result.metadata
@@ -903,7 +903,7 @@ ${results
    - Entropy: ${result.metadata.entropy} bits
    - Collision Probability: ${result.metadata.collision_probability.toExponential(2)}
    `
-       : 'No metadata'
+       : "No metadata"
    }
 
    ${
@@ -914,11 +914,11 @@ ${results
    - Uniqueness: ${result.analysis.quality.uniqueness_score.toFixed(1)}/100
    - Randomness: ${result.analysis.quality.randomness_score.toFixed(1)}/100
    `
-       : 'No analysis'
+       : "No analysis"
    }
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
@@ -933,19 +933,19 @@ Statistics:
  * Features: Advanced UUID generation, analysis, validation, batch processing
  */
 const UUIDGeneratorCore = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'batch' | 'analyzer' | 'templates'>('generator')
+  const [activeTab, setActiveTab] = useState<"generator" | "batch" | "analyzer" | "templates">("generator")
   const [currentUUID, setCurrentUUID] = useState<UUIDResult | null>(null)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [batchCount, setBatchCount] = useState(10)
-  const [analyzeInput, setAnalyzeInput] = useState('')
+  const [analyzeInput, setAnalyzeInput] = useState("")
   const [settings, setSettings] = useState<GenerationSettings>({
-    type: 'uuid_v4',
+    type: "uuid_v4",
     count: 1,
-    format: 'standard',
-    case: 'lowercase',
+    format: "standard",
+    case: "lowercase",
     includeBraces: false,
     includeHyphens: true,
-    exportFormat: 'txt',
+    exportFormat: "txt",
   })
 
   const { results, generateSingleUUID, generateBatch, clearResults, removeResult } = useUUIDGenerator()
@@ -969,12 +969,12 @@ const UUIDGeneratorCore = () => {
       setCurrentUUID(result)
 
       if (result.isValid) {
-        toast.success('UUID generated successfully')
+        toast.success("UUID generated successfully")
       } else {
-        toast.error(result.error || 'UUID generation failed')
+        toast.error(result.error || "UUID generation failed")
       }
     } catch (error) {
-      toast.error('Failed to generate UUID')
+      toast.error("Failed to generate UUID")
       console.error(error)
     }
   }, [settings, generateSingleUUID])
@@ -982,7 +982,7 @@ const UUIDGeneratorCore = () => {
   // Generate batch
   const handleGenerateBatch = useCallback(() => {
     if (batchCount < 1 || batchCount > 1000) {
-      toast.error('Batch count must be between 1 and 1000')
+      toast.error("Batch count must be between 1 and 1000")
       return
     }
 
@@ -990,7 +990,7 @@ const UUIDGeneratorCore = () => {
       const batch = generateBatch(batchCount, settings.type, settings)
       toast.success(`Generated ${batch.count} UUIDs`)
     } catch (error) {
-      toast.error('Failed to generate batch')
+      toast.error("Failed to generate batch")
       console.error(error)
     }
   }, [batchCount, settings, generateBatch])
@@ -998,30 +998,30 @@ const UUIDGeneratorCore = () => {
   // Analyze UUID
   const handleAnalyze = useCallback(() => {
     if (!analyzeInput.trim()) {
-      toast.error('Please enter a UUID to analyze')
+      toast.error("Please enter a UUID to analyze")
       return
     }
 
     const validation = validateUUID(analyzeInput)
     if (!validation.isValid) {
-      toast.error('Invalid UUID format')
+      toast.error("Invalid UUID format")
       return
     }
 
     try {
-      const analysis = analyzeUUID(analyzeInput, validation.detectedType || 'custom')
+      const analysis = analyzeUUID(analyzeInput, validation.detectedType || "custom")
       const result: UUIDResult = {
         id: nanoid(),
         value: analyzeInput,
-        type: validation.detectedType || 'custom',
+        type: validation.detectedType || "custom",
         isValid: true,
         analysis,
         createdAt: new Date(),
       }
       setCurrentUUID(result)
-      toast.success('UUID analyzed successfully')
+      toast.success("UUID analyzed successfully")
     } catch (error) {
-      toast.error('Failed to analyze UUID')
+      toast.error("Failed to analyze UUID")
       console.error(error)
     }
   }, [analyzeInput])
@@ -1043,12 +1043,15 @@ const UUIDGeneratorCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Fingerprint className="h-5 w-5" aria-hidden="true" />
+              <Fingerprint className="h-5 w-5" />
               UUID Generator & Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -1062,29 +1065,44 @@ const UUIDGeneratorCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'generator' | 'batch' | 'analyzer' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "generator" | "batch" | "analyzer" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <Fingerprint className="h-4 w-4" />
               Generator
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Layers className="h-4 w-4" />
               Batch
             </TabsTrigger>
-            <TabsTrigger value="analyzer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analyzer"
+              className="flex items-center gap-2"
+            >
               <Search className="h-4 w-4" />
               Analyzer
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* UUID Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Generator Controls */}
               <Card>
@@ -1097,7 +1115,10 @@ const UUIDGeneratorCore = () => {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="uuid-type" className="text-sm font-medium">
+                      <Label
+                        htmlFor="uuid-type"
+                        className="text-sm font-medium"
+                      >
                         UUID Type
                       </Label>
                       <Select
@@ -1121,7 +1142,10 @@ const UUIDGeneratorCore = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="uuid-format" className="text-sm font-medium">
+                      <Label
+                        htmlFor="uuid-format"
+                        className="text-sm font-medium"
+                      >
                         Format
                       </Label>
                       <Select
@@ -1134,7 +1158,7 @@ const UUIDGeneratorCore = () => {
                         <SelectContent>
                           <SelectItem value="standard">Standard</SelectItem>
                           <SelectItem value="compact">Compact (no hyphens)</SelectItem>
-                          <SelectItem value="braced">Braced {'{}'}</SelectItem>
+                          <SelectItem value="braced">Braced {"{}"}</SelectItem>
                           <SelectItem value="urn">URN Format</SelectItem>
                           <SelectItem value="base64">Base64</SelectItem>
                           <SelectItem value="hex">Hexadecimal</SelectItem>
@@ -1143,12 +1167,15 @@ const UUIDGeneratorCore = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="uuid-case" className="text-sm font-medium">
+                      <Label
+                        htmlFor="uuid-case"
+                        className="text-sm font-medium"
+                      >
                         Case
                       </Label>
                       <Select
                         value={settings.case}
-                        onValueChange={(value: 'uppercase' | 'lowercase') =>
+                        onValueChange={(value: "uppercase" | "lowercase") =>
                           setSettings((prev) => ({ ...prev, case: value }))
                         }
                       >
@@ -1164,12 +1191,15 @@ const UUIDGeneratorCore = () => {
                   </div>
 
                   {/* Custom Settings */}
-                  {(settings.type === 'custom' || settings.type === 'nanoid') && (
+                  {(settings.type === "custom" || settings.type === "nanoid") && (
                     <div className="space-y-3 border-t pt-4">
                       <Label className="text-sm font-medium">Custom Settings</Label>
 
                       <div>
-                        <Label htmlFor="custom-length" className="text-xs">
+                        <Label
+                          htmlFor="custom-length"
+                          className="text-xs"
+                        >
                           Length
                         </Label>
                         <Input
@@ -1185,16 +1215,19 @@ const UUIDGeneratorCore = () => {
                         />
                       </div>
 
-                      {settings.type === 'custom' && (
+                      {settings.type === "custom" && (
                         <div>
-                          <Label htmlFor="custom-alphabet" className="text-xs">
+                          <Label
+                            htmlFor="custom-alphabet"
+                            className="text-xs"
+                          >
                             Custom Alphabet
                           </Label>
                           <Input
                             id="custom-alphabet"
                             value={
                               settings.customAlphabet ||
-                              '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+                              "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
                             }
                             onChange={(e) => setSettings((prev) => ({ ...prev, customAlphabet: e.target.value }))}
                             className="mt-1 font-mono text-xs"
@@ -1211,24 +1244,30 @@ const UUIDGeneratorCore = () => {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="prefix" className="text-xs">
+                        <Label
+                          htmlFor="prefix"
+                          className="text-xs"
+                        >
                           Prefix
                         </Label>
                         <Input
                           id="prefix"
-                          value={settings.prefix || ''}
+                          value={settings.prefix || ""}
                           onChange={(e) => setSettings((prev) => ({ ...prev, prefix: e.target.value }))}
                           className="mt-1"
                           placeholder="Optional prefix"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="suffix" className="text-xs">
+                        <Label
+                          htmlFor="suffix"
+                          className="text-xs"
+                        >
                           Suffix
                         </Label>
                         <Input
                           id="suffix"
-                          value={settings.suffix || ''}
+                          value={settings.suffix || ""}
                           onChange={(e) => setSettings((prev) => ({ ...prev, suffix: e.target.value }))}
                           className="mt-1"
                           placeholder="Optional suffix"
@@ -1238,11 +1277,17 @@ const UUIDGeneratorCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleGenerate} className="flex-1">
+                    <Button
+                      onClick={handleGenerate}
+                      className="flex-1"
+                    >
                       <Zap className="mr-2 h-4 w-4" />
                       Generate UUID
                     </Button>
-                    <Button onClick={() => setCurrentUUID(null)} variant="outline">
+                    <Button
+                      onClick={() => setCurrentUUID(null)}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Clear
                     </Button>
@@ -1265,8 +1310,12 @@ const UUIDGeneratorCore = () => {
                       <div className="p-4 border rounded-lg bg-muted/50">
                         <div className="flex items-center justify-between mb-2">
                           <Label className="text-sm font-medium">UUID Value</Label>
-                          <Button size="sm" variant="ghost" onClick={() => copyToClipboard(currentUUID.value, 'UUID')}>
-                            {copiedText === 'UUID' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => copyToClipboard(currentUUID.value, "UUID")}
+                          >
+                            {copiedText === "UUID" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                           </Button>
                         </div>
                         <div className="font-mono text-lg break-all select-all p-2 bg-background rounded border">
@@ -1281,10 +1330,10 @@ const UUIDGeneratorCore = () => {
                             <strong>Type:</strong> {currentUUID.type}
                           </div>
                           <div>
-                            <strong>Version:</strong> {currentUUID.version || 'N/A'}
+                            <strong>Version:</strong> {currentUUID.version || "N/A"}
                           </div>
                           <div>
-                            <strong>Valid:</strong> {currentUUID.isValid ? '✅ Yes' : '❌ No'}
+                            <strong>Valid:</strong> {currentUUID.isValid ? "✅ Yes" : "❌ No"}
                           </div>
                         </div>
                         <div>
@@ -1292,7 +1341,7 @@ const UUIDGeneratorCore = () => {
                             <strong>Length:</strong> {currentUUID.metadata?.length || currentUUID.value.length}
                           </div>
                           <div>
-                            <strong>Security:</strong> {currentUUID.metadata?.security_level || 'Unknown'}
+                            <strong>Security:</strong> {currentUUID.metadata?.security_level || "Unknown"}
                           </div>
                           <div>
                             <strong>Created:</strong> {currentUUID.createdAt.toLocaleTimeString()}
@@ -1323,10 +1372,10 @@ const UUIDGeneratorCore = () => {
                                 <div
                                   className={`h-1 rounded-full ${
                                     currentUUID.analysis.quality.overall_quality >= 80
-                                      ? 'bg-green-500'
+                                      ? "bg-green-500"
                                       : currentUUID.analysis.quality.overall_quality >= 60
-                                        ? 'bg-orange-500'
-                                        : 'bg-red-500'
+                                        ? "bg-orange-500"
+                                        : "bg-red-500"
                                   }`}
                                   style={{ width: `${currentUUID.analysis.quality.overall_quality}%` }}
                                 ></div>
@@ -1339,10 +1388,10 @@ const UUIDGeneratorCore = () => {
                                 <div
                                   className={`h-1 rounded-full ${
                                     currentUUID.analysis.security.security_score >= 80
-                                      ? 'bg-green-500'
+                                      ? "bg-green-500"
                                       : currentUUID.analysis.security.security_score >= 60
-                                        ? 'bg-orange-500'
-                                        : 'bg-red-500'
+                                        ? "bg-orange-500"
+                                        : "bg-red-500"
                                   }`}
                                   style={{ width: `${currentUUID.analysis.security.security_score}%` }}
                                 ></div>
@@ -1357,10 +1406,10 @@ const UUIDGeneratorCore = () => {
                                 <div
                                   className={`h-1 rounded-full ${
                                     currentUUID.analysis.quality.uniqueness_score >= 80
-                                      ? 'bg-green-500'
+                                      ? "bg-green-500"
                                       : currentUUID.analysis.quality.uniqueness_score >= 60
-                                        ? 'bg-orange-500'
-                                        : 'bg-red-500'
+                                        ? "bg-orange-500"
+                                        : "bg-red-500"
                                   }`}
                                   style={{ width: `${currentUUID.analysis.quality.uniqueness_score}%` }}
                                 ></div>
@@ -1375,10 +1424,10 @@ const UUIDGeneratorCore = () => {
                                 <div
                                   className={`h-1 rounded-full ${
                                     currentUUID.analysis.quality.randomness_score >= 80
-                                      ? 'bg-green-500'
+                                      ? "bg-green-500"
                                       : currentUUID.analysis.quality.randomness_score >= 60
-                                        ? 'bg-orange-500'
-                                        : 'bg-red-500'
+                                        ? "bg-orange-500"
+                                        : "bg-red-500"
                                   }`}
                                   style={{ width: `${currentUUID.analysis.quality.randomness_score}%` }}
                                 ></div>
@@ -1391,7 +1440,10 @@ const UUIDGeneratorCore = () => {
                               <h5 className="font-medium text-sm mb-2 text-blue-800">Recommendations</h5>
                               <ul className="text-sm space-y-1">
                                 {currentUUID.analysis.recommendations.map((rec, index) => (
-                                  <li key={index} className="flex items-center gap-2 text-blue-700">
+                                  <li
+                                    key={index}
+                                    className="flex items-center gap-2 text-blue-700"
+                                  >
                                     <CheckCircle2 className="h-3 w-3" />
                                     {rec}
                                   </li>
@@ -1405,7 +1457,10 @@ const UUIDGeneratorCore = () => {
                               <h5 className="font-medium text-sm mb-2 text-orange-800">Warnings</h5>
                               <ul className="text-sm space-y-1">
                                 {currentUUID.analysis.warnings.map((warning, index) => (
-                                  <li key={index} className="flex items-center gap-2 text-orange-700">
+                                  <li
+                                    key={index}
+                                    className="flex items-center gap-2 text-orange-700"
+                                  >
                                     <AlertCircle className="h-3 w-3" />
                                     {warning}
                                   </li>
@@ -1429,7 +1484,10 @@ const UUIDGeneratorCore = () => {
           </TabsContent>
 
           {/* Batch Generator Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1441,7 +1499,10 @@ const UUIDGeneratorCore = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="batch-count" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-count"
+                      className="text-sm font-medium"
+                    >
                       Number of UUIDs
                     </Label>
                     <Input
@@ -1455,7 +1516,10 @@ const UUIDGeneratorCore = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="batch-type" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-type"
+                      className="text-sm font-medium"
+                    >
                       UUID Type
                     </Label>
                     <Select
@@ -1490,11 +1554,19 @@ const UUIDGeneratorCore = () => {
                     <div className="flex items-center justify-between">
                       <Label className="text-sm font-medium">Generated UUIDs ({results.length})</Label>
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => exportResults(results, 'txt')}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => exportResults(results, "txt")}
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           Export
                         </Button>
-                        <Button size="sm" variant="outline" onClick={clearResults}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={clearResults}
+                        >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Clear
                         </Button>
@@ -1503,19 +1575,30 @@ const UUIDGeneratorCore = () => {
 
                     <div className="max-h-96 overflow-y-auto space-y-2">
                       {results.slice(0, 50).map((result) => (
-                        <div key={result.id} className="flex items-center justify-between p-2 border rounded">
+                        <div
+                          key={result.id}
+                          className="flex items-center justify-between p-2 border rounded"
+                        >
                           <div className="flex-1 min-w-0">
                             <div className="font-mono text-sm truncate">{result.value}</div>
                             <div className="text-xs text-muted-foreground">
-                              {result.type} • {result.isValid ? 'Valid' : 'Invalid'} • Quality:{' '}
-                              {result.analysis?.quality.overall_quality.toFixed(0) || 'N/A'}/100
+                              {result.type} • {result.isValid ? "Valid" : "Invalid"} • Quality:{" "}
+                              {result.analysis?.quality.overall_quality.toFixed(0) || "N/A"}/100
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="ghost" onClick={() => copyToClipboard(result.value, 'UUID')}>
-                              {copiedText === 'UUID' ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => copyToClipboard(result.value, "UUID")}
+                            >
+                              {copiedText === "UUID" ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                             </Button>
-                            <Button size="sm" variant="ghost" onClick={() => removeResult(result.id)}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeResult(result.id)}
+                            >
                               <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
@@ -1534,7 +1617,10 @@ const UUIDGeneratorCore = () => {
           </TabsContent>
 
           {/* UUID Analyzer Tab */}
-          <TabsContent value="analyzer" className="space-y-4">
+          <TabsContent
+            value="analyzer"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1545,7 +1631,10 @@ const UUIDGeneratorCore = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="analyze-input" className="text-sm font-medium">
+                  <Label
+                    htmlFor="analyze-input"
+                    className="text-sm font-medium"
+                  >
                     UUID to Analyze
                   </Label>
                   <div className="flex gap-2 mt-2">
@@ -1556,7 +1645,10 @@ const UUIDGeneratorCore = () => {
                       placeholder="Enter UUID to analyze..."
                       className="font-mono"
                     />
-                    <Button onClick={handleAnalyze} disabled={!analyzeInput.trim()}>
+                    <Button
+                      onClick={handleAnalyze}
+                      disabled={!analyzeInput.trim()}
+                    >
                       <Search className="mr-2 h-4 w-4" />
                       Analyze
                     </Button>
@@ -1597,11 +1689,11 @@ const UUIDGeneratorCore = () => {
                             <div className="grid grid-cols-2 gap-4">
                               <div>
                                 <div className="font-medium">Has Hyphens</div>
-                                <div>{currentUUID.analysis.structure.has_hyphens ? '✅ Yes' : '❌ No'}</div>
+                                <div>{currentUUID.analysis.structure.has_hyphens ? "✅ Yes" : "❌ No"}</div>
                               </div>
                               <div>
                                 <div className="font-medium">Has Braces</div>
-                                <div>{currentUUID.analysis.structure.has_braces ? '✅ Yes' : '❌ No'}</div>
+                                <div>{currentUUID.analysis.structure.has_braces ? "✅ Yes" : "❌ No"}</div>
                               </div>
                             </div>
                           </CardContent>
@@ -1621,10 +1713,10 @@ const UUIDGeneratorCore = () => {
                                   <div
                                     className={`h-2 rounded-full ${
                                       currentUUID.analysis.security.security_score >= 80
-                                        ? 'bg-green-500'
+                                        ? "bg-green-500"
                                         : currentUUID.analysis.security.security_score >= 60
-                                          ? 'bg-orange-500'
-                                          : 'bg-red-500'
+                                          ? "bg-orange-500"
+                                          : "bg-red-500"
                                     }`}
                                     style={{ width: `${currentUUID.analysis.security.security_score}%` }}
                                   ></div>
@@ -1638,11 +1730,11 @@ const UUIDGeneratorCore = () => {
                                 <div className="font-medium">Predictability</div>
                                 <div
                                   className={
-                                    currentUUID.analysis.security.predictability === 'low'
-                                      ? 'text-green-600'
-                                      : currentUUID.analysis.security.predictability === 'medium'
-                                        ? 'text-orange-600'
-                                        : 'text-red-600'
+                                    currentUUID.analysis.security.predictability === "low"
+                                      ? "text-green-600"
+                                      : currentUUID.analysis.security.predictability === "medium"
+                                        ? "text-orange-600"
+                                        : "text-red-600"
                                   }
                                 >
                                   {currentUUID.analysis.security.predictability}
@@ -1673,7 +1765,10 @@ const UUIDGeneratorCore = () => {
                                 <div className="font-medium mb-1">Database Systems</div>
                                 <div className="flex flex-wrap gap-1">
                                   {currentUUID.analysis.compatibility.database_systems.map((db, index) => (
-                                    <span key={index} className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                                    <span
+                                      key={index}
+                                      className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs"
+                                    >
                                       {db}
                                     </span>
                                   ))}
@@ -1683,7 +1778,10 @@ const UUIDGeneratorCore = () => {
                                 <div className="font-medium mb-1">Programming Languages</div>
                                 <div className="flex flex-wrap gap-1">
                                   {currentUUID.analysis.compatibility.programming_languages.map((lang, index) => (
-                                    <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                                    <span
+                                      key={index}
+                                      className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs"
+                                    >
                                       {lang}
                                     </span>
                                   ))}
@@ -1695,7 +1793,10 @@ const UUIDGeneratorCore = () => {
                                 <div className="font-medium mb-1">Limitations</div>
                                 <ul className="text-xs space-y-1">
                                   {currentUUID.analysis.compatibility.limitations.map((limitation, index) => (
-                                    <li key={index} className="flex items-center gap-2 text-orange-700">
+                                    <li
+                                      key={index}
+                                      className="flex items-center gap-2 text-orange-700"
+                                    >
                                       <AlertCircle className="h-3 w-3" />
                                       {limitation}
                                     </li>
@@ -1714,7 +1815,10 @@ const UUIDGeneratorCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1729,7 +1833,7 @@ const UUIDGeneratorCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1748,15 +1852,15 @@ const UUIDGeneratorCore = () => {
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Use Cases:</div>
-                            <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Examples:</div>
                             <div className="text-xs text-muted-foreground font-mono">
                               {template.examples
                                 .slice(0, 1)
-                                .map((example) => (example.length > 30 ? example.substring(0, 30) + '...' : example))
-                                .join(', ')}
+                                .map((example) => (example.length > 30 ? example.substring(0, 30) + "..." : example))
+                                .join(", ")}
                             </div>
                           </div>
                         </div>
@@ -1779,15 +1883,24 @@ const UUIDGeneratorCore = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => exportResults(results, 'txt')}>
+                  <Button
+                    variant="outline"
+                    onClick={() => exportResults(results, "txt")}
+                  >
                     <FileText className="mr-2 h-4 w-4" />
                     Export as Text
                   </Button>
-                  <Button variant="outline" onClick={() => exportResults(results, 'json')}>
+                  <Button
+                    variant="outline"
+                    onClick={() => exportResults(results, "json")}
+                  >
                     <Code className="mr-2 h-4 w-4" />
                     Export as JSON
                   </Button>
-                  <Button variant="outline" onClick={() => exportResults(results, 'csv')}>
+                  <Button
+                    variant="outline"
+                    onClick={() => exportResults(results, "csv")}
+                  >
                     <FileText className="mr-2 h-4 w-4" />
                     Export as CSV
                   </Button>

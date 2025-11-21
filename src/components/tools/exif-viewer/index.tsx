@@ -1,10 +1,10 @@
-import React, { useCallback, useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -23,8 +23,8 @@ import {
   Aperture,
   Settings,
   Image as ImageIcon,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   ExifFile,
   ExifData,
@@ -33,20 +33,20 @@ import type {
   ExifSettings,
   ExifTemplate,
   ExportFormat,
-} from '@/types/exif-viewer'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/exif-viewer"
+import { formatFileSize } from "@/lib/utils"
 // Utility functions
 
 const validateImageFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/tiff', 'image/tif', 'image/png', 'image/webp']
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/tiff", "image/tif", "image/png", "image/webp"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 50MB' }
+    return { isValid: false, error: "File size must be less than 50MB" }
   }
 
   if (!allowedTypes.includes(file.type.toLowerCase())) {
-    return { isValid: false, error: 'Only JPEG, TIFF, PNG, and WebP images are supported' }
+    return { isValid: false, error: "Only JPEG, TIFF, PNG, and WebP images are supported" }
   }
 
   return { isValid: true }
@@ -67,9 +67,9 @@ const extractBasicInfo = (file: File, imageElement?: HTMLImageElement): BasicIma
     fileType: file.type,
     mimeType: file.type,
     dimensions,
-    colorSpace: 'sRGB', // Default assumption
+    colorSpace: "sRGB", // Default assumption
     bitDepth: 8, // Default assumption
-    compression: 'JPEG', // Default assumption
+    compression: "JPEG", // Default assumption
     orientation: 1, // Default assumption
   }
 }
@@ -81,7 +81,7 @@ const extractExifFromArrayBuffer = (buffer: ArrayBuffer): Partial<ExifData> => {
   try {
     // Check for JPEG SOI marker
     if (view.getUint16(0) !== 0xffd8) {
-      throw new Error('Not a valid JPEG file')
+      throw new Error("Not a valid JPEG file")
     }
 
     // Look for EXIF marker (0xFFE1)
@@ -93,7 +93,7 @@ const extractExifFromArrayBuffer = (buffer: ArrayBuffer): Partial<ExifData> => {
         const exifHeader = new Uint8Array(buffer, offset + 4, 6)
 
         // Check for "Exif\0\0" header
-        if (String.fromCharCode(...exifHeader) === 'Exif\0\0') {
+        if (String.fromCharCode(...exifHeader) === "Exif\0\0") {
           // Basic EXIF parsing would go here
           // For now, return mock data
           return createMockExifData()
@@ -106,7 +106,7 @@ const extractExifFromArrayBuffer = (buffer: ArrayBuffer): Partial<ExifData> => {
 
     return createMockExifData()
   } catch (error) {
-    console.warn('EXIF extraction failed:', error)
+    console.warn("EXIF extraction failed:", error)
     return createMockExifData()
   }
 }
@@ -116,53 +116,53 @@ const createMockExifData = (): Partial<ExifData> => {
 
   return {
     cameraInfo: {
-      make: 'Unknown',
-      model: 'Unknown',
-      software: 'Unknown',
-      artist: '',
-      copyright: '',
+      make: "Unknown",
+      model: "Unknown",
+      software: "Unknown",
+      artist: "",
+      copyright: "",
       dateTime: now.toISOString(),
       dateTimeOriginal: now.toISOString(),
       dateTimeDigitized: now.toISOString(),
-      subSecTime: '00',
+      subSecTime: "00",
     },
     exposureInfo: {
-      exposureTime: '1/60',
-      fNumber: 'f/2.8',
-      exposureProgram: 'Auto',
+      exposureTime: "1/60",
+      fNumber: "f/2.8",
+      exposureProgram: "Auto",
       iso: 100,
-      exposureBias: '0 EV',
-      meteringMode: 'Pattern',
-      flash: 'No Flash',
-      focalLength: '50mm',
-      focalLengthIn35mm: '50mm',
-      whiteBalance: 'Auto',
-      sceneCaptureType: 'Standard',
+      exposureBias: "0 EV",
+      meteringMode: "Pattern",
+      flash: "No Flash",
+      focalLength: "50mm",
+      focalLengthIn35mm: "50mm",
+      whiteBalance: "Auto",
+      sceneCaptureType: "Standard",
     },
     gpsInfo: {
       latitude: null,
       longitude: null,
       altitude: null,
-      latitudeRef: '',
-      longitudeRef: '',
-      altitudeRef: '',
-      timestamp: '',
-      datestamp: '',
-      mapDatum: '',
-      processingMethod: '',
+      latitudeRef: "",
+      longitudeRef: "",
+      altitudeRef: "",
+      timestamp: "",
+      datestamp: "",
+      mapDatum: "",
+      processingMethod: "",
     },
     technicalInfo: {
-      colorSpace: 'sRGB',
+      colorSpace: "sRGB",
       pixelXDimension: 0,
       pixelYDimension: 0,
-      resolutionUnit: 'inches',
+      resolutionUnit: "inches",
       xResolution: 72,
       yResolution: 72,
-      yCbCrPositioning: 'Centered',
-      exifVersion: '0232',
-      flashpixVersion: '0100',
-      componentConfiguration: 'YCbCr',
-      compressedBitsPerPixel: '2',
+      yCbCrPositioning: "Centered",
+      exifVersion: "0232",
+      flashpixVersion: "0100",
+      componentConfiguration: "YCbCr",
+      compressedBitsPerPixel: "2",
     },
   }
 }
@@ -194,7 +194,7 @@ const extractExifData = async (file: File): Promise<ExifData> => {
             statistics: {
               totalImages: 1,
               formatDistribution: { [file.type]: 1 },
-              cameraDistribution: { [partialExifData.cameraInfo?.make || 'Unknown']: 1 },
+              cameraDistribution: { [partialExifData.cameraInfo?.make || "Unknown"]: 1 },
               averageFileSize: file.size,
               averageMegapixels: basicInfo.dimensions.megapixels,
               gpsEnabledCount: partialExifData.gpsInfo?.latitude ? 1 : 0,
@@ -205,7 +205,7 @@ const extractExifData = async (file: File): Promise<ExifData> => {
               includeTechnical: true,
               includeCamera: true,
               includeExposure: true,
-              exportFormat: 'json',
+              exportFormat: "json",
               privacyMode: false,
               showThumbnails: true,
             },
@@ -221,23 +221,23 @@ const extractExifData = async (file: File): Promise<ExifData> => {
 
       imageElement.onerror = () => {
         URL.revokeObjectURL(imageUrl)
-        reject(new Error('Failed to load image'))
+        reject(new Error("Failed to load image"))
       }
 
       imageElement.src = imageUrl
     })
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'EXIF extraction failed')
+    throw new Error(error instanceof Error ? error.message : "EXIF extraction failed")
   }
 }
 
 // EXIF templates
 const exifTemplates: ExifTemplate[] = [
   {
-    id: 'photography-basic',
-    name: 'Photography Basic',
-    description: 'Essential camera and exposure information',
-    category: 'Photography',
+    id: "photography-basic",
+    name: "Photography Basic",
+    description: "Essential camera and exposure information",
+    category: "Photography",
     settings: {
       includeCamera: true,
       includeExposure: true,
@@ -246,19 +246,19 @@ const exifTemplates: ExifTemplate[] = [
       privacyMode: false,
     },
     fields: [
-      { key: 'make', label: 'Camera Make', category: 'camera', required: true, sensitive: false },
-      { key: 'model', label: 'Camera Model', category: 'camera', required: true, sensitive: false },
-      { key: 'exposureTime', label: 'Shutter Speed', category: 'exposure', required: true, sensitive: false },
-      { key: 'fNumber', label: 'Aperture', category: 'exposure', required: true, sensitive: false },
-      { key: 'iso', label: 'ISO', category: 'exposure', required: true, sensitive: false },
-      { key: 'focalLength', label: 'Focal Length', category: 'exposure', required: true, sensitive: false },
+      { key: "make", label: "Camera Make", category: "camera", required: true, sensitive: false },
+      { key: "model", label: "Camera Model", category: "camera", required: true, sensitive: false },
+      { key: "exposureTime", label: "Shutter Speed", category: "exposure", required: true, sensitive: false },
+      { key: "fNumber", label: "Aperture", category: "exposure", required: true, sensitive: false },
+      { key: "iso", label: "ISO", category: "exposure", required: true, sensitive: false },
+      { key: "focalLength", label: "Focal Length", category: "exposure", required: true, sensitive: false },
     ],
   },
   {
-    id: 'photography-complete',
-    name: 'Photography Complete',
-    description: 'Comprehensive camera and technical data',
-    category: 'Photography',
+    id: "photography-complete",
+    name: "Photography Complete",
+    description: "Comprehensive camera and technical data",
+    category: "Photography",
     settings: {
       includeCamera: true,
       includeExposure: true,
@@ -267,21 +267,21 @@ const exifTemplates: ExifTemplate[] = [
       privacyMode: false,
     },
     fields: [
-      { key: 'make', label: 'Camera Make', category: 'camera', required: true, sensitive: false },
-      { key: 'model', label: 'Camera Model', category: 'camera', required: true, sensitive: false },
-      { key: 'dateTimeOriginal', label: 'Date Taken', category: 'camera', required: false, sensitive: true },
-      { key: 'exposureTime', label: 'Shutter Speed', category: 'exposure', required: true, sensitive: false },
-      { key: 'fNumber', label: 'Aperture', category: 'exposure', required: true, sensitive: false },
-      { key: 'iso', label: 'ISO', category: 'exposure', required: true, sensitive: false },
-      { key: 'latitude', label: 'GPS Latitude', category: 'gps', required: false, sensitive: true },
-      { key: 'longitude', label: 'GPS Longitude', category: 'gps', required: false, sensitive: true },
+      { key: "make", label: "Camera Make", category: "camera", required: true, sensitive: false },
+      { key: "model", label: "Camera Model", category: "camera", required: true, sensitive: false },
+      { key: "dateTimeOriginal", label: "Date Taken", category: "camera", required: false, sensitive: true },
+      { key: "exposureTime", label: "Shutter Speed", category: "exposure", required: true, sensitive: false },
+      { key: "fNumber", label: "Aperture", category: "exposure", required: true, sensitive: false },
+      { key: "iso", label: "ISO", category: "exposure", required: true, sensitive: false },
+      { key: "latitude", label: "GPS Latitude", category: "gps", required: false, sensitive: true },
+      { key: "longitude", label: "GPS Longitude", category: "gps", required: false, sensitive: true },
     ],
   },
   {
-    id: 'privacy-safe',
-    name: 'Privacy Safe',
-    description: 'Basic info without sensitive metadata',
-    category: 'Privacy',
+    id: "privacy-safe",
+    name: "Privacy Safe",
+    description: "Basic info without sensitive metadata",
+    category: "Privacy",
     settings: {
       includeCamera: false,
       includeExposure: false,
@@ -290,17 +290,17 @@ const exifTemplates: ExifTemplate[] = [
       privacyMode: true,
     },
     fields: [
-      { key: 'fileName', label: 'File Name', category: 'basic', required: true, sensitive: false },
-      { key: 'fileSize', label: 'File Size', category: 'basic', required: true, sensitive: false },
-      { key: 'dimensions', label: 'Dimensions', category: 'basic', required: true, sensitive: false },
-      { key: 'fileType', label: 'File Type', category: 'basic', required: true, sensitive: false },
+      { key: "fileName", label: "File Name", category: "basic", required: true, sensitive: false },
+      { key: "fileSize", label: "File Size", category: "basic", required: true, sensitive: false },
+      { key: "dimensions", label: "Dimensions", category: "basic", required: true, sensitive: false },
+      { key: "fileType", label: "File Type", category: "basic", required: true, sensitive: false },
     ],
   },
   {
-    id: 'technical-analysis',
-    name: 'Technical Analysis',
-    description: 'Detailed technical specifications',
-    category: 'Technical',
+    id: "technical-analysis",
+    name: "Technical Analysis",
+    description: "Detailed technical specifications",
+    category: "Technical",
     settings: {
       includeCamera: false,
       includeExposure: false,
@@ -309,18 +309,18 @@ const exifTemplates: ExifTemplate[] = [
       privacyMode: false,
     },
     fields: [
-      { key: 'colorSpace', label: 'Color Space', category: 'technical', required: true, sensitive: false },
-      { key: 'bitDepth', label: 'Bit Depth', category: 'technical', required: true, sensitive: false },
-      { key: 'compression', label: 'Compression', category: 'technical', required: true, sensitive: false },
-      { key: 'xResolution', label: 'X Resolution', category: 'technical', required: false, sensitive: false },
-      { key: 'yResolution', label: 'Y Resolution', category: 'technical', required: false, sensitive: false },
+      { key: "colorSpace", label: "Color Space", category: "technical", required: true, sensitive: false },
+      { key: "bitDepth", label: "Bit Depth", category: "technical", required: true, sensitive: false },
+      { key: "compression", label: "Compression", category: "technical", required: true, sensitive: false },
+      { key: "xResolution", label: "X Resolution", category: "technical", required: false, sensitive: false },
+      { key: "yResolution", label: "Y Resolution", category: "technical", required: false, sensitive: false },
     ],
   },
   {
-    id: 'gps-location',
-    name: 'GPS & Location',
-    description: 'Geographic and location data',
-    category: 'Location',
+    id: "gps-location",
+    name: "GPS & Location",
+    description: "Geographic and location data",
+    category: "Location",
     settings: {
       includeCamera: false,
       includeExposure: false,
@@ -329,17 +329,17 @@ const exifTemplates: ExifTemplate[] = [
       privacyMode: false,
     },
     fields: [
-      { key: 'latitude', label: 'Latitude', category: 'gps', required: true, sensitive: true },
-      { key: 'longitude', label: 'Longitude', category: 'gps', required: true, sensitive: true },
-      { key: 'altitude', label: 'Altitude', category: 'gps', required: false, sensitive: true },
-      { key: 'timestamp', label: 'GPS Timestamp', category: 'gps', required: false, sensitive: true },
+      { key: "latitude", label: "Latitude", category: "gps", required: true, sensitive: true },
+      { key: "longitude", label: "Longitude", category: "gps", required: true, sensitive: true },
+      { key: "altitude", label: "Altitude", category: "gps", required: false, sensitive: true },
+      { key: "timestamp", label: "GPS Timestamp", category: "gps", required: false, sensitive: true },
     ],
   },
   {
-    id: 'web-optimization',
-    name: 'Web Optimization',
-    description: 'Data relevant for web usage',
-    category: 'Web',
+    id: "web-optimization",
+    name: "Web Optimization",
+    description: "Data relevant for web usage",
+    category: "Web",
     settings: {
       includeCamera: false,
       includeExposure: false,
@@ -348,10 +348,10 @@ const exifTemplates: ExifTemplate[] = [
       privacyMode: true,
     },
     fields: [
-      { key: 'dimensions', label: 'Dimensions', category: 'basic', required: true, sensitive: false },
-      { key: 'fileSize', label: 'File Size', category: 'basic', required: true, sensitive: false },
-      { key: 'colorSpace', label: 'Color Space', category: 'technical', required: true, sensitive: false },
-      { key: 'compression', label: 'Compression', category: 'technical', required: true, sensitive: false },
+      { key: "dimensions", label: "Dimensions", category: "basic", required: true, sensitive: false },
+      { key: "fileSize", label: "File Size", category: "basic", required: true, sensitive: false },
+      { key: "colorSpace", label: "Color Space", category: "technical", required: true, sensitive: false },
+      { key: "compression", label: "Compression", category: "technical", required: true, sensitive: false },
     ],
   },
 ]
@@ -362,30 +362,30 @@ const useExifExtraction = () => {
     try {
       return await extractExifData(file)
     } catch (error) {
-      console.error('EXIF extraction error:', error)
-      throw new Error(error instanceof Error ? error.message : 'EXIF extraction failed')
+      console.error("EXIF extraction error:", error)
+      throw new Error(error instanceof Error ? error.message : "EXIF extraction failed")
     }
   }, [])
 
   const processBatch = useCallback(async (files: ExifFile[]): Promise<ExifFile[]> => {
     return Promise.all(
       files.map(async (file) => {
-        if (file.status !== 'pending') return file
+        if (file.status !== "pending") return file
 
         try {
           const exifData = await extractExifData(new File([file.content], file.name, { type: file.type }))
 
           return {
             ...file,
-            status: 'completed' as const,
+            status: "completed" as const,
             exifData,
             processedAt: new Date(),
           }
         } catch (error) {
           return {
             ...file,
-            status: 'error' as const,
-            error: error instanceof Error ? error.message : 'Processing failed',
+            status: "error" as const,
+            error: error instanceof Error ? error.message : "Processing failed",
           }
         }
       })
@@ -424,16 +424,16 @@ const useFileProcessing = () => {
             content,
             size: file.size,
             type: file.type,
-            status: 'pending',
+            status: "pending",
           }
 
           resolve(exifFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsDataURL(file)
     })
   }, [])
@@ -443,17 +443,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
             type: files[index].type,
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -467,37 +467,37 @@ const useFileProcessing = () => {
 // Export functionality
 const useExifExport = () => {
   const exportExif = useCallback((exifData: ExifData, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(exifData, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromExif(exifData)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromExif(exifData)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromExif(exifData)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `exif-data${extension}`
     document.body.appendChild(link)
@@ -511,14 +511,14 @@ const useExifExport = () => {
       const completedFiles = files.filter((f) => f.exifData)
 
       if (completedFiles.length === 0) {
-        toast.error('No EXIF data to export')
+        toast.error("No EXIF data to export")
         return
       }
 
       completedFiles.forEach((file) => {
         if (file.exifData) {
-          const baseName = file.name.replace(/\.[^/.]+$/, '')
-          exportExif(file.exifData, 'json', `${baseName}-exif.json`)
+          const baseName = file.name.replace(/\.[^/.]+$/, "")
+          exportExif(file.exifData, "json", `${baseName}-exif.json`)
         }
       })
 
@@ -536,13 +536,13 @@ const useExifExport = () => {
         dimensions: `${file.exifData!.basicInfo.dimensions.width}x${file.exifData!.basicInfo.dimensions.height}`,
         megapixels: file.exifData!.basicInfo.dimensions.megapixels.toFixed(2),
         camera: `${file.exifData!.cameraInfo.make} ${file.exifData!.cameraInfo.model}`.trim(),
-        hasGPS: file.exifData!.gpsInfo.latitude ? 'Yes' : 'No',
+        hasGPS: file.exifData!.gpsInfo.latitude ? "Yes" : "No",
         processingTime: `${file.exifData!.statistics.processingTime.toFixed(2)}ms`,
         status: file.status,
       }))
 
     const csvContent = [
-      ['Filename', 'File Size', 'Dimensions', 'Megapixels', 'Camera', 'Has GPS', 'Processing Time', 'Status'],
+      ["Filename", "File Size", "Dimensions", "Megapixels", "Camera", "Has GPS", "Processing Time", "Status"],
       ...stats.map((stat) => [
         stat.filename,
         stat.originalSize,
@@ -554,20 +554,20 @@ const useExifExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'exif-statistics.csv'
+    link.download = "exif-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportExif, exportBatch, exportStatistics }
@@ -596,32 +596,32 @@ Exposure Information:
 - Focal Length: ${exifData.exposureInfo.focalLength}
 
 GPS Information:
-- Latitude: ${exifData.gpsInfo.latitude || 'Not available'}
-- Longitude: ${exifData.gpsInfo.longitude || 'Not available'}
-- Altitude: ${exifData.gpsInfo.altitude || 'Not available'}
+- Latitude: ${exifData.gpsInfo.latitude || "Not available"}
+- Longitude: ${exifData.gpsInfo.longitude || "Not available"}
+- Altitude: ${exifData.gpsInfo.altitude || "Not available"}
 `
 }
 
 const generateCSVFromExif = (exifData: ExifData): string => {
   const rows = [
-    ['Field', 'Value'],
-    ['File Name', exifData.basicInfo.fileName],
-    ['File Size', formatFileSize(exifData.basicInfo.fileSize)],
-    ['Width', exifData.basicInfo.dimensions.width.toString()],
-    ['Height', exifData.basicInfo.dimensions.height.toString()],
-    ['Megapixels', exifData.basicInfo.dimensions.megapixels.toFixed(2)],
-    ['Camera Make', exifData.cameraInfo.make],
-    ['Camera Model', exifData.cameraInfo.model],
-    ['Date Taken', exifData.cameraInfo.dateTimeOriginal],
-    ['Shutter Speed', exifData.exposureInfo.exposureTime],
-    ['Aperture', exifData.exposureInfo.fNumber],
-    ['ISO', exifData.exposureInfo.iso.toString()],
-    ['Focal Length', exifData.exposureInfo.focalLength],
-    ['GPS Latitude', exifData.gpsInfo.latitude?.toString() || ''],
-    ['GPS Longitude', exifData.gpsInfo.longitude?.toString() || ''],
+    ["Field", "Value"],
+    ["File Name", exifData.basicInfo.fileName],
+    ["File Size", formatFileSize(exifData.basicInfo.fileSize)],
+    ["Width", exifData.basicInfo.dimensions.width.toString()],
+    ["Height", exifData.basicInfo.dimensions.height.toString()],
+    ["Megapixels", exifData.basicInfo.dimensions.megapixels.toFixed(2)],
+    ["Camera Make", exifData.cameraInfo.make],
+    ["Camera Model", exifData.cameraInfo.model],
+    ["Date Taken", exifData.cameraInfo.dateTimeOriginal],
+    ["Shutter Speed", exifData.exposureInfo.exposureTime],
+    ["Aperture", exifData.exposureInfo.fNumber],
+    ["ISO", exifData.exposureInfo.iso.toString()],
+    ["Focal Length", exifData.exposureInfo.focalLength],
+    ["GPS Latitude", exifData.gpsInfo.latitude?.toString() || ""],
+    ["GPS Longitude", exifData.gpsInfo.longitude?.toString() || ""],
   ]
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 }
 
 const generateXMLFromExif = (exifData: ExifData): string => {
@@ -646,9 +646,9 @@ const generateXMLFromExif = (exifData: ExifData): string => {
     <focalLength>${exifData.exposureInfo.focalLength}</focalLength>
   </exposureInfo>
   <gpsInfo>
-    <latitude>${exifData.gpsInfo.latitude || ''}</latitude>
-    <longitude>${exifData.gpsInfo.longitude || ''}</longitude>
-    <altitude>${exifData.gpsInfo.altitude || ''}</altitude>
+    <latitude>${exifData.gpsInfo.latitude || ""}</latitude>
+    <longitude>${exifData.gpsInfo.longitude || ""}</longitude>
+    <altitude>${exifData.gpsInfo.altitude || ""}</altitude>
   </gpsInfo>
 </exif>`
 }
@@ -660,13 +660,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -681,9 +681,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -694,12 +694,12 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       e.stopPropagation()
       setDragActive(false)
 
-      const files = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith('image/'))
+      const files = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith("image/"))
 
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only image files')
+        toast.error("Please drop only image files")
       }
     },
     [onFilesDropped]
@@ -713,7 +713,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -733,18 +733,18 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time EXIF extraction, multiple formats, batch processing, comprehensive metadata
  */
 const ExifViewerCore = () => {
-  const [activeTab, setActiveTab] = useState<'viewer' | 'files'>('viewer')
+  const [activeTab, setActiveTab] = useState<"viewer" | "files">("viewer")
   const [currentFile, setCurrentFile] = useState<File | null>(null)
   const [currentExifData, setCurrentExifData] = useState<ExifData | null>(null)
   const [files, setFiles] = useState<ExifFile[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('photography-basic')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("photography-basic")
   const [settings, setSettings] = useState<ExifSettings>({
     includeGPS: true,
     includeTechnical: true,
     includeCamera: true,
     includeExposure: true,
-    exportFormat: 'json',
+    exportFormat: "json",
     privacyMode: false,
     showThumbnails: true,
   })
@@ -772,7 +772,7 @@ const ExifViewerCore = () => {
 
           toast.success(`Added ${processedFiles.length} file(s)`)
         } catch (error) {
-          toast.error('Failed to process files')
+          toast.error("Failed to process files")
         } finally {
           setIsProcessing(false)
         }
@@ -801,12 +801,15 @@ const ExifViewerCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Camera className="h-5 w-5" aria-hidden="true" />
+              <Camera className="h-5 w-5" />
               EXIF Viewer
             </CardTitle>
             <CardDescription>
@@ -818,20 +821,32 @@ const ExifViewerCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'viewer' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "viewer" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="viewer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="viewer"
+              className="flex items-center gap-2"
+            >
               <Eye className="h-4 w-4" />
               EXIF Viewer
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* EXIF Viewer Tab */}
-          <TabsContent value="viewer" className="space-y-4">
+          <TabsContent
+            value="viewer"
+            className="space-y-4"
+          >
             {/* EXIF Templates */}
             <Card>
               <CardHeader>
@@ -845,7 +860,7 @@ const ExifViewerCore = () => {
                   {exifTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -871,8 +886,8 @@ const ExifViewerCore = () => {
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -880,9 +895,8 @@ const ExifViewerCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop image here or click to select image"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -896,7 +910,10 @@ const ExifViewerCore = () => {
                         <p className="text-muted-foreground">{formatFileSize(currentFile.size)}</p>
                       </div>
                       <div className="flex gap-2 justify-center">
-                        <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+                        <Button
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
                           <Upload className="mr-2 h-4 w-4" />
                           Change Image
                         </Button>
@@ -919,7 +936,10 @@ const ExifViewerCore = () => {
                       <p className="text-muted-foreground mb-4">
                         Drag and drop your image here, or click to select a file
                       </p>
-                      <Button onClick={() => fileInputRef.current?.click()} variant="outline">
+                      <Button
+                        onClick={() => fileInputRef.current?.click()}
+                        variant="outline"
+                      >
                         <FileImage className="mr-2 h-4 w-4" />
                         Choose Image
                       </Button>
@@ -932,7 +952,6 @@ const ExifViewerCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select image file"
                   />
                 </div>
               </CardContent>
@@ -1013,7 +1032,7 @@ const ExifViewerCore = () => {
                         </div>
                         <div>
                           <Label className="font-medium">Software</Label>
-                          <div className="font-mono">{currentExifData.cameraInfo.software || 'Unknown'}</div>
+                          <div className="font-mono">{currentExifData.cameraInfo.software || "Unknown"}</div>
                         </div>
                         {currentExifData.cameraInfo.artist && (
                           <div>
@@ -1116,10 +1135,10 @@ const ExifViewerCore = () => {
                               variant="outline"
                               onClick={() => {
                                 const coords = `${currentExifData.gpsInfo.latitude},${currentExifData.gpsInfo.longitude}`
-                                copyToClipboard(coords, 'GPS coordinates')
+                                copyToClipboard(coords, "GPS coordinates")
                               }}
                             >
-                              {copiedText === 'GPS coordinates' ? (
+                              {copiedText === "GPS coordinates" ? (
                                 <Check className="h-4 w-4 mr-2" />
                               ) : (
                                 <Copy className="h-4 w-4 mr-2" />
@@ -1131,7 +1150,7 @@ const ExifViewerCore = () => {
                               variant="outline"
                               onClick={() => {
                                 const url = `https://maps.google.com/?q=${currentExifData.gpsInfo.latitude},${currentExifData.gpsInfo.longitude}`
-                                window.open(url, '_blank')
+                                window.open(url, "_blank")
                               }}
                             >
                               <MapPin className="h-4 w-4 mr-2" />
@@ -1156,17 +1175,26 @@ const ExifViewerCore = () => {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex flex-wrap gap-3 justify-center">
-                    <Button onClick={() => exportExif(currentExifData, 'json')} variant="outline">
+                    <Button
+                      onClick={() => exportExif(currentExifData, "json")}
+                      variant="outline"
+                    >
                       <Download className="mr-2 h-4 w-4" />
                       Export JSON
                     </Button>
 
-                    <Button onClick={() => exportExif(currentExifData, 'csv')} variant="outline">
+                    <Button
+                      onClick={() => exportExif(currentExifData, "csv")}
+                      variant="outline"
+                    >
                       <FileText className="mr-2 h-4 w-4" />
                       Export CSV
                     </Button>
 
-                    <Button onClick={() => exportExif(currentExifData, 'txt')} variant="outline">
+                    <Button
+                      onClick={() => exportExif(currentExifData, "txt")}
+                      variant="outline"
+                    >
                       <Code className="mr-2 h-4 w-4" />
                       Export Text
                     </Button>
@@ -1174,11 +1202,11 @@ const ExifViewerCore = () => {
                     <Button
                       onClick={() => {
                         const exifText = generateTextFromExif(currentExifData)
-                        copyToClipboard(exifText, 'EXIF data')
+                        copyToClipboard(exifText, "EXIF data")
                       }}
                       variant="outline"
                     >
-                      {copiedText === 'EXIF data' ? (
+                      {copiedText === "EXIF data" ? (
                         <Check className="mr-2 h-4 w-4" />
                       ) : (
                         <Copy className="mr-2 h-4 w-4" />
@@ -1201,7 +1229,10 @@ const ExifViewerCore = () => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="export-format" className="text-sm font-medium">
+                    <Label
+                      htmlFor="export-format"
+                      className="text-sm font-medium"
+                    >
                       Export Format
                     </Label>
                     <Select
@@ -1230,7 +1261,10 @@ const ExifViewerCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, includeCamera: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="include-camera" className="text-sm">
+                    <Label
+                      htmlFor="include-camera"
+                      className="text-sm"
+                    >
                       Include camera information
                     </Label>
                   </div>
@@ -1243,7 +1277,10 @@ const ExifViewerCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, includeExposure: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="include-exposure" className="text-sm">
+                    <Label
+                      htmlFor="include-exposure"
+                      className="text-sm"
+                    >
                       Include exposure settings
                     </Label>
                   </div>
@@ -1256,7 +1293,10 @@ const ExifViewerCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, includeGPS: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="include-gps" className="text-sm">
+                    <Label
+                      htmlFor="include-gps"
+                      className="text-sm"
+                    >
                       Include GPS data
                     </Label>
                   </div>
@@ -1269,7 +1309,10 @@ const ExifViewerCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, includeTechnical: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="include-technical" className="text-sm">
+                    <Label
+                      htmlFor="include-technical"
+                      className="text-sm"
+                    >
                       Include technical details
                     </Label>
                   </div>
@@ -1282,7 +1325,10 @@ const ExifViewerCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, privacyMode: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="privacy-mode" className="text-sm">
+                    <Label
+                      htmlFor="privacy-mode"
+                      className="text-sm"
+                    >
                       Privacy mode (hide sensitive data)
                     </Label>
                   </div>
@@ -1292,14 +1338,17 @@ const ExifViewerCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1307,9 +1356,8 @@ const ExifViewerCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop image files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1320,7 +1368,11 @@ const ExifViewerCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your images here, or click to select files for batch EXIF extraction
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Images
                   </Button>
@@ -1332,7 +1384,6 @@ const ExifViewerCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select image files"
                   />
                 </div>
               </CardContent>
@@ -1346,19 +1397,25 @@ const ExifViewerCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <ImageIcon className="h-8 w-8 text-muted-foreground" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground">
                               <span className="font-medium">Size:</span> {formatFileSize(file.size)}
                             </div>
-                            {file.status === 'completed' && file.exifData && (
+                            {file.status === "completed" && file.exifData && (
                               <div className="mt-2 text-xs">
                                 EXIF data extracted • {file.exifData.basicInfo.dimensions.width}×
                                 {file.exifData.basicInfo.dimensions.height}

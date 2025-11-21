@@ -1,11 +1,11 @@
-import { useCallback, useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -21,8 +21,8 @@ import {
   DollarSign,
   ArrowLeftRight,
   Repeat,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   CurrencyConversion,
   Currency,
@@ -30,13 +30,13 @@ import type {
   ConversionTemplate,
   ConversionValidation,
   ExportFormat,
-} from '@/types/currency-convert'
+} from "@/types/currency-convert"
 
 // Utility functions
 
 const formatCurrency = (amount: number, currency: Currency): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
     currency: currency.code,
     minimumFractionDigits: currency.decimals,
     maximumFractionDigits: currency.decimals,
@@ -44,7 +44,7 @@ const formatCurrency = (amount: number, currency: Currency): string => {
 }
 
 const formatNumber = (num: number, decimals: number = 2): string => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(num)
@@ -54,89 +54,89 @@ const formatNumber = (num: number, decimals: number = 2): string => {
 const currencies: Currency[] = [
   // Major currencies
   {
-    code: 'USD',
-    name: 'US Dollar',
-    symbol: '$',
-    flag: '🇺🇸',
-    country: 'United States',
-    region: 'North America',
+    code: "USD",
+    name: "US Dollar",
+    symbol: "$",
+    flag: "🇺🇸",
+    country: "United States",
+    region: "North America",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'EUR',
-    name: 'Euro',
-    symbol: '€',
-    flag: '🇪🇺',
-    country: 'European Union',
-    region: 'Europe',
+    code: "EUR",
+    name: "Euro",
+    symbol: "€",
+    flag: "🇪🇺",
+    country: "European Union",
+    region: "Europe",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'GBP',
-    name: 'British Pound',
-    symbol: '£',
-    flag: '🇬🇧',
-    country: 'United Kingdom',
-    region: 'Europe',
+    code: "GBP",
+    name: "British Pound",
+    symbol: "£",
+    flag: "🇬🇧",
+    country: "United Kingdom",
+    region: "Europe",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'JPY',
-    name: 'Japanese Yen',
-    symbol: '¥',
-    flag: '🇯🇵',
-    country: 'Japan',
-    region: 'Asia',
+    code: "JPY",
+    name: "Japanese Yen",
+    symbol: "¥",
+    flag: "🇯🇵",
+    country: "Japan",
+    region: "Asia",
     isActive: true,
     isCrypto: false,
     decimals: 0,
   },
   {
-    code: 'CHF',
-    name: 'Swiss Franc',
-    symbol: 'CHF',
-    flag: '🇨🇭',
-    country: 'Switzerland',
-    region: 'Europe',
+    code: "CHF",
+    name: "Swiss Franc",
+    symbol: "CHF",
+    flag: "🇨🇭",
+    country: "Switzerland",
+    region: "Europe",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'CAD',
-    name: 'Canadian Dollar',
-    symbol: 'C$',
-    flag: '🇨🇦',
-    country: 'Canada',
-    region: 'North America',
+    code: "CAD",
+    name: "Canadian Dollar",
+    symbol: "C$",
+    flag: "🇨🇦",
+    country: "Canada",
+    region: "North America",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'AUD',
-    name: 'Australian Dollar',
-    symbol: 'A$',
-    flag: '🇦🇺',
-    country: 'Australia',
-    region: 'Oceania',
+    code: "AUD",
+    name: "Australian Dollar",
+    symbol: "A$",
+    flag: "🇦🇺",
+    country: "Australia",
+    region: "Oceania",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'CNY',
-    name: 'Chinese Yuan',
-    symbol: '¥',
-    flag: '🇨🇳',
-    country: 'China',
-    region: 'Asia',
+    code: "CNY",
+    name: "Chinese Yuan",
+    symbol: "¥",
+    flag: "🇨🇳",
+    country: "China",
+    region: "Asia",
     isActive: true,
     isCrypto: false,
     decimals: 2,
@@ -144,67 +144,67 @@ const currencies: Currency[] = [
 
   // Other major currencies
   {
-    code: 'SEK',
-    name: 'Swedish Krona',
-    symbol: 'kr',
-    flag: '🇸🇪',
-    country: 'Sweden',
-    region: 'Europe',
+    code: "SEK",
+    name: "Swedish Krona",
+    symbol: "kr",
+    flag: "🇸🇪",
+    country: "Sweden",
+    region: "Europe",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'NOK',
-    name: 'Norwegian Krone',
-    symbol: 'kr',
-    flag: '🇳🇴',
-    country: 'Norway',
-    region: 'Europe',
+    code: "NOK",
+    name: "Norwegian Krone",
+    symbol: "kr",
+    flag: "🇳🇴",
+    country: "Norway",
+    region: "Europe",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'DKK',
-    name: 'Danish Krone',
-    symbol: 'kr',
-    flag: '🇩🇰',
-    country: 'Denmark',
-    region: 'Europe',
+    code: "DKK",
+    name: "Danish Krone",
+    symbol: "kr",
+    flag: "🇩🇰",
+    country: "Denmark",
+    region: "Europe",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'PLN',
-    name: 'Polish Zloty',
-    symbol: 'zł',
-    flag: '🇵🇱',
-    country: 'Poland',
-    region: 'Europe',
+    code: "PLN",
+    name: "Polish Zloty",
+    symbol: "zł",
+    flag: "🇵🇱",
+    country: "Poland",
+    region: "Europe",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'CZK',
-    name: 'Czech Koruna',
-    symbol: 'Kč',
-    flag: '🇨🇿',
-    country: 'Czech Republic',
-    region: 'Europe',
+    code: "CZK",
+    name: "Czech Koruna",
+    symbol: "Kč",
+    flag: "🇨🇿",
+    country: "Czech Republic",
+    region: "Europe",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'HUF',
-    name: 'Hungarian Forint',
-    symbol: 'Ft',
-    flag: '🇭🇺',
-    country: 'Hungary',
-    region: 'Europe',
+    code: "HUF",
+    name: "Hungarian Forint",
+    symbol: "Ft",
+    flag: "🇭🇺",
+    country: "Hungary",
+    region: "Europe",
     isActive: true,
     isCrypto: false,
     decimals: 0,
@@ -212,67 +212,67 @@ const currencies: Currency[] = [
 
   // Asian currencies
   {
-    code: 'KRW',
-    name: 'South Korean Won',
-    symbol: '₩',
-    flag: '🇰🇷',
-    country: 'South Korea',
-    region: 'Asia',
+    code: "KRW",
+    name: "South Korean Won",
+    symbol: "₩",
+    flag: "🇰🇷",
+    country: "South Korea",
+    region: "Asia",
     isActive: true,
     isCrypto: false,
     decimals: 0,
   },
   {
-    code: 'SGD',
-    name: 'Singapore Dollar',
-    symbol: 'S$',
-    flag: '🇸🇬',
-    country: 'Singapore',
-    region: 'Asia',
+    code: "SGD",
+    name: "Singapore Dollar",
+    symbol: "S$",
+    flag: "🇸🇬",
+    country: "Singapore",
+    region: "Asia",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'HKD',
-    name: 'Hong Kong Dollar',
-    symbol: 'HK$',
-    flag: '🇭🇰',
-    country: 'Hong Kong',
-    region: 'Asia',
+    code: "HKD",
+    name: "Hong Kong Dollar",
+    symbol: "HK$",
+    flag: "🇭🇰",
+    country: "Hong Kong",
+    region: "Asia",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'INR',
-    name: 'Indian Rupee',
-    symbol: '₹',
-    flag: '🇮🇳',
-    country: 'India',
-    region: 'Asia',
+    code: "INR",
+    name: "Indian Rupee",
+    symbol: "₹",
+    flag: "🇮🇳",
+    country: "India",
+    region: "Asia",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'THB',
-    name: 'Thai Baht',
-    symbol: '฿',
-    flag: '🇹🇭',
-    country: 'Thailand',
-    region: 'Asia',
+    code: "THB",
+    name: "Thai Baht",
+    symbol: "฿",
+    flag: "🇹🇭",
+    country: "Thailand",
+    region: "Asia",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'MYR',
-    name: 'Malaysian Ringgit',
-    symbol: 'RM',
-    flag: '🇲🇾',
-    country: 'Malaysia',
-    region: 'Asia',
+    code: "MYR",
+    name: "Malaysian Ringgit",
+    symbol: "RM",
+    flag: "🇲🇾",
+    country: "Malaysia",
+    region: "Asia",
     isActive: true,
     isCrypto: false,
     decimals: 2,
@@ -280,67 +280,67 @@ const currencies: Currency[] = [
 
   // Other currencies
   {
-    code: 'NZD',
-    name: 'New Zealand Dollar',
-    symbol: 'NZ$',
-    flag: '🇳🇿',
-    country: 'New Zealand',
-    region: 'Oceania',
+    code: "NZD",
+    name: "New Zealand Dollar",
+    symbol: "NZ$",
+    flag: "🇳🇿",
+    country: "New Zealand",
+    region: "Oceania",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'ZAR',
-    name: 'South African Rand',
-    symbol: 'R',
-    flag: '🇿🇦',
-    country: 'South Africa',
-    region: 'Africa',
+    code: "ZAR",
+    name: "South African Rand",
+    symbol: "R",
+    flag: "🇿🇦",
+    country: "South Africa",
+    region: "Africa",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'BRL',
-    name: 'Brazilian Real',
-    symbol: 'R$',
-    flag: '🇧🇷',
-    country: 'Brazil',
-    region: 'South America',
+    code: "BRL",
+    name: "Brazilian Real",
+    symbol: "R$",
+    flag: "🇧🇷",
+    country: "Brazil",
+    region: "South America",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'MXN',
-    name: 'Mexican Peso',
-    symbol: '$',
-    flag: '🇲🇽',
-    country: 'Mexico',
-    region: 'North America',
+    code: "MXN",
+    name: "Mexican Peso",
+    symbol: "$",
+    flag: "🇲🇽",
+    country: "Mexico",
+    region: "North America",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'RUB',
-    name: 'Russian Ruble',
-    symbol: '₽',
-    flag: '🇷🇺',
-    country: 'Russia',
-    region: 'Europe',
+    code: "RUB",
+    name: "Russian Ruble",
+    symbol: "₽",
+    flag: "🇷🇺",
+    country: "Russia",
+    region: "Europe",
     isActive: true,
     isCrypto: false,
     decimals: 2,
   },
   {
-    code: 'TRY',
-    name: 'Turkish Lira',
-    symbol: '₺',
-    flag: '🇹🇷',
-    country: 'Turkey',
-    region: 'Asia',
+    code: "TRY",
+    name: "Turkish Lira",
+    symbol: "₺",
+    flag: "🇹🇷",
+    country: "Turkey",
+    region: "Asia",
     isActive: true,
     isCrypto: false,
     decimals: 2,
@@ -348,56 +348,56 @@ const currencies: Currency[] = [
 
   // Cryptocurrencies
   {
-    code: 'BTC',
-    name: 'Bitcoin',
-    symbol: '₿',
-    flag: '🟠',
-    country: 'Digital',
-    region: 'Crypto',
+    code: "BTC",
+    name: "Bitcoin",
+    symbol: "₿",
+    flag: "🟠",
+    country: "Digital",
+    region: "Crypto",
     isActive: true,
     isCrypto: true,
     decimals: 8,
   },
   {
-    code: 'ETH',
-    name: 'Ethereum',
-    symbol: 'Ξ',
-    flag: '🔷',
-    country: 'Digital',
-    region: 'Crypto',
+    code: "ETH",
+    name: "Ethereum",
+    symbol: "Ξ",
+    flag: "🔷",
+    country: "Digital",
+    region: "Crypto",
     isActive: true,
     isCrypto: true,
     decimals: 6,
   },
   {
-    code: 'USDT',
-    name: 'Tether',
-    symbol: '₮',
-    flag: '🟢',
-    country: 'Digital',
-    region: 'Crypto',
+    code: "USDT",
+    name: "Tether",
+    symbol: "₮",
+    flag: "🟢",
+    country: "Digital",
+    region: "Crypto",
     isActive: true,
     isCrypto: true,
     decimals: 2,
   },
   {
-    code: 'BNB',
-    name: 'Binance Coin',
-    symbol: 'BNB',
-    flag: '🟡',
-    country: 'Digital',
-    region: 'Crypto',
+    code: "BNB",
+    name: "Binance Coin",
+    symbol: "BNB",
+    flag: "🟡",
+    country: "Digital",
+    region: "Crypto",
     isActive: true,
     isCrypto: true,
     decimals: 4,
   },
   {
-    code: 'ADA',
-    name: 'Cardano',
-    symbol: 'ADA',
-    flag: '🔵',
-    country: 'Digital',
-    region: 'Crypto',
+    code: "ADA",
+    name: "Cardano",
+    symbol: "ADA",
+    flag: "🔵",
+    country: "Digital",
+    region: "Crypto",
     isActive: true,
     isCrypto: true,
     decimals: 6,
@@ -406,12 +406,12 @@ const currencies: Currency[] = [
 
 // Mock exchange rates (in a real app, these would come from an API)
 const mockExchangeRates: { [key: string]: ExchangeRate } = {
-  'USD-EUR': {
-    base: 'USD',
-    target: 'EUR',
+  "USD-EUR": {
+    base: "USD",
+    target: "EUR",
     rate: 0.85,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 0.849,
     ask: 0.851,
     high24h: 0.855,
@@ -419,12 +419,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: 0.005,
     changePercent24h: 0.59,
   },
-  'USD-GBP': {
-    base: 'USD',
-    target: 'GBP',
+  "USD-GBP": {
+    base: "USD",
+    target: "GBP",
     rate: 0.73,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 0.729,
     ask: 0.731,
     high24h: 0.735,
@@ -432,12 +432,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: -0.002,
     changePercent24h: -0.27,
   },
-  'USD-JPY': {
-    base: 'USD',
-    target: 'JPY',
+  "USD-JPY": {
+    base: "USD",
+    target: "JPY",
     rate: 110.5,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 110.3,
     ask: 110.7,
     high24h: 111.2,
@@ -445,12 +445,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: 0.8,
     changePercent24h: 0.73,
   },
-  'USD-CHF': {
-    base: 'USD',
-    target: 'CHF',
+  "USD-CHF": {
+    base: "USD",
+    target: "CHF",
     rate: 0.92,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 0.919,
     ask: 0.921,
     high24h: 0.925,
@@ -458,12 +458,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: 0.003,
     changePercent24h: 0.33,
   },
-  'USD-CAD': {
-    base: 'USD',
-    target: 'CAD',
+  "USD-CAD": {
+    base: "USD",
+    target: "CAD",
     rate: 1.25,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 1.249,
     ask: 1.251,
     high24h: 1.255,
@@ -471,12 +471,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: -0.005,
     changePercent24h: -0.4,
   },
-  'USD-AUD': {
-    base: 'USD',
-    target: 'AUD',
+  "USD-AUD": {
+    base: "USD",
+    target: "AUD",
     rate: 1.35,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 1.349,
     ask: 1.351,
     high24h: 1.358,
@@ -484,12 +484,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: 0.008,
     changePercent24h: 0.6,
   },
-  'USD-CNY': {
-    base: 'USD',
-    target: 'CNY',
+  "USD-CNY": {
+    base: "USD",
+    target: "CNY",
     rate: 7.0,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 6.998,
     ask: 7.002,
     high24h: 7.05,
@@ -497,12 +497,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: 0.02,
     changePercent24h: 0.29,
   },
-  'USD-SEK': {
-    base: 'USD',
-    target: 'SEK',
+  "USD-SEK": {
+    base: "USD",
+    target: "SEK",
     rate: 8.5,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 8.48,
     ask: 8.52,
     high24h: 8.58,
@@ -510,12 +510,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: 0.05,
     changePercent24h: 0.59,
   },
-  'USD-NOK': {
-    base: 'USD',
-    target: 'NOK',
+  "USD-NOK": {
+    base: "USD",
+    target: "NOK",
     rate: 8.8,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 8.78,
     ask: 8.82,
     high24h: 8.88,
@@ -523,12 +523,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: 0.03,
     changePercent24h: 0.34,
   },
-  'USD-DKK': {
-    base: 'USD',
-    target: 'DKK',
+  "USD-DKK": {
+    base: "USD",
+    target: "DKK",
     rate: 6.3,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 6.28,
     ask: 6.32,
     high24h: 6.35,
@@ -536,12 +536,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: 0.02,
     changePercent24h: 0.32,
   },
-  'USD-KRW': {
-    base: 'USD',
-    target: 'KRW',
+  "USD-KRW": {
+    base: "USD",
+    target: "KRW",
     rate: 1180,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 1178,
     ask: 1182,
     high24h: 1190,
@@ -549,12 +549,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: 8,
     changePercent24h: 0.68,
   },
-  'USD-SGD': {
-    base: 'USD',
-    target: 'SGD',
+  "USD-SGD": {
+    base: "USD",
+    target: "SGD",
     rate: 1.35,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 1.349,
     ask: 1.351,
     high24h: 1.358,
@@ -562,12 +562,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: 0.005,
     changePercent24h: 0.37,
   },
-  'USD-HKD': {
-    base: 'USD',
-    target: 'HKD',
+  "USD-HKD": {
+    base: "USD",
+    target: "HKD",
     rate: 7.8,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 7.798,
     ask: 7.802,
     high24h: 7.805,
@@ -575,12 +575,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: 0.002,
     changePercent24h: 0.03,
   },
-  'USD-INR': {
-    base: 'USD',
-    target: 'INR',
+  "USD-INR": {
+    base: "USD",
+    target: "INR",
     rate: 74.5,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 74.3,
     ask: 74.7,
     high24h: 75.2,
@@ -588,12 +588,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: 0.3,
     changePercent24h: 0.4,
   },
-  'USD-BTC': {
-    base: 'USD',
-    target: 'BTC',
+  "USD-BTC": {
+    base: "USD",
+    target: "BTC",
     rate: 0.000023,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 0.0000229,
     ask: 0.0000231,
     high24h: 0.0000235,
@@ -601,12 +601,12 @@ const mockExchangeRates: { [key: string]: ExchangeRate } = {
     change24h: 0.000001,
     changePercent24h: 4.55,
   },
-  'USD-ETH': {
-    base: 'USD',
-    target: 'ETH',
+  "USD-ETH": {
+    base: "USD",
+    target: "ETH",
     rate: 0.00035,
     timestamp: new Date(),
-    source: 'Mock API',
+    source: "Mock API",
     bid: 0.000349,
     ask: 0.000351,
     high24h: 0.000358,
@@ -644,9 +644,9 @@ const getExchangeRate = async (fromCurrency: string, toCurrency: string): Promis
   }
 
   // If no direct rate found, try to find a path through USD
-  if (fromCurrency !== 'USD' && toCurrency !== 'USD') {
-    const fromUsdRate = await getExchangeRate(fromCurrency, 'USD')
-    const toUsdRate = await getExchangeRate('USD', toCurrency)
+  if (fromCurrency !== "USD" && toCurrency !== "USD") {
+    const fromUsdRate = await getExchangeRate(fromCurrency, "USD")
+    const toUsdRate = await getExchangeRate("USD", toCurrency)
 
     if (fromUsdRate && toUsdRate) {
       return {
@@ -654,7 +654,7 @@ const getExchangeRate = async (fromCurrency: string, toCurrency: string): Promis
         target: toCurrency,
         rate: fromUsdRate.rate * toUsdRate.rate,
         timestamp: new Date(),
-        source: 'Calculated via USD',
+        source: "Calculated via USD",
       }
     }
   }
@@ -685,9 +685,9 @@ const validateConversion = (amount: number, fromCurrency: string, toCurrency: st
   if (isNaN(amount) || !isFinite(amount)) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Amount must be a valid number',
-      type: 'amount',
-      severity: 'error',
+      message: "Amount must be a valid number",
+      type: "amount",
+      severity: "error",
     })
     validation.qualityScore -= 50
   }
@@ -695,21 +695,21 @@ const validateConversion = (amount: number, fromCurrency: string, toCurrency: st
   if (amount < 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Amount cannot be negative',
-      type: 'amount',
-      severity: 'error',
+      message: "Amount cannot be negative",
+      type: "amount",
+      severity: "error",
     })
     validation.qualityScore -= 30
   }
 
   if (amount === 0) {
-    validation.warnings.push('Converting zero amount')
+    validation.warnings.push("Converting zero amount")
     validation.qualityScore -= 10
   }
 
   if (amount > 1000000000) {
-    validation.warnings.push('Very large amount - please verify')
-    validation.suggestions.push('Consider breaking down large conversions')
+    validation.warnings.push("Very large amount - please verify")
+    validation.suggestions.push("Consider breaking down large conversions")
     validation.qualityScore -= 15
   }
 
@@ -721,8 +721,8 @@ const validateConversion = (amount: number, fromCurrency: string, toCurrency: st
     validation.isValid = false
     validation.errors.push({
       message: `Unsupported source currency: ${fromCurrency}`,
-      type: 'currency',
-      severity: 'error',
+      type: "currency",
+      severity: "error",
     })
     validation.qualityScore -= 40
   }
@@ -731,34 +731,34 @@ const validateConversion = (amount: number, fromCurrency: string, toCurrency: st
     validation.isValid = false
     validation.errors.push({
       message: `Unsupported target currency: ${toCurrency}`,
-      type: 'currency',
-      severity: 'error',
+      type: "currency",
+      severity: "error",
     })
     validation.qualityScore -= 40
   }
 
   if (fromCurrency === toCurrency) {
-    validation.warnings.push('Source and target currencies are the same')
-    validation.suggestions.push('Select different currencies for conversion')
+    validation.warnings.push("Source and target currencies are the same")
+    validation.suggestions.push("Select different currencies for conversion")
     validation.qualityScore -= 20
   }
 
   // Currency-specific warnings
   if (fromCurrencyObj?.isCrypto || toCurrencyObj?.isCrypto) {
-    validation.warnings.push('Cryptocurrency rates are highly volatile')
-    validation.suggestions.push('Consider market conditions and timing')
+    validation.warnings.push("Cryptocurrency rates are highly volatile")
+    validation.suggestions.push("Consider market conditions and timing")
     validation.qualityScore -= 5
   }
 
   // Quality suggestions
   if (validation.qualityScore >= 90) {
-    validation.suggestions.push('Excellent conversion setup')
+    validation.suggestions.push("Excellent conversion setup")
   } else if (validation.qualityScore >= 70) {
-    validation.suggestions.push('Good conversion with minor considerations')
+    validation.suggestions.push("Good conversion with minor considerations")
   } else if (validation.qualityScore >= 50) {
-    validation.suggestions.push('Conversion needs improvement')
+    validation.suggestions.push("Conversion needs improvement")
   } else {
-    validation.suggestions.push('Conversion has significant issues')
+    validation.suggestions.push("Conversion has significant issues")
   }
 
   return validation
@@ -767,92 +767,92 @@ const validateConversion = (amount: number, fromCurrency: string, toCurrency: st
 // Conversion templates
 const conversionTemplates: ConversionTemplate[] = [
   {
-    id: 'usd-eur',
-    name: 'USD to EUR',
-    description: 'US Dollar to Euro conversion',
-    category: 'Major Pairs',
-    fromCurrency: 'USD',
-    toCurrency: 'EUR',
+    id: "usd-eur",
+    name: "USD to EUR",
+    description: "US Dollar to Euro conversion",
+    category: "Major Pairs",
+    fromCurrency: "USD",
+    toCurrency: "EUR",
     amount: 100,
-    useCase: ['Travel', 'Business', 'Investment'],
-    difficulty: 'simple',
+    useCase: ["Travel", "Business", "Investment"],
+    difficulty: "simple",
   },
   {
-    id: 'usd-gbp',
-    name: 'USD to GBP',
-    description: 'US Dollar to British Pound conversion',
-    category: 'Major Pairs',
-    fromCurrency: 'USD',
-    toCurrency: 'GBP',
+    id: "usd-gbp",
+    name: "USD to GBP",
+    description: "US Dollar to British Pound conversion",
+    category: "Major Pairs",
+    fromCurrency: "USD",
+    toCurrency: "GBP",
     amount: 100,
-    useCase: ['Travel', 'Business', 'Investment'],
-    difficulty: 'simple',
+    useCase: ["Travel", "Business", "Investment"],
+    difficulty: "simple",
   },
   {
-    id: 'usd-jpy',
-    name: 'USD to JPY',
-    description: 'US Dollar to Japanese Yen conversion',
-    category: 'Major Pairs',
-    fromCurrency: 'USD',
-    toCurrency: 'JPY',
+    id: "usd-jpy",
+    name: "USD to JPY",
+    description: "US Dollar to Japanese Yen conversion",
+    category: "Major Pairs",
+    fromCurrency: "USD",
+    toCurrency: "JPY",
     amount: 100,
-    useCase: ['Travel', 'Business', 'Trade'],
-    difficulty: 'simple',
+    useCase: ["Travel", "Business", "Trade"],
+    difficulty: "simple",
   },
   {
-    id: 'eur-gbp',
-    name: 'EUR to GBP',
-    description: 'Euro to British Pound conversion',
-    category: 'Cross Pairs',
-    fromCurrency: 'EUR',
-    toCurrency: 'GBP',
+    id: "eur-gbp",
+    name: "EUR to GBP",
+    description: "Euro to British Pound conversion",
+    category: "Cross Pairs",
+    fromCurrency: "EUR",
+    toCurrency: "GBP",
     amount: 100,
-    useCase: ['European travel', 'Business', 'Investment'],
-    difficulty: 'medium',
+    useCase: ["European travel", "Business", "Investment"],
+    difficulty: "medium",
   },
   {
-    id: 'usd-cny',
-    name: 'USD to CNY',
-    description: 'US Dollar to Chinese Yuan conversion',
-    category: 'Emerging Markets',
-    fromCurrency: 'USD',
-    toCurrency: 'CNY',
+    id: "usd-cny",
+    name: "USD to CNY",
+    description: "US Dollar to Chinese Yuan conversion",
+    category: "Emerging Markets",
+    fromCurrency: "USD",
+    toCurrency: "CNY",
     amount: 100,
-    useCase: ['China business', 'Trade', 'Investment'],
-    difficulty: 'medium',
+    useCase: ["China business", "Trade", "Investment"],
+    difficulty: "medium",
   },
   {
-    id: 'usd-btc',
-    name: 'USD to Bitcoin',
-    description: 'US Dollar to Bitcoin conversion',
-    category: 'Cryptocurrency',
-    fromCurrency: 'USD',
-    toCurrency: 'BTC',
+    id: "usd-btc",
+    name: "USD to Bitcoin",
+    description: "US Dollar to Bitcoin conversion",
+    category: "Cryptocurrency",
+    fromCurrency: "USD",
+    toCurrency: "BTC",
     amount: 1000,
-    useCase: ['Crypto investment', 'Digital payments', 'Trading'],
-    difficulty: 'complex',
+    useCase: ["Crypto investment", "Digital payments", "Trading"],
+    difficulty: "complex",
   },
   {
-    id: 'eur-usd',
-    name: 'EUR to USD',
-    description: 'Euro to US Dollar conversion',
-    category: 'Major Pairs',
-    fromCurrency: 'EUR',
-    toCurrency: 'USD',
+    id: "eur-usd",
+    name: "EUR to USD",
+    description: "Euro to US Dollar conversion",
+    category: "Major Pairs",
+    fromCurrency: "EUR",
+    toCurrency: "USD",
     amount: 100,
-    useCase: ['US travel', 'Business', 'Investment'],
-    difficulty: 'simple',
+    useCase: ["US travel", "Business", "Investment"],
+    difficulty: "simple",
   },
   {
-    id: 'multi-currency',
-    name: 'Multi-Currency',
-    description: 'Multiple currency comparison',
-    category: 'Advanced',
-    fromCurrency: 'USD',
-    toCurrency: 'EUR',
+    id: "multi-currency",
+    name: "Multi-Currency",
+    description: "Multiple currency comparison",
+    category: "Advanced",
+    fromCurrency: "USD",
+    toCurrency: "EUR",
     amount: 1000,
-    useCase: ['Portfolio analysis', 'Risk management', 'Arbitrage'],
-    difficulty: 'complex',
+    useCase: ["Portfolio analysis", "Risk management", "Arbitrage"],
+    difficulty: "complex",
   },
 ]
 
@@ -869,12 +869,12 @@ const useCurrencyConversion = () => {
         const toCurrencyObj = currencies.find((c) => c.code === toCurrency)
 
         if (!fromCurrencyObj || !toCurrencyObj) {
-          throw new Error('Currency not found')
+          throw new Error("Currency not found")
         }
 
         const rate = await getExchangeRate(fromCurrency, toCurrency)
         if (!rate) {
-          throw new Error('Exchange rate not available')
+          throw new Error("Exchange rate not available")
         }
 
         const convertedAmount = await convertCurrency(amount, fromCurrency, toCurrency)
@@ -892,7 +892,7 @@ const useCurrencyConversion = () => {
             spread: rate.ask && rate.bid ? rate.ask - rate.bid : 0,
             volatility: Math.abs(rate.changePercent24h || 0),
             confidence: 0.95,
-            marketStatus: 'open',
+            marketStatus: "open",
           },
           timestamp: new Date(),
         }
@@ -930,13 +930,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -946,35 +946,35 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useCurrencyExport = () => {
   const exportConversion = useCallback((conversion: CurrencyConversion, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(conversion, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromConversion(conversion)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'txt':
+      case "txt":
         content = generateTextFromConversion(conversion)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromConversion(conversion)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'yaml':
+      case "yaml":
         content = generateYAMLFromConversion(conversion)
-        mimeType = 'text/yaml'
-        extension = '.yaml'
+        mimeType = "text/yaml"
+        extension = ".yaml"
         break
       default:
         content = generateTextFromConversion(conversion)
@@ -983,7 +983,7 @@ const useCurrencyExport = () => {
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `currency-conversion-${conversion.id}${extension}`
     document.body.appendChild(link)
@@ -997,23 +997,23 @@ const useCurrencyExport = () => {
 
 // Helper functions for export formats
 const generateCSVFromConversion = (conversion: CurrencyConversion): string => {
-  const headers = ['Property', 'Value']
+  const headers = ["Property", "Value"]
   const rows = [
-    ['From Currency', `${conversion.fromCurrency.code} (${conversion.fromCurrency.name})`],
-    ['To Currency', `${conversion.toCurrency.code} (${conversion.toCurrency.name})`],
-    ['Amount', conversion.amount.toString()],
-    ['Converted Amount', conversion.convertedAmount.toString()],
-    ['Exchange Rate', conversion.exchangeRate.toString()],
-    ['Rate Source', conversion.metadata.rateSource],
-    ['Rate Timestamp', conversion.metadata.rateTimestamp.toISOString()],
-    ['Spread', conversion.metadata.spread.toString()],
-    ['Volatility', conversion.metadata.volatility.toString()],
-    ['Confidence', conversion.metadata.confidence.toString()],
-    ['Market Status', conversion.metadata.marketStatus],
-    ['Conversion Timestamp', conversion.timestamp.toISOString()],
+    ["From Currency", `${conversion.fromCurrency.code} (${conversion.fromCurrency.name})`],
+    ["To Currency", `${conversion.toCurrency.code} (${conversion.toCurrency.name})`],
+    ["Amount", conversion.amount.toString()],
+    ["Converted Amount", conversion.convertedAmount.toString()],
+    ["Exchange Rate", conversion.exchangeRate.toString()],
+    ["Rate Source", conversion.metadata.rateSource],
+    ["Rate Timestamp", conversion.metadata.rateTimestamp.toISOString()],
+    ["Spread", conversion.metadata.spread.toString()],
+    ["Volatility", conversion.metadata.volatility.toString()],
+    ["Confidence", conversion.metadata.confidence.toString()],
+    ["Market Status", conversion.metadata.marketStatus],
+    ["Conversion Timestamp", conversion.timestamp.toISOString()],
   ]
 
-  return [headers.join(','), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
+  return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
 }
 
 const generateTextFromConversion = (conversion: CurrencyConversion): string => {
@@ -1037,13 +1037,13 @@ ${conversion.fromCurrency.flag} ${conversion.fromCurrency.name} (${conversion.fr
   Country: ${conversion.fromCurrency.country}
   Region: ${conversion.fromCurrency.region}
   Symbol: ${conversion.fromCurrency.symbol}
-  Type: ${conversion.fromCurrency.isCrypto ? 'Cryptocurrency' : 'Fiat Currency'}
+  Type: ${conversion.fromCurrency.isCrypto ? "Cryptocurrency" : "Fiat Currency"}
 
 ${conversion.toCurrency.flag} ${conversion.toCurrency.name} (${conversion.toCurrency.code})
   Country: ${conversion.toCurrency.country}
   Region: ${conversion.toCurrency.region}
   Symbol: ${conversion.toCurrency.symbol}
-  Type: ${conversion.toCurrency.isCrypto ? 'Cryptocurrency' : 'Fiat Currency'}`
+  Type: ${conversion.toCurrency.isCrypto ? "Cryptocurrency" : "Fiat Currency"}`
 }
 
 const generateXMLFromConversion = (conversion: CurrencyConversion): string => {
@@ -1116,12 +1116,12 @@ metadata:
  * Features: Real-time exchange rates, multiple currencies, financial analysis, and comprehensive conversion capabilities
  */
 const CurrencyConvertCore = () => {
-  const [activeTab, setActiveTab] = useState<'converter' | 'rates' | 'history' | 'templates' | 'settings'>('converter')
+  const [activeTab, setActiveTab] = useState<"converter" | "rates" | "history" | "templates" | "settings">("converter")
   const [amount, setAmount] = useState<number>(100)
-  const [fromCurrency, setFromCurrency] = useState<string>('USD')
-  const [toCurrency, setToCurrency] = useState<string>('EUR')
+  const [fromCurrency, setFromCurrency] = useState<string>("USD")
+  const [toCurrency, setToCurrency] = useState<string>("EUR")
   const [currentConversion, setCurrentConversion] = useState<CurrencyConversion | null>(null)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [exchangeRates, setExchangeRates] = useState<{ [key: string]: ExchangeRate }>({})
 
   const { conversions, isProcessing, performConversion, clearConversions, removeConversion } = useCurrencyConversion()
@@ -1164,7 +1164,7 @@ const CurrencyConvertCore = () => {
   const handleSwapCurrencies = useCallback(() => {
     setFromCurrency(toCurrency)
     setToCurrency(fromCurrency)
-    toast.success('Currencies swapped')
+    toast.success("Currencies swapped")
   }, [fromCurrency, toCurrency])
 
   // Auto-convert when inputs change (debounced)
@@ -1185,14 +1185,14 @@ const CurrencyConvertCore = () => {
 
       // Load some popular rates
       const popularPairs = [
-        ['USD', 'EUR'],
-        ['USD', 'GBP'],
-        ['USD', 'JPY'],
-        ['USD', 'CHF'],
-        ['USD', 'CAD'],
-        ['USD', 'AUD'],
-        ['USD', 'CNY'],
-        ['EUR', 'GBP'],
+        ["USD", "EUR"],
+        ["USD", "GBP"],
+        ["USD", "JPY"],
+        ["USD", "CHF"],
+        ["USD", "CAD"],
+        ["USD", "AUD"],
+        ["USD", "CNY"],
+        ["EUR", "GBP"],
       ]
 
       for (const [from, to] of popularPairs) {
@@ -1222,12 +1222,15 @@ const CurrencyConvertCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" aria-hidden="true" />
+              <DollarSign className="h-5 w-5" />
               Currency Convert & Financial Exchange Tool
             </CardTitle>
             <CardDescription>
@@ -1240,32 +1243,53 @@ const CurrencyConvertCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as any)}
+        >
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="converter" className="flex items-center gap-2">
+            <TabsTrigger
+              value="converter"
+              className="flex items-center gap-2"
+            >
               <ArrowLeftRight className="h-4 w-4" />
               Converter
             </TabsTrigger>
-            <TabsTrigger value="rates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="rates"
+              className="flex items-center gap-2"
+            >
               <TrendingUp className="h-4 w-4" />
               Rates
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger
+              value="settings"
+              className="flex items-center gap-2"
+            >
               <Settings className="h-4 w-4" />
               Settings
             </TabsTrigger>
           </TabsList>
 
           {/* Currency Converter Tab */}
-          <TabsContent value="converter" className="space-y-4">
+          <TabsContent
+            value="converter"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Conversion Input */}
               <Card>
@@ -1277,7 +1301,10 @@ const CurrencyConvertCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="amount" className="text-sm font-medium">
+                    <Label
+                      htmlFor="amount"
+                      className="text-sm font-medium"
+                    >
                       Amount
                     </Label>
                     <Input
@@ -1293,10 +1320,16 @@ const CurrencyConvertCore = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="from-currency" className="text-sm font-medium">
+                      <Label
+                        htmlFor="from-currency"
+                        className="text-sm font-medium"
+                      >
                         From Currency
                       </Label>
-                      <Select value={fromCurrency} onValueChange={setFromCurrency}>
+                      <Select
+                        value={fromCurrency}
+                        onValueChange={setFromCurrency}
+                      >
                         <SelectTrigger className="mt-2">
                           <SelectValue />
                         </SelectTrigger>
@@ -1304,7 +1337,10 @@ const CurrencyConvertCore = () => {
                           {currencies
                             .filter((c) => c.isActive)
                             .map((currency) => (
-                              <SelectItem key={currency.code} value={currency.code}>
+                              <SelectItem
+                                key={currency.code}
+                                value={currency.code}
+                              >
                                 <div className="flex items-center gap-2">
                                   <span>{currency.flag}</span>
                                   <span>{currency.code}</span>
@@ -1317,10 +1353,16 @@ const CurrencyConvertCore = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="to-currency" className="text-sm font-medium">
+                      <Label
+                        htmlFor="to-currency"
+                        className="text-sm font-medium"
+                      >
                         To Currency
                       </Label>
-                      <Select value={toCurrency} onValueChange={setToCurrency}>
+                      <Select
+                        value={toCurrency}
+                        onValueChange={setToCurrency}
+                      >
                         <SelectTrigger className="mt-2">
                           <SelectValue />
                         </SelectTrigger>
@@ -1328,7 +1370,10 @@ const CurrencyConvertCore = () => {
                           {currencies
                             .filter((c) => c.isActive)
                             .map((currency) => (
-                              <SelectItem key={currency.code} value={currency.code}>
+                              <SelectItem
+                                key={currency.code}
+                                value={currency.code}
+                              >
                                 <div className="flex items-center gap-2">
                                   <span>{currency.flag}</span>
                                   <span>{currency.code}</span>
@@ -1342,15 +1387,22 @@ const CurrencyConvertCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleConvert} disabled={isProcessing || amount <= 0} className="flex-1">
+                    <Button
+                      onClick={handleConvert}
+                      disabled={isProcessing || amount <= 0}
+                      className="flex-1"
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
                         <ArrowLeftRight className="mr-2 h-4 w-4" />
                       )}
-                      {isProcessing ? 'Converting...' : 'Convert'}
+                      {isProcessing ? "Converting..." : "Convert"}
                     </Button>
-                    <Button onClick={handleSwapCurrencies} variant="outline">
+                    <Button
+                      onClick={handleSwapCurrencies}
+                      variant="outline"
+                    >
                       <Repeat className="h-4 w-4" />
                     </Button>
                   </div>
@@ -1396,7 +1448,7 @@ const CurrencyConvertCore = () => {
                             {formatCurrency(currentConversion.convertedAmount, currentConversion.toCurrency)}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            1 {currentConversion.fromCurrency.code} = {formatNumber(currentConversion.exchangeRate, 6)}{' '}
+                            1 {currentConversion.fromCurrency.code} = {formatNumber(currentConversion.exchangeRate, 6)}{" "}
                             {currentConversion.toCurrency.code}
                           </div>
                         </div>
@@ -1464,11 +1516,19 @@ const CurrencyConvertCore = () => {
 
                       {/* Export Options */}
                       <div className="flex gap-2 pt-4 border-t">
-                        <Button onClick={() => exportConversion(currentConversion, 'json')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportConversion(currentConversion, "json")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           JSON
                         </Button>
-                        <Button onClick={() => exportConversion(currentConversion, 'csv')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportConversion(currentConversion, "csv")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           CSV
                         </Button>
@@ -1476,13 +1536,13 @@ const CurrencyConvertCore = () => {
                           onClick={() =>
                             copyToClipboard(
                               `${formatCurrency(currentConversion.amount, currentConversion.fromCurrency)} = ${formatCurrency(currentConversion.convertedAmount, currentConversion.toCurrency)}`,
-                              'Conversion Result'
+                              "Conversion Result"
                             )
                           }
                           variant="outline"
                           size="sm"
                         >
-                          {copiedText === 'Conversion Result' ? (
+                          {copiedText === "Conversion Result" ? (
                             <Check className="h-4 w-4" />
                           ) : (
                             <Copy className="h-4 w-4" />
@@ -1505,7 +1565,10 @@ const CurrencyConvertCore = () => {
           </TabsContent>
 
           {/* Exchange Rates Tab */}
-          <TabsContent value="rates" className="space-y-4">
+          <TabsContent
+            value="rates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1519,7 +1582,10 @@ const CurrencyConvertCore = () => {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {Object.entries(exchangeRates).map(([pair, rate]) => (
-                        <div key={pair} className="border rounded-lg p-4">
+                        <div
+                          key={pair}
+                          className="border rounded-lg p-4"
+                        >
                           <div className="flex justify-between items-start mb-2">
                             <div className="font-medium">
                               {rate.base}/{rate.target}
@@ -1527,23 +1593,23 @@ const CurrencyConvertCore = () => {
                             <div
                               className={`text-xs px-2 py-1 rounded ${
                                 (rate.changePercent24h || 0) > 0
-                                  ? 'bg-green-100 text-green-800'
+                                  ? "bg-green-100 text-green-800"
                                   : (rate.changePercent24h || 0) < 0
-                                    ? 'bg-red-100 text-red-800'
-                                    : 'bg-gray-100 text-gray-800'
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-gray-100 text-gray-800"
                               }`}
                             >
                               {rate.changePercent24h
-                                ? `${rate.changePercent24h > 0 ? '+' : ''}${formatNumber(rate.changePercent24h, 2)}%`
-                                : 'N/A'}
+                                ? `${rate.changePercent24h > 0 ? "+" : ""}${formatNumber(rate.changePercent24h, 2)}%`
+                                : "N/A"}
                             </div>
                           </div>
                           <div className="text-2xl font-bold mb-2">{formatNumber(rate.rate, 6)}</div>
                           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                            <div>High: {rate.high24h ? formatNumber(rate.high24h, 6) : 'N/A'}</div>
-                            <div>Low: {rate.low24h ? formatNumber(rate.low24h, 6) : 'N/A'}</div>
-                            <div>Bid: {rate.bid ? formatNumber(rate.bid, 6) : 'N/A'}</div>
-                            <div>Ask: {rate.ask ? formatNumber(rate.ask, 6) : 'N/A'}</div>
+                            <div>High: {rate.high24h ? formatNumber(rate.high24h, 6) : "N/A"}</div>
+                            <div>Low: {rate.low24h ? formatNumber(rate.low24h, 6) : "N/A"}</div>
+                            <div>Bid: {rate.bid ? formatNumber(rate.bid, 6) : "N/A"}</div>
+                            <div>Ask: {rate.ask ? formatNumber(rate.ask, 6) : "N/A"}</div>
                           </div>
                           <div className="text-xs text-muted-foreground mt-2">
                             Updated: {rate.timestamp.toLocaleTimeString()}
@@ -1564,7 +1630,10 @@ const CurrencyConvertCore = () => {
           </TabsContent>
 
           {/* History Tab */}
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent
+            value="history"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Conversion History</CardTitle>
@@ -1575,33 +1644,44 @@ const CurrencyConvertCore = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        {conversions.length} conversion{conversions.length !== 1 ? 's' : ''} in history
+                        {conversions.length} conversion{conversions.length !== 1 ? "s" : ""} in history
                       </span>
-                      <Button onClick={clearConversions} variant="outline" size="sm">
+                      <Button
+                        onClick={clearConversions}
+                        variant="outline"
+                        size="sm"
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Clear History
                       </Button>
                     </div>
 
                     {conversions.map((conversion) => (
-                      <div key={conversion.id} className="border rounded-lg p-4">
+                      <div
+                        key={conversion.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex justify-between items-start mb-2">
                           <div className="font-medium text-sm">
-                            {formatCurrency(conversion.amount, conversion.fromCurrency)} →{' '}
+                            {formatCurrency(conversion.amount, conversion.fromCurrency)} →{" "}
                             {formatCurrency(conversion.convertedAmount, conversion.toCurrency)}
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs px-2 py-1 bg-muted rounded">
                               {conversion.timestamp.toLocaleString()}
                             </span>
-                            <Button size="sm" variant="ghost" onClick={() => removeConversion(conversion.id)}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeConversion(conversion.id)}
+                            >
                               <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
                         </div>
                         <div className="space-y-2">
                           <div className="text-sm">
-                            <strong>Rate:</strong> 1 {conversion.fromCurrency.code} ={' '}
+                            <strong>Rate:</strong> 1 {conversion.fromCurrency.code} ={" "}
                             {formatNumber(conversion.exchangeRate, 6)} {conversion.toCurrency.code}
                           </div>
                           <div className="grid grid-cols-4 gap-4 text-xs text-center">
@@ -1632,12 +1712,16 @@ const CurrencyConvertCore = () => {
                               setFromCurrency(conversion.fromCurrency.code)
                               setToCurrency(conversion.toCurrency.code)
                               setCurrentConversion(conversion)
-                              setActiveTab('converter')
+                              setActiveTab("converter")
                             }}
                           >
                             <Eye className="h-3 w-3" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => exportConversion(conversion, 'json')}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => exportConversion(conversion, "json")}
+                          >
                             <Download className="h-3 w-3" />
                           </Button>
                           <Button
@@ -1646,7 +1730,7 @@ const CurrencyConvertCore = () => {
                             onClick={() =>
                               copyToClipboard(
                                 `${formatCurrency(conversion.amount, conversion.fromCurrency)} = ${formatCurrency(conversion.convertedAmount, conversion.toCurrency)}`,
-                                'Conversion'
+                                "Conversion"
                               )
                             }
                           >
@@ -1668,7 +1752,10 @@ const CurrencyConvertCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Conversion Templates</CardTitle>
@@ -1680,7 +1767,7 @@ const CurrencyConvertCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1691,11 +1778,11 @@ const CurrencyConvertCore = () => {
                             <span className="text-xs px-2 py-1 bg-muted rounded">{template.category}</span>
                             <span
                               className={`text-xs px-2 py-1 rounded ${
-                                template.difficulty === 'simple'
-                                  ? 'bg-green-100 text-green-800'
-                                  : template.difficulty === 'medium'
-                                    ? 'bg-yellow-100 text-yellow-800'
-                                    : 'bg-red-100 text-red-800'
+                                template.difficulty === "simple"
+                                  ? "bg-green-100 text-green-800"
+                                  : template.difficulty === "medium"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
                               }`}
                             >
                               {template.difficulty}
@@ -1711,7 +1798,7 @@ const CurrencyConvertCore = () => {
                         </div>
                         <div>
                           <div className="text-xs font-medium mb-1">Use Cases:</div>
-                          <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                          <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                         </div>
                       </div>
                     </div>
@@ -1722,7 +1809,10 @@ const CurrencyConvertCore = () => {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-4">
+          <TabsContent
+            value="settings"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Currency Settings</CardTitle>
@@ -1736,7 +1826,10 @@ const CurrencyConvertCore = () => {
                     {currencies
                       .filter((c) => c.isActive)
                       .map((currency) => (
-                        <div key={currency.code} className="flex items-center gap-3 p-3 border rounded-lg">
+                        <div
+                          key={currency.code}
+                          className="flex items-center gap-3 p-3 border rounded-lg"
+                        >
                           <span className="text-2xl">{currency.flag}</span>
                           <div className="flex-1">
                             <div className="font-medium text-sm">{currency.name}</div>
@@ -1744,7 +1837,7 @@ const CurrencyConvertCore = () => {
                               {currency.code} • {currency.symbol} • {currency.country}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {currency.isCrypto ? 'Cryptocurrency' : 'Fiat Currency'} • {currency.region}
+                              {currency.isCrypto ? "Cryptocurrency" : "Fiat Currency"} • {currency.region}
                             </div>
                           </div>
                         </div>

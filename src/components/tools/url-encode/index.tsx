@@ -1,11 +1,11 @@
-import { useCallback, useState, useMemo, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -25,8 +25,8 @@ import {
   ArrowLeft,
   Eye,
   EyeOff,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   URLProcessingResult,
   URLAnalysis,
@@ -38,8 +38,8 @@ import type {
   URLOperation,
   URLEncodingType,
   ExportFormat,
-} from '@/types/url-encode'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/url-encode"
+import { formatFileSize } from "@/lib/utils"
 // Enhanced Types
 
 // Utility functions
@@ -49,7 +49,7 @@ const encodeURLComponent = (input: string): string => {
   try {
     return encodeURIComponent(input)
   } catch (error) {
-    throw new Error('Failed to encode URL component')
+    throw new Error("Failed to encode URL component")
   }
 }
 
@@ -57,7 +57,7 @@ const decodeURLComponent = (input: string): string => {
   try {
     return decodeURIComponent(input)
   } catch (error) {
-    throw new Error('Invalid URL encoded string')
+    throw new Error("Invalid URL encoded string")
   }
 }
 
@@ -65,7 +65,7 @@ const encodeURI = (input: string): string => {
   try {
     return encodeURI(input)
   } catch (error) {
-    throw new Error('Failed to encode URI')
+    throw new Error("Failed to encode URI")
   }
 }
 
@@ -73,61 +73,61 @@ const decodeURI = (input: string): string => {
   try {
     return decodeURI(input)
   } catch (error) {
-    throw new Error('Invalid URI encoded string')
+    throw new Error("Invalid URI encoded string")
   }
 }
 
 const encodeFormData = (input: string): string => {
   try {
-    return encodeURIComponent(input).replace(/%20/g, '+')
+    return encodeURIComponent(input).replace(/%20/g, "+")
   } catch (error) {
-    throw new Error('Failed to encode form data')
+    throw new Error("Failed to encode form data")
   }
 }
 
 const decodeFormData = (input: string): string => {
   try {
-    return decodeURIComponent(input.replace(/\+/g, '%20'))
+    return decodeURIComponent(input.replace(/\+/g, "%20"))
   } catch (error) {
-    throw new Error('Invalid form data encoded string')
+    throw new Error("Invalid form data encoded string")
   }
 }
 
 const encodePath = (input: string): string => {
   try {
     return input
-      .split('/')
+      .split("/")
       .map((segment) => encodeURIComponent(segment))
-      .join('/')
+      .join("/")
   } catch (error) {
-    throw new Error('Failed to encode path')
+    throw new Error("Failed to encode path")
   }
 }
 
 const decodePath = (input: string): string => {
   try {
     return input
-      .split('/')
+      .split("/")
       .map((segment) => decodeURIComponent(segment))
-      .join('/')
+      .join("/")
   } catch (error) {
-    throw new Error('Invalid path encoded string')
+    throw new Error("Invalid path encoded string")
   }
 }
 
 const encodeQuery = (input: string): string => {
   try {
     const params = new URLSearchParams()
-    const pairs = input.split('&')
+    const pairs = input.split("&")
     pairs.forEach((pair) => {
-      const [key, value] = pair.split('=')
+      const [key, value] = pair.split("=")
       if (key) {
-        params.append(key, value || '')
+        params.append(key, value || "")
       }
     })
     return params.toString()
   } catch (error) {
-    throw new Error('Failed to encode query string')
+    throw new Error("Failed to encode query string")
   }
 }
 
@@ -138,9 +138,9 @@ const decodeQuery = (input: string): string => {
     params.forEach((value, key) => {
       result.push(`${key}=${value}`)
     })
-    return result.join('&')
+    return result.join("&")
   } catch (error) {
-    throw new Error('Invalid query string')
+    throw new Error("Invalid query string")
   }
 }
 
@@ -188,24 +188,24 @@ const analyzeURL = (input: string): URLAnalysis => {
 
   // Determine encoding needs
   if (analysis.hasSpaces) {
-    analysis.encodingNeeded.push('Spaces need encoding')
+    analysis.encodingNeeded.push("Spaces need encoding")
   }
   if (analysis.hasUnicodeChars) {
-    analysis.encodingNeeded.push('Unicode characters need encoding')
+    analysis.encodingNeeded.push("Unicode characters need encoding")
   }
   if (analysis.hasSpecialChars) {
-    analysis.encodingNeeded.push('Special characters may need encoding')
+    analysis.encodingNeeded.push("Special characters may need encoding")
   }
 
   // Security analysis
-  if (input.includes('javascript:')) {
-    analysis.securityIssues.push('Contains JavaScript protocol (potential XSS)')
+  if (input.includes("javascript:")) {
+    analysis.securityIssues.push("Contains JavaScript protocol (potential XSS)")
   }
-  if (input.includes('data:')) {
-    analysis.securityIssues.push('Contains data URI (review content)')
+  if (input.includes("data:")) {
+    analysis.securityIssues.push("Contains data URI (review content)")
   }
-  if (input.includes('<script')) {
-    analysis.securityIssues.push('Contains script tags (potential XSS)')
+  if (input.includes("<script")) {
+    analysis.securityIssues.push("Contains script tags (potential XSS)")
   }
 
   return analysis
@@ -222,28 +222,28 @@ const validateURL = (input: string): URLValidation => {
 
   if (!input.trim()) {
     validation.isValid = false
-    validation.errors.push({ message: 'URL input cannot be empty' })
+    validation.errors.push({ message: "URL input cannot be empty" })
     return validation
   }
 
   // Check for common issues
   if (input.length > 2048) {
-    validation.warnings.push('URL is very long (>2048 characters) - may cause issues')
+    validation.warnings.push("URL is very long (>2048 characters) - may cause issues")
   }
 
-  if (input.includes(' ')) {
-    validation.suggestions.push('URL contains spaces - consider encoding')
+  if (input.includes(" ")) {
+    validation.suggestions.push("URL contains spaces - consider encoding")
   }
 
   if (/[^\x00-\x7F]/.test(input)) {
-    validation.suggestions.push('URL contains non-ASCII characters - encoding recommended')
+    validation.suggestions.push("URL contains non-ASCII characters - encoding recommended")
   }
 
   // Try to parse as URL
   try {
     new URL(input)
   } catch {
-    validation.warnings.push('Input is not a valid URL - treating as text')
+    validation.warnings.push("Input is not a valid URL - treating as text")
   }
 
   return validation
@@ -252,84 +252,84 @@ const validateURL = (input: string): URLValidation => {
 // URL processing templates
 const urlTemplates: URLTemplate[] = [
   {
-    id: 'text-to-component',
-    name: 'Text to URL Component',
-    description: 'Encode text for use in URL components',
-    category: 'Component',
-    operation: 'encode',
-    encodingType: 'component',
-    example: 'Hello World! → Hello%20World%21',
-    useCase: ['Query parameters', 'Path segments', 'Fragment identifiers'],
+    id: "text-to-component",
+    name: "Text to URL Component",
+    description: "Encode text for use in URL components",
+    category: "Component",
+    operation: "encode",
+    encodingType: "component",
+    example: "Hello World! → Hello%20World%21",
+    useCase: ["Query parameters", "Path segments", "Fragment identifiers"],
   },
   {
-    id: 'component-to-text',
-    name: 'URL Component to Text',
-    description: 'Decode URL component back to text',
-    category: 'Component',
-    operation: 'decode',
-    encodingType: 'component',
-    example: 'Hello%20World%21 → Hello World!',
-    useCase: ['Parsing URLs', 'Form processing', 'Data extraction'],
+    id: "component-to-text",
+    name: "URL Component to Text",
+    description: "Decode URL component back to text",
+    category: "Component",
+    operation: "decode",
+    encodingType: "component",
+    example: "Hello%20World%21 → Hello World!",
+    useCase: ["Parsing URLs", "Form processing", "Data extraction"],
   },
   {
-    id: 'text-to-uri',
-    name: 'Text to URI',
-    description: 'Encode text as complete URI',
-    category: 'URI',
-    operation: 'encode',
-    encodingType: 'uri',
-    example: 'https://example.com/path with spaces → https://example.com/path%20with%20spaces',
-    useCase: ['Complete URLs', 'Link generation', 'Redirect URLs'],
+    id: "text-to-uri",
+    name: "Text to URI",
+    description: "Encode text as complete URI",
+    category: "URI",
+    operation: "encode",
+    encodingType: "uri",
+    example: "https://example.com/path with spaces → https://example.com/path%20with%20spaces",
+    useCase: ["Complete URLs", "Link generation", "Redirect URLs"],
   },
   {
-    id: 'uri-to-text',
-    name: 'URI to Text',
-    description: 'Decode complete URI back to text',
-    category: 'URI',
-    operation: 'decode',
-    encodingType: 'uri',
-    example: 'https://example.com/path%20with%20spaces → https://example.com/path with spaces',
-    useCase: ['URL parsing', 'Link processing', 'Analytics'],
+    id: "uri-to-text",
+    name: "URI to Text",
+    description: "Decode complete URI back to text",
+    category: "URI",
+    operation: "decode",
+    encodingType: "uri",
+    example: "https://example.com/path%20with%20spaces → https://example.com/path with spaces",
+    useCase: ["URL parsing", "Link processing", "Analytics"],
   },
   {
-    id: 'text-to-form',
-    name: 'Text to Form Data',
-    description: 'Encode text for form submission',
-    category: 'Form',
-    operation: 'encode',
-    encodingType: 'form',
-    example: 'Hello World! → Hello+World%21',
-    useCase: ['Form submissions', 'POST data', 'AJAX requests'],
+    id: "text-to-form",
+    name: "Text to Form Data",
+    description: "Encode text for form submission",
+    category: "Form",
+    operation: "encode",
+    encodingType: "form",
+    example: "Hello World! → Hello+World%21",
+    useCase: ["Form submissions", "POST data", "AJAX requests"],
   },
   {
-    id: 'form-to-text',
-    name: 'Form Data to Text',
-    description: 'Decode form data back to text',
-    category: 'Form',
-    operation: 'decode',
-    encodingType: 'form',
-    example: 'Hello+World%21 → Hello World!',
-    useCase: ['Form processing', 'Server-side parsing', 'Data validation'],
+    id: "form-to-text",
+    name: "Form Data to Text",
+    description: "Decode form data back to text",
+    category: "Form",
+    operation: "decode",
+    encodingType: "form",
+    example: "Hello+World%21 → Hello World!",
+    useCase: ["Form processing", "Server-side parsing", "Data validation"],
   },
   {
-    id: 'path-encode',
-    name: 'Path Encoding',
-    description: 'Encode URL path segments',
-    category: 'Path',
-    operation: 'encode',
-    encodingType: 'path',
-    example: '/path/with spaces/file.txt → /path/with%20spaces/file.txt',
-    useCase: ['File paths', 'API endpoints', 'Resource URLs'],
+    id: "path-encode",
+    name: "Path Encoding",
+    description: "Encode URL path segments",
+    category: "Path",
+    operation: "encode",
+    encodingType: "path",
+    example: "/path/with spaces/file.txt → /path/with%20spaces/file.txt",
+    useCase: ["File paths", "API endpoints", "Resource URLs"],
   },
   {
-    id: 'query-encode',
-    name: 'Query String Encoding',
-    description: 'Encode query string parameters',
-    category: 'Query',
-    operation: 'encode',
-    encodingType: 'query',
-    example: 'name=John Doe&city=New York → name=John+Doe&city=New+York',
-    useCase: ['Search parameters', 'Filter options', 'API queries'],
+    id: "query-encode",
+    name: "Query String Encoding",
+    description: "Encode query string parameters",
+    category: "Query",
+    operation: "encode",
+    encodingType: "query",
+    example: "name=John Doe&city=New York → name=John+Doe&city=New+York",
+    useCase: ["Search parameters", "Filter options", "API queries"],
   },
 ]
 
@@ -340,26 +340,26 @@ const useURLProcessing = () => {
       const startTime = window.performance.now()
 
       try {
-        let output = ''
+        let output = ""
         let isValid = true
         let error: string | undefined
 
         switch (operation) {
-          case 'encode':
+          case "encode":
             switch (encodingType) {
-              case 'component':
+              case "component":
                 output = encodeURLComponent(input)
                 break
-              case 'uri':
+              case "uri":
                 output = encodeURI(input)
                 break
-              case 'form':
+              case "form":
                 output = encodeFormData(input)
                 break
-              case 'path':
+              case "path":
                 output = encodePath(input)
                 break
-              case 'query':
+              case "query":
                 output = encodeQuery(input)
                 break
               default:
@@ -367,21 +367,21 @@ const useURLProcessing = () => {
             }
             break
 
-          case 'decode':
+          case "decode":
             switch (encodingType) {
-              case 'component':
+              case "component":
                 output = decodeURLComponent(input)
                 break
-              case 'uri':
+              case "uri":
                 output = decodeURI(input)
                 break
-              case 'form':
+              case "form":
                 output = decodeFormData(input)
                 break
-              case 'path':
+              case "path":
                 output = decodePath(input)
                 break
-              case 'query':
+              case "query":
                 output = decodeQuery(input)
                 break
               default:
@@ -390,7 +390,7 @@ const useURLProcessing = () => {
             break
 
           default:
-            throw new Error('Unsupported operation')
+            throw new Error("Unsupported operation")
         }
 
         const endTime = window.performance.now()
@@ -442,11 +442,11 @@ const useURLProcessing = () => {
         return {
           id: nanoid(),
           input,
-          output: '',
+          output: "",
           operation,
           encodingType,
           isValid: false,
-          error: error instanceof Error ? error.message : 'Processing failed',
+          error: error instanceof Error ? error.message : "Processing failed",
           statistics: {
             inputSize: new Blob([input]).size,
             outputSize: 0,
@@ -511,8 +511,8 @@ const useURLProcessing = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch processing error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch processing failed')
+        console.error("Batch processing error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch processing failed")
       }
     },
     [processSingle]
@@ -547,37 +547,37 @@ const useRealTimeValidation = (input: string) => {
 // Export functionality
 const useURLExport = () => {
   const exportResults = useCallback((results: URLProcessingResult[], format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(results, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromResults(results)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromResults(results)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'txt':
+      case "txt":
       default:
         content = generateTextFromResults(results)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
     }
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `url-processing${extension}`
     document.body.appendChild(link)
@@ -588,7 +588,7 @@ const useURLExport = () => {
 
   const exportBatch = useCallback(
     (batch: URLBatch) => {
-      exportResults(batch.results, 'json', `url-batch-${batch.id}.json`)
+      exportResults(batch.results, "json", `url-batch-${batch.id}.json`)
       toast.success(`Exported ${batch.results.length} URL processing results`)
     },
     [exportResults]
@@ -609,15 +609,15 @@ const useURLExport = () => {
 
     const csvContent = [
       [
-        'Batch ID',
-        'Result Count',
-        'Valid Count',
-        'Invalid Count',
-        'Avg Compression Ratio',
-        'Success Rate (%)',
-        'Total Input Size',
-        'Total Output Size',
-        'Created At',
+        "Batch ID",
+        "Result Count",
+        "Valid Count",
+        "Invalid Count",
+        "Avg Compression Ratio",
+        "Success Rate (%)",
+        "Total Input Size",
+        "Total Output Size",
+        "Created At",
       ],
       ...stats.map((stat) => [
         stat.batchId,
@@ -631,20 +631,20 @@ const useURLExport = () => {
         stat.createdAt,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'url-statistics.csv'
+    link.download = "url-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportResults, exportBatch, exportStatistics }
@@ -664,16 +664,16 @@ Results:
 ${results
   .map((result, i) => {
     return `${i + 1}. Operation: ${result.operation} (${result.encodingType})
-   Status: ${result.isValid ? 'Valid' : 'Invalid'}
-   ${result.error ? `Error: ${result.error}` : ''}
-   Input: ${result.input.substring(0, 100)}${result.input.length > 100 ? '...' : ''}
-   Output: ${result.output.substring(0, 100)}${result.output.length > 100 ? '...' : ''}
+   Status: ${result.isValid ? "Valid" : "Invalid"}
+   ${result.error ? `Error: ${result.error}` : ""}
+   Input: ${result.input.substring(0, 100)}${result.input.length > 100 ? "..." : ""}
+   Output: ${result.output.substring(0, 100)}${result.output.length > 100 ? "..." : ""}
    Size: ${formatFileSize(result.statistics.inputSize)} → ${formatFileSize(result.statistics.outputSize)}
    Processing Time: ${result.statistics.processingTime.toFixed(2)}ms
    Character Changes: ${result.statistics.characterChanges}
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
@@ -684,16 +684,16 @@ Statistics:
 const generateCSVFromResults = (results: URLProcessingResult[]): string => {
   const rows = [
     [
-      'Operation',
-      'Encoding Type',
-      'Valid',
-      'Error',
-      'Input Size (bytes)',
-      'Output Size (bytes)',
-      'Compression Ratio',
-      'Processing Time (ms)',
-      'Character Changes',
-      'Created At',
+      "Operation",
+      "Encoding Type",
+      "Valid",
+      "Error",
+      "Input Size (bytes)",
+      "Output Size (bytes)",
+      "Compression Ratio",
+      "Processing Time (ms)",
+      "Character Changes",
+      "Created At",
     ],
   ]
 
@@ -701,8 +701,8 @@ const generateCSVFromResults = (results: URLProcessingResult[]): string => {
     rows.push([
       result.operation,
       result.encodingType,
-      result.isValid ? 'Yes' : 'No',
-      result.error || '',
+      result.isValid ? "Yes" : "No",
+      result.error || "",
       result.statistics.inputSize.toString(),
       result.statistics.outputSize.toString(),
       result.statistics.compressionRatio.toFixed(3),
@@ -712,7 +712,7 @@ const generateCSVFromResults = (results: URLProcessingResult[]): string => {
     ])
   })
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 }
 
 const generateXMLFromResults = (results: URLProcessingResult[]): string => {
@@ -731,7 +731,7 @@ const generateXMLFromResults = (results: URLProcessingResult[]): string => {
       <operation>${result.operation}</operation>
       <encodingType>${result.encodingType}</encodingType>
       <valid>${result.isValid}</valid>
-      ${result.error ? `<error>${result.error}</error>` : ''}
+      ${result.error ? `<error>${result.error}</error>` : ""}
       <statistics>
         <inputSize>${result.statistics.inputSize}</inputSize>
         <outputSize>${result.statistics.outputSize}</outputSize>
@@ -742,7 +742,7 @@ const generateXMLFromResults = (results: URLProcessingResult[]): string => {
       <createdAt>${result.createdAt.toISOString()}</createdAt>
     </result>`
       )
-      .join('')}
+      .join("")}
   </results>
 </urlProcessingResults>`
 }
@@ -754,13 +754,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -772,21 +772,21 @@ const useCopyToClipboard = () => {
  * Features: Advanced URL processing, validation, analysis, batch processing, comprehensive encoding types
  */
 const URLEncodeCore = () => {
-  const [activeTab, setActiveTab] = useState<'processor' | 'batch' | 'analyzer' | 'templates'>('processor')
-  const [input, setInput] = useState('')
-  const [output, setOutput] = useState('')
+  const [activeTab, setActiveTab] = useState<"processor" | "batch" | "analyzer" | "templates">("processor")
+  const [input, setInput] = useState("")
+  const [output, setOutput] = useState("")
   const [currentResult, setCurrentResult] = useState<URLProcessingResult | null>(null)
   const [batches, setBatches] = useState<URLBatch[]>([])
-  const [batchInput, setBatchInput] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [batchInput, setBatchInput] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [showAnalysis, setShowAnalysis] = useState(false)
   const [settings, setSettings] = useState<URLSettings>({
-    encodingType: 'component',
+    encodingType: "component",
     realTimeProcessing: true,
     showAnalysis: true,
     validateURLs: true,
-    exportFormat: 'json',
+    exportFormat: "json",
     maxLength: 2048,
     preserveCase: true,
   })
@@ -800,7 +800,7 @@ const URLEncodeCore = () => {
   const applyTemplate = useCallback((templateId: string) => {
     const template = urlTemplates.find((t) => t.id === templateId)
     if (template) {
-      setInput(template.example.split(' → ')[0])
+      setInput(template.example.split(" → ")[0])
       setSelectedTemplate(templateId)
       setSettings((prev) => ({
         ...prev,
@@ -814,7 +814,7 @@ const URLEncodeCore = () => {
   const handleProcessSingle = useCallback(
     async (operation: URLOperation) => {
       if (!input.trim()) {
-        toast.error('Please enter text to process')
+        toast.error("Please enter text to process")
         return
       }
 
@@ -841,29 +841,29 @@ const URLEncodeCore = () => {
 
   // Handle batch processing
   const handleProcessBatch = useCallback(async () => {
-    const lines = batchInput.split('\n').filter((line) => line.trim())
+    const lines = batchInput.split("\n").filter((line) => line.trim())
 
     if (lines.length === 0) {
-      toast.error('Please enter content to process')
+      toast.error("Please enter content to process")
       return
     }
 
     // Parse batch input format: operation:encodingType:content
     const inputs = lines
       .map((line) => {
-        const [operation, encodingType, ...contentParts] = line.split(':')
-        const content = contentParts.join(':').trim()
+        const [operation, encodingType, ...contentParts] = line.split(":")
+        const content = contentParts.join(":").trim()
 
         return {
           content,
-          operation: (operation?.trim() || 'encode') as URLOperation,
-          encodingType: (encodingType?.trim() || 'component') as URLEncodingType,
+          operation: (operation?.trim() || "encode") as URLOperation,
+          encodingType: (encodingType?.trim() || "component") as URLEncodingType,
         }
       })
-      .filter((input) => input.content && ['encode', 'decode'].includes(input.operation))
+      .filter((input) => input.content && ["encode", "decode"].includes(input.operation))
 
     if (inputs.length === 0) {
-      toast.error('No valid operation:encodingType:content entries found')
+      toast.error("No valid operation:encodingType:content entries found")
       return
     }
 
@@ -873,7 +873,7 @@ const URLEncodeCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Processed ${batch.results.length} URL operations`)
     } catch (error) {
-      toast.error('Failed to process batch')
+      toast.error("Failed to process batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -884,7 +884,7 @@ const URLEncodeCore = () => {
   useEffect(() => {
     if (settings.realTimeProcessing && input.trim() && inputValidation.isValid) {
       const timer = setTimeout(() => {
-        handleProcessSingle('encode')
+        handleProcessSingle("encode")
       }, 500)
       return () => clearTimeout(timer)
     }
@@ -900,12 +900,15 @@ const URLEncodeCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Link className="h-5 w-5" aria-hidden="true" />
+              <Link className="h-5 w-5" />
               URL Encoder & Decoder
             </CardTitle>
             <CardDescription>
@@ -919,29 +922,44 @@ const URLEncodeCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'processor' | 'batch' | 'analyzer' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "processor" | "batch" | "analyzer" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="processor" className="flex items-center gap-2">
+            <TabsTrigger
+              value="processor"
+              className="flex items-center gap-2"
+            >
               <Link className="h-4 w-4" />
               URL Processor
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
-            <TabsTrigger value="analyzer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analyzer"
+              className="flex items-center gap-2"
+            >
               <Search className="h-4 w-4" />
               URL Analyzer
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* URL Processor Tab */}
-          <TabsContent value="processor" className="space-y-4">
+          <TabsContent
+            value="processor"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Input Section */}
               <Card>
@@ -953,7 +971,10 @@ const URLEncodeCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="url-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="url-input"
+                      className="text-sm font-medium"
+                    >
                       Text/URL Content
                     </Label>
                     <Textarea
@@ -962,7 +983,6 @@ const URLEncodeCore = () => {
                       onChange={(e) => setInput(e.target.value)}
                       placeholder="Enter text or URL to encode/decode..."
                       className="mt-2 min-h-[120px] font-mono"
-                      aria-label="URL input for processing"
                     />
                     {settings.realTimeProcessing && input && (
                       <div className="mt-2 text-sm">
@@ -982,7 +1002,10 @@ const URLEncodeCore = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="encoding-type" className="text-sm font-medium">
+                    <Label
+                      htmlFor="encoding-type"
+                      className="text-sm font-medium"
+                    >
                       Encoding Type
                     </Label>
                     <Select
@@ -1013,7 +1036,10 @@ const URLEncodeCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, realTimeProcessing: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="real-time-processing" className="text-sm">
+                      <Label
+                        htmlFor="real-time-processing"
+                        className="text-sm"
+                      >
                         Real-time processing
                       </Label>
                     </div>
@@ -1026,7 +1052,10 @@ const URLEncodeCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, showAnalysis: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="show-analysis" className="text-sm">
+                      <Label
+                        htmlFor="show-analysis"
+                        className="text-sm"
+                      >
                         Show URL analysis
                       </Label>
                     </div>
@@ -1039,14 +1068,20 @@ const URLEncodeCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, validateURLs: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="validate-urls" className="text-sm">
+                      <Label
+                        htmlFor="validate-urls"
+                        className="text-sm"
+                      >
                         Validate URLs
                       </Label>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
-                    <Button onClick={() => handleProcessSingle('encode')} disabled={!input.trim() || isProcessing}>
+                    <Button
+                      onClick={() => handleProcessSingle("encode")}
+                      disabled={!input.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1055,7 +1090,7 @@ const URLEncodeCore = () => {
                       Encode
                     </Button>
                     <Button
-                      onClick={() => handleProcessSingle('decode')}
+                      onClick={() => handleProcessSingle("decode")}
                       disabled={!input.trim() || isProcessing}
                       variant="outline"
                     >
@@ -1066,8 +1101,8 @@ const URLEncodeCore = () => {
 
                   <Button
                     onClick={() => {
-                      setInput('')
-                      setOutput('')
+                      setInput("")
+                      setOutput("")
                       setCurrentResult(null)
                     }}
                     variant="outline"
@@ -1082,7 +1117,10 @@ const URLEncodeCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-yellow-800">Warnings:</h4>
                       <div className="text-xs space-y-1">
                         {inputValidation.warnings.map((warning, index) => (
-                          <div key={index} className="text-yellow-700">
+                          <div
+                            key={index}
+                            className="text-yellow-700"
+                          >
                             {warning}
                           </div>
                         ))}
@@ -1103,7 +1141,10 @@ const URLEncodeCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="url-output" className="text-sm font-medium">
+                      <Label
+                        htmlFor="url-output"
+                        className="text-sm font-medium"
+                      >
                         Output
                       </Label>
                       <Textarea
@@ -1112,7 +1153,6 @@ const URLEncodeCore = () => {
                         readOnly
                         placeholder="Processed output will appear here..."
                         className="mt-2 min-h-[120px] font-mono bg-muted"
-                        aria-label="URL processing output"
                       />
                     </div>
 
@@ -1127,8 +1167,8 @@ const URLEncodeCore = () => {
                           </div>
                           <div className="p-3 border rounded-lg">
                             <div className="font-medium">Status</div>
-                            <div className={currentResult.isValid ? 'text-green-600' : 'text-red-600'}>
-                              {currentResult.isValid ? 'Success' : 'Failed'}
+                            <div className={currentResult.isValid ? "text-green-600" : "text-red-600"}>
+                              {currentResult.isValid ? "Success" : "Failed"}
                             </div>
                           </div>
                           <div className="p-3 border rounded-lg">
@@ -1157,7 +1197,11 @@ const URLEncodeCore = () => {
                           <div className="border rounded-lg p-3">
                             <div className="flex items-center justify-between mb-2">
                               <Label className="font-medium text-sm">URL Analysis</Label>
-                              <Button size="sm" variant="ghost" onClick={() => setShowAnalysis(!showAnalysis)}>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setShowAnalysis(!showAnalysis)}
+                              >
                                 {showAnalysis ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                               </Button>
                             </div>
@@ -1166,7 +1210,7 @@ const URLEncodeCore = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   <div>
                                     <div>
-                                      <strong>Valid URL:</strong> {currentResult.analysis.isValidURL ? 'Yes' : 'No'}
+                                      <strong>Valid URL:</strong> {currentResult.analysis.isValidURL ? "Yes" : "No"}
                                     </div>
                                     {currentResult.analysis.protocol && (
                                       <div>
@@ -1181,15 +1225,15 @@ const URLEncodeCore = () => {
                                   </div>
                                   <div>
                                     <div>
-                                      <strong>Special Characters:</strong>{' '}
-                                      {currentResult.analysis.hasSpecialChars ? 'Yes' : 'No'}
+                                      <strong>Special Characters:</strong>{" "}
+                                      {currentResult.analysis.hasSpecialChars ? "Yes" : "No"}
                                     </div>
                                     <div>
-                                      <strong>Unicode Characters:</strong>{' '}
-                                      {currentResult.analysis.hasUnicodeChars ? 'Yes' : 'No'}
+                                      <strong>Unicode Characters:</strong>{" "}
+                                      {currentResult.analysis.hasUnicodeChars ? "Yes" : "No"}
                                     </div>
                                     <div>
-                                      <strong>Spaces:</strong> {currentResult.analysis.hasSpaces ? 'Yes' : 'No'}
+                                      <strong>Spaces:</strong> {currentResult.analysis.hasSpaces ? "Yes" : "No"}
                                     </div>
                                   </div>
                                 </div>
@@ -1226,11 +1270,11 @@ const URLEncodeCore = () => {
 
                         <div className="flex gap-2">
                           <Button
-                            onClick={() => copyToClipboard(output, 'Processing Result')}
+                            onClick={() => copyToClipboard(output, "Processing Result")}
                             variant="outline"
                             size="sm"
                           >
-                            {copiedText === 'Processing Result' ? (
+                            {copiedText === "Processing Result" ? (
                               <Check className="mr-2 h-4 w-4" />
                             ) : (
                               <Copy className="mr-2 h-4 w-4" />
@@ -1265,7 +1309,10 @@ const URLEncodeCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1279,7 +1326,10 @@ const URLEncodeCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-input"
+                      className="text-sm font-medium"
+                    >
                       URL Operations (operation:encodingType:content per line)
                     </Label>
                     <Textarea
@@ -1288,7 +1338,6 @@ const URLEncodeCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder="encode:component:Hello World!&#10;decode:component:Hello%20World%21&#10;encode:uri:https://example.com/path with spaces"
                       className="mt-2 min-h-[120px] font-mono"
-                      aria-label="Batch URL processing input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
                       Format: <code>operation:encodingType:content</code> (one per line)
@@ -1298,7 +1347,10 @@ const URLEncodeCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleProcessBatch} disabled={!batchInput.trim() || isProcessing}>
+                    <Button
+                      onClick={handleProcessBatch}
+                      disabled={!batchInput.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1306,7 +1358,10 @@ const URLEncodeCore = () => {
                       )}
                       Process Batch
                     </Button>
-                    <Button onClick={() => setBatchInput('')} variant="outline">
+                    <Button
+                      onClick={() => setBatchInput("")}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Clear
                     </Button>
@@ -1324,7 +1379,10 @@ const URLEncodeCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} operations processed</h4>
@@ -1334,7 +1392,11 @@ const URLEncodeCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportBatch(batch)}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportBatch(batch)}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export
                             </Button>
@@ -1356,7 +1418,7 @@ const URLEncodeCore = () => {
                             <span className="font-medium">Invalid:</span> {batch.statistics.invalidCount}
                           </div>
                           <div>
-                            <span className="font-medium">Avg Compression:</span>{' '}
+                            <span className="font-medium">Avg Compression:</span>{" "}
                             {batch.statistics.averageCompressionRatio.toFixed(3)}
                           </div>
                         </div>
@@ -1364,17 +1426,20 @@ const URLEncodeCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.results.slice(0, 5).map((result) => (
-                              <div key={result.id} className="text-xs border rounded p-2">
+                              <div
+                                key={result.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">
                                     {result.operation}:{result.encodingType} - {result.input.substring(0, 30)}...
                                   </span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      result.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      result.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {result.isValid ? 'Valid' : 'Invalid'}
+                                    {result.isValid ? "Valid" : "Invalid"}
                                   </span>
                                 </div>
                                 {result.isValid && (
@@ -1402,7 +1467,10 @@ const URLEncodeCore = () => {
           </TabsContent>
 
           {/* URL Analyzer Tab */}
-          <TabsContent value="analyzer" className="space-y-4">
+          <TabsContent
+            value="analyzer"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1420,7 +1488,7 @@ const URLEncodeCore = () => {
                           <CardTitle className="text-sm">URL Structure</CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
-                          <div>Valid URL: {currentResult.analysis.isValidURL ? 'Yes' : 'No'}</div>
+                          <div>Valid URL: {currentResult.analysis.isValidURL ? "Yes" : "No"}</div>
                           {currentResult.analysis.protocol && <div>Protocol: {currentResult.analysis.protocol}</div>}
                           {currentResult.analysis.domain && <div>Domain: {currentResult.analysis.domain}</div>}
                           {currentResult.analysis.path && <div>Path: {currentResult.analysis.path}</div>}
@@ -1432,9 +1500,9 @@ const URLEncodeCore = () => {
                           <CardTitle className="text-sm">Character Analysis</CardTitle>
                         </CardHeader>
                         <CardContent className="text-sm space-y-1">
-                          <div>Special Characters: {currentResult.analysis.hasSpecialChars ? 'Yes' : 'No'}</div>
-                          <div>Unicode Characters: {currentResult.analysis.hasUnicodeChars ? 'Yes' : 'No'}</div>
-                          <div>Spaces: {currentResult.analysis.hasSpaces ? 'Yes' : 'No'}</div>
+                          <div>Special Characters: {currentResult.analysis.hasSpecialChars ? "Yes" : "No"}</div>
+                          <div>Unicode Characters: {currentResult.analysis.hasUnicodeChars ? "Yes" : "No"}</div>
+                          <div>Spaces: {currentResult.analysis.hasSpaces ? "Yes" : "No"}</div>
                         </CardContent>
                       </Card>
 
@@ -1462,7 +1530,10 @@ const URLEncodeCore = () => {
                             <CardContent>
                               <ul className="text-sm space-y-1">
                                 {currentResult.analysis.encodingNeeded.map((need, index) => (
-                                  <li key={index} className="flex items-center gap-2">
+                                  <li
+                                    key={index}
+                                    className="flex items-center gap-2"
+                                  >
                                     <CheckCircle2 className="h-3 w-3 text-blue-600" />
                                     {need}
                                   </li>
@@ -1480,7 +1551,10 @@ const URLEncodeCore = () => {
                             <CardContent>
                               <ul className="text-sm space-y-1">
                                 {currentResult.analysis.securityIssues.map((issue, index) => (
-                                  <li key={index} className="flex items-center gap-2">
+                                  <li
+                                    key={index}
+                                    className="flex items-center gap-2"
+                                  >
                                     <AlertCircle className="h-3 w-3 text-red-600" />
                                     {issue}
                                   </li>
@@ -1506,7 +1580,10 @@ const URLEncodeCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1521,7 +1598,7 @@ const URLEncodeCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1537,7 +1614,7 @@ const URLEncodeCore = () => {
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>Use cases:</strong> {template.useCase.join(', ')}
+                            <strong>Use cases:</strong> {template.useCase.join(", ")}
                           </div>
                         )}
                       </div>
@@ -1559,7 +1636,10 @@ const URLEncodeCore = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -1579,7 +1659,10 @@ const URLEncodeCore = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="max-length" className="text-sm font-medium">
+                  <Label
+                    htmlFor="max-length"
+                    className="text-sm font-medium"
+                  >
                     Max Length: {settings.maxLength}
                   </Label>
                   <div className="mt-2 flex items-center gap-4">
@@ -1598,7 +1681,10 @@ const URLEncodeCore = () => {
 
               {batches.length > 0 && (
                 <div className="flex gap-2 pt-4 border-t">
-                  <Button onClick={() => exportStatistics(batches)} variant="outline">
+                  <Button
+                    onClick={() => exportStatistics(batches)}
+                    variant="outline"
+                  >
                     <Download className="mr-2 h-4 w-4" />
                     Export Statistics
                   </Button>

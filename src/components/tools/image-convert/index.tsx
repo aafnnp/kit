@@ -1,11 +1,11 @@
-import React, { useCallback, useRef, useState, useMemo, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Upload,
   Download,
@@ -29,10 +29,10 @@ import {
   Save,
   Monitor,
   RotateCcw,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
-import type { ImageFile, ConversionSettings, FormatInfo, ConversionStats, HistoryEntry } from '@/types/image-convert'
-import { formatFileSize } from '@/lib/utils'
+} from "lucide-react"
+import { nanoid } from "nanoid"
+import type { ImageFile, ConversionSettings, FormatInfo, ConversionStats, HistoryEntry } from "@/types/image-convert"
+import { formatFileSize } from "@/lib/utils"
 // Enhanced Types
 
 // Utility functions
@@ -40,28 +40,28 @@ import { formatFileSize } from '@/lib/utils'
 const validateImageFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 200 * 1024 * 1024 // 200MB
   const allowedTypes = [
-    'image/jpeg',
-    'image/png',
-    'image/webp',
-    'image/gif',
-    'image/bmp',
-    'image/tiff',
-    'image/svg+xml',
-    'image/x-icon',
-    'image/avif',
-    'image/heic',
-    'image/heif',
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "image/bmp",
+    "image/tiff",
+    "image/svg+xml",
+    "image/x-icon",
+    "image/avif",
+    "image/heic",
+    "image/heif",
   ]
 
   if (!allowedTypes.includes(file.type)) {
     return {
       isValid: false,
-      error: 'Unsupported file format. Please use JPEG, PNG, WebP, GIF, BMP, TIFF, SVG, ICO, AVIF, or HEIC.',
+      error: "Unsupported file format. Please use JPEG, PNG, WebP, GIF, BMP, TIFF, SVG, ICO, AVIF, or HEIC.",
     }
   }
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size too large. Maximum size is 200MB.' }
+    return { isValid: false, error: "File size too large. Maximum size is 200MB." }
   }
 
   return { isValid: true }
@@ -70,88 +70,88 @@ const validateImageFile = (file: File): { isValid: boolean; error?: string } => 
 // Enhanced Format information database
 const formatInfo: Record<string, FormatInfo> = {
   png: {
-    name: 'PNG',
-    extension: 'png',
-    mimeType: 'image/png',
+    name: "PNG",
+    extension: "png",
+    mimeType: "image/png",
     supportsTransparency: true,
     supportsAnimation: false,
     supportsLossless: true,
     supportsLossy: false,
-    description: 'Lossless compression with transparency support',
+    description: "Lossless compression with transparency support",
     maxQuality: 100,
-    useCase: 'Graphics, logos, images with transparency',
-    pros: ['Lossless compression', 'Transparency support', 'Wide compatibility'],
-    cons: ['Larger file sizes', 'No animation support'],
+    useCase: "Graphics, logos, images with transparency",
+    pros: ["Lossless compression", "Transparency support", "Wide compatibility"],
+    cons: ["Larger file sizes", "No animation support"],
   },
   jpeg: {
-    name: 'JPEG',
-    extension: 'jpg',
-    mimeType: 'image/jpeg',
+    name: "JPEG",
+    extension: "jpg",
+    mimeType: "image/jpeg",
     supportsTransparency: false,
     supportsAnimation: false,
     supportsLossless: false,
     supportsLossy: true,
-    description: 'Lossy compression, smaller file sizes',
+    description: "Lossy compression, smaller file sizes",
     maxQuality: 100,
-    useCase: 'Photos, web images, social media',
-    pros: ['Small file sizes', 'Universal support', 'Good for photos'],
-    cons: ['No transparency', 'Quality loss', 'No animation'],
+    useCase: "Photos, web images, social media",
+    pros: ["Small file sizes", "Universal support", "Good for photos"],
+    cons: ["No transparency", "Quality loss", "No animation"],
   },
   webp: {
-    name: 'WebP',
-    extension: 'webp',
-    mimeType: 'image/webp',
+    name: "WebP",
+    extension: "webp",
+    mimeType: "image/webp",
     supportsTransparency: true,
     supportsAnimation: true,
     supportsLossless: true,
     supportsLossy: true,
-    description: 'Modern format with excellent compression',
+    description: "Modern format with excellent compression",
     maxQuality: 100,
-    useCase: 'Modern web, mobile apps, progressive web apps',
-    pros: ['Excellent compression', 'Transparency support', 'Animation support', 'Both lossy and lossless'],
-    cons: ['Limited browser support (older browsers)', 'Newer format'],
+    useCase: "Modern web, mobile apps, progressive web apps",
+    pros: ["Excellent compression", "Transparency support", "Animation support", "Both lossy and lossless"],
+    cons: ["Limited browser support (older browsers)", "Newer format"],
   },
   gif: {
-    name: 'GIF',
-    extension: 'gif',
-    mimeType: 'image/gif',
+    name: "GIF",
+    extension: "gif",
+    mimeType: "image/gif",
     supportsTransparency: true,
     supportsAnimation: true,
     supportsLossless: true,
     supportsLossy: false,
-    description: 'Limited colors, supports animation',
+    description: "Limited colors, supports animation",
     maxQuality: 100,
-    useCase: 'Simple animations, memes, low-color graphics',
-    pros: ['Animation support', 'Transparency', 'Universal support'],
-    cons: ['Limited to 256 colors', 'Large file sizes for photos'],
+    useCase: "Simple animations, memes, low-color graphics",
+    pros: ["Animation support", "Transparency", "Universal support"],
+    cons: ["Limited to 256 colors", "Large file sizes for photos"],
   },
   bmp: {
-    name: 'BMP',
-    extension: 'bmp',
-    mimeType: 'image/bmp',
+    name: "BMP",
+    extension: "bmp",
+    mimeType: "image/bmp",
     supportsTransparency: false,
     supportsAnimation: false,
     supportsLossless: true,
     supportsLossy: false,
-    description: 'Uncompressed bitmap format',
+    description: "Uncompressed bitmap format",
     maxQuality: 100,
-    useCase: 'Windows applications, simple graphics',
-    pros: ['No compression artifacts', 'Simple format'],
-    cons: ['Very large file sizes', 'Limited web support'],
+    useCase: "Windows applications, simple graphics",
+    pros: ["No compression artifacts", "Simple format"],
+    cons: ["Very large file sizes", "Limited web support"],
   },
   tiff: {
-    name: 'TIFF',
-    extension: 'tiff',
-    mimeType: 'image/tiff',
+    name: "TIFF",
+    extension: "tiff",
+    mimeType: "image/tiff",
     supportsTransparency: true,
     supportsAnimation: false,
     supportsLossless: true,
     supportsLossy: true,
-    description: 'High-quality format for professional use',
+    description: "High-quality format for professional use",
     maxQuality: 100,
-    useCase: 'Professional photography, print, archival',
-    pros: ['High quality', 'Lossless compression', 'Professional standard'],
-    cons: ['Large file sizes', 'Limited web support'],
+    useCase: "Professional photography, print, archival",
+    pros: ["High quality", "Lossless compression", "Professional standard"],
+    cons: ["Large file sizes", "Limited web support"],
   },
 }
 
@@ -163,7 +163,7 @@ const useImageConversion = () => {
         // Validate file size before processing
         const maxProcessingSize = 300 * 1024 * 1024 // 300MB
         if (file.size > maxProcessingSize) {
-          reject(new Error('Image too large for processing. Please use an image smaller than 300MB.'))
+          reject(new Error("Image too large for processing. Please use an image smaller than 300MB."))
           return
         }
 
@@ -190,15 +190,15 @@ const useImageConversion = () => {
               return
             }
 
-            const canvas = document.createElement('canvas')
-            const ctx = canvas.getContext('2d', {
+            const canvas = document.createElement("canvas")
+            const ctx = canvas.getContext("2d", {
               alpha:
-                settings.targetFormat === 'png' || settings.targetFormat === 'webp' || settings.targetFormat === 'gif',
+                settings.targetFormat === "png" || settings.targetFormat === "webp" || settings.targetFormat === "gif",
             })
 
             if (!ctx) {
               cleanup()
-              reject(new Error('Failed to get canvas context. Your browser may not support this feature.'))
+              reject(new Error("Failed to get canvas context. Your browser may not support this feature."))
               return
             }
 
@@ -207,7 +207,7 @@ const useImageConversion = () => {
 
             // Configure canvas for better quality
             ctx.imageSmoothingEnabled = true
-            ctx.imageSmoothingQuality = 'high'
+            ctx.imageSmoothingQuality = "high"
 
             // Handle background for formats that don't support transparency
             const targetFormatInfo = formatInfo[settings.targetFormat]
@@ -221,12 +221,12 @@ const useImageConversion = () => {
               ctx.drawImage(img, 0, 0)
             } catch (drawError) {
               cleanup()
-              reject(new Error('Failed to draw image to canvas. The image may be corrupted.'))
+              reject(new Error("Failed to draw image to canvas. The image may be corrupted."))
               return
             }
 
             // Apply format-specific processing
-            if (settings.dithering && settings.targetFormat === 'gif') {
+            if (settings.dithering && settings.targetFormat === "gif") {
               // Apply dithering for GIF (simplified implementation)
               const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
               // Note: Full dithering implementation would be more complex
@@ -237,12 +237,12 @@ const useImageConversion = () => {
             const mimeType = targetFormatInfo.mimeType
             let quality: number | undefined
 
-            if (targetFormatInfo.supportsLossy && settings.targetFormat !== 'png') {
+            if (targetFormatInfo.supportsLossy && settings.targetFormat !== "png") {
               quality = Math.max(0.1, Math.min(1, settings.quality / 100))
             }
 
             // Handle WebP-specific options
-            if (settings.targetFormat === 'webp') {
+            if (settings.targetFormat === "webp") {
               // Note: Canvas API doesn't support all WebP options directly
               // In a real implementation, you might use a WebP encoder library
               quality = settings.lossless ? undefined : quality
@@ -253,13 +253,13 @@ const useImageConversion = () => {
                 cleanup()
 
                 if (!blob) {
-                  reject(new Error('Failed to convert image. Please try a different format or settings.'))
+                  reject(new Error("Failed to convert image. Please try a different format or settings."))
                   return
                 }
 
                 // Validate output size
                 if (blob.size === 0) {
-                  reject(new Error('Conversion resulted in empty file. Please try different settings.'))
+                  reject(new Error("Conversion resulted in empty file. Please try different settings."))
                   return
                 }
 
@@ -271,13 +271,13 @@ const useImageConversion = () => {
             )
           } catch (error) {
             cleanup()
-            reject(error instanceof Error ? error : new Error('Unknown conversion error'))
+            reject(error instanceof Error ? error : new Error("Unknown conversion error"))
           }
         }
 
         img.onerror = () => {
           cleanup()
-          reject(new Error('Failed to load image. Please ensure the file is a valid image format.'))
+          reject(new Error("Failed to load image. Please ensure the file is a valid image format."))
         }
 
         // Create object URL and load image
@@ -285,7 +285,7 @@ const useImageConversion = () => {
           objectUrl = URL.createObjectURL(file)
           img.src = objectUrl
         } catch (error) {
-          reject(new Error('Failed to read image file. The file may be corrupted.'))
+          reject(new Error("Failed to read image file. The file may be corrupted."))
         }
       })
     },
@@ -303,13 +303,13 @@ const getImageInfo = (file: File): Promise<{ width: number; height: number; form
 
     img.onload = () => {
       URL.revokeObjectURL(objectUrl)
-      const format = file.type.split('/')[1] || 'unknown'
+      const format = file.type.split("/")[1] || "unknown"
       resolve({ width: img.width, height: img.height, format })
     }
 
     img.onerror = () => {
       URL.revokeObjectURL(objectUrl)
-      reject(new Error('Failed to load image information'))
+      reject(new Error("Failed to load image information"))
     }
 
     img.src = objectUrl
@@ -324,24 +324,24 @@ const ImageConvertCore = () => {
   const [images, setImages] = useState<ImageFile[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
   const [settings, setSettings] = useState<ConversionSettings>({
-    targetFormat: 'png',
+    targetFormat: "png",
     quality: 90,
     preserveTransparency: true,
-    backgroundColor: '#ffffff',
-    colorProfile: 'sRGB',
+    backgroundColor: "#ffffff",
+    colorProfile: "sRGB",
     dithering: false,
     progressive: false,
     lossless: false,
-    resizeMode: 'none',
+    resizeMode: "none",
     removeMetadata: true,
     optimizeForWeb: true,
   })
   const [dragActive, setDragActive] = useState(false)
-  const [activeTab, setActiveTab] = useState('convert')
+  const [activeTab, setActiveTab] = useState("convert")
   const [history, setHistory] = useState<HistoryEntry[]>([])
   const [showAdvanced, setShowAdvanced] = useState(false)
-  const [filterStatus] = useState<'all' | 'pending' | 'completed' | 'error'>('all')
-  const [sortBy] = useState<'name' | 'size' | 'format' | 'time'>('name')
+  const [filterStatus] = useState<"all" | "pending" | "completed" | "error">("all")
+  const [sortBy] = useState<"name" | "size" | "format" | "time">("name")
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { convertImage } = useImageConversion()
@@ -351,23 +351,23 @@ const ImageConvertCore = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
-          case 'o':
+          case "o":
             e.preventDefault()
             fileInputRef.current?.click()
             break
-          case 'Enter':
+          case "Enter":
             e.preventDefault()
-            if (images.some((img) => img.status === 'pending') && !isProcessing) {
+            if (images.some((img) => img.status === "pending") && !isProcessing) {
               convertImages()
             }
             break
-          case 'd':
+          case "d":
             e.preventDefault()
-            if (images.some((img) => img.status === 'completed')) {
+            if (images.some((img) => img.status === "completed")) {
               downloadAll()
             }
             break
-          case 'Delete':
+          case "Delete":
             e.preventDefault()
             if (!isProcessing) {
               clearAll()
@@ -377,8 +377,8 @@ const ImageConvertCore = () => {
       }
     }
 
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
   }, [images, isProcessing])
 
   // Enhanced Utility Functions
@@ -399,7 +399,7 @@ const ImageConvertCore = () => {
   )
 
   const exportResults = useCallback(() => {
-    const completedImages = images.filter((img) => img.status === 'completed')
+    const completedImages = images.filter((img) => img.status === "completed")
     const exportData = {
       timestamp: new Date().toISOString(),
       settings,
@@ -416,35 +416,35 @@ const ImageConvertCore = () => {
       })),
     }
 
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = `image-conversion-results-${new Date().toISOString().split('T')[0]}.json`
+    link.download = `image-conversion-results-${new Date().toISOString().split("T")[0]}.json`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
-    toast.success('Results exported successfully')
+    toast.success("Results exported successfully")
   }, [images, settings])
 
   // Filtered and sorted images
   const filteredImages = useMemo(() => {
     let filtered = images
 
-    if (filterStatus !== 'all') {
+    if (filterStatus !== "all") {
       filtered = filtered.filter((img) => img.status === filterStatus)
     }
 
     return filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'name':
+        case "name":
           return a.file.name.localeCompare(b.file.name)
-        case 'size':
+        case "size":
           return b.originalSize - a.originalSize
-        case 'format':
+        case "format":
           return a.originalFormat.localeCompare(b.originalFormat)
-        case 'time':
+        case "time":
           return b.timestamp - a.timestamp
         default:
           return 0
@@ -478,7 +478,7 @@ const ImageConvertCore = () => {
             originalFormat: info.format,
             targetFormat: settings.targetFormat,
             originalDimensions: { width: info.width, height: info.height },
-            status: 'pending',
+            status: "pending",
             timestamp: Date.now(),
           })
         } catch (error) {
@@ -488,14 +488,12 @@ const ImageConvertCore = () => {
 
       if (newImages.length > 0) {
         setImages((prev) => [...prev, ...newImages])
-        const message = `Added ${newImages.length} image${newImages.length > 1 ? 's' : ''} for conversion`
+        const message = `Added ${newImages.length} image${newImages.length > 1 ? "s" : ""} for conversion`
         toast.success(message)
 
         // Announce to screen readers
-        const announcement = document.createElement('div')
-        announcement.setAttribute('aria-live', 'polite')
-        announcement.setAttribute('aria-atomic', 'true')
-        announcement.className = 'sr-only'
+        const announcement = document.createElement("div")
+        announcement.className = "sr-only"
         announcement.textContent = message
         document.body.appendChild(announcement)
         setTimeout(() => document.body.removeChild(announcement), 1000)
@@ -518,9 +516,9 @@ const ImageConvertCore = () => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -541,9 +539,9 @@ const ImageConvertCore = () => {
 
   // Enhanced Conversion logic
   const convertImages = useCallback(async () => {
-    const pendingImages = images.filter((img) => img.status === 'pending')
+    const pendingImages = images.filter((img) => img.status === "pending")
     if (pendingImages.length === 0) {
-      toast.error('No images to convert')
+      toast.error("No images to convert")
       return
     }
 
@@ -555,7 +553,7 @@ const ImageConvertCore = () => {
         const imageStartTime = Date.now()
 
         // Update status to processing
-        setImages((prev) => prev.map((img) => (img.id === image.id ? { ...img, status: 'processing' } : img)))
+        setImages((prev) => prev.map((img) => (img.id === image.id ? { ...img, status: "processing" } : img)))
 
         const result = await convertImage(image.file, settings)
         const processingTime = (Date.now() - imageStartTime) / 1000
@@ -568,7 +566,7 @@ const ImageConvertCore = () => {
             img.id === image.id
               ? {
                   ...img,
-                  status: 'completed',
+                  status: "completed",
                   convertedUrl: result.url,
                   convertedSize: result.size,
                   processingTime,
@@ -579,14 +577,14 @@ const ImageConvertCore = () => {
           )
         )
       } catch (error) {
-        console.error('Conversion failed:', error)
+        console.error("Conversion failed:", error)
         setImages((prev) =>
           prev.map((img) =>
             img.id === image.id
               ? {
                   ...img,
-                  status: 'error',
-                  error: error instanceof Error ? error.message : 'Conversion failed',
+                  status: "error",
+                  error: error instanceof Error ? error.message : "Conversion failed",
                 }
               : img
           )
@@ -596,8 +594,8 @@ const ImageConvertCore = () => {
 
     setIsProcessing(false)
     const totalTime = (Date.now() - startTime) / 1000
-    const completedCount = images.filter((img) => img.status === 'completed').length
-    const message = `Conversion completed! ${completedCount} image${completedCount > 1 ? 's' : ''} processed in ${totalTime.toFixed(1)}s.`
+    const completedCount = images.filter((img) => img.status === "completed").length
+    const message = `Conversion completed! ${completedCount} image${completedCount > 1 ? "s" : ""} processed in ${totalTime.toFixed(1)}s.`
     toast.success(message)
 
     // Save to history
@@ -624,10 +622,8 @@ const ImageConvertCore = () => {
     }, 100)
 
     // Announce completion to screen readers
-    const announcement = document.createElement('div')
-    announcement.setAttribute('aria-live', 'assertive')
-    announcement.setAttribute('aria-atomic', 'true')
-    announcement.className = 'sr-only'
+    const announcement = document.createElement("div")
+    announcement.className = "sr-only"
     announcement.textContent = message
     document.body.appendChild(announcement)
     setTimeout(() => document.body.removeChild(announcement), 2000)
@@ -641,17 +637,17 @@ const ImageConvertCore = () => {
       }
     })
     setImages([])
-    toast.success('All images cleared')
+    toast.success("All images cleared")
   }, [images])
 
   const downloadImage = useCallback(
     (image: ImageFile) => {
       if (!image.convertedUrl) return
 
-      const link = document.createElement('a')
+      const link = document.createElement("a")
       link.href = image.convertedUrl
       const extension = formatInfo[settings.targetFormat].extension
-      link.download = `converted_${image.file.name.replace(/\.[^/.]+$/, '')}.${extension}`
+      link.download = `converted_${image.file.name.replace(/\.[^/.]+$/, "")}.${extension}`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -660,7 +656,7 @@ const ImageConvertCore = () => {
   )
 
   const downloadAll = useCallback(() => {
-    const completedImages = images.filter((img) => img.status === 'completed' && img.convertedUrl)
+    const completedImages = images.filter((img) => img.status === "completed" && img.convertedUrl)
     completedImages.forEach((image) => downloadImage(image))
   }, [images, downloadImage])
 
@@ -678,7 +674,7 @@ const ImageConvertCore = () => {
 
   // Enhanced Statistics calculation
   const stats: ConversionStats = useMemo(() => {
-    const completedImages = images.filter((img) => img.status === 'completed')
+    const completedImages = images.filter((img) => img.status === "completed")
     const totalOriginalSize = images.reduce((sum, img) => sum + img.originalSize, 0)
     const totalConvertedSize = images.reduce((sum, img) => sum + (img.convertedSize || 0), 0)
     const totalSavings = totalOriginalSize - totalConvertedSize
@@ -739,12 +735,15 @@ const ImageConvertCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-6">
+      <div
+        id="main-content"
+        className="flex flex-col gap-6"
+      >
         {/* Enhanced Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ImageIcon className="h-6 w-6" aria-hidden="true" />
+              <ImageIcon className="h-6 w-6" />
               Image Format Conversion & Optimization Tool
             </CardTitle>
             <CardDescription>
@@ -756,32 +755,54 @@ const ImageConvertCore = () => {
         </Card>
 
         {/* Enhanced Tabbed Interface */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="convert" className="flex items-center gap-2">
+            <TabsTrigger
+              value="convert"
+              className="flex items-center gap-2"
+            >
               <Palette className="h-4 w-4" />
               Convert
             </TabsTrigger>
-            <TabsTrigger value="formats" className="flex items-center gap-2">
+            <TabsTrigger
+              value="formats"
+              className="flex items-center gap-2"
+            >
               <Layers className="h-4 w-4" />
               Formats
             </TabsTrigger>
-            <TabsTrigger value="analysis" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analysis"
+              className="flex items-center gap-2"
+            >
               <BarChart3 className="h-4 w-4" />
               Analysis
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
-            <TabsTrigger value="help" className="flex items-center gap-2">
+            <TabsTrigger
+              value="help"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Help
             </TabsTrigger>
           </TabsList>
 
           {/* Convert Tab */}
-          <TabsContent value="convert" className="space-y-6">
+          <TabsContent
+            value="convert"
+            className="space-y-6"
+          >
             {/* Settings Panel */}
             <Card>
               <CardHeader>
@@ -790,9 +811,13 @@ const ImageConvertCore = () => {
                     <Settings className="h-5 w-5" />
                     Conversion Settings
                   </span>
-                  <Button variant="outline" size="sm" onClick={() => setShowAdvanced(!showAdvanced)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                  >
                     {showAdvanced ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    {showAdvanced ? 'Hide' : 'Show'} Advanced
+                    {showAdvanced ? "Hide" : "Show"} Advanced
                   </Button>
                 </CardTitle>
               </CardHeader>
@@ -803,11 +828,11 @@ const ImageConvertCore = () => {
                     <Label htmlFor="targetFormat">Target Format</Label>
                     <Select
                       value={settings.targetFormat}
-                      onValueChange={(value: 'png' | 'jpeg' | 'webp' | 'gif' | 'bmp' | 'tiff') =>
+                      onValueChange={(value: "png" | "jpeg" | "webp" | "gif" | "bmp" | "tiff") =>
                         setSettings((prev) => ({ ...prev, targetFormat: value }))
                       }
                     >
-                      <SelectTrigger id="targetFormat" aria-label="Select target format">
+                      <SelectTrigger id="targetFormat">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -836,7 +861,6 @@ const ImageConvertCore = () => {
                         value={settings.quality}
                         onChange={(e) => setSettings((prev) => ({ ...prev, quality: Number(e.target.value) }))}
                         className="w-full"
-                        aria-label={`Image quality: ${settings.quality} percent`}
                       />
                       <div className="text-xs text-muted-foreground">Higher quality = larger file size</div>
                     </div>
@@ -854,13 +878,16 @@ const ImageConvertCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, preserveTransparency: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="preserveTransparency" className="text-sm">
+                      <Label
+                        htmlFor="preserveTransparency"
+                        className="text-sm"
+                      >
                         Preserve transparency
                       </Label>
                     </div>
                   )}
 
-                  {settings.targetFormat === 'webp' && (
+                  {settings.targetFormat === "webp" && (
                     <div className="flex items-center space-x-2">
                       <input
                         id="lossless"
@@ -869,13 +896,16 @@ const ImageConvertCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, lossless: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="lossless" className="text-sm">
+                      <Label
+                        htmlFor="lossless"
+                        className="text-sm"
+                      >
                         Lossless compression
                       </Label>
                     </div>
                   )}
 
-                  {settings.targetFormat === 'jpeg' && (
+                  {settings.targetFormat === "jpeg" && (
                     <div className="flex items-center space-x-2">
                       <input
                         id="progressive"
@@ -884,7 +914,10 @@ const ImageConvertCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, progressive: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="progressive" className="text-sm">
+                      <Label
+                        htmlFor="progressive"
+                        className="text-sm"
+                      >
                         Progressive JPEG
                       </Label>
                     </div>
@@ -904,7 +937,7 @@ const ImageConvertCore = () => {
                           <Label htmlFor="colorProfile">Color Profile</Label>
                           <Select
                             value={settings.colorProfile}
-                            onValueChange={(value: 'sRGB' | 'P3' | 'Rec2020') =>
+                            onValueChange={(value: "sRGB" | "P3" | "Rec2020") =>
                               setSettings((prev) => ({ ...prev, colorProfile: value }))
                             }
                           >
@@ -940,7 +973,10 @@ const ImageConvertCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, dithering: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="dithering" className="text-sm">
+                          <Label
+                            htmlFor="dithering"
+                            className="text-sm"
+                          >
                             Apply dithering (for GIF/limited colors)
                           </Label>
                         </div>
@@ -953,7 +989,10 @@ const ImageConvertCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, removeMetadata: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="removeMetadata" className="text-sm">
+                          <Label
+                            htmlFor="removeMetadata"
+                            className="text-sm"
+                          >
                             Remove metadata (EXIF, etc.)
                           </Label>
                         </div>
@@ -966,7 +1005,10 @@ const ImageConvertCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, optimizeForWeb: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="optimizeForWeb" className="text-sm">
+                          <Label
+                            htmlFor="optimizeForWeb"
+                            className="text-sm"
+                          >
                             Optimize for web delivery
                           </Label>
                         </div>
@@ -983,8 +1025,8 @@ const ImageConvertCore = () => {
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -992,9 +1034,8 @@ const ImageConvertCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop images here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1003,7 +1044,11 @@ const ImageConvertCore = () => {
                   <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Upload Images</h3>
                   <p className="text-muted-foreground mb-4">Drag and drop your images here, or click to select files</p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1017,7 +1062,6 @@ const ImageConvertCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select image files"
                   />
                 </div>
               </CardContent>
@@ -1055,7 +1099,7 @@ const ImageConvertCore = () => {
                     <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
                       <div className="text-center">
                         <span className="text-blue-700 dark:text-blue-400 font-semibold">
-                          {stats.totalSavings > 0 ? 'Total savings: ' : 'Total increase: '}
+                          {stats.totalSavings > 0 ? "Total savings: " : "Total increase: "}
                           {formatFileSize(Math.abs(stats.totalSavings))}
                         </span>
                       </div>
@@ -1066,7 +1110,10 @@ const ImageConvertCore = () => {
                       <h4 className="font-medium mb-2">Input Formats:</h4>
                       <div className="flex flex-wrap gap-2">
                         {Object.entries(stats.formatDistribution).map(([format, count]) => (
-                          <span key={format} className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 rounded text-xs">
+                          <span
+                            key={format}
+                            className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 rounded text-xs"
+                          >
                             {format.toUpperCase()}: {count}
                           </span>
                         ))}
@@ -1084,7 +1131,7 @@ const ImageConvertCore = () => {
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Button
                       onClick={convertImages}
-                      disabled={isProcessing || images.every((img) => img.status !== 'pending')}
+                      disabled={isProcessing || images.every((img) => img.status !== "pending")}
                       className="min-w-32"
                     >
                       {isProcessing ? (
@@ -1093,20 +1140,24 @@ const ImageConvertCore = () => {
                           Converting...
                         </>
                       ) : (
-                        'Convert Images'
+                        "Convert Images"
                       )}
                     </Button>
 
                     <Button
                       onClick={downloadAll}
                       variant="outline"
-                      disabled={!images.some((img) => img.status === 'completed')}
+                      disabled={!images.some((img) => img.status === "completed")}
                     >
                       <Download className="mr-2 h-4 w-4" />
                       Download All
                     </Button>
 
-                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                    <Button
+                      onClick={clearAll}
+                      variant="destructive"
+                      disabled={isProcessing}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
@@ -1114,7 +1165,7 @@ const ImageConvertCore = () => {
                     <Button
                       onClick={exportResults}
                       variant="outline"
-                      disabled={!images.some((img) => img.status === 'completed')}
+                      disabled={!images.some((img) => img.status === "completed")}
                     >
                       <Save className="mr-2 h-4 w-4" />
                       Export Results
@@ -1126,7 +1177,10 @@ const ImageConvertCore = () => {
           </TabsContent>
 
           {/* Formats Tab */}
-          <TabsContent value="formats" className="space-y-6">
+          <TabsContent
+            value="formats"
+            className="space-y-6"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1144,7 +1198,7 @@ const ImageConvertCore = () => {
                     <Card
                       key={key}
                       className={`cursor-pointer transition-all hover:shadow-md ${
-                        settings.targetFormat === key ? 'ring-2 ring-primary' : ''
+                        settings.targetFormat === key ? "ring-2 ring-primary" : ""
                       }`}
                       onClick={() => setSettings((prev) => ({ ...prev, targetFormat: key as any }))}
                     >
@@ -1163,22 +1217,22 @@ const ImageConvertCore = () => {
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Transparency:</span>
-                            <span className="font-medium">{format.supportsTransparency ? 'Yes' : 'No'}</span>
+                            <span className="font-medium">{format.supportsTransparency ? "Yes" : "No"}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Animation:</span>
-                            <span className="font-medium">{format.supportsAnimation ? 'Yes' : 'No'}</span>
+                            <span className="font-medium">{format.supportsAnimation ? "Yes" : "No"}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Compression:</span>
                             <span className="font-medium">
                               {format.supportsLossless && format.supportsLossy
-                                ? 'Both'
+                                ? "Both"
                                 : format.supportsLossless
-                                  ? 'Lossless'
+                                  ? "Lossless"
                                   : format.supportsLossy
-                                    ? 'Lossy'
-                                    : 'None'}
+                                    ? "Lossy"
+                                    : "None"}
                             </span>
                           </div>
                         </div>
@@ -1189,10 +1243,10 @@ const ImageConvertCore = () => {
                         </div>
                         <div className="mt-2">
                           <div className="text-xs text-green-600">
-                            <strong>Pros:</strong> {format.pros.join(', ')}
+                            <strong>Pros:</strong> {format.pros.join(", ")}
                           </div>
                           <div className="text-xs text-red-600 mt-1">
-                            <strong>Cons:</strong> {format.cons.join(', ')}
+                            <strong>Cons:</strong> {format.cons.join(", ")}
                           </div>
                         </div>
                       </CardContent>
@@ -1204,7 +1258,10 @@ const ImageConvertCore = () => {
           </TabsContent>
 
           {/* Analysis Tab */}
-          <TabsContent value="analysis" className="space-y-6">
+          <TabsContent
+            value="analysis"
+            className="space-y-6"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1240,7 +1297,7 @@ const ImageConvertCore = () => {
                         <CardContent className="pt-6">
                           <div className="text-center">
                             <div className="text-3xl font-bold text-green-600">
-                              {stats.processingTime > 0 ? `${stats.processingTime.toFixed(1)}s` : 'N/A'}
+                              {stats.processingTime > 0 ? `${stats.processingTime.toFixed(1)}s` : "N/A"}
                             </div>
                             <div className="text-sm text-muted-foreground">Avg. Processing Time</div>
                           </div>
@@ -1266,11 +1323,17 @@ const ImageConvertCore = () => {
                       <CardContent>
                         <div className="space-y-3">
                           {filteredImages
-                            .filter((img) => img.status === 'completed')
+                            .filter((img) => img.status === "completed")
                             .map((image) => (
-                              <div key={image.id} className="flex items-center gap-4">
+                              <div
+                                key={image.id}
+                                className="flex items-center gap-4"
+                              >
                                 <div className="flex-1 min-w-0">
-                                  <div className="font-medium truncate" title={image.file.name}>
+                                  <div
+                                    className="font-medium truncate"
+                                    title={image.file.name}
+                                  >
                                     {image.file.name}
                                   </div>
                                   <div className="text-sm text-muted-foreground">
@@ -1281,10 +1344,10 @@ const ImageConvertCore = () => {
                                   <div className="text-sm font-medium">
                                     {image.convertedSize && image.originalSize
                                       ? `${(((image.convertedSize - image.originalSize) / image.originalSize) * 100).toFixed(1)}%`
-                                      : 'N/A'}
+                                      : "N/A"}
                                   </div>
                                   <div className="text-xs text-muted-foreground">
-                                    {image.processingTime ? `${image.processingTime.toFixed(1)}s` : ''}
+                                    {image.processingTime ? `${image.processingTime.toFixed(1)}s` : ""}
                                   </div>
                                 </div>
                               </div>
@@ -1299,7 +1362,10 @@ const ImageConvertCore = () => {
           </TabsContent>
 
           {/* History Tab */}
-          <TabsContent value="history" className="space-y-6">
+          <TabsContent
+            value="history"
+            className="space-y-6"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1320,7 +1386,10 @@ const ImageConvertCore = () => {
                 ) : (
                   <div className="space-y-4">
                     {history.map((entry) => (
-                      <Card key={entry.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                      <Card
+                        key={entry.id}
+                        className="cursor-pointer hover:shadow-md transition-shadow"
+                      >
                         <CardContent className="pt-6">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -1354,7 +1423,7 @@ const ImageConvertCore = () => {
                               size="sm"
                               onClick={() => {
                                 setSettings(entry.settings)
-                                toast.success('Settings restored from history')
+                                toast.success("Settings restored from history")
                               }}
                             >
                               <RotateCcw className="h-4 w-4 mr-1" />
@@ -1371,7 +1440,10 @@ const ImageConvertCore = () => {
           </TabsContent>
 
           {/* Help Tab */}
-          <TabsContent value="help" className="space-y-6">
+          <TabsContent
+            value="help"
+            className="space-y-6"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

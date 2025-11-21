@@ -1,12 +1,12 @@
-import { useCallback, useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -22,8 +22,8 @@ import {
   Play,
   Maximize2,
   ChartArea,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   MermaidDiagram,
   DiagramMetadata,
@@ -34,8 +34,8 @@ import type {
   MermaidDiagramType,
   ExportFormat,
   ViewMode,
-} from '@/types/markdown-mermaid'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/markdown-mermaid"
+import { formatFileSize } from "@/lib/utils"
 
 // Utility functions
 
@@ -44,7 +44,7 @@ let mermaidModule: any | null = null
 
 const loadMermaid = async () => {
   if (mermaidModule) return mermaidModule
-  const mod: any = await import('mermaid')
+  const mod: any = await import("mermaid")
   // mermaid v10/v11 可能导出在 default 上，统一兼容
   const api = mod?.default ?? mod
   mermaidModule = api
@@ -76,7 +76,7 @@ const initializeMermaid = async (config: Partial<MermaidConfig> = {}) => {
     gantt: {
       ...mergedConfig.gantt,
       // 修正 displayMode 类型，确保为 "" | "compact" | undefined
-      displayMode: mergedConfig.gantt?.displayMode === 'compact' ? 'compact' : undefined,
+      displayMode: mergedConfig.gantt?.displayMode === "compact" ? "compact" : undefined,
     },
     journey: mergedConfig.journey,
     pie: mergedConfig.pie,
@@ -97,7 +97,7 @@ const renderMermaidDiagram = async (code: string, config: MermaidConfig): Promis
     // Clean and validate code
     const cleanCode = code.trim()
     if (!cleanCode) {
-      throw new Error('Empty diagram code')
+      throw new Error("Empty diagram code")
     }
 
     // Detect diagram type
@@ -128,44 +128,44 @@ const renderMermaidDiagram = async (code: string, config: MermaidConfig): Promis
       timestamp: new Date(),
     }
   } catch (error) {
-    throw new Error(`Failed to render diagram: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    throw new Error(`Failed to render diagram: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 }
 
 const detectDiagramType = (code: string): MermaidDiagramType => {
   const trimmedCode = code.trim().toLowerCase()
 
-  if (trimmedCode.startsWith('flowchart') || trimmedCode.startsWith('graph')) {
-    return 'flowchart'
-  } else if (trimmedCode.startsWith('sequencediagram')) {
-    return 'sequence'
-  } else if (trimmedCode.startsWith('classdiagram')) {
-    return 'classDiagram'
-  } else if (trimmedCode.startsWith('statediagram')) {
-    return 'stateDiagram'
-  } else if (trimmedCode.startsWith('erdiagram')) {
-    return 'entityRelationship'
-  } else if (trimmedCode.startsWith('journey')) {
-    return 'userJourney'
-  } else if (trimmedCode.startsWith('gantt')) {
-    return 'gantt'
-  } else if (trimmedCode.startsWith('pie')) {
-    return 'pie'
-  } else if (trimmedCode.startsWith('gitgraph')) {
-    return 'gitgraph'
-  } else if (trimmedCode.startsWith('mindmap')) {
-    return 'mindmap'
-  } else if (trimmedCode.startsWith('timeline')) {
-    return 'timeline'
-  } else if (trimmedCode.startsWith('quadrantchart')) {
-    return 'quadrantChart'
-  } else if (trimmedCode.startsWith('requirementdiagram')) {
-    return 'requirementDiagram'
-  } else if (trimmedCode.startsWith('c4context')) {
-    return 'c4Context'
+  if (trimmedCode.startsWith("flowchart") || trimmedCode.startsWith("graph")) {
+    return "flowchart"
+  } else if (trimmedCode.startsWith("sequencediagram")) {
+    return "sequence"
+  } else if (trimmedCode.startsWith("classdiagram")) {
+    return "classDiagram"
+  } else if (trimmedCode.startsWith("statediagram")) {
+    return "stateDiagram"
+  } else if (trimmedCode.startsWith("erdiagram")) {
+    return "entityRelationship"
+  } else if (trimmedCode.startsWith("journey")) {
+    return "userJourney"
+  } else if (trimmedCode.startsWith("gantt")) {
+    return "gantt"
+  } else if (trimmedCode.startsWith("pie")) {
+    return "pie"
+  } else if (trimmedCode.startsWith("gitgraph")) {
+    return "gitgraph"
+  } else if (trimmedCode.startsWith("mindmap")) {
+    return "mindmap"
+  } else if (trimmedCode.startsWith("timeline")) {
+    return "timeline"
+  } else if (trimmedCode.startsWith("quadrantchart")) {
+    return "quadrantChart"
+  } else if (trimmedCode.startsWith("requirementdiagram")) {
+    return "requirementDiagram"
+  } else if (trimmedCode.startsWith("c4context")) {
+    return "c4Context"
   } else {
     // Default to flowchart for unknown types
-    return 'flowchart'
+    return "flowchart"
   }
 }
 
@@ -279,7 +279,7 @@ const calculateComplexity = (code: string, nodeCount: number, edgeCount: number)
 
 const calculateDiagramDepth = (code: string): number => {
   // Count nesting levels for hierarchical diagrams
-  const lines = code.split('\n')
+  const lines = code.split("\n")
   let maxDepth = 0
   let currentDepth = 0
 
@@ -288,17 +288,17 @@ const calculateDiagramDepth = (code: string): number => {
 
     // Count opening brackets/keywords that increase depth
     if (
-      trimmedLine.includes('subgraph') ||
-      trimmedLine.includes('class') ||
-      trimmedLine.includes('state') ||
-      trimmedLine.includes('{')
+      trimmedLine.includes("subgraph") ||
+      trimmedLine.includes("class") ||
+      trimmedLine.includes("state") ||
+      trimmedLine.includes("{")
     ) {
       currentDepth++
       maxDepth = Math.max(maxDepth, currentDepth)
     }
 
     // Count closing brackets that decrease depth
-    if (trimmedLine.includes('end') || trimmedLine.includes('}')) {
+    if (trimmedLine.includes("end") || trimmedLine.includes("}")) {
       currentDepth = Math.max(0, currentDepth - 1)
     }
   })
@@ -319,9 +319,9 @@ const validateMermaidCode = (code: string): DiagramValidation => {
   if (!code || code.trim().length === 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Diagram code cannot be empty',
-      type: 'syntax',
-      severity: 'error',
+      message: "Diagram code cannot be empty",
+      type: "syntax",
+      severity: "error",
     })
     validation.qualityScore = 0
     return validation
@@ -331,7 +331,7 @@ const validateMermaidCode = (code: string): DiagramValidation => {
 
   // Check for basic syntax issues
   if (!hasValidDiagramType(trimmedCode)) {
-    validation.warnings.push('Diagram type not explicitly specified, defaulting to flowchart')
+    validation.warnings.push("Diagram type not explicitly specified, defaulting to flowchart")
     validation.suggestions.push('Consider adding a diagram type declaration (e.g., "flowchart TD")')
     validation.qualityScore -= 10
   }
@@ -341,14 +341,14 @@ const validateMermaidCode = (code: string): DiagramValidation => {
   const edgeCount = countEdges(trimmedCode)
 
   if (nodeCount > 50) {
-    validation.warnings.push('High number of nodes may impact rendering performance')
-    validation.suggestions.push('Consider breaking down complex diagrams into smaller components')
+    validation.warnings.push("High number of nodes may impact rendering performance")
+    validation.suggestions.push("Consider breaking down complex diagrams into smaller components")
     validation.qualityScore -= 15
   }
 
   if (edgeCount > 100) {
-    validation.warnings.push('High number of edges may make diagram difficult to read')
-    validation.suggestions.push('Simplify connections or use subgraphs to organize content')
+    validation.warnings.push("High number of edges may make diagram difficult to read")
+    validation.suggestions.push("Simplify connections or use subgraphs to organize content")
     validation.qualityScore -= 10
   }
 
@@ -369,13 +369,13 @@ const validateMermaidCode = (code: string): DiagramValidation => {
 
   // Quality suggestions
   if (validation.qualityScore >= 90) {
-    validation.suggestions.push('Excellent diagram structure')
+    validation.suggestions.push("Excellent diagram structure")
   } else if (validation.qualityScore >= 70) {
-    validation.suggestions.push('Good diagram with minor improvements possible')
+    validation.suggestions.push("Good diagram with minor improvements possible")
   } else if (validation.qualityScore >= 50) {
-    validation.suggestions.push('Diagram needs improvement')
+    validation.suggestions.push("Diagram needs improvement")
   } else {
-    validation.suggestions.push('Diagram has significant issues')
+    validation.suggestions.push("Diagram has significant issues")
   }
 
   return validation
@@ -383,30 +383,30 @@ const validateMermaidCode = (code: string): DiagramValidation => {
 
 const hasValidDiagramType = (code: string): boolean => {
   const diagramTypes = [
-    'flowchart',
-    'graph',
-    'sequenceDiagram',
-    'classDiagram',
-    'stateDiagram',
-    'erDiagram',
-    'journey',
-    'gantt',
-    'pie',
-    'gitgraph',
-    'mindmap',
-    'timeline',
-    'quadrantChart',
-    'requirementDiagram',
-    'c4Context',
+    "flowchart",
+    "graph",
+    "sequenceDiagram",
+    "classDiagram",
+    "stateDiagram",
+    "erDiagram",
+    "journey",
+    "gantt",
+    "pie",
+    "gitgraph",
+    "mindmap",
+    "timeline",
+    "quadrantChart",
+    "requirementDiagram",
+    "c4Context",
   ]
 
-  const firstLine = code.split('\n')[0].trim().toLowerCase()
+  const firstLine = code.split("\n")[0].trim().toLowerCase()
   return diagramTypes.some((type) => firstLine.startsWith(type.toLowerCase()))
 }
 
 const checkSyntaxErrors = (code: string): DiagramError[] => {
   const errors: DiagramError[] = []
-  const lines = code.split('\n')
+  const lines = code.split("\n")
 
   lines.forEach((line, index) => {
     const trimmedLine = line.trim()
@@ -417,9 +417,9 @@ const checkSyntaxErrors = (code: string): DiagramError[] => {
 
     if (openBrackets !== closeBrackets) {
       errors.push({
-        message: 'Unmatched brackets in line',
-        type: 'syntax',
-        severity: 'error',
+        message: "Unmatched brackets in line",
+        type: "syntax",
+        severity: "error",
         line: index + 1,
       })
     }
@@ -430,12 +430,12 @@ const checkSyntaxErrors = (code: string): DiagramError[] => {
 
     if (nodeMatches) {
       nodeMatches.forEach((match) => {
-        const nodeId = match.replace(/[\[\(\{].*/, '')
+        const nodeId = match.replace(/[\[\(\{].*/, "")
         if (!nodeIdPattern.test(nodeId)) {
           errors.push({
             message: `Invalid node ID: ${nodeId}`,
-            type: 'syntax',
-            severity: 'warning',
+            type: "syntax",
+            severity: "warning",
             line: index + 1,
           })
         }
@@ -462,7 +462,7 @@ const checkBestPractices = (code: string): string[] => {
   }
 
   if (!hasDescriptiveLabels) {
-    suggestions.push('Use descriptive labels for better diagram readability')
+    suggestions.push("Use descriptive labels for better diagram readability")
   }
 
   // Check for consistent naming convention
@@ -476,12 +476,12 @@ const checkBestPractices = (code: string): string[] => {
   const hasSnakeCase = nodeIds.some((id) => /_/.test(id))
 
   if (hasCamelCase && hasSnakeCase) {
-    suggestions.push('Use consistent naming convention (either camelCase or snake_case)')
+    suggestions.push("Use consistent naming convention (either camelCase or snake_case)")
   }
 
   // Check for diagram title/description
-  if (!code.includes('title') && !code.includes('%%')) {
-    suggestions.push('Consider adding a title or description to your diagram')
+  if (!code.includes("title") && !code.includes("%%")) {
+    suggestions.push("Consider adding a title or description to your diagram")
   }
 
   return suggestions
@@ -489,25 +489,25 @@ const checkBestPractices = (code: string): string[] => {
 
 // Default Mermaid configuration
 const createDefaultMermaidConfig = (): MermaidConfig => ({
-  theme: 'default',
-  fontFamily: 'Arial, sans-serif',
+  theme: "default",
+  fontFamily: "Arial, sans-serif",
   fontSize: 16,
-  primaryColor: '#3B82F6',
-  primaryTextColor: '#FFFFFF',
-  primaryBorderColor: '#1E40AF',
-  lineColor: '#6B7280',
-  secondaryColor: '#10B981',
-  tertiaryColor: '#F59E0B',
-  background: '#FFFFFF',
-  mainBkg: '#F3F4F6',
-  secondBkg: '#E5E7EB',
-  tertiaryBkg: '#D1D5DB',
+  primaryColor: "#3B82F6",
+  primaryTextColor: "#FFFFFF",
+  primaryBorderColor: "#1E40AF",
+  lineColor: "#6B7280",
+  secondaryColor: "#10B981",
+  tertiaryColor: "#F59E0B",
+  background: "#FFFFFF",
+  mainBkg: "#F3F4F6",
+  secondBkg: "#E5E7EB",
+  tertiaryBkg: "#D1D5DB",
   flowchart: {
     diagramPadding: 8,
     htmlLabels: true,
     nodeSpacing: 50,
     rankSpacing: 50,
-    curve: 'basis',
+    curve: "basis",
     padding: 15,
     useMaxWidth: true,
   },
@@ -534,11 +534,11 @@ const createDefaultMermaidConfig = (): MermaidConfig => ({
     leftPadding: 75,
     gridLineStartPadding: 35,
     fontSize: 11,
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: "Arial, sans-serif",
     numberSectionStyles: 4,
-    axisFormat: '%Y-%m-%d',
+    axisFormat: "%Y-%m-%d",
     topAxis: false,
-    displayMode: 'standard',
+    displayMode: "standard",
   },
   journey: {
     diagramMarginX: 50,
@@ -566,7 +566,7 @@ const createDefaultMermaidConfig = (): MermaidConfig => ({
       x: -25,
       y: 0,
     },
-    mainBranchName: 'main',
+    mainBranchName: "main",
     showBranches: true,
     showCommitLabel: true,
     rotateCommitLabel: true,
@@ -576,27 +576,27 @@ const createDefaultMermaidConfig = (): MermaidConfig => ({
 // Diagram Templates
 const diagramTemplates: DiagramTemplate[] = [
   {
-    id: 'simple-flowchart',
-    name: 'Simple Flowchart',
-    description: 'Basic flowchart with decision points',
-    type: 'flowchart',
-    category: 'Process',
-    complexity: 'simple',
+    id: "simple-flowchart",
+    name: "Simple Flowchart",
+    description: "Basic flowchart with decision points",
+    type: "flowchart",
+    category: "Process",
+    complexity: "simple",
     code: `flowchart TD
     A[Start] --> B{Is it working?}
     B -->|Yes| C[Great!]
     B -->|No| D[Fix it]
     D --> B
     C --> E[End]`,
-    useCase: ['Process documentation', 'Decision trees', 'Workflow design'],
+    useCase: ["Process documentation", "Decision trees", "Workflow design"],
   },
   {
-    id: 'sequence-diagram',
-    name: 'Sequence Diagram',
-    description: 'API interaction sequence',
-    type: 'sequence',
-    category: 'Communication',
-    complexity: 'medium',
+    id: "sequence-diagram",
+    name: "Sequence Diagram",
+    description: "API interaction sequence",
+    type: "sequence",
+    category: "Communication",
+    complexity: "medium",
     code: `sequenceDiagram
     participant Client
     participant API
@@ -606,15 +606,15 @@ const diagramTemplates: DiagramTemplate[] = [
     API->>Database: Query
     Database-->>API: Results
     API-->>Client: Response`,
-    useCase: ['API documentation', 'System interactions', 'Communication flows'],
+    useCase: ["API documentation", "System interactions", "Communication flows"],
   },
   {
-    id: 'class-diagram',
-    name: 'Class Diagram',
-    description: 'Object-oriented class structure',
-    type: 'classDiagram',
-    category: 'Structure',
-    complexity: 'medium',
+    id: "class-diagram",
+    name: "Class Diagram",
+    description: "Object-oriented class structure",
+    type: "classDiagram",
+    category: "Structure",
+    complexity: "medium",
     code: `classDiagram
     class Animal {
         +String name
@@ -631,15 +631,15 @@ const diagramTemplates: DiagramTemplate[] = [
     }
     Animal <|-- Dog
     Animal <|-- Cat`,
-    useCase: ['Software design', 'Object modeling', 'Architecture documentation'],
+    useCase: ["Software design", "Object modeling", "Architecture documentation"],
   },
   {
-    id: 'state-diagram',
-    name: 'State Diagram',
-    description: 'System state transitions',
-    type: 'stateDiagram',
-    category: 'Behavior',
-    complexity: 'medium',
+    id: "state-diagram",
+    name: "State Diagram",
+    description: "System state transitions",
+    type: "stateDiagram",
+    category: "Behavior",
+    complexity: "medium",
     code: `stateDiagram-v2
     [*] --> Idle
     Idle --> Processing : start
@@ -648,15 +648,15 @@ const diagramTemplates: DiagramTemplate[] = [
     Success --> [*]
     Error --> Idle : retry
     Error --> [*] : abort`,
-    useCase: ['System behavior', 'State machines', 'Process modeling'],
+    useCase: ["System behavior", "State machines", "Process modeling"],
   },
   {
-    id: 'gantt-chart',
-    name: 'Gantt Chart',
-    description: 'Project timeline and tasks',
-    type: 'gantt',
-    category: 'Planning',
-    complexity: 'simple',
+    id: "gantt-chart",
+    name: "Gantt Chart",
+    description: "Project timeline and tasks",
+    type: "gantt",
+    category: "Planning",
+    complexity: "simple",
     code: `gantt
     title Project Timeline
     dateFormat  YYYY-MM-DD
@@ -669,29 +669,29 @@ const diagramTemplates: DiagramTemplate[] = [
     section Testing
     Unit Tests         :         test1, after dev1, 10d
     Integration Tests  :         test2, after dev2, 5d`,
-    useCase: ['Project management', 'Timeline planning', 'Task scheduling'],
+    useCase: ["Project management", "Timeline planning", "Task scheduling"],
   },
   {
-    id: 'pie-chart',
-    name: 'Pie Chart',
-    description: 'Data distribution visualization',
-    type: 'pie',
-    category: 'Data',
-    complexity: 'simple',
+    id: "pie-chart",
+    name: "Pie Chart",
+    description: "Data distribution visualization",
+    type: "pie",
+    category: "Data",
+    complexity: "simple",
     code: `pie title Market Share
     "Company A" : 42.5
     "Company B" : 28.3
     "Company C" : 15.7
     "Others" : 13.5`,
-    useCase: ['Data visualization', 'Market analysis', 'Statistics presentation'],
+    useCase: ["Data visualization", "Market analysis", "Statistics presentation"],
   },
   {
-    id: 'user-journey',
-    name: 'User Journey',
-    description: 'User experience journey map',
-    type: 'userJourney',
-    category: 'Experience',
-    complexity: 'medium',
+    id: "user-journey",
+    name: "User Journey",
+    description: "User experience journey map",
+    type: "userJourney",
+    category: "Experience",
+    complexity: "medium",
     code: `journey
     title User Shopping Journey
     section Discovery
@@ -705,15 +705,15 @@ const diagramTemplates: DiagramTemplate[] = [
     section Post-purchase
       Receive product   : 5: User
       Leave review      : 3: User`,
-    useCase: ['UX design', 'Customer experience', 'Service design'],
+    useCase: ["UX design", "Customer experience", "Service design"],
   },
   {
-    id: 'git-graph',
-    name: 'Git Graph',
-    description: 'Git branching and merging',
-    type: 'gitgraph',
-    category: 'Development',
-    complexity: 'medium',
+    id: "git-graph",
+    name: "Git Graph",
+    description: "Git branching and merging",
+    type: "gitgraph",
+    category: "Development",
+    complexity: "medium",
     code: `gitgraph
     commit id: "Initial"
     branch develop
@@ -728,15 +728,15 @@ const diagramTemplates: DiagramTemplate[] = [
     commit id: "Bug fix"
     checkout main
     merge hotfix`,
-    useCase: ['Git workflow', 'Version control', 'Development process'],
+    useCase: ["Git workflow", "Version control", "Development process"],
   },
   {
-    id: 'er-diagram',
-    name: 'Entity Relationship',
-    description: 'Database entity relationships',
-    type: 'entityRelationship',
-    category: 'Database',
-    complexity: 'complex',
+    id: "er-diagram",
+    name: "Entity Relationship",
+    description: "Database entity relationships",
+    type: "entityRelationship",
+    category: "Database",
+    complexity: "complex",
     code: `erDiagram
     CUSTOMER {
         string customer_id PK
@@ -765,15 +765,15 @@ const diagramTemplates: DiagramTemplate[] = [
     CUSTOMER ||--o{ ORDER : places
     ORDER ||--o{ ORDER_ITEM : contains
     PRODUCT ||--o{ ORDER_ITEM : "ordered in"`,
-    useCase: ['Database design', 'Data modeling', 'System architecture'],
+    useCase: ["Database design", "Data modeling", "System architecture"],
   },
   {
-    id: 'mindmap',
-    name: 'Mind Map',
-    description: 'Hierarchical concept map',
-    type: 'mindmap',
-    category: 'Brainstorming',
-    complexity: 'simple',
+    id: "mindmap",
+    name: "Mind Map",
+    description: "Hierarchical concept map",
+    type: "mindmap",
+    category: "Brainstorming",
+    complexity: "simple",
     code: `mindmap
   root((Project Planning))
     Goals
@@ -793,7 +793,7 @@ const diagramTemplates: DiagramTemplate[] = [
       Phase 1
       Phase 2
       Phase 3`,
-    useCase: ['Brainstorming', 'Concept mapping', 'Knowledge organization'],
+    useCase: ["Brainstorming", "Concept mapping", "Knowledge organization"],
   },
 ]
 
@@ -837,13 +837,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -853,30 +853,30 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useMermaidExport = () => {
   const exportDiagram = useCallback((diagram: MermaidDiagram, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'svg':
+      case "svg":
         content = diagram.svg
-        mimeType = 'image/svg+xml'
-        extension = '.svg'
+        mimeType = "image/svg+xml"
+        extension = ".svg"
         break
-      case 'markdown':
+      case "markdown":
         content = diagram.markdown
-        mimeType = 'text/markdown'
-        extension = '.md'
+        mimeType = "text/markdown"
+        extension = ".md"
         break
-      case 'html':
+      case "html":
         content = generateHTMLFromDiagram(diagram)
-        mimeType = 'text/html'
-        extension = '.html'
+        mimeType = "text/html"
+        extension = ".html"
         break
-      case 'json':
+      case "json":
         content = JSON.stringify(diagram, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
       default:
         content = diagram.code
@@ -885,7 +885,7 @@ const useMermaidExport = () => {
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `mermaid-diagram-${diagram.id}${extension}`
     document.body.appendChild(link)
@@ -981,12 +981,12 @@ const generateHTMLFromDiagram = (diagram: MermaidDiagram): string => {
  * Features: Advanced Mermaid diagram creation, multiple diagram types, interactive editing, and comprehensive diagram management
  */
 const MarkdownMermaidCore = () => {
-  const [activeTab, setActiveTab] = useState<'editor' | 'history' | 'templates' | 'settings'>('editor')
-  const [diagramCode, setDiagramCode] = useState('')
+  const [activeTab, setActiveTab] = useState<"editor" | "history" | "templates" | "settings">("editor")
+  const [diagramCode, setDiagramCode] = useState("")
   const [currentDiagram, setCurrentDiagram] = useState<MermaidDiagram | null>(null)
   const [config, setConfig] = useState<MermaidConfig>(createDefaultMermaidConfig())
-  const [viewMode, setViewMode] = useState<ViewMode>('split')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [viewMode, setViewMode] = useState<ViewMode>("split")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
 
   const { diagrams, isProcessing, createDiagram, clearDiagrams, removeDiagram } = useMermaidDiagrams()
   const { exportDiagram } = useMermaidExport()
@@ -1005,7 +1005,7 @@ const MarkdownMermaidCore = () => {
   // Render diagram
   const handleRender = useCallback(async () => {
     if (!diagramCode.trim()) {
-      toast.error('Please enter diagram code')
+      toast.error("Please enter diagram code")
       return
     }
 
@@ -1018,9 +1018,9 @@ const MarkdownMermaidCore = () => {
     try {
       const diagram = await createDiagram(diagramCode, config)
       setCurrentDiagram(diagram)
-      toast.success('Diagram rendered successfully')
+      toast.success("Diagram rendered successfully")
     } catch (error) {
-      toast.error('Failed to render diagram')
+      toast.error("Failed to render diagram")
       console.error(error)
     }
   }, [diagramCode, config, createDiagram])
@@ -1063,12 +1063,15 @@ const MarkdownMermaidCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ChartArea className="h-5 w-5" aria-hidden="true" />
+              <ChartArea className="h-5 w-5" />
               Markdown Mermaid & Diagram Tool
             </CardTitle>
             <CardDescription>
@@ -1083,29 +1086,44 @@ const MarkdownMermaidCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'editor' | 'history' | 'templates' | 'settings')}
+          onValueChange={(value) => setActiveTab(value as "editor" | "history" | "templates" | "settings")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="editor" className="flex items-center gap-2">
+            <TabsTrigger
+              value="editor"
+              className="flex items-center gap-2"
+            >
               <Code className="h-4 w-4" />
               Editor
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger
+              value="settings"
+              className="flex items-center gap-2"
+            >
               <Settings className="h-4 w-4" />
               Settings
             </TabsTrigger>
           </TabsList>
 
           {/* Diagram Editor Tab */}
-          <TabsContent value="editor" className="space-y-4">
+          <TabsContent
+            value="editor"
+            className="space-y-4"
+          >
             {/* View Mode Controls */}
             <Card>
               <CardHeader>
@@ -1117,32 +1135,32 @@ const MarkdownMermaidCore = () => {
               <CardContent>
                 <div className="flex gap-2">
                   <Button
-                    onClick={() => setViewMode('split')}
-                    variant={viewMode === 'split' ? 'default' : 'outline'}
+                    onClick={() => setViewMode("split")}
+                    variant={viewMode === "split" ? "default" : "outline"}
                     size="sm"
                   >
                     <Split className="mr-2 h-4 w-4" />
                     Split
                   </Button>
                   <Button
-                    onClick={() => setViewMode('editor')}
-                    variant={viewMode === 'editor' ? 'default' : 'outline'}
+                    onClick={() => setViewMode("editor")}
+                    variant={viewMode === "editor" ? "default" : "outline"}
                     size="sm"
                   >
                     <Code className="mr-2 h-4 w-4" />
                     Editor Only
                   </Button>
                   <Button
-                    onClick={() => setViewMode('preview')}
-                    variant={viewMode === 'preview' ? 'default' : 'outline'}
+                    onClick={() => setViewMode("preview")}
+                    variant={viewMode === "preview" ? "default" : "outline"}
                     size="sm"
                   >
                     <Eye className="mr-2 h-4 w-4" />
                     Preview Only
                   </Button>
                   <Button
-                    onClick={() => setViewMode('fullscreen')}
-                    variant={viewMode === 'fullscreen' ? 'default' : 'outline'}
+                    onClick={() => setViewMode("fullscreen")}
+                    variant={viewMode === "fullscreen" ? "default" : "outline"}
                     size="sm"
                   >
                     <Maximize2 className="mr-2 h-4 w-4" />
@@ -1152,9 +1170,9 @@ const MarkdownMermaidCore = () => {
               </CardContent>
             </Card>
 
-            <div className={`grid gap-4 ${viewMode === 'split' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
+            <div className={`grid gap-4 ${viewMode === "split" ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"}`}>
               {/* Code Editor */}
-              {(viewMode === 'split' || viewMode === 'editor') && (
+              {(viewMode === "split" || viewMode === "editor") && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
@@ -1164,7 +1182,10 @@ const MarkdownMermaidCore = () => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label htmlFor="diagram-code" className="text-sm font-medium">
+                      <Label
+                        htmlFor="diagram-code"
+                        className="text-sm font-medium"
+                      >
                         Mermaid Code (or Markdown with ```mermaid blocks)
                       </Label>
                       <Textarea
@@ -1172,7 +1193,7 @@ const MarkdownMermaidCore = () => {
                         value={diagramCode}
                         onChange={(e) => {
                           const input = e.target.value
-                          if (input.includes('```mermaid')) {
+                          if (input.includes("```mermaid")) {
                             handleMarkdownInput(input)
                           } else {
                             setDiagramCode(input)
@@ -1180,22 +1201,26 @@ const MarkdownMermaidCore = () => {
                         }}
                         placeholder="Enter your Mermaid diagram code here..."
                         className="mt-2 font-mono text-xs"
-                        rows={viewMode === 'editor' ? 20 : 12}
+                        rows={viewMode === "editor" ? 20 : 12}
                       />
                     </div>
 
                     <div className="flex gap-2">
-                      <Button onClick={handleRender} disabled={isProcessing || !diagramCode.trim()} className="flex-1">
+                      <Button
+                        onClick={handleRender}
+                        disabled={isProcessing || !diagramCode.trim()}
+                        className="flex-1"
+                      >
                         {isProcessing ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                         ) : (
                           <Play className="mr-2 h-4 w-4" />
                         )}
-                        {isProcessing ? 'Rendering...' : 'Render Diagram'}
+                        {isProcessing ? "Rendering..." : "Render Diagram"}
                       </Button>
                       <Button
                         onClick={() => {
-                          setDiagramCode('')
+                          setDiagramCode("")
                           setCurrentDiagram(null)
                         }}
                         variant="outline"
@@ -1227,7 +1252,7 @@ const MarkdownMermaidCore = () => {
               )}
 
               {/* Diagram Preview */}
-              {(viewMode === 'split' || viewMode === 'preview' || viewMode === 'fullscreen') && (
+              {(viewMode === "split" || viewMode === "preview" || viewMode === "fullscreen") && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
@@ -1272,24 +1297,36 @@ const MarkdownMermaidCore = () => {
 
                         {/* Export Options */}
                         <div className="flex gap-2 pt-4 border-t">
-                          <Button onClick={() => exportDiagram(currentDiagram, 'svg')} variant="outline" size="sm">
+                          <Button
+                            onClick={() => exportDiagram(currentDiagram, "svg")}
+                            variant="outline"
+                            size="sm"
+                          >
                             <Download className="mr-2 h-4 w-4" />
                             SVG
                           </Button>
-                          <Button onClick={() => exportDiagram(currentDiagram, 'html')} variant="outline" size="sm">
+                          <Button
+                            onClick={() => exportDiagram(currentDiagram, "html")}
+                            variant="outline"
+                            size="sm"
+                          >
                             <Download className="mr-2 h-4 w-4" />
                             HTML
                           </Button>
-                          <Button onClick={() => exportDiagram(currentDiagram, 'markdown')} variant="outline" size="sm">
+                          <Button
+                            onClick={() => exportDiagram(currentDiagram, "markdown")}
+                            variant="outline"
+                            size="sm"
+                          >
                             <Download className="mr-2 h-4 w-4" />
                             Markdown
                           </Button>
                           <Button
-                            onClick={() => copyToClipboard(currentDiagram.code, 'Diagram Code')}
+                            onClick={() => copyToClipboard(currentDiagram.code, "Diagram Code")}
                             variant="outline"
                             size="sm"
                           >
-                            {copiedText === 'Diagram Code' ? (
+                            {copiedText === "Diagram Code" ? (
                               <Check className="h-4 w-4" />
                             ) : (
                               <Copy className="h-4 w-4" />
@@ -1311,7 +1348,10 @@ const MarkdownMermaidCore = () => {
           </TabsContent>
 
           {/* History Tab */}
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent
+            value="history"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Diagram History</CardTitle>
@@ -1322,23 +1362,34 @@ const MarkdownMermaidCore = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        {diagrams.length} diagram{diagrams.length !== 1 ? 's' : ''} in history
+                        {diagrams.length} diagram{diagrams.length !== 1 ? "s" : ""} in history
                       </span>
-                      <Button onClick={clearDiagrams} variant="outline" size="sm">
+                      <Button
+                        onClick={clearDiagrams}
+                        variant="outline"
+                        size="sm"
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Clear History
                       </Button>
                     </div>
 
                     {diagrams.map((diagram) => (
-                      <div key={diagram.id} className="border rounded-lg p-4">
+                      <div
+                        key={diagram.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex justify-between items-start mb-2">
                           <div className="font-medium text-sm">
                             {diagram.name} - {diagram.timestamp.toLocaleString()}
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs px-2 py-1 bg-muted rounded">{diagram.type}</span>
-                            <Button size="sm" variant="ghost" onClick={() => removeDiagram(diagram.id)}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeDiagram(diagram.id)}
+                            >
                               <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
@@ -1370,18 +1421,22 @@ const MarkdownMermaidCore = () => {
                             onClick={() => {
                               setDiagramCode(diagram.code)
                               setCurrentDiagram(diagram)
-                              setActiveTab('editor')
+                              setActiveTab("editor")
                             }}
                           >
                             <Eye className="h-3 w-3" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => exportDiagram(diagram, 'svg')}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => exportDiagram(diagram, "svg")}
+                          >
                             <Download className="h-3 w-3" />
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => copyToClipboard(diagram.code, 'Diagram Code')}
+                            onClick={() => copyToClipboard(diagram.code, "Diagram Code")}
                           >
                             <Copy className="h-3 w-3" />
                           </Button>
@@ -1401,7 +1456,10 @@ const MarkdownMermaidCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Diagram Templates</CardTitle>
@@ -1413,7 +1471,7 @@ const MarkdownMermaidCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1424,11 +1482,11 @@ const MarkdownMermaidCore = () => {
                             <span className="text-xs px-2 py-1 bg-muted rounded">{template.category}</span>
                             <span
                               className={`text-xs px-2 py-1 rounded ${
-                                template.complexity === 'simple'
-                                  ? 'bg-green-100 text-green-800'
-                                  : template.complexity === 'medium'
-                                    ? 'bg-yellow-100 text-yellow-800'
-                                    : 'bg-red-100 text-red-800'
+                                template.complexity === "simple"
+                                  ? "bg-green-100 text-green-800"
+                                  : template.complexity === "medium"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
                               }`}
                             >
                               {template.complexity}
@@ -1438,12 +1496,12 @@ const MarkdownMermaidCore = () => {
                         <div className="text-xs text-muted-foreground">{template.description}</div>
                         <div>
                           <div className="text-xs font-medium mb-1">Use Cases:</div>
-                          <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                          <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                         </div>
                         <div>
                           <div className="text-xs font-medium mb-1">Type:</div>
                           <div className="text-xs text-muted-foreground capitalize">
-                            {template.type.replace(/([A-Z])/g, ' $1').trim()}
+                            {template.type.replace(/([A-Z])/g, " $1").trim()}
                           </div>
                         </div>
                       </div>
@@ -1455,7 +1513,10 @@ const MarkdownMermaidCore = () => {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-4">
+          <TabsContent
+            value="settings"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Diagram Settings</CardTitle>
@@ -1467,7 +1528,10 @@ const MarkdownMermaidCore = () => {
                   <h4 className="font-medium">Theme & Appearance</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="theme" className="text-sm">
+                      <Label
+                        htmlFor="theme"
+                        className="text-sm"
+                      >
                         Theme
                       </Label>
                       <Select
@@ -1487,7 +1551,10 @@ const MarkdownMermaidCore = () => {
                       </Select>
                     </div>
                     <div>
-                      <Label htmlFor="font-family" className="text-sm">
+                      <Label
+                        htmlFor="font-family"
+                        className="text-sm"
+                      >
                         Font Family
                       </Label>
                       <Input
@@ -1500,7 +1567,10 @@ const MarkdownMermaidCore = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="font-size" className="text-sm">
+                      <Label
+                        htmlFor="font-size"
+                        className="text-sm"
+                      >
                         Font Size
                       </Label>
                       <Input
@@ -1514,7 +1584,10 @@ const MarkdownMermaidCore = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="primary-color" className="text-sm">
+                      <Label
+                        htmlFor="primary-color"
+                        className="text-sm"
+                      >
                         Primary Color
                       </Label>
                       <Input
@@ -1533,7 +1606,10 @@ const MarkdownMermaidCore = () => {
                   <h4 className="font-medium">Flowchart Settings</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="node-spacing" className="text-sm">
+                      <Label
+                        htmlFor="node-spacing"
+                        className="text-sm"
+                      >
                         Node Spacing
                       </Label>
                       <Input
@@ -1555,7 +1631,10 @@ const MarkdownMermaidCore = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="rank-spacing" className="text-sm">
+                      <Label
+                        htmlFor="rank-spacing"
+                        className="text-sm"
+                      >
                         Rank Spacing
                       </Label>
                       <Input
@@ -1579,7 +1658,10 @@ const MarkdownMermaidCore = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="curve-type" className="text-sm">
+                      <Label
+                        htmlFor="curve-type"
+                        className="text-sm"
+                      >
                         Curve Type
                       </Label>
                       <Select
@@ -1620,7 +1702,10 @@ const MarkdownMermaidCore = () => {
                         }
                         className="rounded border-input"
                       />
-                      <Label htmlFor="html-labels" className="text-sm">
+                      <Label
+                        htmlFor="html-labels"
+                        className="text-sm"
+                      >
                         HTML Labels
                       </Label>
                     </div>
@@ -1629,7 +1714,10 @@ const MarkdownMermaidCore = () => {
 
                 {/* Reset Settings */}
                 <div className="pt-4 border-t">
-                  <Button onClick={() => setConfig(createDefaultMermaidConfig())} variant="outline">
+                  <Button
+                    onClick={() => setConfig(createDefaultMermaidConfig())}
+                    variant="outline"
+                  >
                     <RotateCcw className="mr-2 h-4 w-4" />
                     Reset to Defaults
                   </Button>

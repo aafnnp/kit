@@ -1,12 +1,12 @@
-import { useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -21,9 +21,9 @@ import {
   Layers,
   QrCode,
   Image,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
-import QRCode from 'qrcode'
+} from "lucide-react"
+import { nanoid } from "nanoid"
+import QRCode from "qrcode"
 import type {
   QRCodeResult,
   QRMetadata,
@@ -42,7 +42,7 @@ import type {
   QRContentType,
   ErrorCorrectionLevel,
   ExportFormat,
-} from '@/types/qr-generator'
+} from "@/types/qr-generator"
 
 // Utility functions
 
@@ -50,7 +50,7 @@ import type {
 const generateQRCode = async (settings: QRSettings): Promise<QRCodeResult> => {
   try {
     // Create a canvas and draw QR using 'qrcode' to ensure standards compliance
-    const canvas = document.createElement('canvas')
+    const canvas = document.createElement("canvas")
     const marginModules = Math.max(0, Math.round(settings.margin / 8))
 
     await QRCode.toCanvas(canvas, settings.content, {
@@ -63,15 +63,15 @@ const generateQRCode = async (settings: QRSettings): Promise<QRCodeResult> => {
       },
     })
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) throw new Error('Canvas context not available')
+    const ctx = canvas.getContext("2d")
+    if (!ctx) throw new Error("Canvas context not available")
 
     // Add logo overlay if requested
     if (settings.logoUrl && settings.logoSize) {
       await addLogo(ctx, settings.logoUrl, canvas.width, settings.logoSize)
     }
 
-    const mime = settings.format === 'svg' ? 'image/png' : `image/${settings.format}`
+    const mime = settings.format === "svg" ? "image/png" : `image/${settings.format}`
     const dataUrl = canvas.toDataURL(mime, 0.92)
 
     // Generate SVG version using 'qrcode'
@@ -107,7 +107,7 @@ const generateQRCode = async (settings: QRSettings): Promise<QRCodeResult> => {
       size: settings.size,
       errorCorrection: settings.errorCorrection,
       isValid: false,
-      error: error instanceof Error ? error.message : 'QR generation failed',
+      error: error instanceof Error ? error.message : "QR generation failed",
       settings,
       createdAt: new Date(),
     }
@@ -127,7 +127,7 @@ const addLogo = async (
       ctx.drawImage(img, logoPosition, logoPosition, logoSize, logoSize)
       resolve()
     }
-    img.onerror = () => reject(new Error('Failed to load logo'))
+    img.onerror = () => reject(new Error("Failed to load logo"))
     img.src = logoUrl
   })
 }
@@ -135,7 +135,7 @@ const addLogo = async (
 const generateSVGQRCode = async (settings: QRSettings): Promise<string> => {
   const marginModules = Math.max(0, Math.round(settings.margin / 8))
   const svg = await QRCode.toString(settings.content, {
-    type: 'svg',
+    type: "svg",
     errorCorrectionLevel: settings.errorCorrection,
     width: settings.size,
     margin: marginModules,
@@ -162,10 +162,10 @@ const calculateQRMetadata = (settings: QRSettings): QRMetadata => {
 
   // Calculate capacities for different data types
   const capacity: QRCapacity = {
-    numeric: getCapacity(version, 'numeric', settings.errorCorrection),
-    alphanumeric: getCapacity(version, 'alphanumeric', settings.errorCorrection),
-    binary: getCapacity(version, 'binary', settings.errorCorrection),
-    kanji: getCapacity(version, 'kanji', settings.errorCorrection),
+    numeric: getCapacity(version, "numeric", settings.errorCorrection),
+    alphanumeric: getCapacity(version, "alphanumeric", settings.errorCorrection),
+    binary: getCapacity(version, "binary", settings.errorCorrection),
+    kanji: getCapacity(version, "kanji", settings.errorCorrection),
   }
 
   const errorCorrectionPercentages = { L: 7, M: 15, Q: 25, H: 30 }
@@ -177,7 +177,7 @@ const calculateQRMetadata = (settings: QRSettings): QRMetadata => {
     actualSize: settings.size,
     errorCorrectionPercentage: errorCorrectionPercentages[settings.errorCorrection],
     dataType: detectDataType(settings.content),
-    encoding: 'UTF-8',
+    encoding: "UTF-8",
     compressionRatio: contentLength / (modules * modules),
     qualityScore: calculateQualityScore(settings, version, contentLength),
   }
@@ -201,10 +201,10 @@ const getCapacity = (version: number, dataType: string, errorCorrection: ErrorCo
 }
 
 const detectDataType = (content: string): string => {
-  if (/^\d+$/.test(content)) return 'numeric'
-  if (/^[A-Z0-9 $%*+\-./:]+$/.test(content)) return 'alphanumeric'
-  if (/^[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/.test(content)) return 'kanji'
-  return 'binary'
+  if (/^\d+$/.test(content)) return "numeric"
+  if (/^[A-Z0-9 $%*+\-./:]+$/.test(content)) return "alphanumeric"
+  if (/^[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/.test(content)) return "kanji"
+  return "binary"
 }
 
 const calculateQualityScore = (settings: QRSettings, _version: number, contentLength: number): number => {
@@ -215,7 +215,7 @@ const calculateQualityScore = (settings: QRSettings, _version: number, contentLe
   if (density > 0.001) score -= 20
 
   // Reward appropriate error correction
-  if (settings.errorCorrection === 'M' || settings.errorCorrection === 'Q') score += 10
+  if (settings.errorCorrection === "M" || settings.errorCorrection === "Q") score += 10
 
   // Penalize very small or very large sizes
   if (settings.size < 100) score -= 15
@@ -232,7 +232,7 @@ const calculateQualityScore = (settings: QRSettings, _version: number, contentLe
 const calculateContrast = (color1: string, color2: string): number => {
   // Simplified contrast calculation
   const getLuminance = (color: string) => {
-    const hex = color.replace('#', '')
+    const hex = color.replace("#", "")
     const r = parseInt(hex.substring(0, 2), 16) / 255
     const g = parseInt(hex.substring(2, 4), 16) / 255
     const b = parseInt(hex.substring(4, 6), 16) / 255
@@ -263,19 +263,19 @@ const analyzeQRCode = (settings: QRSettings, metadata: QRMetadata): QRAnalysis =
 
   // Generate recommendations
   if (readability.contrastRatio < 4.5) {
-    recommendations.push('Increase contrast between foreground and background colors')
+    recommendations.push("Increase contrast between foreground and background colors")
   }
 
   if (settings.size < 200) {
-    recommendations.push('Consider increasing QR code size for better readability')
+    recommendations.push("Consider increasing QR code size for better readability")
   }
 
   if (metadata.version > 3) {
-    warnings.push('High data density may affect scanning reliability')
+    warnings.push("High data density may affect scanning reliability")
   }
 
   if (settings.logoSize && settings.logoSize > settings.size * 0.3) {
-    warnings.push('Logo size may interfere with QR code scanning')
+    warnings.push("Logo size may interfere with QR code scanning")
   }
 
   return {
@@ -298,7 +298,7 @@ const analyzeReadability = (settings: QRSettings, metadata: QRMetadata): QRReada
   if (moduleSize < 3) readabilityScore -= 20
   if (quietZone < moduleSize * 4) readabilityScore -= 15
 
-  const scanDistance = moduleSize > 5 ? 'Close (< 30cm)' : moduleSize > 3 ? 'Medium (30-60cm)' : 'Far (> 60cm)'
+  const scanDistance = moduleSize > 5 ? "Close (< 30cm)" : moduleSize > 3 ? "Medium (30-60cm)" : "Far (> 60cm)"
 
   return {
     contrastRatio,
@@ -306,7 +306,7 @@ const analyzeReadability = (settings: QRSettings, metadata: QRMetadata): QRReada
     quietZone,
     readabilityScore: Math.max(0, readabilityScore),
     scanDistance,
-    lightingConditions: contrastRatio > 7 ? ['Bright', 'Normal', 'Dim'] : ['Bright', 'Normal'],
+    lightingConditions: contrastRatio > 7 ? ["Bright", "Normal", "Dim"] : ["Bright", "Normal"],
   }
 }
 
@@ -331,22 +331,22 @@ const analyzeOptimization = (settings: QRSettings, metadata: QRMetadata): QROpti
 }
 
 const analyzeCompatibility = (settings: QRSettings): QRCompatibility => {
-  const readerCompatibility = ['Standard QR Readers', 'Mobile Apps']
-  const deviceCompatibility = ['Smartphones', 'Tablets']
-  const softwareCompatibility = ['iOS Camera', 'Android Camera', 'QR Scanner Apps']
-  const standardsCompliance = ['ISO/IEC 18004']
+  const readerCompatibility = ["Standard QR Readers", "Mobile Apps"]
+  const deviceCompatibility = ["Smartphones", "Tablets"]
+  const softwareCompatibility = ["iOS Camera", "Android Camera", "QR Scanner Apps"]
+  const standardsCompliance = ["ISO/IEC 18004"]
   const limitations: string[] = []
 
-  if (settings.customization.moduleStyle !== 'square') {
-    limitations.push('Custom module styles may not be supported by all readers')
+  if (settings.customization.moduleStyle !== "square") {
+    limitations.push("Custom module styles may not be supported by all readers")
   }
 
   if (settings.logoUrl) {
-    limitations.push('Logo may reduce scanning reliability')
+    limitations.push("Logo may reduce scanning reliability")
   }
 
   if (settings.customization.gradientEnabled) {
-    limitations.push('Gradient colors may affect readability')
+    limitations.push("Gradient colors may affect readability")
   }
 
   return {
@@ -359,35 +359,35 @@ const analyzeCompatibility = (settings: QRSettings): QRCompatibility => {
 }
 
 const analyzeSecurity = (settings: QRSettings): QRSecurity => {
-  let dataExposure: 'low' | 'medium' | 'high' = 'low'
-  let privacy_level: 'low' | 'medium' | 'high' = 'high'
+  let dataExposure: "low" | "medium" | "high" = "low"
+  let privacy_level: "low" | "medium" | "high" = "high"
   const vulnerabilities: string[] = []
   const recommendations: string[] = []
 
   // Analyze content for sensitive data
-  if (settings.content.includes('password') || settings.content.includes('token')) {
-    dataExposure = 'high'
-    privacy_level = 'low'
-    vulnerabilities.push('Contains potentially sensitive information')
-    recommendations.push('Avoid including passwords or tokens in QR codes')
+  if (settings.content.includes("password") || settings.content.includes("token")) {
+    dataExposure = "high"
+    privacy_level = "low"
+    vulnerabilities.push("Contains potentially sensitive information")
+    recommendations.push("Avoid including passwords or tokens in QR codes")
   }
 
-  if (settings.type === 'wifi') {
-    dataExposure = 'medium'
-    privacy_level = 'medium'
-    vulnerabilities.push('WiFi credentials are visible to anyone who scans')
+  if (settings.type === "wifi") {
+    dataExposure = "medium"
+    privacy_level = "medium"
+    vulnerabilities.push("WiFi credentials are visible to anyone who scans")
   }
 
-  if (settings.type === 'email' || settings.type === 'phone') {
-    dataExposure = 'medium'
-    vulnerabilities.push('Personal contact information is exposed')
+  if (settings.type === "email" || settings.type === "phone") {
+    dataExposure = "medium"
+    vulnerabilities.push("Personal contact information is exposed")
   }
 
-  const securityScore = dataExposure === 'low' ? 90 : dataExposure === 'medium' ? 60 : 30
+  const securityScore = dataExposure === "low" ? 90 : dataExposure === "medium" ? 60 : 30
 
   return {
     dataExposure,
-    tampering_resistance: 'medium',
+    tampering_resistance: "medium",
     privacy_level,
     security_score: securityScore,
     vulnerabilities,
@@ -398,171 +398,171 @@ const analyzeSecurity = (settings: QRSettings): QRSecurity => {
 // QR Templates
 const qrTemplates: QRTemplate[] = [
   {
-    id: 'basic-text',
-    name: 'Basic Text',
-    description: 'Simple text QR code with standard settings',
-    category: 'Text',
-    type: 'text',
+    id: "basic-text",
+    name: "Basic Text",
+    description: "Simple text QR code with standard settings",
+    category: "Text",
+    type: "text",
     settings: {
-      content: 'Hello, World!',
-      type: 'text',
-      format: 'png',
+      content: "Hello, World!",
+      type: "text",
+      format: "png",
       size: 300,
-      errorCorrection: 'M',
+      errorCorrection: "M",
       margin: 20,
-      foregroundColor: '#000000',
-      backgroundColor: '#ffffff',
+      foregroundColor: "#000000",
+      backgroundColor: "#ffffff",
       customization: {
-        cornerStyle: 'square',
-        moduleStyle: 'square',
+        cornerStyle: "square",
+        moduleStyle: "square",
         gradientEnabled: false,
         patternEnabled: false,
         borderEnabled: false,
       },
     },
-    useCase: ['Simple messages', 'Basic information', 'Text sharing', 'Notes'],
-    examples: ['Contact info', 'Instructions', 'Messages', 'Quotes'],
-    preview: 'Simple black and white QR code',
+    useCase: ["Simple messages", "Basic information", "Text sharing", "Notes"],
+    examples: ["Contact info", "Instructions", "Messages", "Quotes"],
+    preview: "Simple black and white QR code",
   },
   {
-    id: 'website-url',
-    name: 'Website URL',
-    description: 'QR code for website links with optimized settings',
-    category: 'Web',
-    type: 'url',
+    id: "website-url",
+    name: "Website URL",
+    description: "QR code for website links with optimized settings",
+    category: "Web",
+    type: "url",
     settings: {
-      content: 'https://example.com',
-      type: 'url',
-      format: 'png',
+      content: "https://example.com",
+      type: "url",
+      format: "png",
       size: 400,
-      errorCorrection: 'Q',
+      errorCorrection: "Q",
       margin: 30,
-      foregroundColor: '#1a73e8',
-      backgroundColor: '#ffffff',
+      foregroundColor: "#1a73e8",
+      backgroundColor: "#ffffff",
       customization: {
-        cornerStyle: 'rounded',
-        moduleStyle: 'rounded',
+        cornerStyle: "rounded",
+        moduleStyle: "rounded",
         gradientEnabled: false,
         patternEnabled: false,
         borderEnabled: true,
         borderWidth: 2,
-        borderColor: '#1a73e8',
+        borderColor: "#1a73e8",
       },
     },
-    useCase: ['Website promotion', 'Link sharing', 'Marketing', 'Business cards'],
-    examples: ['Company website', 'Portfolio', 'Landing page', 'Social media'],
-    preview: 'Blue rounded QR code with border',
+    useCase: ["Website promotion", "Link sharing", "Marketing", "Business cards"],
+    examples: ["Company website", "Portfolio", "Landing page", "Social media"],
+    preview: "Blue rounded QR code with border",
   },
   {
-    id: 'email-contact',
-    name: 'Email Contact',
-    description: 'QR code for email addresses with pre-filled subject',
-    category: 'Contact',
-    type: 'email',
+    id: "email-contact",
+    name: "Email Contact",
+    description: "QR code for email addresses with pre-filled subject",
+    category: "Contact",
+    type: "email",
     settings: {
-      content: 'mailto:contact@example.com?subject=Hello&body=Hi there!',
-      type: 'email',
-      format: 'png',
+      content: "mailto:contact@example.com?subject=Hello&body=Hi there!",
+      type: "email",
+      format: "png",
       size: 350,
-      errorCorrection: 'M',
+      errorCorrection: "M",
       margin: 25,
-      foregroundColor: '#34a853',
-      backgroundColor: '#ffffff',
+      foregroundColor: "#34a853",
+      backgroundColor: "#ffffff",
       customization: {
-        cornerStyle: 'square',
-        moduleStyle: 'circle',
+        cornerStyle: "square",
+        moduleStyle: "circle",
         gradientEnabled: false,
         patternEnabled: false,
         borderEnabled: false,
       },
     },
-    useCase: ['Contact forms', 'Business cards', 'Customer support', 'Feedback'],
-    examples: ['Support email', 'Sales contact', 'Feedback form', 'Newsletter signup'],
-    preview: 'Green QR code with circular modules',
+    useCase: ["Contact forms", "Business cards", "Customer support", "Feedback"],
+    examples: ["Support email", "Sales contact", "Feedback form", "Newsletter signup"],
+    preview: "Green QR code with circular modules",
   },
   {
-    id: 'phone-number',
-    name: 'Phone Number',
-    description: 'QR code for phone numbers with direct calling',
-    category: 'Contact',
-    type: 'phone',
+    id: "phone-number",
+    name: "Phone Number",
+    description: "QR code for phone numbers with direct calling",
+    category: "Contact",
+    type: "phone",
     settings: {
-      content: 'tel:+1234567890',
-      type: 'phone',
-      format: 'png',
+      content: "tel:+1234567890",
+      type: "phone",
+      format: "png",
       size: 300,
-      errorCorrection: 'L',
+      errorCorrection: "L",
       margin: 20,
-      foregroundColor: '#ea4335',
-      backgroundColor: '#ffffff',
+      foregroundColor: "#ea4335",
+      backgroundColor: "#ffffff",
       customization: {
-        cornerStyle: 'circle',
-        moduleStyle: 'square',
+        cornerStyle: "circle",
+        moduleStyle: "square",
         gradientEnabled: false,
         patternEnabled: false,
         borderEnabled: false,
       },
     },
-    useCase: ['Business cards', 'Contact sharing', 'Emergency contacts', 'Customer service'],
-    examples: ['Business phone', 'Support hotline', 'Personal contact', 'Emergency number'],
-    preview: 'Red QR code with circular corners',
+    useCase: ["Business cards", "Contact sharing", "Emergency contacts", "Customer service"],
+    examples: ["Business phone", "Support hotline", "Personal contact", "Emergency number"],
+    preview: "Red QR code with circular corners",
   },
   {
-    id: 'wifi-network',
-    name: 'WiFi Network',
-    description: 'QR code for WiFi network credentials',
-    category: 'Network',
-    type: 'wifi',
+    id: "wifi-network",
+    name: "WiFi Network",
+    description: "QR code for WiFi network credentials",
+    category: "Network",
+    type: "wifi",
     settings: {
-      content: 'WIFI:T:WPA;S:NetworkName;P:password123;H:false;;',
-      type: 'wifi',
-      format: 'png',
+      content: "WIFI:T:WPA;S:NetworkName;P:password123;H:false;;",
+      type: "wifi",
+      format: "png",
       size: 400,
-      errorCorrection: 'H',
+      errorCorrection: "H",
       margin: 30,
-      foregroundColor: '#9c27b0',
-      backgroundColor: '#ffffff',
+      foregroundColor: "#9c27b0",
+      backgroundColor: "#ffffff",
       customization: {
-        cornerStyle: 'rounded',
-        moduleStyle: 'diamond',
+        cornerStyle: "rounded",
+        moduleStyle: "diamond",
         gradientEnabled: false,
         patternEnabled: false,
         borderEnabled: true,
         borderWidth: 3,
-        borderColor: '#9c27b0',
+        borderColor: "#9c27b0",
       },
     },
-    useCase: ['Guest WiFi', 'Office networks', 'Public spaces', 'Events'],
-    examples: ['Guest network', 'Office WiFi', 'Cafe WiFi', 'Conference network'],
-    preview: 'Purple QR code with diamond modules and border',
+    useCase: ["Guest WiFi", "Office networks", "Public spaces", "Events"],
+    examples: ["Guest network", "Office WiFi", "Cafe WiFi", "Conference network"],
+    preview: "Purple QR code with diamond modules and border",
   },
   {
-    id: 'vcard-contact',
-    name: 'vCard Contact',
-    description: 'Complete contact information in vCard format',
-    category: 'Contact',
-    type: 'vcard',
+    id: "vcard-contact",
+    name: "vCard Contact",
+    description: "Complete contact information in vCard format",
+    category: "Contact",
+    type: "vcard",
     settings: {
-      content: 'BEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nORG:Company\nTEL:+1234567890\nEMAIL:john@example.com\nEND:VCARD',
-      type: 'vcard',
-      format: 'png',
+      content: "BEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nORG:Company\nTEL:+1234567890\nEMAIL:john@example.com\nEND:VCARD",
+      type: "vcard",
+      format: "png",
       size: 450,
-      errorCorrection: 'Q',
+      errorCorrection: "Q",
       margin: 35,
-      foregroundColor: '#ff9800',
-      backgroundColor: '#ffffff',
+      foregroundColor: "#ff9800",
+      backgroundColor: "#ffffff",
       customization: {
-        cornerStyle: 'square',
-        moduleStyle: 'rounded',
+        cornerStyle: "square",
+        moduleStyle: "rounded",
         gradientEnabled: true,
-        gradientColors: ['#ff9800', '#f57c00'],
+        gradientColors: ["#ff9800", "#f57c00"],
         patternEnabled: false,
         borderEnabled: false,
       },
     },
-    useCase: ['Business cards', 'Networking', 'Contact exchange', 'Professional profiles'],
-    examples: ['Business contact', 'Personal card', 'Professional profile', 'Network contact'],
-    preview: 'Orange gradient QR code with rounded modules',
+    useCase: ["Business cards", "Networking", "Contact exchange", "Professional profiles"],
+    examples: ["Business contact", "Personal card", "Professional profile", "Network contact"],
+    preview: "Orange gradient QR code with rounded modules",
   },
 ]
 
@@ -579,9 +579,9 @@ const validateQRSettings = (settings: QRSettings): QRValidation => {
   if (!settings.content || settings.content.trim().length === 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Content cannot be empty',
-      type: 'content',
-      severity: 'error',
+      message: "Content cannot be empty",
+      type: "content",
+      severity: "error",
     })
   }
 
@@ -589,56 +589,56 @@ const validateQRSettings = (settings: QRSettings): QRValidation => {
   if (settings.content.length > 2000) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Content exceeds maximum length of 2000 characters',
-      type: 'content',
-      severity: 'error',
+      message: "Content exceeds maximum length of 2000 characters",
+      type: "content",
+      severity: "error",
     })
   }
 
   if (settings.content.length > 1000) {
-    validation.warnings.push('Large content may result in dense QR code that is difficult to scan')
-    validation.suggestions.push('Consider shortening the content or using a URL shortener')
+    validation.warnings.push("Large content may result in dense QR code that is difficult to scan")
+    validation.suggestions.push("Consider shortening the content or using a URL shortener")
   }
 
   // Size validation
   if (settings.size < 50) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Size must be at least 50 pixels',
-      type: 'size',
-      severity: 'error',
+      message: "Size must be at least 50 pixels",
+      type: "size",
+      severity: "error",
     })
   }
 
   if (settings.size > 2000) {
-    validation.warnings.push('Very large QR codes may have performance issues')
-    validation.suggestions.push('Consider using a smaller size for better performance')
+    validation.warnings.push("Very large QR codes may have performance issues")
+    validation.suggestions.push("Consider using a smaller size for better performance")
   }
 
   // Color validation
   const contrast = calculateContrast(settings.foregroundColor, settings.backgroundColor)
   if (contrast < 3) {
     validation.errors.push({
-      message: 'Insufficient contrast between foreground and background colors',
-      type: 'settings',
-      severity: 'error',
+      message: "Insufficient contrast between foreground and background colors",
+      type: "settings",
+      severity: "error",
     })
     validation.isValid = false
   } else if (contrast < 4.5) {
-    validation.warnings.push('Low contrast may affect readability')
-    validation.suggestions.push('Increase contrast for better scanning reliability')
+    validation.warnings.push("Low contrast may affect readability")
+    validation.suggestions.push("Increase contrast for better scanning reliability")
   }
 
   // Logo size validation
   if (settings.logoSize && settings.logoSize > settings.size * 0.3) {
-    validation.warnings.push('Logo size is too large and may interfere with scanning')
-    validation.suggestions.push('Reduce logo size to less than 30% of QR code size')
+    validation.warnings.push("Logo size is too large and may interfere with scanning")
+    validation.suggestions.push("Reduce logo size to less than 30% of QR code size")
   }
 
   // Margin validation
   if (settings.margin < 10) {
-    validation.warnings.push('Small margin may affect scanning reliability')
-    validation.suggestions.push('Increase margin to at least 10 pixels')
+    validation.warnings.push("Small margin may affect scanning reliability")
+    validation.suggestions.push("Increase margin to at least 10 pixels")
   }
 
   // Estimate QR code size
@@ -647,7 +647,7 @@ const validateQRSettings = (settings: QRSettings): QRValidation => {
 
   // Recommend optimal settings
   validation.recommendedSettings = {
-    errorCorrection: settings.content.length > 500 ? 'Q' : 'M',
+    errorCorrection: settings.content.length > 500 ? "Q" : "M",
     size: Math.max(200, Math.min(500, settings.content.length * 2)),
     margin: Math.max(20, settings.size * 0.05),
   }
@@ -678,10 +678,10 @@ const useQRGenerator = () => {
     try {
       const batch: QRBatch = {
         id: nanoid(),
-        name: batchSettings.namingPattern || 'QR Batch',
+        name: batchSettings.namingPattern || "QR Batch",
         qrCodes: [],
         settings: batchSettings,
-        status: 'processing',
+        status: "processing",
         progress: 0,
         statistics: {
           totalGenerated: 0,
@@ -722,7 +722,7 @@ const useQRGenerator = () => {
             size: settings.size,
             errorCorrection: settings.errorCorrection,
             isValid: false,
-            error: error instanceof Error ? error.message : 'Generation failed',
+            error: error instanceof Error ? error.message : "Generation failed",
             settings,
             createdAt: new Date(),
           }
@@ -758,7 +758,7 @@ const useQRGenerator = () => {
       })
 
       batch.qrCodes = results
-      batch.status = 'completed'
+      batch.status = "completed"
       batch.progress = 100
       batch.statistics = statistics
       batch.completedAt = new Date()
@@ -795,12 +795,12 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -811,18 +811,18 @@ const useCopyToClipboard = () => {
         const res = await fetch(dataUrl)
         blob = await res.blob()
       } else if (svgString) {
-        blob = new Blob([svgString], { type: 'image/svg+xml' })
+        blob = new Blob([svgString], { type: "image/svg+xml" })
       } else {
-        throw new Error('No image data to copy')
+        throw new Error("No image data to copy")
       }
 
       const item = new (window as any).ClipboardItem({ [blob.type]: blob })
       await navigator.clipboard.write([item])
-      setCopiedText(label || 'image')
-      toast.success(`${label || 'Image'} copied to clipboard`)
+      setCopiedText(label || "image")
+      toast.success(`${label || "Image"} copied to clipboard`)
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy image to clipboard')
+      toast.error("Failed to copy image to clipboard")
     }
   }, [])
 
@@ -834,7 +834,7 @@ const useQRExport = () => {
   const downloadQR = useCallback((qrCode: QRCodeResult, filename?: string) => {
     if (!qrCode.dataUrl) return
 
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = qrCode.dataUrl
     link.download = filename || `qr-code-${qrCode.id}.${qrCode.format}`
     document.body.appendChild(link)
@@ -845,9 +845,9 @@ const useQRExport = () => {
   const downloadSVG = useCallback((qrCode: QRCodeResult, filename?: string) => {
     if (!qrCode.svgString) return
 
-    const blob = new Blob([qrCode.svgString], { type: 'image/svg+xml' })
+    const blob = new Blob([qrCode.svgString], { type: "image/svg+xml" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `qr-code-${qrCode.id}.svg`
     document.body.appendChild(link)
@@ -879,21 +879,21 @@ const useQRExport = () => {
  * Features: Advanced QR generation, customization, analysis, and batch processing
  */
 const QRGeneratorCore = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'batch' | 'gallery' | 'templates'>('generator')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<"generator" | "batch" | "gallery" | "templates">("generator")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [currentQR, setCurrentQR] = useState<QRCodeResult | null>(null)
   const [settings, setSettings] = useState<QRSettings>({
-    content: '',
-    type: 'text',
-    format: 'png',
+    content: "",
+    type: "text",
+    format: "png",
     size: 300,
-    errorCorrection: 'M',
+    errorCorrection: "M",
     margin: 20,
-    foregroundColor: '#000000',
-    backgroundColor: '#ffffff',
+    foregroundColor: "#000000",
+    backgroundColor: "#ffffff",
     customization: {
-      cornerStyle: 'square',
-      moduleStyle: 'square',
+      cornerStyle: "square",
+      moduleStyle: "square",
       gradientEnabled: false,
       patternEnabled: false,
       borderEnabled: false,
@@ -935,12 +935,12 @@ const QRGeneratorCore = () => {
       setCurrentQR(result)
 
       if (result.isValid) {
-        toast.success('QR code generated successfully')
+        toast.success("QR code generated successfully")
       } else {
-        toast.error(result.error || 'QR generation failed')
+        toast.error(result.error || "QR generation failed")
       }
     } catch (error) {
-      toast.error('Failed to generate QR code')
+      toast.error("Failed to generate QR code")
       console.error(error)
     }
   }, [settings, generateQR])
@@ -955,12 +955,15 @@ const QRGeneratorCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <QrCode className="h-5 w-5" aria-hidden="true" />
+              <QrCode className="h-5 w-5" />
               QR Code Generator & Management Tool
             </CardTitle>
             <CardDescription>
@@ -974,29 +977,44 @@ const QRGeneratorCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'generator' | 'batch' | 'gallery' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "generator" | "batch" | "gallery" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <QrCode className="h-4 w-4" />
               Generator
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Layers className="h-4 w-4" />
               Batch
             </TabsTrigger>
-            <TabsTrigger value="gallery" className="flex items-center gap-2">
+            <TabsTrigger
+              value="gallery"
+              className="flex items-center gap-2"
+            >
               <Image className="h-4 w-4" />
               Gallery
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* QR Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Generator Settings */}
               <Card>
@@ -1009,7 +1027,10 @@ const QRGeneratorCore = () => {
                 <CardContent className="space-y-4">
                   {/* Content Type */}
                   <div>
-                    <Label htmlFor="content-type" className="text-sm font-medium">
+                    <Label
+                      htmlFor="content-type"
+                      className="text-sm font-medium"
+                    >
                       Content Type
                     </Label>
                     <Select
@@ -1036,7 +1057,10 @@ const QRGeneratorCore = () => {
 
                   {/* Content Input */}
                   <div>
-                    <Label htmlFor="content" className="text-sm font-medium">
+                    <Label
+                      htmlFor="content"
+                      className="text-sm font-medium"
+                    >
                       Content
                     </Label>
                     <Textarea
@@ -1053,7 +1077,10 @@ const QRGeneratorCore = () => {
                   {/* Basic Settings */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="size" className="text-sm font-medium">
+                      <Label
+                        htmlFor="size"
+                        className="text-sm font-medium"
+                      >
                         Size (px)
                       </Label>
                       <Input
@@ -1067,7 +1094,10 @@ const QRGeneratorCore = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="error-correction" className="text-sm font-medium">
+                      <Label
+                        htmlFor="error-correction"
+                        className="text-sm font-medium"
+                      >
                         Error Correction
                       </Label>
                       <Select
@@ -1092,7 +1122,10 @@ const QRGeneratorCore = () => {
                   {/* Colors */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="foreground-color" className="text-sm font-medium">
+                      <Label
+                        htmlFor="foreground-color"
+                        className="text-sm font-medium"
+                      >
                         Foreground Color
                       </Label>
                       <div className="flex gap-2 mt-2">
@@ -1112,7 +1145,10 @@ const QRGeneratorCore = () => {
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="background-color" className="text-sm font-medium">
+                      <Label
+                        htmlFor="background-color"
+                        className="text-sm font-medium"
+                      >
                         Background Color
                       </Label>
                       <div className="flex gap-2 mt-2">
@@ -1139,12 +1175,15 @@ const QRGeneratorCore = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="corner-style" className="text-xs">
+                        <Label
+                          htmlFor="corner-style"
+                          className="text-xs"
+                        >
                           Corner Style
                         </Label>
                         <Select
                           value={settings.customization.cornerStyle}
-                          onValueChange={(value: 'square' | 'rounded' | 'circle') =>
+                          onValueChange={(value: "square" | "rounded" | "circle") =>
                             setSettings((prev) => ({
                               ...prev,
                               customization: { ...prev.customization, cornerStyle: value },
@@ -1162,12 +1201,15 @@ const QRGeneratorCore = () => {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="module-style" className="text-xs">
+                        <Label
+                          htmlFor="module-style"
+                          className="text-xs"
+                        >
                           Module Style
                         </Label>
                         <Select
                           value={settings.customization.moduleStyle}
-                          onValueChange={(value: 'square' | 'rounded' | 'circle' | 'diamond') =>
+                          onValueChange={(value: "square" | "rounded" | "circle" | "diamond") =>
                             setSettings((prev) => ({
                               ...prev,
                               customization: { ...prev.customization, moduleStyle: value },
@@ -1206,7 +1248,10 @@ const QRGeneratorCore = () => {
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="border-enabled" className="text-xs">
+                        <Label
+                          htmlFor="border-enabled"
+                          className="text-xs"
+                        >
                           Add border
                         </Label>
                       </div>
@@ -1222,13 +1267,16 @@ const QRGeneratorCore = () => {
                               customization: {
                                 ...prev.customization,
                                 gradientEnabled: e.target.checked,
-                                gradientColors: e.target.checked ? [settings.foregroundColor, '#666666'] : undefined,
+                                gradientColors: e.target.checked ? [settings.foregroundColor, "#666666"] : undefined,
                               },
                             }))
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="gradient-enabled" className="text-xs">
+                        <Label
+                          htmlFor="gradient-enabled"
+                          className="text-xs"
+                        >
                           Enable gradient
                         </Label>
                       </div>
@@ -1251,17 +1299,17 @@ const QRGeneratorCore = () => {
                     <Button
                       onClick={() =>
                         setSettings({
-                          content: '',
-                          type: 'text',
-                          format: 'png',
+                          content: "",
+                          type: "text",
+                          format: "png",
                           size: 300,
-                          errorCorrection: 'M',
+                          errorCorrection: "M",
                           margin: 20,
-                          foregroundColor: '#000000',
-                          backgroundColor: '#ffffff',
+                          foregroundColor: "#000000",
+                          backgroundColor: "#ffffff",
                           customization: {
-                            cornerStyle: 'square',
-                            moduleStyle: 'square',
+                            cornerStyle: "square",
+                            moduleStyle: "square",
                             gradientEnabled: false,
                             patternEnabled: false,
                             borderEnabled: false,
@@ -1297,10 +1345,10 @@ const QRGeneratorCore = () => {
                               alt="Generated QR Code"
                               className="max-w-full h-auto"
                               style={{
-                                width: '100%',
-                                maxWidth: '300px',
-                                maxHeight: '300px',
-                                imageRendering: 'pixelated',
+                                width: "100%",
+                                maxWidth: "300px",
+                                maxHeight: "300px",
+                                imageRendering: "pixelated",
                               }}
                             />
                           ) : (
@@ -1329,7 +1377,7 @@ const QRGeneratorCore = () => {
                             <strong>Error Correction:</strong> {currentQR.errorCorrection}
                           </div>
                           <div>
-                            <strong>Valid:</strong> {currentQR.isValid ? '✅ Yes' : '❌ No'}
+                            <strong>Valid:</strong> {currentQR.isValid ? "✅ Yes" : "❌ No"}
                           </div>
                           <div>
                             <strong>Created:</strong> {currentQR.createdAt.toLocaleTimeString()}
@@ -1360,10 +1408,10 @@ const QRGeneratorCore = () => {
                                 <div
                                   className={`h-1 rounded-full ${
                                     currentQR.analysis.readability.readabilityScore >= 80
-                                      ? 'bg-green-500'
+                                      ? "bg-green-500"
                                       : currentQR.analysis.readability.readabilityScore >= 60
-                                        ? 'bg-orange-500'
-                                        : 'bg-red-500'
+                                        ? "bg-orange-500"
+                                        : "bg-red-500"
                                   }`}
                                   style={{ width: `${currentQR.analysis.readability.readabilityScore}%` }}
                                 ></div>
@@ -1378,10 +1426,10 @@ const QRGeneratorCore = () => {
                                 <div
                                   className={`h-1 rounded-full ${
                                     currentQR.analysis.optimization.overallOptimization >= 80
-                                      ? 'bg-green-500'
+                                      ? "bg-green-500"
                                       : currentQR.analysis.optimization.overallOptimization >= 60
-                                        ? 'bg-orange-500'
-                                        : 'bg-red-500'
+                                        ? "bg-orange-500"
+                                        : "bg-red-500"
                                   }`}
                                   style={{ width: `${currentQR.analysis.optimization.overallOptimization}%` }}
                                 ></div>
@@ -1394,10 +1442,10 @@ const QRGeneratorCore = () => {
                                 <div
                                   className={`h-1 rounded-full ${
                                     currentQR.analysis.security.security_score >= 80
-                                      ? 'bg-green-500'
+                                      ? "bg-green-500"
                                       : currentQR.analysis.security.security_score >= 60
-                                        ? 'bg-orange-500'
-                                        : 'bg-red-500'
+                                        ? "bg-orange-500"
+                                        : "bg-red-500"
                                   }`}
                                   style={{ width: `${currentQR.analysis.security.security_score}%` }}
                                 ></div>
@@ -1410,10 +1458,10 @@ const QRGeneratorCore = () => {
                                 <div
                                   className={`h-1 rounded-full ${
                                     (currentQR.metadata?.qualityScore || 0) >= 80
-                                      ? 'bg-green-500'
+                                      ? "bg-green-500"
                                       : (currentQR.metadata?.qualityScore || 0) >= 60
-                                        ? 'bg-orange-500'
-                                        : 'bg-red-500'
+                                        ? "bg-orange-500"
+                                        : "bg-red-500"
                                   }`}
                                   style={{ width: `${currentQR.metadata?.qualityScore || 0}%` }}
                                 ></div>
@@ -1426,7 +1474,10 @@ const QRGeneratorCore = () => {
                               <h5 className="font-medium text-sm mb-2 text-blue-800">Recommendations</h5>
                               <ul className="text-sm space-y-1">
                                 {currentQR.analysis.recommendations.map((rec, index) => (
-                                  <li key={index} className="flex items-center gap-2 text-blue-700">
+                                  <li
+                                    key={index}
+                                    className="flex items-center gap-2 text-blue-700"
+                                  >
                                     <CheckCircle2 className="h-3 w-3" />
                                     {rec}
                                   </li>
@@ -1440,7 +1491,10 @@ const QRGeneratorCore = () => {
                               <h5 className="font-medium text-sm mb-2 text-orange-800">Warnings</h5>
                               <ul className="text-sm space-y-1">
                                 {currentQR.analysis.warnings.map((warning, index) => (
-                                  <li key={index} className="flex items-center gap-2 text-orange-700">
+                                  <li
+                                    key={index}
+                                    className="flex items-center gap-2 text-orange-700"
+                                  >
                                     <AlertCircle className="h-3 w-3" />
                                     {warning}
                                   </li>
@@ -1454,19 +1508,27 @@ const QRGeneratorCore = () => {
                       {/* Download Options */}
                       {currentQR.isValid && (
                         <div className="flex gap-2 pt-4 border-t">
-                          <Button onClick={() => downloadQR(currentQR)} variant="outline" className="flex-1">
+                          <Button
+                            onClick={() => downloadQR(currentQR)}
+                            variant="outline"
+                            className="flex-1"
+                          >
                             <Download className="mr-2 h-4 w-4" />
                             Download PNG
                           </Button>
-                          <Button onClick={() => downloadSVG(currentQR)} variant="outline" className="flex-1">
+                          <Button
+                            onClick={() => downloadSVG(currentQR)}
+                            variant="outline"
+                            className="flex-1"
+                          >
                             <Download className="mr-2 h-4 w-4" />
                             Download SVG
                           </Button>
                           <Button
-                            onClick={() => copyImageToClipboard(currentQR.dataUrl, currentQR.svgString, 'QR Image')}
+                            onClick={() => copyImageToClipboard(currentQR.dataUrl, currentQR.svgString, "QR Image")}
                             variant="outline"
                           >
-                            {copiedText === 'QR Image' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                            {copiedText === "QR Image" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                           </Button>
                         </div>
                       )}
@@ -1486,7 +1548,10 @@ const QRGeneratorCore = () => {
           </TabsContent>
 
           {/* Placeholder for other tabs */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Batch QR Generation</CardTitle>
@@ -1502,7 +1567,10 @@ const QRGeneratorCore = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="gallery" className="space-y-4">
+          <TabsContent
+            value="gallery"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">QR Code Gallery</CardTitle>
@@ -1512,10 +1580,17 @@ const QRGeneratorCore = () => {
                 {qrCodes.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {qrCodes.slice(0, 12).map((qr) => (
-                      <div key={qr.id} className="border rounded-lg p-4">
+                      <div
+                        key={qr.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex justify-center mb-3">
                           {qr.dataUrl ? (
-                            <img src={qr.dataUrl} alt="QR Code" className="w-24 h-24 object-contain" />
+                            <img
+                              src={qr.dataUrl}
+                              alt="QR Code"
+                              className="w-24 h-24 object-contain"
+                            />
                           ) : (
                             <div className="w-24 h-24 bg-gray-200 rounded flex items-center justify-center">
                               <QrCode className="h-8 w-8 text-gray-400" />
@@ -1534,10 +1609,19 @@ const QRGeneratorCore = () => {
                           </div>
                         </div>
                         <div className="flex gap-2 mt-3">
-                          <Button size="sm" variant="outline" onClick={() => downloadQR(qr)} className="flex-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => downloadQR(qr)}
+                            className="flex-1"
+                          >
                             <Download className="h-3 w-3" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => removeQR(qr.id)}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => removeQR(qr.id)}
+                          >
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
@@ -1555,7 +1639,10 @@ const QRGeneratorCore = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">QR Code Templates</CardTitle>
@@ -1567,7 +1654,7 @@ const QRGeneratorCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1580,11 +1667,11 @@ const QRGeneratorCore = () => {
                         <div className="space-y-2">
                           <div>
                             <div className="text-xs font-medium mb-1">Use Cases:</div>
-                            <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Examples:</div>
-                            <div className="text-xs text-muted-foreground">{template.examples.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.examples.join(", ")}</div>
                           </div>
                         </div>
                       </div>

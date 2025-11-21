@@ -1,11 +1,11 @@
-import React, { useCallback, useRef, useState, useMemo, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Upload,
   Download,
@@ -31,17 +31,17 @@ import {
   Palette,
   Save,
   Monitor,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   ImageFile,
   CompressionSettings,
   CompressionStats,
   CompressionTemplate,
   HistoryEntry,
-} from '@/types/image-compress'
-import { formatFileSize } from '@/lib/utils'
-import { useImageCompression, validateImageFile, calculateCompressionRatio } from './hooks'
+} from "@/types/image-compress"
+import { formatFileSize } from "@/lib/utils"
+import { useImageCompression, validateImageFile, calculateCompressionRatio } from "./hooks"
 // Enhanced Types
 
 // Utility functions
@@ -49,118 +49,118 @@ import { useImageCompression, validateImageFile, calculateCompressionRatio } fro
 // Enhanced Templates
 const COMPRESSION_TEMPLATES: CompressionTemplate[] = [
   {
-    id: 'web-optimized',
-    name: 'Web Optimized',
-    description: 'Balanced quality and file size for web use',
-    category: 'web',
-    useCase: 'Website images, blog posts, general web content',
-    estimatedSavings: '60-80%',
+    id: "web-optimized",
+    name: "Web Optimized",
+    description: "Balanced quality and file size for web use",
+    category: "web",
+    useCase: "Website images, blog posts, general web content",
+    estimatedSavings: "60-80%",
     settings: {
       quality: 85,
-      format: 'webp',
+      format: "webp",
       maxWidth: 1920,
       maxHeight: 1080,
       maintainAspectRatio: true,
       enableProgressive: true,
       removeMetadata: true,
-      resizeMethod: 'lanczos',
-      colorSpace: 'srgb',
+      resizeMethod: "lanczos",
+      colorSpace: "srgb",
       dithering: false,
     },
   },
   {
-    id: 'mobile-first',
-    name: 'Mobile First',
-    description: 'Optimized for mobile devices and slow connections',
-    category: 'mobile',
-    useCase: 'Mobile apps, responsive images, PWAs',
-    estimatedSavings: '70-85%',
+    id: "mobile-first",
+    name: "Mobile First",
+    description: "Optimized for mobile devices and slow connections",
+    category: "mobile",
+    useCase: "Mobile apps, responsive images, PWAs",
+    estimatedSavings: "70-85%",
     settings: {
       quality: 75,
-      format: 'webp',
+      format: "webp",
       maxWidth: 800,
       maxHeight: 600,
       maintainAspectRatio: true,
       enableProgressive: true,
       removeMetadata: true,
-      resizeMethod: 'lanczos',
-      colorSpace: 'srgb',
+      resizeMethod: "lanczos",
+      colorSpace: "srgb",
       dithering: true,
     },
   },
   {
-    id: 'social-media',
-    name: 'Social Media',
-    description: 'Perfect for social media platforms',
-    category: 'social',
-    useCase: 'Instagram, Facebook, Twitter posts',
-    estimatedSavings: '50-70%',
+    id: "social-media",
+    name: "Social Media",
+    description: "Perfect for social media platforms",
+    category: "social",
+    useCase: "Instagram, Facebook, Twitter posts",
+    estimatedSavings: "50-70%",
     settings: {
       quality: 90,
-      format: 'jpeg',
+      format: "jpeg",
       maxWidth: 1080,
       maxHeight: 1080,
       maintainAspectRatio: true,
       enableProgressive: false,
       removeMetadata: true,
-      resizeMethod: 'bicubic',
-      colorSpace: 'srgb',
+      resizeMethod: "bicubic",
+      colorSpace: "srgb",
       dithering: false,
     },
   },
   {
-    id: 'print-quality',
-    name: 'Print Quality',
-    description: 'High quality for print materials',
-    category: 'print',
-    useCase: 'Brochures, posters, high-quality prints',
-    estimatedSavings: '20-40%',
+    id: "print-quality",
+    name: "Print Quality",
+    description: "High quality for print materials",
+    category: "print",
+    useCase: "Brochures, posters, high-quality prints",
+    estimatedSavings: "20-40%",
     settings: {
       quality: 95,
-      format: 'jpeg',
+      format: "jpeg",
       maintainAspectRatio: true,
       enableProgressive: false,
       removeMetadata: false,
-      resizeMethod: 'lanczos',
-      colorSpace: 'p3',
+      resizeMethod: "lanczos",
+      colorSpace: "p3",
       dithering: false,
     },
   },
   {
-    id: 'maximum-compression',
-    name: 'Maximum Compression',
-    description: 'Smallest file size possible',
-    category: 'web',
-    useCase: 'Thumbnails, previews, bandwidth-limited scenarios',
-    estimatedSavings: '80-95%',
+    id: "maximum-compression",
+    name: "Maximum Compression",
+    description: "Smallest file size possible",
+    category: "web",
+    useCase: "Thumbnails, previews, bandwidth-limited scenarios",
+    estimatedSavings: "80-95%",
     settings: {
       quality: 60,
-      format: 'webp',
+      format: "webp",
       maxWidth: 640,
       maxHeight: 480,
       maintainAspectRatio: true,
       enableProgressive: true,
       removeMetadata: true,
-      resizeMethod: 'bilinear',
-      colorSpace: 'srgb',
+      resizeMethod: "bilinear",
+      colorSpace: "srgb",
       dithering: true,
     },
   },
   {
-    id: 'lossless',
-    name: 'Lossless Compression',
-    description: 'No quality loss, metadata preserved',
-    category: 'custom',
-    useCase: 'Archives, professional photography, exact reproduction',
-    estimatedSavings: '10-30%',
+    id: "lossless",
+    name: "Lossless Compression",
+    description: "No quality loss, metadata preserved",
+    category: "custom",
+    useCase: "Archives, professional photography, exact reproduction",
+    estimatedSavings: "10-30%",
     settings: {
       quality: 100,
-      format: 'png',
+      format: "png",
       maintainAspectRatio: true,
       enableProgressive: false,
       removeMetadata: false,
-      resizeMethod: 'lanczos',
-      colorSpace: 'p3',
+      resizeMethod: "lanczos",
+      colorSpace: "p3",
       dithering: false,
     },
   },
@@ -178,27 +178,27 @@ const ImageCompressCore = () => {
   const [isProcessing] = useState(false)
   const [settings, setSettings] = useState<CompressionSettings>({
     quality: 80,
-    format: 'jpeg',
+    format: "jpeg",
     maintainAspectRatio: true,
     enableProgressive: false,
     removeMetadata: true,
-    resizeMethod: 'lanczos',
-    colorSpace: 'srgb',
+    resizeMethod: "lanczos",
+    colorSpace: "srgb",
     dithering: false,
   })
   const [dragActive, setDragActive] = useState(false)
-  const [activeTab, setActiveTab] = useState('compress')
+  const [activeTab, setActiveTab] = useState("compress")
   const [history, setHistory] = useState<HistoryEntry[]>([])
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [showAdvanced, setShowAdvanced] = useState(false)
-  const [filterStatus] = useState<'all' | 'pending' | 'completed' | 'error'>('all')
-  const [sortBy] = useState<'name' | 'size' | 'ratio' | 'time'>('name')
+  const [filterStatus] = useState<"all" | "pending" | "completed" | "error">("all")
+  const [sortBy] = useState<"name" | "size" | "ratio" | "time">("name")
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { compressImages: compressImagesWorker } = useImageCompression(
     // onProgress callback
     (imageId: string) => {
-      setImages((prev) => prev.map((img) => (img.id === imageId ? { ...img, status: 'processing' as const } : img)))
+      setImages((prev) => prev.map((img) => (img.id === imageId ? { ...img, status: "processing" as const } : img)))
     },
     // onComplete callback
     (imageId: string, result: Blob, originalSize: number, compressedSize: number) => {
@@ -210,7 +210,7 @@ const ImageCompressCore = () => {
           img.id === imageId
             ? {
                 ...img,
-                status: 'completed' as const,
+                status: "completed" as const,
                 compressedUrl: url,
                 compressedSize,
                 compressionRatio,
@@ -227,7 +227,7 @@ const ImageCompressCore = () => {
           img.id === imageId
             ? {
                 ...img,
-                status: 'error' as const,
+                status: "error" as const,
                 error,
               }
             : img
@@ -241,23 +241,23 @@ const ImageCompressCore = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
-          case 'o':
+          case "o":
             e.preventDefault()
             fileInputRef.current?.click()
             break
-          case 'Enter':
+          case "Enter":
             e.preventDefault()
-            if (images.some((img) => img.status === 'pending') && !isProcessing) {
+            if (images.some((img) => img.status === "pending") && !isProcessing) {
               compressImages()
             }
             break
-          case 'd':
+          case "d":
             e.preventDefault()
-            if (images.some((img) => img.status === 'completed')) {
+            if (images.some((img) => img.status === "completed")) {
               downloadAll()
             }
             break
-          case 'Delete':
+          case "Delete":
             e.preventDefault()
             if (!isProcessing) {
               clearAll()
@@ -267,8 +267,8 @@ const ImageCompressCore = () => {
       }
     }
 
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
   }, [images, isProcessing])
 
   // Enhanced Utility Functions
@@ -289,7 +289,7 @@ const ImageCompressCore = () => {
   )
 
   const exportResults = useCallback(() => {
-    const completedImages = images.filter((img) => img.status === 'completed')
+    const completedImages = images.filter((img) => img.status === "completed")
     const exportData = {
       timestamp: new Date().toISOString(),
       settings,
@@ -304,35 +304,35 @@ const ImageCompressCore = () => {
       })),
     }
 
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = `image-compression-results-${new Date().toISOString().split('T')[0]}.json`
+    link.download = `image-compression-results-${new Date().toISOString().split("T")[0]}.json`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
-    toast.success('Results exported successfully')
+    toast.success("Results exported successfully")
   }, [images, settings])
 
   // Filtered and sorted images
   const filteredImages = useMemo(() => {
     let filtered = images
 
-    if (filterStatus !== 'all') {
+    if (filterStatus !== "all") {
       filtered = filtered.filter((img) => img.status === filterStatus)
     }
 
     return filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'name':
+        case "name":
           return a.file.name.localeCompare(b.file.name)
-        case 'size':
+        case "size":
           return b.originalSize - a.originalSize
-        case 'ratio':
+        case "ratio":
           return (b.compressionRatio || 0) - (a.compressionRatio || 0)
-        case 'time':
+        case "time":
           return b.timestamp - a.timestamp
         default:
           return 0
@@ -360,21 +360,19 @@ const ImageCompressCore = () => {
         file,
         originalUrl,
         originalSize: file.size,
-        status: 'pending',
+        status: "pending",
         timestamp: Date.now(),
       })
     }
 
     if (newImages.length > 0) {
       setImages((prev) => [...prev, ...newImages])
-      const message = `Added ${newImages.length} image${newImages.length > 1 ? 's' : ''} for compression`
+      const message = `Added ${newImages.length} image${newImages.length > 1 ? "s" : ""} for compression`
       toast.success(message)
 
       // Announce to screen readers
-      const announcement = document.createElement('div')
-      announcement.setAttribute('aria-live', 'polite')
-      announcement.setAttribute('aria-atomic', 'true')
-      announcement.className = 'sr-only'
+      const announcement = document.createElement("div")
+      announcement.className = "sr-only"
       announcement.textContent = message
       document.body.appendChild(announcement)
       setTimeout(() => document.body.removeChild(announcement), 1000)
@@ -395,9 +393,9 @@ const ImageCompressCore = () => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -418,9 +416,9 @@ const ImageCompressCore = () => {
 
   // Enhanced Compression logic
   const compressImages = useCallback(async () => {
-    const pendingImages = images.filter((img) => img.status === 'pending')
+    const pendingImages = images.filter((img) => img.status === "pending")
     if (pendingImages.length === 0) {
-      toast.error('No images to compress')
+      toast.error("No images to compress")
       return
     }
 
@@ -431,7 +429,7 @@ const ImageCompressCore = () => {
       const workerImages = pendingImages.map((img) => ({
         id: img.id,
         file: img.file,
-        status: 'pending' as const,
+        status: "pending" as const,
         progress: 0,
         originalSize: img.originalSize,
       }))
@@ -439,8 +437,8 @@ const ImageCompressCore = () => {
       await compressImagesWorker(workerImages, settings)
 
       const totalTime = (Date.now() - startTime) / 1000
-      const completedCount = images.filter((img) => img.status === 'completed').length
-      const message = `Compression completed! ${completedCount} image${completedCount > 1 ? 's' : ''} processed in ${totalTime.toFixed(1)}s.`
+      const completedCount = images.filter((img) => img.status === "completed").length
+      const message = `Compression completed! ${completedCount} image${completedCount > 1 ? "s" : ""} processed in ${totalTime.toFixed(1)}s.`
       toast.success(message)
 
       // Save to history
@@ -461,16 +459,14 @@ const ImageCompressCore = () => {
       }, 100)
 
       // Announce completion to screen readers
-      const announcement = document.createElement('div')
-      announcement.setAttribute('aria-live', 'assertive')
-      announcement.setAttribute('aria-atomic', 'true')
-      announcement.className = 'sr-only'
+      const announcement = document.createElement("div")
+      announcement.className = "sr-only"
       announcement.textContent = message
       document.body.appendChild(announcement)
       setTimeout(() => document.body.removeChild(announcement), 2000)
     } catch (error) {
-      console.error('Batch compression failed:', error)
-      toast.error('Compression failed. Please try again.')
+      console.error("Batch compression failed:", error)
+      toast.error("Compression failed. Please try again.")
     }
   }, [images, settings, compressImagesWorker])
 
@@ -482,7 +478,7 @@ const ImageCompressCore = () => {
       }
     })
     setImages([])
-    toast.success('All images cleared')
+    toast.success("All images cleared")
   }, [images])
 
   // Cleanup on unmount
@@ -501,9 +497,9 @@ const ImageCompressCore = () => {
     (image: ImageFile) => {
       if (!image.compressedUrl) return
 
-      const link = document.createElement('a')
+      const link = document.createElement("a")
       link.href = image.compressedUrl
-      link.download = `compressed_${image.file.name.replace(/\.[^/.]+$/, '')}.${settings.format}`
+      link.download = `compressed_${image.file.name.replace(/\.[^/.]+$/, "")}.${settings.format}`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -512,13 +508,13 @@ const ImageCompressCore = () => {
   )
 
   const downloadAll = useCallback(() => {
-    const completedImages = images.filter((img) => img.status === 'completed' && img.compressedUrl)
+    const completedImages = images.filter((img) => img.status === "completed" && img.compressedUrl)
     completedImages.forEach((image) => downloadImage(image))
   }, [images, downloadImage])
 
   // Enhanced Statistics calculation
   const stats: CompressionStats = useMemo(() => {
-    const completedImages = images.filter((img) => img.status === 'completed')
+    const completedImages = images.filter((img) => img.status === "completed")
     const totalOriginalSize = images.reduce((sum, img) => sum + img.originalSize, 0)
     const totalCompressedSize = images.reduce((sum, img) => sum + (img.compressedSize || 0), 0)
     const totalSavings = totalOriginalSize - totalCompressedSize
@@ -564,12 +560,15 @@ const ImageCompressCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-6">
+      <div
+        id="main-content"
+        className="flex flex-col gap-6"
+      >
         {/* Enhanced Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ImageIcon className="h-6 w-6" aria-hidden="true" />
+              <ImageIcon className="h-6 w-6" />
               Image Compression & Optimization Tool
             </CardTitle>
             <CardDescription>
@@ -580,32 +579,54 @@ const ImageCompressCore = () => {
         </Card>
 
         {/* Enhanced Tabbed Interface */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="compress" className="flex items-center gap-2">
+            <TabsTrigger
+              value="compress"
+              className="flex items-center gap-2"
+            >
               <Zap className="h-4 w-4" />
               Compress
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <Layers className="h-4 w-4" />
               Templates
             </TabsTrigger>
-            <TabsTrigger value="analysis" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analysis"
+              className="flex items-center gap-2"
+            >
               <BarChart3 className="h-4 w-4" />
               Analysis
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
-            <TabsTrigger value="help" className="flex items-center gap-2">
+            <TabsTrigger
+              value="help"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Help
             </TabsTrigger>
           </TabsList>
 
           {/* Compress Tab */}
-          <TabsContent value="compress" className="space-y-6">
+          <TabsContent
+            value="compress"
+            className="space-y-6"
+          >
             {/* Settings Panel */}
             <Card>
               <CardHeader>
@@ -614,9 +635,13 @@ const ImageCompressCore = () => {
                     <Settings className="h-5 w-5" />
                     Compression Settings
                   </span>
-                  <Button variant="outline" size="sm" onClick={() => setShowAdvanced(!showAdvanced)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                  >
                     {showAdvanced ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    {showAdvanced ? 'Hide' : 'Show'} Advanced
+                    {showAdvanced ? "Hide" : "Show"} Advanced
                   </Button>
                 </CardTitle>
               </CardHeader>
@@ -635,7 +660,6 @@ const ImageCompressCore = () => {
                       value={settings.quality}
                       onChange={(e) => setSettings((prev) => ({ ...prev, quality: Number(e.target.value) }))}
                       className="w-full"
-                      aria-label={`Compression quality: ${settings.quality} percent`}
                     />
                     <div className="text-xs text-muted-foreground">Higher quality = larger file size</div>
                   </div>
@@ -645,11 +669,11 @@ const ImageCompressCore = () => {
                     <Label htmlFor="format">Output Format</Label>
                     <Select
                       value={settings.format}
-                      onValueChange={(value: 'jpeg' | 'png' | 'webp') =>
+                      onValueChange={(value: "jpeg" | "png" | "webp") =>
                         setSettings((prev) => ({ ...prev, format: value }))
                       }
                     >
-                      <SelectTrigger id="format" aria-label="Select output format">
+                      <SelectTrigger id="format">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -667,7 +691,7 @@ const ImageCompressCore = () => {
                       <Input
                         type="number"
                         placeholder="Width"
-                        value={settings.maxWidth || ''}
+                        value={settings.maxWidth || ""}
                         onChange={(e) =>
                           setSettings((prev) => ({
                             ...prev,
@@ -675,12 +699,11 @@ const ImageCompressCore = () => {
                           }))
                         }
                         className="w-full"
-                        aria-label="Maximum width in pixels"
                       />
                       <Input
                         type="number"
                         placeholder="Height"
-                        value={settings.maxHeight || ''}
+                        value={settings.maxHeight || ""}
                         onChange={(e) =>
                           setSettings((prev) => ({
                             ...prev,
@@ -688,7 +711,6 @@ const ImageCompressCore = () => {
                           }))
                         }
                         className="w-full"
-                        aria-label="Maximum height in pixels"
                       />
                     </div>
                   </div>
@@ -711,7 +733,10 @@ const ImageCompressCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, removeMetadata: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="removeMetadata" className="text-sm">
+                          <Label
+                            htmlFor="removeMetadata"
+                            className="text-sm"
+                          >
                             Remove metadata (EXIF, etc.)
                           </Label>
                         </div>
@@ -726,7 +751,10 @@ const ImageCompressCore = () => {
                             }
                             className="rounded border-input"
                           />
-                          <Label htmlFor="maintainAspectRatio" className="text-sm">
+                          <Label
+                            htmlFor="maintainAspectRatio"
+                            className="text-sm"
+                          >
                             Maintain aspect ratio
                           </Label>
                         </div>
@@ -739,7 +767,10 @@ const ImageCompressCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, enableProgressive: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="enableProgressive" className="text-sm">
+                          <Label
+                            htmlFor="enableProgressive"
+                            className="text-sm"
+                          >
                             Progressive encoding
                           </Label>
                         </div>
@@ -750,7 +781,7 @@ const ImageCompressCore = () => {
                           <Label htmlFor="resizeMethod">Resize Method</Label>
                           <Select
                             value={settings.resizeMethod}
-                            onValueChange={(value: 'lanczos' | 'bilinear' | 'bicubic') =>
+                            onValueChange={(value: "lanczos" | "bilinear" | "bicubic") =>
                               setSettings((prev) => ({ ...prev, resizeMethod: value }))
                             }
                           >
@@ -769,7 +800,7 @@ const ImageCompressCore = () => {
                           <Label htmlFor="colorSpace">Color Space</Label>
                           <Select
                             value={settings.colorSpace}
-                            onValueChange={(value: 'srgb' | 'p3' | 'rec2020') =>
+                            onValueChange={(value: "srgb" | "p3" | "rec2020") =>
                               setSettings((prev) => ({ ...prev, colorSpace: value }))
                             }
                           >
@@ -796,8 +827,8 @@ const ImageCompressCore = () => {
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -805,9 +836,8 @@ const ImageCompressCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop images here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -816,7 +846,11 @@ const ImageCompressCore = () => {
                   <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Upload Images</h3>
                   <p className="text-muted-foreground mb-4">Drag and drop your images here, or click to select files</p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -830,7 +864,6 @@ const ImageCompressCore = () => {
                     accept="image/*"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select image files"
                   />
                 </div>
               </CardContent>
@@ -886,7 +919,7 @@ const ImageCompressCore = () => {
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Button
                       onClick={compressImages}
-                      disabled={isProcessing || images.every((img) => img.status !== 'pending')}
+                      disabled={isProcessing || images.every((img) => img.status !== "pending")}
                       className="min-w-32"
                     >
                       {isProcessing ? (
@@ -895,20 +928,24 @@ const ImageCompressCore = () => {
                           Processing...
                         </>
                       ) : (
-                        'Compress Images'
+                        "Compress Images"
                       )}
                     </Button>
 
                     <Button
                       onClick={downloadAll}
                       variant="outline"
-                      disabled={!images.some((img) => img.status === 'completed')}
+                      disabled={!images.some((img) => img.status === "completed")}
                     >
                       <Download className="mr-2 h-4 w-4" />
                       Download All
                     </Button>
 
-                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                    <Button
+                      onClick={clearAll}
+                      variant="destructive"
+                      disabled={isProcessing}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
@@ -916,7 +953,7 @@ const ImageCompressCore = () => {
                     <Button
                       onClick={exportResults}
                       variant="outline"
-                      disabled={!images.some((img) => img.status === 'completed')}
+                      disabled={!images.some((img) => img.status === "completed")}
                     >
                       <Save className="mr-2 h-4 w-4" />
                       Export Results
@@ -928,7 +965,10 @@ const ImageCompressCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-6">
+          <TabsContent
+            value="templates"
+            className="space-y-6"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -945,7 +985,7 @@ const ImageCompressCore = () => {
                     <Card
                       key={template.id}
                       className={`cursor-pointer transition-all hover:shadow-md ${
-                        selectedTemplate === template.id ? 'ring-2 ring-primary' : ''
+                        selectedTemplate === template.id ? "ring-2 ring-primary" : ""
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -989,7 +1029,10 @@ const ImageCompressCore = () => {
           </TabsContent>
 
           {/* Analysis Tab */}
-          <TabsContent value="analysis" className="space-y-6">
+          <TabsContent
+            value="analysis"
+            className="space-y-6"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1025,7 +1068,7 @@ const ImageCompressCore = () => {
                         <CardContent className="pt-6">
                           <div className="text-center">
                             <div className="text-3xl font-bold text-green-600">
-                              {stats.processingTime > 0 ? `${stats.processingTime.toFixed(1)}s` : 'N/A'}
+                              {stats.processingTime > 0 ? `${stats.processingTime.toFixed(1)}s` : "N/A"}
                             </div>
                             <div className="text-sm text-muted-foreground">Avg. Processing Time</div>
                           </div>
@@ -1051,11 +1094,17 @@ const ImageCompressCore = () => {
                       <CardContent>
                         <div className="space-y-3">
                           {filteredImages
-                            .filter((img) => img.status === 'completed')
+                            .filter((img) => img.status === "completed")
                             .map((image) => (
-                              <div key={image.id} className="flex items-center gap-4">
+                              <div
+                                key={image.id}
+                                className="flex items-center gap-4"
+                              >
                                 <div className="flex-1 min-w-0">
-                                  <div className="font-medium truncate" title={image.file.name}>
+                                  <div
+                                    className="font-medium truncate"
+                                    title={image.file.name}
+                                  >
                                     {image.file.name}
                                   </div>
                                   <div className="text-sm text-muted-foreground">
@@ -1129,7 +1178,7 @@ const ImageCompressCore = () => {
                             </div>
                           )}
 
-                          {settings.format === 'png' && images.some((img) => !img.file.type.includes('png')) && (
+                          {settings.format === "png" && images.some((img) => !img.file.type.includes("png")) && (
                             <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
                               <Palette className="h-5 w-5 text-purple-600 mt-0.5" />
                               <div>
@@ -1153,7 +1202,10 @@ const ImageCompressCore = () => {
           </TabsContent>
 
           {/* History Tab */}
-          <TabsContent value="history" className="space-y-6">
+          <TabsContent
+            value="history"
+            className="space-y-6"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1174,7 +1226,10 @@ const ImageCompressCore = () => {
                 ) : (
                   <div className="space-y-4">
                     {history.map((entry) => (
-                      <Card key={entry.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                      <Card
+                        key={entry.id}
+                        className="cursor-pointer hover:shadow-md transition-shadow"
+                      >
                         <CardContent className="pt-6">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -1208,7 +1263,7 @@ const ImageCompressCore = () => {
                               size="sm"
                               onClick={() => {
                                 setSettings(entry.settings)
-                                toast.success('Settings restored from history')
+                                toast.success("Settings restored from history")
                               }}
                             >
                               <RotateCcw className="h-4 w-4 mr-1" />
@@ -1225,7 +1280,10 @@ const ImageCompressCore = () => {
           </TabsContent>
 
           {/* Help Tab */}
-          <TabsContent value="help" className="space-y-6">
+          <TabsContent
+            value="help"
+            className="space-y-6"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

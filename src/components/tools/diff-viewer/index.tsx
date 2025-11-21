@@ -1,12 +1,12 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -25,8 +25,8 @@ import {
   Eye,
   ArrowLeftRight,
   Columns,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   DiffFile,
   DiffPair,
@@ -38,8 +38,8 @@ import type {
   DiffAlgorithm,
   DiffFormat,
   DiffViewMode,
-} from '@/types/diff-viewer'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/diff-viewer"
+import { formatFileSize } from "@/lib/utils"
 // Types
 
 // Utility functions
@@ -47,36 +47,36 @@ import { formatFileSize } from '@/lib/utils'
 const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
   const allowedTypes = [
-    '.txt',
-    '.text',
-    '.log',
-    '.csv',
-    '.json',
-    '.md',
-    '.markdown',
-    '.js',
-    '.ts',
-    '.jsx',
-    '.tsx',
-    '.py',
-    '.java',
-    '.cpp',
-    '.c',
-    '.h',
-    '.css',
-    '.html',
-    '.xml',
-    '.yaml',
-    '.yml',
+    ".txt",
+    ".text",
+    ".log",
+    ".csv",
+    ".json",
+    ".md",
+    ".markdown",
+    ".js",
+    ".ts",
+    ".jsx",
+    ".tsx",
+    ".py",
+    ".java",
+    ".cpp",
+    ".c",
+    ".h",
+    ".css",
+    ".html",
+    ".xml",
+    ".yaml",
+    ".yml",
   ]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 50MB' }
+    return { isValid: false, error: "File size must be less than 50MB" }
   }
 
-  const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+  const extension = "." + file.name.split(".").pop()?.toLowerCase()
   if (!allowedTypes.includes(extension)) {
-    return { isValid: false, error: 'Only text files are supported' }
+    return { isValid: false, error: "Only text files are supported" }
   }
 
   return { isValid: true }
@@ -146,7 +146,7 @@ const buildDiffFromTrace = (linesA: string[], linesB: string[], trace: number[][
 
     while (x > prevX && y > prevY) {
       result.unshift({
-        type: 'unchanged',
+        type: "unchanged",
         leftLineNumber: x,
         rightLineNumber: y,
         leftContent: linesA[x - 1],
@@ -160,7 +160,7 @@ const buildDiffFromTrace = (linesA: string[], linesB: string[], trace: number[][
     if (depth > 0) {
       if (x > prevX) {
         result.unshift({
-          type: 'removed',
+          type: "removed",
           leftLineNumber: x,
           leftContent: linesA[x - 1],
           content: linesA[x - 1],
@@ -168,7 +168,7 @@ const buildDiffFromTrace = (linesA: string[], linesB: string[], trace: number[][
         x--
       } else if (y > prevY) {
         result.unshift({
-          type: 'added',
+          type: "added",
           rightLineNumber: y,
           rightContent: linesB[y - 1],
           content: linesB[y - 1],
@@ -194,8 +194,8 @@ const getWordDiff = (leftText: string, rightText: string): WordDiff[] => {
     if (leftIndex >= leftWords.length) {
       // Remaining words are added
       result.push({
-        type: 'added',
-        content: rightWords.slice(rightIndex).join(''),
+        type: "added",
+        content: rightWords.slice(rightIndex).join(""),
       })
       break
     }
@@ -203,8 +203,8 @@ const getWordDiff = (leftText: string, rightText: string): WordDiff[] => {
     if (rightIndex >= rightWords.length) {
       // Remaining words are removed
       result.push({
-        type: 'removed',
-        content: leftWords.slice(leftIndex).join(''),
+        type: "removed",
+        content: leftWords.slice(leftIndex).join(""),
       })
       break
     }
@@ -212,7 +212,7 @@ const getWordDiff = (leftText: string, rightText: string): WordDiff[] => {
     if (leftWords[leftIndex] === rightWords[rightIndex]) {
       // Words match
       result.push({
-        type: 'unchanged',
+        type: "unchanged",
         content: leftWords[leftIndex],
       })
       leftIndex++
@@ -226,12 +226,12 @@ const getWordDiff = (leftText: string, rightText: string): WordDiff[] => {
           // Found match in right, words before it are added
           for (let j = rightIndex; j < i; j++) {
             result.push({
-              type: 'added',
+              type: "added",
               content: rightWords[j],
             })
           }
           result.push({
-            type: 'unchanged',
+            type: "unchanged",
             content: leftWords[leftIndex],
           })
           leftIndex++
@@ -247,12 +247,12 @@ const getWordDiff = (leftText: string, rightText: string): WordDiff[] => {
             // Found match in left, words before it are removed
             for (let j = leftIndex; j < i; j++) {
               result.push({
-                type: 'removed',
+                type: "removed",
                 content: leftWords[j],
               })
             }
             result.push({
-              type: 'unchanged',
+              type: "unchanged",
               content: rightWords[rightIndex],
             })
             leftIndex = i + 1
@@ -266,11 +266,11 @@ const getWordDiff = (leftText: string, rightText: string): WordDiff[] => {
       if (!foundMatch) {
         // No match found, treat as replacement
         result.push({
-          type: 'removed',
+          type: "removed",
           content: leftWords[leftIndex],
         })
         result.push({
-          type: 'added',
+          type: "added",
           content: rightWords[rightIndex],
         })
         leftIndex++
@@ -296,14 +296,14 @@ const generateDiff = (textA: string, textB: string, settings: DiffSettings): Dif
   }
 
   if (settings.ignoreWhitespace) {
-    processedTextA = processedTextA.replace(/\s+/g, ' ').trim()
-    processedTextB = processedTextB.replace(/\s+/g, ' ').trim()
+    processedTextA = processedTextA.replace(/\s+/g, " ").trim()
+    processedTextB = processedTextB.replace(/\s+/g, " ").trim()
   }
 
   // Generate line-level diff using selected algorithm
   let lines: DiffLine[]
   switch (settings.algorithm) {
-    case 'myers':
+    case "myers":
     default:
       lines = myersDiff(processedTextA, processedTextB)
       break
@@ -313,7 +313,7 @@ const generateDiff = (textA: string, textB: string, settings: DiffSettings): Dif
   // Add word-level diffs for modified lines
   if (settings.wordLevelDiff) {
     lines = lines.map((line) => {
-      if (line.type === 'modified' && line.leftContent && line.rightContent) {
+      if (line.type === "modified" && line.leftContent && line.rightContent) {
         return {
           ...line,
           wordDiffs: getWordDiff(line.leftContent, line.rightContent),
@@ -324,23 +324,23 @@ const generateDiff = (textA: string, textB: string, settings: DiffSettings): Dif
   }
 
   // Calculate statistics
-  const addedLines = lines.filter((l) => l.type === 'added').length
-  const removedLines = lines.filter((l) => l.type === 'removed').length
-  const modifiedLines = lines.filter((l) => l.type === 'modified').length
-  const unchangedLines = lines.filter((l) => l.type === 'unchanged').length
+  const addedLines = lines.filter((l) => l.type === "added").length
+  const removedLines = lines.filter((l) => l.type === "removed").length
+  const modifiedLines = lines.filter((l) => l.type === "modified").length
+  const unchangedLines = lines.filter((l) => l.type === "unchanged").length
 
   const addedWords = lines.reduce((sum, line) => {
     if (line.wordDiffs) {
-      return sum + line.wordDiffs.filter((w) => w.type === 'added').length
+      return sum + line.wordDiffs.filter((w) => w.type === "added").length
     }
-    return sum + (line.type === 'added' ? line.content.split(/\s+/).length : 0)
+    return sum + (line.type === "added" ? line.content.split(/\s+/).length : 0)
   }, 0)
 
   const removedWords = lines.reduce((sum, line) => {
     if (line.wordDiffs) {
-      return sum + line.wordDiffs.filter((w) => w.type === 'removed').length
+      return sum + line.wordDiffs.filter((w) => w.type === "removed").length
     }
-    return sum + (line.type === 'removed' ? line.content.split(/\s+/).length : 0)
+    return sum + (line.type === "removed" ? line.content.split(/\s+/).length : 0)
   }, 0)
 
   const totalLines = Math.max(textA.split(/\r?\n/).length, textB.split(/\r?\n/).length)
@@ -372,8 +372,8 @@ const useDiffProcessing = () => {
     try {
       return generateDiff(textA, textB, settings)
     } catch (error) {
-      console.error('Diff processing error:', error)
-      throw new Error('Failed to process diff')
+      console.error("Diff processing error:", error)
+      throw new Error("Failed to process diff")
     }
   }, [])
 
@@ -384,19 +384,19 @@ const useDiffProcessing = () => {
 
         return {
           id: nanoid(),
-          leftFile: { ...leftFile, status: 'completed' },
-          rightFile: { ...rightFile, status: 'completed' },
-          status: 'completed',
+          leftFile: { ...leftFile, status: "completed" },
+          rightFile: { ...rightFile, status: "completed" },
+          status: "completed",
           result,
           processedAt: new Date(),
         }
       } catch (error) {
         return {
           id: nanoid(),
-          leftFile: { ...leftFile, status: 'error' },
-          rightFile: { ...rightFile, status: 'error' },
-          status: 'error',
-          error: error instanceof Error ? error.message : 'Processing failed',
+          leftFile: { ...leftFile, status: "error" },
+          rightFile: { ...rightFile, status: "error" },
+          status: "error",
+          error: error instanceof Error ? error.message : "Processing failed",
         }
       }
     },
@@ -438,7 +438,7 @@ const useRealTimeDiff = (textA: string, textB: string, settings: DiffSettings) =
     try {
       return generateDiff(textA, textB, settings)
     } catch (error) {
-      console.error('Real-time diff error:', error)
+      console.error("Real-time diff error:", error)
       return {
         lines: [],
         statistics: {
@@ -479,17 +479,17 @@ const useFileProcessing = () => {
             name: file.name,
             content,
             size: file.size,
-            type: file.type || 'text/plain',
-            status: 'pending',
+            type: file.type || "text/plain",
+            status: "pending",
           }
 
           resolve(diffFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsText(file)
     })
   }, [])
@@ -499,17 +499,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
-            type: files[index].type || 'text/plain',
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            type: files[index].type || "text/plain",
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -523,7 +523,7 @@ const useFileProcessing = () => {
 // Export functionality
 const useDiffExport = () => {
   const exportUnifiedDiff = useCallback(
-    (result: DiffResult, leftName: string = 'left', rightName: string = 'right', filename?: string) => {
+    (result: DiffResult, leftName: string = "left", rightName: string = "right", filename?: string) => {
       const lines = [
         `--- ${leftName}`,
         `+++ ${rightName}`,
@@ -532,28 +532,28 @@ const useDiffExport = () => {
 
       result.lines.forEach((line) => {
         switch (line.type) {
-          case 'added':
+          case "added":
             lines.push(`+${line.content}`)
             break
-          case 'removed':
+          case "removed":
             lines.push(`-${line.content}`)
             break
-          case 'unchanged':
+          case "unchanged":
             lines.push(` ${line.content}`)
             break
-          case 'modified':
-            lines.push(`-${line.leftContent || ''}`)
-            lines.push(`+${line.rightContent || ''}`)
+          case "modified":
+            lines.push(`-${line.leftContent || ""}`)
+            lines.push(`+${line.rightContent || ""}`)
             break
         }
       })
 
-      const content = lines.join('\n')
-      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+      const content = lines.join("\n")
+      const blob = new Blob([content], { type: "text/plain;charset=utf-8" })
       const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
+      const link = document.createElement("a")
       link.href = url
-      link.download = filename || 'diff.patch'
+      link.download = filename || "diff.patch"
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -563,7 +563,7 @@ const useDiffExport = () => {
   )
 
   const exportHTML = useCallback(
-    (result: DiffResult, leftName: string = 'left', rightName: string = 'right', filename?: string) => {
+    (result: DiffResult, leftName: string = "left", rightName: string = "right", filename?: string) => {
       const css = `
       <style>
         body { font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.4; margin: 20px; }
@@ -591,15 +591,15 @@ const useDiffExport = () => {
           const lineNumber = `<span class="line-number">${index + 1}</span>`
           return `<div class="diff-line ${lineClass}">${lineNumber}${line.content}</div>`
         })
-        .join('')
+        .join("")
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Diff Report</title>${css}</head><body>${header}${diffLines}</body></html>`
 
-      const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+      const blob = new Blob([html], { type: "text/html;charset=utf-8" })
       const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
+      const link = document.createElement("a")
       link.href = url
-      link.download = filename || 'diff-report.html'
+      link.download = filename || "diff-report.html"
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -614,17 +614,17 @@ const useDiffExport = () => {
         (pair, index) =>
           `=== Diff ${index + 1}: ${pair.leftFile.name} vs ${pair.rightFile.name} ===\n` +
           `Status: ${pair.status}\n` +
-          `Statistics: ${pair.result ? JSON.stringify(pair.result.statistics, null, 2) : 'N/A'}\n` +
-          `${pair.error ? `Error: ${pair.error}` : ''}\n` +
-          '---\n'
+          `Statistics: ${pair.result ? JSON.stringify(pair.result.statistics, null, 2) : "N/A"}\n` +
+          `${pair.error ? `Error: ${pair.error}` : ""}\n` +
+          "---\n"
       )
-      .join('\n')
+      .join("\n")
 
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'diff-batch-results.txt'
+    link.download = "diff-batch-results.txt"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -633,14 +633,14 @@ const useDiffExport = () => {
 
   const exportCSV = useCallback((pairs: DiffPair[]) => {
     const headers = [
-      'Left File',
-      'Right File',
-      'Status',
-      'Added Lines',
-      'Removed Lines',
-      'Modified Lines',
-      'Similarity %',
-      'Execution Time (ms)',
+      "Left File",
+      "Right File",
+      "Status",
+      "Added Lines",
+      "Removed Lines",
+      "Modified Lines",
+      "Similarity %",
+      "Execution Time (ms)",
     ]
 
     const rows = pairs.map((pair) => [
@@ -654,13 +654,13 @@ const useDiffExport = () => {
       pair.result?.statistics.executionTime.toFixed(2) || 0,
     ])
 
-    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'diff-statistics.csv'
+    link.download = "diff-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -677,13 +677,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -698,9 +698,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -713,14 +713,14 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
 
       const files = Array.from(e.dataTransfer.files).filter(
         (file) =>
-          file.type === 'text/plain' ||
+          file.type === "text/plain" ||
           file.name.match(/\.(txt|text|log|csv|json|md|markdown|js|ts|jsx|tsx|py|java|cpp|c|h|css|html|xml|yaml|yml)$/i)
       )
 
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only text files')
+        toast.error("Please drop only text files")
       }
     },
     [onFilesDropped]
@@ -734,7 +734,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -754,16 +754,16 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time diff, file upload, batch processing, multiple algorithms
  */
 const DiffViewerCore = () => {
-  const [activeTab, setActiveTab] = useState<'diff' | 'files'>('diff')
-  const [leftText, setLeftText] = useState('Hello World\nThis is line 2\nThis is line 3')
-  const [rightText, setRightText] = useState('Hello Universe\nThis is line 2\nThis is line 4\nThis is a new line')
+  const [activeTab, setActiveTab] = useState<"diff" | "files">("diff")
+  const [leftText, setLeftText] = useState("Hello World\nThis is line 2\nThis is line 3")
+  const [rightText, setRightText] = useState("Hello Universe\nThis is line 2\nThis is line 4\nThis is a new line")
   const [files, setFiles] = useState<DiffFile[]>([])
   const [pairs, setPairs] = useState<DiffPair[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
   const [settings, setSettings] = useState<DiffSettings>({
-    algorithm: 'myers',
-    format: 'side-by-side',
-    viewMode: 'full',
+    algorithm: "myers",
+    format: "side-by-side",
+    viewMode: "full",
     showLineNumbers: true,
     showWhitespace: false,
     ignoreWhitespace: false,
@@ -794,7 +794,7 @@ const DiffViewerCore = () => {
           setFiles((prev) => [...processedFiles, ...prev])
           toast.success(`Added ${processedFiles.length} file(s)`)
         } catch (error) {
-          toast.error('Failed to process files')
+          toast.error("Failed to process files")
         } finally {
           setIsProcessing(false)
         }
@@ -809,7 +809,7 @@ const DiffViewerCore = () => {
       id: nanoid(),
       leftFile: { ...leftFile, pairedWith: rightFile.id },
       rightFile: { ...rightFile, pairedWith: leftFile.id },
-      status: 'pending',
+      status: "pending",
     }
     setPairs((prev) => [...prev, newPair])
     toast.success(`Created pair: ${leftFile.name} vs ${rightFile.name}`)
@@ -817,9 +817,9 @@ const DiffViewerCore = () => {
 
   // Process all pending pairs
   const processPairs = useCallback(async () => {
-    const pendingPairs = pairs.filter((p) => p.status === 'pending')
+    const pendingPairs = pairs.filter((p) => p.status === "pending")
     if (pendingPairs.length === 0) {
-      toast.error('No pairs to process')
+      toast.error("No pairs to process")
       return
     }
 
@@ -832,9 +832,9 @@ const DiffViewerCore = () => {
           return updated || pair
         })
       )
-      toast.success('Pairs processed successfully!')
+      toast.success("Pairs processed successfully!")
     } catch (error) {
-      toast.error('Failed to process pairs')
+      toast.error("Failed to process pairs")
     } finally {
       setIsProcessing(false)
     }
@@ -844,7 +844,7 @@ const DiffViewerCore = () => {
   const clearAll = useCallback(() => {
     setFiles([])
     setPairs([])
-    toast.success('All files and pairs cleared')
+    toast.success("All files and pairs cleared")
   }, [])
 
   // Remove specific file
@@ -886,12 +886,15 @@ const DiffViewerCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <GitCompare className="h-5 w-5" aria-hidden="true" />
+              <GitCompare className="h-5 w-5" />
               Diff Viewer
             </CardTitle>
             <CardDescription>
@@ -902,20 +905,32 @@ const DiffViewerCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'diff' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "diff" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="diff" className="flex items-center gap-2">
+            <TabsTrigger
+              value="diff"
+              className="flex items-center gap-2"
+            >
               <Code className="h-4 w-4" />
               Text Diff
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               File Comparison
             </TabsTrigger>
           </TabsList>
 
           {/* Text Diff Tab */}
-          <TabsContent value="diff" className="space-y-4">
+          <TabsContent
+            value="diff"
+            className="space-y-4"
+          >
             {/* Settings */}
             <Card>
               <CardHeader>
@@ -1001,7 +1016,10 @@ const DiffViewerCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, showLineNumbers: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="showLineNumbers" className="text-sm">
+                    <Label
+                      htmlFor="showLineNumbers"
+                      className="text-sm"
+                    >
                       Line Numbers
                     </Label>
                   </div>
@@ -1014,7 +1032,10 @@ const DiffViewerCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, wordLevelDiff: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="wordLevelDiff" className="text-sm">
+                    <Label
+                      htmlFor="wordLevelDiff"
+                      className="text-sm"
+                    >
                       Word-level Diff
                     </Label>
                   </div>
@@ -1027,7 +1048,10 @@ const DiffViewerCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, ignoreWhitespace: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="ignoreWhitespace" className="text-sm">
+                    <Label
+                      htmlFor="ignoreWhitespace"
+                      className="text-sm"
+                    >
                       Ignore Whitespace
                     </Label>
                   </div>
@@ -1040,7 +1064,10 @@ const DiffViewerCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, ignoreCase: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="ignoreCase" className="text-sm">
+                    <Label
+                      htmlFor="ignoreCase"
+                      className="text-sm"
+                    >
                       Ignore Case
                     </Label>
                   </div>
@@ -1061,10 +1088,10 @@ const DiffViewerCore = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => copyToClipboard(leftText, 'left text')}
+                        onClick={() => copyToClipboard(leftText, "left text")}
                         disabled={!leftText}
                       >
-                        {copiedText === 'left text' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        {copiedText === "left text" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                       </Button>
                     </div>
                     <Textarea
@@ -1073,7 +1100,6 @@ const DiffViewerCore = () => {
                       onChange={(e) => setLeftText(e.target.value)}
                       placeholder="Enter original text..."
                       className="min-h-[200px] font-mono"
-                      aria-label="Left text input"
                     />
                   </div>
                 </CardContent>
@@ -1090,10 +1116,10 @@ const DiffViewerCore = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => copyToClipboard(rightText, 'right text')}
+                        onClick={() => copyToClipboard(rightText, "right text")}
                         disabled={!rightText}
                       >
-                        {copiedText === 'right text' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        {copiedText === "right text" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                       </Button>
                     </div>
                     <Textarea
@@ -1102,7 +1128,6 @@ const DiffViewerCore = () => {
                       onChange={(e) => setRightText(e.target.value)}
                       placeholder="Enter modified text..."
                       className="min-h-[200px] font-mono"
-                      aria-label="Right text input"
                     />
                   </div>
                 </CardContent>
@@ -1176,24 +1201,24 @@ const DiffViewerCore = () => {
                         const diffText = realtimeDiff.lines
                           .map((line) => {
                             switch (line.type) {
-                              case 'added':
+                              case "added":
                                 return `+${line.content}`
-                              case 'removed':
+                              case "removed":
                                 return `-${line.content}`
-                              case 'unchanged':
+                              case "unchanged":
                                 return ` ${line.content}`
-                              case 'modified':
+                              case "modified":
                                 return `~${line.leftContent} -> ${line.rightContent}`
                               default:
                                 return line.content
                             }
                           })
-                          .join('\n')
-                        copyToClipboard(diffText, 'diff result')
+                          .join("\n")
+                        copyToClipboard(diffText, "diff result")
                       }}
                       disabled={realtimeDiff.lines.length === 0}
                     >
-                      {copiedText === 'diff result' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {copiedText === "diff result" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     </Button>
                   </div>
                 </CardTitle>
@@ -1205,24 +1230,24 @@ const DiffViewerCore = () => {
                     <div className="flex items-center gap-2 mb-4">
                       <Button
                         size="sm"
-                        variant={settings.format === 'side-by-side' ? 'default' : 'outline'}
-                        onClick={() => setSettings((prev) => ({ ...prev, format: 'side-by-side' }))}
+                        variant={settings.format === "side-by-side" ? "default" : "outline"}
+                        onClick={() => setSettings((prev) => ({ ...prev, format: "side-by-side" }))}
                       >
                         <Columns className="h-4 w-4 mr-2" />
                         Side by Side
                       </Button>
                       <Button
                         size="sm"
-                        variant={settings.format === 'unified' ? 'default' : 'outline'}
-                        onClick={() => setSettings((prev) => ({ ...prev, format: 'unified' }))}
+                        variant={settings.format === "unified" ? "default" : "outline"}
+                        onClick={() => setSettings((prev) => ({ ...prev, format: "unified" }))}
                       >
                         <Split className="h-4 w-4 mr-2" />
                         Unified
                       </Button>
                       <Button
                         size="sm"
-                        variant={settings.format === 'inline' ? 'default' : 'outline'}
-                        onClick={() => setSettings((prev) => ({ ...prev, format: 'inline' }))}
+                        variant={settings.format === "inline" ? "default" : "outline"}
+                        onClick={() => setSettings((prev) => ({ ...prev, format: "inline" }))}
                       >
                         <ArrowLeftRight className="h-4 w-4 mr-2" />
                         Inline
@@ -1231,7 +1256,7 @@ const DiffViewerCore = () => {
 
                     {/* Diff Display */}
                     <div className="border rounded-lg overflow-hidden">
-                      {settings.format === 'side-by-side' ? (
+                      {settings.format === "side-by-side" ? (
                         <div className="grid grid-cols-2 divide-x">
                           <div className="p-4 bg-red-50/30 dark:bg-red-950/10">
                             <h4 className="font-medium mb-2 text-red-700 dark:text-red-400">Original</h4>
@@ -1240,22 +1265,22 @@ const DiffViewerCore = () => {
                                 <div
                                   key={index}
                                   className={`flex ${
-                                    line.type === 'removed'
-                                      ? 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-300'
-                                      : line.type === 'modified'
-                                        ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-300'
-                                        : line.type === 'unchanged'
-                                          ? 'text-muted-foreground'
-                                          : 'opacity-50'
+                                    line.type === "removed"
+                                      ? "bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-300"
+                                      : line.type === "modified"
+                                        ? "bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-300"
+                                        : line.type === "unchanged"
+                                          ? "text-muted-foreground"
+                                          : "opacity-50"
                                   }`}
                                 >
                                   {settings.showLineNumbers && (
                                     <span className="w-8 text-right mr-2 text-xs text-muted-foreground">
-                                      {line.leftLineNumber || ''}
+                                      {line.leftLineNumber || ""}
                                     </span>
                                   )}
                                   <span className="flex-1 whitespace-pre-wrap">
-                                    {line.type === 'added' ? '' : line.leftContent || line.content}
+                                    {line.type === "added" ? "" : line.leftContent || line.content}
                                   </span>
                                 </div>
                               ))}
@@ -1268,22 +1293,22 @@ const DiffViewerCore = () => {
                                 <div
                                   key={index}
                                   className={`flex ${
-                                    line.type === 'added'
-                                      ? 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-300'
-                                      : line.type === 'modified'
-                                        ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-300'
-                                        : line.type === 'unchanged'
-                                          ? 'text-muted-foreground'
-                                          : 'opacity-50'
+                                    line.type === "added"
+                                      ? "bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-300"
+                                      : line.type === "modified"
+                                        ? "bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-300"
+                                        : line.type === "unchanged"
+                                          ? "text-muted-foreground"
+                                          : "opacity-50"
                                   }`}
                                 >
                                   {settings.showLineNumbers && (
                                     <span className="w-8 text-right mr-2 text-xs text-muted-foreground">
-                                      {line.rightLineNumber || ''}
+                                      {line.rightLineNumber || ""}
                                     </span>
                                   )}
                                   <span className="flex-1 whitespace-pre-wrap">
-                                    {line.type === 'removed' ? '' : line.rightContent || line.content}
+                                    {line.type === "removed" ? "" : line.rightContent || line.content}
                                   </span>
                                 </div>
                               ))}
@@ -1297,27 +1322,27 @@ const DiffViewerCore = () => {
                               <div
                                 key={index}
                                 className={`flex ${
-                                  line.type === 'added'
-                                    ? 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-300'
-                                    : line.type === 'removed'
-                                      ? 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-300'
-                                      : line.type === 'modified'
-                                        ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-300'
-                                        : 'text-muted-foreground'
+                                  line.type === "added"
+                                    ? "bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-300"
+                                    : line.type === "removed"
+                                      ? "bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-300"
+                                      : line.type === "modified"
+                                        ? "bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-300"
+                                        : "text-muted-foreground"
                                 }`}
                               >
                                 <span className="w-4 text-center mr-2">
-                                  {line.type === 'added'
-                                    ? '+'
-                                    : line.type === 'removed'
-                                      ? '-'
-                                      : line.type === 'modified'
-                                        ? '~'
-                                        : ' '}
+                                  {line.type === "added"
+                                    ? "+"
+                                    : line.type === "removed"
+                                      ? "-"
+                                      : line.type === "modified"
+                                        ? "~"
+                                        : " "}
                                 </span>
                                 {settings.showLineNumbers && (
                                   <span className="w-8 text-right mr-2 text-xs text-muted-foreground">
-                                    {line.leftLineNumber || line.rightLineNumber || ''}
+                                    {line.leftLineNumber || line.rightLineNumber || ""}
                                   </span>
                                 )}
                                 <span className="flex-1 whitespace-pre-wrap">{line.content}</span>
@@ -1342,7 +1367,7 @@ const DiffViewerCore = () => {
               <CardContent className="pt-6">
                 <div className="flex flex-wrap gap-3 justify-center">
                   <Button
-                    onClick={() => exportUnifiedDiff(realtimeDiff, 'left.txt', 'right.txt')}
+                    onClick={() => exportUnifiedDiff(realtimeDiff, "left.txt", "right.txt")}
                     variant="outline"
                     disabled={realtimeDiff.lines.length === 0}
                   >
@@ -1351,7 +1376,7 @@ const DiffViewerCore = () => {
                   </Button>
 
                   <Button
-                    onClick={() => exportHTML(realtimeDiff, 'left.txt', 'right.txt')}
+                    onClick={() => exportHTML(realtimeDiff, "left.txt", "right.txt")}
                     variant="outline"
                     disabled={realtimeDiff.lines.length === 0}
                   >
@@ -1364,20 +1389,20 @@ const DiffViewerCore = () => {
                       const diffText = realtimeDiff.lines
                         .map((line) => {
                           switch (line.type) {
-                            case 'added':
+                            case "added":
                               return `+${line.content}`
-                            case 'removed':
+                            case "removed":
                               return `-${line.content}`
-                            case 'unchanged':
+                            case "unchanged":
                               return ` ${line.content}`
-                            case 'modified':
+                            case "modified":
                               return `~${line.leftContent} -> ${line.rightContent}`
                             default:
                               return line.content
                           }
                         })
-                        .join('\n')
-                      copyToClipboard(diffText, 'diff text')
+                        .join("\n")
+                      copyToClipboard(diffText, "diff text")
                     }}
                     variant="outline"
                     disabled={realtimeDiff.lines.length === 0}
@@ -1391,15 +1416,18 @@ const DiffViewerCore = () => {
           </TabsContent>
 
           {/* File Comparison Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             {/* File Upload */}
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1407,9 +1435,8 @@ const DiffViewerCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop text files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1420,7 +1447,11 @@ const DiffViewerCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your text files here, or click to select files
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1434,7 +1465,6 @@ const DiffViewerCore = () => {
                     accept=".txt,.log,.csv,.json,.md,.markdown,.js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.h,.css,.html,.xml,.yaml,.yml"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select text files"
                   />
                 </div>
               </CardContent>
@@ -1486,7 +1516,7 @@ const DiffViewerCore = () => {
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Button
                       onClick={processPairs}
-                      disabled={isProcessing || pairs.every((p) => p.status !== 'pending')}
+                      disabled={isProcessing || pairs.every((p) => p.status !== "pending")}
                       className="min-w-32"
                     >
                       {isProcessing ? (
@@ -1505,18 +1535,26 @@ const DiffViewerCore = () => {
                     <Button
                       onClick={() => exportBatch(pairs)}
                       variant="outline"
-                      disabled={!pairs.some((p) => p.status === 'completed')}
+                      disabled={!pairs.some((p) => p.status === "completed")}
                     >
                       <Download className="mr-2 h-4 w-4" />
                       Export Results
                     </Button>
 
-                    <Button onClick={() => exportCSV(pairs)} variant="outline" disabled={!pairs.some((p) => p.result)}>
+                    <Button
+                      onClick={() => exportCSV(pairs)}
+                      variant="outline"
+                      disabled={!pairs.some((p) => p.result)}
+                    >
                       <BarChart3 className="mr-2 h-4 w-4" />
                       Export Stats
                     </Button>
 
-                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                    <Button
+                      onClick={clearAll}
+                      variant="destructive"
+                      disabled={isProcessing}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
@@ -1534,11 +1572,17 @@ const DiffViewerCore = () => {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-3">
                           <FileText className="h-6 w-6 text-muted-foreground flex-shrink-0 mt-1" />
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground">
@@ -1551,7 +1595,6 @@ const DiffViewerCore = () => {
                               size="sm"
                               variant="ghost"
                               onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -1594,7 +1637,10 @@ const DiffViewerCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {pairs.map((pair) => (
-                      <div key={pair.id} className="border rounded-lg p-4">
+                      <div
+                        key={pair.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
@@ -1603,13 +1649,13 @@ const DiffViewerCore = () => {
                               </h4>
                               <div
                                 className={`px-2 py-1 rounded text-xs ${
-                                  pair.status === 'completed'
-                                    ? 'bg-green-100 text-green-800 dark:bg-green-950/30 dark:text-green-300'
-                                    : pair.status === 'processing'
-                                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:text-blue-300'
-                                      : pair.status === 'error'
-                                        ? 'bg-red-100 text-red-800 dark:bg-red-950/30 dark:text-red-300'
-                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-950/30 dark:text-gray-300'
+                                  pair.status === "completed"
+                                    ? "bg-green-100 text-green-800 dark:bg-green-950/30 dark:text-green-300"
+                                    : pair.status === "processing"
+                                      ? "bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:text-blue-300"
+                                      : pair.status === "error"
+                                        ? "bg-red-100 text-red-800 dark:bg-red-950/30 dark:text-red-300"
+                                        : "bg-gray-100 text-gray-800 dark:bg-gray-950/30 dark:text-gray-300"
                                 }`}
                               >
                                 {pair.status}
@@ -1657,7 +1703,6 @@ const DiffViewerCore = () => {
                                   onClick={() =>
                                     exportUnifiedDiff(pair.result!, pair.leftFile.name, pair.rightFile.name)
                                   }
-                                  aria-label={`Export diff for ${pair.leftFile.name} vs ${pair.rightFile.name}`}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1669,22 +1714,21 @@ const DiffViewerCore = () => {
                                     const diffText = pair
                                       .result!.lines.map((line) => {
                                         switch (line.type) {
-                                          case 'added':
+                                          case "added":
                                             return `+${line.content}`
-                                          case 'removed':
+                                          case "removed":
                                             return `-${line.content}`
-                                          case 'unchanged':
+                                          case "unchanged":
                                             return ` ${line.content}`
-                                          case 'modified':
+                                          case "modified":
                                             return `~${line.leftContent} -> ${line.rightContent}`
                                           default:
                                             return line.content
                                         }
                                       })
-                                      .join('\n')
+                                      .join("\n")
                                     copyToClipboard(diffText, pair.id)
                                   }}
-                                  aria-label={`Copy diff for ${pair.leftFile.name} vs ${pair.rightFile.name}`}
                                 >
                                   {copiedText === pair.id ? (
                                     <Check className="h-4 w-4" />
@@ -1699,7 +1743,6 @@ const DiffViewerCore = () => {
                               size="sm"
                               variant="ghost"
                               onClick={() => removePair(pair.id)}
-                              aria-label={`Remove pair ${pair.leftFile.name} vs ${pair.rightFile.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

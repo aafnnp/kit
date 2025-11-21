@@ -1,13 +1,13 @@
-import { useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { toast } from 'sonner'
-import { Loader2, Image as ImageIcon } from 'lucide-react'
-import { nanoid } from 'nanoid'
-import type { LoremImageFile, LoremImageSettings } from '@/types/lorem-image'
+import { useCallback, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from "sonner"
+import { Loader2, Image as ImageIcon } from "lucide-react"
+import { nanoid } from "nanoid"
+import type { LoremImageFile, LoremImageSettings } from "@/types/lorem-image"
 
 // 生成唯一 ID
 
@@ -15,13 +15,13 @@ import type { LoremImageFile, LoremImageSettings } from '@/types/lorem-image'
 const defaultSettings: LoremImageSettings = {
   width: 200,
   height: 200,
-  format: 'png',
-  bgColor: '#cccccc',
-  fgColor: '#222222',
-  text: '',
-  category: '',
+  format: "png",
+  bgColor: "#cccccc",
+  fgColor: "#222222",
+  text: "",
+  category: "",
   batchCount: 1,
-  template: '',
+  template: "",
 }
 
 // hook: 生成图片链接
@@ -30,11 +30,11 @@ function useLoremImageGenerator() {
     const { width, height, format, bgColor, fgColor, text, category } = settings
     let url = `https://placehold.co/${width}x${height}.${format}`
     const params = []
-    if (bgColor) params.push(`bg=${bgColor.replace('#', '')}`)
+    if (bgColor) params.push(`bg=${bgColor.replace("#", "")}`)
     if (fgColor) params.push(`text=${encodeURIComponent(text)}`)
-    if (fgColor) params.push(`fc=${fgColor.replace('#', '')}`)
+    if (fgColor) params.push(`fc=${fgColor.replace("#", "")}`)
     if (category) params.push(`category=${encodeURIComponent(category)}`)
-    if (params.length) url += '?' + params.join('&')
+    if (params.length) url += "?" + params.join("&")
     return url
   }, [])
   return { generateUrl }
@@ -64,13 +64,13 @@ function useBatchLoremImages(settings: LoremImageSettings) {
           fgColor: settings.fgColor,
           text: settings.text,
           category: settings.category,
-          status: 'completed',
+          status: "completed",
           generatedAt: new Date(),
         })
       }
       setImages(batch)
     } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : '生成失败'
+      const errorMessage = e instanceof Error ? e.message : "生成失败"
       setError(errorMessage)
       toast.error(errorMessage)
     } finally {
@@ -89,7 +89,7 @@ const LoremImage = () => {
   // Note: UI features like batch operations, export, accessibility, statistics, and templates
   // can be added as future enhancements when needed
   return (
-    <Card className="max-w-2xl mx-auto mt-6" aria-label="占位图生成工具">
+    <Card className="max-w-2xl mx-auto mt-6">
       <CardHeader>
         <CardTitle>占位图生成器（Lorem Image）</CardTitle>
         <CardDescription>支持批量、格式、颜色、文本、主题等自定义，全面对齐其它图片工具体验</CardDescription>
@@ -105,7 +105,6 @@ const LoremImage = () => {
             max={4096}
             value={settings.width}
             onChange={(e) => setSettings((s) => ({ ...s, width: Number(e.target.value) }))}
-            aria-label="图片宽度"
           />
           <Label htmlFor="height">高度</Label>
           <Input
@@ -115,14 +114,13 @@ const LoremImage = () => {
             max={4096}
             value={settings.height}
             onChange={(e) => setSettings((s) => ({ ...s, height: Number(e.target.value) }))}
-            aria-label="图片高度"
           />
           <Label htmlFor="format">格式</Label>
           <Select
             value={settings.format}
-            onValueChange={(v) => setSettings((s) => ({ ...s, format: v as LoremImageSettings['format'] }))}
+            onValueChange={(v) => setSettings((s) => ({ ...s, format: v as LoremImageSettings["format"] }))}
           >
-            <SelectTrigger id="format" aria-label="图片格式">
+            <SelectTrigger id="format">
               <SelectValue>{settings.format}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -138,7 +136,6 @@ const LoremImage = () => {
             type="color"
             value={settings.bgColor}
             onChange={(e) => setSettings((s) => ({ ...s, bgColor: e.target.value }))}
-            aria-label="背景色"
           />
           <Label htmlFor="fgColor">前景色</Label>
           <Input
@@ -146,7 +143,6 @@ const LoremImage = () => {
             type="color"
             value={settings.fgColor}
             onChange={(e) => setSettings((s) => ({ ...s, fgColor: e.target.value }))}
-            aria-label="前景色"
           />
           <Label htmlFor="text">文本</Label>
           <Input
@@ -154,7 +150,6 @@ const LoremImage = () => {
             type="text"
             value={settings.text}
             onChange={(e) => setSettings((s) => ({ ...s, text: e.target.value }))}
-            aria-label="图片文本"
           />
           <Label htmlFor="batchCount">批量数量</Label>
           <Input
@@ -164,15 +159,21 @@ const LoremImage = () => {
             max={50}
             value={settings.batchCount}
             onChange={(e) => setSettings((s) => ({ ...s, batchCount: Number(e.target.value) }))}
-            aria-label="批量数量"
           />
         </div>
-        <Button onClick={generateBatch} disabled={loading} aria-busy={loading} className="w-full mb-4">
+        <Button
+          onClick={generateBatch}
+          disabled={loading}
+          className="w-full mb-4"
+        >
           {loading ? <Loader2 className="animate-spin mr-2" /> : <ImageIcon className="mr-2" />}生成占位图
         </Button>
         {/* 错误提示 */}
         {error && (
-          <div className="text-red-600 mb-2" role="alert">
+          <div
+            className="text-red-600 mb-2"
+            role="alert"
+          >
             {error}
           </div>
         )}
@@ -183,7 +184,6 @@ const LoremImage = () => {
               key={img.id}
               className="flex flex-col items-center border rounded p-2"
               tabIndex={0}
-              aria-label={`占位图 ${img.width}x${img.height}`}
             >
               <img
                 src={img.url}

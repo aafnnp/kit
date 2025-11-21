@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
-import { toast } from 'sonner'
+import { useState, useCallback, useRef, useEffect } from "react"
+import { toast } from "sonner"
 
 // 输入处理配置
 export interface InputHandlerConfig {
@@ -30,13 +30,13 @@ export function useInputHandler(config: InputHandlerConfig = {}) {
     enableValidation = true,
     maxHistorySize = 10,
     debounceMs = 300,
-    placeholder = '',
+    placeholder = "",
     validator,
     formatter,
     parser,
   } = config
 
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState("")
   const [history, setHistory] = useState<InputHistoryItem[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isValid, setIsValid] = useState(true)
@@ -71,7 +71,7 @@ export function useInputHandler(config: InputHandlerConfig = {}) {
       try {
         return formatter(inputValue)
       } catch (error) {
-        console.warn('Input formatting failed:', error)
+        console.warn("Input formatting failed:", error)
         return inputValue
       }
     },
@@ -85,7 +85,7 @@ export function useInputHandler(config: InputHandlerConfig = {}) {
       try {
         return parser(inputValue)
       } catch (error) {
-        console.warn('Input parsing failed:', error)
+        console.warn("Input parsing failed:", error)
         return inputValue
       }
     },
@@ -148,12 +148,12 @@ export function useInputHandler(config: InputHandlerConfig = {}) {
     try {
       const text = await navigator.clipboard.readText()
       updateValue(text)
-      addToHistory(text, 'Pasted from clipboard')
-      toast.success('Pasted from clipboard')
+      addToHistory(text, "Pasted from clipboard")
+      toast.success("Pasted from clipboard")
       return true
     } catch (error) {
-      console.error('Failed to paste from clipboard:', error)
-      toast.error('Failed to paste from clipboard')
+      console.error("Failed to paste from clipboard:", error)
+      toast.error("Failed to paste from clipboard")
       return false
     }
   }, [enableClipboard, updateValue, addToHistory])
@@ -165,17 +165,17 @@ export function useInputHandler(config: InputHandlerConfig = {}) {
 
       const text = textToCopy || value
       if (!text) {
-        toast.error('Nothing to copy')
+        toast.error("Nothing to copy")
         return false
       }
 
       try {
         await navigator.clipboard.writeText(text)
-        toast.success('Copied to clipboard')
+        toast.success("Copied to clipboard")
         return true
       } catch (error) {
-        console.error('Failed to copy to clipboard:', error)
-        toast.error('Failed to copy to clipboard')
+        console.error("Failed to copy to clipboard:", error)
+        toast.error("Failed to copy to clipboard")
         return false
       }
     },
@@ -184,7 +184,7 @@ export function useInputHandler(config: InputHandlerConfig = {}) {
 
   // 清除输入
   const clearInput = useCallback(() => {
-    setValue('')
+    setValue("")
     setError(null)
     setIsValid(true)
     if (inputRef.current) {
@@ -206,12 +206,12 @@ export function useInputHandler(config: InputHandlerConfig = {}) {
   // 清除历史
   const clearHistory = useCallback(() => {
     setHistory([])
-    toast.success('History cleared')
+    toast.success("History cleared")
   }, [])
 
   // 获取选中的文本
   const getSelectedText = useCallback(() => {
-    if (!inputRef.current) return ''
+    if (!inputRef.current) return ""
     return value.substring(selectionStart, selectionEnd)
   }, [value, selectionStart, selectionEnd])
 
@@ -268,30 +268,30 @@ export function useInputHandler(config: InputHandlerConfig = {}) {
       const isModifierPressed = ctrlKey || metaKey
 
       switch (key) {
-        case 'v':
+        case "v":
           if (isModifierPressed) {
             event.preventDefault()
             pasteFromClipboard()
           }
           break
-        case 'c':
+        case "c":
           if (isModifierPressed && getSelectedText()) {
             event.preventDefault()
             copyToClipboard(getSelectedText())
           }
           break
-        case 'a':
+        case "a":
           if (isModifierPressed) {
             // 全选 - 浏览器默认行为
           }
           break
-        case 'z':
+        case "z":
           if (isModifierPressed && !shiftKey && history.length > 0) {
             event.preventDefault()
             selectFromHistory(history[0])
           }
           break
-        case 'Escape':
+        case "Escape":
           if (inputRef.current) {
             inputRef.current.blur()
           }
@@ -343,8 +343,6 @@ export function useInputHandler(config: InputHandlerConfig = {}) {
     onBlur: handleBlur,
     onSelect: handleSelectionChange,
     placeholder,
-    'aria-invalid': !isValid,
-    'aria-describedby': error ? 'input-error' : undefined,
   }
 
   return {
@@ -385,7 +383,7 @@ export function useInputHandler(config: InputHandlerConfig = {}) {
     // 统计信息
     stats: {
       length: value.length,
-      lines: value.split('\n').length,
+      lines: value.split("\n").length,
       words: value.trim() ? value.trim().split(/\s+/).length : 0,
       historySize: history.length,
     },
@@ -398,22 +396,22 @@ export function useTextAreaHandler(config: InputHandlerConfig = {}) {
 
   // 文本区域特有的操作
   const insertLine = useCallback(() => {
-    inputHandler.insertText('\n')
+    inputHandler.insertText("\n")
   }, [inputHandler])
 
   const indentLine = useCallback(() => {
-    inputHandler.insertText('  ') // 2 spaces
+    inputHandler.insertText("  ") // 2 spaces
   }, [inputHandler])
 
   const outdentLine = useCallback(() => {
     const { value, selectionStart } = inputHandler
-    const lines = value.split('\n')
-    const currentLineIndex = value.substring(0, selectionStart).split('\n').length - 1
+    const lines = value.split("\n")
+    const currentLineIndex = value.substring(0, selectionStart).split("\n").length - 1
     const currentLine = lines[currentLineIndex]
 
-    if (currentLine.startsWith('  ')) {
+    if (currentLine.startsWith("  ")) {
       lines[currentLineIndex] = currentLine.substring(2)
-      const newValue = lines.join('\n')
+      const newValue = lines.join("\n")
       inputHandler.updateValue(newValue)
     }
   }, [inputHandler])
@@ -442,7 +440,7 @@ export function useNumberInputHandler(
       if (!value.trim()) return null
 
       const num = parseFloat(value)
-      if (isNaN(num)) return 'Must be a valid number'
+      if (isNaN(num)) return "Must be a valid number"
 
       if (min !== undefined && num < min) return `Must be at least ${min}`
       if (max !== undefined && num > max) return `Must be at most ${max}`

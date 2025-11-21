@@ -1,11 +1,11 @@
-import { useCallback, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -22,15 +22,15 @@ import {
   ArrowUpDown,
   Lock,
   Unlock,
-} from 'lucide-react'
+} from "lucide-react"
 import {
   Base64File,
   EncodingSettings,
   EncodingTemplate,
   EncodingOperation,
   EncodingFormat,
-} from '@/types/base64-encode'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/base64-encode"
+import { formatFileSize } from "@/lib/utils"
 import {
   useCopyToClipboard,
   useDragAndDrop,
@@ -38,27 +38,27 @@ import {
   useFileProcessing,
   useRealTimeEncoding,
   encodingTemplates,
-} from './hooks'
+} from "./hooks"
 
 /**
  * Enhanced Base64 Encode Tool
  * Features: Real-time encoding/decoding, multiple formats, batch processing, statistics
  */
 const Base64EncodeCore = () => {
-  const [activeTab, setActiveTab] = useState<'encoder' | 'files'>('encoder')
-  const [input, setInput] = useState('')
-  const [operation, setOperation] = useState<EncodingOperation>('encode')
-  const [inputFormat, setInputFormat] = useState<EncodingFormat>('text')
-  const [outputFormat, setOutputFormat] = useState<EncodingFormat>('base64')
+  const [activeTab, setActiveTab] = useState<"encoder" | "files">("encoder")
+  const [input, setInput] = useState("")
+  const [operation, setOperation] = useState<EncodingOperation>("encode")
+  const [inputFormat, setInputFormat] = useState<EncodingFormat>("text")
+  const [outputFormat, setOutputFormat] = useState<EncodingFormat>("base64")
   const [files, setFiles] = useState<Base64File[]>([])
   const [_, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('text-to-base64')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("text-to-base64")
   const [settings, setSettings] = useState<EncodingSettings>({
-    defaultOperation: 'encode',
-    defaultFormat: 'base64',
+    defaultOperation: "encode",
+    defaultFormat: "base64",
     includeMetadata: true,
     optimizeOutput: false,
-    exportFormat: 'txt',
+    exportFormat: "txt",
     chunkSize: 1024,
   })
 
@@ -68,7 +68,7 @@ const Base64EncodeCore = () => {
   const groupedTemplates: Record<string, EncodingTemplate[]> = useMemo(() => {
     return encodingTemplates.reduce(
       (acc, template) => {
-        const category = template.category || 'General'
+        const category = template.category || "General"
         if (!acc[category]) {
           acc[category] = []
         }
@@ -92,7 +92,7 @@ const Base64EncodeCore = () => {
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
@@ -112,7 +112,7 @@ const Base64EncodeCore = () => {
   const swapInputOutput = useCallback(() => {
     if (encodingResult.result) {
       setInput(encodingResult.result.output)
-      setOperation(operation === 'encode' ? 'decode' : 'encode')
+      setOperation(operation === "encode" ? "decode" : "encode")
       const tempFormat = inputFormat
       setInputFormat(outputFormat)
       setOutputFormat(tempFormat)
@@ -129,12 +129,15 @@ const Base64EncodeCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5" aria-hidden="true" />
+              <Lock className="h-5 w-5" />
               Base64 Encoder/Decoder
             </CardTitle>
             <CardDescription>
@@ -146,20 +149,32 @@ const Base64EncodeCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'encoder' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "encoder" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="encoder" className="flex items-center gap-2">
+            <TabsTrigger
+              value="encoder"
+              className="flex items-center gap-2"
+            >
               <Code className="h-4 w-4" />
               Encoder/Decoder
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* Encoder/Decoder Tab */}
-          <TabsContent value="encoder" className="space-y-4">
+          <TabsContent
+            value="encoder"
+            className="space-y-4"
+          >
             {/* Encoding Templates */}
             <Card>
               <CardHeader>
@@ -177,7 +192,7 @@ const Base64EncodeCore = () => {
                         {templates.map((template: EncodingTemplate) => (
                           <Button
                             key={template.id}
-                            variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                            variant={selectedTemplate === template.id ? "default" : "outline"}
                             onClick={() => applyTemplate(template)}
                             className="h-auto p-3 text-left"
                           >
@@ -201,7 +216,10 @@ const Base64EncodeCore = () => {
                 <CardHeader>
                   <CardTitle className="text-lg">Input</CardTitle>
                   <div className="flex items-center gap-2">
-                    <Select value={operation} onValueChange={(value: EncodingOperation) => setOperation(value)}>
+                    <Select
+                      value={operation}
+                      onValueChange={(value: EncodingOperation) => setOperation(value)}
+                    >
                       <SelectTrigger className="w-32">
                         <SelectValue />
                       </SelectTrigger>
@@ -211,7 +229,10 @@ const Base64EncodeCore = () => {
                       </SelectContent>
                     </Select>
 
-                    <Select value={inputFormat} onValueChange={(value: EncodingFormat) => setInputFormat(value)}>
+                    <Select
+                      value={inputFormat}
+                      onValueChange={(value: EncodingFormat) => setInputFormat(value)}
+                    >
                       <SelectTrigger className="w-32">
                         <SelectValue />
                       </SelectTrigger>
@@ -224,7 +245,12 @@ const Base64EncodeCore = () => {
                       </SelectContent>
                     </Select>
 
-                    <Button size="sm" variant="outline" onClick={swapInputOutput} disabled={!encodingResult.result}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={swapInputOutput}
+                      disabled={!encodingResult.result}
+                    >
                       <ArrowUpDown className="h-4 w-4" />
                     </Button>
                   </div>
@@ -238,7 +264,11 @@ const Base64EncodeCore = () => {
                   />
 
                   <div className="mt-4 flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => setInput('')}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setInput("")}
+                    >
                       <RotateCcw className="h-4 w-4 mr-2" />
                       Clear
                     </Button>
@@ -247,7 +277,7 @@ const Base64EncodeCore = () => {
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        const samples = ['Hello World!', 'Test123', 'Sample text for encoding']
+                        const samples = ["Hello World!", "Test123", "Sample text for encoding"]
                         setInput(samples[Math.floor(Math.random() * samples.length)])
                       }}
                     >
@@ -256,8 +286,12 @@ const Base64EncodeCore = () => {
                     </Button>
 
                     {input && (
-                      <Button size="sm" variant="outline" onClick={() => copyToClipboard(input, 'input text')}>
-                        {copiedText === 'input text' ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => copyToClipboard(input, "input text")}
+                      >
+                        {copiedText === "input text" ? (
                           <Check className="h-4 w-4 mr-2" />
                         ) : (
                           <Copy className="h-4 w-4 mr-2" />
@@ -276,7 +310,10 @@ const Base64EncodeCore = () => {
                     Output
                   </CardTitle>
                   <div className="flex items-center gap-2">
-                    <Select value={outputFormat} onValueChange={(value: EncodingFormat) => setOutputFormat(value)}>
+                    <Select
+                      value={outputFormat}
+                      onValueChange={(value: EncodingFormat) => setOutputFormat(value)}
+                    >
                       <SelectTrigger className="w-32">
                         <SelectValue />
                       </SelectTrigger>
@@ -311,9 +348,9 @@ const Base64EncodeCore = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => copyToClipboard(encodingResult.result!.output, 'encoded result')}
+                          onClick={() => copyToClipboard(encodingResult.result!.output, "encoded result")}
                         >
-                          {copiedText === 'encoded result' ? (
+                          {copiedText === "encoded result" ? (
                             <Check className="h-4 w-4 mr-2" />
                           ) : (
                             <Copy className="h-4 w-4 mr-2" />
@@ -321,7 +358,11 @@ const Base64EncodeCore = () => {
                           Copy Result
                         </Button>
 
-                        <Button size="sm" variant="outline" onClick={() => exportResult(encodingResult.result!, 'txt')}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => exportResult(encodingResult.result!, "txt")}
+                        >
                           <Download className="h-4 w-4 mr-2" />
                           Export
                         </Button>
@@ -397,17 +438,23 @@ const Base64EncodeCore = () => {
                     variant="outline"
                   >
                     <Eye className="mr-2 h-4 w-4" />
-                    {settings.includeMetadata ? 'Hide' : 'Show'} Metadata
+                    {settings.includeMetadata ? "Hide" : "Show"} Metadata
                   </Button>
 
                   {encodingResult.result && (
                     <>
-                      <Button onClick={() => exportResult(encodingResult.result!, 'json')} variant="outline">
+                      <Button
+                        onClick={() => exportResult(encodingResult.result!, "json")}
+                        variant="outline"
+                      >
                         <Download className="mr-2 h-4 w-4" />
                         Export JSON
                       </Button>
 
-                      <Button onClick={() => exportResult(encodingResult.result!, 'csv')} variant="outline">
+                      <Button
+                        onClick={() => exportResult(encodingResult.result!, "csv")}
+                        variant="outline"
+                      >
                         <FileText className="mr-2 h-4 w-4" />
                         Export CSV
                       </Button>
@@ -419,14 +466,17 @@ const Base64EncodeCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -434,9 +484,8 @@ const Base64EncodeCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop text files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -447,7 +496,11 @@ const Base64EncodeCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your text files here, or click to select files for batch encoding/decoding
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -461,7 +514,6 @@ const Base64EncodeCore = () => {
                     accept=".txt,.json,.csv,.xml,.html,.js,.css"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select text files"
                   />
                 </div>
               </CardContent>
@@ -475,19 +527,25 @@ const Base64EncodeCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground">
                               <span className="font-medium">Size:</span> {formatFileSize(file.size)}
                             </div>
-                            {file.status === 'completed' && file.encodingData && (
+                            {file.status === "completed" && file.encodingData && (
                               <div className="mt-2 text-xs">
                                 {file.encodingData.statistics.totalEncodings} encoding operations processed
                               </div>

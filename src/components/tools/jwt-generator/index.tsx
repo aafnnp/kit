@@ -1,12 +1,12 @@
-import { useCallback, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -21,8 +21,8 @@ import {
   CheckCircle,
   XCircle,
   Wrench,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   JWTGeneratorConfig,
   JWTHeader,
@@ -38,8 +38,8 @@ import type {
   BatchStatistics,
   JWTAlgorithm,
   ExportFormat,
-} from '@/types/jwt-generator'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/jwt-generator"
+import { formatFileSize } from "@/lib/utils"
 // Utility functions
 
 // JWT generation functions
@@ -52,7 +52,7 @@ const generateJWT = async (config: JWTGeneratorConfig): Promise<GeneratedJWT> =>
     const header: JWTHeader = {
       ...config.header,
       alg: config.algorithm,
-      typ: 'JWT',
+      typ: "JWT",
     }
 
     if (config.options.includeKeyId && config.header.kid) {
@@ -93,8 +93,8 @@ const generateJWT = async (config: JWTGeneratorConfig): Promise<GeneratedJWT> =>
     const token = await createJWTToken(header, payload, config.secret, config.algorithm)
 
     // Parse token parts for analysis
-    const parts = token.split('.')
-    const signature = parts[2] || ''
+    const parts = token.split(".")
+    const signature = parts[2] || ""
 
     // Perform analysis
     const analysis = analyzeGeneratedJWT(header, payload, config)
@@ -114,7 +114,7 @@ const generateJWT = async (config: JWTGeneratorConfig): Promise<GeneratedJWT> =>
       createdAt,
     }
   } catch (error) {
-    throw new Error(`Failed to generate JWT: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    throw new Error(`Failed to generate JWT: ${error instanceof Error ? error.message : "Unknown error"}`)
   }
 }
 
@@ -128,11 +128,11 @@ const createJWTToken = async (
   const payloadEncoded = base64UrlEncode(JSON.stringify(payload))
   const data = `${headerEncoded}.${payloadEncoded}`
 
-  let signature = ''
+  let signature = ""
 
-  if (algorithm === 'none') {
-    signature = ''
-  } else if (algorithm.startsWith('HS')) {
+  if (algorithm === "none") {
+    signature = ""
+  } else if (algorithm.startsWith("HS")) {
     // HMAC algorithms
     signature = await createHMACSignature(data, secret, algorithm)
   } else {
@@ -145,7 +145,7 @@ const createJWTToken = async (
 
 const base64UrlEncode = (str: string): string => {
   const base64 = btoa(unescape(encodeURIComponent(str)))
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "")
 }
 
 const createHMACSignature = async (data: string, secret: string, algorithm: JWTAlgorithm): Promise<string> => {
@@ -155,17 +155,17 @@ const createHMACSignature = async (data: string, secret: string, algorithm: JWTA
     const keyData = encoder.encode(secret)
     const messageData = encoder.encode(data)
 
-    const hashAlgorithm = algorithm === 'HS256' ? 'SHA-256' : algorithm === 'HS384' ? 'SHA-384' : 'SHA-512'
+    const hashAlgorithm = algorithm === "HS256" ? "SHA-256" : algorithm === "HS384" ? "SHA-384" : "SHA-512"
 
-    const cryptoKey = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: hashAlgorithm }, false, [
-      'sign',
+    const cryptoKey = await crypto.subtle.importKey("raw", keyData, { name: "HMAC", hash: hashAlgorithm }, false, [
+      "sign",
     ])
 
-    const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData)
+    const signature = await crypto.subtle.sign("HMAC", cryptoKey, messageData)
     const signatureArray = new Uint8Array(signature)
     const signatureBase64 = btoa(String.fromCharCode(...signatureArray))
 
-    return signatureBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+    return signatureBase64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "")
   } catch (error) {
     // Fallback to mock signature if Web Crypto API fails
     return createMockSignature(data, algorithm)
@@ -190,16 +190,16 @@ const parseTimeString = (timeStr: string): number => {
   if (!match) return 0
 
   const value = parseInt(match[1])
-  const unit = match[2] || 's'
+  const unit = match[2] || "s"
 
   switch (unit) {
-    case 's':
+    case "s":
       return value
-    case 'm':
+    case "m":
       return value * 60
-    case 'h':
+    case "h":
       return value * 3600
-    case 'd':
+    case "d":
       return value * 86400
     default:
       return value
@@ -211,65 +211,65 @@ const analyzeGeneratedJWT = (header: JWTHeader, payload: JWTPayload, config: JWT
   const errors: string[] = []
   const recommendations: string[] = []
 
-  let securityLevel: 'high' | 'medium' | 'low' | 'critical' = 'high'
+  let securityLevel: "high" | "medium" | "low" | "critical" = "high"
   let riskScore = 0
 
   // Algorithm analysis
-  if (header.alg === 'none') {
-    securityLevel = 'critical'
+  if (header.alg === "none") {
+    securityLevel = "critical"
     riskScore += 50
     errors.push('Algorithm "none" provides no security')
-    recommendations.push('Use a secure signing algorithm like HS256 or RS256')
-  } else if (header.alg.startsWith('HS')) {
+    recommendations.push("Use a secure signing algorithm like HS256 or RS256")
+  } else if (header.alg.startsWith("HS")) {
     if (config.secret.length < 32) {
-      securityLevel = 'low'
+      securityLevel = "low"
       riskScore += 20
-      warnings.push('Secret key is too short for optimal security')
-      recommendations.push('Use a secret key of at least 32 characters')
+      warnings.push("Secret key is too short for optimal security")
+      recommendations.push("Use a secret key of at least 32 characters")
     }
   }
 
   // Expiration analysis
   if (!payload.exp) {
     riskScore += 15
-    warnings.push('No expiration time specified')
-    recommendations.push('Add expiration time (exp) claim for security')
+    warnings.push("No expiration time specified")
+    recommendations.push("Add expiration time (exp) claim for security")
   } else {
     const now = Math.floor(Date.now() / 1000)
     const lifetime = payload.exp - (payload.iat || now)
     if (lifetime > 86400) {
       // More than 24 hours
       riskScore += 10
-      warnings.push('Token lifetime is very long')
-      recommendations.push('Consider shorter token lifetimes for better security')
+      warnings.push("Token lifetime is very long")
+      recommendations.push("Consider shorter token lifetimes for better security")
     }
   }
 
   // Claims analysis
   if (!payload.iss) {
     riskScore += 5
-    recommendations.push('Add issuer (iss) claim for verification')
+    recommendations.push("Add issuer (iss) claim for verification")
   }
 
   if (!payload.aud) {
     riskScore += 5
-    recommendations.push('Add audience (aud) claim for verification')
+    recommendations.push("Add audience (aud) claim for verification")
   }
 
   // Determine security level based on risk score
   if (riskScore >= 40) {
-    securityLevel = 'critical'
+    securityLevel = "critical"
   } else if (riskScore >= 25) {
-    securityLevel = 'low'
+    securityLevel = "low"
   } else if (riskScore >= 10) {
-    securityLevel = 'medium'
+    securityLevel = "medium"
   }
 
   const compliance: JWTCompliance = {
     rfc7519Compliant: errors.length === 0,
     hasRequiredClaims: !!(header.alg && header.typ),
     hasRecommendedClaims: !!(payload.iss && payload.exp && payload.iat),
-    algorithmSupported: header.alg !== 'none',
+    algorithmSupported: header.alg !== "none",
     structureValid: true,
     complianceScore: Math.max(0, 100 - riskScore),
   }
@@ -298,62 +298,62 @@ const validateGeneratedJWT = (header: JWTHeader, payload: JWTPayload, config: JW
   if (!header.alg) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Missing algorithm (alg) in header',
-      type: 'header',
-      severity: 'error',
-      field: 'alg',
+      message: "Missing algorithm (alg) in header",
+      type: "header",
+      severity: "error",
+      field: "alg",
     })
     validation.qualityScore -= 25
   }
 
-  if (!header.typ || header.typ !== 'JWT') {
-    validation.warnings.push('Missing or incorrect type (typ) in header')
+  if (!header.typ || header.typ !== "JWT") {
+    validation.warnings.push("Missing or incorrect type (typ) in header")
     validation.qualityScore -= 5
   }
 
   // Payload validation
   if (payload.exp && payload.iat && payload.exp <= payload.iat) {
     validation.errors.push({
-      message: 'Expiration time must be after issued time',
-      type: 'payload',
-      severity: 'error',
-      field: 'exp',
+      message: "Expiration time must be after issued time",
+      type: "payload",
+      severity: "error",
+      field: "exp",
     })
     validation.qualityScore -= 20
   }
 
   if (payload.nbf && payload.iat && payload.nbf < payload.iat) {
-    validation.warnings.push('Not before time is before issued time')
+    validation.warnings.push("Not before time is before issued time")
     validation.qualityScore -= 5
   }
 
   // Secret validation for HMAC algorithms
-  if (header.alg.startsWith('HS') && config.secret.length < 8) {
+  if (header.alg.startsWith("HS") && config.secret.length < 8) {
     validation.errors.push({
-      message: 'Secret key is too short',
-      type: 'security',
-      severity: 'error',
-      field: 'secret',
+      message: "Secret key is too short",
+      type: "security",
+      severity: "error",
+      field: "secret",
     })
     validation.qualityScore -= 30
   }
 
   // Quality suggestions
   if (validation.qualityScore >= 90) {
-    validation.suggestions.push('Excellent JWT configuration')
+    validation.suggestions.push("Excellent JWT configuration")
   } else if (validation.qualityScore >= 70) {
-    validation.suggestions.push('Good JWT setup, minor improvements possible')
+    validation.suggestions.push("Good JWT setup, minor improvements possible")
   } else if (validation.qualityScore >= 50) {
-    validation.suggestions.push('JWT configuration needs improvement')
+    validation.suggestions.push("JWT configuration needs improvement")
   } else {
-    validation.suggestions.push('JWT configuration has significant issues')
+    validation.suggestions.push("JWT configuration has significant issues")
   }
 
   return validation
 }
 
 const calculateJWTMetadata = (token: string, header: JWTHeader, payload: JWTPayload): JWTMetadata => {
-  const parts = token.split('.')
+  const parts = token.split(".")
   const headerSize = parts[0]?.length || 0
   const payloadSize = parts[1]?.length || 0
   const signatureSize = parts[2]?.length || 0
@@ -366,12 +366,12 @@ const calculateJWTMetadata = (token: string, header: JWTHeader, payload: JWTPayl
 
   // Estimate strength based on algorithm and key length
   let estimatedStrength = 0
-  if (header.alg === 'none') {
+  if (header.alg === "none") {
     estimatedStrength = 0
-  } else if (header.alg.startsWith('HS')) {
-    estimatedStrength = header.alg === 'HS256' ? 256 : header.alg === 'HS384' ? 384 : 512
-  } else if (header.alg.startsWith('RS')) {
-    estimatedStrength = header.alg === 'RS256' ? 256 : header.alg === 'RS384' ? 384 : 512
+  } else if (header.alg.startsWith("HS")) {
+    estimatedStrength = header.alg === "HS256" ? 256 : header.alg === "HS384" ? 384 : 512
+  } else if (header.alg.startsWith("RS")) {
+    estimatedStrength = header.alg === "RS256" ? 256 : header.alg === "RS384" ? 384 : 512
   }
 
   return {
@@ -406,21 +406,21 @@ const calculateEntropy = (str: string): number => {
 // JWT Templates
 const jwtTemplates: JWTTemplate[] = [
   {
-    id: 'basic-auth',
-    name: 'Basic Authentication',
-    description: 'Simple authentication token with essential claims',
-    category: 'Authentication',
+    id: "basic-auth",
+    name: "Basic Authentication",
+    description: "Simple authentication token with essential claims",
+    category: "Authentication",
     config: {
-      algorithm: 'HS256',
-      expiresIn: '1h',
-      issuer: 'auth.example.com',
-      audience: 'api.example.com',
-      subject: 'user123',
-      secret: 'your-256-bit-secret-key-here-make-it-long-enough',
+      algorithm: "HS256",
+      expiresIn: "1h",
+      issuer: "auth.example.com",
+      audience: "api.example.com",
+      subject: "user123",
+      secret: "your-256-bit-secret-key-here-make-it-long-enough",
       customClaims: {
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        role: 'user',
+        name: "John Doe",
+        email: "john.doe@example.com",
+        role: "user",
       },
       options: {
         includeIssuedAt: true,
@@ -429,29 +429,29 @@ const jwtTemplates: JWTTemplate[] = [
         validateClaims: true,
         allowInsecureAlgorithms: false,
         customHeaderClaims: false,
-        timestampPrecision: 'seconds',
+        timestampPrecision: "seconds",
       },
     },
-    useCase: ['User authentication', 'Session management', 'Basic authorization'],
-    features: ['Standard claims', 'User information', 'Role-based access'],
-    securityLevel: 'medium',
+    useCase: ["User authentication", "Session management", "Basic authorization"],
+    features: ["Standard claims", "User information", "Role-based access"],
+    securityLevel: "medium",
   },
   {
-    id: 'api-access',
-    name: 'API Access Token',
-    description: 'Token for API access with scopes and permissions',
-    category: 'API',
+    id: "api-access",
+    name: "API Access Token",
+    description: "Token for API access with scopes and permissions",
+    category: "API",
     config: {
-      algorithm: 'HS256',
-      expiresIn: '2h',
-      issuer: 'api.service.com',
-      audience: 'api.service.com',
-      subject: 'api_client_123',
-      secret: 'api-secret-key-should-be-very-long-and-secure',
+      algorithm: "HS256",
+      expiresIn: "2h",
+      issuer: "api.service.com",
+      audience: "api.service.com",
+      subject: "api_client_123",
+      secret: "api-secret-key-should-be-very-long-and-secure",
       customClaims: {
-        scope: 'read write delete',
-        permissions: ['users:read', 'users:write', 'admin:read'],
-        client_id: 'web_app_client',
+        scope: "read write delete",
+        permissions: ["users:read", "users:write", "admin:read"],
+        client_id: "web_app_client",
         rate_limit: 1000,
       },
       options: {
@@ -461,29 +461,29 @@ const jwtTemplates: JWTTemplate[] = [
         validateClaims: true,
         allowInsecureAlgorithms: false,
         customHeaderClaims: false,
-        timestampPrecision: 'seconds',
+        timestampPrecision: "seconds",
       },
     },
-    useCase: ['API authorization', 'Service-to-service communication', 'Rate limiting'],
-    features: ['Scopes and permissions', 'Multiple audiences', 'Client identification'],
-    securityLevel: 'high',
+    useCase: ["API authorization", "Service-to-service communication", "Rate limiting"],
+    features: ["Scopes and permissions", "Multiple audiences", "Client identification"],
+    securityLevel: "high",
   },
   {
-    id: 'refresh-token',
-    name: 'Refresh Token',
-    description: 'Long-lived token for refreshing access tokens',
-    category: 'Refresh',
+    id: "refresh-token",
+    name: "Refresh Token",
+    description: "Long-lived token for refreshing access tokens",
+    category: "Refresh",
     config: {
-      algorithm: 'HS256',
-      expiresIn: '30d',
-      issuer: 'auth.service.com',
-      audience: 'auth.service.com',
-      subject: 'user123',
-      secret: 'refresh-token-secret-must-be-different-from-access-token',
+      algorithm: "HS256",
+      expiresIn: "30d",
+      issuer: "auth.service.com",
+      audience: "auth.service.com",
+      subject: "user123",
+      secret: "refresh-token-secret-must-be-different-from-access-token",
       customClaims: {
-        token_type: 'refresh',
-        device_id: 'mobile_app_123',
-        session_id: 'sess_abc123',
+        token_type: "refresh",
+        device_id: "mobile_app_123",
+        session_id: "sess_abc123",
       },
       options: {
         includeIssuedAt: true,
@@ -492,31 +492,31 @@ const jwtTemplates: JWTTemplate[] = [
         validateClaims: true,
         allowInsecureAlgorithms: false,
         customHeaderClaims: false,
-        timestampPrecision: 'seconds',
+        timestampPrecision: "seconds",
       },
     },
-    useCase: ['Token refresh', 'Long-term authentication', 'Session management'],
-    features: ['Long expiration', 'Device tracking', 'Session management'],
-    securityLevel: 'high',
+    useCase: ["Token refresh", "Long-term authentication", "Session management"],
+    features: ["Long expiration", "Device tracking", "Session management"],
+    securityLevel: "high",
   },
   {
-    id: 'admin-token',
-    name: 'Admin Access Token',
-    description: 'High-privilege token for administrative operations',
-    category: 'Admin',
+    id: "admin-token",
+    name: "Admin Access Token",
+    description: "High-privilege token for administrative operations",
+    category: "Admin",
     config: {
-      algorithm: 'HS512',
-      expiresIn: '30m',
-      issuer: 'admin.service.com',
-      audience: 'admin.service.com',
-      subject: 'admin_user_456',
-      secret: 'admin-secret-key-must-be-extremely-secure-and-long',
+      algorithm: "HS512",
+      expiresIn: "30m",
+      issuer: "admin.service.com",
+      audience: "admin.service.com",
+      subject: "admin_user_456",
+      secret: "admin-secret-key-must-be-extremely-secure-and-long",
       customClaims: {
-        role: 'admin',
-        permissions: ['*'],
-        security_level: 'high',
-        admin_level: 'super',
-        ip_restriction: '192.168.1.0/24',
+        role: "admin",
+        permissions: ["*"],
+        security_level: "high",
+        admin_level: "super",
+        ip_restriction: "192.168.1.0/24",
       },
       options: {
         includeIssuedAt: true,
@@ -525,30 +525,30 @@ const jwtTemplates: JWTTemplate[] = [
         validateClaims: true,
         allowInsecureAlgorithms: false,
         customHeaderClaims: true,
-        timestampPrecision: 'seconds',
+        timestampPrecision: "seconds",
       },
     },
-    useCase: ['Administrative operations', 'System management', 'High-privilege access'],
-    features: ['High security', 'Short expiration', 'IP restrictions'],
-    securityLevel: 'high',
+    useCase: ["Administrative operations", "System management", "High-privilege access"],
+    features: ["High security", "Short expiration", "IP restrictions"],
+    securityLevel: "high",
   },
   {
-    id: 'microservice',
-    name: 'Microservice Token',
-    description: 'Service-to-service communication token',
-    category: 'Service',
+    id: "microservice",
+    name: "Microservice Token",
+    description: "Service-to-service communication token",
+    category: "Service",
     config: {
-      algorithm: 'HS256',
-      expiresIn: '5m',
-      issuer: 'service-a.internal',
-      audience: 'service-b.internal',
-      subject: 'service-a',
-      secret: 'microservice-shared-secret-for-internal-communication',
+      algorithm: "HS256",
+      expiresIn: "5m",
+      issuer: "service-a.internal",
+      audience: "service-b.internal",
+      subject: "service-a",
+      secret: "microservice-shared-secret-for-internal-communication",
       customClaims: {
-        service_name: 'user-service',
-        service_version: '1.2.3',
-        environment: 'production',
-        request_id: 'req_123456',
+        service_name: "user-service",
+        service_version: "1.2.3",
+        environment: "production",
+        request_id: "req_123456",
       },
       options: {
         includeIssuedAt: true,
@@ -557,28 +557,28 @@ const jwtTemplates: JWTTemplate[] = [
         validateClaims: true,
         allowInsecureAlgorithms: false,
         customHeaderClaims: false,
-        timestampPrecision: 'seconds',
+        timestampPrecision: "seconds",
       },
     },
-    useCase: ['Service communication', 'Internal APIs', 'Distributed systems'],
-    features: ['Short-lived', 'Service identification', 'Request tracking'],
-    securityLevel: 'medium',
+    useCase: ["Service communication", "Internal APIs", "Distributed systems"],
+    features: ["Short-lived", "Service identification", "Request tracking"],
+    securityLevel: "medium",
   },
   {
-    id: 'testing-insecure',
-    name: 'Testing Token (Insecure)',
-    description: 'Insecure token for testing and development',
-    category: 'Testing',
+    id: "testing-insecure",
+    name: "Testing Token (Insecure)",
+    description: "Insecure token for testing and development",
+    category: "Testing",
     config: {
-      algorithm: 'none',
-      expiresIn: '',
-      issuer: 'test.local',
-      audience: 'test.local',
-      subject: 'test_user',
-      secret: '',
+      algorithm: "none",
+      expiresIn: "",
+      issuer: "test.local",
+      audience: "test.local",
+      subject: "test_user",
+      secret: "",
       customClaims: {
         test: true,
-        environment: 'development',
+        environment: "development",
         debug: true,
       },
       options: {
@@ -588,27 +588,27 @@ const jwtTemplates: JWTTemplate[] = [
         validateClaims: false,
         allowInsecureAlgorithms: true,
         customHeaderClaims: false,
-        timestampPrecision: 'seconds',
+        timestampPrecision: "seconds",
       },
     },
-    useCase: ['Development testing', 'Security demonstrations', 'Educational purposes'],
-    features: ['No signature', 'No expiration', 'Development only'],
-    securityLevel: 'low',
+    useCase: ["Development testing", "Security demonstrations", "Educational purposes"],
+    features: ["No signature", "No expiration", "Development only"],
+    securityLevel: "low",
   },
 ]
 
 // Default configuration
 const createDefaultConfig = (): JWTGeneratorConfig => ({
   id: nanoid(),
-  name: 'New JWT Configuration',
+  name: "New JWT Configuration",
   header: {
-    alg: 'HS256',
-    typ: 'JWT',
+    alg: "HS256",
+    typ: "JWT",
   },
   payload: {},
-  secret: 'your-256-bit-secret',
-  algorithm: 'HS256',
-  expiresIn: '1h',
+  secret: "your-256-bit-secret",
+  algorithm: "HS256",
+  expiresIn: "1h",
   customClaims: {},
   options: {
     includeIssuedAt: true,
@@ -617,7 +617,7 @@ const createDefaultConfig = (): JWTGeneratorConfig => ({
     validateClaims: true,
     allowInsecureAlgorithms: false,
     customHeaderClaims: false,
-    timestampPrecision: 'seconds',
+    timestampPrecision: "seconds",
   },
   createdAt: new Date(),
 })
@@ -636,42 +636,42 @@ const validateJWTConfig = (config: JWTGeneratorConfig): JWTValidation => {
   if (!config.algorithm) {
     validation.isValid = false
     validation.errors.push({
-      message: 'Algorithm is required',
-      type: 'algorithm',
-      severity: 'error',
-      field: 'algorithm',
+      message: "Algorithm is required",
+      type: "algorithm",
+      severity: "error",
+      field: "algorithm",
     })
     validation.qualityScore -= 25
   }
 
-  if (config.algorithm === 'none' && !config.options.allowInsecureAlgorithms) {
+  if (config.algorithm === "none" && !config.options.allowInsecureAlgorithms) {
     validation.isValid = false
     validation.errors.push({
       message: 'Algorithm "none" is not allowed',
-      type: 'algorithm',
-      severity: 'error',
-      field: 'algorithm',
+      type: "algorithm",
+      severity: "error",
+      field: "algorithm",
     })
     validation.qualityScore -= 50
   }
 
   // Secret validation for HMAC algorithms
-  if (config.algorithm.startsWith('HS')) {
+  if (config.algorithm.startsWith("HS")) {
     if (!config.secret) {
       validation.isValid = false
       validation.errors.push({
-        message: 'Secret is required for HMAC algorithms',
-        type: 'security',
-        severity: 'error',
-        field: 'secret',
+        message: "Secret is required for HMAC algorithms",
+        type: "security",
+        severity: "error",
+        field: "secret",
       })
       validation.qualityScore -= 30
     } else if (config.secret.length < 8) {
-      validation.warnings.push('Secret key is too short')
-      validation.suggestions.push('Use a secret key of at least 32 characters')
+      validation.warnings.push("Secret key is too short")
+      validation.suggestions.push("Use a secret key of at least 32 characters")
       validation.qualityScore -= 20
     } else if (config.secret.length < 32) {
-      validation.warnings.push('Secret key could be longer for better security')
+      validation.warnings.push("Secret key could be longer for better security")
       validation.qualityScore -= 10
     }
   }
@@ -680,37 +680,37 @@ const validateJWTConfig = (config: JWTGeneratorConfig): JWTValidation => {
   if (config.expiresIn) {
     const expirationSeconds = parseTimeString(config.expiresIn)
     if (expirationSeconds <= 0) {
-      validation.warnings.push('Invalid expiration time format')
+      validation.warnings.push("Invalid expiration time format")
       validation.suggestions.push('Use format like "1h", "30m", "7d"')
       validation.qualityScore -= 10
     } else if (expirationSeconds > 86400 * 30) {
       // More than 30 days
-      validation.warnings.push('Very long expiration time')
-      validation.suggestions.push('Consider shorter expiration times for better security')
+      validation.warnings.push("Very long expiration time")
+      validation.suggestions.push("Consider shorter expiration times for better security")
       validation.qualityScore -= 5
     }
   }
 
   // Claims validation
   if (!config.issuer) {
-    validation.suggestions.push('Consider adding an issuer (iss) claim')
+    validation.suggestions.push("Consider adding an issuer (iss) claim")
     validation.qualityScore -= 5
   }
 
   if (!config.audience) {
-    validation.suggestions.push('Consider adding an audience (aud) claim')
+    validation.suggestions.push("Consider adding an audience (aud) claim")
     validation.qualityScore -= 5
   }
 
   // Quality suggestions
   if (validation.qualityScore >= 90) {
-    validation.suggestions.push('Excellent JWT configuration')
+    validation.suggestions.push("Excellent JWT configuration")
   } else if (validation.qualityScore >= 70) {
-    validation.suggestions.push('Good JWT configuration, minor improvements possible')
+    validation.suggestions.push("Good JWT configuration, minor improvements possible")
   } else if (validation.qualityScore >= 50) {
-    validation.suggestions.push('JWT configuration needs improvement')
+    validation.suggestions.push("JWT configuration needs improvement")
   } else {
-    validation.suggestions.push('JWT configuration has significant security issues')
+    validation.suggestions.push("JWT configuration has significant security issues")
   }
 
   return validation
@@ -739,10 +739,10 @@ const useJWTGenerator = () => {
     try {
       const batch: JWTBatch = {
         id: nanoid(),
-        name: batchSettings.namingPattern || 'JWT Batch',
+        name: batchSettings.namingPattern || "JWT Batch",
         tokens: [],
         settings: batchSettings,
-        status: 'processing',
+        status: "processing",
         progress: 0,
         statistics: {
           totalGenerated: 0,
@@ -774,7 +774,7 @@ const useJWTGenerator = () => {
 
           // Vary expiration if requested
           if (batchSettings.varyExpiration) {
-            const variations = ['30m', '1h', '2h', '4h', '8h']
+            const variations = ["30m", "1h", "2h", "4h", "8h"]
             config.expiresIn = variations[i % variations.length]
           }
 
@@ -785,7 +785,7 @@ const useJWTGenerator = () => {
           const progress = ((i + 1) / batchSettings.count) * 100
           batch.progress = progress
         } catch (error) {
-          console.error('Failed to generate JWT:', error)
+          console.error("Failed to generate JWT:", error)
         }
       }
 
@@ -816,7 +816,7 @@ const useJWTGenerator = () => {
       }
 
       batch.tokens = batchTokens
-      batch.status = 'completed'
+      batch.status = "completed"
       batch.progress = 100
       batch.statistics = statistics
       batch.completedAt = new Date()
@@ -853,13 +853,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -869,35 +869,35 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useJWTExport = () => {
   const exportToken = useCallback((token: GeneratedJWT, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(token, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromToken(token)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'txt':
+      case "txt":
         content = generateTextFromToken(token)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromToken(token)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'yaml':
+      case "yaml":
         content = generateYAMLFromToken(token)
-        mimeType = 'text/yaml'
-        extension = '.yaml'
+        mimeType = "text/yaml"
+        extension = ".yaml"
         break
       default:
         content = token.token
@@ -906,7 +906,7 @@ const useJWTExport = () => {
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `jwt-token-${token.id}${extension}`
     document.body.appendChild(link)
@@ -917,9 +917,9 @@ const useJWTExport = () => {
 
   const exportBatch = useCallback((batch: JWTBatch) => {
     const content = JSON.stringify(batch, null, 2)
-    const blob = new Blob([content], { type: 'application/json;charset=utf-8' })
+    const blob = new Blob([content], { type: "application/json;charset=utf-8" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = `${batch.name}.json`
     document.body.appendChild(link)
@@ -933,27 +933,27 @@ const useJWTExport = () => {
 
 // Helper functions for export formats
 const generateCSVFromToken = (token: GeneratedJWT): string => {
-  const headers = ['Field', 'Value', 'Type', 'Description']
+  const headers = ["Field", "Value", "Type", "Description"]
   const rows: string[][] = []
 
   // Token info
-  rows.push(['token', token.token, 'string', 'Generated JWT Token'])
-  rows.push(['algorithm', token.config.algorithm, 'string', 'Signing Algorithm'])
-  rows.push(['isValid', String(token.analysis.isValid), 'boolean', 'Token Validity'])
-  rows.push(['securityLevel', token.analysis.securityLevel, 'string', 'Security Level'])
-  rows.push(['riskScore', String(token.analysis.riskScore), 'number', 'Risk Score'])
+  rows.push(["token", token.token, "string", "Generated JWT Token"])
+  rows.push(["algorithm", token.config.algorithm, "string", "Signing Algorithm"])
+  rows.push(["isValid", String(token.analysis.isValid), "boolean", "Token Validity"])
+  rows.push(["securityLevel", token.analysis.securityLevel, "string", "Security Level"])
+  rows.push(["riskScore", String(token.analysis.riskScore), "number", "Risk Score"])
 
   // Header fields
   Object.entries(token.header).forEach(([key, value]) => {
-    rows.push([`header.${key}`, String(value), typeof value, 'JWT Header'])
+    rows.push([`header.${key}`, String(value), typeof value, "JWT Header"])
   })
 
   // Payload fields
   Object.entries(token.payload).forEach(([key, value]) => {
-    rows.push([`payload.${key}`, String(value), typeof value, 'JWT Payload'])
+    rows.push([`payload.${key}`, String(value), typeof value, "JWT Payload"])
   })
 
-  return [headers.join(','), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join('\n')
+  return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
 }
 
 const generateTextFromToken = (token: GeneratedJWT): string => {
@@ -964,11 +964,11 @@ ${token.token}
 
 === CONFIGURATION ===
 Algorithm: ${token.config.algorithm}
-Secret: ${token.config.secret ? '[REDACTED]' : 'None'}
-Expires In: ${token.config.expiresIn || 'Never'}
-Issuer: ${token.config.issuer || 'Not specified'}
-Audience: ${token.config.audience || 'Not specified'}
-Subject: ${token.config.subject || 'Not specified'}
+Secret: ${token.config.secret ? "[REDACTED]" : "None"}
+Expires In: ${token.config.expiresIn || "Never"}
+Issuer: ${token.config.issuer || "Not specified"}
+Audience: ${token.config.audience || "Not specified"}
+Subject: ${token.config.subject || "Not specified"}
 
 === HEADER ===
 ${JSON.stringify(token.header, null, 2)}
@@ -989,12 +989,12 @@ Estimated Strength: ${token.metadata.estimatedStrength} bits
 Entropy: ${token.metadata.entropy.toFixed(2)}
 
 === SECURITY ANALYSIS ===
-${token.analysis.warnings.length > 0 ? 'Warnings:\n' + token.analysis.warnings.map((w) => `- ${w}`).join('\n') : 'No warnings'}
+${token.analysis.warnings.length > 0 ? "Warnings:\n" + token.analysis.warnings.map((w) => `- ${w}`).join("\n") : "No warnings"}
 
-${token.analysis.errors.length > 0 ? '\nErrors:\n' + token.analysis.errors.map((e) => `- ${e}`).join('\n') : ''}
+${token.analysis.errors.length > 0 ? "\nErrors:\n" + token.analysis.errors.map((e) => `- ${e}`).join("\n") : ""}
 
 === RECOMMENDATIONS ===
-${token.analysis.recommendations.map((r) => `- ${r}`).join('\n')}`
+${token.analysis.recommendations.map((r) => `- ${r}`).join("\n")}`
 }
 
 const generateXMLFromToken = (token: GeneratedJWT): string => {
@@ -1004,19 +1004,19 @@ const generateXMLFromToken = (token: GeneratedJWT): string => {
   <configuration>
     <algorithm>${token.config.algorithm}</algorithm>
     <expiresIn>${token.config.expiresIn}</expiresIn>
-    <issuer>${token.config.issuer || ''}</issuer>
-    <audience>${token.config.audience || ''}</audience>
-    <subject>${token.config.subject || ''}</subject>
+    <issuer>${token.config.issuer || ""}</issuer>
+    <audience>${token.config.audience || ""}</audience>
+    <subject>${token.config.subject || ""}</subject>
   </configuration>
   <header>
     ${Object.entries(token.header)
       .map(([key, value]) => `<${key}>${value}</${key}>`)
-      .join('\n    ')}
+      .join("\n    ")}
   </header>
   <payload>
     ${Object.entries(token.payload)
       .map(([key, value]) => `<${key}>${value}</${key}>`)
-      .join('\n    ')}
+      .join("\n    ")}
   </payload>
   <analysis>
     <isValid>${token.analysis.isValid}</isValid>
@@ -1040,17 +1040,17 @@ token: ${token.token}
 configuration:
   algorithm: ${token.config.algorithm}
   expiresIn: ${token.config.expiresIn}
-  issuer: ${token.config.issuer || ''}
-  audience: ${token.config.audience || ''}
-  subject: ${token.config.subject || ''}
+  issuer: ${token.config.issuer || ""}
+  audience: ${token.config.audience || ""}
+  subject: ${token.config.subject || ""}
 header:
 ${Object.entries(token.header)
   .map(([key, value]) => `  ${key}: ${JSON.stringify(value)}`)
-  .join('\n')}
+  .join("\n")}
 payload:
 ${Object.entries(token.payload)
   .map(([key, value]) => `  ${key}: ${JSON.stringify(value)}`)
-  .join('\n')}
+  .join("\n")}
 analysis:
   isValid: ${token.analysis.isValid}
   securityLevel: ${token.analysis.securityLevel}
@@ -1068,8 +1068,8 @@ metadata:
  * Features: Advanced JWT generation, security analysis, validation, and batch processing
  */
 const JWTGeneratorCore = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'batch' | 'history' | 'templates'>('generator')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<"generator" | "batch" | "history" | "templates">("generator")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [currentToken, setCurrentToken] = useState<GeneratedJWT | null>(null)
   const [config, setConfig] = useState<JWTGeneratorConfig>(createDefaultConfig())
 
@@ -1112,9 +1112,9 @@ const JWTGeneratorCore = () => {
     try {
       const token = await generateToken(config)
       setCurrentToken(token)
-      toast.success('JWT generated successfully')
+      toast.success("JWT generated successfully")
     } catch (error) {
-      toast.error('Failed to generate JWT')
+      toast.error("Failed to generate JWT")
       console.error(error)
     }
   }, [config, generateToken])
@@ -1129,12 +1129,15 @@ const JWTGeneratorCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Wrench className="h-5 w-5" aria-hidden="true" />
+              <Wrench className="h-5 w-5" />
               JWT Generator & Management Tool
             </CardTitle>
             <CardDescription>
@@ -1148,29 +1151,44 @@ const JWTGeneratorCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'generator' | 'batch' | 'history' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "generator" | "batch" | "history" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <Wrench className="h-4 w-4" />
               Generator
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Layers className="h-4 w-4" />
               Batch
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* JWT Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* JWT Configuration */}
               <Card>
@@ -1183,7 +1201,10 @@ const JWTGeneratorCore = () => {
                 <CardContent className="space-y-4">
                   {/* Algorithm Selection */}
                   <div>
-                    <Label htmlFor="algorithm" className="text-sm font-medium">
+                    <Label
+                      htmlFor="algorithm"
+                      className="text-sm font-medium"
+                    >
                       Algorithm
                     </Label>
                     <Select
@@ -1211,9 +1232,12 @@ const JWTGeneratorCore = () => {
                   </div>
 
                   {/* Secret Key */}
-                  {config.algorithm.startsWith('HS') && (
+                  {config.algorithm.startsWith("HS") && (
                     <div>
-                      <Label htmlFor="secret" className="text-sm font-medium">
+                      <Label
+                        htmlFor="secret"
+                        className="text-sm font-medium"
+                      >
                         Secret Key
                       </Label>
                       <Input
@@ -1236,24 +1260,30 @@ const JWTGeneratorCore = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="issuer" className="text-xs">
+                        <Label
+                          htmlFor="issuer"
+                          className="text-xs"
+                        >
                           Issuer (iss)
                         </Label>
                         <Input
                           id="issuer"
-                          value={config.issuer || ''}
+                          value={config.issuer || ""}
                           onChange={(e) => setConfig((prev) => ({ ...prev, issuer: e.target.value }))}
                           placeholder="auth.example.com"
                           className="mt-1"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="subject" className="text-xs">
+                        <Label
+                          htmlFor="subject"
+                          className="text-xs"
+                        >
                           Subject (sub)
                         </Label>
                         <Input
                           id="subject"
-                          value={config.subject || ''}
+                          value={config.subject || ""}
                           onChange={(e) => setConfig((prev) => ({ ...prev, subject: e.target.value }))}
                           placeholder="user123"
                           className="mt-1"
@@ -1263,19 +1293,25 @@ const JWTGeneratorCore = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="audience" className="text-xs">
+                        <Label
+                          htmlFor="audience"
+                          className="text-xs"
+                        >
                           Audience (aud)
                         </Label>
                         <Input
                           id="audience"
-                          value={config.audience || ''}
+                          value={config.audience || ""}
                           onChange={(e) => setConfig((prev) => ({ ...prev, audience: e.target.value }))}
                           placeholder="api.example.com"
                           className="mt-1"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="expires-in" className="text-xs">
+                        <Label
+                          htmlFor="expires-in"
+                          className="text-xs"
+                        >
                           Expires In
                         </Label>
                         <Input
@@ -1289,12 +1325,15 @@ const JWTGeneratorCore = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="jwt-id" className="text-xs">
+                      <Label
+                        htmlFor="jwt-id"
+                        className="text-xs"
+                      >
                         JWT ID (jti)
                       </Label>
                       <Input
                         id="jwt-id"
-                        value={config.jwtId || ''}
+                        value={config.jwtId || ""}
                         onChange={(e) => setConfig((prev) => ({ ...prev, jwtId: e.target.value }))}
                         placeholder="unique-token-id"
                         className="mt-1"
@@ -1339,7 +1378,10 @@ const JWTGeneratorCore = () => {
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-iat" className="text-xs">
+                        <Label
+                          htmlFor="include-iat"
+                          className="text-xs"
+                        >
                           Include issued at (iat) claim
                         </Label>
                       </div>
@@ -1357,7 +1399,10 @@ const JWTGeneratorCore = () => {
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="include-jti" className="text-xs">
+                        <Label
+                          htmlFor="include-jti"
+                          className="text-xs"
+                        >
                           Include JWT ID (jti) claim
                         </Label>
                       </div>
@@ -1375,7 +1420,10 @@ const JWTGeneratorCore = () => {
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="validate-claims" className="text-xs">
+                        <Label
+                          htmlFor="validate-claims"
+                          className="text-xs"
+                        >
                           Validate claims before generation
                         </Label>
                       </div>
@@ -1393,7 +1441,10 @@ const JWTGeneratorCore = () => {
                           }
                           className="rounded border-input"
                         />
-                        <Label htmlFor="allow-insecure" className="text-xs">
+                        <Label
+                          htmlFor="allow-insecure"
+                          className="text-xs"
+                        >
                           Allow insecure algorithms (none)
                         </Label>
                       </div>
@@ -1401,15 +1452,22 @@ const JWTGeneratorCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleGenerate} disabled={isGenerating} className="flex-1">
+                    <Button
+                      onClick={handleGenerate}
+                      disabled={isGenerating}
+                      className="flex-1"
+                    >
                       {isGenerating ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
                         <Wrench className="mr-2 h-4 w-4" />
                       )}
-                      {isGenerating ? 'Generating...' : 'Generate JWT'}
+                      {isGenerating ? "Generating..." : "Generate JWT"}
                     </Button>
-                    <Button onClick={() => setConfig(createDefaultConfig())} variant="outline">
+                    <Button
+                      onClick={() => setConfig(createDefaultConfig())}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Reset
                     </Button>
@@ -1436,13 +1494,17 @@ const JWTGeneratorCore = () => {
                         </div>
                         <div className="flex gap-2 mt-2">
                           <Button
-                            onClick={() => copyToClipboard(currentToken.token, 'JWT Token')}
+                            onClick={() => copyToClipboard(currentToken.token, "JWT Token")}
                             variant="outline"
                             size="sm"
                           >
-                            {copiedText === 'JWT Token' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                            {copiedText === "JWT Token" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                           </Button>
-                          <Button onClick={() => exportToken(currentToken, 'txt')} variant="outline" size="sm">
+                          <Button
+                            onClick={() => exportToken(currentToken, "txt")}
+                            variant="outline"
+                            size="sm"
+                          >
                             <Download className="mr-2 h-4 w-4" />
                             Export
                           </Button>
@@ -1455,13 +1517,13 @@ const JWTGeneratorCore = () => {
                           <span className="text-sm font-medium">Security Analysis</span>
                           <span
                             className={`text-xs px-2 py-1 rounded ${
-                              currentToken.analysis.securityLevel === 'high'
-                                ? 'bg-green-100 text-green-800'
-                                : currentToken.analysis.securityLevel === 'medium'
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : currentToken.analysis.securityLevel === 'low'
-                                    ? 'bg-orange-100 text-orange-800'
-                                    : 'bg-red-100 text-red-800'
+                              currentToken.analysis.securityLevel === "high"
+                                ? "bg-green-100 text-green-800"
+                                : currentToken.analysis.securityLevel === "medium"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : currentToken.analysis.securityLevel === "low"
+                                    ? "bg-orange-100 text-orange-800"
+                                    : "bg-red-100 text-red-800"
                             }`}
                           >
                             {currentToken.analysis.securityLevel.toUpperCase()}
@@ -1471,18 +1533,18 @@ const JWTGeneratorCore = () => {
                           <div
                             className={`h-2 rounded-full ${
                               currentToken.analysis.riskScore < 20
-                                ? 'bg-green-500'
+                                ? "bg-green-500"
                                 : currentToken.analysis.riskScore < 40
-                                  ? 'bg-yellow-500'
+                                  ? "bg-yellow-500"
                                   : currentToken.analysis.riskScore < 60
-                                    ? 'bg-orange-500'
-                                    : 'bg-red-500'
+                                    ? "bg-orange-500"
+                                    : "bg-red-500"
                             }`}
                             style={{ width: `${Math.max(10, 100 - currentToken.analysis.riskScore)}%` }}
                           ></div>
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          Risk Score: {currentToken.analysis.riskScore}% | Compliance:{' '}
+                          Risk Score: {currentToken.analysis.riskScore}% | Compliance:{" "}
                           {currentToken.analysis.compliance.complianceScore}%
                         </div>
                       </div>
@@ -1491,14 +1553,20 @@ const JWTGeneratorCore = () => {
                       <div className="space-y-3">
                         <Label className="text-sm font-medium">Token Structure</Label>
 
-                        <Tabs defaultValue="header" className="w-full">
+                        <Tabs
+                          defaultValue="header"
+                          className="w-full"
+                        >
                           <TabsList className="grid w-full grid-cols-3">
                             <TabsTrigger value="header">Header</TabsTrigger>
                             <TabsTrigger value="payload">Payload</TabsTrigger>
                             <TabsTrigger value="signature">Signature</TabsTrigger>
                           </TabsList>
 
-                          <TabsContent value="header" className="mt-3">
+                          <TabsContent
+                            value="header"
+                            className="mt-3"
+                          >
                             <div className="bg-muted p-3 rounded-lg">
                               <pre className="text-xs font-mono whitespace-pre-wrap">
                                 {JSON.stringify(currentToken.header, null, 2)}
@@ -1506,7 +1574,10 @@ const JWTGeneratorCore = () => {
                             </div>
                           </TabsContent>
 
-                          <TabsContent value="payload" className="mt-3">
+                          <TabsContent
+                            value="payload"
+                            className="mt-3"
+                          >
                             <div className="bg-muted p-3 rounded-lg">
                               <pre className="text-xs font-mono whitespace-pre-wrap">
                                 {JSON.stringify(currentToken.payload, null, 2)}
@@ -1514,10 +1585,13 @@ const JWTGeneratorCore = () => {
                             </div>
                           </TabsContent>
 
-                          <TabsContent value="signature" className="mt-3">
+                          <TabsContent
+                            value="signature"
+                            className="mt-3"
+                          >
                             <div className="bg-muted p-3 rounded-lg">
                               <div className="text-xs font-mono break-all">
-                                {currentToken.signature || 'No signature (algorithm: none)'}
+                                {currentToken.signature || "No signature (algorithm: none)"}
                               </div>
                             </div>
                           </TabsContent>
@@ -1569,7 +1643,10 @@ const JWTGeneratorCore = () => {
                               <div className="text-sm font-medium text-blue-600 mb-1">Recommendations</div>
                               <div className="space-y-1">
                                 {currentToken.analysis.recommendations.slice(0, 3).map((rec, index) => (
-                                  <div key={index} className="text-xs p-2 bg-blue-50 border border-blue-200 rounded">
+                                  <div
+                                    key={index}
+                                    className="text-xs p-2 bg-blue-50 border border-blue-200 rounded"
+                                  >
                                     {rec}
                                   </div>
                                 ))}
@@ -1581,15 +1658,27 @@ const JWTGeneratorCore = () => {
 
                       {/* Export Options */}
                       <div className="flex gap-2 pt-4 border-t">
-                        <Button onClick={() => exportToken(currentToken, 'json')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportToken(currentToken, "json")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           JSON
                         </Button>
-                        <Button onClick={() => exportToken(currentToken, 'csv')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportToken(currentToken, "csv")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           CSV
                         </Button>
-                        <Button onClick={() => exportToken(currentToken, 'txt')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportToken(currentToken, "txt")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           Report
                         </Button>
@@ -1610,7 +1699,10 @@ const JWTGeneratorCore = () => {
           </TabsContent>
 
           {/* Placeholder for other tabs */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Batch JWT Generation</CardTitle>
@@ -1626,7 +1718,10 @@ const JWTGeneratorCore = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent
+            value="history"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Generation History</CardTitle>
@@ -1636,7 +1731,10 @@ const JWTGeneratorCore = () => {
                 {tokens.length > 0 ? (
                   <div className="space-y-4">
                     {tokens.slice(0, 10).map((token) => (
-                      <div key={token.id} className="border rounded-lg p-4">
+                      <div
+                        key={token.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex justify-between items-start mb-2">
                           <div className="font-medium text-sm">{token.createdAt.toLocaleString()}</div>
                           <div className="flex items-center gap-2">
@@ -1647,13 +1745,13 @@ const JWTGeneratorCore = () => {
                             )}
                             <span
                               className={`text-xs px-2 py-1 rounded ${
-                                token.analysis.securityLevel === 'high'
-                                  ? 'bg-green-100 text-green-800'
-                                  : token.analysis.securityLevel === 'medium'
-                                    ? 'bg-yellow-100 text-yellow-800'
-                                    : token.analysis.securityLevel === 'low'
-                                      ? 'bg-orange-100 text-orange-800'
-                                      : 'bg-red-100 text-red-800'
+                                token.analysis.securityLevel === "high"
+                                  ? "bg-green-100 text-green-800"
+                                  : token.analysis.securityLevel === "medium"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : token.analysis.securityLevel === "low"
+                                      ? "bg-orange-100 text-orange-800"
+                                      : "bg-red-100 text-red-800"
                               }`}
                             >
                               {token.analysis.securityLevel}
@@ -1679,13 +1777,25 @@ const JWTGeneratorCore = () => {
                           </div>
                         </div>
                         <div className="flex gap-2 mt-3">
-                          <Button size="sm" variant="outline" onClick={() => exportToken(token, 'json')}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => exportToken(token, "json")}
+                          >
                             <Download className="h-3 w-3" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => copyToClipboard(token.token, 'JWT Token')}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => copyToClipboard(token.token, "JWT Token")}
+                          >
                             <Copy className="h-3 w-3" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => removeToken(token.id)}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => removeToken(token.id)}
+                          >
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
@@ -1708,7 +1818,10 @@ const JWTGeneratorCore = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">JWT Templates</CardTitle>
@@ -1720,7 +1833,7 @@ const JWTGeneratorCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1731,11 +1844,11 @@ const JWTGeneratorCore = () => {
                             <span className="text-xs px-2 py-1 bg-muted rounded">{template.category}</span>
                             <span
                               className={`text-xs px-2 py-1 rounded ${
-                                template.securityLevel === 'high'
-                                  ? 'bg-green-100 text-green-800'
-                                  : template.securityLevel === 'medium'
-                                    ? 'bg-yellow-100 text-yellow-800'
-                                    : 'bg-red-100 text-red-800'
+                                template.securityLevel === "high"
+                                  ? "bg-green-100 text-green-800"
+                                  : template.securityLevel === "medium"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
                               }`}
                             >
                               {template.securityLevel}
@@ -1746,17 +1859,17 @@ const JWTGeneratorCore = () => {
                         <div className="space-y-2">
                           <div>
                             <div className="text-xs font-medium mb-1">Use Cases:</div>
-                            <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Features:</div>
-                            <div className="text-xs text-muted-foreground">{template.features.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.features.join(", ")}</div>
                           </div>
                           {template.config && (
                             <div>
                               <div className="text-xs font-medium mb-1">Configuration:</div>
                               <div className="text-xs text-muted-foreground">
-                                Algorithm: {template.config.algorithm}, Expires: {template.config.expiresIn || 'Never'}
+                                Algorithm: {template.config.algorithm}, Expires: {template.config.expiresIn || "Never"}
                               </div>
                             </div>
                           )}

@@ -28,7 +28,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       collapsible="offcanvas"
       {...props}
       role="navigation"
-      aria-label={t("sidebar.navigation")}
       className="sidebar-tablet lg:sidebar-desktop"
     >
       {!isDesktop && (
@@ -44,13 +43,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               >
                 <Link
                   to="/"
-                  aria-label={t("navigation.home")}
                   className="flex items-center gap-2"
                 >
-                  <IconInnerShadowTop
-                    className="size-4! sm:size-5! text-primary shrink-0"
-                    aria-hidden="true"
-                  />
+                  <IconInnerShadowTop className="size-4! sm:size-5! text-primary shrink-0" />
                   <span className="text-sm sm:text-base font-semibold truncate">Kit.</span>
                 </Link>
               </SidebarMenuButton>
@@ -61,7 +56,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent
         className={`px-2 sm:px-3 ${isDesktop ? "pt-[calc(32px+0.75rem)]" : ""}`}
         role="main"
-        aria-label={t("sidebar.tools")}
       >
         <NavMain items={data.navMain} />
       </SidebarContent>

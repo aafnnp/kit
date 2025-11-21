@@ -1,44 +1,44 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { toast } from 'sonner'
-import { Upload, Download, FileText, Loader2, FileImage, Trash2, BarChart3, BookOpen, Target } from 'lucide-react'
-import { nanoid } from 'nanoid'
-import type { TextFile, TextAnalysis, AnalysisSettings, AnalysisStats } from '@/types/word-count'
-import { formatFileSize } from '@/lib/utils'
+import React, { useCallback, useRef, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from "sonner"
+import { Upload, Download, FileText, Loader2, FileImage, Trash2, BarChart3, BookOpen, Target } from "lucide-react"
+import { nanoid } from "nanoid"
+import type { TextFile, TextAnalysis, AnalysisSettings, AnalysisStats } from "@/types/word-count"
+import { formatFileSize } from "@/lib/utils"
 
 const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
   const allowedTypes = [
-    'text/plain',
-    'text/markdown',
-    'text/rtf',
-    'text/csv',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/pdf',
-    'application/json',
-    'text/html',
-    'text/xml',
+    "text/plain",
+    "text/markdown",
+    "text/rtf",
+    "text/csv",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/pdf",
+    "application/json",
+    "text/html",
+    "text/xml",
   ]
 
   // Check file extension as fallback
-  const extension = file.name.toLowerCase().split('.').pop()
-  const allowedExtensions = ['txt', 'md', 'rtf', 'csv', 'doc', 'docx', 'pdf', 'json', 'html', 'xml']
+  const extension = file.name.toLowerCase().split(".").pop()
+  const allowedExtensions = ["txt", "md", "rtf", "csv", "doc", "docx", "pdf", "json", "html", "xml"]
 
-  if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(extension || '')) {
+  if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(extension || "")) {
     return {
       isValid: false,
-      error: 'Unsupported file format. Please use TXT, MD, RTF, CSV, DOC, DOCX, PDF, JSON, HTML, or XML.',
+      error: "Unsupported file format. Please use TXT, MD, RTF, CSV, DOC, DOCX, PDF, JSON, HTML, or XML.",
     }
   }
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size too large. Maximum size is 50MB.' }
+    return { isValid: false, error: "File size too large. Maximum size is 50MB." }
   }
 
   return { isValid: true }
@@ -47,75 +47,75 @@ const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
 // Common words to exclude from keyword analysis
 const commonWords = {
   en: new Set([
-    'the',
-    'be',
-    'to',
-    'of',
-    'and',
-    'a',
-    'in',
-    'that',
-    'have',
-    'i',
-    'it',
-    'for',
-    'not',
-    'on',
-    'with',
-    'he',
-    'as',
-    'you',
-    'do',
-    'at',
-    'this',
-    'but',
-    'his',
-    'by',
-    'from',
-    'they',
-    'we',
-    'say',
-    'her',
-    'she',
-    'or',
-    'an',
-    'will',
-    'my',
-    'one',
-    'all',
-    'would',
-    'there',
-    'their',
+    "the",
+    "be",
+    "to",
+    "of",
+    "and",
+    "a",
+    "in",
+    "that",
+    "have",
+    "i",
+    "it",
+    "for",
+    "not",
+    "on",
+    "with",
+    "he",
+    "as",
+    "you",
+    "do",
+    "at",
+    "this",
+    "but",
+    "his",
+    "by",
+    "from",
+    "they",
+    "we",
+    "say",
+    "her",
+    "she",
+    "or",
+    "an",
+    "will",
+    "my",
+    "one",
+    "all",
+    "would",
+    "there",
+    "their",
   ]),
   zh: new Set([
-    '的',
-    '了',
-    '在',
-    '是',
-    '我',
-    '有',
-    '和',
-    '就',
-    '不',
-    '人',
-    '都',
-    '一',
-    '一个',
-    '上',
-    '也',
-    '很',
-    '到',
-    '说',
-    '要',
-    '去',
-    '你',
-    '会',
-    '着',
-    '没有',
-    '看',
-    '好',
-    '自己',
-    '这',
+    "的",
+    "了",
+    "在",
+    "是",
+    "我",
+    "有",
+    "和",
+    "就",
+    "不",
+    "人",
+    "都",
+    "一",
+    "一个",
+    "上",
+    "也",
+    "很",
+    "到",
+    "说",
+    "要",
+    "去",
+    "你",
+    "会",
+    "着",
+    "没有",
+    "看",
+    "好",
+    "自己",
+    "这",
   ]),
   auto: new Set(),
 }
@@ -124,11 +124,11 @@ const commonWords = {
 const analyzeText = (text: string, settings: AnalysisSettings): TextAnalysis => {
   // Basic counts
   const characters = text.length
-  const charactersNoSpaces = text.replace(/\s/g, '').length
+  const charactersNoSpaces = text.replace(/\s/g, "").length
 
   // Word count
   const words =
-    text.trim() === ''
+    text.trim() === ""
       ? 0
       : text
           .trim()
@@ -142,7 +142,7 @@ const analyzeText = (text: string, settings: AnalysisSettings): TextAnalysis => 
   const paragraphs = text.split(/\n\s*\n/).filter((p) => p.trim().length > 0).length
 
   // Line count
-  const lines = text.split('\n').length
+  const lines = text.split("\n").length
 
   // Reading time (average reading speed)
   const readingTime = words / settings.wordsPerMinute
@@ -164,12 +164,12 @@ const analyzeText = (text: string, settings: AnalysisSettings): TextAnalysis => 
   // Keyword frequency analysis
   const wordList = text
     .toLowerCase()
-    .replace(/[^\w\s]/g, ' ')
+    .replace(/[^\w\s]/g, " ")
     .split(/\s+/)
     .filter((word) => word.length >= settings.minWordLength)
 
   const excludeWords = settings.excludeCommonWords
-    ? settings.language === 'auto'
+    ? settings.language === "auto"
       ? commonWords.en
       : commonWords[settings.language]
     : new Set()
@@ -189,10 +189,10 @@ const analyzeText = (text: string, settings: AnalysisSettings): TextAnalysis => 
 
   // Longest and shortest words
   const validWords = wordList.filter((word) => word.length > 0)
-  const longestWord = validWords.reduce((longest, word) => (word.length > longest.length ? word : longest), '')
+  const longestWord = validWords.reduce((longest, word) => (word.length > longest.length ? word : longest), "")
   const shortestWord = validWords.reduce(
     (shortest, word) => (word.length < shortest.length ? word : shortest),
-    validWords[0] || ''
+    validWords[0] || ""
   )
 
   return {
@@ -220,7 +220,7 @@ const useTextProcessing = () => {
       // Validate file size before processing
       const maxProcessingSize = 100 * 1024 * 1024 // 100MB
       if (file.size > maxProcessingSize) {
-        reject(new Error('File too large for processing. Please use a file smaller than 100MB.'))
+        reject(new Error("File too large for processing. Please use a file smaller than 100MB."))
         return
       }
 
@@ -231,23 +231,23 @@ const useTextProcessing = () => {
           const result = reader.result as string
 
           // Basic text extraction based on file type
-          if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+          if (file.type === "text/plain" || file.name.endsWith(".txt")) {
             resolve(result)
-          } else if (file.type === 'text/markdown' || file.name.endsWith('.md')) {
+          } else if (file.type === "text/markdown" || file.name.endsWith(".md")) {
             // Remove markdown syntax for word counting
             const cleanText = result
-              .replace(/#{1,6}\s+/g, '') // Remove headers
-              .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
-              .replace(/\*(.*?)\*/g, '$1') // Remove italic
-              .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links
-              .replace(/`(.*?)`/g, '$1') // Remove inline code
-              .replace(/```[\s\S]*?```/g, '') // Remove code blocks
+              .replace(/#{1,6}\s+/g, "") // Remove headers
+              .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
+              .replace(/\*(.*?)\*/g, "$1") // Remove italic
+              .replace(/\[(.*?)\]\(.*?\)/g, "$1") // Remove links
+              .replace(/`(.*?)`/g, "$1") // Remove inline code
+              .replace(/```[\s\S]*?```/g, "") // Remove code blocks
             resolve(cleanText)
-          } else if (file.type === 'text/html' || file.name.endsWith('.html')) {
+          } else if (file.type === "text/html" || file.name.endsWith(".html")) {
             // Remove HTML tags
-            const cleanText = result.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ')
+            const cleanText = result.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ")
             resolve(cleanText)
-          } else if (file.type === 'application/json' || file.name.endsWith('.json')) {
+          } else if (file.type === "application/json" || file.name.endsWith(".json")) {
             try {
               const jsonData = JSON.parse(result)
               const textContent = JSON.stringify(jsonData, null, 2)
@@ -260,19 +260,19 @@ const useTextProcessing = () => {
             resolve(result)
           }
         } catch (error) {
-          reject(new Error('Failed to process file content'))
+          reject(new Error("Failed to process file content"))
         }
       }
 
       reader.onerror = () => {
-        reject(new Error('Failed to read file. The file may be corrupted.'))
+        reject(new Error("Failed to read file. The file may be corrupted."))
       }
 
       // Read file as text
       try {
-        reader.readAsText(file, 'UTF-8')
+        reader.readAsText(file, "UTF-8")
       } catch (error) {
-        reject(new Error('Failed to read file. Please ensure the file is a valid text file.'))
+        reject(new Error("Failed to read file. Please ensure the file is a valid text file."))
       }
     })
   }, [])
@@ -297,8 +297,8 @@ const useTextAnalysis = (text: string, settings: AnalysisSettings) => {
         readabilityScore: 0,
         keywordFrequency: {},
         mostCommonWords: [],
-        longestWord: '',
-        shortestWord: '',
+        longestWord: "",
+        shortestWord: "",
       }
     }
 
@@ -335,11 +335,11 @@ const useTextExport = () => {
       },
     }
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = `${filename.replace(/\.[^/.]+$/, '')}_analysis.json`
+    link.download = `${filename.replace(/\.[^/.]+$/, "")}_analysis.json`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -348,19 +348,19 @@ const useTextExport = () => {
 
   const exportCSV = useCallback((files: TextFile[]) => {
     const headers = [
-      'Filename',
-      'Characters',
-      'Characters (No Spaces)',
-      'Words',
-      'Sentences',
-      'Paragraphs',
-      'Lines',
-      'Reading Time (min)',
-      'Avg Words/Sentence',
-      'Avg Chars/Word',
-      'Readability Score',
-      'Longest Word',
-      'Shortest Word',
+      "Filename",
+      "Characters",
+      "Characters (No Spaces)",
+      "Words",
+      "Sentences",
+      "Paragraphs",
+      "Lines",
+      "Reading Time (min)",
+      "Avg Words/Sentence",
+      "Avg Chars/Word",
+      "Readability Score",
+      "Longest Word",
+      "Shortest Word",
     ]
 
     const rows = files
@@ -384,13 +384,13 @@ const useTextExport = () => {
         ]
       })
 
-    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'text_analysis_report.csv'
+    link.download = "text_analysis_report.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -406,7 +406,7 @@ const useTextExport = () => {
  */
 const WordCount = () => {
   const [files, setFiles] = useState<TextFile[]>([])
-  const [manualText, setManualText] = useState('')
+  const [manualText, setManualText] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [settings, setSettings] = useState<AnalysisSettings>({
     includeSpaces: true,
@@ -414,10 +414,10 @@ const WordCount = () => {
     wordsPerMinute: 200,
     minWordLength: 3,
     excludeCommonWords: true,
-    language: 'auto',
+    language: "auto",
   })
   const [dragActive, setDragActive] = useState(false)
-  const [activeTab, setActiveTab] = useState<'manual' | 'files'>('manual')
+  const [activeTab, setActiveTab] = useState<"manual" | "files">("manual")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { processTextFile } = useTextProcessing()
   const { exportAnalysis, exportCSV } = useTextExport()
@@ -441,24 +441,22 @@ const WordCount = () => {
       newFiles.push({
         id,
         file,
-        content: '',
+        content: "",
         name: file.name,
         size: file.size,
-        type: file.type || 'text/plain',
-        status: 'pending',
+        type: file.type || "text/plain",
+        status: "pending",
       })
     }
 
     if (newFiles.length > 0) {
       setFiles((prev) => [...prev, ...newFiles])
-      const message = `Added ${newFiles.length} file${newFiles.length > 1 ? 's' : ''} for analysis`
+      const message = `Added ${newFiles.length} file${newFiles.length > 1 ? "s" : ""} for analysis`
       toast.success(message)
 
       // Announce to screen readers
-      const announcement = document.createElement('div')
-      announcement.setAttribute('aria-live', 'polite')
-      announcement.setAttribute('aria-atomic', 'true')
-      announcement.className = 'sr-only'
+      const announcement = document.createElement("div")
+      announcement.className = "sr-only"
       announcement.textContent = message
       document.body.appendChild(announcement)
       setTimeout(() => document.body.removeChild(announcement), 1000)
@@ -472,7 +470,7 @@ const WordCount = () => {
         handleFiles(fileList)
         // 关键：重置 input 的值，允许重复上传同一文件
         if (fileInputRef.current) {
-          fileInputRef.current.value = ''
+          fileInputRef.current.value = ""
         }
       }
     },
@@ -483,9 +481,9 @@ const WordCount = () => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -506,9 +504,9 @@ const WordCount = () => {
 
   // Process files
   const processFiles = useCallback(async () => {
-    const pendingFiles = files.filter((file) => file.status === 'pending')
+    const pendingFiles = files.filter((file) => file.status === "pending")
     if (pendingFiles.length === 0) {
-      toast.error('No files to process')
+      toast.error("No files to process")
       return
     }
 
@@ -517,7 +515,7 @@ const WordCount = () => {
     for (const file of pendingFiles) {
       try {
         // Update status to processing
-        setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, status: 'processing' } : f)))
+        setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, status: "processing" } : f)))
 
         const content = await processTextFile(file.file)
         const analysis = analyzeText(content, settings)
@@ -528,7 +526,7 @@ const WordCount = () => {
             f.id === file.id
               ? {
                   ...f,
-                  status: 'completed',
+                  status: "completed",
                   content,
                   analysis,
                 }
@@ -536,14 +534,14 @@ const WordCount = () => {
           )
         )
       } catch (error) {
-        console.error('Processing failed:', error)
+        console.error("Processing failed:", error)
         setFiles((prev) =>
           prev.map((f) =>
             f.id === file.id
               ? {
                   ...f,
-                  status: 'error',
-                  error: error instanceof Error ? error.message : 'Processing failed',
+                  status: "error",
+                  error: error instanceof Error ? error.message : "Processing failed",
                 }
               : f
           )
@@ -552,15 +550,13 @@ const WordCount = () => {
     }
 
     setIsProcessing(false)
-    const completedCount = files.filter((f) => f.status === 'completed').length
-    const message = `Analysis completed! ${completedCount} file${completedCount > 1 ? 's' : ''} processed successfully.`
+    const completedCount = files.filter((f) => f.status === "completed").length
+    const message = `Analysis completed! ${completedCount} file${completedCount > 1 ? "s" : ""} processed successfully.`
     toast.success(message)
 
     // Announce completion to screen readers
-    const announcement = document.createElement('div')
-    announcement.setAttribute('aria-live', 'assertive')
-    announcement.setAttribute('aria-atomic', 'true')
-    announcement.className = 'sr-only'
+    const announcement = document.createElement("div")
+    announcement.className = "sr-only"
     announcement.textContent = message
     document.body.appendChild(announcement)
     setTimeout(() => document.body.removeChild(announcement), 2000)
@@ -573,12 +569,12 @@ const WordCount = () => {
 
   const clearAll = useCallback(() => {
     setFiles([])
-    toast.success('All files cleared')
+    toast.success("All files cleared")
   }, [])
 
   // Statistics calculation
   const stats: AnalysisStats = useMemo(() => {
-    const completedFiles = files.filter((f) => f.status === 'completed' && f.analysis)
+    const completedFiles = files.filter((f) => f.status === "completed" && f.analysis)
 
     return {
       totalFiles: completedFiles.length,
@@ -607,12 +603,15 @@ const WordCount = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" aria-hidden="true" />
+              <FileText className="h-5 w-5" />
               Text Analysis Tool
             </CardTitle>
             <CardDescription>
@@ -628,18 +627,18 @@ const WordCount = () => {
           <CardHeader>
             <div className="flex space-x-1 bg-muted p-1 rounded-lg">
               <Button
-                variant={activeTab === 'manual' ? 'default' : 'ghost'}
+                variant={activeTab === "manual" ? "default" : "ghost"}
                 size="sm"
-                onClick={() => setActiveTab('manual')}
+                onClick={() => setActiveTab("manual")}
                 className="flex-1"
               >
                 <BookOpen className="h-4 w-4 mr-2" />
                 Manual Input
               </Button>
               <Button
-                variant={activeTab === 'files' ? 'default' : 'ghost'}
+                variant={activeTab === "files" ? "default" : "ghost"}
                 size="sm"
-                onClick={() => setActiveTab('files')}
+                onClick={() => setActiveTab("files")}
                 className="flex-1"
               >
                 <Upload className="h-4 w-4 mr-2" />
@@ -668,7 +667,6 @@ const WordCount = () => {
                   max="500"
                   value={settings.wordsPerMinute}
                   onChange={(e) => setSettings((prev) => ({ ...prev, wordsPerMinute: Number(e.target.value) }))}
-                  aria-label={`Reading speed: ${settings.wordsPerMinute} words per minute`}
                 />
               </div>
 
@@ -681,7 +679,6 @@ const WordCount = () => {
                   max="10"
                   value={settings.minWordLength}
                   onChange={(e) => setSettings((prev) => ({ ...prev, minWordLength: Number(e.target.value) }))}
-                  aria-label={`Minimum word length: ${settings.minWordLength} characters`}
                 />
               </div>
 
@@ -689,11 +686,11 @@ const WordCount = () => {
                 <Label htmlFor="language">Language</Label>
                 <Select
                   value={settings.language}
-                  onValueChange={(value: AnalysisSettings['language']) =>
+                  onValueChange={(value: AnalysisSettings["language"]) =>
                     setSettings((prev) => ({ ...prev, language: value }))
                   }
                 >
-                  <SelectTrigger id="language" aria-label="Select language for analysis">
+                  <SelectTrigger id="language">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -714,7 +711,10 @@ const WordCount = () => {
                   onChange={(e) => setSettings((prev) => ({ ...prev, excludeCommonWords: e.target.checked }))}
                   className="rounded border-input"
                 />
-                <Label htmlFor="excludeCommonWords" className="text-sm">
+                <Label
+                  htmlFor="excludeCommonWords"
+                  className="text-sm"
+                >
                   Exclude common words from analysis
                 </Label>
               </div>
@@ -727,7 +727,10 @@ const WordCount = () => {
                   onChange={(e) => setSettings((prev) => ({ ...prev, countPunctuation: e.target.checked }))}
                   className="rounded border-input"
                 />
-                <Label htmlFor="countPunctuation" className="text-sm">
+                <Label
+                  htmlFor="countPunctuation"
+                  className="text-sm"
+                >
                   Include punctuation in character count
                 </Label>
               </div>
@@ -736,7 +739,7 @@ const WordCount = () => {
         </Card>
 
         {/* Manual Text Input */}
-        {activeTab === 'manual' && (
+        {activeTab === "manual" && (
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Manual Text Input</CardTitle>
@@ -750,7 +753,6 @@ const WordCount = () => {
                   value={manualText}
                   onChange={(e) => setManualText(e.target.value)}
                   className="min-h-[200px] resize-y"
-                  aria-label="Text input for analysis"
                 />
               </div>
 
@@ -854,7 +856,10 @@ const WordCount = () => {
                         <h4 className="font-medium">Most Common Words</h4>
                         <div className="flex flex-wrap gap-2">
                           {manualAnalysis.mostCommonWords.slice(0, 10).map(({ word, count }) => (
-                            <span key={word} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 rounded text-xs">
+                            <span
+                              key={word}
+                              className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 rounded text-xs"
+                            >
                               {word} ({count})
                             </span>
                           ))}
@@ -864,7 +869,11 @@ const WordCount = () => {
 
                     {/* Export Button */}
                     <div className="flex justify-end">
-                      <Button onClick={() => exportAnalysis(manualAnalysis, 'manual_text')} variant="outline" size="sm">
+                      <Button
+                        onClick={() => exportAnalysis(manualAnalysis, "manual_text")}
+                        variant="outline"
+                        size="sm"
+                      >
                         <Download className="h-4 w-4 mr-2" />
                         Export Analysis
                       </Button>
@@ -877,15 +886,15 @@ const WordCount = () => {
         )}
 
         {/* File Upload */}
-        {activeTab === 'files' && (
+        {activeTab === "files" && (
           <>
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -893,9 +902,8 @@ const WordCount = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop text files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -906,7 +914,11 @@ const WordCount = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your text files here, or click to select files
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -920,7 +932,6 @@ const WordCount = () => {
                     accept=".txt,.md,.rtf,.csv,.doc,.docx,.pdf,.json,.html,.xml"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select text files"
                   />
                 </div>
               </CardContent>
@@ -972,7 +983,7 @@ const WordCount = () => {
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Button
                       onClick={processFiles}
-                      disabled={isProcessing || files.every((f) => f.status !== 'pending')}
+                      disabled={isProcessing || files.every((f) => f.status !== "pending")}
                       className="min-w-32"
                     >
                       {isProcessing ? (
@@ -981,20 +992,24 @@ const WordCount = () => {
                           Processing...
                         </>
                       ) : (
-                        'Analyze Files'
+                        "Analyze Files"
                       )}
                     </Button>
 
                     <Button
                       onClick={() => exportCSV(files)}
                       variant="outline"
-                      disabled={!files.some((f) => f.status === 'completed')}
+                      disabled={!files.some((f) => f.status === "completed")}
                     >
                       <Download className="mr-2 h-4 w-4" />
                       Export CSV Report
                     </Button>
 
-                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                    <Button
+                      onClick={clearAll}
+                      variant="destructive"
+                      disabled={isProcessing}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
@@ -1012,14 +1027,20 @@ const WordCount = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground space-y-1">
@@ -1028,7 +1049,7 @@ const WordCount = () => {
                                 <span className="font-medium"> Type:</span> {file.type}
                               </div>
 
-                              {file.status === 'completed' && file.analysis && (
+                              {file.status === "completed" && file.analysis && (
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 p-2 bg-muted/30 rounded">
                                   <div className="text-center">
                                     <div className="font-bold text-blue-600">{file.analysis.words}</div>
@@ -1051,8 +1072,8 @@ const WordCount = () => {
                                 </div>
                               )}
 
-                              {file.status === 'pending' && <div className="text-blue-600">Ready for analysis</div>}
-                              {file.status === 'processing' && (
+                              {file.status === "pending" && <div className="text-blue-600">Ready for analysis</div>}
+                              {file.status === "processing" && (
                                 <div className="text-blue-600 flex items-center gap-2">
                                   <Loader2 className="h-4 w-4 animate-spin" />
                                   Processing...
@@ -1062,12 +1083,11 @@ const WordCount = () => {
                             </div>
                           </div>
 
-                          <div className="flex-shrink-0 flex items-center gap-2">
-                            {file.status === 'completed' && file.analysis && (
+                          <div className="shrink-0 flex items-center gap-2">
+                            {file.status === "completed" && file.analysis && (
                               <Button
                                 size="sm"
                                 onClick={() => exportAnalysis(file.analysis!, file.name)}
-                                aria-label={`Export analysis for ${file.name}`}
                               >
                                 <Download className="h-4 w-4" />
                               </Button>
@@ -1077,7 +1097,6 @@ const WordCount = () => {
                               size="sm"
                               variant="ghost"
                               onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

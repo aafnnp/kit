@@ -1,11 +1,11 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -23,8 +23,8 @@ import {
   AlertTriangle,
   BookOpen,
   Zap,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   TextFile,
   RegexMatch,
@@ -32,15 +32,15 @@ import type {
   RegexSettings,
   RegexPattern,
   RegexTestResult,
-} from '@/types/regex-tester'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/regex-tester"
+import { formatFileSize } from "@/lib/utils"
 // Types
 
 // Utility functions
 
 const validateRegexPattern = (pattern: string, flags: string): { isValid: boolean; error?: string } => {
   if (!pattern.trim()) {
-    return { isValid: false, error: 'Pattern cannot be empty' }
+    return { isValid: false, error: "Pattern cannot be empty" }
   }
 
   try {
@@ -49,22 +49,22 @@ const validateRegexPattern = (pattern: string, flags: string): { isValid: boolea
   } catch (error) {
     return {
       isValid: false,
-      error: error instanceof Error ? error.message : 'Invalid regex pattern',
+      error: error instanceof Error ? error.message : "Invalid regex pattern",
     }
   }
 }
 
 const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
-  const allowedTypes = ['.txt', '.text', '.log', '.csv', '.json', '.md', '.markdown']
+  const allowedTypes = [".txt", ".text", ".log", ".csv", ".json", ".md", ".markdown"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 50MB' }
+    return { isValid: false, error: "File size must be less than 50MB" }
   }
 
-  const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+  const extension = "." + file.name.split(".").pop()?.toLowerCase()
   if (!allowedTypes.includes(extension)) {
-    return { isValid: false, error: 'Only text files are supported (.txt, .log, .csv, .json, .md)' }
+    return { isValid: false, error: "Only text files are supported (.txt, .log, .csv, .json, .md)" }
   }
 
   return { isValid: true }
@@ -73,85 +73,85 @@ const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
 // Common regex patterns library
 const regexPatterns: RegexPattern[] = [
   {
-    name: 'Email Address',
-    pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}',
-    description: 'Matches email addresses',
-    category: 'Common',
-    flags: 'gi',
-    example: 'user@example.com',
+    name: "Email Address",
+    pattern: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+    description: "Matches email addresses",
+    category: "Common",
+    flags: "gi",
+    example: "user@example.com",
   },
   {
-    name: 'Phone Number (US)',
-    pattern: '\\(?([0-9]{3})\\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})',
-    description: 'Matches US phone numbers',
-    category: 'Common',
-    flags: 'g',
-    example: '(555) 123-4567',
+    name: "Phone Number (US)",
+    pattern: "\\(?([0-9]{3})\\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})",
+    description: "Matches US phone numbers",
+    category: "Common",
+    flags: "g",
+    example: "(555) 123-4567",
   },
   {
-    name: 'URL',
+    name: "URL",
     pattern:
-      'https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)',
-    description: 'Matches HTTP/HTTPS URLs',
-    category: 'Web',
-    flags: 'gi',
-    example: 'https://www.example.com',
+      "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)",
+    description: "Matches HTTP/HTTPS URLs",
+    category: "Web",
+    flags: "gi",
+    example: "https://www.example.com",
   },
   {
-    name: 'IPv4 Address',
-    pattern: '\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b',
-    description: 'Matches IPv4 addresses',
-    category: 'Network',
-    flags: 'g',
-    example: '192.168.1.1',
+    name: "IPv4 Address",
+    pattern: "\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b",
+    description: "Matches IPv4 addresses",
+    category: "Network",
+    flags: "g",
+    example: "192.168.1.1",
   },
   {
-    name: 'Credit Card',
-    pattern: '\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|3[0-9]{13}|6(?:011|5[0-9]{2})[0-9]{12})\\b',
-    description: 'Matches major credit card numbers',
-    category: 'Financial',
-    flags: 'g',
-    example: '4111111111111111',
+    name: "Credit Card",
+    pattern: "\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|3[0-9]{13}|6(?:011|5[0-9]{2})[0-9]{12})\\b",
+    description: "Matches major credit card numbers",
+    category: "Financial",
+    flags: "g",
+    example: "4111111111111111",
   },
   {
-    name: 'Date (YYYY-MM-DD)',
-    pattern: '\\b\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])\\b',
-    description: 'Matches dates in YYYY-MM-DD format',
-    category: 'Date/Time',
-    flags: 'g',
-    example: '2023-12-25',
+    name: "Date (YYYY-MM-DD)",
+    pattern: "\\b\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])\\b",
+    description: "Matches dates in YYYY-MM-DD format",
+    category: "Date/Time",
+    flags: "g",
+    example: "2023-12-25",
   },
   {
-    name: 'Time (24-hour)',
-    pattern: '\\b(?:[01]?[0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?\\b',
-    description: 'Matches time in 24-hour format',
-    category: 'Date/Time',
-    flags: 'g',
-    example: '14:30:00',
+    name: "Time (24-hour)",
+    pattern: "\\b(?:[01]?[0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?\\b",
+    description: "Matches time in 24-hour format",
+    category: "Date/Time",
+    flags: "g",
+    example: "14:30:00",
   },
   {
-    name: 'Hex Color',
-    pattern: '#(?:[0-9a-fA-F]{3}){1,2}\\b',
-    description: 'Matches hexadecimal color codes',
-    category: 'Web',
-    flags: 'gi',
-    example: '#FF5733',
+    name: "Hex Color",
+    pattern: "#(?:[0-9a-fA-F]{3}){1,2}\\b",
+    description: "Matches hexadecimal color codes",
+    category: "Web",
+    flags: "gi",
+    example: "#FF5733",
   },
   {
-    name: 'HTML Tag',
-    pattern: '<\\/?[a-zA-Z][a-zA-Z0-9]*(?:\\s[^>]*)?>',
-    description: 'Matches HTML tags',
-    category: 'Web',
-    flags: 'gi',
+    name: "HTML Tag",
+    pattern: "<\\/?[a-zA-Z][a-zA-Z0-9]*(?:\\s[^>]*)?>",
+    description: "Matches HTML tags",
+    category: "Web",
+    flags: "gi",
     example: '<div class="example">',
   },
   {
-    name: 'Word Boundaries',
-    pattern: '\\b\\w+\\b',
-    description: 'Matches whole words',
-    category: 'Text',
-    flags: 'g',
-    example: 'word',
+    name: "Word Boundaries",
+    pattern: "\\b\\w+\\b",
+    description: "Matches whole words",
+    category: "Text",
+    flags: "g",
+    example: "word",
   },
 ]
 
@@ -165,23 +165,23 @@ const executeRegex = (pattern: string, text: string, settings: RegexSettings): R
       .filter(([_, enabled]) => enabled)
       .map(([flag, _]) => {
         switch (flag) {
-          case 'global':
-            return 'g'
-          case 'ignoreCase':
-            return 'i'
-          case 'multiline':
-            return 'm'
-          case 'dotAll':
-            return 's'
-          case 'unicode':
-            return 'u'
-          case 'sticky':
-            return 'y'
+          case "global":
+            return "g"
+          case "ignoreCase":
+            return "i"
+          case "multiline":
+            return "m"
+          case "dotAll":
+            return "s"
+          case "unicode":
+            return "u"
+          case "sticky":
+            return "y"
           default:
-            return ''
+            return ""
         }
       })
-      .join('')
+      .join("")
 
     const regex = new RegExp(pattern, flags)
     const matches: RegexMatch[] = []
@@ -269,7 +269,7 @@ const executeRegex = (pattern: string, text: string, settings: RegexSettings): R
         textLength: text.length,
         coverage: 0,
       },
-      error: error instanceof Error ? error.message : 'Regex execution failed',
+      error: error instanceof Error ? error.message : "Regex execution failed",
     }
   }
 }
@@ -306,23 +306,23 @@ const useRegexTesting = () => {
         .filter(([_, enabled]) => enabled)
         .map(([flag, _]) => {
           switch (flag) {
-            case 'global':
-              return 'g'
-            case 'ignoreCase':
-              return 'i'
-            case 'multiline':
-              return 'm'
-            case 'dotAll':
-              return 's'
-            case 'unicode':
-              return 'u'
-            case 'sticky':
-              return 'y'
+            case "global":
+              return "g"
+            case "ignoreCase":
+              return "i"
+            case "multiline":
+              return "m"
+            case "dotAll":
+              return "s"
+            case "unicode":
+              return "u"
+            case "sticky":
+              return "y"
             default:
-              return ''
+              return ""
           }
         })
-        .join('')
+        .join("")
     )
 
     if (!validation.isValid) {
@@ -350,13 +350,13 @@ const useRegexTesting = () => {
   const testBatch = useCallback(
     (pattern: string, files: TextFile[], settings: RegexSettings): TextFile[] => {
       return files.map((file) => {
-        if (file.status !== 'pending') return file
+        if (file.status !== "pending") return file
 
         try {
           const result = testRegex(pattern, file.content, settings)
           return {
             ...file,
-            status: 'completed' as const,
+            status: "completed" as const,
             matches: result.matches,
             statistics: result.statistics,
             processedAt: new Date(),
@@ -364,8 +364,8 @@ const useRegexTesting = () => {
         } catch (error) {
           return {
             ...file,
-            status: 'error' as const,
-            error: error instanceof Error ? error.message : 'Processing failed',
+            status: "error" as const,
+            error: error instanceof Error ? error.message : "Processing failed",
           }
         }
       })
@@ -421,7 +421,7 @@ const useRealTimeRegex = (pattern: string, text: string, settings: RegexSettings
           textLength: text.length,
           coverage: 0,
         },
-        error: error instanceof Error ? error.message : 'Regex execution failed',
+        error: error instanceof Error ? error.message : "Regex execution failed",
         highlightedText: text,
       }
     }
@@ -448,17 +448,17 @@ const useFileProcessing = () => {
             name: file.name,
             content,
             size: file.size,
-            type: file.type || 'text/plain',
-            status: 'pending',
+            type: file.type || "text/plain",
+            status: "pending",
           }
 
           resolve(textFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsText(file)
     })
   }, [])
@@ -468,17 +468,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
-            type: files[index].type || 'text/plain',
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            type: files[index].type || "text/plain",
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -499,16 +499,16 @@ const useRegexExport = () => {
           `  Text: "${match.match}"\n` +
           `  Position: ${match.index}-${match.index + match.length}\n` +
           `  Length: ${match.length}\n` +
-          `  Groups: [${match.groups.join(', ')}]\n` +
+          `  Groups: [${match.groups.join(", ")}]\n` +
           `  Named Groups: ${JSON.stringify(match.namedGroups)}\n`
       )
-      .join('\n')
+      .join("\n")
 
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = filename || 'regex-matches.txt'
+    link.download = filename || "regex-matches.txt"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -522,7 +522,7 @@ const useRegexExport = () => {
 Pattern: ${pattern}
 Flags: ${Object.entries(result.statistics || {})
       .map(([key, value]) => `${key}: ${value}`)
-      .join(', ')}
+      .join(", ")}
 
 Text Length: ${text.length} characters
 Execution Time: ${result.statistics?.executionTime.toFixed(2)}ms
@@ -534,21 +534,21 @@ Unique Matches: ${result.statistics?.uniqueMatches || 0}
 Average Match Length: ${result.statistics?.averageMatchLength.toFixed(2) || 0}
 Text Coverage: ${result.statistics?.coverage.toFixed(2) || 0}%
 
-${result.isValid ? 'Matches:' : 'Error:'}
+${result.isValid ? "Matches:" : "Error:"}
 ${
   result.isValid
-    ? result.matches.map((match, index) => `${index + 1}. "${match.match}" at position ${match.index}`).join('\n')
-    : result.error || 'Unknown error'
+    ? result.matches.map((match, index) => `${index + 1}. "${match.match}" at position ${match.index}`).join("\n")
+    : result.error || "Unknown error"
 }
 
-${result.replacementResult ? `\nReplacement Result:\n${result.replacementResult}` : ''}
+${result.replacementResult ? `\nReplacement Result:\n${result.replacementResult}` : ""}
 `
 
-    const blob = new Blob([report], { type: 'text/plain;charset=utf-8' })
+    const blob = new Blob([report], { type: "text/plain;charset=utf-8" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = filename || 'regex-test-report.txt'
+    link.download = filename || "regex-test-report.txt"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -563,19 +563,19 @@ ${result.replacementResult ? `\nReplacement Result:\n${result.replacementResult}
           `Status: ${file.status}\n` +
           `Size: ${formatFileSize(file.size)}\n` +
           `Matches: ${file.matches?.length || 0}\n` +
-          `Statistics: ${file.statistics ? JSON.stringify(file.statistics, null, 2) : 'N/A'}\n` +
-          `${file.error ? `Error: ${file.error}` : ''}\n` +
-          '---\n'
+          `Statistics: ${file.statistics ? JSON.stringify(file.statistics, null, 2) : "N/A"}\n` +
+          `${file.error ? `Error: ${file.error}` : ""}\n` +
+          "---\n"
       )
-      .join('\n')
+      .join("\n")
 
     const blob = new Blob([`Batch Regex Test Results\nPattern: ${pattern}\n\n${content}`], {
-      type: 'text/plain;charset=utf-8',
+      type: "text/plain;charset=utf-8",
     })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'regex-batch-results.txt'
+    link.download = "regex-batch-results.txt"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -584,14 +584,14 @@ ${result.replacementResult ? `\nReplacement Result:\n${result.replacementResult}
 
   const exportCSV = useCallback((files: TextFile[]) => {
     const headers = [
-      'Filename',
-      'Status',
-      'File Size',
-      'Total Matches',
-      'Unique Matches',
-      'Average Match Length',
-      'Coverage %',
-      'Execution Time (ms)',
+      "Filename",
+      "Status",
+      "File Size",
+      "Total Matches",
+      "Unique Matches",
+      "Average Match Length",
+      "Coverage %",
+      "Execution Time (ms)",
     ]
 
     const rows = files.map((file) => [
@@ -605,13 +605,13 @@ ${result.replacementResult ? `\nReplacement Result:\n${result.replacementResult}
       file.statistics?.executionTime.toFixed(2) || 0,
     ])
 
-    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'regex-test-statistics.csv'
+    link.download = "regex-test-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -628,13 +628,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -649,9 +649,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -664,19 +664,19 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
 
       const files = Array.from(e.dataTransfer.files).filter(
         (file) =>
-          file.type === 'text/plain' ||
-          file.name.endsWith('.txt') ||
-          file.name.endsWith('.log') ||
-          file.name.endsWith('.csv') ||
-          file.name.endsWith('.json') ||
-          file.name.endsWith('.md') ||
-          file.name.endsWith('.markdown')
+          file.type === "text/plain" ||
+          file.name.endsWith(".txt") ||
+          file.name.endsWith(".log") ||
+          file.name.endsWith(".csv") ||
+          file.name.endsWith(".json") ||
+          file.name.endsWith(".md") ||
+          file.name.endsWith(".markdown")
       )
 
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only text files')
+        toast.error("Please drop only text files")
       }
     },
     [onFilesDropped]
@@ -690,7 +690,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -710,10 +710,10 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time testing, file upload, batch processing, export capabilities
  */
 const RegexTesterCore = () => {
-  const [activeTab, setActiveTab] = useState<'tester' | 'files'>('tester')
-  const [pattern, setPattern] = useState('')
+  const [activeTab, setActiveTab] = useState<"tester" | "files">("tester")
+  const [pattern, setPattern] = useState("")
   const [testText, setTestText] = useState(
-    'The quick brown fox jumps over the lazy dog. Email: test@example.com, Phone: (555) 123-4567'
+    "The quick brown fox jumps over the lazy dog. Email: test@example.com, Phone: (555) 123-4567"
   )
   const [files, setFiles] = useState<TextFile[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
@@ -732,10 +732,10 @@ const RegexTesterCore = () => {
     maxMatches: 1000,
     timeout: 5000,
     enableReplacement: false,
-    replacementText: '',
+    replacementText: "",
   })
   const [showAdvanced, setShowAdvanced] = useState(false)
-  const [selectedPattern, setSelectedPattern] = useState<string>('')
+  const [selectedPattern, setSelectedPattern] = useState<string>("")
 
   const { testBatch } = useRegexTesting()
   const { exportMatches, exportTestReport, exportBatch, exportCSV } = useRegexExport()
@@ -757,7 +757,7 @@ const RegexTesterCore = () => {
           setFiles((prev) => [...processedFiles, ...prev])
           toast.success(`Added ${processedFiles.length} file(s)`)
         } catch (error) {
-          toast.error('Failed to process files')
+          toast.error("Failed to process files")
         } finally {
           setIsProcessing(false)
         }
@@ -778,12 +778,12 @@ const RegexTesterCore = () => {
         newFlags[key as keyof typeof newFlags] = false
       })
 
-      if (patternData.flags.includes('g')) newFlags.global = true
-      if (patternData.flags.includes('i')) newFlags.ignoreCase = true
-      if (patternData.flags.includes('m')) newFlags.multiline = true
-      if (patternData.flags.includes('s')) newFlags.dotAll = true
-      if (patternData.flags.includes('u')) newFlags.unicode = true
-      if (patternData.flags.includes('y')) newFlags.sticky = true
+      if (patternData.flags.includes("g")) newFlags.global = true
+      if (patternData.flags.includes("i")) newFlags.ignoreCase = true
+      if (patternData.flags.includes("m")) newFlags.multiline = true
+      if (patternData.flags.includes("s")) newFlags.dotAll = true
+      if (patternData.flags.includes("u")) newFlags.unicode = true
+      if (patternData.flags.includes("y")) newFlags.sticky = true
 
       setSettings((prev) => ({ ...prev, flags: newFlags }))
       toast.success(`Applied pattern: ${patternData.name}`)
@@ -794,13 +794,13 @@ const RegexTesterCore = () => {
   // Test files with current pattern
   const testFiles = useCallback(async () => {
     if (!pattern.trim()) {
-      toast.error('Please enter a regex pattern')
+      toast.error("Please enter a regex pattern")
       return
     }
 
-    const pendingFiles = files.filter((f) => f.status === 'pending')
+    const pendingFiles = files.filter((f) => f.status === "pending")
     if (pendingFiles.length === 0) {
-      toast.error('No files to test')
+      toast.error("No files to test")
       return
     }
 
@@ -808,9 +808,9 @@ const RegexTesterCore = () => {
       setIsProcessing(true)
       const updatedFiles = testBatch(pattern, files, settings)
       setFiles(updatedFiles)
-      toast.success('Files tested successfully!')
+      toast.success("Files tested successfully!")
     } catch (error) {
-      toast.error('Failed to test files')
+      toast.error("Failed to test files")
     } finally {
       setIsProcessing(false)
     }
@@ -819,7 +819,7 @@ const RegexTesterCore = () => {
   // Clear all files
   const clearAll = useCallback(() => {
     setFiles([])
-    toast.success('All files cleared')
+    toast.success("All files cleared")
   }, [])
 
   // Remove specific file
@@ -853,12 +853,15 @@ const RegexTesterCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5" aria-hidden="true" />
+              <Search className="h-5 w-5" />
               Regex Tester
             </CardTitle>
             <CardDescription>
@@ -869,20 +872,32 @@ const RegexTesterCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'tester' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "tester" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="tester" className="flex items-center gap-2">
+            <TabsTrigger
+              value="tester"
+              className="flex items-center gap-2"
+            >
               <Code className="h-4 w-4" />
               Regex Tester
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               File Testing
             </TabsTrigger>
           </TabsList>
 
           {/* Regex Tester Tab */}
-          <TabsContent value="tester" className="space-y-4">
+          <TabsContent
+            value="tester"
+            className="space-y-4"
+          >
             {/* Pattern Library */}
             <Card>
               <CardHeader>
@@ -896,7 +911,7 @@ const RegexTesterCore = () => {
                   {regexPatterns.slice(0, 6).map((patternData) => (
                     <Button
                       key={patternData.name}
-                      variant={selectedPattern === patternData.name ? 'default' : 'outline'}
+                      variant={selectedPattern === patternData.name ? "default" : "outline"}
                       onClick={() => applyPattern(patternData)}
                       className="h-auto p-3 text-left"
                     >
@@ -926,16 +941,15 @@ const RegexTesterCore = () => {
                       onChange={(e) => setPattern(e.target.value)}
                       placeholder="Enter your regex pattern..."
                       className="font-mono"
-                      aria-label="Regex pattern input"
                     />
                     {pattern && (
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => copyToClipboard(pattern, 'pattern')}
+                        onClick={() => copyToClipboard(pattern, "pattern")}
                         className="absolute right-2 top-1/2 -translate-y-1/2"
                       >
-                        {copiedText === 'pattern' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        {copiedText === "pattern" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                       </Button>
                     )}
                   </div>
@@ -958,7 +972,10 @@ const RegexTesterCore = () => {
                         }
                         className="rounded border-input"
                       />
-                      <Label htmlFor="flag-global" className="text-sm">
+                      <Label
+                        htmlFor="flag-global"
+                        className="text-sm"
+                      >
                         g (global)
                       </Label>
                     </div>
@@ -976,7 +993,10 @@ const RegexTesterCore = () => {
                         }
                         className="rounded border-input"
                       />
-                      <Label htmlFor="flag-ignoreCase" className="text-sm">
+                      <Label
+                        htmlFor="flag-ignoreCase"
+                        className="text-sm"
+                      >
                         i (ignore case)
                       </Label>
                     </div>
@@ -994,7 +1014,10 @@ const RegexTesterCore = () => {
                         }
                         className="rounded border-input"
                       />
-                      <Label htmlFor="flag-multiline" className="text-sm">
+                      <Label
+                        htmlFor="flag-multiline"
+                        className="text-sm"
+                      >
                         m (multiline)
                       </Label>
                     </div>
@@ -1012,7 +1035,10 @@ const RegexTesterCore = () => {
                         }
                         className="rounded border-input"
                       />
-                      <Label htmlFor="flag-dotAll" className="text-sm">
+                      <Label
+                        htmlFor="flag-dotAll"
+                        className="text-sm"
+                      >
                         s (dot all)
                       </Label>
                     </div>
@@ -1030,7 +1056,10 @@ const RegexTesterCore = () => {
                         }
                         className="rounded border-input"
                       />
-                      <Label htmlFor="flag-unicode" className="text-sm">
+                      <Label
+                        htmlFor="flag-unicode"
+                        className="text-sm"
+                      >
                         u (unicode)
                       </Label>
                     </div>
@@ -1048,7 +1077,10 @@ const RegexTesterCore = () => {
                         }
                         className="rounded border-input"
                       />
-                      <Label htmlFor="flag-sticky" className="text-sm">
+                      <Label
+                        htmlFor="flag-sticky"
+                        className="text-sm"
+                      >
                         y (sticky)
                       </Label>
                     </div>
@@ -1059,9 +1091,13 @@ const RegexTesterCore = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium">Advanced Options</h4>
-                    <Button variant="ghost" size="sm" onClick={() => setShowAdvanced(!showAdvanced)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAdvanced(!showAdvanced)}
+                    >
                       <Target className="h-4 w-4 mr-2" />
-                      {showAdvanced ? 'Hide' : 'Show'} Advanced
+                      {showAdvanced ? "Hide" : "Show"} Advanced
                     </Button>
                   </div>
 
@@ -1076,7 +1112,10 @@ const RegexTesterCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, highlightMatches: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="highlightMatches" className="text-sm">
+                          <Label
+                            htmlFor="highlightMatches"
+                            className="text-sm"
+                          >
                             Highlight matches
                           </Label>
                         </div>
@@ -1089,7 +1128,10 @@ const RegexTesterCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, showCaptureGroups: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="showCaptureGroups" className="text-sm">
+                          <Label
+                            htmlFor="showCaptureGroups"
+                            className="text-sm"
+                          >
                             Show capture groups
                           </Label>
                         </div>
@@ -1102,7 +1144,10 @@ const RegexTesterCore = () => {
                             onChange={(e) => setSettings((prev) => ({ ...prev, enableReplacement: e.target.checked }))}
                             className="rounded border-input"
                           />
-                          <Label htmlFor="enableReplacement" className="text-sm">
+                          <Label
+                            htmlFor="enableReplacement"
+                            className="text-sm"
+                          >
                             Enable replacement
                           </Label>
                         </div>
@@ -1165,7 +1210,6 @@ const RegexTesterCore = () => {
                     onChange={(e) => setTestText(e.target.value)}
                     placeholder="Enter text to test against your regex pattern..."
                     className="min-h-[120px] font-mono"
-                    aria-label="Test text input"
                   />
                 </div>
               </CardContent>
@@ -1224,9 +1268,9 @@ const RegexTesterCore = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => copyToClipboard(realtimeResult.highlightedText || testText, 'highlighted text')}
+                        onClick={() => copyToClipboard(realtimeResult.highlightedText || testText, "highlighted text")}
                       >
-                        {copiedText === 'highlighted text' ? (
+                        {copiedText === "highlighted text" ? (
                           <Check className="h-4 w-4" />
                         ) : (
                           <Copy className="h-4 w-4" />
@@ -1238,7 +1282,6 @@ const RegexTesterCore = () => {
                       dangerouslySetInnerHTML={{
                         __html: realtimeResult.highlightedText || testText,
                       }}
-                      aria-label="Text with highlighted matches"
                     />
                   </div>
                 )}
@@ -1249,7 +1292,10 @@ const RegexTesterCore = () => {
                     <Label>Matches ({realtimeResult.matches.length})</Label>
                     <div className="max-h-60 overflow-y-auto space-y-2">
                       {realtimeResult.matches.slice(0, 20).map((match, index) => (
-                        <div key={index} className="p-3 bg-muted/30 rounded border">
+                        <div
+                          key={index}
+                          className="p-3 bg-muted/30 rounded border"
+                        >
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-medium">Match {index + 1}</span>
                             <Button
@@ -1266,7 +1312,7 @@ const RegexTesterCore = () => {
                           </div>
                           <div className="space-y-1 text-xs">
                             <div>
-                              <span className="font-medium">Text:</span>{' '}
+                              <span className="font-medium">Text:</span>{" "}
                               <code className="bg-muted px-1 rounded">{match.match}</code>
                             </div>
                             <div>
@@ -1278,7 +1324,7 @@ const RegexTesterCore = () => {
                             {settings.showCaptureGroups && match.groups.length > 0 && (
                               <div>
                                 <span className="font-medium">Groups:</span> [
-                                {match.groups.map((g) => `"${g}"`).join(', ')}]
+                                {match.groups.map((g) => `"${g}"`).join(", ")}]
                               </div>
                             )}
                             {Object.keys(match.namedGroups).length > 0 && (
@@ -1306,9 +1352,9 @@ const RegexTesterCore = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => copyToClipboard(realtimeResult.replacementResult!, 'replacement result')}
+                        onClick={() => copyToClipboard(realtimeResult.replacementResult!, "replacement result")}
                       >
-                        {copiedText === 'replacement result' ? (
+                        {copiedText === "replacement result" ? (
                           <Check className="h-4 w-4" />
                         ) : (
                           <Copy className="h-4 w-4" />
@@ -1342,7 +1388,7 @@ const RegexTesterCore = () => {
                   </Button>
 
                   <Button
-                    onClick={() => copyToClipboard(pattern, 'regex pattern')}
+                    onClick={() => copyToClipboard(pattern, "regex pattern")}
                     variant="outline"
                     disabled={!pattern}
                   >
@@ -1355,15 +1401,18 @@ const RegexTesterCore = () => {
           </TabsContent>
 
           {/* File Testing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             {/* File Upload */}
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1371,9 +1420,8 @@ const RegexTesterCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop text files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1384,7 +1432,11 @@ const RegexTesterCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your text files here, or click to select files
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1398,7 +1450,6 @@ const RegexTesterCore = () => {
                     accept=".txt,.log,.csv,.json,.md,.markdown"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select text files"
                   />
                 </div>
               </CardContent>
@@ -1413,28 +1464,28 @@ const RegexTesterCore = () => {
                 <CardContent>
                   <div className="p-3 bg-muted/30 rounded border font-mono text-sm">{pattern}</div>
                   <div className="mt-2 text-xs text-muted-foreground">
-                    Flags:{' '}
+                    Flags:{" "}
                     {Object.entries(settings.flags)
                       .filter(([_, enabled]) => enabled)
                       .map(([flag, _]) => {
                         switch (flag) {
-                          case 'global':
-                            return 'g'
-                          case 'ignoreCase':
-                            return 'i'
-                          case 'multiline':
-                            return 'm'
-                          case 'dotAll':
-                            return 's'
-                          case 'unicode':
-                            return 'u'
-                          case 'sticky':
-                            return 'y'
+                          case "global":
+                            return "g"
+                          case "ignoreCase":
+                            return "i"
+                          case "multiline":
+                            return "m"
+                          case "dotAll":
+                            return "s"
+                          case "unicode":
+                            return "u"
+                          case "sticky":
+                            return "y"
                           default:
-                            return ''
+                            return ""
                         }
                       })
-                      .join('') || 'none'}
+                      .join("") || "none"}
                   </div>
                 </CardContent>
               </Card>
@@ -1488,7 +1539,7 @@ const RegexTesterCore = () => {
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Button
                       onClick={testFiles}
-                      disabled={isProcessing || !pattern.trim() || files.every((f) => f.status !== 'pending')}
+                      disabled={isProcessing || !pattern.trim() || files.every((f) => f.status !== "pending")}
                       className="min-w-32"
                     >
                       {isProcessing ? (
@@ -1507,7 +1558,7 @@ const RegexTesterCore = () => {
                     <Button
                       onClick={() => exportBatch(files, pattern)}
                       variant="outline"
-                      disabled={!files.some((f) => f.status === 'completed')}
+                      disabled={!files.some((f) => f.status === "completed")}
                     >
                       <Download className="mr-2 h-4 w-4" />
                       Export Results
@@ -1522,7 +1573,11 @@ const RegexTesterCore = () => {
                       Export Stats
                     </Button>
 
-                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                    <Button
+                      onClick={clearAll}
+                      variant="destructive"
+                      disabled={isProcessing}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
@@ -1540,14 +1595,20 @@ const RegexTesterCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground space-y-1">
@@ -1556,7 +1617,7 @@ const RegexTesterCore = () => {
                                 <span className="font-medium"> Type:</span> {file.type}
                               </div>
 
-                              {file.status === 'completed' && file.statistics && (
+                              {file.status === "completed" && file.statistics && (
                                 <div className="mt-2">
                                   <div className="text-xs font-medium mb-1">Test Results:</div>
                                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
@@ -1568,8 +1629,8 @@ const RegexTesterCore = () => {
                                 </div>
                               )}
 
-                              {file.status === 'pending' && <div className="text-blue-600">Ready for testing</div>}
-                              {file.status === 'processing' && (
+                              {file.status === "pending" && <div className="text-blue-600">Ready for testing</div>}
+                              {file.status === "processing" && (
                                 <div className="text-blue-600 flex items-center gap-2">
                                   <Loader2 className="h-4 w-4 animate-spin" />
                                   Testing...
@@ -1580,13 +1641,12 @@ const RegexTesterCore = () => {
                           </div>
 
                           <div className="flex-shrink-0 flex items-center gap-2">
-                            {file.status === 'completed' && file.matches && (
+                            {file.status === "completed" && file.matches && (
                               <>
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => copyToClipboard(file.matches!.map((m) => m.match).join('\n'), file.id)}
-                                  aria-label={`Copy matches for ${file.name}`}
+                                  onClick={() => copyToClipboard(file.matches!.map((m) => m.match).join("\n"), file.id)}
                                 >
                                   {copiedText === file.id ? (
                                     <Check className="h-4 w-4" />
@@ -1599,9 +1659,8 @@ const RegexTesterCore = () => {
                                   size="sm"
                                   variant="outline"
                                   onClick={() =>
-                                    exportMatches(file.matches!, file.name.replace(/\.[^/.]+$/, '-matches.txt'))
+                                    exportMatches(file.matches!, file.name.replace(/\.[^/.]+$/, "-matches.txt"))
                                   }
-                                  aria-label={`Export matches for ${file.name}`}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1612,19 +1671,21 @@ const RegexTesterCore = () => {
                               size="sm"
                               variant="ghost"
                               onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
 
-                        {file.status === 'completed' && file.matches && file.matches.length > 0 && (
+                        {file.status === "completed" && file.matches && file.matches.length > 0 && (
                           <div className="mt-4">
                             <div className="text-xs font-medium mb-2">Sample Matches (showing first 3):</div>
                             <div className="space-y-1">
                               {file.matches.slice(0, 3).map((match, index) => (
-                                <div key={index} className="p-2 bg-muted/30 rounded text-xs">
+                                <div
+                                  key={index}
+                                  className="p-2 bg-muted/30 rounded text-xs"
+                                >
                                   <div className="font-mono break-all">{match.match}</div>
                                   <div className="text-muted-foreground">
                                     Position: {match.index}-{match.index + match.length}

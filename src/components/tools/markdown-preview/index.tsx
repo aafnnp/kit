@@ -1,11 +1,11 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -22,25 +22,25 @@ import {
   Trash2,
   Settings,
   Target,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
-import type { MarkdownFile, MarkdownStatistics, PreviewSettings, ExportOptions } from '@/types/markdown-preview'
-import { formatFileSize } from '@/lib/utils'
+} from "lucide-react"
+import { nanoid } from "nanoid"
+import type { MarkdownFile, MarkdownStatistics, PreviewSettings, ExportOptions } from "@/types/markdown-preview"
+import { formatFileSize } from "@/lib/utils"
 // Types
 
 // Utility functions
 
 const validateMarkdownFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
-  const allowedTypes = ['.md', '.markdown', '.txt', '.text']
+  const allowedTypes = [".md", ".markdown", ".txt", ".text"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 50MB' }
+    return { isValid: false, error: "File size must be less than 50MB" }
   }
 
-  const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+  const extension = "." + file.name.split(".").pop()?.toLowerCase()
   if (!allowedTypes.includes(extension)) {
-    return { isValid: false, error: 'Only Markdown (.md, .markdown) and text files are supported' }
+    return { isValid: false, error: "Only Markdown (.md, .markdown) and text files are supported" }
   }
 
   return { isValid: true }
@@ -51,29 +51,29 @@ const parseMarkdown = (markdown: string): string => {
   let html = markdown
 
   // Escape HTML entities first
-  html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  html = html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 
   // Headers (must be processed before other formatting)
   html = html
-    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    .replace(/^### (.*$)/gim, "<h3>$1</h3>")
+    .replace(/^## (.*$)/gim, "<h2>$1</h2>")
+    .replace(/^# (.*$)/gim, "<h1>$1</h1>")
 
   // Code blocks (process before inline code)
   html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (_match, lang, code) => {
-    const language = lang || 'text'
+    const language = lang || "text"
     return `<pre><code class="language-${language}">${code.trim()}</code></pre>`
   })
 
   // Inline code
-  html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
+  html = html.replace(/`([^`]+)`/g, "<code>$1</code>")
 
   // Bold and italic (process bold before italic to avoid conflicts)
   html = html
-    .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/~~(.*?)~~/g, '<del>$1</del>')
+    .replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>")
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")
+    .replace(/~~(.*?)~~/g, "<del>$1</del>")
 
   // Links
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
@@ -82,45 +82,45 @@ const parseMarkdown = (markdown: string): string => {
   html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; height: auto;" />')
 
   // Lists (unordered)
-  html = html.replace(/^\* (.+)$/gm, '<li>$1</li>')
-  html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+  html = html.replace(/^\* (.+)$/gm, "<li>$1</li>")
+  html = html.replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>")
 
   // Lists (ordered)
-  html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-  html = html.replace(/(<li>.*<\/li>)/s, '<ol>$1</ol>')
+  html = html.replace(/^\d+\. (.+)$/gm, "<li>$1</li>")
+  html = html.replace(/(<li>.*<\/li>)/s, "<ol>$1</ol>")
 
   // Blockquotes
-  html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+  html = html.replace(/^> (.+)$/gm, "<blockquote>$1</blockquote>")
 
   // Horizontal rules
-  html = html.replace(/^---$/gm, '<hr>')
+  html = html.replace(/^---$/gm, "<hr>")
 
   // Tables
   html = html.replace(/\|(.+)\|/g, (_match, content) => {
-    const cells = content.split('|').map((cell: string) => cell.trim())
-    return '<tr>' + cells.map((cell: string) => `<td>${cell}</td>`).join('') + '</tr>'
+    const cells = content.split("|").map((cell: string) => cell.trim())
+    return "<tr>" + cells.map((cell: string) => `<td>${cell}</td>`).join("") + "</tr>"
   })
   html = html.replace(/(<tr>.*<\/tr>)/s, '<table class="table-auto border-collapse border border-gray-300">$1</table>')
 
   // Line breaks and paragraphs
   html = html
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/^(.+)$/gm, '<p>$1</p>')
-    .replace(/<p><\/p>/g, '')
-    .replace(/<p>(<h[1-6]>.*<\/h[1-6]>)<\/p>/g, '$1')
-    .replace(/<p>(<ul>.*<\/ul>)<\/p>/g, '$1')
-    .replace(/<p>(<ol>.*<\/ol>)<\/p>/g, '$1')
-    .replace(/<p>(<blockquote>.*<\/blockquote>)<\/p>/g, '$1')
-    .replace(/<p>(<hr>)<\/p>/g, '$1')
-    .replace(/<p>(<table.*<\/table>)<\/p>/g, '$1')
-    .replace(/<p>(<pre>.*<\/pre>)<\/p>/g, '$1')
+    .replace(/\n\n/g, "</p><p>")
+    .replace(/^(.+)$/gm, "<p>$1</p>")
+    .replace(/<p><\/p>/g, "")
+    .replace(/<p>(<h[1-6]>.*<\/h[1-6]>)<\/p>/g, "$1")
+    .replace(/<p>(<ul>.*<\/ul>)<\/p>/g, "$1")
+    .replace(/<p>(<ol>.*<\/ol>)<\/p>/g, "$1")
+    .replace(/<p>(<blockquote>.*<\/blockquote>)<\/p>/g, "$1")
+    .replace(/<p>(<hr>)<\/p>/g, "$1")
+    .replace(/<p>(<table.*<\/table>)<\/p>/g, "$1")
+    .replace(/<p>(<pre>.*<\/pre>)<\/p>/g, "$1")
 
   return html
 }
 
 // Calculate markdown statistics
 const calculateStatistics = (markdown: string): MarkdownStatistics => {
-  const lines = markdown.split('\n')
+  const lines = markdown.split("\n")
   const words = markdown.split(/\s+/).filter((word) => word.length > 0)
   const paragraphs = markdown.split(/\n\s*\n/).filter((p) => p.trim().length > 0)
 
@@ -157,8 +157,8 @@ const useMarkdownProcessing = () => {
       const statistics = calculateStatistics(content)
       return { html, statistics }
     } catch (error) {
-      console.error('Markdown processing error:', error)
-      throw new Error('Failed to process markdown content')
+      console.error("Markdown processing error:", error)
+      throw new Error("Failed to process markdown content")
     }
   }, [])
 
@@ -182,8 +182,8 @@ const useMarkdownProcessing = () => {
               name: file.name,
               content,
               size: file.size,
-              type: file.type || 'text/markdown',
-              status: 'completed',
+              type: file.type || "text/markdown",
+              status: "completed",
               processedAt: new Date(),
               htmlContent: html,
               statistics,
@@ -191,11 +191,11 @@ const useMarkdownProcessing = () => {
 
             resolve(markdownFile)
           } catch (error) {
-            reject(new Error('Failed to process markdown file'))
+            reject(new Error("Failed to process markdown file"))
           }
         }
 
-        reader.onerror = () => reject(new Error('Failed to read file'))
+        reader.onerror = () => reject(new Error("Failed to read file"))
         reader.readAsText(file)
       })
     },
@@ -207,17 +207,17 @@ const useMarkdownProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
-            type: files[index].type || 'text/markdown',
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            type: files[index].type || "text/markdown",
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -256,7 +256,7 @@ const useRealTimeMarkdown = (content: string, settings: PreviewSettings) => {
 
       return { html, statistics }
     } catch (error) {
-      console.error('Real-time processing error:', error)
+      console.error("Real-time processing error:", error)
       return {
         html: '<p class="text-red-600">Error processing markdown</p>',
         statistics: {
@@ -283,7 +283,7 @@ const useMarkdownExport = () => {
     (
       content: string,
       filename?: string,
-      options: ExportOptions = { format: 'html', includeCSS: true, includeTableOfContents: false, pageBreaks: false }
+      options: ExportOptions = { format: "html", includeCSS: true, includeTableOfContents: false, pageBreaks: false }
     ) => {
       const html = parseMarkdown(content)
 
@@ -313,11 +313,11 @@ const useMarkdownExport = () => {
         fullHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Markdown Export</title>${css}</head><body>${html}</body></html>`
       }
 
-      const blob = new Blob([fullHTML], { type: 'text/html;charset=utf-8' })
+      const blob = new Blob([fullHTML], { type: "text/html;charset=utf-8" })
       const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
+      const link = document.createElement("a")
       link.href = url
-      link.download = filename || 'markdown-export.html'
+      link.download = filename || "markdown-export.html"
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -327,11 +327,11 @@ const useMarkdownExport = () => {
   )
 
   const exportPlainText = useCallback((content: string, filename?: string) => {
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = filename || 'markdown-export.txt'
+    link.download = filename || "markdown-export.txt"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -339,13 +339,13 @@ const useMarkdownExport = () => {
   }, [])
 
   const exportBatch = useCallback((files: MarkdownFile[]) => {
-    const content = files.map((file, index) => `=== File ${index + 1}: ${file.name} ===\n${file.content}\n`).join('\n')
+    const content = files.map((file, index) => `=== File ${index + 1}: ${file.name} ===\n${file.content}\n`).join("\n")
 
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'markdown-batch-export.txt'
+    link.download = "markdown-batch-export.txt"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -354,15 +354,15 @@ const useMarkdownExport = () => {
 
   const exportCSV = useCallback((files: MarkdownFile[]) => {
     const headers = [
-      'Filename',
-      'Word Count',
-      'Character Count',
-      'Line Count',
-      'Paragraph Count',
-      'Heading Count',
-      'Link Count',
-      'Image Count',
-      'Reading Time (min)',
+      "Filename",
+      "Word Count",
+      "Character Count",
+      "Line Count",
+      "Paragraph Count",
+      "Heading Count",
+      "Link Count",
+      "Image Count",
+      "Reading Time (min)",
     ]
 
     const rows = files
@@ -379,13 +379,13 @@ const useMarkdownExport = () => {
         file.statistics!.readingTime,
       ])
 
-    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'markdown-statistics.csv'
+    link.download = "markdown-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -402,13 +402,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -423,9 +423,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -438,16 +438,16 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
 
       const files = Array.from(e.dataTransfer.files).filter(
         (file) =>
-          file.type === 'text/markdown' ||
-          file.name.endsWith('.md') ||
-          file.name.endsWith('.markdown') ||
-          file.type === 'text/plain'
+          file.type === "text/markdown" ||
+          file.name.endsWith(".md") ||
+          file.name.endsWith(".markdown") ||
+          file.type === "text/plain"
       )
 
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only Markdown or text files')
+        toast.error("Please drop only Markdown or text files")
       }
     },
     [onFilesDropped]
@@ -461,7 +461,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -481,16 +481,16 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time preview, file upload, batch processing, export capabilities
  */
 const MarkdownPreviewCore = () => {
-  const [activeTab, setActiveTab] = useState<'editor' | 'files'>('editor')
+  const [activeTab, setActiveTab] = useState<"editor" | "files">("editor")
   const [markdownContent, setMarkdownContent] = useState(
     '# Welcome to Markdown Preview\n\nStart typing your **Markdown** content here!\n\n## Features\n\n- Real-time preview\n- File upload support\n- Export to multiple formats\n- Comprehensive statistics\n\n```javascript\nconst hello = "world";\nconsole.log(hello);\n```\n\n> This is a blockquote example\n\n### Lists\n\n1. Ordered list item\n2. Another item\n\n* Unordered list\n* Another item\n\n[Link example](https://example.com)\n\n![Image example](https://via.placeholder.com/300x200)'
   )
   const [files, setFiles] = useState<MarkdownFile[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
   const [settings, setSettings] = useState<PreviewSettings>({
-    viewMode: 'split',
-    theme: 'auto',
-    fontSize: 'medium',
+    viewMode: "split",
+    theme: "auto",
+    fontSize: "medium",
     lineNumbers: false,
     wordWrap: true,
     syntaxHighlighting: true,
@@ -518,7 +518,7 @@ const MarkdownPreviewCore = () => {
           setFiles((prev) => [...processedFiles, ...prev])
           toast.success(`Processed ${processedFiles.length} file(s)`)
         } catch (error) {
-          toast.error('Failed to process files')
+          toast.error("Failed to process files")
         } finally {
           setIsProcessing(false)
         }
@@ -529,20 +529,20 @@ const MarkdownPreviewCore = () => {
 
   // Process files
   const processFiles = useCallback(async () => {
-    const pendingFiles = files.filter((f) => f.status === 'pending')
+    const pendingFiles = files.filter((f) => f.status === "pending")
     if (pendingFiles.length === 0) return
 
     setIsProcessing(true)
     try {
       const updatedFiles = await Promise.all(
         files.map(async (file) => {
-          if (file.status !== 'pending') return file
+          if (file.status !== "pending") return file
 
           try {
             const { html, statistics } = processMarkdown(file.content)
             return {
               ...file,
-              status: 'completed' as const,
+              status: "completed" as const,
               htmlContent: html,
               statistics,
               processedAt: new Date(),
@@ -550,17 +550,17 @@ const MarkdownPreviewCore = () => {
           } catch (error) {
             return {
               ...file,
-              status: 'error' as const,
-              error: 'Processing failed',
+              status: "error" as const,
+              error: "Processing failed",
             }
           }
         })
       )
 
       setFiles(updatedFiles)
-      toast.success('Files processed successfully!')
+      toast.success("Files processed successfully!")
     } catch (error) {
-      toast.error('Failed to process files')
+      toast.error("Failed to process files")
     } finally {
       setIsProcessing(false)
     }
@@ -569,7 +569,7 @@ const MarkdownPreviewCore = () => {
   // Clear all files
   const clearAll = useCallback(() => {
     setFiles([])
-    toast.success('All files cleared')
+    toast.success("All files cleared")
   }, [])
 
   // Remove specific file
@@ -607,12 +607,15 @@ const MarkdownPreviewCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" aria-hidden="true" />
+              <FileText className="h-5 w-5" />
               Markdown Preview
             </CardTitle>
             <CardDescription>
@@ -623,20 +626,32 @@ const MarkdownPreviewCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'editor' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "editor" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="editor" className="flex items-center gap-2">
+            <TabsTrigger
+              value="editor"
+              className="flex items-center gap-2"
+            >
               <Code className="h-4 w-4" />
               Editor
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               File Upload
             </TabsTrigger>
           </TabsList>
 
           {/* Editor Tab */}
-          <TabsContent value="editor" className="space-y-4">
+          <TabsContent
+            value="editor"
+            className="space-y-4"
+          >
             {/* Settings Panel */}
             <Card>
               <CardHeader>
@@ -651,11 +666,11 @@ const MarkdownPreviewCore = () => {
                     <Label htmlFor="viewMode">View Mode</Label>
                     <Select
                       value={settings.viewMode}
-                      onValueChange={(value: 'split' | 'preview' | 'source') =>
+                      onValueChange={(value: "split" | "preview" | "source") =>
                         setSettings((prev) => ({ ...prev, viewMode: value }))
                       }
                     >
-                      <SelectTrigger id="viewMode" aria-label="Select view mode">
+                      <SelectTrigger id="viewMode">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -685,11 +700,11 @@ const MarkdownPreviewCore = () => {
                     <Label htmlFor="fontSize">Font Size</Label>
                     <Select
                       value={settings.fontSize}
-                      onValueChange={(value: 'small' | 'medium' | 'large') =>
+                      onValueChange={(value: "small" | "medium" | "large") =>
                         setSettings((prev) => ({ ...prev, fontSize: value }))
                       }
                     >
-                      <SelectTrigger id="fontSize" aria-label="Select font size">
+                      <SelectTrigger id="fontSize">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -704,11 +719,11 @@ const MarkdownPreviewCore = () => {
                     <Label htmlFor="theme">Theme</Label>
                     <Select
                       value={settings.theme}
-                      onValueChange={(value: 'light' | 'dark' | 'auto') =>
+                      onValueChange={(value: "light" | "dark" | "auto") =>
                         setSettings((prev) => ({ ...prev, theme: value }))
                       }
                     >
-                      <SelectTrigger id="theme" aria-label="Select theme">
+                      <SelectTrigger id="theme">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -724,9 +739,13 @@ const MarkdownPreviewCore = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium">Advanced Options</h4>
-                    <Button variant="ghost" size="sm" onClick={() => setShowAdvanced(!showAdvanced)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAdvanced(!showAdvanced)}
+                    >
                       <Target className="h-4 w-4 mr-2" />
-                      {showAdvanced ? 'Hide' : 'Show'} Advanced
+                      {showAdvanced ? "Hide" : "Show"} Advanced
                     </Button>
                   </div>
 
@@ -740,7 +759,10 @@ const MarkdownPreviewCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, lineNumbers: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="lineNumbers" className="text-sm">
+                        <Label
+                          htmlFor="lineNumbers"
+                          className="text-sm"
+                        >
                           Line numbers
                         </Label>
                       </div>
@@ -753,7 +775,10 @@ const MarkdownPreviewCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, wordWrap: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="wordWrap" className="text-sm">
+                        <Label
+                          htmlFor="wordWrap"
+                          className="text-sm"
+                        >
                           Word wrap
                         </Label>
                       </div>
@@ -766,7 +791,10 @@ const MarkdownPreviewCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, syntaxHighlighting: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="syntaxHighlighting" className="text-sm">
+                        <Label
+                          htmlFor="syntaxHighlighting"
+                          className="text-sm"
+                        >
                           Syntax highlighting
                         </Label>
                       </div>
@@ -779,7 +807,10 @@ const MarkdownPreviewCore = () => {
                           onChange={(e) => setSettings((prev) => ({ ...prev, tableOfContents: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="tableOfContents" className="text-sm">
+                        <Label
+                          htmlFor="tableOfContents"
+                          className="text-sm"
+                        >
                           Table of contents
                         </Label>
                       </div>
@@ -819,20 +850,23 @@ const MarkdownPreviewCore = () => {
             {/* Editor and Preview */}
             <Card>
               <CardContent className="pt-6">
-                <div className={`grid gap-4 ${settings.viewMode === 'split' ? 'md:grid-cols-2' : 'grid-cols-1'}`}>
+                <div className={`grid gap-4 ${settings.viewMode === "split" ? "md:grid-cols-2" : "grid-cols-1"}`}>
                   {/* Source Editor */}
-                  {(settings.viewMode === 'split' || settings.viewMode === 'source') && (
+                  {(settings.viewMode === "split" || settings.viewMode === "source") && (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="markdown-editor" className="font-medium">
+                        <Label
+                          htmlFor="markdown-editor"
+                          className="font-medium"
+                        >
                           Markdown Source
                         </Label>
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => copyToClipboard(markdownContent, 'markdown')}
+                          onClick={() => copyToClipboard(markdownContent, "markdown")}
                         >
-                          {copiedText === 'markdown' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          {copiedText === "markdown" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         </Button>
                       </div>
                       <Textarea
@@ -841,45 +875,51 @@ const MarkdownPreviewCore = () => {
                         onChange={(e) => setMarkdownContent(e.target.value)}
                         placeholder="Type your Markdown here..."
                         className={`min-h-[400px] font-mono resize-none ${
-                          settings.fontSize === 'small'
-                            ? 'text-sm'
-                            : settings.fontSize === 'large'
-                              ? 'text-lg'
-                              : 'text-base'
-                        } ${settings.wordWrap ? 'whitespace-pre-wrap' : 'whitespace-pre'}`}
+                          settings.fontSize === "small"
+                            ? "text-sm"
+                            : settings.fontSize === "large"
+                              ? "text-lg"
+                              : "text-base"
+                        } ${settings.wordWrap ? "whitespace-pre-wrap" : "whitespace-pre"}`}
                         style={{
-                          lineHeight: settings.lineNumbers ? '1.5' : '1.6',
+                          lineHeight: settings.lineNumbers ? "1.5" : "1.6",
                           tabSize: 2,
                         }}
-                        aria-label="Markdown editor"
                       />
                     </div>
                   )}
 
                   {/* Preview */}
-                  {(settings.viewMode === 'split' || settings.viewMode === 'preview') && (
+                  {(settings.viewMode === "split" || settings.viewMode === "preview") && (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Label className="font-medium">Preview</Label>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => copyToClipboard(previewHTML, 'html')}>
-                            {copiedText === 'html' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => copyToClipboard(previewHTML, "html")}
+                          >
+                            {copiedText === "html" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => exportHTML(markdownContent)}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => exportHTML(markdownContent)}
+                          >
                             <Download className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
                       <div
                         className={`min-h-[400px] p-4 border rounded-lg bg-background overflow-auto max-w-none ${
-                          settings.fontSize === 'small'
-                            ? 'text-sm'
-                            : settings.fontSize === 'large'
-                              ? 'text-lg'
-                              : 'text-base'
+                          settings.fontSize === "small"
+                            ? "text-sm"
+                            : settings.fontSize === "large"
+                              ? "text-lg"
+                              : "text-base"
                         }`}
                         dangerouslySetInnerHTML={{ __html: previewHTML }}
-                        aria-label="Markdown preview"
                       />
                     </div>
                   )}
@@ -887,22 +927,34 @@ const MarkdownPreviewCore = () => {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-3 justify-center mt-6 pt-4 border-t">
-                  <Button onClick={() => exportHTML(markdownContent)} variant="outline">
+                  <Button
+                    onClick={() => exportHTML(markdownContent)}
+                    variant="outline"
+                  >
                     <Download className="mr-2 h-4 w-4" />
                     Export HTML
                   </Button>
 
-                  <Button onClick={() => exportPlainText(markdownContent)} variant="outline">
+                  <Button
+                    onClick={() => exportPlainText(markdownContent)}
+                    variant="outline"
+                  >
                     <FileText className="mr-2 h-4 w-4" />
                     Export Text
                   </Button>
 
-                  <Button onClick={() => copyToClipboard(markdownContent, 'markdown source')} variant="outline">
+                  <Button
+                    onClick={() => copyToClipboard(markdownContent, "markdown source")}
+                    variant="outline"
+                  >
                     <Copy className="mr-2 h-4 w-4" />
                     Copy Source
                   </Button>
 
-                  <Button onClick={() => copyToClipboard(previewHTML, 'HTML')} variant="outline">
+                  <Button
+                    onClick={() => copyToClipboard(previewHTML, "HTML")}
+                    variant="outline"
+                  >
                     <Code className="mr-2 h-4 w-4" />
                     Copy HTML
                   </Button>
@@ -912,15 +964,18 @@ const MarkdownPreviewCore = () => {
           </TabsContent>
 
           {/* File Upload Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             {/* File Upload */}
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -928,9 +983,8 @@ const MarkdownPreviewCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop markdown files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -941,7 +995,11 @@ const MarkdownPreviewCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your Markdown files here, or click to select files
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -953,7 +1011,6 @@ const MarkdownPreviewCore = () => {
                     accept=".md,.markdown,.txt"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select markdown files"
                   />
                 </div>
               </CardContent>
@@ -1005,7 +1062,7 @@ const MarkdownPreviewCore = () => {
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Button
                       onClick={processFiles}
-                      disabled={isProcessing || files.every((f) => f.status !== 'pending')}
+                      disabled={isProcessing || files.every((f) => f.status !== "pending")}
                       className="min-w-32"
                     >
                       {isProcessing ? (
@@ -1024,7 +1081,7 @@ const MarkdownPreviewCore = () => {
                     <Button
                       onClick={() => exportBatch(files)}
                       variant="outline"
-                      disabled={!files.some((f) => f.status === 'completed')}
+                      disabled={!files.some((f) => f.status === "completed")}
                     >
                       <Download className="mr-2 h-4 w-4" />
                       Export All
@@ -1039,7 +1096,11 @@ const MarkdownPreviewCore = () => {
                       Export Stats
                     </Button>
 
-                    <Button onClick={clearAll} variant="destructive" disabled={isProcessing}>
+                    <Button
+                      onClick={clearAll}
+                      variant="destructive"
+                      disabled={isProcessing}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
@@ -1057,14 +1118,20 @@ const MarkdownPreviewCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground space-y-1">
@@ -1073,7 +1140,7 @@ const MarkdownPreviewCore = () => {
                                 <span className="font-medium"> Type:</span> {file.type}
                               </div>
 
-                              {file.status === 'completed' && file.statistics && (
+                              {file.status === "completed" && file.statistics && (
                                 <div className="mt-2">
                                   <div className="text-xs font-medium mb-1">Statistics:</div>
                                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
@@ -1085,8 +1152,8 @@ const MarkdownPreviewCore = () => {
                                 </div>
                               )}
 
-                              {file.status === 'pending' && <div className="text-blue-600">Ready for processing</div>}
-                              {file.status === 'processing' && (
+                              {file.status === "pending" && <div className="text-blue-600">Ready for processing</div>}
+                              {file.status === "processing" && (
                                 <div className="text-blue-600 flex items-center gap-2">
                                   <Loader2 className="h-4 w-4 animate-spin" />
                                   Processing...
@@ -1097,13 +1164,12 @@ const MarkdownPreviewCore = () => {
                           </div>
 
                           <div className="flex-shrink-0 flex items-center gap-2">
-                            {file.status === 'completed' && file.htmlContent && (
+                            {file.status === "completed" && file.htmlContent && (
                               <>
                                 <Button
                                   size="sm"
                                   variant="outline"
                                   onClick={() => copyToClipboard(file.content, file.id)}
-                                  aria-label={`Copy markdown for ${file.name}`}
                                 >
                                   {copiedText === file.id ? (
                                     <Check className="h-4 w-4" />
@@ -1115,8 +1181,7 @@ const MarkdownPreviewCore = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => exportHTML(file.content, file.name.replace(/\.[^/.]+$/, '.html'))}
-                                  aria-label={`Export HTML for ${file.name}`}
+                                  onClick={() => exportHTML(file.content, file.name.replace(/\.[^/.]+$/, ".html"))}
                                 >
                                   <Download className="h-4 w-4" />
                                 </Button>
@@ -1127,21 +1192,20 @@ const MarkdownPreviewCore = () => {
                               size="sm"
                               variant="ghost"
                               onClick={() => removeFile(file.id)}
-                              aria-label={`Remove ${file.name}`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
 
-                        {file.status === 'completed' && file.htmlContent && (
+                        {file.status === "completed" && file.htmlContent && (
                           <div className="mt-4">
                             <div className="text-xs font-medium mb-2">Preview:</div>
                             <div
                               className="p-3 bg-muted/30 rounded border max-h-40 overflow-y-auto prose prose-sm max-w-none"
                               dangerouslySetInnerHTML={{
                                 __html:
-                                  file.htmlContent.substring(0, 500) + (file.htmlContent.length > 500 ? '...' : ''),
+                                  file.htmlContent.substring(0, 500) + (file.htmlContent.length > 500 ? "..." : ""),
                               }}
                             />
                           </div>

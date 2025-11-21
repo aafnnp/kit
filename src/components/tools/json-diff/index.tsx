@@ -1,11 +1,11 @@
-import { useCallback, useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -20,8 +20,8 @@ import {
   List,
   GitCompare,
   GitBranch,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   JSONDiffResult,
   JSONDifference,
@@ -31,8 +31,8 @@ import type {
   DiffTemplate,
   DiffValidation,
   ExportFormat,
-} from '@/types/json-diff'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/json-diff"
+import { formatFileSize } from "@/lib/utils"
 
 // Utility functions
 
@@ -43,22 +43,22 @@ const compareJSON = (left: any, right: any, options: DiffOptions): JSONDiffResul
   const timestamp = new Date()
 
   const differences: JSONDifference[] = []
-  const leftText = typeof left === 'string' ? left : JSON.stringify(left, null, 2)
-  const rightText = typeof right === 'string' ? right : JSON.stringify(right, null, 2)
+  const leftText = typeof left === "string" ? left : JSON.stringify(left, null, 2)
+  const rightText = typeof right === "string" ? right : JSON.stringify(right, null, 2)
 
   let leftJSON: any
   let rightJSON: any
 
   try {
-    leftJSON = typeof left === 'string' ? JSON.parse(left) : left
-    rightJSON = typeof right === 'string' ? JSON.parse(right) : right
+    leftJSON = typeof left === "string" ? JSON.parse(left) : left
+    rightJSON = typeof right === "string" ? JSON.parse(right) : right
   } catch (error) {
-    throw new Error('Invalid JSON format')
+    throw new Error("Invalid JSON format")
   }
 
   // Perform deep comparison
   const visited = new Set<string>()
-  compareObjects(leftJSON, rightJSON, '', differences, options, visited)
+  compareObjects(leftJSON, rightJSON, "", differences, options, visited)
 
   const endTime = window.performance.now()
   const processingTime = endTime - startTime
@@ -90,10 +90,10 @@ const compareObjects = (
   options: DiffOptions,
   visited: Set<string>
 ): void => {
-  const currentPath = path || 'root'
+  const currentPath = path || "root"
 
   // Prevent infinite recursion
-  if (visited.has(currentPath) || (options.maxDepth > 0 && path.split('.').length > options.maxDepth)) {
+  if (visited.has(currentPath) || (options.maxDepth > 0 && path.split(".").length > options.maxDepth)) {
     return
   }
   visited.add(currentPath)
@@ -105,10 +105,10 @@ const compareObjects = (
   if (left === null || left === undefined) {
     differences.push({
       path: currentPath,
-      type: 'added',
+      type: "added",
       rightValue: right,
       description: `Added value at ${currentPath}`,
-      severity: 'medium',
+      severity: "medium",
     })
     return
   }
@@ -116,10 +116,10 @@ const compareObjects = (
   if (right === null || right === undefined) {
     differences.push({
       path: currentPath,
-      type: 'removed',
+      type: "removed",
       leftValue: left,
       description: `Removed value at ${currentPath}`,
-      severity: 'medium',
+      severity: "medium",
     })
     return
   }
@@ -129,20 +129,20 @@ const compareObjects = (
     if (!isEqual(left, right, options)) {
       differences.push({
         path: currentPath,
-        type: 'modified',
+        type: "modified",
         leftValue: left,
         rightValue: right,
         description: `Value changed at ${currentPath}`,
-        severity: 'high',
+        severity: "high",
       })
     } else if (options.showUnchanged) {
       differences.push({
         path: currentPath,
-        type: 'unchanged',
+        type: "unchanged",
         leftValue: left,
         rightValue: right,
         description: `Unchanged value at ${currentPath}`,
-        severity: 'low',
+        severity: "low",
       })
     }
     return
@@ -157,17 +157,17 @@ const compareObjects = (
   if (Array.isArray(left) !== Array.isArray(right)) {
     differences.push({
       path: currentPath,
-      type: 'modified',
+      type: "modified",
       leftValue: left,
       rightValue: right,
       description: `Type changed at ${currentPath} (${getType(left)} → ${getType(right)})`,
-      severity: 'high',
+      severity: "high",
     })
     return
   }
 
   // Handle objects
-  if (typeof left === 'object' && typeof right === 'object') {
+  if (typeof left === "object" && typeof right === "object") {
     compareObjectProperties(left, right, currentPath, differences, options, visited)
     return
   }
@@ -176,11 +176,11 @@ const compareObjects = (
   if (typeof left !== typeof right) {
     differences.push({
       path: currentPath,
-      type: 'modified',
+      type: "modified",
       leftValue: left,
       rightValue: right,
       description: `Type changed at ${currentPath} (${typeof left} → ${typeof right})`,
-      severity: 'high',
+      severity: "high",
     })
   }
 }
@@ -206,18 +206,18 @@ const compareArrays = (
       if (i >= leftSorted.length) {
         differences.push({
           path: itemPath,
-          type: 'added',
+          type: "added",
           rightValue: rightItem,
           description: `Added array item at ${itemPath}`,
-          severity: 'medium',
+          severity: "medium",
         })
       } else if (i >= rightSorted.length) {
         differences.push({
           path: itemPath,
-          type: 'removed',
+          type: "removed",
           leftValue: leftItem,
           description: `Removed array item at ${itemPath}`,
-          severity: 'medium',
+          severity: "medium",
         })
       } else {
         compareObjects(leftItem, rightItem, itemPath, differences, options, visited)
@@ -233,18 +233,18 @@ const compareArrays = (
       if (i >= left.length) {
         differences.push({
           path: itemPath,
-          type: 'added',
+          type: "added",
           rightValue: rightItem,
           description: `Added array item at ${itemPath}`,
-          severity: 'medium',
+          severity: "medium",
         })
       } else if (i >= right.length) {
         differences.push({
           path: itemPath,
-          type: 'removed',
+          type: "removed",
           leftValue: leftItem,
           description: `Removed array item at ${itemPath}`,
-          severity: 'medium',
+          severity: "medium",
         })
       } else {
         compareObjects(leftItem, rightItem, itemPath, differences, options, visited)
@@ -274,20 +274,20 @@ const compareObjectProperties = (
       if (!options.ignoreExtraKeys) {
         differences.push({
           path: propertyPath,
-          type: 'added',
+          type: "added",
           rightValue: rightValue,
-          description: `Added property ${key} at ${path || 'root'}`,
-          severity: 'medium',
+          description: `Added property ${key} at ${path || "root"}`,
+          severity: "medium",
         })
       }
     } else if (!(key in right)) {
       if (!options.ignoreExtraKeys) {
         differences.push({
           path: propertyPath,
-          type: 'removed',
+          type: "removed",
           leftValue: leftValue,
-          description: `Removed property ${key} at ${path || 'root'}`,
-          severity: 'medium',
+          description: `Removed property ${key} at ${path || "root"}`,
+          severity: "medium",
         })
       }
     } else {
@@ -301,16 +301,16 @@ const isPrimitive = (value: any): boolean => {
   return (
     value === null ||
     value === undefined ||
-    typeof value === 'string' ||
-    typeof value === 'number' ||
-    typeof value === 'boolean'
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
   )
 }
 
 const getType = (value: any): string => {
-  if (value === null) return 'null'
-  if (value === undefined) return 'undefined'
-  if (Array.isArray(value)) return 'array'
+  if (value === null) return "null"
+  if (value === undefined) return "undefined"
+  if (Array.isArray(value)) return "array"
   return typeof value
 }
 
@@ -319,7 +319,7 @@ const isEqual = (left: any, right: any, options: DiffOptions): boolean => {
     return options.customComparator(left, right)
   }
 
-  if (typeof left === 'string' && typeof right === 'string') {
+  if (typeof left === "string" && typeof right === "string") {
     let leftStr = left
     let rightStr = right
 
@@ -329,14 +329,14 @@ const isEqual = (left: any, right: any, options: DiffOptions): boolean => {
     }
 
     if (options.ignoreWhitespace) {
-      leftStr = leftStr.replace(/\s+/g, ' ').trim()
-      rightStr = rightStr.replace(/\s+/g, ' ').trim()
+      leftStr = leftStr.replace(/\s+/g, " ").trim()
+      rightStr = rightStr.replace(/\s+/g, " ").trim()
     }
 
     return leftStr === rightStr
   }
 
-  if (typeof left === 'number' && typeof right === 'number') {
+  if (typeof left === "number" && typeof right === "number") {
     if (options.precision > 0) {
       return Math.abs(left - right) < Math.pow(10, -options.precision)
     }
@@ -346,11 +346,11 @@ const isEqual = (left: any, right: any, options: DiffOptions): boolean => {
 }
 
 const calculateDiffSummary = (differences: JSONDifference[], left: any, right: any): DiffSummary => {
-  const added = differences.filter((d) => d.type === 'added').length
-  const removed = differences.filter((d) => d.type === 'removed').length
-  const modified = differences.filter((d) => d.type === 'modified').length
-  const moved = differences.filter((d) => d.type === 'moved').length
-  const unchanged = differences.filter((d) => d.type === 'unchanged').length
+  const added = differences.filter((d) => d.type === "added").length
+  const removed = differences.filter((d) => d.type === "removed").length
+  const modified = differences.filter((d) => d.type === "modified").length
+  const moved = differences.filter((d) => d.type === "moved").length
+  const unchanged = differences.filter((d) => d.type === "unchanged").length
   const totalDifferences = added + removed + modified + moved
 
   // Calculate similarity percentage
@@ -393,7 +393,7 @@ const countTotalItems = (obj: any): number => {
   if (Array.isArray(obj)) {
     return obj.reduce((count, item) => count + countTotalItems(item), 0)
   }
-  if (typeof obj === 'object' && obj !== null) {
+  if (typeof obj === "object" && obj !== null) {
     return Object.values(obj).reduce(
       (count: number, value: any) => count + countTotalItems(value),
       Object.keys(obj).length
@@ -407,7 +407,7 @@ const calculateComplexity = (obj: any): number => {
   if (Array.isArray(obj)) {
     return obj.reduce((complexity, item) => complexity + calculateComplexity(item), 1)
   }
-  if (typeof obj === 'object' && obj !== null) {
+  if (typeof obj === "object" && obj !== null) {
     return Object.values(obj).reduce(
       (complexity: number, value: any) => complexity + calculateComplexity(value),
       Object.keys(obj).length
@@ -421,7 +421,7 @@ const calculateDepth = (obj: any, currentDepth = 0): number => {
   if (Array.isArray(obj)) {
     return Math.max(currentDepth, ...obj.map((item) => calculateDepth(item, currentDepth + 1)))
   }
-  if (typeof obj === 'object' && obj !== null) {
+  if (typeof obj === "object" && obj !== null) {
     const depths = Object.values(obj).map((value) => calculateDepth(value, currentDepth + 1))
     return depths.length > 0 ? Math.max(currentDepth, ...depths) : currentDepth
   }
@@ -433,7 +433,7 @@ const countKeys = (obj: any): number => {
   if (Array.isArray(obj)) {
     return obj.reduce((count, item) => count + countKeys(item), 0)
   }
-  if (typeof obj === 'object' && obj !== null) {
+  if (typeof obj === "object" && obj !== null) {
     return (
       Object.keys(obj).length + Object.values(obj).reduce((count: number, value: any) => count + countKeys(value), 0)
     )
@@ -454,9 +454,9 @@ const validateJSONInput = (input: string): DiffValidation => {
   if (!input || input.trim().length === 0) {
     validation.isValid = false
     validation.errors.push({
-      message: 'JSON input cannot be empty',
-      type: 'syntax',
-      severity: 'error',
+      message: "JSON input cannot be empty",
+      type: "syntax",
+      severity: "error",
     })
     validation.qualityScore = 0
     return validation
@@ -469,43 +469,43 @@ const validateJSONInput = (input: string): DiffValidation => {
     const size = input.length
     if (size > 1000000) {
       // 1MB
-      validation.warnings.push('Large JSON file may impact performance')
-      validation.suggestions.push('Consider breaking down large JSON files')
+      validation.warnings.push("Large JSON file may impact performance")
+      validation.suggestions.push("Consider breaking down large JSON files")
       validation.qualityScore -= 10
     }
 
     const depth = calculateDepth(parsed)
     if (depth > 20) {
-      validation.warnings.push('Very deep JSON structure detected')
-      validation.suggestions.push('Deep nesting may impact comparison performance')
+      validation.warnings.push("Very deep JSON structure detected")
+      validation.suggestions.push("Deep nesting may impact comparison performance")
       validation.qualityScore -= 15
     }
 
     const complexity = calculateComplexity(parsed)
     if (complexity > 10000) {
-      validation.warnings.push('High complexity JSON structure')
-      validation.suggestions.push('Complex structures may take longer to compare')
+      validation.warnings.push("High complexity JSON structure")
+      validation.suggestions.push("Complex structures may take longer to compare")
       validation.qualityScore -= 10
     }
   } catch (error) {
     validation.isValid = false
     validation.errors.push({
-      message: error instanceof Error ? error.message : 'Invalid JSON syntax',
-      type: 'syntax',
-      severity: 'error',
+      message: error instanceof Error ? error.message : "Invalid JSON syntax",
+      type: "syntax",
+      severity: "error",
     })
     validation.qualityScore -= 50
   }
 
   // Quality suggestions
   if (validation.qualityScore >= 90) {
-    validation.suggestions.push('Excellent JSON structure')
+    validation.suggestions.push("Excellent JSON structure")
   } else if (validation.qualityScore >= 70) {
-    validation.suggestions.push('Good JSON structure with minor issues')
+    validation.suggestions.push("Good JSON structure with minor issues")
   } else if (validation.qualityScore >= 50) {
-    validation.suggestions.push('JSON structure needs improvement')
+    validation.suggestions.push("JSON structure needs improvement")
   } else {
-    validation.suggestions.push('JSON structure has significant issues')
+    validation.suggestions.push("JSON structure has significant issues")
   }
 
   return validation
@@ -514,10 +514,10 @@ const validateJSONInput = (input: string): DiffValidation => {
 // JSON Diff Templates
 const diffTemplates: DiffTemplate[] = [
   {
-    id: 'user-profile',
-    name: 'User Profile Update',
-    description: 'Compare user profile before and after updates',
-    category: 'User Data',
+    id: "user-profile",
+    name: "User Profile Update",
+    description: "Compare user profile before and after updates",
+    category: "User Data",
     leftJSON: `{
   "id": 123,
   "name": "John Doe",
@@ -541,14 +541,14 @@ const diffTemplates: DiffTemplate[] = [
   },
   "roles": ["user", "admin"]
 }`,
-    useCase: ['User management', 'Profile updates', 'Data migration'],
+    useCase: ["User management", "Profile updates", "Data migration"],
     expectedDifferences: 5,
   },
   {
-    id: 'api-response',
-    name: 'API Response Comparison',
-    description: 'Compare API responses between versions',
-    category: 'API',
+    id: "api-response",
+    name: "API Response Comparison",
+    description: "Compare API responses between versions",
+    category: "API",
     leftJSON: `{
   "status": "success",
   "data": {
@@ -580,14 +580,14 @@ const diffTemplates: DiffTemplate[] = [
     "deprecated": false
   }
 }`,
-    useCase: ['API testing', 'Version comparison', 'Response validation'],
+    useCase: ["API testing", "Version comparison", "Response validation"],
     expectedDifferences: 8,
   },
   {
-    id: 'config-changes',
-    name: 'Configuration Changes',
-    description: 'Compare application configuration files',
-    category: 'Configuration',
+    id: "config-changes",
+    name: "Configuration Changes",
+    description: "Compare application configuration files",
+    category: "Configuration",
     leftJSON: `{
   "database": {
     "host": "localhost",
@@ -624,14 +624,14 @@ const diffTemplates: DiffTemplate[] = [
     "monitoring": true
   }
 }`,
-    useCase: ['Configuration management', 'Environment comparison', 'Deployment validation'],
+    useCase: ["Configuration management", "Environment comparison", "Deployment validation"],
     expectedDifferences: 7,
   },
   {
-    id: 'array-comparison',
-    name: 'Array Data Comparison',
-    description: 'Compare arrays with different ordering and content',
-    category: 'Data Structures',
+    id: "array-comparison",
+    name: "Array Data Comparison",
+    description: "Compare arrays with different ordering and content",
+    category: "Data Structures",
     leftJSON: `{
   "products": [
     {"id": 1, "name": "Laptop", "price": 999},
@@ -650,7 +650,7 @@ const diffTemplates: DiffTemplate[] = [
   "categories": ["Electronics", "Computers", "Accessories"],
   "tags": ["tech", "office", "productivity", "sale"]
 }`,
-    useCase: ['Product catalog', 'Inventory management', 'Price comparison'],
+    useCase: ["Product catalog", "Inventory management", "Price comparison"],
     expectedDifferences: 6,
   },
 ]
@@ -709,13 +709,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -725,40 +725,40 @@ const useCopyToClipboard = () => {
 // Export functionality
 const useJSONDiffExport = () => {
   const exportResult = useCallback((result: JSONDiffResult, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'json':
+      case "json":
         content = JSON.stringify(result, null, 2)
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
-      case 'csv':
+      case "csv":
         content = generateCSVFromResult(result)
-        mimeType = 'text/csv'
-        extension = '.csv'
+        mimeType = "text/csv"
+        extension = ".csv"
         break
-      case 'txt':
+      case "txt":
         content = generateTextFromResult(result)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
-      case 'xml':
+      case "xml":
         content = generateXMLFromResult(result)
-        mimeType = 'application/xml'
-        extension = '.xml'
+        mimeType = "application/xml"
+        extension = ".xml"
         break
-      case 'yaml':
+      case "yaml":
         content = generateYAMLFromResult(result)
-        mimeType = 'text/yaml'
-        extension = '.yaml'
+        mimeType = "text/yaml"
+        extension = ".yaml"
         break
-      case 'html':
+      case "html":
         content = generateHTMLFromResult(result)
-        mimeType = 'text/html'
-        extension = '.html'
+        mimeType = "text/html"
+        extension = ".html"
         break
       default:
         content = generateTextFromResult(result)
@@ -767,7 +767,7 @@ const useJSONDiffExport = () => {
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `json-diff-${result.id}${extension}`
     document.body.appendChild(link)
@@ -781,7 +781,7 @@ const useJSONDiffExport = () => {
 
 // Helper functions for export formats
 const generateCSVFromResult = (result: JSONDiffResult): string => {
-  const headers = ['Path', 'Type', 'Left Value', 'Right Value', 'Description', 'Severity']
+  const headers = ["Path", "Type", "Left Value", "Right Value", "Description", "Severity"]
   const rows = result.differences.map((diff) => [
     diff.path,
     diff.type,
@@ -791,7 +791,7 @@ const generateCSVFromResult = (result: JSONDiffResult): string => {
     diff.severity,
   ])
 
-  return [headers.join(','), ...rows.map((row) => row.map((cell) => `"${cell || ''}"`).join(','))].join('\n')
+  return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell || ""}"`).join(","))].join("\n")
 }
 
 const generateTextFromResult = (result: JSONDiffResult): string => {
@@ -817,13 +817,13 @@ ${result.differences
     (diff) => `
 Path: ${diff.path}
 Type: ${diff.type.toUpperCase()}
-${diff.leftValue !== undefined ? `Left: ${JSON.stringify(diff.leftValue)}` : ''}
-${diff.rightValue !== undefined ? `Right: ${JSON.stringify(diff.rightValue)}` : ''}
+${diff.leftValue !== undefined ? `Left: ${JSON.stringify(diff.leftValue)}` : ""}
+${diff.rightValue !== undefined ? `Right: ${JSON.stringify(diff.rightValue)}` : ""}
 Description: ${diff.description}
 Severity: ${diff.severity}
 `
   )
-  .join('\n---\n')}`
+  .join("\n---\n")}`
 }
 
 const generateXMLFromResult = (result: JSONDiffResult): string => {
@@ -849,13 +849,13 @@ ${result.differences
     (diff) => `    <difference>
       <path>${diff.path}</path>
       <type>${diff.type}</type>
-      <leftValue>${diff.leftValue !== undefined ? JSON.stringify(diff.leftValue) : ''}</leftValue>
-      <rightValue>${diff.rightValue !== undefined ? JSON.stringify(diff.rightValue) : ''}</rightValue>
+      <leftValue>${diff.leftValue !== undefined ? JSON.stringify(diff.leftValue) : ""}</leftValue>
+      <rightValue>${diff.rightValue !== undefined ? JSON.stringify(diff.rightValue) : ""}</rightValue>
       <description>${diff.description}</description>
       <severity>${diff.severity}</severity>
     </difference>`
   )
-  .join('\n')}
+  .join("\n")}
   </differences>
 </jsonDiff>`
 }
@@ -885,7 +885,7 @@ ${result.differences
     description: ${diff.description}
     severity: ${diff.severity}`
   )
-  .join('\n')}`
+  .join("\n")}`
 }
 
 const generateHTMLFromResult = (result: JSONDiffResult): string => {
@@ -922,12 +922,12 @@ const generateHTMLFromResult = (result: JSONDiffResult): string => {
   <div class="diff ${diff.type}">
     <div class="path">${diff.path}</div>
     <div>Type: ${diff.type.toUpperCase()}</div>
-    ${diff.leftValue !== undefined ? `<div>Left: <span class="value">${JSON.stringify(diff.leftValue)}</span></div>` : ''}
-    ${diff.rightValue !== undefined ? `<div>Right: <span class="value">${JSON.stringify(diff.rightValue)}</span></div>` : ''}
+    ${diff.leftValue !== undefined ? `<div>Left: <span class="value">${JSON.stringify(diff.leftValue)}</span></div>` : ""}
+    ${diff.rightValue !== undefined ? `<div>Right: <span class="value">${JSON.stringify(diff.rightValue)}</span></div>` : ""}
     <div>${diff.description}</div>
   </div>`
     )
-    .join('')}
+    .join("")}
 </body>
 </html>`
 }
@@ -937,12 +937,12 @@ const generateHTMLFromResult = (result: JSONDiffResult): string => {
  * Features: Advanced JSON comparison, visual diff display, deep comparison, and multiple comparison modes
  */
 const JSONDiffCore = () => {
-  const [activeTab, setActiveTab] = useState<'diff' | 'history' | 'templates' | 'settings'>('diff')
-  const [leftJSON, setLeftJSON] = useState('')
-  const [rightJSON, setRightJSON] = useState('')
+  const [activeTab, setActiveTab] = useState<"diff" | "history" | "templates" | "settings">("diff")
+  const [leftJSON, setLeftJSON] = useState("")
+  const [rightJSON, setRightJSON] = useState("")
   const [options, setOptions] = useState<DiffOptions>(createDefaultOptions())
   const [currentResult, setCurrentResult] = useState<JSONDiffResult | null>(null)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
 
   const { results, isProcessing, performDiff, clearResults, removeResult } = useJSONDiff()
   const { exportResult } = useJSONDiffExport()
@@ -962,12 +962,12 @@ const JSONDiffCore = () => {
   // Perform JSON diff
   const handleDiff = useCallback(async () => {
     if (!leftJSON.trim()) {
-      toast.error('Please enter the left JSON')
+      toast.error("Please enter the left JSON")
       return
     }
 
     if (!rightJSON.trim()) {
-      toast.error('Please enter the right JSON')
+      toast.error("Please enter the right JSON")
       return
     }
 
@@ -989,7 +989,7 @@ const JSONDiffCore = () => {
       setCurrentResult(result)
       toast.success(`Comparison completed: ${result.summary.totalDifferences} differences found`)
     } catch (error) {
-      toast.error('Failed to compare JSON')
+      toast.error("Failed to compare JSON")
       console.error(error)
     }
   }, [leftJSON, rightJSON, options, performDiff])
@@ -1017,12 +1017,15 @@ const JSONDiffCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <GitCompare className="h-5 w-5" aria-hidden="true" />
+              <GitCompare className="h-5 w-5" />
               JSON Diff & Comparison Tool
             </CardTitle>
             <CardDescription>
@@ -1036,29 +1039,44 @@ const JSONDiffCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'diff' | 'history' | 'templates' | 'settings')}
+          onValueChange={(value) => setActiveTab(value as "diff" | "history" | "templates" | "settings")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="diff" className="flex items-center gap-2">
+            <TabsTrigger
+              value="diff"
+              className="flex items-center gap-2"
+            >
               <GitCompare className="h-4 w-4" />
               Diff
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger
+              value="settings"
+              className="flex items-center gap-2"
+            >
               <Settings className="h-4 w-4" />
               Settings
             </TabsTrigger>
           </TabsList>
 
           {/* JSON Diff Tab */}
-          <TabsContent value="diff" className="space-y-4">
+          <TabsContent
+            value="diff"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* JSON Input */}
               <Card>
@@ -1070,7 +1088,10 @@ const JSONDiffCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="left-json" className="text-sm font-medium">
+                    <Label
+                      htmlFor="left-json"
+                      className="text-sm font-medium"
+                    >
                       Left JSON (Original)
                     </Label>
                     <Textarea
@@ -1084,7 +1105,10 @@ const JSONDiffCore = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="right-json" className="text-sm font-medium">
+                    <Label
+                      htmlFor="right-json"
+                      className="text-sm font-medium"
+                    >
                       Right JSON (Modified)
                     </Label>
                     <Textarea
@@ -1108,12 +1132,12 @@ const JSONDiffCore = () => {
                       ) : (
                         <GitCompare className="mr-2 h-4 w-4" />
                       )}
-                      {isProcessing ? 'Comparing...' : 'Compare JSON'}
+                      {isProcessing ? "Comparing..." : "Compare JSON"}
                     </Button>
                     <Button
                       onClick={() => {
-                        setLeftJSON('')
-                        setRightJSON('')
+                        setLeftJSON("")
+                        setRightJSON("")
                         setCurrentResult(null)
                       }}
                       variant="outline"
@@ -1135,7 +1159,10 @@ const JSONDiffCore = () => {
                           onChange={(e) => setOptions((prev) => ({ ...prev, ignoreCase: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="ignore-case" className="text-xs">
+                        <Label
+                          htmlFor="ignore-case"
+                          className="text-xs"
+                        >
                           Ignore case
                         </Label>
                       </div>
@@ -1147,7 +1174,10 @@ const JSONDiffCore = () => {
                           onChange={(e) => setOptions((prev) => ({ ...prev, ignoreArrayOrder: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="ignore-array-order" className="text-xs">
+                        <Label
+                          htmlFor="ignore-array-order"
+                          className="text-xs"
+                        >
                           Ignore array order
                         </Label>
                       </div>
@@ -1159,7 +1189,10 @@ const JSONDiffCore = () => {
                           onChange={(e) => setOptions((prev) => ({ ...prev, showUnchanged: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="show-unchanged" className="text-xs">
+                        <Label
+                          htmlFor="show-unchanged"
+                          className="text-xs"
+                        >
                           Show unchanged
                         </Label>
                       </div>
@@ -1171,7 +1204,10 @@ const JSONDiffCore = () => {
                           onChange={(e) => setOptions((prev) => ({ ...prev, ignoreExtraKeys: e.target.checked }))}
                           className="rounded border-input"
                         />
-                        <Label htmlFor="ignore-extra-keys" className="text-xs">
+                        <Label
+                          htmlFor="ignore-extra-keys"
+                          className="text-xs"
+                        >
                           Ignore extra keys
                         </Label>
                       </div>
@@ -1258,22 +1294,30 @@ const JSONDiffCore = () => {
 
                       {/* Export Options */}
                       <div className="flex gap-2 pt-4 border-t">
-                        <Button onClick={() => exportResult(currentResult, 'json')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportResult(currentResult, "json")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           JSON
                         </Button>
-                        <Button onClick={() => exportResult(currentResult, 'html')} variant="outline" size="sm">
+                        <Button
+                          onClick={() => exportResult(currentResult, "html")}
+                          variant="outline"
+                          size="sm"
+                        >
                           <Download className="mr-2 h-4 w-4" />
                           HTML
                         </Button>
                         <Button
                           onClick={() =>
-                            copyToClipboard(JSON.stringify(currentResult.differences, null, 2), 'Differences')
+                            copyToClipboard(JSON.stringify(currentResult.differences, null, 2), "Differences")
                           }
                           variant="outline"
                           size="sm"
                         >
-                          {copiedText === 'Differences' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          {copiedText === "Differences" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         </Button>
                       </div>
                     </div>
@@ -1305,26 +1349,26 @@ const JSONDiffCore = () => {
                       <div
                         key={index}
                         className={`p-3 rounded-lg border ${
-                          diff.type === 'added'
-                            ? 'bg-green-50 border-green-200'
-                            : diff.type === 'removed'
-                              ? 'bg-red-50 border-red-200'
-                              : diff.type === 'modified'
-                                ? 'bg-orange-50 border-orange-200'
-                                : 'bg-gray-50 border-gray-200'
+                          diff.type === "added"
+                            ? "bg-green-50 border-green-200"
+                            : diff.type === "removed"
+                              ? "bg-red-50 border-red-200"
+                              : diff.type === "modified"
+                                ? "bg-orange-50 border-orange-200"
+                                : "bg-gray-50 border-gray-200"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <code className="text-sm font-mono bg-white px-2 py-1 rounded">{diff.path}</code>
                           <span
                             className={`text-xs px-2 py-1 rounded font-medium ${
-                              diff.type === 'added'
-                                ? 'bg-green-100 text-green-800'
-                                : diff.type === 'removed'
-                                  ? 'bg-red-100 text-red-800'
-                                  : diff.type === 'modified'
-                                    ? 'bg-orange-100 text-orange-800'
-                                    : 'bg-gray-100 text-gray-800'
+                              diff.type === "added"
+                                ? "bg-green-100 text-green-800"
+                                : diff.type === "removed"
+                                  ? "bg-red-100 text-red-800"
+                                  : diff.type === "modified"
+                                    ? "bg-orange-100 text-orange-800"
+                                    : "bg-gray-100 text-gray-800"
                             }`}
                           >
                             {diff.type.toUpperCase()}
@@ -1362,7 +1406,10 @@ const JSONDiffCore = () => {
           </TabsContent>
 
           {/* History Tab */}
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent
+            value="history"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Comparison History</CardTitle>
@@ -1373,19 +1420,30 @@ const JSONDiffCore = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        {results.length} comparison{results.length !== 1 ? 's' : ''} in history
+                        {results.length} comparison{results.length !== 1 ? "s" : ""} in history
                       </span>
-                      <Button onClick={clearResults} variant="outline" size="sm">
+                      <Button
+                        onClick={clearResults}
+                        variant="outline"
+                        size="sm"
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Clear History
                       </Button>
                     </div>
 
                     {results.map((result) => (
-                      <div key={result.id} className="border rounded-lg p-4">
+                      <div
+                        key={result.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex justify-between items-start mb-2">
                           <div className="font-medium text-sm">{result.timestamp.toLocaleString()}</div>
-                          <Button size="sm" variant="ghost" onClick={() => removeResult(result.id)}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => removeResult(result.id)}
+                          >
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
@@ -1417,18 +1475,22 @@ const JSONDiffCore = () => {
                               setLeftJSON(result.leftText)
                               setRightJSON(result.rightText)
                               setCurrentResult(result)
-                              setActiveTab('diff')
+                              setActiveTab("diff")
                             }}
                           >
                             <Eye className="h-3 w-3" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => exportResult(result, 'json')}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => exportResult(result, "json")}
+                          >
                             <Download className="h-3 w-3" />
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => copyToClipboard(JSON.stringify(result.differences, null, 2), 'Differences')}
+                            onClick={() => copyToClipboard(JSON.stringify(result.differences, null, 2), "Differences")}
                           >
                             <Copy className="h-3 w-3" />
                           </Button>
@@ -1448,7 +1510,10 @@ const JSONDiffCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Comparison Templates</CardTitle>
@@ -1460,7 +1525,7 @@ const JSONDiffCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1473,7 +1538,7 @@ const JSONDiffCore = () => {
                         <div className="space-y-2">
                           <div>
                             <div className="text-xs font-medium mb-1">Use Cases:</div>
-                            <div className="text-xs text-muted-foreground">{template.useCase.join(', ')}</div>
+                            <div className="text-xs text-muted-foreground">{template.useCase.join(", ")}</div>
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Expected Differences:</div>
@@ -1489,7 +1554,10 @@ const JSONDiffCore = () => {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-4">
+          <TabsContent
+            value="settings"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Comparison Settings</CardTitle>
@@ -1508,7 +1576,10 @@ const JSONDiffCore = () => {
                         onChange={(e) => setOptions((prev) => ({ ...prev, ignoreCase: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="settings-ignore-case" className="text-sm">
+                      <Label
+                        htmlFor="settings-ignore-case"
+                        className="text-sm"
+                      >
                         Ignore case differences
                       </Label>
                     </div>
@@ -1520,7 +1591,10 @@ const JSONDiffCore = () => {
                         onChange={(e) => setOptions((prev) => ({ ...prev, ignoreWhitespace: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="settings-ignore-whitespace" className="text-sm">
+                      <Label
+                        htmlFor="settings-ignore-whitespace"
+                        className="text-sm"
+                      >
                         Ignore whitespace differences
                       </Label>
                     </div>
@@ -1538,7 +1612,10 @@ const JSONDiffCore = () => {
                       onChange={(e) => setOptions((prev) => ({ ...prev, ignoreArrayOrder: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="settings-ignore-array-order" className="text-sm">
+                    <Label
+                      htmlFor="settings-ignore-array-order"
+                      className="text-sm"
+                    >
                       Ignore array element order
                     </Label>
                   </div>
@@ -1556,7 +1633,10 @@ const JSONDiffCore = () => {
                         onChange={(e) => setOptions((prev) => ({ ...prev, ignoreExtraKeys: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="settings-ignore-extra-keys" className="text-sm">
+                      <Label
+                        htmlFor="settings-ignore-extra-keys"
+                        className="text-sm"
+                      >
                         Ignore extra object keys
                       </Label>
                     </div>
@@ -1568,7 +1648,10 @@ const JSONDiffCore = () => {
                         onChange={(e) => setOptions((prev) => ({ ...prev, showUnchanged: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="settings-show-unchanged" className="text-sm">
+                      <Label
+                        htmlFor="settings-show-unchanged"
+                        className="text-sm"
+                      >
                         Show unchanged values
                       </Label>
                     </div>
@@ -1580,7 +1663,10 @@ const JSONDiffCore = () => {
                   <h4 className="font-medium">Performance Settings</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="max-depth" className="text-sm">
+                      <Label
+                        htmlFor="max-depth"
+                        className="text-sm"
+                      >
                         Maximum depth (0 = unlimited)
                       </Label>
                       <Input
@@ -1594,7 +1680,10 @@ const JSONDiffCore = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="precision" className="text-sm">
+                      <Label
+                        htmlFor="precision"
+                        className="text-sm"
+                      >
                         Number precision (decimal places)
                       </Label>
                       <Input
@@ -1612,7 +1701,10 @@ const JSONDiffCore = () => {
 
                 {/* Reset Settings */}
                 <div className="pt-4 border-t">
-                  <Button onClick={() => setOptions(createDefaultOptions())} variant="outline">
+                  <Button
+                    onClick={() => setOptions(createDefaultOptions())}
+                    variant="outline"
+                  >
                     <RotateCcw className="mr-2 h-4 w-4" />
                     Reset to Defaults
                   </Button>

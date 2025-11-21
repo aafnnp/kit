@@ -1,12 +1,12 @@
-import { useCallback, useState, useMemo, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Trash2,
@@ -26,8 +26,8 @@ import {
   Eye,
   EyeOff,
   Braces,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   TypeScriptGenerationResult,
   ComplexityMetrics,
@@ -39,8 +39,8 @@ import type {
   TypeScriptTemplate,
   JSONValidation,
   ExportFormat,
-} from '@/types/json-to-ts'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/json-to-ts"
+import { formatFileSize } from "@/lib/utils"
 // Enhanced Types
 
 // Utility functions
@@ -48,28 +48,28 @@ import { formatFileSize } from '@/lib/utils'
 // TypeScript generation functions
 const inferTypeFromValue = (value: any, settings: GenerationSettings, depth: number = 0): string => {
   if (value === null) {
-    return settings.useStrictTypes ? 'null' : 'any'
+    return settings.useStrictTypes ? "null" : "any"
   }
 
   if (value === undefined) {
-    return 'undefined'
+    return "undefined"
   }
 
-  if (typeof value === 'boolean') {
-    return settings.useStrictTypes ? (value ? 'true' : 'false') : 'boolean'
+  if (typeof value === "boolean") {
+    return settings.useStrictTypes ? (value ? "true" : "false") : "boolean"
   }
 
-  if (typeof value === 'number') {
-    return settings.useStrictTypes ? value.toString() : 'number'
+  if (typeof value === "number") {
+    return settings.useStrictTypes ? value.toString() : "number"
   }
 
-  if (typeof value === 'string') {
-    return settings.useStrictTypes ? `"${value}"` : 'string'
+  if (typeof value === "string") {
+    return settings.useStrictTypes ? `"${value}"` : "string"
   }
 
   if (Array.isArray(value)) {
     if (value.length === 0) {
-      return 'any[]'
+      return "any[]"
     }
 
     // Infer array element type
@@ -79,26 +79,26 @@ const inferTypeFromValue = (value: any, settings: GenerationSettings, depth: num
     if (uniqueTypes.length === 1) {
       return `${uniqueTypes[0]}[]`
     } else {
-      return `(${uniqueTypes.join(' | ')})[]`
+      return `(${uniqueTypes.join(" | ")})[]`
     }
   }
 
-  if (typeof value === 'object') {
+  if (typeof value === "object") {
     if (depth > 10) {
-      return 'any' // Prevent infinite recursion
+      return "any" // Prevent infinite recursion
     }
 
     const properties = Object.entries(value).map(([key, val]) => {
       const type = inferTypeFromValue(val, settings, depth + 1)
-      const optional = settings.useOptionalProperties && (val === null || val === undefined) ? '?' : ''
-      const readonly = settings.useReadonly ? 'readonly ' : ''
+      const optional = settings.useOptionalProperties && (val === null || val === undefined) ? "?" : ""
+      const readonly = settings.useReadonly ? "readonly " : ""
       return `  ${readonly}${key}${optional}: ${type};`
     })
 
-    return `{\n${properties.join('\n')}\n}`
+    return `{\n${properties.join("\n")}\n}`
   }
 
-  return 'any'
+  return "any"
 }
 
 const generateTypeScriptInterface = (json: string, interfaceName: string, settings: GenerationSettings): string => {
@@ -106,7 +106,7 @@ const generateTypeScriptInterface = (json: string, interfaceName: string, settin
     const parsed = JSON.parse(json)
     const type = inferTypeFromValue(parsed, settings)
 
-    let result = ''
+    let result = ""
 
     // Add comments if enabled
     if (settings.generateComments) {
@@ -114,10 +114,10 @@ const generateTypeScriptInterface = (json: string, interfaceName: string, settin
     }
 
     // Add export keyword if enabled
-    const exportKeyword = settings.exportInterface ? 'export ' : ''
+    const exportKeyword = settings.exportInterface ? "export " : ""
 
     // Generate interface
-    if (typeof parsed === 'object' && !Array.isArray(parsed)) {
+    if (typeof parsed === "object" && !Array.isArray(parsed)) {
       result += `${exportKeyword}interface ${interfaceName} ${type}`
     } else if (Array.isArray(parsed)) {
       result += `${exportKeyword}type ${interfaceName} = ${type}`
@@ -126,7 +126,7 @@ const generateTypeScriptInterface = (json: string, interfaceName: string, settin
     }
 
     // Add utility types if enabled
-    if (settings.generateUtilityTypes && typeof parsed === 'object' && !Array.isArray(parsed)) {
+    if (settings.generateUtilityTypes && typeof parsed === "object" && !Array.isArray(parsed)) {
       result += `\n\n// Utility types\n`
       result += `${exportKeyword}type Partial${interfaceName} = Partial<${interfaceName}>;\n`
       result += `${exportKeyword}type Required${interfaceName} = Required<${interfaceName}>;\n`
@@ -135,7 +135,7 @@ const generateTypeScriptInterface = (json: string, interfaceName: string, settin
 
     return result
   } catch (error) {
-    throw new Error('Invalid JSON format')
+    throw new Error("Invalid JSON format")
   }
 }
 
@@ -144,7 +144,7 @@ const analyzeJSON = (json: string): TypeAnalysis => {
   try {
     const parsed = JSON.parse(json)
     const analysis: TypeAnalysis = {
-      rootType: Array.isArray(parsed) ? 'array' : typeof parsed,
+      rootType: Array.isArray(parsed) ? "array" : typeof parsed,
       hasNestedObjects: false,
       hasArrays: false,
       hasOptionalProperties: false,
@@ -154,7 +154,7 @@ const analyzeJSON = (json: string): TypeAnalysis => {
       typeIssues: [],
     }
 
-    const analyzeValue = (value: any, path: string = '') => {
+    const analyzeValue = (value: any, path: string = "") => {
       if (Array.isArray(value)) {
         analysis.hasArrays = true
         value.forEach((item, index) => analyzeValue(item, `${path}[${index}]`))
@@ -166,7 +166,7 @@ const analyzeJSON = (json: string): TypeAnalysis => {
           analysis.hasUnionTypes = true
           analysis.hasComplexTypes = true
         }
-      } else if (typeof value === 'object' && value !== null) {
+      } else if (typeof value === "object" && value !== null) {
         analysis.hasNestedObjects = true
 
         Object.entries(value).forEach(([key, val]) => {
@@ -182,28 +182,28 @@ const analyzeJSON = (json: string): TypeAnalysis => {
 
     // Generate suggestions
     if (analysis.hasOptionalProperties) {
-      analysis.suggestedImprovements.push('Consider using optional properties for null/undefined values')
+      analysis.suggestedImprovements.push("Consider using optional properties for null/undefined values")
     }
 
     if (analysis.hasUnionTypes) {
-      analysis.suggestedImprovements.push('Consider using union types for mixed array elements')
+      analysis.suggestedImprovements.push("Consider using union types for mixed array elements")
     }
 
     if (analysis.hasNestedObjects) {
-      analysis.suggestedImprovements.push('Consider extracting nested objects into separate interfaces')
+      analysis.suggestedImprovements.push("Consider extracting nested objects into separate interfaces")
     }
 
     return analysis
   } catch {
     return {
-      rootType: 'unknown',
+      rootType: "unknown",
       hasNestedObjects: false,
       hasArrays: false,
       hasOptionalProperties: false,
       hasUnionTypes: false,
       hasComplexTypes: false,
-      suggestedImprovements: ['Fix JSON syntax errors first'],
-      typeIssues: ['Invalid JSON format'],
+      suggestedImprovements: ["Fix JSON syntax errors first"],
+      typeIssues: ["Invalid JSON format"],
     }
   }
 }
@@ -235,7 +235,7 @@ const calculateComplexity = (json: string): ComplexityMetrics => {
         if (uniqueTypes.length > 1) {
           complexity.unionTypes++
         }
-      } else if (typeof value === 'object' && value !== null) {
+      } else if (typeof value === "object" && value !== null) {
         complexity.nestedObjects++
 
         Object.entries(value).forEach(([_, val]) => {
@@ -261,10 +261,10 @@ const calculateComplexity = (json: string): ComplexityMetrics => {
 // TypeScript generation templates
 const typeScriptTemplates: TypeScriptTemplate[] = [
   {
-    id: 'simple-object',
-    name: 'Simple Object',
-    description: 'Basic object with primitive properties',
-    category: 'Basic',
+    id: "simple-object",
+    name: "Simple Object",
+    description: "Basic object with primitive properties",
+    category: "Basic",
     jsonExample: `{
   "name": "John Doe",
   "age": 30,
@@ -277,13 +277,13 @@ const typeScriptTemplates: TypeScriptTemplate[] = [
   email: string;
   active: boolean;
 }`,
-    useCase: ['User profiles', 'Configuration objects', 'Simple data models'],
+    useCase: ["User profiles", "Configuration objects", "Simple data models"],
   },
   {
-    id: 'nested-object',
-    name: 'Nested Object',
-    description: 'Object with nested properties and sub-objects',
-    category: 'Complex',
+    id: "nested-object",
+    name: "Nested Object",
+    description: "Object with nested properties and sub-objects",
+    category: "Complex",
     jsonExample: `{
   "user": {
     "profile": {
@@ -316,13 +316,13 @@ const typeScriptTemplates: TypeScriptTemplate[] = [
     version: number;
   };
 }`,
-    useCase: ['Complex data structures', 'API responses', 'Configuration files'],
+    useCase: ["Complex data structures", "API responses", "Configuration files"],
   },
   {
-    id: 'array-of-objects',
-    name: 'Array of Objects',
-    description: 'Array containing objects with consistent structure',
-    category: 'Arrays',
+    id: "array-of-objects",
+    name: "Array of Objects",
+    description: "Array containing objects with consistent structure",
+    category: "Arrays",
     jsonExample: `[
   {
     "id": 1,
@@ -343,13 +343,13 @@ const typeScriptTemplates: TypeScriptTemplate[] = [
   price: number;
   inStock: boolean;
 }[]`,
-    useCase: ['Product catalogs', 'User lists', 'Data collections'],
+    useCase: ["Product catalogs", "User lists", "Data collections"],
   },
   {
-    id: 'mixed-types',
-    name: 'Mixed Types',
-    description: 'Object with various data types and optional properties',
-    category: 'Complex',
+    id: "mixed-types",
+    name: "Mixed Types",
+    description: "Object with various data types and optional properties",
+    category: "Complex",
     jsonExample: `{
   "id": 123,
   "name": "Sample",
@@ -372,13 +372,13 @@ const typeScriptTemplates: TypeScriptTemplate[] = [
   };
   optional?: undefined;
 }`,
-    useCase: ['API responses', 'Configuration objects', 'Dynamic data'],
+    useCase: ["API responses", "Configuration objects", "Dynamic data"],
   },
   {
-    id: 'api-response',
-    name: 'API Response',
-    description: 'Typical REST API response structure',
-    category: 'API',
+    id: "api-response",
+    name: "API Response",
+    description: "Typical REST API response structure",
+    category: "API",
     jsonExample: `{
   "status": "success",
   "data": {
@@ -415,7 +415,7 @@ const typeScriptTemplates: TypeScriptTemplate[] = [
     hasMore: boolean;
   };
 }`,
-    useCase: ['REST APIs', 'GraphQL responses', 'Microservices'],
+    useCase: ["REST APIs", "GraphQL responses", "Microservices"],
   },
 ]
 
@@ -430,7 +430,7 @@ const validateJSON = (input: string): JSONValidation => {
 
   if (!input.trim()) {
     validation.isValid = false
-    validation.errors.push({ message: 'JSON input cannot be empty' })
+    validation.errors.push({ message: "JSON input cannot be empty" })
     return validation
   }
 
@@ -446,7 +446,7 @@ const validateJSON = (input: string): JSONValidation => {
       let column: number | undefined
 
       if (position !== undefined) {
-        const lines = input.substring(0, position).split('\n')
+        const lines = input.substring(0, position).split("\n")
         line = lines.length
         column = lines[lines.length - 1].length + 1
       }
@@ -457,18 +457,18 @@ const validateJSON = (input: string): JSONValidation => {
         column,
       })
     } else {
-      validation.errors.push({ message: 'Unknown JSON parsing error' })
+      validation.errors.push({ message: "Unknown JSON parsing error" })
     }
     return validation
   }
 
   // Additional validations and suggestions
-  if (input.includes('\t')) {
-    validation.warnings.push('Contains tab characters - consider using spaces for indentation')
+  if (input.includes("\t")) {
+    validation.warnings.push("Contains tab characters - consider using spaces for indentation")
   }
 
   if (input.length > 100000) {
-    validation.warnings.push('Large JSON file - processing may be slow')
+    validation.warnings.push("Large JSON file - processing may be slow")
   }
 
   return validation
@@ -510,8 +510,8 @@ const useTypeScriptGeneration = () => {
           statistics: {
             inputSize,
             outputSize,
-            inputLines: input.split('\n').length,
-            outputLines: output.split('\n').length,
+            inputLines: input.split("\n").length,
+            outputLines: output.split("\n").length,
             processingTime,
             complexity,
             typeCount,
@@ -526,14 +526,14 @@ const useTypeScriptGeneration = () => {
         return {
           id: nanoid(),
           input,
-          output: '',
+          output: "",
           interfaceName,
           isValid: false,
-          error: error instanceof Error ? error.message : 'Generation failed',
+          error: error instanceof Error ? error.message : "Generation failed",
           statistics: {
             inputSize: new Blob([input]).size,
             outputSize: 0,
-            inputLines: input.split('\n').length,
+            inputLines: input.split("\n").length,
             outputLines: 0,
             processingTime,
             complexity: {
@@ -587,8 +587,8 @@ const useTypeScriptGeneration = () => {
           statistics,
         }
       } catch (error) {
-        console.error('Batch generation error:', error)
-        throw new Error(error instanceof Error ? error.message : 'Batch generation failed')
+        console.error("Batch generation error:", error)
+        throw new Error(error instanceof Error ? error.message : "Batch generation failed")
       }
     },
     [generateSingle]
@@ -624,37 +624,37 @@ const useRealTimeValidation = (input: string) => {
 const useTypeScriptExport = () => {
   const exportResults = useCallback(
     (results: TypeScriptGenerationResult[], format: ExportFormat, filename?: string) => {
-      let content = ''
-      let mimeType = 'text/plain'
-      let extension = '.txt'
+      let content = ""
+      let mimeType = "text/plain"
+      let extension = ".txt"
 
       switch (format) {
-        case 'ts':
-          content = results.map((result) => result.output).join('\n\n')
-          mimeType = 'text/typescript'
-          extension = '.ts'
+        case "ts":
+          content = results.map((result) => result.output).join("\n\n")
+          mimeType = "text/typescript"
+          extension = ".ts"
           break
-        case 'json':
+        case "json":
           content = JSON.stringify(results, null, 2)
-          mimeType = 'application/json'
-          extension = '.json'
+          mimeType = "application/json"
+          extension = ".json"
           break
-        case 'csv':
+        case "csv":
           content = generateCSVFromResults(results)
-          mimeType = 'text/csv'
-          extension = '.csv'
+          mimeType = "text/csv"
+          extension = ".csv"
           break
-        case 'txt':
+        case "txt":
         default:
           content = generateTextFromResults(results)
-          mimeType = 'text/plain'
-          extension = '.txt'
+          mimeType = "text/plain"
+          extension = ".txt"
           break
       }
 
       const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
       const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
+      const link = document.createElement("a")
       link.href = url
       link.download = filename || `typescript-interfaces${extension}`
       document.body.appendChild(link)
@@ -667,7 +667,7 @@ const useTypeScriptExport = () => {
 
   const exportBatch = useCallback(
     (batch: GenerationBatch) => {
-      exportResults(batch.results, 'ts', `typescript-batch-${batch.id}.ts`)
+      exportResults(batch.results, "ts", `typescript-batch-${batch.id}.ts`)
       toast.success(`Exported ${batch.results.length} TypeScript interfaces`)
     },
     [exportResults]
@@ -688,15 +688,15 @@ const useTypeScriptExport = () => {
 
     const csvContent = [
       [
-        'Batch ID',
-        'Result Count',
-        'Valid Count',
-        'Invalid Count',
-        'Avg Complexity',
-        'Success Rate (%)',
-        'Total Input Size',
-        'Total Output Size',
-        'Created At',
+        "Batch ID",
+        "Result Count",
+        "Valid Count",
+        "Invalid Count",
+        "Avg Complexity",
+        "Success Rate (%)",
+        "Total Input Size",
+        "Total Output Size",
+        "Created At",
       ],
       ...stats.map((stat) => [
         stat.batchId,
@@ -710,20 +710,20 @@ const useTypeScriptExport = () => {
         stat.createdAt,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'typescript-statistics.csv'
+    link.download = "typescript-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportResults, exportBatch, exportStatistics }
@@ -743,8 +743,8 @@ Results:
 ${results
   .map((result, i) => {
     return `${i + 1}. Interface: ${result.interfaceName}
-   Status: ${result.isValid ? 'Valid' : 'Invalid'}
-   ${result.error ? `Error: ${result.error}` : ''}
+   Status: ${result.isValid ? "Valid" : "Invalid"}
+   ${result.error ? `Error: ${result.error}` : ""}
    Input Size: ${formatFileSize(result.statistics.inputSize)}
    Output Size: ${formatFileSize(result.statistics.outputSize)}
    Processing Time: ${result.statistics.processingTime.toFixed(2)}ms
@@ -752,7 +752,7 @@ ${results
    Types: ${result.statistics.typeCount.primitives} primitives, ${result.statistics.typeCount.objects} objects
 `
   })
-  .join('\n')}
+  .join("\n")}
 
 Statistics:
 - Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
@@ -763,25 +763,25 @@ Statistics:
 const generateCSVFromResults = (results: TypeScriptGenerationResult[]): string => {
   const rows = [
     [
-      'Interface Name',
-      'Valid',
-      'Error',
-      'Input Size (bytes)',
-      'Output Size (bytes)',
-      'Processing Time (ms)',
-      'Complexity Depth',
-      'Total Properties',
-      'Primitive Types',
-      'Object Types',
-      'Created At',
+      "Interface Name",
+      "Valid",
+      "Error",
+      "Input Size (bytes)",
+      "Output Size (bytes)",
+      "Processing Time (ms)",
+      "Complexity Depth",
+      "Total Properties",
+      "Primitive Types",
+      "Object Types",
+      "Created At",
     ],
   ]
 
   results.forEach((result) => {
     rows.push([
       result.interfaceName,
-      result.isValid ? 'Yes' : 'No',
-      result.error || '',
+      result.isValid ? "Yes" : "No",
+      result.error || "",
       result.statistics.inputSize.toString(),
       result.statistics.outputSize.toString(),
       result.statistics.processingTime.toFixed(2),
@@ -793,7 +793,7 @@ const generateCSVFromResults = (results: TypeScriptGenerationResult[]): string =
     ])
   })
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
 }
 
 // Copy to clipboard functionality
@@ -803,13 +803,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -821,22 +821,22 @@ const useCopyToClipboard = () => {
  * Features: Advanced TypeScript generation, validation, analysis, batch processing, comprehensive type inference
  */
 const JSONToTSCore = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'batch' | 'analyzer' | 'templates'>('generator')
-  const [jsonInput, setJsonInput] = useState('')
+  const [activeTab, setActiveTab] = useState<"generator" | "batch" | "analyzer" | "templates">("generator")
+  const [jsonInput, setJsonInput] = useState("")
   const [currentResult, setCurrentResult] = useState<TypeScriptGenerationResult | null>(null)
   const [batches, setBatches] = useState<GenerationBatch[]>([])
-  const [batchInput, setBatchInput] = useState('')
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+  const [batchInput, setBatchInput] = useState("")
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [showAnalysis, setShowAnalysis] = useState(false)
   const [settings, setSettings] = useState<GenerationSettings>({
-    interfaceName: 'GeneratedInterface',
+    interfaceName: "GeneratedInterface",
     useOptionalProperties: true,
     generateComments: true,
     useStrictTypes: false,
     exportInterface: true,
     realTimeGeneration: true,
-    exportFormat: 'ts',
+    exportFormat: "ts",
     indentSize: 2,
     useReadonly: false,
     generateUtilityTypes: false,
@@ -857,7 +857,7 @@ const JSONToTSCore = () => {
       // Extract interface name from template
       const interfaceMatch = template.expectedOutput.match(/interface (\w+)/)
       const typeMatch = template.expectedOutput.match(/type (\w+)/)
-      const name = interfaceMatch?.[1] || typeMatch?.[1] || 'GeneratedInterface'
+      const name = interfaceMatch?.[1] || typeMatch?.[1] || "GeneratedInterface"
 
       setSettings((prev) => ({
         ...prev,
@@ -870,7 +870,7 @@ const JSONToTSCore = () => {
   // Handle single generation
   const handleGenerateSingle = useCallback(async () => {
     if (!jsonInput.trim()) {
-      toast.error('Please enter JSON content to generate TypeScript interface')
+      toast.error("Please enter JSON content to generate TypeScript interface")
       return
     }
 
@@ -880,12 +880,12 @@ const JSONToTSCore = () => {
       setCurrentResult(result)
 
       if (result.isValid) {
-        toast.success('TypeScript interface generated successfully')
+        toast.success("TypeScript interface generated successfully")
       } else {
-        toast.error(result.error || 'Generation failed')
+        toast.error(result.error || "Generation failed")
       }
     } catch (error) {
-      toast.error('Failed to generate TypeScript interface')
+      toast.error("Failed to generate TypeScript interface")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -894,17 +894,17 @@ const JSONToTSCore = () => {
 
   // Handle batch processing
   const handleGenerateBatch = useCallback(async () => {
-    const lines = batchInput.split('\n').filter((line) => line.trim())
+    const lines = batchInput.split("\n").filter((line) => line.trim())
 
     if (lines.length === 0) {
-      toast.error('Please enter JSON content to process')
+      toast.error("Please enter JSON content to process")
       return
     }
 
     // Parse batch input format: interfaceName:jsonContent
     const inputs = lines
       .map((line, index) => {
-        const colonIndex = line.indexOf(':')
+        const colonIndex = line.indexOf(":")
         if (colonIndex === -1) {
           return {
             content: line.trim(),
@@ -920,7 +920,7 @@ const JSONToTSCore = () => {
       .filter((input) => input.content)
 
     if (inputs.length === 0) {
-      toast.error('No valid JSON content found')
+      toast.error("No valid JSON content found")
       return
     }
 
@@ -930,7 +930,7 @@ const JSONToTSCore = () => {
       setBatches((prev) => [batch, ...prev])
       toast.success(`Generated ${batch.results.length} TypeScript interfaces`)
     } catch (error) {
-      toast.error('Failed to process batch')
+      toast.error("Failed to process batch")
       console.error(error)
     } finally {
       setIsProcessing(false)
@@ -957,12 +957,15 @@ const JSONToTSCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Braces className="h-5 w-5" aria-hidden="true" />
+              <Braces className="h-5 w-5" />
               JSON to TypeScript Interface Generator
             </CardTitle>
             <CardDescription>
@@ -977,29 +980,44 @@ const JSONToTSCore = () => {
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'generator' | 'batch' | 'analyzer' | 'templates')}
+          onValueChange={(value) => setActiveTab(value as "generator" | "batch" | "analyzer" | "templates")}
         >
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <Code className="h-4 w-4" />
               Generator
             </TabsTrigger>
-            <TabsTrigger value="batch" className="flex items-center gap-2">
+            <TabsTrigger
+              value="batch"
+              className="flex items-center gap-2"
+            >
               <Shuffle className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
-            <TabsTrigger value="analyzer" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analyzer"
+              className="flex items-center gap-2"
+            >
               <Search className="h-4 w-4" />
               Type Analyzer
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
           </TabsList>
 
           {/* Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Input Section */}
               <Card>
@@ -1011,7 +1029,10 @@ const JSONToTSCore = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="json-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="json-input"
+                      className="text-sm font-medium"
+                    >
                       JSON Content
                     </Label>
                     <Textarea
@@ -1020,7 +1041,6 @@ const JSONToTSCore = () => {
                       onChange={(e) => setJsonInput(e.target.value)}
                       placeholder="Enter or paste your JSON here..."
                       className="mt-2 min-h-[200px] font-mono"
-                      aria-label="JSON input for TypeScript generation"
                     />
                     {settings.realTimeGeneration && jsonInput && (
                       <div className="mt-2 text-sm">
@@ -1040,7 +1060,10 @@ const JSONToTSCore = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="interface-name" className="text-sm font-medium">
+                    <Label
+                      htmlFor="interface-name"
+                      className="text-sm font-medium"
+                    >
                       Interface Name
                     </Label>
                     <Input
@@ -1061,7 +1084,10 @@ const JSONToTSCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, realTimeGeneration: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="real-time-generation" className="text-sm">
+                      <Label
+                        htmlFor="real-time-generation"
+                        className="text-sm"
+                      >
                         Real-time generation
                       </Label>
                     </div>
@@ -1074,7 +1100,10 @@ const JSONToTSCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, useOptionalProperties: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="use-optional" className="text-sm">
+                      <Label
+                        htmlFor="use-optional"
+                        className="text-sm"
+                      >
                         Use optional properties for null/undefined
                       </Label>
                     </div>
@@ -1087,7 +1116,10 @@ const JSONToTSCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, generateComments: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="generate-comments" className="text-sm">
+                      <Label
+                        htmlFor="generate-comments"
+                        className="text-sm"
+                      >
                         Generate comments
                       </Label>
                     </div>
@@ -1100,7 +1132,10 @@ const JSONToTSCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, exportInterface: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="export-interface" className="text-sm">
+                      <Label
+                        htmlFor="export-interface"
+                        className="text-sm"
+                      >
                         Export interface
                       </Label>
                     </div>
@@ -1113,7 +1148,10 @@ const JSONToTSCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, useStrictTypes: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="use-strict-types" className="text-sm">
+                      <Label
+                        htmlFor="use-strict-types"
+                        className="text-sm"
+                      >
                         Use strict literal types
                       </Label>
                     </div>
@@ -1126,7 +1164,10 @@ const JSONToTSCore = () => {
                         onChange={(e) => setSettings((prev) => ({ ...prev, generateUtilityTypes: e.target.checked }))}
                         className="rounded border-input"
                       />
-                      <Label htmlFor="generate-utility-types" className="text-sm">
+                      <Label
+                        htmlFor="generate-utility-types"
+                        className="text-sm"
+                      >
                         Generate utility types
                       </Label>
                     </div>
@@ -1147,7 +1188,7 @@ const JSONToTSCore = () => {
                     </Button>
                     <Button
                       onClick={() => {
-                        setJsonInput('')
+                        setJsonInput("")
                         setCurrentResult(null)
                       }}
                       variant="outline"
@@ -1162,7 +1203,10 @@ const JSONToTSCore = () => {
                       <h4 className="font-medium text-sm mb-2 text-yellow-800">Warnings:</h4>
                       <div className="text-xs space-y-1">
                         {inputValidation.warnings.map((warning, index) => (
-                          <div key={index} className="text-yellow-700">
+                          <div
+                            key={index}
+                            className="text-yellow-700"
+                          >
                             {warning}
                           </div>
                         ))}
@@ -1187,7 +1231,7 @@ const JSONToTSCore = () => {
                         <div className="text-sm font-medium mb-2">Interface: {currentResult.interfaceName}</div>
                         <div className="text-sm">
                           <div>
-                            <strong>Status:</strong> {currentResult.isValid ? 'Success' : 'Failed'}
+                            <strong>Status:</strong> {currentResult.isValid ? "Success" : "Failed"}
                           </div>
                           {currentResult.error && (
                             <div className="text-red-600 mt-1">
@@ -1207,15 +1251,19 @@ const JSONToTSCore = () => {
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  onClick={() => copyToClipboard(currentResult.output, 'TypeScript Interface')}
+                                  onClick={() => copyToClipboard(currentResult.output, "TypeScript Interface")}
                                 >
-                                  {copiedText === 'TypeScript Interface' ? (
+                                  {copiedText === "TypeScript Interface" ? (
                                     <Check className="h-4 w-4" />
                                   ) : (
                                     <Copy className="h-4 w-4" />
                                   )}
                                 </Button>
-                                <Button size="sm" variant="ghost" onClick={() => setShowAnalysis(!showAnalysis)}>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setShowAnalysis(!showAnalysis)}
+                                >
                                   {showAnalysis ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </Button>
                               </div>
@@ -1279,25 +1327,25 @@ const JSONToTSCore = () => {
                                       <strong>Root Type:</strong> {currentResult.analysis.rootType}
                                     </div>
                                     <div>
-                                      <strong>Has Nested Objects:</strong>{' '}
-                                      {currentResult.analysis.hasNestedObjects ? 'Yes' : 'No'}
+                                      <strong>Has Nested Objects:</strong>{" "}
+                                      {currentResult.analysis.hasNestedObjects ? "Yes" : "No"}
                                     </div>
                                     <div>
-                                      <strong>Has Arrays:</strong> {currentResult.analysis.hasArrays ? 'Yes' : 'No'}
+                                      <strong>Has Arrays:</strong> {currentResult.analysis.hasArrays ? "Yes" : "No"}
                                     </div>
                                   </div>
                                   <div>
                                     <div>
-                                      <strong>Has Optional Properties:</strong>{' '}
-                                      {currentResult.analysis.hasOptionalProperties ? 'Yes' : 'No'}
+                                      <strong>Has Optional Properties:</strong>{" "}
+                                      {currentResult.analysis.hasOptionalProperties ? "Yes" : "No"}
                                     </div>
                                     <div>
-                                      <strong>Has Union Types:</strong>{' '}
-                                      {currentResult.analysis.hasUnionTypes ? 'Yes' : 'No'}
+                                      <strong>Has Union Types:</strong>{" "}
+                                      {currentResult.analysis.hasUnionTypes ? "Yes" : "No"}
                                     </div>
                                     <div>
-                                      <strong>Has Complex Types:</strong>{' '}
-                                      {currentResult.analysis.hasComplexTypes ? 'Yes' : 'No'}
+                                      <strong>Has Complex Types:</strong>{" "}
+                                      {currentResult.analysis.hasComplexTypes ? "Yes" : "No"}
                                     </div>
                                   </div>
                                 </div>
@@ -1369,7 +1417,10 @@ const JSONToTSCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="batch" className="space-y-4">
+          <TabsContent
+            value="batch"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1383,7 +1434,10 @@ const JSONToTSCore = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="batch-input" className="text-sm font-medium">
+                    <Label
+                      htmlFor="batch-input"
+                      className="text-sm font-medium"
+                    >
                       Interface Definitions (interfaceName:jsonContent per line)
                     </Label>
                     <Textarea
@@ -1392,7 +1446,6 @@ const JSONToTSCore = () => {
                       onChange={(e) => setBatchInput(e.target.value)}
                       placeholder='User:{"name": "John", "age": 30}&#10;Product:{"id": 1, "name": "Item", "price": 29.99}&#10;Config:{"theme": "dark", "enabled": true}'
                       className="mt-2 min-h-[120px] font-mono"
-                      aria-label="Batch TypeScript generation input"
                     />
                     <div className="mt-2 text-xs text-muted-foreground">
                       Format: <code>interfaceName:jsonContent</code> (one per line)
@@ -1400,7 +1453,10 @@ const JSONToTSCore = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button onClick={handleGenerateBatch} disabled={!batchInput.trim() || isProcessing}>
+                    <Button
+                      onClick={handleGenerateBatch}
+                      disabled={!batchInput.trim() || isProcessing}
+                    >
                       {isProcessing ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
                       ) : (
@@ -1408,7 +1464,10 @@ const JSONToTSCore = () => {
                       )}
                       Generate Batch
                     </Button>
-                    <Button onClick={() => setBatchInput('')} variant="outline">
+                    <Button
+                      onClick={() => setBatchInput("")}
+                      variant="outline"
+                    >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Clear
                     </Button>
@@ -1426,7 +1485,10 @@ const JSONToTSCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {batches.map((batch) => (
-                      <div key={batch.id} className="border rounded-lg p-4">
+                      <div
+                        key={batch.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">{batch.count} interfaces generated</h4>
@@ -1436,7 +1498,11 @@ const JSONToTSCore = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => exportBatch(batch)}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => exportBatch(batch)}
+                            >
                               <Download className="mr-2 h-4 w-4" />
                               Export
                             </Button>
@@ -1458,7 +1524,7 @@ const JSONToTSCore = () => {
                             <span className="font-medium">Invalid:</span> {batch.statistics.invalidCount}
                           </div>
                           <div>
-                            <span className="font-medium">Avg Complexity:</span>{' '}
+                            <span className="font-medium">Avg Complexity:</span>{" "}
                             {batch.statistics.averageComplexity.toFixed(1)}
                           </div>
                         </div>
@@ -1466,21 +1532,24 @@ const JSONToTSCore = () => {
                         <div className="max-h-48 overflow-y-auto">
                           <div className="space-y-2">
                             {batch.results.slice(0, 5).map((result) => (
-                              <div key={result.id} className="text-xs border rounded p-2">
+                              <div
+                                key={result.id}
+                                className="text-xs border rounded p-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono truncate flex-1 mr-2">{result.interfaceName}</span>
                                   <span
                                     className={`px-2 py-1 rounded text-xs ${
-                                      result.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      result.isValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {result.isValid ? 'Valid' : 'Invalid'}
+                                    {result.isValid ? "Valid" : "Invalid"}
                                   </span>
                                 </div>
                                 {result.isValid && (
                                   <div className="text-muted-foreground mt-1">
-                                    Complexity: {result.statistics.complexity.depth} levels • Properties:{' '}
-                                    {result.statistics.complexity.totalProperties} • Time:{' '}
+                                    Complexity: {result.statistics.complexity.depth} levels • Properties:{" "}
+                                    {result.statistics.complexity.totalProperties} • Time:{" "}
                                     {result.statistics.processingTime.toFixed(2)}ms
                                   </div>
                                 )}
@@ -1503,7 +1572,10 @@ const JSONToTSCore = () => {
           </TabsContent>
 
           {/* Type Analyzer Tab */}
-          <TabsContent value="analyzer" className="space-y-4">
+          <TabsContent
+            value="analyzer"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1565,7 +1637,10 @@ const JSONToTSCore = () => {
                               <CardContent>
                                 <ul className="text-sm space-y-1">
                                   {currentResult.analysis.suggestedImprovements.map((suggestion, index) => (
-                                    <li key={index} className="flex items-center gap-2">
+                                    <li
+                                      key={index}
+                                      className="flex items-center gap-2"
+                                    >
                                       <CheckCircle2 className="h-3 w-3 text-blue-600" />
                                       {suggestion}
                                     </li>
@@ -1583,7 +1658,10 @@ const JSONToTSCore = () => {
                               <CardContent>
                                 <ul className="text-sm space-y-1">
                                   {currentResult.analysis.typeIssues.map((issue, index) => (
-                                    <li key={index} className="flex items-center gap-2">
+                                    <li
+                                      key={index}
+                                      className="flex items-center gap-2"
+                                    >
                                       <AlertCircle className="h-3 w-3 text-red-600" />
                                       {issue}
                                     </li>
@@ -1609,7 +1687,10 @@ const JSONToTSCore = () => {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-4">
+          <TabsContent
+            value="templates"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -1624,7 +1705,7 @@ const JSONToTSCore = () => {
                     <div
                       key={template.id}
                       className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? 'border-primary bg-primary/5' : 'hover:border-primary/50'
+                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1650,7 +1731,7 @@ const JSONToTSCore = () => {
                         </div>
                         {template.useCase.length > 0 && (
                           <div className="text-xs">
-                            <strong>Use cases:</strong> {template.useCase.join(', ')}
+                            <strong>Use cases:</strong> {template.useCase.join(", ")}
                           </div>
                         )}
                       </div>
@@ -1672,7 +1753,10 @@ const JSONToTSCore = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="export-format" className="text-sm font-medium">
+                  <Label
+                    htmlFor="export-format"
+                    className="text-sm font-medium"
+                  >
                     Export Format
                   </Label>
                   <Select
@@ -1692,7 +1776,10 @@ const JSONToTSCore = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="indent-size" className="text-sm font-medium">
+                  <Label
+                    htmlFor="indent-size"
+                    className="text-sm font-medium"
+                  >
                     Indent Size: {settings.indentSize}
                   </Label>
                   <div className="mt-2 flex items-center gap-4">
@@ -1711,7 +1798,10 @@ const JSONToTSCore = () => {
 
               {batches.length > 0 && (
                 <div className="flex gap-2 pt-4 border-t">
-                  <Button onClick={() => exportStatistics(batches)} variant="outline">
+                  <Button
+                    onClick={() => exportStatistics(batches)}
+                    variant="outline"
+                  >
                     <Download className="mr-2 h-4 w-4" />
                     Export Statistics
                   </Button>

@@ -1,12 +1,12 @@
-import React, { useCallback, useRef, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import React, { useCallback, useRef, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   FileText,
@@ -25,8 +25,8 @@ import {
   Layers,
   Zap,
   Square,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
+} from "lucide-react"
+import { nanoid } from "nanoid"
 import type {
   ShadowFile,
   Shadow,
@@ -36,56 +36,56 @@ import type {
   ShadowTemplate,
   ShadowType,
   ExportFormat,
-} from '@/types/shadow-generator'
-import { formatFileSize } from '@/lib/utils'
+} from "@/types/shadow-generator"
+import { formatFileSize } from "@/lib/utils"
 // Types
 
 // Utility functions
 
 const validateShadowFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 10 * 1024 * 1024 // 10MB
-  const allowedTypes = ['.json', '.css', '.scss', '.txt']
+  const allowedTypes = [".json", ".css", ".scss", ".txt"]
 
   if (file.size > maxSize) {
-    return { isValid: false, error: 'File size must be less than 10MB' }
+    return { isValid: false, error: "File size must be less than 10MB" }
   }
 
-  const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+  const extension = "." + file.name.split(".").pop()?.toLowerCase()
   if (!allowedTypes.includes(extension)) {
-    return { isValid: false, error: 'Only JSON, CSS, SCSS, and TXT files are supported' }
+    return { isValid: false, error: "Only JSON, CSS, SCSS, and TXT files are supported" }
   }
 
   return { isValid: true }
 }
 
 // Shadow generation functions
-const generateBoxShadow = (layers: ShadowLayer[], unit: string = 'px'): string => {
-  if (layers.length === 0) return 'none'
+const generateBoxShadow = (layers: ShadowLayer[], unit: string = "px"): string => {
+  if (layers.length === 0) return "none"
 
   return layers
     .map((layer) => {
-      const insetStr = layer.inset ? 'inset ' : ''
-      const spreadStr = layer.spread !== undefined ? ` ${layer.spread}${unit}` : ''
+      const insetStr = layer.inset ? "inset " : ""
+      const spreadStr = layer.spread !== undefined ? ` ${layer.spread}${unit}` : ""
       const color = layer.opacity < 1 ? hexToRgba(layer.color, layer.opacity) : layer.color
 
       return `${insetStr}${layer.x}${unit} ${layer.y}${unit} ${layer.blur}${unit}${spreadStr} ${color}`
     })
-    .join(', ')
+    .join(", ")
 }
 
-const generateTextShadow = (layers: ShadowLayer[], unit: string = 'px'): string => {
-  if (layers.length === 0) return 'none'
+const generateTextShadow = (layers: ShadowLayer[], unit: string = "px"): string => {
+  if (layers.length === 0) return "none"
 
   return layers
     .map((layer) => {
       const color = layer.opacity < 1 ? hexToRgba(layer.color, layer.opacity) : layer.color
       return `${layer.x}${unit} ${layer.y}${unit} ${layer.blur}${unit} ${color}`
     })
-    .join(', ')
+    .join(", ")
 }
 
-const generateDropShadow = (layers: ShadowLayer[], unit: string = 'px'): string => {
-  if (layers.length === 0) return 'none'
+const generateDropShadow = (layers: ShadowLayer[], unit: string = "px"): string => {
+  if (layers.length === 0) return "none"
 
   // drop-shadow only supports single shadow, use first layer
   const layer = layers[0]
@@ -129,13 +129,13 @@ const calculateContrastRatio = (color1: string, color2: string): number => {
 
 const analyzeShadowAccessibility = (
   layers: ShadowLayer[],
-  backgroundColor: string = '#ffffff'
+  backgroundColor: string = "#ffffff"
 ): ShadowAccessibility => {
   if (layers.length === 0) {
     return {
       contrastRatio: 1,
-      visibility: 'low',
-      readabilityImpact: 'none',
+      visibility: "low",
+      readabilityImpact: "none",
       wcagCompliant: false,
     }
   }
@@ -150,17 +150,17 @@ const analyzeShadowAccessibility = (
   const avgBlur = layers.reduce((sum, layer) => sum + layer.blur, 0) / layers.length
   const avgOpacity = layers.reduce((sum, layer) => sum + layer.opacity, 0) / layers.length
 
-  let visibility: 'high' | 'medium' | 'low' = 'low'
-  if (avgOpacity > 0.7 && avgBlur < 10) visibility = 'high'
-  else if (avgOpacity > 0.4 && avgBlur < 20) visibility = 'medium'
+  let visibility: "high" | "medium" | "low" = "low"
+  if (avgOpacity > 0.7 && avgBlur < 10) visibility = "high"
+  else if (avgOpacity > 0.4 && avgBlur < 20) visibility = "medium"
 
   // Determine readability impact
-  let readabilityImpact: 'none' | 'minimal' | 'moderate' | 'significant' = 'none'
-  if (avgBlur > 20 || avgOpacity > 0.8) readabilityImpact = 'significant'
-  else if (avgBlur > 10 || avgOpacity > 0.5) readabilityImpact = 'moderate'
-  else if (avgBlur > 5 || avgOpacity > 0.2) readabilityImpact = 'minimal'
+  let readabilityImpact: "none" | "minimal" | "moderate" | "significant" = "none"
+  if (avgBlur > 20 || avgOpacity > 0.8) readabilityImpact = "significant"
+  else if (avgBlur > 10 || avgOpacity > 0.5) readabilityImpact = "moderate"
+  else if (avgBlur > 5 || avgOpacity > 0.2) readabilityImpact = "minimal"
 
-  const wcagCompliant = avgContrastRatio >= 3 && readabilityImpact !== 'significant'
+  const wcagCompliant = avgContrastRatio >= 3 && readabilityImpact !== "significant"
 
   return {
     contrastRatio: Math.round(avgContrastRatio * 100) / 100,
@@ -171,18 +171,18 @@ const analyzeShadowAccessibility = (
 }
 
 // Create complete shadow object
-const createShadow = (type: ShadowType, layers: ShadowLayer[], unit: string = 'px'): Shadow => {
+const createShadow = (type: ShadowType, layers: ShadowLayer[], unit: string = "px"): Shadow => {
   const id = nanoid()
 
-  let css = ''
+  let css = ""
   switch (type) {
-    case 'box-shadow':
+    case "box-shadow":
       css = `box-shadow: ${generateBoxShadow(layers, unit)};`
       break
-    case 'text-shadow':
+    case "text-shadow":
       css = `text-shadow: ${generateTextShadow(layers, unit)};`
       break
-    case 'drop-shadow':
+    case "drop-shadow":
       css = `filter: ${generateDropShadow(layers, unit)};`
       break
   }
@@ -201,100 +201,100 @@ const createShadow = (type: ShadowType, layers: ShadowLayer[], unit: string = 'p
 // Shadow templates
 const shadowTemplates: ShadowTemplate[] = [
   {
-    id: 'subtle',
-    name: 'Subtle',
-    description: 'Light, barely visible shadow',
-    category: 'Basic',
+    id: "subtle",
+    name: "Subtle",
+    description: "Light, barely visible shadow",
+    category: "Basic",
     shadow: {
-      type: 'box-shadow',
-      layers: [{ id: '1', x: 0, y: 1, blur: 3, spread: 0, color: '#000000', opacity: 0.12, inset: false }],
+      type: "box-shadow",
+      layers: [{ id: "1", x: 0, y: 1, blur: 3, spread: 0, color: "#000000", opacity: 0.12, inset: false }],
     },
-    preview: '0 1px 3px rgba(0, 0, 0, 0.12)',
+    preview: "0 1px 3px rgba(0, 0, 0, 0.12)",
   },
   {
-    id: 'soft',
-    name: 'Soft',
-    description: 'Gentle, diffused shadow',
-    category: 'Basic',
+    id: "soft",
+    name: "Soft",
+    description: "Gentle, diffused shadow",
+    category: "Basic",
     shadow: {
-      type: 'box-shadow',
-      layers: [{ id: '1', x: 0, y: 4, blur: 6, spread: -1, color: '#000000', opacity: 0.1, inset: false }],
+      type: "box-shadow",
+      layers: [{ id: "1", x: 0, y: 4, blur: 6, spread: -1, color: "#000000", opacity: 0.1, inset: false }],
     },
-    preview: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    preview: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
   },
   {
-    id: 'medium',
-    name: 'Medium',
-    description: 'Balanced shadow for cards',
-    category: 'Basic',
+    id: "medium",
+    name: "Medium",
+    description: "Balanced shadow for cards",
+    category: "Basic",
     shadow: {
-      type: 'box-shadow',
-      layers: [{ id: '1', x: 0, y: 10, blur: 15, spread: -3, color: '#000000', opacity: 0.1, inset: false }],
+      type: "box-shadow",
+      layers: [{ id: "1", x: 0, y: 10, blur: 15, spread: -3, color: "#000000", opacity: 0.1, inset: false }],
     },
-    preview: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+    preview: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
   },
   {
-    id: 'large',
-    name: 'Large',
-    description: 'Prominent shadow for modals',
-    category: 'Basic',
+    id: "large",
+    name: "Large",
+    description: "Prominent shadow for modals",
+    category: "Basic",
     shadow: {
-      type: 'box-shadow',
-      layers: [{ id: '1', x: 0, y: 25, blur: 50, spread: -12, color: '#000000', opacity: 0.25, inset: false }],
+      type: "box-shadow",
+      layers: [{ id: "1", x: 0, y: 25, blur: 50, spread: -12, color: "#000000", opacity: 0.25, inset: false }],
     },
-    preview: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    preview: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
   },
   {
-    id: 'inner',
-    name: 'Inner',
-    description: 'Inset shadow for depth',
-    category: 'Inset',
+    id: "inner",
+    name: "Inner",
+    description: "Inset shadow for depth",
+    category: "Inset",
     shadow: {
-      type: 'box-shadow',
-      layers: [{ id: '1', x: 0, y: 2, blur: 4, spread: 0, color: '#000000', opacity: 0.06, inset: true }],
+      type: "box-shadow",
+      layers: [{ id: "1", x: 0, y: 2, blur: 4, spread: 0, color: "#000000", opacity: 0.06, inset: true }],
     },
-    preview: 'inset 0 2px 4px rgba(0, 0, 0, 0.06)',
+    preview: "inset 0 2px 4px rgba(0, 0, 0, 0.06)",
   },
   {
-    id: 'colored',
-    name: 'Colored',
-    description: 'Blue colored shadow',
-    category: 'Colored',
+    id: "colored",
+    name: "Colored",
+    description: "Blue colored shadow",
+    category: "Colored",
     shadow: {
-      type: 'box-shadow',
-      layers: [{ id: '1', x: 0, y: 8, blur: 25, spread: 0, color: '#3b82f6', opacity: 0.3, inset: false }],
+      type: "box-shadow",
+      layers: [{ id: "1", x: 0, y: 8, blur: 25, spread: 0, color: "#3b82f6", opacity: 0.3, inset: false }],
     },
-    preview: '0 8px 25px rgba(59, 130, 246, 0.3)',
+    preview: "0 8px 25px rgba(59, 130, 246, 0.3)",
   },
   {
-    id: 'layered',
-    name: 'Layered',
-    description: 'Multiple shadow layers',
-    category: 'Complex',
+    id: "layered",
+    name: "Layered",
+    description: "Multiple shadow layers",
+    category: "Complex",
     shadow: {
-      type: 'box-shadow',
+      type: "box-shadow",
       layers: [
-        { id: '1', x: 0, y: 1, blur: 3, spread: 0, color: '#000000', opacity: 0.12, inset: false },
-        { id: '2', x: 0, y: 1, blur: 2, spread: 0, color: '#000000', opacity: 0.24, inset: false },
+        { id: "1", x: 0, y: 1, blur: 3, spread: 0, color: "#000000", opacity: 0.12, inset: false },
+        { id: "2", x: 0, y: 1, blur: 2, spread: 0, color: "#000000", opacity: 0.24, inset: false },
       ],
     },
-    preview: '0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)',
+    preview: "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)",
   },
   {
-    id: 'text-glow',
-    name: 'Text Glow',
-    description: 'Glowing text effect',
-    category: 'Text',
+    id: "text-glow",
+    name: "Text Glow",
+    description: "Glowing text effect",
+    category: "Text",
     shadow: {
-      type: 'text-shadow',
-      layers: [{ id: '1', x: 0, y: 0, blur: 10, color: '#3b82f6', opacity: 0.8, inset: false }],
+      type: "text-shadow",
+      layers: [{ id: "1", x: 0, y: 0, blur: 10, color: "#3b82f6", opacity: 0.8, inset: false }],
     },
-    preview: '0 0 10px rgba(59, 130, 246, 0.8)',
+    preview: "0 0 10px rgba(59, 130, 246, 0.8)",
   },
 ]
 
 // Real-time shadow preview hook
-const useRealTimeShadow = (type: ShadowType, layers: ShadowLayer[], unit: string = 'px') => {
+const useRealTimeShadow = (type: ShadowType, layers: ShadowLayer[], unit: string = "px") => {
   return useMemo(() => {
     if (!layers.length) {
       return {
@@ -314,7 +314,7 @@ const useRealTimeShadow = (type: ShadowType, layers: ShadowLayer[], unit: string
     } catch (error) {
       return {
         shadow: null,
-        error: error instanceof Error ? error.message : 'Shadow generation failed',
+        error: error instanceof Error ? error.message : "Shadow generation failed",
         isEmpty: false,
       }
     }
@@ -341,17 +341,17 @@ const useFileProcessing = () => {
             name: file.name,
             content,
             size: file.size,
-            type: file.type || 'text/plain',
-            status: 'pending',
+            type: file.type || "text/plain",
+            status: "pending",
           }
 
           resolve(shadowFile)
         } catch (error) {
-          reject(new Error('Failed to process file'))
+          reject(new Error("Failed to process file"))
         }
       }
 
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error("Failed to read file"))
       reader.readAsText(file)
     })
   }, [])
@@ -361,17 +361,17 @@ const useFileProcessing = () => {
       const results = await Promise.allSettled(files.map((file) => processFile(file)))
 
       return results.map((result, index) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === "fulfilled") {
           return result.value
         } else {
           return {
             id: nanoid(),
             name: files[index].name,
-            content: '',
+            content: "",
             size: files[index].size,
-            type: files[index].type || 'text/plain',
-            status: 'error' as const,
-            error: result.reason.message || 'Processing failed',
+            type: files[index].type || "text/plain",
+            status: "error" as const,
+            error: result.reason.message || "Processing failed",
           }
         }
       })
@@ -385,27 +385,27 @@ const useFileProcessing = () => {
 // Export functionality
 const useShadowExport = () => {
   const exportShadow = useCallback((shadow: Shadow, format: ExportFormat, filename?: string) => {
-    let content = ''
-    let mimeType = 'text/plain'
-    let extension = '.txt'
+    let content = ""
+    let mimeType = "text/plain"
+    let extension = ".txt"
 
     switch (format) {
-      case 'css':
+      case "css":
         content = `.shadow {\n  ${shadow.css}\n}`
-        mimeType = 'text/css'
-        extension = '.css'
+        mimeType = "text/css"
+        extension = ".css"
         break
-      case 'scss':
-        content = `$shadow: ${shadow.css.split(': ')[1]};\n\n.shadow {\n  ${shadow.type}: $shadow;\n}`
-        mimeType = 'text/scss'
-        extension = '.scss'
+      case "scss":
+        content = `$shadow: ${shadow.css.split(": ")[1]};\n\n.shadow {\n  ${shadow.type}: $shadow;\n}`
+        mimeType = "text/scss"
+        extension = ".scss"
         break
-      case 'tailwind':
+      case "tailwind":
         content = generateTailwindClasses(shadow)
-        mimeType = 'text/plain'
-        extension = '.txt'
+        mimeType = "text/plain"
+        extension = ".txt"
         break
-      case 'json':
+      case "json":
         content = JSON.stringify(
           {
             id: shadow.id,
@@ -417,8 +417,8 @@ const useShadowExport = () => {
           null,
           2
         )
-        mimeType = 'application/json'
-        extension = '.json'
+        mimeType = "application/json"
+        extension = ".json"
         break
       default:
         content = shadow.css
@@ -426,7 +426,7 @@ const useShadowExport = () => {
 
     const blob = new Blob([content], { type: `${mimeType};charset=utf-8` })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
     link.download = filename || `shadow${extension}`
     document.body.appendChild(link)
@@ -440,15 +440,15 @@ const useShadowExport = () => {
       const completedFiles = files.filter((f) => f.shadowData)
 
       if (completedFiles.length === 0) {
-        toast.error('No shadows to export')
+        toast.error("No shadows to export")
         return
       }
 
       completedFiles.forEach((file) => {
         if (file.shadowData) {
           file.shadowData.shadows.forEach((shadow, index) => {
-            const baseName = file.name.replace(/\.[^/.]+$/, '')
-            exportShadow(shadow, 'css', `${baseName}-shadow-${index + 1}.css`)
+            const baseName = file.name.replace(/\.[^/.]+$/, "")
+            exportShadow(shadow, "css", `${baseName}-shadow-${index + 1}.css`)
           })
         }
       })
@@ -475,15 +475,15 @@ const useShadowExport = () => {
 
     const csvContent = [
       [
-        'Filename',
-        'Original Size',
-        'Total Shadows',
-        'Avg Layers',
-        'Avg Blur',
-        'Avg Opacity',
-        'Accessibility Score',
-        'Processing Time',
-        'Status',
+        "Filename",
+        "Original Size",
+        "Total Shadows",
+        "Avg Layers",
+        "Avg Blur",
+        "Avg Opacity",
+        "Accessibility Score",
+        "Processing Time",
+        "Status",
       ],
       ...stats.map((stat) => [
         stat.filename,
@@ -497,20 +497,20 @@ const useShadowExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
-      .join('\n')
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n")
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
+    const link = document.createElement("a")
     link.href = url
-    link.download = 'shadow-statistics.csv'
+    link.download = "shadow-statistics.csv"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
-    toast.success('Statistics exported')
+    toast.success("Statistics exported")
   }, [])
 
   return { exportShadow, exportBatch, exportStatistics }
@@ -520,14 +520,14 @@ const useShadowExport = () => {
 const generateTailwindClasses = (shadow: Shadow): string => {
   // Simplified Tailwind class generation
   const layer = shadow.layers[0]
-  if (!layer) return 'shadow-none'
+  if (!layer) return "shadow-none"
 
-  if (layer.blur <= 3) return 'shadow-sm'
-  if (layer.blur <= 6) return 'shadow'
-  if (layer.blur <= 10) return 'shadow-md'
-  if (layer.blur <= 15) return 'shadow-lg'
-  if (layer.blur <= 25) return 'shadow-xl'
-  return 'shadow-2xl'
+  if (layer.blur <= 3) return "shadow-sm"
+  if (layer.blur <= 6) return "shadow"
+  if (layer.blur <= 10) return "shadow-md"
+  if (layer.blur <= 15) return "shadow-lg"
+  if (layer.blur <= 25) return "shadow-xl"
+  return "shadow-2xl"
 }
 
 // Copy to clipboard functionality
@@ -537,13 +537,13 @@ const useCopyToClipboard = () => {
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedText(label || 'text')
-      toast.success(`${label || 'Text'} copied to clipboard`)
+      setCopiedText(label || "text")
+      toast.success(`${label || "Text"} copied to clipboard`)
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopiedText(null), 2000)
     } catch (error) {
-      toast.error('Failed to copy to clipboard')
+      toast.error("Failed to copy to clipboard")
     }
   }, [])
 
@@ -558,9 +558,9 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true)
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false)
     }
   }, [])
@@ -576,7 +576,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       if (files.length > 0) {
         onFilesDropped(files)
       } else {
-        toast.error('Please drop only JSON, CSS, SCSS, or TXT files')
+        toast.error("Please drop only JSON, CSS, SCSS, or TXT files")
       }
     },
     [onFilesDropped]
@@ -590,7 +590,7 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
       }
       // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = ""
       }
     },
     [onFilesDropped]
@@ -610,21 +610,21 @@ const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
  * Features: Real-time shadow generation, multiple types, batch processing, accessibility analysis
  */
 const ShadowGeneratorCore = () => {
-  const [activeTab, setActiveTab] = useState<'generator' | 'files'>('generator')
-  const [shadowType, setShadowType] = useState<ShadowType>('box-shadow')
+  const [activeTab, setActiveTab] = useState<"generator" | "files">("generator")
+  const [shadowType, setShadowType] = useState<ShadowType>("box-shadow")
   const [layers, setLayers] = useState<ShadowLayer[]>([
-    { id: '1', x: 0, y: 4, blur: 6, spread: 0, color: '#000000', opacity: 0.1, inset: false },
+    { id: "1", x: 0, y: 4, blur: 6, spread: 0, color: "#000000", opacity: 0.1, inset: false },
   ])
   const [files, setFiles] = useState<ShadowFile[]>([])
   const [_, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('subtle')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("subtle")
   const [settings, setSettings] = useState<ShadowSettings>({
-    defaultType: 'box-shadow',
+    defaultType: "box-shadow",
     maxLayers: 10,
     includeAccessibility: true,
     optimizeOutput: false,
-    exportFormat: 'css',
-    unit: 'px',
+    exportFormat: "css",
+    unit: "px",
   })
 
   const { exportShadow } = useShadowExport()
@@ -643,7 +643,7 @@ const ShadowGeneratorCore = () => {
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
-        toast.error('Failed to process files')
+        toast.error("Failed to process files")
       } finally {
         setIsProcessing(false)
       }
@@ -673,7 +673,7 @@ const ShadowGeneratorCore = () => {
           y: 4,
           blur: 6,
           spread: 0,
-          color: '#000000',
+          color: "#000000",
           opacity: 0.1,
           inset: false,
         },
@@ -704,12 +704,15 @@ const ShadowGeneratorCore = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-4">
+      <div
+        id="main-content"
+        className="flex flex-col gap-4"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Square className="h-5 w-5" aria-hidden="true" />
+              <Square className="h-5 w-5" />
               Shadow Generator
             </CardTitle>
             <CardDescription>
@@ -721,20 +724,32 @@ const ShadowGeneratorCore = () => {
         </Card>
 
         {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'generator' | 'files')}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as "generator" | "files")}
+        >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="generator" className="flex items-center gap-2">
+            <TabsTrigger
+              value="generator"
+              className="flex items-center gap-2"
+            >
               <Square className="h-4 w-4" />
               Shadow Generator
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger
+              value="files"
+              className="flex items-center gap-2"
+            >
               <Upload className="h-4 w-4" />
               Batch Processing
             </TabsTrigger>
           </TabsList>
 
           {/* Shadow Generator Tab */}
-          <TabsContent value="generator" className="space-y-4">
+          <TabsContent
+            value="generator"
+            className="space-y-4"
+          >
             {/* Shadow Templates */}
             <Card>
               <CardHeader>
@@ -748,7 +763,7 @@ const ShadowGeneratorCore = () => {
                   {shadowTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                      variant={selectedTemplate === template.id ? "default" : "outline"}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >
@@ -776,7 +791,10 @@ const ShadowGeneratorCore = () => {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="shadow-type">Shadow Type</Label>
-                    <Select value={shadowType} onValueChange={(value: ShadowType) => setShadowType(value)}>
+                    <Select
+                      value={shadowType}
+                      onValueChange={(value: ShadowType) => setShadowType(value)}
+                    >
                       <SelectTrigger id="shadow-type">
                         <SelectValue />
                       </SelectTrigger>
@@ -792,7 +810,7 @@ const ShadowGeneratorCore = () => {
                     <Label htmlFor="unit">Unit</Label>
                     <Select
                       value={settings.unit}
-                      onValueChange={(value: 'px' | 'rem' | 'em') => setSettings((prev) => ({ ...prev, unit: value }))}
+                      onValueChange={(value: "px" | "rem" | "em") => setSettings((prev) => ({ ...prev, unit: value }))}
                     >
                       <SelectTrigger id="unit">
                         <SelectValue />
@@ -813,7 +831,10 @@ const ShadowGeneratorCore = () => {
                       onChange={(e) => setSettings((prev) => ({ ...prev, includeAccessibility: e.target.checked }))}
                       className="rounded border-input"
                     />
-                    <Label htmlFor="accessibility" className="text-sm">
+                    <Label
+                      htmlFor="accessibility"
+                      className="text-sm"
+                    >
                       Include Accessibility Analysis
                     </Label>
                   </div>
@@ -840,10 +861,10 @@ const ShadowGeneratorCore = () => {
                     <div className="space-y-4">
                       {/* Shadow Display */}
                       <div className="flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                        {shadowType === 'text-shadow' ? (
+                        {shadowType === "text-shadow" ? (
                           <div
                             className="text-4xl font-bold text-gray-800 dark:text-gray-200"
-                            style={{ textShadow: shadowPreview.shadow.css.split(': ')[1].replace(';', '') }}
+                            style={{ textShadow: shadowPreview.shadow.css.split(": ")[1].replace(";", "") }}
                           >
                             Sample Text
                           </div>
@@ -852,12 +873,12 @@ const ShadowGeneratorCore = () => {
                             className="w-32 h-32 bg-white dark:bg-gray-800 rounded-lg border"
                             style={{
                               boxShadow:
-                                shadowType === 'box-shadow'
-                                  ? shadowPreview.shadow.css.split(': ')[1].replace(';', '')
+                                shadowType === "box-shadow"
+                                  ? shadowPreview.shadow.css.split(": ")[1].replace(";", "")
                                   : undefined,
                               filter:
-                                shadowType === 'drop-shadow'
-                                  ? shadowPreview.shadow.css.split(': ')[1].replace(';', '')
+                                shadowType === "drop-shadow"
+                                  ? shadowPreview.shadow.css.split(": ")[1].replace(";", "")
                                   : undefined,
                             }}
                           />
@@ -871,12 +892,17 @@ const ShadowGeneratorCore = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => copyToClipboard(shadowPreview.shadow!.css, 'CSS shadow')}
+                            onClick={() => copyToClipboard(shadowPreview.shadow!.css, "CSS shadow")}
                           >
-                            {copiedText === 'CSS shadow' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                            {copiedText === "CSS shadow" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                           </Button>
                         </div>
-                        <Textarea value={shadowPreview.shadow.css} readOnly className="font-mono text-sm" rows={2} />
+                        <Textarea
+                          value={shadowPreview.shadow.css}
+                          readOnly
+                          className="font-mono text-sm"
+                          rows={2}
+                        />
                       </div>
                     </div>
                   ) : (
@@ -903,7 +929,11 @@ const ShadowGeneratorCore = () => {
                     <Label className="text-sm font-medium">
                       Layers ({layers.length}/{settings.maxLayers})
                     </Label>
-                    <Button size="sm" onClick={addLayer} disabled={layers.length >= settings.maxLayers}>
+                    <Button
+                      size="sm"
+                      onClick={addLayer}
+                      disabled={layers.length >= settings.maxLayers}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Layer
                     </Button>
@@ -911,11 +941,14 @@ const ShadowGeneratorCore = () => {
 
                   <div className="space-y-4">
                     {layers.map((layer, index) => (
-                      <div key={layer.id} className="border rounded-lg p-4 space-y-4">
+                      <div
+                        key={layer.id}
+                        className="border rounded-lg p-4 space-y-4"
+                      >
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium">Layer {index + 1}</span>
                           <div className="flex items-center gap-2">
-                            {shadowType === 'box-shadow' && (
+                            {shadowType === "box-shadow" && (
                               <div className="flex items-center space-x-2">
                                 <input
                                   id={`inset-${layer.id}`}
@@ -924,13 +957,20 @@ const ShadowGeneratorCore = () => {
                                   onChange={(e) => updateLayer(layer.id, { inset: e.target.checked })}
                                   className="rounded border-input"
                                 />
-                                <Label htmlFor={`inset-${layer.id}`} className="text-xs">
+                                <Label
+                                  htmlFor={`inset-${layer.id}`}
+                                  className="text-xs"
+                                >
                                   Inset
                                 </Label>
                               </div>
                             )}
                             {layers.length > 1 && (
-                              <Button size="sm" variant="ghost" onClick={() => removeLayer(layer.id)}>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => removeLayer(layer.id)}
+                              >
                                 <Minus className="h-4 w-4" />
                               </Button>
                             )}
@@ -966,7 +1006,7 @@ const ShadowGeneratorCore = () => {
                               className="text-sm"
                             />
                           </div>
-                          {shadowType === 'box-shadow' && (
+                          {shadowType === "box-shadow" && (
                             <div className="space-y-2">
                               <Label className="text-xs">Spread Radius</Label>
                               <Input
@@ -1022,10 +1062,10 @@ const ShadowGeneratorCore = () => {
                         const randomLayers = layers.map((l) => ({
                           ...l,
                           color:
-                            '#' +
+                            "#" +
                             Math.floor(Math.random() * 16777215)
                               .toString(16)
-                              .padStart(6, '0'),
+                              .padStart(6, "0"),
                         }))
                         setLayers(randomLayers)
                       }}
@@ -1045,7 +1085,7 @@ const ShadowGeneratorCore = () => {
                             y: 4,
                             blur: 6,
                             spread: 0,
-                            color: '#000000',
+                            color: "#000000",
                             opacity: 0.1,
                             inset: false,
                           },
@@ -1086,15 +1126,15 @@ const ShadowGeneratorCore = () => {
                         <div className="mt-2 p-3 bg-muted/30 rounded">
                           <span
                             className={`font-medium ${
-                              shadowPreview.shadow.accessibility.visibility === 'high'
-                                ? 'text-green-600'
-                                : shadowPreview.shadow.accessibility.visibility === 'medium'
-                                  ? 'text-yellow-600'
-                                  : 'text-red-600'
+                              shadowPreview.shadow.accessibility.visibility === "high"
+                                ? "text-green-600"
+                                : shadowPreview.shadow.accessibility.visibility === "medium"
+                                  ? "text-yellow-600"
+                                  : "text-red-600"
                             }`}
                           >
                             {shadowPreview.shadow.accessibility.visibility.charAt(0).toUpperCase() +
-                              shadowPreview.shadow.accessibility.visibility.slice(1)}{' '}
+                              shadowPreview.shadow.accessibility.visibility.slice(1)}{" "}
                             Visibility
                           </span>
                         </div>
@@ -1106,9 +1146,9 @@ const ShadowGeneratorCore = () => {
                         <Label className="text-sm font-medium">WCAG Compliance</Label>
                         <div className="mt-2 p-3 bg-muted/30 rounded">
                           <span
-                            className={`font-medium ${shadowPreview.shadow.accessibility.wcagCompliant ? 'text-green-600' : 'text-red-600'}`}
+                            className={`font-medium ${shadowPreview.shadow.accessibility.wcagCompliant ? "text-green-600" : "text-red-600"}`}
                           >
-                            {shadowPreview.shadow.accessibility.wcagCompliant ? 'WCAG Compliant' : 'Not WCAG Compliant'}
+                            {shadowPreview.shadow.accessibility.wcagCompliant ? "WCAG Compliant" : "Not WCAG Compliant"}
                           </span>
                         </div>
                       </div>
@@ -1118,17 +1158,17 @@ const ShadowGeneratorCore = () => {
                         <div className="mt-2 p-3 bg-muted/30 rounded">
                           <span
                             className={`font-medium ${
-                              shadowPreview.shadow.accessibility.readabilityImpact === 'none'
-                                ? 'text-green-600'
-                                : shadowPreview.shadow.accessibility.readabilityImpact === 'minimal'
-                                  ? 'text-green-600'
-                                  : shadowPreview.shadow.accessibility.readabilityImpact === 'moderate'
-                                    ? 'text-yellow-600'
-                                    : 'text-red-600'
+                              shadowPreview.shadow.accessibility.readabilityImpact === "none"
+                                ? "text-green-600"
+                                : shadowPreview.shadow.accessibility.readabilityImpact === "minimal"
+                                  ? "text-green-600"
+                                  : shadowPreview.shadow.accessibility.readabilityImpact === "moderate"
+                                    ? "text-yellow-600"
+                                    : "text-red-600"
                             }`}
                           >
                             {shadowPreview.shadow.accessibility.readabilityImpact.charAt(0).toUpperCase() +
-                              shadowPreview.shadow.accessibility.readabilityImpact.slice(1)}{' '}
+                              shadowPreview.shadow.accessibility.readabilityImpact.slice(1)}{" "}
                             Impact
                           </span>
                         </div>
@@ -1144,27 +1184,42 @@ const ShadowGeneratorCore = () => {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex flex-wrap gap-3 justify-center">
-                    <Button onClick={() => exportShadow(shadowPreview.shadow!, 'css')} variant="outline">
+                    <Button
+                      onClick={() => exportShadow(shadowPreview.shadow!, "css")}
+                      variant="outline"
+                    >
                       <Download className="mr-2 h-4 w-4" />
                       Export CSS
                     </Button>
 
-                    <Button onClick={() => exportShadow(shadowPreview.shadow!, 'scss')} variant="outline">
+                    <Button
+                      onClick={() => exportShadow(shadowPreview.shadow!, "scss")}
+                      variant="outline"
+                    >
                       <Code className="mr-2 h-4 w-4" />
                       Export SCSS
                     </Button>
 
-                    <Button onClick={() => exportShadow(shadowPreview.shadow!, 'tailwind')} variant="outline">
+                    <Button
+                      onClick={() => exportShadow(shadowPreview.shadow!, "tailwind")}
+                      variant="outline"
+                    >
                       <Zap className="mr-2 h-4 w-4" />
                       Tailwind Classes
                     </Button>
 
-                    <Button onClick={() => exportShadow(shadowPreview.shadow!, 'json')} variant="outline">
+                    <Button
+                      onClick={() => exportShadow(shadowPreview.shadow!, "json")}
+                      variant="outline"
+                    >
                       <FileText className="mr-2 h-4 w-4" />
                       Export JSON
                     </Button>
 
-                    <Button onClick={() => copyToClipboard(shadowPreview.shadow!.css, 'shadow CSS')} variant="outline">
+                    <Button
+                      onClick={() => copyToClipboard(shadowPreview.shadow!.css, "shadow CSS")}
+                      variant="outline"
+                    >
                       <Copy className="mr-2 h-4 w-4" />
                       Copy CSS
                     </Button>
@@ -1175,14 +1230,17 @@ const ShadowGeneratorCore = () => {
           </TabsContent>
 
           {/* Batch Processing Tab */}
-          <TabsContent value="files" className="space-y-4">
+          <TabsContent
+            value="files"
+            className="space-y-4"
+          >
             <Card>
               <CardContent className="pt-6">
                 <div
                   className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                     dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
                   }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -1190,9 +1248,8 @@ const ShadowGeneratorCore = () => {
                   onDrop={handleDrop}
                   role="button"
                   tabIndex={0}
-                  aria-label="Drag and drop shadow files here or click to select files"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
                       fileInputRef.current?.click()
                     }
@@ -1203,7 +1260,11 @@ const ShadowGeneratorCore = () => {
                   <p className="text-muted-foreground mb-4">
                     Drag and drop your shadow configuration files here, or click to select files
                   </p>
-                  <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="mb-2">
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    variant="outline"
+                    className="mb-2"
+                  >
                     <FileImage className="mr-2 h-4 w-4" />
                     Choose Files
                   </Button>
@@ -1217,7 +1278,6 @@ const ShadowGeneratorCore = () => {
                     accept=".json,.css,.scss,.txt"
                     onChange={handleFileInput}
                     className="hidden"
-                    aria-label="Select shadow files"
                   />
                 </div>
               </CardContent>
@@ -1231,19 +1291,25 @@ const ShadowGeneratorCore = () => {
                 <CardContent>
                   <div className="space-y-4">
                     {files.map((file) => (
-                      <div key={file.id} className="border rounded-lg p-4">
+                      <div
+                        key={file.id}
+                        className="border rounded-lg p-4"
+                      >
                         <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium truncate" title={file.name}>
+                            <h4
+                              className="font-medium truncate"
+                              title={file.name}
+                            >
                               {file.name}
                             </h4>
                             <div className="text-sm text-muted-foreground">
                               <span className="font-medium">Size:</span> {formatFileSize(file.size)}
                             </div>
-                            {file.status === 'completed' && file.shadowData && (
+                            {file.status === "completed" && file.shadowData && (
                               <div className="mt-2 text-xs">
                                 {file.shadowData.statistics.totalShadows} shadows processed
                               </div>
