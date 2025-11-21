@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -137,6 +137,42 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Ensure body doesn't interfere with drag region */
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+  }
+}
+
+/* Custom title bar drag region for Electron */
+@layer components {
+  .electron-title-bar {
+    -webkit-app-region: drag !important;
+    app-region: drag !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    pointer-events: auto !important;
+    cursor: default !important;
+  }
+
+  /* Interactive elements should not be draggable */
+  .electron-title-bar button,
+  .electron-title-bar a,
+  .electron-title-bar input,
+  .electron-title-bar select,
+  .electron-title-bar textarea,
+  .electron-title-bar [style*="no-drag"],
+  .electron-title-bar [style*="WebkitAppRegion: no-drag"] {
+    -webkit-app-region: no-drag !important;
+    app-region: no-drag !important;
+    pointer-events: auto !important;
+  }
+
+  /* Text elements should inherit drag region from parent */
+  .electron-title-bar span:not(button span),
+  .electron-title-bar p:not(button p) {
+    -webkit-app-region: drag !important;
+    app-region: drag !important;
+    pointer-events: none !important;
   }
 }
 
@@ -150,7 +186,7 @@
   }
 
   /* 优化工具卡片的深色模式悬停效果 */
-  .dark .group[role='button']:hover {
+  .dark .group[role="button"]:hover {
     transform: translateY(-2px) scale(1.02);
     box-shadow:
       0 20px 25px -5px oklch(0 0 0 / 40%),
@@ -256,7 +292,7 @@
   }
 
   /* 优化收藏按钮的深色模式效果 */
-  .dark .group:hover [aria-label*='收藏'] {
+  .dark .group:hover [aria-label*="收藏"] {
     background: oklch(0.85 0.1 220 / 15%);
     border-color: oklch(0.85 0.1 220 / 30%);
   }
@@ -305,7 +341,7 @@
   }
 
   /* 移动端侧边栏优化 */
-  [data-mobile='true'] {
+  [data-mobile="true"] {
     width: 85vw !important;
     max-width: 320px;
   }
@@ -407,7 +443,7 @@
     --ring: hsl(0 0% 10%);
   }
 
-  [data-theme='dark'] {
+  [data-theme="dark"] {
     --border: hsl(0 0% 80%);
     --input: hsl(0 0% 10%);
     --ring: hsl(0 0% 90%);
@@ -476,7 +512,7 @@
 }
 
 /* 键盘导航增强 */
-[tabindex='-1']:focus {
+[tabindex="-1"]:focus {
   outline: none;
 }
 
@@ -569,4 +605,9 @@
     padding: 0.5rem 0.75rem;
     font-size: 0.75rem;
   }
+}
+
+/* 隐藏滚动条 */
+::-webkit-scrollbar {
+  display: none;
 }

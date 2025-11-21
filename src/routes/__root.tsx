@@ -1,28 +1,28 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router'
-import '../App.css'
-import { AppSidebar, SiteHeader } from '@/components/layout'
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { PerformanceMonitor } from '@/components/monitoring'
-import { isTauri } from '@/lib/utils'
-import { useState, useEffect } from 'react'
-import { scheduleTTIMeasure, initWebVitals, initLongTaskObserver } from '@/lib/performance'
+import { createRootRoute, Outlet } from "@tanstack/react-router"
+import "../App.css"
+import { AppSidebar, SiteHeader, CustomTitleBar } from "@/components/layout"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { PerformanceMonitor } from "@/components/monitoring"
+import { isDesktopApp } from "@/lib/utils"
+import { useState, useEffect } from "react"
+import { scheduleTTIMeasure, initWebVitals, initLongTaskObserver } from "@/lib/performance"
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       {
-        name: 'keywords',
-        content: 'AI 工具箱，提供各种 AI 工具和资源，帮助你提高工作效率。',
+        name: "keywords",
+        content: "AI 工具箱，提供各种 AI 工具和资源，帮助你提高工作效率。",
       },
       {
-        name: 'description',
-        content: 'AI 工具箱，提供各种 AI 工具和资源，帮助你提高工作效率。',
+        name: "description",
+        content: "AI 工具箱，提供各种 AI 工具和资源，帮助你提高工作效率。",
       },
-      { title: 'Kit | Tools' },
-      { name: 'author', content: 'Kit' },
-      { property: 'og:site_name', content: 'Kit' },
-      { property: 'og:image', content: '/logo.png' },
-      { name: 'twitter:card', content: 'summary_large_image' },
+      { title: "Kit | Tools" },
+      { name: "author", content: "Kit" },
+      { property: "og:site_name", content: "Kit" },
+      { property: "og:image", content: "/logo.png" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: () => {
@@ -34,7 +34,7 @@ export const Route = createRootRoute({
     }, [])
     return (
       <>
-        {!isTauri() && (
+        {!isDesktopApp() && (
           <script
             async
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3854566314387093"
@@ -42,17 +42,22 @@ export const Route = createRootRoute({
           ></script>
         )}
 
+        <CustomTitleBar />
+
         <SidebarProvider>
           <AppSidebar />
-          <SidebarInset>
-            <SiteHeader />
+          <SidebarInset className="flex flex-col">
+            {!isDesktopApp() && <SiteHeader />}
             <main className="flex-1 p-4">
               <Outlet />
             </main>
           </SidebarInset>
         </SidebarProvider>
 
-        <PerformanceMonitor isVisible={showPerformanceMonitor} onToggle={() => setShowPerformanceMonitor(false)} />
+        <PerformanceMonitor
+          isVisible={showPerformanceMonitor}
+          onToggle={() => setShowPerformanceMonitor(false)}
+        />
 
         {/* 性能监控切换按钮 */}
         {!showPerformanceMonitor && (

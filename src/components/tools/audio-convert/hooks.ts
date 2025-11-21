@@ -448,14 +448,19 @@ export function downloadFile(blob: Blob, filename: string): void {
 }
 
 export async function downloadAsZip(files: { blob: Blob; filename: string }[], zipName: string): Promise<void> {
-  const { default: JSZip } = await import('jszip')
-  const zip = new JSZip()
-
-  files.forEach(({ blob, filename }) => {
-    zip.file(filename, blob)
-  })
-
-  const zipBlob = await zip.generateAsync({ type: 'blob' })
+  const { zipSync } = await import('fflate')
+  
+  const zipData: Record<string, Uint8Array> = {}
+  
+  for (const { blob, filename } of files) {
+    const arrayBuffer = await blob.arrayBuffer()
+    zipData[filename] = new Uint8Array(arrayBuffer)
+  }
+  
+  const zipped = zipSync(zipData)
+  const copied = new Uint8Array(zipped.byteLength)
+  copied.set(zipped)
+  const zipBlob = new Blob([copied.buffer], { type: 'application/zip' })
   downloadFile(zipBlob, zipName)
 }
 

@@ -187,17 +187,20 @@ export function downloadFile(blob: Blob, filename: string): void {
  */
 export async function downloadAsZip(files: { blob: Blob; filename: string }[], zipName: string): Promise<void> {
   try {
-    // 动态导入JSZip
-    const JSZip = (await import('jszip')).default
-    const zip = new JSZip()
-
-    // 添加文件到ZIP
-    files.forEach(({ blob, filename }) => {
-      zip.file(filename, blob)
-    })
-
-    // 生成ZIP文件
-    const zipBlob = await zip.generateAsync({ type: 'blob' })
+    // 动态导入 fflate
+    const { zipSync } = await import('fflate')
+    
+    const zipData: Record<string, Uint8Array> = {}
+    
+    for (const { blob, filename } of files) {
+      const arrayBuffer = await blob.arrayBuffer()
+      zipData[filename] = new Uint8Array(arrayBuffer)
+    }
+    
+    const zipped = zipSync(zipData)
+    const copied = new Uint8Array(zipped.byteLength)
+    copied.set(zipped)
+    const zipBlob = new Blob([copied.buffer], { type: 'application/zip' })
     downloadFile(zipBlob, zipName)
   } catch (error) {
     console.error('Failed to create ZIP file:', error)

@@ -1,0 +1,91 @@
+appId: icu.manon.kit
+productName: Kit
+copyright: Copyright © 2025 Manon. All rights reserved.
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - dist/**/*
+  - electron/dist-electron/main.js
+  - electron/dist-electron/preload.js
+  - package.json
+
+extraMetadata:
+  main: electron/dist-electron/main.js
+
+win:
+  target:
+    - nsis
+  icon: build/icon.png
+  publisherName: Kit
+  certificateFile: null
+  certificatePassword: null
+  signingHashAlgorithms:
+    - sha256
+  requestedExecutionLevel: asInvoker
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: Kit
+  installerIcon: build/icon.png
+  uninstallerIcon: build/icon.png
+  installerHeaderIcon: build/icon.png
+  menuCategory: DeveloperTool
+  displayLanguageSelector: true
+  languages:
+    - English
+    - SimpChinese
+  installMode: perUser
+  compression: maximum
+
+mac:
+  category: public.app-category.developer-tools
+  target:
+    - dmg
+  icon: build/icon.png
+  minimumSystemVersion: 10.13
+  hardenedRuntime: false
+  gatekeeperAssess: false
+  entitlements: null
+  entitlementsInherit: null
+
+dmg:
+  title: ${productName} ${version}
+  icon: build/icon.png
+  background: null
+  contents:
+    - x: 180
+      y: 170
+    - x: 480
+      y: 170
+      type: link
+      path: /Applications
+  window:
+    width: 660
+    height: 400
+
+linux:
+  target:
+    - AppImage
+    - deb
+  category: Utility
+  icon: build/icon.png
+
+deb:
+  depends: []
+  priority: optional
+  section: utils
+
+appimage:
+  artifactName: ${name}-${version}-${arch}.${ext}
+
+publish:
+  provider: github
+  owner: aafnnp
+  repo: kit
+  releaseType: release

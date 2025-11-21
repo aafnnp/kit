@@ -1,15 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Heart, ExternalLink } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
-import { useRouter } from '@tanstack/react-router'
-import { useFavorites, useRecentTools } from '@/lib/storage'
-import { isTauri } from '@/lib/utils'
-import { openUrl } from '@tauri-apps/plugin-opener'
-import { preloader } from '@/lib/data'
-import { loadIconComponent, getLoadedIconComponent } from '@/lib/data'
-import type { Tool } from '@/types/tool'
+import React, { useEffect, useMemo, useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Heart, ExternalLink } from "lucide-react"
+import { useTranslation } from "react-i18next"
+import { useRouter } from "@tanstack/react-router"
+import { useFavorites, useRecentTools } from "@/lib/storage"
+import { getDesktopApi } from "@/lib/utils"
+import { preloader } from "@/lib/data"
+import { loadIconComponent, getLoadedIconComponent } from "@/lib/data"
+import type { Tool } from "@/types/tool"
 
 interface ToolCardProps {
   tool: Tool
@@ -48,10 +47,11 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
     onClick?.()
 
     if (tool.href) {
-      if (isTauri()) {
-        openUrl(tool.href).catch(console.error)
+      const desktopApi = getDesktopApi()
+      if (desktopApi) {
+        desktopApi.openExternal(tool.href).catch(console.error)
       } else {
-        window.open(tool.href, '_blank')
+        window.open(tool.href, "_blank")
       }
     } else {
       router.navigate({ to: `/tool/${tool.slug}` })
@@ -59,7 +59,7 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault()
       handleClick()
     }
@@ -71,14 +71,14 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
   }
 
   const handleFavoriteKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault()
       e.stopPropagation()
       toggleFavorite(tool)
     }
   }
 
-  const firstLetter = useMemo(() => tool.name?.charAt(0).toUpperCase() || '', [tool.name])
+  const firstLetter = useMemo(() => tool.name?.charAt(0).toUpperCase() || "", [tool.name])
 
   return (
     <Card
@@ -126,15 +126,15 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
               onKeyDown={handleFavoriteKeyDown}
               className={`h-7 w-7 sm:h-8 sm:w-8 p-0 opacity-60 sm:opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-500 hover:scale-125 focus-visible:scale-125 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:bg-red-50 dark:hover:bg-red-950/30 hover:shadow-lg hover:shadow-red-500/20 dark:hover:shadow-red-400/20 ${
                 isFavorite(tool.slug)
-                  ? 'text-red-500 dark:text-red-400 opacity-100 bg-red-50 dark:bg-red-950/20'
-                  : 'text-muted-foreground hover:text-red-500 dark:hover:text-red-400'
+                  ? "text-red-500 dark:text-red-400 opacity-100 bg-red-50 dark:bg-red-950/20"
+                  : "text-muted-foreground hover:text-red-500 dark:hover:text-red-400"
               }`}
-              aria-label={isFavorite(tool.slug) ? t('favorites.remove') : t('favorites.add')}
+              aria-label={isFavorite(tool.slug) ? t("favorites.remove") : t("favorites.add")}
               tabIndex={0}
             >
               <Heart
                 className={`h-3.5 w-3.5 sm:h-4 sm:w-4 transition-all duration-500 hover:scale-110 hover:rotate-12 ${
-                  isFavorite(tool.slug) ? 'fill-current animate-pulse' : ''
+                  isFavorite(tool.slug) ? "fill-current animate-pulse" : ""
                 }`}
               />
             </Button>

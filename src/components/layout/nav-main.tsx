@@ -4,17 +4,17 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar'
-import tools from '@/lib/data'
-import { IconChevronRight } from '@tabler/icons-react'
-import React, { useState, useEffect, useCallback, memo } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
-import { useRouter, useLocation } from '@tanstack/react-router'
-import { useTranslation } from 'react-i18next'
-import { loadIconComponent, getLoadedIconComponent, preloadIcons } from '@/lib/data'
-import { preloader } from '@/lib/data'
-import { getToolLoaderBySlug } from '@/lib/data'
-import { useRoutePrefetch } from '@/lib/routing'
+} from "@/components/ui/sidebar"
+import tools from "@/lib/data"
+import { IconChevronRight } from "@tabler/icons-react"
+import React, { useState, useEffect, useCallback, memo } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import { useRouter, useLocation } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
+import { loadIconComponent, getLoadedIconComponent, preloadIcons } from "@/lib/data"
+import { preloader } from "@/lib/data"
+import { getToolLoaderBySlug } from "@/lib/data"
+import { useRoutePrefetch } from "@/lib/routing"
 
 function NavMainInner({ items }: { items: typeof tools }) {
   const router = useRouter()
@@ -40,15 +40,29 @@ function NavMainInner({ items }: { items: typeof tools }) {
     preloadIcons(Array.from(uniqueIconNames))
 
     uniqueIconNames.forEach((iconName) => {
+      // Only load if not already loaded or loading
       if (iconComponents[iconName] !== undefined) return
-      loadIconComponent(iconName).then((component) => {
-        setIconComponents((prev) => ({
-          ...prev,
-          [iconName]: component,
-        }))
-      })
+
+      loadIconComponent(iconName)
+        .then((component) => {
+          setIconComponents((prev) => {
+            // Avoid unnecessary updates if component is already set
+            if (prev[iconName] === component) return prev
+            return {
+              ...prev,
+              [iconName]: component,
+            }
+          })
+        })
+        .catch(() => {
+          // Set to null on error to prevent retrying
+          setIconComponents((prev) => ({
+            ...prev,
+            [iconName]: null,
+          }))
+        })
     })
-  }, [items, iconComponents])
+  }, [items]) // Remove iconComponents from dependencies to avoid infinite loop
 
   useEffect(() => {
     if (!currentSlug) return
@@ -76,7 +90,7 @@ function NavMainInner({ items }: { items: typeof tools }) {
                 >
                   <span className="text-xs sm:text-sm font-medium truncate">{t(`tools.${item.id}`)}</span>
                   <IconChevronRight
-                    className={`!size-3.5 sm:!size-4 transition-transform shrink-0 ${isOpen ? 'rotate-90' : ''}`}
+                    className={`size-3.5! sm:size-4! transition-transform shrink-0 ${isOpen ? "rotate-90" : ""}`}
                   />
                 </div>
                 <AnimatePresence initial={false}>
@@ -84,10 +98,10 @@ function NavMainInner({ items }: { items: typeof tools }) {
                     <motion.div
                       key="tools-list"
                       initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
+                      animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: 'easeInOut' }}
-                      style={{ overflow: 'hidden' }}
+                      transition={{ duration: 0.25, ease: "easeInOut" }}
+                      style={{ overflow: "hidden" }}
                     >
                       {item.tools.map((tool: any) => {
                         const isSelected = tool.slug === currentSlug
@@ -108,7 +122,7 @@ function NavMainInner({ items }: { items: typeof tools }) {
                               }}
                               onClick={() => {
                                 if (tool.href) {
-                                  window.open(tool.href, '_blank')
+                                  window.open(tool.href, "_blank")
                                   return
                                 }
                                 router.navigate({ to: `/tool/${tool.slug}` })
@@ -129,7 +143,7 @@ function NavMainInner({ items }: { items: typeof tools }) {
                                 <IconComponent className="size-3.5 sm:size-4 mr-1.5 sm:mr-2 text-primary shrink-0" />
                               ) : (
                                 <div className="size-3.5 sm:size-4 mr-1.5 sm:mr-2 text-primary shrink-0">
-                                  {tool.name?.charAt(0).toUpperCase() || ''}
+                                  {tool.name?.charAt(0).toUpperCase() || ""}
                                 </div>
                               )}
                               <span className="truncate">{t(`tools.${tool.slug}`)}</span>

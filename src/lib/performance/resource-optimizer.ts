@@ -89,16 +89,13 @@ const DEPENDENCY_CONFIG = {
     mermaid: { size: '~800KB', alternatives: ['lightweight-charts'] },
     xlsx: { size: '~600KB', alternatives: ['papaparse'] },
     'gifuct-js': { size: '~50KB', alternatives: ['gif.js'] },
-    fflate: { size: '~30KB', alternatives: ['jszip'] },
     'pdf-lib': { size: '~200KB', alternatives: ['jspdf'] },
     // 补充常见可替换项
     moment: { size: '~200KB', alternatives: ['date-fns', 'dayjs'] },
   } as DependencyConfigs,
   // 可优化依赖
   optimizable: {
-    recharts: { size: '~300KB', treeshaking: true },
     motion: { size: '~200KB', treeshaking: true },
-    jszip: { size: '~150KB', alternatives: ['fflate'] },
   } as DependencyConfigs,
   // 轻量级依赖
   light: {

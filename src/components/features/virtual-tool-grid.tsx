@@ -1,10 +1,10 @@
-import React, { useMemo, useRef, useEffect } from 'react'
-import { useVirtualizer } from '@tanstack/react-virtual'
-import { motion } from 'motion/react'
-import { ToolCard } from '@/components/features'
-import { TFunction } from 'i18next'
-import { useRoutePrefetch } from '@/lib/routing'
-import type { Tool, ToolCategory } from '@/types/tool'
+import React, { useMemo, useRef, useEffect } from "react"
+import { useVirtualizer } from "@tanstack/react-virtual"
+import { motion } from "motion/react"
+import { ToolCard } from "@/components/features"
+import { TFunction } from "i18next"
+import { useRoutePrefetch } from "@/lib/routing"
+import type { Tool, ToolCategory } from "@/types/tool"
 
 interface VirtualToolGridProps {
   categories: ToolCategory[]
@@ -28,7 +28,7 @@ export const VirtualToolGrid: React.FC<VirtualToolGridProps> = ({
   showFavoriteButton = true,
   onToolClick,
   t,
-  className = '',
+  className = "",
   threshold = 50,
 }) => {
   const { prefetchOnHover } = useRoutePrefetch()
@@ -36,12 +36,12 @@ export const VirtualToolGrid: React.FC<VirtualToolGridProps> = ({
 
   // 扁平化所有工具，保留分类信息
   const flatItems = useMemo(() => {
-    const items: Array<{ type: 'category' | 'tool'; data: ToolCategory | Tool; categoryId?: string }> = []
+    const items: Array<{ type: "category" | "tool"; data: ToolCategory | Tool; categoryId?: string }> = []
 
     categories.forEach((category) => {
-      items.push({ type: 'category', data: category })
+      items.push({ type: "category", data: category })
       category.tools.forEach((tool) => {
-        items.push({ type: 'tool', data: tool, categoryId: category.id })
+        items.push({ type: "tool", data: tool, categoryId: category.id })
       })
     })
 
@@ -61,7 +61,7 @@ export const VirtualToolGrid: React.FC<VirtualToolGridProps> = ({
     getScrollElement: () => parentRef.current,
     estimateSize: (index) => {
       const item = flatItems[index]
-      if (item.type === 'category') {
+      if (item.type === "category") {
         return 80 // 分类标题高度
       }
       return 120 // 工具卡片高度（包含间距）
@@ -76,7 +76,7 @@ export const VirtualToolGrid: React.FC<VirtualToolGridProps> = ({
     const visibleRange = virtualizer.getVirtualItems()
     const visibleTools = visibleRange
       .map((virtualItem) => flatItems[virtualItem.index])
-      .filter((item) => item.type === 'tool')
+      .filter((item) => item.type === "tool")
       .map((item) => item.data as Tool)
       .map((tool) => tool.slug)
 
@@ -113,7 +113,11 @@ export const VirtualToolGrid: React.FC<VirtualToolGridProps> = ({
             transition={{ duration: 0.3, delay: toolIndex * 0.05 }}
             onMouseEnter={() => prefetchOnHover(tool.slug)}
           >
-            <ToolCard tool={tool} showFavoriteButton={showFavoriteButton} onClick={() => onToolClick(tool)} />
+            <ToolCard
+              tool={tool}
+              showFavoriteButton={showFavoriteButton}
+              onClick={() => onToolClick(tool)}
+            />
           </motion.div>
         ))}
       </div>
@@ -138,17 +142,17 @@ export const VirtualToolGrid: React.FC<VirtualToolGridProps> = ({
   const virtualItems = virtualizer.getVirtualItems()
 
   return (
-    <div ref={parentRef} className={`h-full overflow-auto ${className}`}>
+    <div ref={parentRef}>
       <div
         style={{
           height: `${virtualizer.getTotalSize()}px`,
-          width: '100%',
-          position: 'relative',
+          width: "100%",
+          position: "relative",
         }}
       >
         {virtualItems.map((virtualItem) => {
           const item = flatItems[virtualItem.index]
-          const isCategory = item.type === 'category'
+          const isCategory = item.type === "category"
           const category = isCategory ? (item.data as ToolCategory) : null
 
           // 收集同一分类下的所有工具
@@ -166,10 +170,10 @@ export const VirtualToolGrid: React.FC<VirtualToolGridProps> = ({
               data-index={virtualItem.index}
               ref={virtualizer.measureElement}
               style={{
-                position: 'absolute',
+                position: "absolute",
                 top: 0,
                 left: 0,
-                width: '100%',
+                width: "100%",
                 transform: `translateY(${virtualItem.start}px)`,
               }}
             >
