@@ -231,7 +231,7 @@ export const Route = createFileRoute("/")({
             <TabsList
               className="grid w-full grid-cols-5 h-auto p-1"
               role="tablist"
-              aria-label={t("tabs.navigation", "工具分类导航")}
+              aria-label={t("tabs.navigation")}
             >
               <TabsTrigger
                 value="all"
@@ -252,7 +252,7 @@ export const Route = createFileRoute("/")({
                 role="tab"
                 aria-selected={activeTab === "recent"}
                 aria-controls="tabpanel-recent"
-                aria-label={`${t("app.recent")} (${recentTools.length} ${t("tools.count")})`}
+                aria-label={`${t("app.recent")} (${recentTools.length} ${t("routes.index.tools-count")})`}
               >
                 <div className="flex items-center gap-1">
                   <Clock
@@ -262,7 +262,7 @@ export const Route = createFileRoute("/")({
                   {recentTools.length > 0 && (
                     <span
                       className="rounded-full bg-primary/20 text-primary px-1 py-0.5 text-xs font-medium min-w-[16px] h-4 flex items-center justify-center"
-                      aria-label={`${recentTools.length} ${t("tools.count", "个工具")}`}
+                      aria-label={`${recentTools.length} ${t("routes.index.tools-count")}`}
                     >
                       {recentTools.length}
                     </span>
@@ -276,7 +276,7 @@ export const Route = createFileRoute("/")({
                 role="tab"
                 aria-selected={activeTab === "favorites"}
                 aria-controls="tabpanel-favorites"
-                aria-label={`${t("app.favorites")} (${favorites.length} ${t("tools.count", "个工具")})`}
+                aria-label={`${t("app.favorites")} (${favorites.length} ${t("routes.index.tools-count")})`}
               >
                 <div className="flex items-center gap-1">
                   <Heart
@@ -286,7 +286,7 @@ export const Route = createFileRoute("/")({
                   {favorites.length > 0 && (
                     <span
                       className="rounded-full bg-primary/20 text-primary px-1 py-0.5 text-xs font-medium min-w-[16px] h-4 flex items-center justify-center"
-                      aria-label={`${favorites.length} ${t("tools.count", "个工具")}`}
+                      aria-label={`${favorites.length} ${t("routes.index.tools-count")}`}
                     >
                       {favorites.length}
                     </span>
@@ -303,15 +303,15 @@ export const Route = createFileRoute("/")({
                 aria-controls="tabpanel-search"
                 aria-label={
                   searchQuery
-                    ? `${t("search.results")} "${searchQuery}" (${filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)} ${t("tools.count", "个工具")})`
-                    : t("search.disabled", "搜索结果（需要输入搜索词）")
+                    ? `${t("search.results")} "${searchQuery}" (${filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)} ${t("routes.index.tools-count")})`
+                    : t("routes.index.search-disabled")
                 }
               >
                 <span className="text-xs sm:text-sm">{t("app.searchResults")}</span>
                 {searchQuery && (
                   <span
                     className="rounded-full bg-primary/20 text-primary px-1 py-0.5 text-xs font-medium min-w-[16px] h-4 flex items-center justify-center"
-                    aria-label={`${filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)} ${t("tools.count", "个工具")}`}
+                    aria-label={`${filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)} ${t("routes.index.tools-count")}`}
                   >
                     {filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)}
                   </span>
@@ -355,7 +355,7 @@ export const Route = createFileRoute("/")({
                     size="sm"
                     onClick={clearRecent}
                     className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                    aria-label={t("recent.clear.confirm", "清空最近使用的工具")}
+                    aria-label={t("routes.index.recent-clear-confirm")}
                   >
                     <Trash2
                       className="h-4 w-4"
@@ -388,7 +388,7 @@ export const Route = createFileRoute("/")({
             >
               <div className="mb-4">
                 <h2 className="text-xl font-semibold">
-                  {t("search.results.title", "搜索结果")}: "{searchQuery}"
+                  {t("routes.index.search-results-title")}: "{searchQuery}"
                 </h2>
               </div>
               {renderToolGrid(filteredTools)}

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
-import { perfBus } from '@/lib/performance'
-import { motion } from 'motion/react'
-import { Activity, Monitor, Zap, Smartphone, Wifi, WifiOff } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import React, { useState, useEffect } from "react"
+import { perfBus } from "@/lib/performance"
+import { motion } from "motion/react"
+import { Activity, Monitor, Zap, Smartphone, Wifi, WifiOff } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useTranslation } from "react-i18next"
 
 interface PerformanceMetrics {
   renderTime: number
@@ -36,8 +37,9 @@ interface PerformanceMonitorProps {
 export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
   isVisible = false,
   onToggle,
-  className = '',
+  className = "",
 }) => {
+  const { t } = useTranslation()
   const [metrics, setMetrics] = useState<PerformanceMetrics[]>([])
   const [networkInfo, setNetworkInfo] = useState<NetworkInfo | null>(null)
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo | null>(null)
@@ -47,45 +49,45 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
   // 订阅 perf 事件（TTI/工具交互/Worker 任务/WebVitals/长任务）
   useEffect(() => {
     if (!isRecording) return
-    const offTTI = perfBus.on('tti', ({ ms }) => {
+    const offTTI = perfBus.on("tti", ({ ms }) => {
       setMetrics((prev) => [
-        { renderTime: ms, memoryUsage: 0, itemCount: 0, strategy: 'TTI', timestamp: Date.now() },
+        { renderTime: ms, memoryUsage: 0, itemCount: 0, strategy: "TTI", timestamp: Date.now() },
         ...prev,
       ])
     })
-    const offTool = perfBus.on('tool_interactive', ({ slug, ms }) => {
+    const offTool = perfBus.on("tool_interactive", ({ slug, ms }) => {
       setMetrics((prev) => [
         { renderTime: ms, memoryUsage: 0, itemCount: 0, strategy: `tool:${slug}`, timestamp: Date.now() },
         ...prev,
       ])
     })
-    const offWorker = perfBus.on('worker_task', ({ type, ms }) => {
+    const offWorker = perfBus.on("worker_task", ({ type, ms }) => {
       setMetrics((prev) => [
         { renderTime: ms, memoryUsage: 0, itemCount: 0, strategy: `worker:${type}`, timestamp: Date.now() },
         ...prev,
       ])
     })
-    const offLCP = perfBus.on('lcp', ({ value }) => {
+    const offLCP = perfBus.on("lcp", ({ value }) => {
       setMetrics((prev) => [
-        { renderTime: value, memoryUsage: 0, itemCount: 0, strategy: 'LCP', timestamp: Date.now() },
+        { renderTime: value, memoryUsage: 0, itemCount: 0, strategy: "LCP", timestamp: Date.now() },
         ...prev,
       ])
     })
-    const offCLS = perfBus.on('cls', ({ value }) => {
+    const offCLS = perfBus.on("cls", ({ value }) => {
       setMetrics((prev) => [
-        { renderTime: value, memoryUsage: 0, itemCount: 0, strategy: 'CLS', timestamp: Date.now() },
+        { renderTime: value, memoryUsage: 0, itemCount: 0, strategy: "CLS", timestamp: Date.now() },
         ...prev,
       ])
     })
-    const offINP = perfBus.on('inp', ({ value }) => {
+    const offINP = perfBus.on("inp", ({ value }) => {
       setMetrics((prev) => [
-        { renderTime: value, memoryUsage: 0, itemCount: 0, strategy: 'INP', timestamp: Date.now() },
+        { renderTime: value, memoryUsage: 0, itemCount: 0, strategy: "INP", timestamp: Date.now() },
         ...prev,
       ])
     })
-    const offLong = perfBus.on('longtask', ({ duration }) => {
+    const offLong = perfBus.on("longtask", ({ duration }) => {
       setMetrics((prev) => [
-        { renderTime: duration, memoryUsage: 0, itemCount: 0, strategy: 'longtask', timestamp: Date.now() },
+        { renderTime: duration, memoryUsage: 0, itemCount: 0, strategy: "longtask", timestamp: Date.now() },
         ...prev,
       ])
     })
@@ -102,7 +104,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
 
   // 获取网络信息
   useEffect(() => {
-    if (typeof navigator === 'undefined') return
+    if (typeof navigator === "undefined") return
 
     const updateNetworkInfo = () => {
       const connection =
@@ -110,7 +112,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
 
       if (connection) {
         setNetworkInfo({
-          effectiveType: connection.effectiveType || 'unknown',
+          effectiveType: connection.effectiveType || "unknown",
           downlink: connection.downlink || 0,
           rtt: connection.rtt || 0,
           saveData: connection.saveData || false,
@@ -123,16 +125,16 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
     // 监听网络变化
     const connection = (navigator as any).connection
     if (connection && connection.addEventListener) {
-      connection.addEventListener('change', updateNetworkInfo)
+      connection.addEventListener("change", updateNetworkInfo)
       return () => {
-        connection.removeEventListener('change', updateNetworkInfo)
+        connection.removeEventListener("change", updateNetworkInfo)
       }
     }
   }, [])
 
   // 获取设备信息
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof window === "undefined") return
 
     const width = window.innerWidth
     const userAgent = navigator.userAgent
@@ -141,7 +143,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
       isMobile: width < 768 || /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent),
       isTablet: (width >= 768 && width < 1024) || /ipad|android(?!.*mobile)/i.test(userAgent),
       isDesktop: width >= 1024,
-      userAgent: userAgent.substring(0, 50) + '...',
+      userAgent: userAgent.substring(0, 50) + "...",
     })
   }, [])
 
@@ -192,7 +194,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
         variant="outline"
         size="sm"
         className={`fixed bottom-4 right-4 z-50 ${className}`}
-        aria-label="打开性能监控"
+        aria-label={t("performanceMonitor.open-monitor")}
       >
         <Monitor className="h-4 w-4" />
       </Button>
@@ -211,18 +213,23 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Activity className="h-4 w-4" />
-              性能监控
+              {t("performanceMonitor.title")}
             </CardTitle>
             <div className="flex items-center gap-2">
               <Button
                 onClick={() => setIsRecording(!isRecording)}
-                variant={isRecording ? 'destructive' : 'outline'}
+                variant={isRecording ? "destructive" : "outline"}
                 size="sm"
                 className="h-6 px-2 text-xs"
               >
-                {isRecording ? '停止' : '开始'}
+                {isRecording ? t("common.stop") : t("common.start")}
               </Button>
-              <Button onClick={onToggle} variant="ghost" size="sm" className="h-6 w-6 p-0">
+              <Button
+                onClick={onToggle}
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0"
+              >
                 ×
               </Button>
             </div>
@@ -235,12 +242,19 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
             <div>
               <h4 className="font-medium mb-2 flex items-center gap-1">
                 <Smartphone className="h-3 w-3" />
-                设备信息
+                {t("performanceMonitor.device-info")}
               </h4>
               <div className="space-y-1 text-muted-foreground">
-                <div>类型: {deviceInfo.isMobile ? '移动' : deviceInfo.isTablet ? '平板' : '桌面'}</div>
                 <div>
-                  屏幕: {window.innerWidth}×{window.innerHeight}
+                  {t("common.type")}:{" "}
+                  {deviceInfo.isMobile
+                    ? t("performanceMonitor.device-type-mobile")
+                    : deviceInfo.isTablet
+                      ? t("performanceMonitor.device-type-tablet")
+                      : t("performanceMonitor.device-type-desktop")}
+                </div>
+                <div>
+                  {t("performanceMonitor.screen-size")}: {window.innerWidth}×{window.innerHeight}
                 </div>
                 <div className="truncate">UA: {deviceInfo.userAgent}</div>
               </div>
@@ -252,13 +266,18 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
             <div>
               <h4 className="font-medium mb-2 flex items-center gap-1">
                 {networkInfo.saveData ? <WifiOff className="h-3 w-3" /> : <Wifi className="h-3 w-3" />}
-                网络状态
+                {t("performanceMonitor.network-status")}
               </h4>
               <div className="space-y-1 text-muted-foreground">
                 <div>类型: {networkInfo.effectiveType}</div>
                 <div>下行: {networkInfo.downlink} Mbps</div>
                 <div>延迟: {networkInfo.rtt} ms</div>
-                <div>省流: {networkInfo.saveData ? '开启' : '关闭'}</div>
+                <div>
+                  {t("performanceMonitor.data-saver")}:{" "}
+                  {networkInfo.saveData
+                    ? t("performanceMonitor.data-saver-on")
+                    : t("performanceMonitor.data-saver-off")}
+                </div>
               </div>
             </div>
           )}
@@ -268,13 +287,21 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
             <div>
               <h4 className="font-medium mb-2 flex items-center gap-1">
                 <Zap className="h-3 w-3" />
-                性能统计
+                {t("performanceMonitor.performance-stats")}
               </h4>
               <div className="space-y-1 text-muted-foreground">
-                <div>平均渲染: {stats.avgRenderTime.toFixed(2)}ms</div>
-                <div>最大渲染: {stats.maxRenderTime.toFixed(2)}ms</div>
-                <div>平均内存: {(stats.avgMemoryUsage / 1024 / 1024).toFixed(2)}MB</div>
-                <div>记录数: {stats.totalRecords}</div>
+                <div>
+                  {t("performanceMonitor.avg-render")}: {stats.avgRenderTime.toFixed(2)}ms
+                </div>
+                <div>
+                  {t("performanceMonitor.max-render")}: {stats.maxRenderTime.toFixed(2)}ms
+                </div>
+                <div>
+                  {t("performanceMonitor.avg-memory")}: {(stats.avgMemoryUsage / 1024 / 1024).toFixed(2)}MB
+                </div>
+                <div>
+                  {t("performanceMonitor.record-count")}: {stats.totalRecords}
+                </div>
               </div>
             </div>
           )}
@@ -283,9 +310,14 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
           {metrics.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium">最近记录</h4>
-                <Button onClick={clearMetrics} variant="ghost" size="sm" className="h-5 px-2 text-xs">
-                  清除
+                <h4 className="font-medium">{t("performanceMonitor.recent-records")}</h4>
+                <Button
+                  onClick={clearMetrics}
+                  variant="ghost"
+                  size="sm"
+                  className="h-5 px-2 text-xs"
+                >
+                  {t("performanceMonitor.clear-records")}
                 </Button>
               </div>
               <div className="space-y-1 max-h-20 overflow-auto">
@@ -293,7 +325,10 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
                   .slice(-5)
                   .reverse()
                   .map((metric) => (
-                    <div key={metric.timestamp} className="text-muted-foreground text-xs">
+                    <div
+                      key={metric.timestamp}
+                      className="text-muted-foreground text-xs"
+                    >
                       {metric.strategy}: {metric.renderTime.toFixed(1)}ms |{metric.itemCount}项 |
                       {(metric.memoryUsage / 1024 / 1024).toFixed(1)}MB
                     </div>
@@ -304,9 +339,9 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
 
           {/* 使用说明 */}
           <div className="text-muted-foreground text-xs border-t pt-2">
-            <div>• 点击"开始"订阅 TTI/工具交互/Worker 耗时</div>
-            <div>• 记录渲染时间和内存使用</div>
-            <div>• 仅在开发环境显示</div>
+            <div>• {t("performanceMonitor.instruction-1")}</div>
+            <div>• {t("performanceMonitor.instruction-2")}</div>
+            <div>• {t("performanceMonitor.instruction-3")}</div>
           </div>
         </CardContent>
       </Card>
@@ -322,7 +357,7 @@ export const recordPerformanceMetrics = (
   strategy: string
 ) => {
   // 这个函数可以被其他组件调用来记录性能指标
-  if (typeof window !== 'undefined' && (window as any).__performanceMonitor) {
+  if (typeof window !== "undefined" && (window as any).__performanceMonitor) {
     ;(window as any).__performanceMonitor.recordMetrics({
       renderTime,
       memoryUsage,

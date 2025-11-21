@@ -600,15 +600,15 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {step === "confirm" && t("发现新版本")}
-              {step === "downloading" && t("正在下载更新")}
-              {step === "finished" && t("下载完成")}
+              {step === "confirm" && t("settingsDialog.new-version-found")}
+              {step === "downloading" && t("settingsDialog.downloading-update")}
+              {step === "finished" && t("settingsDialog.download-complete")}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {step === "confirm" &&
-                `${t("检测到新版本")} ${updateInfo?.version}，${t("发布日期")}：${updateInfo?.date}。\n${t("更新内容")}：${updateInfo?.body}`}
-              {step === "downloading" && t("正在下载更新包，请稍候...")}
-              {step === "finished" && t("更新包已下载完成，点击下方按钮重启应用。")}
+                `${t("settingsDialog.new-version-detected")} ${updateInfo?.version}，${t("settingsDialog.release-date")}：${updateInfo?.date}。\n${t("settingsDialog.update-content")}：${updateInfo?.body}`}
+              {step === "downloading" && t("settingsDialog.downloading-package")}
+              {step === "finished" && t("settingsDialog.update-package-downloaded")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           {step === "confirm" && (
@@ -617,9 +617,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 onClick={() => setDialogOpen(false)}
                 variant="secondary"
               >
-                {t("取消")}
+                {t("common.cancel")}
               </Button>
-              <Button onClick={handleUpdate}>{t("更新")}</Button>
+              <Button onClick={handleUpdate}>{t("update")}</Button>
             </AlertDialogFooter>
           )}
           {step === "downloading" && (
@@ -635,7 +635,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           )}
           {step === "finished" && (
             <AlertDialogFooter>
-              <Button onClick={handleRelaunch}>{t("重启应用")}</Button>
+              <Button onClick={handleRelaunch}>{t("restartApp")}</Button>
             </AlertDialogFooter>
           )}
         </AlertDialogContent>
@@ -648,11 +648,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("检查更新")}</AlertDialogTitle>
-            <AlertDialogDescription>{t("没有检测到新版本")}</AlertDialogDescription>
+            <AlertDialogTitle>{t("settingsDialog.check-update")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("settingsDialog.no-new-version")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <Button onClick={() => setNoUpdateDialog(false)}>{t("取消")}</Button>
+            <Button onClick={() => setNoUpdateDialog(false)}>{t("common.cancel")}</Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -664,8 +664,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("导入数据")}</AlertDialogTitle>
-            <AlertDialogDescription>{t("请确认要导入的数据内容，此操作将覆盖当前所有数据")}</AlertDialogDescription>
+            <AlertDialogTitle>{t("settingsDialog.import-data")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("settingsDialog.import-data-confirm")}</AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-4">
             <ScrollArea className="h-32 w-full border rounded p-2">
@@ -678,13 +678,13 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               onClick={() => setImportDialog(false)}
               variant="outline"
             >
-              {t("取消")}
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={handleImportData}
               disabled={!importData}
             >
-              {t("确认导入")}
+              {t("settingsDialog.confirm-import")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -697,18 +697,16 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("确认清空所有数据")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("此操作将永久删除所有历史记录、工具配置、偏好设置等数据，且无法恢复。确定要继续吗？")}
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("settingsDialog.confirm-clear-all-data")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("settingsDialog.clear-all-data-warning")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t("取消")}</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleClearAllData}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {t("确认清空")}
+              {t("settingsDialog.confirm-clear")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
