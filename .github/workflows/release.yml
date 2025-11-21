@@ -15,6 +15,7 @@ on:
   push:
     tags:
       - "v*"
+      - feature-electron
 
 jobs:
   # 代码质量检查和测试
