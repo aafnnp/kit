@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import { useRouter } from "@tanstack/react-router"
 import { useFavorites, useRecentTools } from "@/lib/storage"
 import { getDesktopApi } from "@/lib/utils"
+import { logger } from "@/lib/utils/logger"
 import { preloader } from "@/lib/data"
 import { loadIconComponent, getLoadedIconComponent } from "@/lib/data"
 import type { Tool } from "@/types/tool"
@@ -16,7 +17,7 @@ interface ToolCardProps {
   onClick?: () => void
 }
 
-export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardProps) {
+function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCardProps) {
   const { t } = useTranslation()
   const router = useRouter()
   const { isFavorite, toggleFavorite } = useFavorites()
@@ -49,7 +50,7 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
     if (tool.href) {
       const desktopApi = getDesktopApi()
       if (desktopApi) {
-        desktopApi.openExternal(tool.href).catch(console.error)
+        desktopApi.openExternal(tool.href).catch((err) => logger.error(err))
       } else {
         window.open(tool.href, "_blank")
       }
@@ -152,3 +153,13 @@ export function ToolCard({ tool, showFavoriteButton = true, onClick }: ToolCardP
     </Card>
   )
 }
+
+// Memoized component to prevent unnecessary re-renders
+export const ToolCard = React.memo(ToolCardComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.tool.slug === nextProps.tool.slug &&
+    prevProps.tool.name === nextProps.tool.name &&
+    prevProps.tool.icon === nextProps.tool.icon &&
+    prevProps.showFavoriteButton === nextProps.showFavoriteButton
+  )
+})

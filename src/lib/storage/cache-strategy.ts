@@ -1,9 +1,11 @@
 /**
  * 缓存策略管理器 - 实现高级缓存策略和内存优化
  */
-import React from 'react'
-import { cache } from './cache'
-import i18n from '@/locales'
+import React from "react"
+import { compress, decompress } from "fflate"
+import { cache } from "./cache"
+import { logger } from "@/lib/utils/logger"
+import i18n from "@/locales"
 
 interface CacheConfig {
   maxMemoryUsage: number // MB
@@ -84,14 +86,14 @@ class CacheStrategyManager {
     if (!this.config.persistentCacheEnabled) return
 
     try {
-      const stored = localStorage.getItem('kit_persistent_cache')
+      const stored = localStorage.getItem("kit_persistent_cache")
       if (stored) {
         const data = JSON.parse(stored)
         this.persistentCache = new Map(data.entries || [])
         this.stats.diskCacheSize = new Blob([stored]).size
       }
     } catch (error) {
-      console.warn('Failed to load persistent cache:', error)
+      logger.warn("Failed to load persistent cache:", error)
     }
   }
 
@@ -115,44 +117,52 @@ class CacheStrategyManager {
         return
       }
 
-      localStorage.setItem('kit_persistent_cache', serialized)
+      localStorage.setItem("kit_persistent_cache", serialized)
       this.stats.diskCacheSize = size
     } catch (error) {
-      console.warn('Failed to save persistent cache:', error)
+      logger.warn("Failed to save persistent cache:", error)
     }
   }
 
   /**
-   * 压缩数据
+   * 压缩数据 - 使用 fflate 进行真正的压缩
    */
   private compressData(data: string): string {
     if (!this.config.compressionEnabled) return data
 
     try {
-      // 简单的压缩算法（实际项目中可以使用更好的压缩库）
-      const compressed = btoa(data)
-      const originalSize = data.length
-      const compressedSize = compressed.length
+      const encoder = new TextEncoder()
+      const uint8Array = encoder.encode(data)
+      const compressed = compress(uint8Array, { level: 6 })
 
+      // Convert to base64 for storage
+      const base64 = btoa(String.fromCharCode(...compressed))
+
+      const originalSize = data.length
+      const compressedSize = base64.length
       this.stats.compressionRatio = originalSize > 0 ? compressedSize / originalSize : 1
 
-      return compressed
+      return base64
     } catch (error) {
-      console.warn('Compression failed:', error)
+      logger.warn("Compression failed:", error)
       return data
     }
   }
 
   /**
-   * 解压数据
+   * 解压数据 - 使用 fflate 进行真正的解压
    */
   private decompressData(data: string): string {
     if (!this.config.compressionEnabled) return data
 
     try {
-      return atob(data)
+      // Convert from base64 to Uint8Array
+      const uint8Array = Uint8Array.from(atob(data), (c) => c.charCodeAt(0))
+      const decompressed = decompress(uint8Array)
+      const decoder = new TextDecoder()
+      return decoder.decode(decompressed)
     } catch (error) {
-      console.warn('Decompression failed:', error)
+      logger.warn("Decompression failed:", error)
       return data
     }
   }
@@ -170,7 +180,7 @@ class CacheStrategyManager {
     }
 
     // 获取性能内存信息（如果支持）
-    if ('memory' in performance) {
+    if ("memory" in performance) {
       const memory = (performance as any).memory
       stats.heapUsed = memory.usedJSHeapSize / 1024 / 1024 // MB
       stats.heapTotal = memory.totalJSHeapSize / 1024 / 1024 // MB
@@ -218,7 +228,7 @@ class CacheStrategyManager {
     cache.setMaxSize(targetSize)
 
     // 强制垃圾回收（如果支持）
-    if ('gc' in window && typeof (window as any).gc === 'function') {
+    if ("gc" in window && typeof (window as any).gc === "function") {
       ;(window as any).gc()
     }
   }
@@ -280,7 +290,7 @@ class CacheStrategyManager {
       this.stats.persistentCacheHits++
       return item.data
     } catch (error) {
-      console.warn('Failed to parse persistent cache item:', error)
+      logger.warn("Failed to parse persistent cache item:", error)
       this.persistentCache.delete(key)
       this.stats.persistentCacheMisses++
       return null
@@ -307,9 +317,9 @@ class CacheStrategyManager {
     this.compressionCache.clear()
 
     try {
-      localStorage.removeItem('kit_persistent_cache')
+      localStorage.removeItem("kit_persistent_cache")
     } catch (error) {
-      console.warn('Failed to clear persistent cache:', error)
+      logger.warn("Failed to clear persistent cache:", error)
     }
 
     this.stats = {
@@ -348,9 +358,9 @@ class CacheStrategyManager {
     if (newConfig.persistentCacheEnabled === false) {
       this.persistentCache.clear()
       try {
-        localStorage.removeItem('kit_persistent_cache')
+        localStorage.removeItem("kit_persistent_cache")
       } catch (error) {
-        console.warn('Failed to clear persistent cache:', error)
+        logger.warn("Failed to clear persistent cache:", error)
       }
     }
   }
@@ -372,28 +382,28 @@ class CacheStrategyManager {
 
     // 内存使用建议
     if (memoryStats.usedMemory > this.config.maxMemoryUsage * 0.8) {
-      suggestions.push(i18n.t('settings.cacheStrategy.optimizeSuggestions.lowMemoryUsage'))
+      suggestions.push(i18n.t("settings.cacheStrategy.optimizeSuggestions.lowMemoryUsage"))
     }
 
     // 缓存命中率建议
     const hitRate = (cacheStats.hits / (cacheStats.hits + cacheStats.misses)) * 100
     if (hitRate < 50) {
-      suggestions.push(i18n.t('settings.cacheStrategy.optimizeSuggestions.lowCacheHitRate'))
+      suggestions.push(i18n.t("settings.cacheStrategy.optimizeSuggestions.lowCacheHitRate"))
     }
 
     // 磁盘缓存建议
     if (this.stats.diskCacheSize > this.config.maxDiskUsage * 0.8) {
-      suggestions.push(i18n.t('settings.cacheStrategy.optimizeSuggestions.highDiskUsage'))
+      suggestions.push(i18n.t("settings.cacheStrategy.optimizeSuggestions.highDiskUsage"))
     }
 
     // 压缩建议
     if (!this.config.compressionEnabled && this.stats.diskCacheSize > 50) {
-      suggestions.push(i18n.t('settings.cacheStrategy.optimizeSuggestions.enableCompression'))
+      suggestions.push(i18n.t("settings.cacheStrategy.optimizeSuggestions.enableCompression"))
     }
 
     // 自动清理建议
     if (this.config.autoCleanupInterval > 60) {
-      suggestions.push(i18n.t('settings.cacheStrategy.optimizeSuggestions.shortAutoClearInterval'))
+      suggestions.push(i18n.t("settings.cacheStrategy.optimizeSuggestions.shortAutoClearInterval"))
     }
 
     return suggestions
@@ -442,7 +452,7 @@ export function memoryOptimized<T extends (...args: any[]) => any>(
 
         // 如果内存使用超过限制，触发清理
         if (memoryUsed > maxMemoryUsage) {
-          console.warn(`Method ${propertyKey} used ${memoryUsed}MB memory, triggering cleanup`)
+          logger.warn(`Method ${propertyKey} used ${memoryUsed}MB memory, triggering cleanup`)
           await cacheStrategy.clearAll()
         }
 
@@ -486,7 +496,7 @@ export function usePersistentCache<T>(
       await cacheStrategy.setPersistent(key, newData, ttl)
       setData(newData)
     } catch (error) {
-      console.error('Failed to load persistent cache:', error)
+      logger.error("Failed to load persistent cache:", error)
     } finally {
       setLoading(false)
     }

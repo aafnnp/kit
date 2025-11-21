@@ -58,23 +58,52 @@ export default defineConfig(() => ({
             ]
           : [],
       output: {
-        // 手动分割代码块
-        manualChunks: {
-          // 将React相关库分离到单独的chunk
-          "react-vendor": ["react", "react-dom"],
-          // 将路由相关库分离
-          "router-vendor": ["@tanstack/react-router"],
-          // 将UI组件库分离
-          "ui-vendor": ["lucide-react", "motion"],
-          // 将工具库分离
-          "utils-vendor": ["clsx", "tailwind-merge"],
-          // 将国际化库分离
-          "i18n-vendor": ["react-i18next", "i18next"],
-          // 重型库独立分包，避免首屏拖拽
-          "mermaid-chunk": ["mermaid"],
-          "xlsx-chunk": ["xlsx"],
-          // 注意：FFmpeg 相关库已从构建中排除，改为运行时动态加载
-          "pdf-chunk": ["pdf-lib"],
+        // 手动分割代码块 - 优化版本
+        manualChunks: (id) => {
+          // 将 node_modules 中的依赖分离
+          if (id.includes("node_modules")) {
+            // React 核心
+            if (id.includes("react") || id.includes("react-dom")) {
+              return "react-vendor"
+            }
+            // UI 库
+            if (id.includes("@radix-ui") || id.includes("lucide-react") || id.includes("motion")) {
+              return "ui-vendor"
+            }
+            // 路由和状态管理
+            if (id.includes("@tanstack")) {
+              return "tanstack-vendor"
+            }
+            // 国际化库
+            if (id.includes("react-i18next") || id.includes("i18next")) {
+              return "i18n-vendor"
+            }
+            // 工具库
+            if (id.includes("clsx") || id.includes("tailwind-merge")) {
+              return "utils-vendor"
+            }
+            // 重型库独立分包，避免首屏拖拽
+            if (id.includes("mermaid")) {
+              return "mermaid-chunk"
+            }
+            if (id.includes("xlsx")) {
+              return "xlsx-chunk"
+            }
+            if (id.includes("pdf-lib")) {
+              return "pdf-chunk"
+            }
+            // 其他第三方库
+            return "vendor"
+          }
+
+          // 工具组件按分类分包
+          if (id.includes("/components/tools/")) {
+            const toolName = id.split("/components/tools/")[1]?.split("/")[0]
+            if (toolName) {
+              // 可以根据工具类型进一步分组
+              return `tool-${toolName}`
+            }
+          }
         },
         // 优化chunk文件名
         chunkFileNames: (chunkInfo) => {

@@ -4,6 +4,7 @@ import { motion } from "motion/react"
 import { ToolCard } from "@/components/features"
 import { TFunction } from "i18next"
 import { useRoutePrefetch } from "@/lib/routing"
+import { debounce } from "@/lib/utils"
 import type { Tool, ToolCategory } from "@/types/tool"
 
 interface VirtualToolGridProps {
@@ -69,22 +70,37 @@ export const VirtualToolGrid: React.FC<VirtualToolGridProps> = ({
     overscan: 5, // 预渲染额外的项目
   })
 
-  // 预取可见区域的工具
-  useEffect(() => {
-    if (!useVirtual) return
+  // 获取路由预取函数
+  const { prefetchVisible } = useRoutePrefetch()
 
+  // 创建防抖的预取函数
+  const prefetchDebounced = useMemo(
+    () =>
+      debounce((toolSlugs: string[]) => {
+        if (toolSlugs.length > 0) {
+          prefetchVisible(toolSlugs)
+        }
+      }, 300),
+    [prefetchVisible]
+  )
+
+  // 预取可见区域的工具 - 优化版本，使用防抖和稳定的依赖
+  const visibleTools = useMemo(() => {
+    if (!useVirtual) return []
     const visibleRange = virtualizer.getVirtualItems()
-    const visibleTools = visibleRange
+    return visibleRange
       .map((virtualItem) => flatItems[virtualItem.index])
       .filter((item) => item.type === "tool")
       .map((item) => item.data as Tool)
       .map((tool) => tool.slug)
+  }, [virtualizer.getVirtualItems(), useVirtual, flatItems])
 
-    if (visibleTools.length > 0) {
-      const { prefetchVisible } = useRoutePrefetch()
-      prefetchVisible(visibleTools)
-    }
-  }, [virtualizer.getVirtualItems(), useVirtual, flatItems, virtualizer])
+  useEffect(() => {
+    if (!useVirtual || visibleTools.length === 0) return
+    prefetchDebounced(visibleTools)
+    // 使用稳定的依赖：只依赖长度而不是整个数组
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visibleTools.length, useVirtual, prefetchDebounced])
 
   // 渲染分类标题
   const renderCategoryHeader = (category: ToolCategory, index: number) => {
