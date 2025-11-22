@@ -15,7 +15,7 @@ import { resourceOptimizer } from "@/lib/performance"
 import { useRoutePrefetch } from "@/lib/routing"
 import { isDesktopApp } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
-import type { Tool, ToolCategory } from "@/types/tool"
+import type { Tool, ToolCategory } from "@/schemas/tool.schema"
 
 export const Route = createFileRoute("/")({
   component: () => {

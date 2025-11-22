@@ -1,4 +1,4 @@
-import type { ToolsData } from '@/types/tool'
+import type { ToolsData } from '@/schemas/tool.schema'
 const data: ToolsData = [
   {
     id: 'text-processing',

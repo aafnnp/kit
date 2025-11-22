@@ -24,7 +24,12 @@ import {
   Target,
 } from "lucide-react"
 import { nanoid } from "nanoid"
-import type { MarkdownFile, MarkdownStatistics, PreviewSettings, ExportOptions } from "@/types/markdown-preview"
+import type {
+  MarkdownFile,
+  MarkdownStatistics,
+  PreviewSettings,
+  ExportOptions,
+} from "@/schemas/markdown-preview.schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 
@@ -1123,7 +1128,7 @@ const MarkdownPreviewCore = () => {
                         className="border rounded-lg p-4"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
 
@@ -1163,7 +1168,7 @@ const MarkdownPreviewCore = () => {
                             </div>
                           </div>
 
-                          <div className="flex-shrink-0 flex items-center gap-2">
+                          <div className="shrink-0 flex items-center gap-2">
                             {file.status === "completed" && file.htmlContent && (
                               <>
                                 <Button

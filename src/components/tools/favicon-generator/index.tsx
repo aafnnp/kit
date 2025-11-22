@@ -38,7 +38,7 @@ import type {
   FaviconType,
   FaviconFormat,
   FaviconSize,
-} from "@/types/favicon-generator"
+} from "@/schemas/favicon-generator.schema"
 import { formatFileSize } from "@/lib/utils"
 // Utility functions
 
@@ -1374,7 +1374,7 @@ const FaviconGeneratorCore = () => {
                         className="border rounded-lg p-4"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             {file.content ? (
                               <img
                                 src={file.content}
@@ -1402,7 +1402,7 @@ const FaviconGeneratorCore = () => {
                             )}
                             {file.error && <div className="text-red-600 text-sm">Error: {file.error}</div>}
                           </div>
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <Button
                               size="sm"
                               variant="ghost"

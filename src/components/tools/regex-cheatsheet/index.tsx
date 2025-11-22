@@ -33,7 +33,7 @@ import type {
   RegexCategory,
   RegexCheatsheet,
   ExportFormat,
-} from "@/types/regex-cheatsheet"
+} from "@/schemas/regex-cheatsheet.schema"
 // Utility functions
 
 // Regex Categories

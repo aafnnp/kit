@@ -31,7 +31,13 @@ import {
   RotateCcw,
 } from "lucide-react"
 import { nanoid } from "nanoid"
-import type { ImageFile, ConversionSettings, FormatInfo, ConversionStats, HistoryEntry } from "@/types/image-convert"
+import type {
+  ImageFile,
+  ConversionSettings,
+  FormatInfo,
+  ConversionStats,
+  HistoryEntry,
+} from "@/schemas/image-convert.schema"
 import { formatFileSize } from "@/lib/utils"
 // Enhanced Types
 

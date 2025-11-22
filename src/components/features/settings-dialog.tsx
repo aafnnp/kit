@@ -25,14 +25,13 @@ import { usePersistence } from "@/lib/storage"
 import { Download, Upload, Trash2, History, Settings2, Database, Zap, X } from "lucide-react"
 import { ResourceOptimization } from "@/components/monitoring"
 import { CacheStrategyManager } from "@/components/monitoring"
-import type { SettingsStep, UpdateInfo } from "@/types/settings"
+import type { SettingsStep, UpdateInfo } from "@/schemas/settings.schema"
 import { version } from "../../../package.json"
 import { isDesktopApp, getDesktopApi } from "@/lib/utils"
+import { type SettingsDialogProps } from "@/components/features/schemas"
 
-interface SettingsDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}
+// Re-export type for backward compatibility
+export type { SettingsDialogProps }
 
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { t, i18n } = useTranslation()
@@ -73,7 +72,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             date: update.date,
             body: update.body,
             downloadAndInstall: async (cb: (event: any) => void) => {
-              await desktopApi.updater.downloadAndInstall(cb)
+              if (desktopApi?.updater) {
+                await desktopApi.updater.downloadAndInstall(cb)
+              }
             },
           })
           setStep("confirm")

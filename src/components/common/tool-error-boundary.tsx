@@ -5,18 +5,17 @@ import { AlertCircle, RefreshCw, Info, Lightbulb, Copy, CheckCircle2 } from "luc
 import { toast } from "sonner"
 import { errorHandler, ErrorSeverity } from "@/lib/utils/error-handler"
 import { logger } from "@/lib/data/logger"
+import {
+  type ToolErrorBoundaryProps,
+  type ToolErrorBoundaryState as ToolErrorBoundaryStateType,
+} from "@/components/common/schemas"
 
-interface ToolErrorBoundaryProps {
-  toolName: string
-  children: React.ReactNode
-}
+// Re-export props type for backward compatibility
+export type { ToolErrorBoundaryProps }
 
-interface ToolErrorBoundaryState {
-  hasError: boolean
-  error?: Error
+// ToolErrorBoundaryState interface (extends zod inferred type with React.ErrorInfo)
+export interface ToolErrorBoundaryState extends ToolErrorBoundaryStateType {
   errorInfo?: React.ErrorInfo
-  recoverySuggestions?: string[]
-  errorSeverity?: ErrorSeverity
 }
 
 export class ToolErrorBoundary extends React.Component<ToolErrorBoundaryProps, ToolErrorBoundaryState> {

@@ -33,7 +33,13 @@ import {
   Crop,
 } from "lucide-react"
 import { nanoid } from "nanoid"
-import type { ImageFile, ResizeSettings, PresetDimension, ResizeStats, HistoryEntry } from "@/types/image-resize"
+import type {
+  ImageFile,
+  ResizeSettings,
+  PresetDimension,
+  ResizeStats,
+  HistoryEntry,
+} from "@/schemas/image-resize.schema"
 import { formatFileSize } from "@/lib/utils"
 // Enhanced Types
 

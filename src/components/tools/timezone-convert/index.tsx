@@ -38,7 +38,7 @@ import type {
   DateTimeValidation,
   DateFormat,
   ExportFormat,
-} from "@/types/timezone-convert"
+} from "@/schemas/timezone-convert.schema"
 
 // Enhanced Types
 

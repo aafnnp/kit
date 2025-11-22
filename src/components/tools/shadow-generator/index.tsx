@@ -36,7 +36,7 @@ import type {
   ShadowTemplate,
   ShadowType,
   ExportFormat,
-} from "@/types/shadow-generator"
+} from "@/schemas/shadow-generator.schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 
@@ -1316,7 +1316,7 @@ const ShadowGeneratorCore = () => {
                             )}
                             {file.error && <div className="text-red-600 text-sm">Error: {file.error}</div>}
                           </div>
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <Button
                               size="sm"
                               variant="ghost"

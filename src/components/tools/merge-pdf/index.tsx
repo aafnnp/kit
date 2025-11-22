@@ -33,7 +33,7 @@ import type {
   ProcessingSettings,
   PDFTemplate,
   PDFValidation,
-} from "@/types/merge-pdf"
+} from "@/schemas/merge-pdf.schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions

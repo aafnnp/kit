@@ -35,7 +35,7 @@ import type {
   SvgTemplate,
   OptimizationLevel,
   ExportFormat,
-} from "@/types/svg-minify"
+} from "@/schemas/svg-minify.schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 
@@ -1356,7 +1356,7 @@ const SvgMinifyCore = () => {
                         className="border rounded-lg p-4"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <FileCode className="h-8 w-8 text-muted-foreground" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -1376,7 +1376,7 @@ const SvgMinifyCore = () => {
                             )}
                             {file.error && <div className="text-red-600 text-sm">Error: {file.error}</div>}
                           </div>
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <Button
                               size="sm"
                               variant="ghost"

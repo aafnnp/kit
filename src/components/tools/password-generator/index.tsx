@@ -37,7 +37,7 @@ import type {
   PasswordHistory,
   PasswordType,
   ExportFormat,
-} from "@/types/password-generator"
+} from "@/schemas/password-generator.schema"
 // Utility functions
 
 const validatePasswordSettings = (settings: PasswordSettings): { isValid: boolean; error?: string } => {

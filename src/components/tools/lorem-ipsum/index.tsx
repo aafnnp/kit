@@ -26,7 +26,7 @@ import type {
   TextPreset,
   TextStyle,
   OutputFormat,
-} from "@/types/lorem-ipsum"
+} from "@/schemas/lorem-ipsum.schema"
 // Types
 
 // Utility functions

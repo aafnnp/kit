@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { Upload, Download, Loader2, Trash2, BarChart3 } from "lucide-react"
 import { PDFDocument } from "pdf-lib"
 import { nanoid } from "nanoid"
-import type { ImageToPdfFile, ImageToPdfSettings, ImageToPdfStats } from "@/types/image-to-pdf"
+import type { ImageToPdfFile, ImageToPdfSettings, ImageToPdfStats } from "@/schemas/image-to-pdf.schema"
 
 // 默认设置
 const defaultSettings: ImageToPdfSettings = {

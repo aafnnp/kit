@@ -23,7 +23,7 @@ import {
 } from "lucide-react"
 import { useBarcodeGenerator, useBarcodeExport, validateBarcodeSettings, barcodeTemplates } from "./hooks"
 import { useCopyToClipboard } from "@/hooks/use-clipboard"
-import { BarcodeResult, BarcodeSettings, BarcodeFormat } from "@/types/barcode-generator"
+import { BarcodeResult, BarcodeSettings, BarcodeFormat } from "@/schemas/barcode-generator.schema"
 
 /**
  * Enhanced Barcode Generator & Management Tool

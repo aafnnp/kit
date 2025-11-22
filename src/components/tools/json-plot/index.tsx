@@ -35,7 +35,7 @@ import type {
   VisualizationType,
   ExportFormat,
   ViewMode,
-} from "@/types/json-plot"
+} from "@/schemas/json-plot.schema"
 import { formatFileSize } from "@/lib/utils"
 // Utility functions
 

@@ -1,12 +1,12 @@
-import { useState, useCallback, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
+import { useState, useCallback, useMemo } from "react"
+import { useTranslation } from "react-i18next"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 import {
   Shield,
   Eye,
@@ -21,8 +21,8 @@ import {
   History,
   Download,
   Trash2,
-} from 'lucide-react'
-import { useCopyToClipboard } from '@/hooks/use-clipboard'
+} from "lucide-react"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 import {
   PasswordStrengthState,
   PasswordStrengthResult,
@@ -36,26 +36,26 @@ import {
   getPasswordStrengthLevel,
   getStrengthColor,
   generatePassword,
-} from '@/types/password-strength'
-import { ToolBase } from '@/components/common/tool-base'
-import { nanoid } from 'nanoid'
+} from "@/schemas/password-strength.schema"
+import { ToolBase } from "@/components/common/tool-base"
+import { nanoid } from "nanoid"
 
 // 分析密码强度
 const analyzePasswordStrength = (password: string): PasswordStrengthResult => {
   if (!password) {
     return {
       score: 0,
-      level: 'very-weak',
+      level: "very-weak",
       feedback: {
-        suggestions: ['Enter a password to analyze'],
+        suggestions: ["Enter a password to analyze"],
         positives: [],
       },
       entropy: 0,
       crackTime: {
-        onlineThrottling: '0 seconds',
-        onlineNoThrottling: '0 seconds',
-        offlineSlowHashing: '0 seconds',
-        offlineFastHashing: '0 seconds',
+        onlineThrottling: "0 seconds",
+        onlineNoThrottling: "0 seconds",
+        offlineSlowHashing: "0 seconds",
+        offlineFastHashing: "0 seconds",
       },
       checks: [],
     }
@@ -72,41 +72,41 @@ const analyzePasswordStrength = (password: string): PasswordStrengthResult => {
     let passed = false
 
     switch (checkTemplate.id) {
-      case 'min-length':
+      case "min-length":
         passed = password.length >= 8
         break
-      case 'good-length':
+      case "good-length":
         passed = password.length >= 12
         break
-      case 'excellent-length':
+      case "excellent-length":
         passed = password.length >= 16
         break
-      case 'uppercase':
+      case "uppercase":
         passed = /[A-Z]/.test(password)
         break
-      case 'lowercase':
+      case "lowercase":
         passed = /[a-z]/.test(password)
         break
-      case 'numbers':
+      case "numbers":
         passed = /[0-9]/.test(password)
         break
-      case 'symbols':
+      case "symbols":
         passed = /[^a-zA-Z0-9]/.test(password)
         break
-      case 'mixed-case':
+      case "mixed-case":
         passed = /[A-Z]/.test(password) && /[a-z]/.test(password)
         break
-      case 'no-common-patterns':
+      case "no-common-patterns":
         passed = !WEAK_PATTERNS.some((pattern) => pattern.regex.test(password))
         break
-      case 'no-dictionary-words':
+      case "no-dictionary-words":
         passed = !/\b(password|admin|user|login|welcome|secret|master|root|system|default)\b/i.test(password)
         break
-      case 'character-variety':
+      case "character-variety":
         const uniqueChars = new Set(password.toLowerCase()).size
         passed = uniqueChars >= Math.min(password.length * 0.6, 10)
         break
-      case 'entropy':
+      case "entropy":
         const entropy = calculateEntropy(password)
         passed = entropy >= 50
         break
@@ -161,7 +161,7 @@ export default function PasswordStrength() {
   const { copyToClipboard } = useCopyToClipboard()
 
   const [state, setState] = useState<PasswordStrengthState>({
-    password: '',
+    password: "",
     showPassword: false,
     generatedPasswords: [],
     history: [],
@@ -234,7 +234,7 @@ export default function PasswordStrength() {
   // 复制密码
   const copyPassword = useCallback(
     (password: string) => {
-      copyToClipboard(password, 'Password')
+      copyToClipboard(password, "Password")
     },
     [copyToClipboard]
   )
@@ -242,7 +242,7 @@ export default function PasswordStrength() {
   // 导出分析结果
   const exportAnalysis = useCallback(() => {
     const data = {
-      password: '***hidden***',
+      password: "***hidden***",
       analysis: {
         score: passwordResult.score,
         level: passwordResult.level,
@@ -255,7 +255,7 @@ export default function PasswordStrength() {
       },
       generatedPasswords: state.generatedPasswords.map((p) => ({
         id: p.id,
-        password: '***hidden***',
+        password: "***hidden***",
         score: p.strength.score,
         level: p.strength.level,
         createdAt: p.createdAt,
@@ -263,9 +263,9 @@ export default function PasswordStrength() {
       exportedAt: new Date().toISOString(),
     }
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
+    const a = document.createElement("a")
     a.href = url
     a.download = `password-analysis-${Date.now()}.json`
     document.body.appendChild(a)
@@ -276,44 +276,50 @@ export default function PasswordStrength() {
 
   return (
     <ToolBase
-      toolName={t('tools.password-strength.title', 'Password Strength Checker')}
+      toolName={t("tools.password-strength.title", "Password Strength Checker")}
       icon={<Shield className="w-5 h-5" />}
-      description={t('tools.password-strength.description', 'Analyze password strength and generate secure passwords')}
+      description={t("tools.password-strength.description", "Analyze password strength and generate secure passwords")}
     >
       <div className="space-y-6">
-        <Tabs defaultValue="analyze" className="w-full">
+        <Tabs
+          defaultValue="analyze"
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="analyze">
               <Shield className="w-4 h-4 mr-2" />
-              {t('tools.password-strength.analyze', 'Analyze')}
+              {t("tools.password-strength.analyze", "Analyze")}
             </TabsTrigger>
             <TabsTrigger value="generate">
               <Zap className="w-4 h-4 mr-2" />
-              {t('tools.password-strength.generate', 'Generate')}
+              {t("tools.password-strength.generate", "Generate")}
             </TabsTrigger>
             <TabsTrigger value="history">
               <History className="w-4 h-4 mr-2" />
-              {t('tools.password-strength.history', 'History')}
+              {t("tools.password-strength.history", "History")}
             </TabsTrigger>
           </TabsList>
 
           {/* 密码分析 */}
-          <TabsContent value="analyze" className="space-y-4">
+          <TabsContent
+            value="analyze"
+            className="space-y-4"
+          >
             {/* 密码输入 */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Shield className="w-5 h-5" />
-                  {t('tools.password-strength.password-input', 'Password Analysis')}
+                  {t("tools.password-strength.password-input", "Password Analysis")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>{t('tools.password-strength.enter-password', 'Enter Password')}</Label>
+                  <Label>{t("tools.password-strength.enter-password", "Enter Password")}</Label>
                   <div className="flex gap-2">
                     <div className="flex-1 relative">
                       <Input
-                        type={state.showPassword ? 'text' : 'password'}
+                        type={state.showPassword ? "text" : "password"}
                         value={state.password}
                         onChange={(e) => updatePassword(e.target.value)}
                         placeholder="Enter password to analyze..."
@@ -328,9 +334,12 @@ export default function PasswordStrength() {
                         {state.showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </Button>
                     </div>
-                    <Button onClick={() => copyPassword(state.password)} disabled={!state.password}>
+                    <Button
+                      onClick={() => copyPassword(state.password)}
+                      disabled={!state.password}
+                    >
                       <Copy className="w-4 h-4 mr-2" />
-                      {t('common.copy', 'Copy')}
+                      {t("common.copy", "Copy")}
                     </Button>
                   </div>
                 </div>
@@ -340,22 +349,25 @@ export default function PasswordStrength() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">
-                        {t('tools.password-strength.strength', 'Strength')}: {passwordResult.score}/100
+                        {t("tools.password-strength.strength", "Strength")}: {passwordResult.score}/100
                       </span>
                       <Badge className={getStrengthColor(passwordResult.level)}>
-                        {passwordResult.level.replace('-', ' ').toUpperCase()}
+                        {passwordResult.level.replace("-", " ").toUpperCase()}
                       </Badge>
                     </div>
 
-                    <Progress value={passwordResult.score} className="w-full h-2" />
+                    <Progress
+                      value={passwordResult.score}
+                      className="w-full h-2"
+                    />
 
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="font-medium">{t('tools.password-strength.entropy', 'Entropy')}: </span>
+                        <span className="font-medium">{t("tools.password-strength.entropy", "Entropy")}: </span>
                         {passwordResult.entropy.toFixed(1)} bits
                       </div>
                       <div>
-                        <span className="font-medium">{t('tools.password-strength.length', 'Length')}: </span>
+                        <span className="font-medium">{t("tools.password-strength.length", "Length")}: </span>
                         {state.password.length} characters
                       </div>
                     </div>
@@ -372,19 +384,22 @@ export default function PasswordStrength() {
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
                       <CheckCircle className="w-5 h-5" />
-                      {t('tools.password-strength.security-checks', 'Security Checks')}
+                      {t("tools.password-strength.security-checks", "Security Checks")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
                       {passwordResult.checks.map((check) => (
-                        <div key={check.id} className="flex items-center gap-2 text-sm">
+                        <div
+                          key={check.id}
+                          className="flex items-center gap-2 text-sm"
+                        >
                           {check.passed ? (
                             <CheckCircle className="w-4 h-4 text-green-500" />
                           ) : (
                             <XCircle className="w-4 h-4 text-red-500" />
                           )}
-                          <span className={check.passed ? 'text-green-700' : 'text-red-700'}>{check.name}</span>
+                          <span className={check.passed ? "text-green-700" : "text-red-700"}>{check.name}</span>
                         </div>
                       ))}
                     </div>
@@ -396,25 +411,25 @@ export default function PasswordStrength() {
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
                       <AlertTriangle className="w-5 h-5" />
-                      {t('tools.password-strength.crack-time', 'Crack Time Estimates')}
+                      {t("tools.password-strength.crack-time", "Crack Time Estimates")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
-                        <span>{t('tools.password-strength.online-throttled', 'Online (throttled)')}:</span>
+                        <span>{t("tools.password-strength.online-throttled", "Online (throttled)")}:</span>
                         <span className="font-mono">{passwordResult.crackTime.onlineThrottling}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>{t('tools.password-strength.online-unthrottled', 'Online (unthrottled)')}:</span>
+                        <span>{t("tools.password-strength.online-unthrottled", "Online (unthrottled)")}:</span>
                         <span className="font-mono">{passwordResult.crackTime.onlineNoThrottling}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>{t('tools.password-strength.offline-slow', 'Offline (slow hashing)')}:</span>
+                        <span>{t("tools.password-strength.offline-slow", "Offline (slow hashing)")}:</span>
                         <span className="font-mono">{passwordResult.crackTime.offlineSlowHashing}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>{t('tools.password-strength.offline-fast', 'Offline (fast hashing)')}:</span>
+                        <span>{t("tools.password-strength.offline-fast", "Offline (fast hashing)")}:</span>
                         <span className="font-mono">{passwordResult.crackTime.offlineFastHashing}</span>
                       </div>
                     </div>
@@ -432,7 +447,7 @@ export default function PasswordStrength() {
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
                       <Info className="w-5 h-5" />
-                      {t('tools.password-strength.feedback', 'Feedback')}
+                      {t("tools.password-strength.feedback", "Feedback")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
@@ -446,11 +461,14 @@ export default function PasswordStrength() {
                     {passwordResult.feedback.positives.length > 0 && (
                       <div className="space-y-2">
                         <h5 className="font-medium text-green-700">
-                          {t('tools.password-strength.strengths', 'Strengths')}
+                          {t("tools.password-strength.strengths", "Strengths")}
                         </h5>
                         <ul className="space-y-1">
                           {passwordResult.feedback.positives.map((positive, index) => (
-                            <li key={index} className="text-sm text-green-600 flex items-center gap-2">
+                            <li
+                              key={index}
+                              className="text-sm text-green-600 flex items-center gap-2"
+                            >
                               <CheckCircle className="w-3 h-3" />
                               {positive}
                             </li>
@@ -462,11 +480,14 @@ export default function PasswordStrength() {
                     {passwordResult.feedback.suggestions.length > 0 && (
                       <div className="space-y-2">
                         <h5 className="font-medium text-orange-700">
-                          {t('tools.password-strength.suggestions', 'Suggestions')}
+                          {t("tools.password-strength.suggestions", "Suggestions")}
                         </h5>
                         <ul className="space-y-1">
                           {passwordResult.feedback.suggestions.map((suggestion, index) => (
-                            <li key={index} className="text-sm text-orange-600 flex items-center gap-2">
+                            <li
+                              key={index}
+                              className="text-sm text-orange-600 flex items-center gap-2"
+                            >
                               <Info className="w-3 h-3" />
                               {suggestion}
                             </li>
@@ -480,12 +501,15 @@ export default function PasswordStrength() {
           </TabsContent>
 
           {/* 密码生成 */}
-          <TabsContent value="generate" className="space-y-4">
+          <TabsContent
+            value="generate"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Zap className="w-5 h-5" />
-                  {t('tools.password-strength.password-generator', 'Password Generator')}
+                  {t("tools.password-strength.password-generator", "Password Generator")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -493,7 +517,7 @@ export default function PasswordStrength() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>
-                      {t('tools.password-strength.length', 'Length')}: {generationOptions.length}
+                      {t("tools.password-strength.length", "Length")}: {generationOptions.length}
                     </Label>
                     <input
                       type="range"
@@ -516,7 +540,7 @@ export default function PasswordStrength() {
                         }
                         className="w-4 h-4"
                       />
-                      <Label htmlFor="uppercase">{t('tools.password-strength.uppercase', 'Uppercase (A-Z)')}</Label>
+                      <Label htmlFor="uppercase">{t("tools.password-strength.uppercase", "Uppercase (A-Z)")}</Label>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -529,7 +553,7 @@ export default function PasswordStrength() {
                         }
                         className="w-4 h-4"
                       />
-                      <Label htmlFor="lowercase">{t('tools.password-strength.lowercase', 'Lowercase (a-z)')}</Label>
+                      <Label htmlFor="lowercase">{t("tools.password-strength.lowercase", "Lowercase (a-z)")}</Label>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -542,7 +566,7 @@ export default function PasswordStrength() {
                         }
                         className="w-4 h-4"
                       />
-                      <Label htmlFor="numbers">{t('tools.password-strength.numbers', 'Numbers (0-9)')}</Label>
+                      <Label htmlFor="numbers">{t("tools.password-strength.numbers", "Numbers (0-9)")}</Label>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -555,7 +579,7 @@ export default function PasswordStrength() {
                         }
                         className="w-4 h-4"
                       />
-                      <Label htmlFor="symbols">{t('tools.password-strength.symbols', 'Symbols (!@#$)')}</Label>
+                      <Label htmlFor="symbols">{t("tools.password-strength.symbols", "Symbols (!@#$)")}</Label>
                     </div>
                   </div>
                 </div>
@@ -570,7 +594,7 @@ export default function PasswordStrength() {
                       className="w-4 h-4"
                     />
                     <Label htmlFor="excludeSimilar">
-                      {t('tools.password-strength.exclude-similar', 'Exclude similar (il1Lo0O)')}
+                      {t("tools.password-strength.exclude-similar", "Exclude similar (il1Lo0O)")}
                     </Label>
                   </div>
 
@@ -585,36 +609,50 @@ export default function PasswordStrength() {
                       className="w-4 h-4"
                     />
                     <Label htmlFor="excludeAmbiguous">
-                      {t('tools.password-strength.exclude-ambiguous', 'Exclude ambiguous ({}[]())')}
+                      {t("tools.password-strength.exclude-ambiguous", "Exclude ambiguous ({}[]())")}
                     </Label>
                   </div>
                 </div>
 
-                <Button onClick={generateNewPassword} className="w-full">
+                <Button
+                  onClick={generateNewPassword}
+                  className="w-full"
+                >
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  {t('tools.password-strength.generate-password', 'Generate Password')}
+                  {t("tools.password-strength.generate-password", "Generate Password")}
                 </Button>
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* 生成历史 */}
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent
+            value="history"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <History className="w-5 h-5" />
-                    {t('tools.password-strength.generated-passwords', 'Generated Passwords')}
+                    {t("tools.password-strength.generated-passwords", "Generated Passwords")}
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={exportAnalysis}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={exportAnalysis}
+                    >
                       <Download className="w-4 h-4 mr-2" />
-                      {t('common.export', 'Export')}
+                      {t("common.export", "Export")}
                     </Button>
-                    <Button size="sm" variant="outline" onClick={clearGeneratedPasswords}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={clearGeneratedPasswords}
+                    >
                       <Trash2 className="w-4 h-4 mr-2" />
-                      {t('common.clear', 'Clear')}
+                      {t("common.clear", "Clear")}
                     </Button>
                   </div>
                 </CardTitle>
@@ -622,28 +660,43 @@ export default function PasswordStrength() {
               <CardContent>
                 {state.generatedPasswords.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    {t('tools.password-strength.no-generated', 'No generated passwords yet')}
+                    {t("tools.password-strength.no-generated", "No generated passwords yet")}
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {state.generatedPasswords.map((generated) => (
-                      <div key={generated.id} className="border rounded-lg p-3">
+                      <div
+                        key={generated.id}
+                        className="border rounded-lg p-3"
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
                             <code className="text-sm font-mono bg-muted px-2 py-1 rounded">{generated.password}</code>
                             <Badge className={getStrengthColor(generated.strength.level)}>
-                              {generated.strength.level.replace('-', ' ')}
+                              {generated.strength.level.replace("-", " ")}
                             </Badge>
                           </div>
 
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => useGeneratedPassword(generated)}>
-                              {t('tools.password-strength.use', 'Use')}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => useGeneratedPassword(generated)}
+                            >
+                              {t("tools.password-strength.use", "Use")}
                             </Button>
-                            <Button size="sm" variant="outline" onClick={() => copyPassword(generated.password)}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => copyPassword(generated.password)}
+                            >
                               <Copy className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="ghost" onClick={() => deleteGeneratedPassword(generated.id)}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => deleteGeneratedPassword(generated.id)}
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -651,10 +704,10 @@ export default function PasswordStrength() {
 
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <span>
-                            {t('tools.password-strength.score', 'Score')}: {generated.strength.score}/100
+                            {t("tools.password-strength.score", "Score")}: {generated.strength.score}/100
                           </span>
                           <span>
-                            {t('tools.password-strength.length', 'Length')}: {generated.password.length}
+                            {t("tools.password-strength.length", "Length")}: {generated.password.length}
                           </span>
                           <span>{new Date(generated.createdAt).toLocaleString()}</span>
                         </div>

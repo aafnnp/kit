@@ -1,11 +1,11 @@
-import { useCallback, useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toast } from 'sonner'
+import { useCallback, useState, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import {
   Download,
   Loader2,
@@ -27,20 +27,20 @@ import {
   List,
   Music,
   RotateCcw,
-} from 'lucide-react'
+} from "lucide-react"
 
 // 导入通用组件和 hooks
-import { FileUploadArea } from '@/components/common/file-upload-area'
+import { FileUploadArea } from "@/components/common/file-upload-area"
 
-import { useCopyToClipboard } from '@/hooks/use-clipboard'
-import { useKeyboardShortcuts, createCommonShortcuts } from '@/hooks/use-keyboard-shortcuts'
-import { useHistory } from '@/hooks/use-history'
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
+import { useKeyboardShortcuts, createCommonShortcuts } from "@/hooks/use-keyboard-shortcuts"
+import { useHistory } from "@/hooks/use-history"
 
 // 导入工具函数
-import { formatFileSize } from '@/lib/utils'
+import { formatFileSize } from "@/lib/utils"
 
 // 导入类型
-import { AudioFile, ConvertSettings, AudioConversionStats, AudioHistoryEntry } from '@/types/audio-convert'
+import { AudioFile, ConvertSettings, AudioConversionStats, AudioHistoryEntry } from "@/schemas/audio-convert.schema"
 import {
   audioFormats,
   audioTemplates,
@@ -49,22 +49,22 @@ import {
   validateAudioFile,
   generateId,
   downloadAsZip,
-} from './hooks'
+} from "./hooks"
 
 // 主组件
 const AudioConvert = () => {
   // 状态管理
   const [audios, setAudios] = useState<AudioFile[]>([])
   const [convertSettings, setConvertSettings] = useState<ConvertSettings>({
-    format: 'mp3',
+    format: "mp3",
     bitrate: 192,
     sampleRate: 44100,
     preserveMetadata: true,
     normalizeAudio: false,
   })
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
-  const [activeTab, setActiveTab] = useState('convert')
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("")
+  const [activeTab, setActiveTab] = useState("convert")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list")
   const [showAdvanced, setShowAdvanced] = useState(false)
 
   // Hooks
@@ -81,7 +81,7 @@ const AudioConvert = () => {
           a.id === audioId
             ? {
                 ...a,
-                status: 'completed',
+                status: "completed",
                 convertedUrl: result.url,
                 convertResult: result,
                 processingTime: Date.now() - (a.processingTime || Date.now()),
@@ -92,7 +92,7 @@ const AudioConvert = () => {
     },
     (audioId, error) => {
       // 音频转换出错
-      setAudios((prev) => prev.map((a) => (a.id === audioId ? { ...a, status: 'error', error } : a)))
+      setAudios((prev) => prev.map((a) => (a.id === audioId ? { ...a, status: "error", error } : a)))
       toast.error(`转换失败: ${error}`)
     }
   )
@@ -126,7 +126,7 @@ const AudioConvert = () => {
             name: file.name,
             size: file.size,
             type: file.type,
-            status: 'pending',
+            status: "pending",
             timestamp: Date.now(),
             url,
             stats,
@@ -136,7 +136,7 @@ const AudioConvert = () => {
           newAudios.push(audioFile)
         } catch (error) {
           toast.error(`${file.name}: Failed to analyze audio metadata`)
-          console.error('Audio analysis error:', error)
+          console.error("Audio analysis error:", error)
         }
       }
 
@@ -150,9 +150,9 @@ const AudioConvert = () => {
 
   // 转换处理
   const handleBatchConvert = useCallback(async () => {
-    const pendingAudios = audios.filter((audio) => audio.status === 'pending')
+    const pendingAudios = audios.filter((audio) => audio.status === "pending")
     if (pendingAudios.length === 0) {
-      toast.warning('No files to convert')
+      toast.warning("No files to convert")
       return
     }
 
@@ -163,7 +163,7 @@ const AudioConvert = () => {
       setAudios((prev) =>
         prev.map((a) =>
           pendingAudios.some((pa) => pa.id === a.id)
-            ? { ...a, status: 'processing', error: undefined, processingTime: Date.now() }
+            ? { ...a, status: "processing", error: undefined, processingTime: Date.now() }
             : a
         )
       )
@@ -172,8 +172,8 @@ const AudioConvert = () => {
         // 使用批量转换API
         await convertAudios(pendingAudios, convertSettings)
       } catch (error) {
-        toast.error('Batch conversion failed')
-        console.error('Batch conversion error:', error)
+        toast.error("Batch conversion failed")
+        console.error("Batch conversion error:", error)
       }
 
       // 添加到历史记录
@@ -190,8 +190,8 @@ const AudioConvert = () => {
         totalSavings: stats.totalSavings,
       })
     } catch (error) {
-      toast.error('Batch conversion failed')
-      console.error('Batch conversion error:', error)
+      toast.error("Batch conversion failed")
+      console.error("Batch conversion error:", error)
     }
   }, [audios, convertSettings, convertAudios, addToHistory])
 
@@ -199,14 +199,14 @@ const AudioConvert = () => {
   const handleExportSingle = useCallback(
     (audio: AudioFile) => {
       if (!audio.convertedUrl) {
-        toast.error('No converted file to export')
+        toast.error("No converted file to export")
         return
       }
 
-      const filename = `${audio.name.replace(/\.[^/.]+$/, '')}_converted.${convertSettings.format}`
+      const filename = `${audio.name.replace(/\.[^/.]+$/, "")}_converted.${convertSettings.format}`
 
       // 从URL创建下载链接
-      const link = document.createElement('a')
+      const link = document.createElement("a")
       link.href = audio.convertedUrl!
       link.download = filename
       document.body.appendChild(link)
@@ -222,7 +222,7 @@ const AudioConvert = () => {
     const convertedAudios = audios.filter((audio) => audio.convertedUrl)
 
     if (convertedAudios.length === 0) {
-      toast.error('No converted files to export')
+      toast.error("No converted files to export")
       return
     }
 
@@ -233,16 +233,16 @@ const AudioConvert = () => {
           const blob = await response.blob()
           return {
             blob,
-            filename: `${audio.name.replace(/\.[^/.]+$/, '')}_converted.${convertSettings.format}`,
+            filename: `${audio.name.replace(/\.[^/.]+$/, "")}_converted.${convertSettings.format}`,
           }
         })
       )
 
-      await downloadAsZip(files, 'converted_audios.zip')
+      await downloadAsZip(files, "converted_audios.zip")
       toast.success(`Exported ${convertedAudios.length} files as ZIP`)
     } catch (error) {
-      toast.error('Failed to create ZIP file')
-      console.error('Export error:', error)
+      toast.error("Failed to create ZIP file")
+      console.error("Export error:", error)
     }
   }, [audios, convertSettings.format])
 
@@ -258,7 +258,7 @@ const AudioConvert = () => {
       }
       return prev.filter((a) => a.id !== id)
     })
-    toast.success('File removed')
+    toast.success("File removed")
   }, [])
 
   const handleClearAll = useCallback(() => {
@@ -269,7 +269,7 @@ const AudioConvert = () => {
     })
 
     setAudios([])
-    toast.success('All files cleared')
+    toast.success("All files cleared")
   }, [audios])
 
   // 模板处理
@@ -285,11 +285,11 @@ const AudioConvert = () => {
   // 设置处理
   const handleSettingsChange = useCallback((updates: Partial<ConvertSettings>) => {
     setConvertSettings((prev) => ({ ...prev, ...updates }))
-    setSelectedTemplate('') // 清除模板选择
+    setSelectedTemplate("") // 清除模板选择
   }, [])
 
   const calculateConversionStats = (files: AudioFile[], totalTime: number): AudioConversionStats => {
-    const completedFiles = files.filter((f) => f.status === 'completed')
+    const completedFiles = files.filter((f) => f.status === "completed")
     const totalOriginalSize = completedFiles.reduce((sum, f) => sum + f.size, 0)
     const totalConvertedSize = completedFiles.reduce((sum, f) => sum + (f.convertResult?.size || 0), 0)
 
@@ -330,7 +330,7 @@ const AudioConvert = () => {
               stats: a.stats,
             })),
           }
-          copyDataToClipboard(data, 'json', 'Audio conversion data')
+          copyDataToClipboard(data, "json", "Audio conversion data")
         },
       }),
     [isProcessing, handleBatchConvert, handleClearAll, handleExportAll, convertSettings, audios, copyDataToClipboard]
@@ -341,10 +341,10 @@ const AudioConvert = () => {
   // 统计数据
   const stats = useMemo(() => {
     const total = audios.length
-    const pending = audios.filter((a) => a.status === 'pending').length
-    const processing = audios.filter((a) => a.status === 'processing').length
-    const completed = audios.filter((a) => a.status === 'completed').length
-    const failed = audios.filter((a) => a.status === 'error').length
+    const pending = audios.filter((a) => a.status === "pending").length
+    const processing = audios.filter((a) => a.status === "processing").length
+    const completed = audios.filter((a) => a.status === "completed").length
+    const failed = audios.filter((a) => a.status === "error").length
 
     return { total, pending, processing, completed, failed }
   }, [audios])
@@ -359,7 +359,10 @@ const AudioConvert = () => {
         Skip to main content
       </a>
 
-      <div id="main-content" className="flex flex-col gap-6">
+      <div
+        id="main-content"
+        className="flex flex-col gap-6"
+      >
         {/* Header */}
         <Card>
           <CardHeader>
@@ -375,32 +378,54 @@ const AudioConvert = () => {
         </Card>
 
         {/* Main Interface */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="convert" className="flex items-center gap-2">
+            <TabsTrigger
+              value="convert"
+              className="flex items-center gap-2"
+            >
               <SlidersHorizontal className="h-4 w-4" />
               Convert
             </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
+            <TabsTrigger
+              value="templates"
+              className="flex items-center gap-2"
+            >
               <Layers className="h-4 w-4" />
               Templates
             </TabsTrigger>
-            <TabsTrigger value="analysis" className="flex items-center gap-2">
+            <TabsTrigger
+              value="analysis"
+              className="flex items-center gap-2"
+            >
               <BarChart3 className="h-4 w-4" />
               Analysis
             </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
+            <TabsTrigger
+              value="history"
+              className="flex items-center gap-2"
+            >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
-            <TabsTrigger value="help" className="flex items-center gap-2">
+            <TabsTrigger
+              value="help"
+              className="flex items-center gap-2"
+            >
               <BookOpen className="h-4 w-4" />
               Help
             </TabsTrigger>
           </TabsList>
 
           {/* Convert Tab */}
-          <TabsContent value="convert" className="space-y-6">
+          <TabsContent
+            value="convert"
+            className="space-y-6"
+          >
             {/* File Upload Area */}
             <FileUploadArea
               onFilesSelected={handleFilesSelected}
@@ -412,7 +437,7 @@ const AudioConvert = () => {
               buttonText="Choose Audio Files"
               supportedFormatsText="Supports MP3, WAV, FLAC, AAC, OGG, M4A, WMA • Max 200MB per file"
               config={{
-                accept: ['audio/*'],
+                accept: ["audio/*"],
                 maxSize: 200 * 1024 * 1024,
                 maxFiles: 50,
                 multiple: true,
@@ -428,9 +453,13 @@ const AudioConvert = () => {
                     <Settings className="h-5 w-5" />
                     Conversion Settings
                   </span>
-                  <Button variant="outline" size="sm" onClick={() => setShowAdvanced(!showAdvanced)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                  >
                     {showAdvanced ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    {showAdvanced ? 'Hide' : 'Show'} Advanced
+                    {showAdvanced ? "Hide" : "Show"} Advanced
                   </Button>
                 </CardTitle>
               </CardHeader>
@@ -439,13 +468,19 @@ const AudioConvert = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="template">Template</Label>
-                    <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
+                    <Select
+                      value={selectedTemplate}
+                      onValueChange={handleTemplateSelect}
+                    >
                       <SelectTrigger id="template">
                         <SelectValue placeholder="Choose a template" />
                       </SelectTrigger>
                       <SelectContent>
                         {audioTemplates.map((template) => (
-                          <SelectItem key={template.id} value={template.id}>
+                          <SelectItem
+                            key={template.id}
+                            value={template.id}
+                          >
                             {template.name}
                           </SelectItem>
                         ))}
@@ -457,7 +492,7 @@ const AudioConvert = () => {
                     <Label htmlFor="format">Output Format</Label>
                     <Select
                       value={convertSettings.format}
-                      onValueChange={(value) => handleSettingsChange({ format: value as ConvertSettings['format'] })}
+                      onValueChange={(value) => handleSettingsChange({ format: value as ConvertSettings["format"] })}
                     >
                       <SelectTrigger id="format">
                         <SelectValue />
@@ -514,10 +549,10 @@ const AudioConvert = () => {
                     <div className="space-y-2">
                       <Label htmlFor="channels">Channels</Label>
                       <Select
-                        value={convertSettings.channels?.toString() || 'auto'}
+                        value={convertSettings.channels?.toString() || "auto"}
                         onValueChange={(value) =>
                           handleSettingsChange({
-                            channels: value === 'auto' ? undefined : Number(value),
+                            channels: value === "auto" ? undefined : Number(value),
                           })
                         }
                       >
@@ -571,12 +606,20 @@ const AudioConvert = () => {
                       )}
                     </Button>
 
-                    <Button onClick={handleExportAll} variant="outline" disabled={stats.completed === 0}>
+                    <Button
+                      onClick={handleExportAll}
+                      variant="outline"
+                      disabled={stats.completed === 0}
+                    >
                       <Download className="mr-2 h-4 w-4" />
                       Export ZIP ({stats.completed})
                     </Button>
 
-                    <Button onClick={handleClearAll} variant="destructive" disabled={isProcessing}>
+                    <Button
+                      onClick={handleClearAll}
+                      variant="destructive"
+                      disabled={isProcessing}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Clear All
                     </Button>
@@ -598,21 +641,24 @@ const AudioConvert = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+                        onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
                       >
-                        {viewMode === 'grid' ? <List className="h-4 w-4" /> : <Grid className="h-4 w-4" />}
+                        {viewMode === "grid" ? <List className="h-4 w-4" /> : <Grid className="h-4 w-4" />}
                       </Button>
                     </div>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : 'space-y-4'}>
+                  <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "space-y-4"}>
                     {audios.map((audio) => (
-                      <Card key={audio.id} className="relative">
+                      <Card
+                        key={audio.id}
+                        className="relative"
+                      >
                         <CardHeader className="pb-3">
                           <CardTitle className="flex items-center justify-between text-sm">
                             <span className="flex items-center gap-2 truncate">
-                              <Music className="h-4 w-4 flex-shrink-0" />
+                              <Music className="h-4 w-4 shrink-0" />
                               {audio.name}
                             </span>
                             <Button
@@ -628,10 +674,10 @@ const AudioConvert = () => {
                             {formatFileSize(audio.size)}
                             {audio.stats && (
                               <>
-                                {' • '}
-                                {audio.stats.duration.toFixed(1)}s{' • '}
+                                {" • "}
+                                {audio.stats.duration.toFixed(1)}s{" • "}
                                 {audio.stats.bitrate}kbps
-                                {' • '}
+                                {" • "}
                                 {audio.stats.format.toUpperCase()}
                               </>
                             )}
@@ -640,25 +686,25 @@ const AudioConvert = () => {
                         <CardContent className="pt-0">
                           {/* Status */}
                           <div className="flex items-center gap-2 mb-3">
-                            {audio.status === 'pending' && (
+                            {audio.status === "pending" && (
                               <div className="flex items-center gap-2 text-blue-600">
                                 <Clock className="h-4 w-4" />
                                 <span className="text-sm">Pending</span>
                               </div>
                             )}
-                            {audio.status === 'processing' && (
+                            {audio.status === "processing" && (
                               <div className="flex items-center gap-2 text-orange-600">
                                 <Loader2 className="h-4 w-4 animate-spin" />
                                 <span className="text-sm">Processing...</span>
                               </div>
                             )}
-                            {audio.status === 'completed' && (
+                            {audio.status === "completed" && (
                               <div className="flex items-center gap-2 text-green-600">
                                 <CheckCircle2 className="h-4 w-4" />
                                 <span className="text-sm">Completed</span>
                               </div>
                             )}
-                            {audio.status === 'error' && (
+                            {audio.status === "error" && (
                               <div className="flex items-center gap-2 text-red-600">
                                 <AlertCircle className="h-4 w-4" />
                                 <span className="text-sm">Error: {audio.error}</span>
@@ -670,13 +716,23 @@ const AudioConvert = () => {
                           <div className="space-y-3">
                             <div>
                               <div className="text-xs text-muted-foreground mb-1">Original</div>
-                              <audio src={audio.url} controls className="w-full h-8" preload="metadata" />
+                              <audio
+                                src={audio.url}
+                                controls
+                                className="w-full h-8"
+                                preload="metadata"
+                              />
                             </div>
 
                             {audio.convertedUrl && (
                               <div>
                                 <div className="text-xs text-green-600 mb-1">Converted</div>
-                                <audio src={audio.convertedUrl} controls className="w-full h-8" preload="metadata" />
+                                <audio
+                                  src={audio.convertedUrl}
+                                  controls
+                                  className="w-full h-8"
+                                  preload="metadata"
+                                />
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -708,7 +764,10 @@ const AudioConvert = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {audioTemplates.map((template) => (
-                    <Card key={template.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                    <Card
+                      key={template.id}
+                      className="cursor-pointer hover:shadow-md transition-shadow"
+                    >
                       <CardHeader>
                         <CardTitle className="text-base">{template.name}</CardTitle>
                         <CardDescription>{template.description}</CardDescription>
@@ -723,9 +782,9 @@ const AudioConvert = () => {
                         <Button
                           onClick={() => handleTemplateSelect(template.id)}
                           className="w-full mt-3"
-                          variant={selectedTemplate === template.id ? 'default' : 'outline'}
+                          variant={selectedTemplate === template.id ? "default" : "outline"}
                         >
-                          {selectedTemplate === template.id ? 'Applied' : 'Apply Template'}
+                          {selectedTemplate === template.id ? "Applied" : "Apply Template"}
                         </Button>
                       </CardContent>
                     </Card>
@@ -780,7 +839,11 @@ const AudioConvert = () => {
                 <CardTitle className="flex items-center justify-between">
                   <span>Conversion History</span>
                   {history.length > 0 && (
-                    <Button variant="outline" size="sm" onClick={clearHistory}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={clearHistory}
+                    >
                       Clear History
                     </Button>
                   )}
@@ -817,7 +880,7 @@ const AudioConvert = () => {
                               size="sm"
                               onClick={() => {
                                 setConvertSettings(entry.settings)
-                                toast.success('Settings restored from history')
+                                toast.success("Settings restored from history")
                               }}
                             >
                               <RotateCcw className="h-4 w-4 mr-1" />
@@ -851,8 +914,8 @@ const AudioConvert = () => {
                             <div className="text-sm text-muted-foreground mb-2">{format.description}</div>
                             <div className="text-xs">
                               <div className="mb-1">Use case: {format.useCase}</div>
-                              <div className="text-green-600">Pros: {format.pros.join(', ')}</div>
-                              <div className="text-red-600">Cons: {format.cons.join(', ')}</div>
+                              <div className="text-green-600">Pros: {format.pros.join(", ")}</div>
+                              <div className="text-red-600">Cons: {format.cons.join(", ")}</div>
                             </div>
                           </CardContent>
                         </Card>

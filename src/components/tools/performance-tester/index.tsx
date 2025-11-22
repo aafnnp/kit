@@ -1,12 +1,12 @@
-import { useState, useCallback, useRef } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
-import { toast } from 'sonner'
+import { useState, useCallback, useRef } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
 import {
   Play,
   Square,
@@ -21,14 +21,14 @@ import {
   Activity,
   BarChart3,
   Settings,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
-import { ToolBase } from '@/components/common/tool-base'
+} from "lucide-react"
+import { nanoid } from "nanoid"
+import { ToolBase } from "@/components/common/tool-base"
 
 interface TestResult {
   id: string
   testName: string
-  testType: 'image-compress' | 'audio-convert' | 'video-trim' | 'matrix-math'
+  testType: "image-compress" | "audio-convert" | "video-trim" | "matrix-math"
   workerTime: number
   mainThreadTime: number
   improvement: number
@@ -41,44 +41,44 @@ interface TestResult {
     mainThread: number
   }
   timestamp: number
-  status: 'completed' | 'failed' | 'running'
+  status: "completed" | "failed" | "running"
   error?: string
 }
 
 interface TestConfig {
-  testType: 'image-compress' | 'audio-convert' | 'video-trim' | 'matrix-math'
+  testType: "image-compress" | "audio-convert" | "video-trim" | "matrix-math"
   iterations: number
-  dataSize: 'small' | 'medium' | 'large'
+  dataSize: "small" | "medium" | "large"
   concurrency: number
   measureMemory: boolean
 }
 
 const defaultTestConfigs: Record<string, TestConfig> = {
-  'image-compress': {
-    testType: 'image-compress',
+  "image-compress": {
+    testType: "image-compress",
     iterations: 10,
-    dataSize: 'medium',
+    dataSize: "medium",
     concurrency: 4,
     measureMemory: true,
   },
-  'audio-convert': {
-    testType: 'audio-convert',
+  "audio-convert": {
+    testType: "audio-convert",
     iterations: 5,
-    dataSize: 'medium',
+    dataSize: "medium",
     concurrency: 2,
     measureMemory: true,
   },
-  'video-trim': {
-    testType: 'video-trim',
+  "video-trim": {
+    testType: "video-trim",
     iterations: 3,
-    dataSize: 'small',
+    dataSize: "small",
     concurrency: 1,
     measureMemory: true,
   },
-  'matrix-math': {
-    testType: 'matrix-math',
+  "matrix-math": {
+    testType: "matrix-math",
     iterations: 20,
-    dataSize: 'large',
+    dataSize: "large",
     concurrency: 8,
     measureMemory: true,
   },
@@ -88,41 +88,41 @@ const PerformanceTester = () => {
   const [results, setResults] = useState<TestResult[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [currentProgress, setCurrentProgress] = useState(0)
-  const [currentTest, setCurrentTest] = useState<string>('')
-  const [testConfig, setTestConfig] = useState<TestConfig>(defaultTestConfigs['image-compress'])
+  const [currentTest, setCurrentTest] = useState<string>("")
+  const [testConfig, setTestConfig] = useState<TestConfig>(defaultTestConfigs["image-compress"])
   const abortControllerRef = useRef<AbortController | null>(null)
 
   // 生成测试数据
   const generateTestData = useCallback((testType: string, size: string) => {
     switch (testType) {
-      case 'image-compress':
-        const dimensions = size === 'small' ? 512 : size === 'medium' ? 1024 : 2048
+      case "image-compress":
+        const dimensions = size === "small" ? 512 : size === "medium" ? 1024 : 2048
         return {
           width: dimensions,
           height: dimensions,
-          format: 'png',
+          format: "png",
           quality: 0.8,
         }
-      case 'audio-convert':
-        const duration = size === 'small' ? 30 : size === 'medium' ? 120 : 300
+      case "audio-convert":
+        const duration = size === "small" ? 30 : size === "medium" ? 120 : 300
         return {
           duration,
           sampleRate: 44100,
           channels: 2,
-          format: 'wav',
+          format: "wav",
         }
-      case 'video-trim':
-        const videoDuration = size === 'small' ? 10 : size === 'medium' ? 60 : 180
+      case "video-trim":
+        const videoDuration = size === "small" ? 10 : size === "medium" ? 60 : 180
         return {
           duration: videoDuration,
-          resolution: size === 'small' ? '720p' : size === 'medium' ? '1080p' : '4k',
+          resolution: size === "small" ? "720p" : size === "medium" ? "1080p" : "4k",
           fps: 30,
         }
-      case 'matrix-math':
-        const matrixSize = size === 'small' ? 50 : size === 'medium' ? 100 : 200
+      case "matrix-math":
+        const matrixSize = size === "small" ? 50 : size === "medium" ? 100 : 200
         return {
           size: matrixSize,
-          operation: 'multiply',
+          operation: "multiply",
           density: 0.7,
         }
       default:
@@ -139,11 +139,11 @@ const PerformanceTester = () => {
 
     // 使用通用处理 Worker 执行实际计算任务
     await new Promise((resolve) => {
-      const worker = new Worker('/workers/processing-worker.js')
+      const worker = new Worker("/workers/processing-worker.js")
 
       // 将抽象的测试类型映射为具体的 Worker 任务类型与数据
       let message: any
-      if (config.testType === 'matrix-math') {
+      if (config.testType === "matrix-math") {
         const n = (testData?.size as number) || 100
         const makeMatrix = (size: number) =>
           Array.from({ length: size }, () => Array.from({ length: size }, () => Math.random()))
@@ -151,7 +151,7 @@ const PerformanceTester = () => {
         const B = makeMatrix(n)
         message = {
           taskId,
-          type: 'matrix-multiply',
+          type: "matrix-multiply",
           data: {
             matrices: [
               { data: A, rows: n, cols: n },
@@ -163,16 +163,16 @@ const PerformanceTester = () => {
       } else {
         // 对于非矩阵类任务，使用 regex-match 作为通用的计算密集型占位测试
         const repeats = testData?.duration ? Math.max(1, Math.floor((testData.duration as number) / 10)) : 50
-        const chunk = 'lorem ipsum dolor sit amet consectetur adipiscing elit '
+        const chunk = "lorem ipsum dolor sit amet consectetur adipiscing elit "
         const bigText = chunk.repeat(
-          repeats * (config.dataSize === 'large' ? 400 : config.dataSize === 'medium' ? 200 : 100)
+          repeats * (config.dataSize === "large" ? 400 : config.dataSize === "medium" ? 200 : 100)
         )
         message = {
           taskId,
-          type: 'regex-match',
+          type: "regex-match",
           data: {
-            pattern: '\\b[a-z]{3,}\\b',
-            flags: 'gi',
+            pattern: "\\b[a-z]{3,}\\b",
+            flags: "gi",
             text: bigText,
           },
           iterations: config.iterations,
@@ -182,10 +182,10 @@ const PerformanceTester = () => {
       worker.postMessage(message)
 
       worker.onmessage = (e) => {
-        if (e.data?.type === 'complete') {
+        if (e.data?.type === "complete") {
           worker.terminate()
           resolve(e.data.data ?? e.data.result)
-        } else if (e.data?.type === 'error') {
+        } else if (e.data?.type === "error") {
           worker.terminate()
           resolve(null)
         }
@@ -277,14 +277,14 @@ const PerformanceTester = () => {
           mainThread: mainThreadResult.throughput,
         },
         timestamp: Date.now(),
-        status: 'completed',
+        status: "completed",
       }
 
       setResults((prev) => [result, ...prev])
       setCurrentProgress(100)
 
       toast.success(
-        `Performance test completed! ${improvement > 0 ? `${improvement.toFixed(1)}% improvement` : 'No improvement'} with Web Workers`
+        `Performance test completed! ${improvement > 0 ? `${improvement.toFixed(1)}% improvement` : "No improvement"} with Web Workers`
       )
     } catch (error) {
       const failedResult: TestResult = {
@@ -297,16 +297,16 @@ const PerformanceTester = () => {
         memoryUsage: { worker: 0, mainThread: 0 },
         throughput: { worker: 0, mainThread: 0 },
         timestamp: Date.now(),
-        status: 'failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        status: "failed",
+        error: error instanceof Error ? error.message : "Unknown error",
       }
 
       setResults((prev) => [failedResult, ...prev])
-      toast.error(`Performance test failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      toast.error(`Performance test failed: ${error instanceof Error ? error.message : "Unknown error"}`)
     } finally {
       setIsRunning(false)
       setCurrentProgress(0)
-      setCurrentTest('')
+      setCurrentTest("")
     }
   }, [testConfig, isRunning, generateTestData, runWorkerTest, runMainThreadTest])
 
@@ -317,7 +317,7 @@ const PerformanceTester = () => {
     }
     setIsRunning(false)
     setCurrentProgress(0)
-    setCurrentTest('')
+    setCurrentTest("")
   }, [])
 
   // 清除结果
@@ -332,18 +332,18 @@ const PerformanceTester = () => {
       results,
       summary: {
         totalTests: results.length,
-        successfulTests: results.filter((r) => r.status === 'completed').length,
+        successfulTests: results.filter((r) => r.status === "completed").length,
         averageImprovement:
-          results.filter((r) => r.status === 'completed').reduce((sum, r) => sum + r.improvement, 0) /
-            results.filter((r) => r.status === 'completed').length || 0,
+          results.filter((r) => r.status === "completed").reduce((sum, r) => sum + r.improvement, 0) /
+            results.filter((r) => r.status === "completed").length || 0,
       },
     }
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
+    const a = document.createElement("a")
     a.href = url
-    a.download = `performance-test-results-${new Date().toISOString().split('T')[0]}.json`
+    a.download = `performance-test-results-${new Date().toISOString().split("T")[0]}.json`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -353,12 +353,12 @@ const PerformanceTester = () => {
   // 计算统计数据
   const stats = {
     totalTests: results.length,
-    successfulTests: results.filter((r) => r.status === 'completed').length,
-    failedTests: results.filter((r) => r.status === 'failed').length,
+    successfulTests: results.filter((r) => r.status === "completed").length,
+    failedTests: results.filter((r) => r.status === "failed").length,
     averageImprovement:
-      results.filter((r) => r.status === 'completed').reduce((sum, r) => sum + r.improvement, 0) /
-        results.filter((r) => r.status === 'completed').length || 0,
-    bestImprovement: Math.max(...results.filter((r) => r.status === 'completed').map((r) => r.improvement), 0),
+      results.filter((r) => r.status === "completed").reduce((sum, r) => sum + r.improvement, 0) /
+        results.filter((r) => r.status === "completed").length || 0,
+    bestImprovement: Math.max(...results.filter((r) => r.status === "completed").map((r) => r.improvement), 0),
   }
 
   return (
@@ -441,13 +441,21 @@ const PerformanceTester = () => {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Button onClick={runPerformanceTest} disabled={isRunning} className="flex items-center gap-2">
+                <Button
+                  onClick={runPerformanceTest}
+                  disabled={isRunning}
+                  className="flex items-center gap-2"
+                >
                   <Play className="w-4 h-4" />
-                  {isRunning ? 'Running Test...' : 'Run Performance Test'}
+                  {isRunning ? "Running Test..." : "Run Performance Test"}
                 </Button>
 
                 {isRunning && (
-                  <Button onClick={stopTest} variant="destructive" className="flex items-center gap-2">
+                  <Button
+                    onClick={stopTest}
+                    variant="destructive"
+                    className="flex items-center gap-2"
+                  >
                     <Square className="w-4 h-4" />
                     Stop Test
                   </Button>
@@ -472,7 +480,10 @@ const PerformanceTester = () => {
                   <span>Testing: {currentTest}</span>
                   <span>{currentProgress}%</span>
                 </div>
-                <Progress value={currentProgress} className="w-full" />
+                <Progress
+                  value={currentProgress}
+                  className="w-full"
+                />
               </div>
             )}
           </CardContent>
@@ -557,11 +568,21 @@ const PerformanceTester = () => {
 
               {results.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <Button onClick={exportResults} variant="outline" size="sm" className="flex items-center gap-2">
+                  <Button
+                    onClick={exportResults}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
                     <Download className="w-4 h-4" />
                     Export
                   </Button>
-                  <Button onClick={clearResults} variant="outline" size="sm" className="flex items-center gap-2">
+                  <Button
+                    onClick={clearResults}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
                     <Trash2 className="w-4 h-4" />
                     Clear
                   </Button>
@@ -578,29 +599,32 @@ const PerformanceTester = () => {
             ) : (
               <div className="space-y-4">
                 {results.map((result) => (
-                  <div key={result.id} className="border rounded-lg p-4 space-y-3">
+                  <div
+                    key={result.id}
+                    className="border rounded-lg p-4 space-y-3"
+                  >
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-medium">{result.testName}</h4>
                         <p className="text-sm text-muted-foreground">{new Date(result.timestamp).toLocaleString()}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant={result.status === 'completed' ? 'default' : 'destructive'}>
+                        <Badge variant={result.status === "completed" ? "default" : "destructive"}>
                           {result.status}
                         </Badge>
-                        {result.status === 'completed' && (
+                        {result.status === "completed" && (
                           <Badge
-                            variant={result.improvement > 0 ? 'default' : 'secondary'}
-                            className={result.improvement > 0 ? 'bg-green-100 text-green-800' : ''}
+                            variant={result.improvement > 0 ? "default" : "secondary"}
+                            className={result.improvement > 0 ? "bg-green-100 text-green-800" : ""}
                           >
-                            {result.improvement > 0 ? '+' : ''}
+                            {result.improvement > 0 ? "+" : ""}
                             {result.improvement.toFixed(1)}%
                           </Badge>
                         )}
                       </div>
                     </div>
 
-                    {result.status === 'completed' ? (
+                    {result.status === "completed" ? (
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                         <div className="space-y-2">
                           <h5 className="font-medium flex items-center gap-2">
@@ -656,7 +680,7 @@ const PerformanceTester = () => {
                     ) : (
                       <div className="text-red-600 text-sm">
                         <AlertTriangle className="w-4 h-4 inline mr-2" />
-                        {result.error || 'Test failed'}
+                        {result.error || "Test failed"}
                       </div>
                     )}
                   </div>

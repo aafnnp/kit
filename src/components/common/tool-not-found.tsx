@@ -1,10 +1,12 @@
+import { type ToolNotFoundProps } from "@/components/common/schemas"
+
 /**
  * Tool Not Found Component
  * 工具未找到页面组件
  */
-interface ToolNotFoundProps {
-  toolSlug?: string
-}
+
+// Re-export type for backward compatibility
+export type { ToolNotFoundProps }
 
 export default function ToolNotFound({ toolSlug }: ToolNotFoundProps) {
   return (
@@ -15,4 +17,3 @@ export default function ToolNotFound({ toolSlug }: ToolNotFoundProps) {
     </div>
   )
 }
-

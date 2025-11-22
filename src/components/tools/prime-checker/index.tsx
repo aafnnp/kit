@@ -34,7 +34,7 @@ import type {
   GenerationAlgorithm,
   NumberType,
   ExportFormat,
-} from "@/types/prime-checker"
+} from "@/schemas/prime-checker.schema"
 
 // Utility functions
 
@@ -1775,19 +1775,19 @@ const PrimeCheckerCore = () => {
                   <h4 className="font-medium">Performance Tips</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></div>
                       <div>Use Trial Division for numbers under 1,000,000</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></div>
                       <div>Use Miller-Rabin for large numbers and cryptographic applications</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 shrink-0"></div>
                       <div>Sieve of Eratosthenes is most efficient for generating many primes</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 shrink-0"></div>
                       <div>Segmented Sieve handles very large ranges efficiently</div>
                     </div>
                   </div>

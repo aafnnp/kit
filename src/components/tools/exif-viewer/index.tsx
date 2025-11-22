@@ -33,7 +33,7 @@ import type {
   ExifSettings,
   ExifTemplate,
   ExportFormat,
-} from "@/types/exif-viewer"
+} from "@/schemas/exif-viewer.schema"
 import { formatFileSize } from "@/lib/utils"
 // Utility functions
 
@@ -1423,7 +1423,7 @@ const ExifViewerCore = () => {
                             )}
                             {file.error && <div className="text-red-600 text-sm">Error: {file.error}</div>}
                           </div>
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <Button
                               size="sm"
                               variant="ghost"

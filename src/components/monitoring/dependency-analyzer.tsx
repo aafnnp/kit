@@ -14,38 +14,22 @@ import { Icon } from "@/components/ui/icon-compat"
 import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 import { useTranslation } from "react-i18next"
-
-interface DependencyAnalysis {
-  heavy: string[]
-  optimizable: string[]
-  light: string[]
-  recommendations: string[]
-}
-
-interface OptimizationStats {
-  totalDependencies: number
-  heavyDependencies: number
-  optimizableDependencies: number
-  lightDependencies: number
-  potentialSavings: string
-}
+import type {
+  DependencyAnalysis,
+  DependencyOptimizationStats,
+  AuditTotals,
+  AuditIssuesByPkg,
+  ReplacementPlanItem,
+} from "./schemas"
 
 export function DependencyAnalyzer() {
   const { t } = useTranslation()
   const [analysis, setAnalysis] = useState<DependencyAnalysis | null>(null)
-  const [stats, setStats] = useState<OptimizationStats | null>(null)
+  const [stats, setStats] = useState<DependencyOptimizationStats | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<"heavy" | "optimizable" | "light">("heavy")
-  const [auditTotals, setAuditTotals] = useState<{
-    low: number
-    moderate: number
-    high: number
-    critical: number
-    total: number
-  } | null>(null)
-  const [auditIssuesByPkg, setAuditIssuesByPkg] = useState<
-    Record<string, { highestSeverity: "low" | "moderate" | "high" | "critical"; count: number; titles: string[] }>
-  >({})
+  const [auditTotals, setAuditTotals] = useState<AuditTotals | null>(null)
+  const [auditIssuesByPkg, setAuditIssuesByPkg] = useState<AuditIssuesByPkg>({})
   const [generatedScript, setGeneratedScript] = useState<string>("")
 
   useEffect(() => {
@@ -135,8 +119,8 @@ export function DependencyAnalyzer() {
 
   const severityOrder: Array<"low" | "moderate" | "high" | "critical"> = ["low", "moderate", "high", "critical"]
 
-  const buildReplacementPlan = () => {
-    if (!analysis) return [] as Array<{ from: string; to: string; reason: string; severity?: string }>
+  const buildReplacementPlan = (): ReplacementPlanItem[] => {
+    if (!analysis) return []
     return resourceOptimizer
       .generateReplacementPlan({ heavy: analysis.heavy, optimizable: analysis.optimizable }, auditIssuesByPkg)
       .sort((a, b) => {

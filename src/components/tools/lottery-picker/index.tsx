@@ -37,7 +37,7 @@ import type {
   LotteryValidation,
   SelectionMode,
   ExportFormat,
-} from "@/types/lottery-picker"
+} from "@/schemas/lottery-picker.schema"
 
 // Utility functions
 

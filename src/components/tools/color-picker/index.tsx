@@ -44,7 +44,7 @@ import type {
   ColorTemplate,
   CMYK,
   LAB,
-} from "@/types/color-picker"
+} from "@/schemas/color-picker.schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions
@@ -1667,7 +1667,7 @@ const ColorPickerCore = () => {
                         className="border rounded-lg p-4"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
 
@@ -1724,7 +1724,7 @@ const ColorPickerCore = () => {
                             </div>
                           </div>
 
-                          <div className="flex-shrink-0 flex items-center gap-2">
+                          <div className="shrink-0 flex items-center gap-2">
                             {file.status === "completed" && file.colorData && (
                               <>
                                 <Button

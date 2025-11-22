@@ -32,7 +32,7 @@ import type {
   RegexSettings,
   RegexPattern,
   RegexTestResult,
-} from "@/types/regex-tester"
+} from "@/schemas/regex-tester.schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 
@@ -1600,7 +1600,7 @@ const RegexTesterCore = () => {
                         className="border rounded-lg p-4"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
 
@@ -1640,7 +1640,7 @@ const RegexTesterCore = () => {
                             </div>
                           </div>
 
-                          <div className="flex-shrink-0 flex items-center gap-2">
+                          <div className="shrink-0 flex items-center gap-2">
                             {file.status === "completed" && file.matches && (
                               <>
                                 <Button

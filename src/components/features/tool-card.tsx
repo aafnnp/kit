@@ -9,13 +9,10 @@ import { getDesktopApi } from "@/lib/utils"
 import { logger } from "@/lib/data/logger"
 import { preloader } from "@/lib/data"
 import { loadIconComponent, getLoadedIconComponent } from "@/lib/data"
-import type { Tool } from "@/types/tool"
+import { type ToolCardProps } from "@/components/features/schemas"
 
-interface ToolCardProps {
-  tool: Tool
-  showFavoriteButton?: boolean
-  onClick?: () => void
-}
+// Re-export type for backward compatibility
+export type { ToolCardProps }
 
 function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCardProps) {
   const { t } = useTranslation()
@@ -49,7 +46,7 @@ function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCar
 
     if (tool.href) {
       const desktopApi = getDesktopApi()
-      if (desktopApi) {
+      if (desktopApi?.openExternal) {
         desktopApi.openExternal(tool.href).catch((err: unknown) => {
           logger.error("Failed to open external link", err)
         })

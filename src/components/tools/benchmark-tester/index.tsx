@@ -1,11 +1,11 @@
-import { useState, useCallback, useRef } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import { toast } from 'sonner'
+import { useState, useCallback, useRef } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import { toast } from "sonner"
 import {
   Play,
   Square,
@@ -22,10 +22,10 @@ import {
   Award,
   Cpu,
   MemoryStick,
-} from 'lucide-react'
-import { nanoid } from 'nanoid'
-import { ToolBase } from '@/components/common/tool-base'
-import type { TestResult, TestConfig, BenchmarkResult } from '@/types/performance-tester'
+} from "lucide-react"
+import { nanoid } from "nanoid"
+import { ToolBase } from "@/components/common/tool-base"
+import type { TestResult, TestConfig, BenchmarkResult } from "@/schemas/performance-tester.schema"
 
 interface BenchmarkComparison {
   id: string
@@ -53,116 +53,116 @@ interface BenchmarkSuite {
 
 const defaultBenchmarkSuites: BenchmarkSuite[] = [
   {
-    id: 'image-processing',
-    name: 'Image Processing Suite',
-    description: 'Comprehensive image compression and manipulation tests',
+    id: "image-processing",
+    name: "Image Processing Suite",
+    description: "Comprehensive image compression and manipulation tests",
     enabled: true,
     tests: [
       {
-        testType: 'image-compress',
+        testType: "image-compress",
         iterations: 10,
-        dataSize: 'small',
+        dataSize: "small",
         concurrency: 2,
         measureMemory: true,
       },
       {
-        testType: 'image-compress',
+        testType: "image-compress",
         iterations: 5,
-        dataSize: 'medium',
+        dataSize: "medium",
         concurrency: 4,
         measureMemory: true,
       },
       {
-        testType: 'image-compress',
+        testType: "image-compress",
         iterations: 3,
-        dataSize: 'large',
+        dataSize: "large",
         concurrency: 8,
         measureMemory: true,
       },
     ],
   },
   {
-    id: 'audio-processing',
-    name: 'Audio Processing Suite',
-    description: 'Audio conversion and manipulation performance tests',
+    id: "audio-processing",
+    name: "Audio Processing Suite",
+    description: "Audio conversion and manipulation performance tests",
     enabled: true,
     tests: [
       {
-        testType: 'audio-convert',
+        testType: "audio-convert",
         iterations: 8,
-        dataSize: 'small',
+        dataSize: "small",
         concurrency: 2,
         measureMemory: true,
       },
       {
-        testType: 'audio-convert',
+        testType: "audio-convert",
         iterations: 4,
-        dataSize: 'medium',
+        dataSize: "medium",
         concurrency: 3,
         measureMemory: true,
       },
       {
-        testType: 'audio-convert',
+        testType: "audio-convert",
         iterations: 2,
-        dataSize: 'large',
+        dataSize: "large",
         concurrency: 4,
         measureMemory: true,
       },
     ],
   },
   {
-    id: 'video-processing',
-    name: 'Video Processing Suite',
-    description: 'Video trimming and processing performance tests',
+    id: "video-processing",
+    name: "Video Processing Suite",
+    description: "Video trimming and processing performance tests",
     enabled: true,
     tests: [
       {
-        testType: 'video-trim',
+        testType: "video-trim",
         iterations: 5,
-        dataSize: 'small',
+        dataSize: "small",
         concurrency: 1,
         measureMemory: true,
       },
       {
-        testType: 'video-trim',
+        testType: "video-trim",
         iterations: 3,
-        dataSize: 'medium',
+        dataSize: "medium",
         concurrency: 2,
         measureMemory: true,
       },
       {
-        testType: 'video-trim',
+        testType: "video-trim",
         iterations: 1,
-        dataSize: 'large',
+        dataSize: "large",
         concurrency: 2,
         measureMemory: true,
       },
     ],
   },
   {
-    id: 'matrix-computation',
-    name: 'Matrix Computation Suite',
-    description: 'Mathematical computation and linear algebra tests',
+    id: "matrix-computation",
+    name: "Matrix Computation Suite",
+    description: "Mathematical computation and linear algebra tests",
     enabled: true,
     tests: [
       {
-        testType: 'matrix-math',
+        testType: "matrix-math",
         iterations: 20,
-        dataSize: 'small',
+        dataSize: "small",
         concurrency: 4,
         measureMemory: true,
       },
       {
-        testType: 'matrix-math',
+        testType: "matrix-math",
         iterations: 10,
-        dataSize: 'medium',
+        dataSize: "medium",
         concurrency: 8,
         measureMemory: true,
       },
       {
-        testType: 'matrix-math',
+        testType: "matrix-math",
         iterations: 5,
-        dataSize: 'large',
+        dataSize: "large",
         concurrency: 12,
         measureMemory: true,
       },
@@ -175,7 +175,7 @@ const BenchmarkTester = () => {
   const [comparisons, setComparisons] = useState<BenchmarkComparison[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [currentProgress, setCurrentProgress] = useState(0)
-  const [currentTest, setCurrentTest] = useState('')
+  const [currentTest, setCurrentTest] = useState("")
   const [baselineResults, setBaselineResults] = useState<BenchmarkResult | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -193,34 +193,34 @@ const BenchmarkTester = () => {
   // 生成测试数据
   const generateTestData = useCallback((testType: string, size: string) => {
     switch (testType) {
-      case 'image-compress':
-        const dimensions = size === 'small' ? 512 : size === 'medium' ? 1024 : 2048
+      case "image-compress":
+        const dimensions = size === "small" ? 512 : size === "medium" ? 1024 : 2048
         return {
           width: dimensions,
           height: dimensions,
-          format: 'png',
+          format: "png",
           quality: 0.8,
         }
-      case 'audio-convert':
-        const duration = size === 'small' ? 30 : size === 'medium' ? 120 : 300
+      case "audio-convert":
+        const duration = size === "small" ? 30 : size === "medium" ? 120 : 300
         return {
           duration,
           sampleRate: 44100,
           channels: 2,
-          format: 'wav',
+          format: "wav",
         }
-      case 'video-trim':
-        const videoDuration = size === 'small' ? 10 : size === 'medium' ? 60 : 180
+      case "video-trim":
+        const videoDuration = size === "small" ? 10 : size === "medium" ? 60 : 180
         return {
           duration: videoDuration,
-          resolution: size === 'small' ? '720p' : size === 'medium' ? '1080p' : '4k',
+          resolution: size === "small" ? "720p" : size === "medium" ? "1080p" : "4k",
           fps: 30,
         }
-      case 'matrix-math':
-        const matrixSize = size === 'small' ? 50 : size === 'medium' ? 100 : 200
+      case "matrix-math":
+        const matrixSize = size === "small" ? 50 : size === "medium" ? 100 : 200
         return {
           size: matrixSize,
-          operation: 'multiply',
+          operation: "multiply",
           density: 0.7,
         }
       default:
@@ -239,11 +239,11 @@ const BenchmarkTester = () => {
 
       const taskId = nanoid()
       await new Promise((resolve) => {
-        const worker = new Worker('/workers/processing-worker.js')
+        const worker = new Worker("/workers/processing-worker.js")
 
         // 将抽象测试类型映射为具体 Worker 任务；避免依赖文件型输入，非矩阵任务使用 regex 占位
         let message: any
-        if (config.testType === 'matrix-math') {
+        if (config.testType === "matrix-math") {
           const n = (testData as any)?.size || 100
           const makeMatrix = (size: number) =>
             Array.from({ length: size }, () => Array.from({ length: size }, () => Math.random()))
@@ -251,7 +251,7 @@ const BenchmarkTester = () => {
           const B = makeMatrix(n)
           message = {
             taskId,
-            type: 'matrix-multiply',
+            type: "matrix-multiply",
             data: {
               matrices: [
                 { data: A, rows: n, cols: n },
@@ -264,16 +264,16 @@ const BenchmarkTester = () => {
           const repeats = (testData as any)?.duration
             ? Math.max(1, Math.floor(((testData as any).duration as number) / 10))
             : 50
-          const chunk = 'lorem ipsum dolor sit amet consectetur adipiscing elit '
+          const chunk = "lorem ipsum dolor sit amet consectetur adipiscing elit "
           const bigText = chunk.repeat(
-            repeats * (config.dataSize === 'large' ? 400 : config.dataSize === 'medium' ? 200 : 100)
+            repeats * (config.dataSize === "large" ? 400 : config.dataSize === "medium" ? 200 : 100)
           )
           message = {
             taskId,
-            type: 'regex-match',
+            type: "regex-match",
             data: {
-              pattern: '\\b[a-z]{3,}\\b',
-              flags: 'gi',
+              pattern: "\\b[a-z]{3,}\\b",
+              flags: "gi",
               text: bigText,
             },
             iterations: config.iterations,
@@ -283,10 +283,10 @@ const BenchmarkTester = () => {
         worker.postMessage(message)
 
         worker.onmessage = (e) => {
-          if (e.data?.type === 'complete') {
+          if (e.data?.type === "complete") {
             worker.terminate()
             resolve(e.data.data ?? e.data.result)
-          } else if (e.data?.type === 'error') {
+          } else if (e.data?.type === "error") {
             worker.terminate()
             resolve(null)
           }
@@ -336,7 +336,7 @@ const BenchmarkTester = () => {
           mainThread: config.iterations / (mainThreadTime / 1000),
         },
         timestamp: Date.now(),
-        status: 'completed' as const,
+        status: "completed" as const,
       }
     },
     [generateTestData]
@@ -368,7 +368,7 @@ const BenchmarkTester = () => {
           const result = await runSingleTest(test)
           results.push(result)
         } catch (error) {
-          console.error('Test failed:', error)
+          console.error("Test failed:", error)
           results.push({
             id: nanoid(),
             testName: `${test.testType} - ${test.dataSize} (Failed)`,
@@ -379,8 +379,8 @@ const BenchmarkTester = () => {
             memoryUsage: { worker: 0, mainThread: 0 },
             throughput: { worker: 0, mainThread: 0 },
             timestamp: Date.now(),
-            status: 'failed',
-            error: error instanceof Error ? error.message : 'Unknown error',
+            status: "failed",
+            error: error instanceof Error ? error.message : "Unknown error",
           })
         }
 
@@ -392,19 +392,19 @@ const BenchmarkTester = () => {
         results,
         summary: {
           totalTests: results.length,
-          successfulTests: results.filter((r) => r.status === 'completed').length,
-          failedTests: results.filter((r) => r.status === 'failed').length,
+          successfulTests: results.filter((r) => r.status === "completed").length,
+          failedTests: results.filter((r) => r.status === "failed").length,
           averageImprovement:
-            results.filter((r) => r.status === 'completed').reduce((sum, r) => sum + r.improvement, 0) /
-              results.filter((r) => r.status === 'completed').length || 0,
-          bestImprovement: Math.max(...results.filter((r) => r.status === 'completed').map((r) => r.improvement), 0),
+            results.filter((r) => r.status === "completed").reduce((sum, r) => sum + r.improvement, 0) /
+              results.filter((r) => r.status === "completed").length || 0,
+          bestImprovement: Math.max(...results.filter((r) => r.status === "completed").map((r) => r.improvement), 0),
         },
         environment: getSystemInfo(),
       }
 
       if (!baselineResults) {
         setBaselineResults(benchmarkResult)
-        toast.success('Baseline benchmark completed! Run another benchmark to compare.')
+        toast.success("Baseline benchmark completed! Run another benchmark to compare.")
       } else {
         // 创建对比
         const comparison = createComparison(baselineResults, benchmarkResult)
@@ -412,11 +412,11 @@ const BenchmarkTester = () => {
         toast.success(`Benchmark comparison completed! Overall score: ${comparison.overallScore.toFixed(1)}`)
       }
     } catch (error) {
-      toast.error(`Benchmark failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      toast.error(`Benchmark failed: ${error instanceof Error ? error.message : "Unknown error"}`)
     } finally {
       setIsRunning(false)
       setCurrentProgress(0)
-      setCurrentTest('')
+      setCurrentTest("")
     }
   }, [benchmarkSuites, isRunning, runSingleTest, baselineResults, getSystemInfo])
 
@@ -425,11 +425,11 @@ const BenchmarkTester = () => {
     const improvements: { [key: string]: any } = {}
 
     // 按测试类型分组计算改进
-    const testTypes = ['image-compress', 'audio-convert', 'video-trim', 'matrix-math']
+    const testTypes = ["image-compress", "audio-convert", "video-trim", "matrix-math"]
 
     testTypes.forEach((testType) => {
-      const baselineTests = baseline.results.filter((r) => r.testType === testType && r.status === 'completed')
-      const currentTests = current.results.filter((r) => r.testType === testType && r.status === 'completed')
+      const baselineTests = baseline.results.filter((r) => r.testType === testType && r.status === "completed")
+      const currentTests = current.results.filter((r) => r.testType === testType && r.status === "completed")
 
       if (baselineTests.length > 0 && currentTests.length > 0) {
         const baselineAvgTime = baselineTests.reduce((sum, r) => sum + r.workerTime, 0) / baselineTests.length
@@ -480,7 +480,7 @@ const BenchmarkTester = () => {
     }
     setIsRunning(false)
     setCurrentProgress(0)
-    setCurrentTest('')
+    setCurrentTest("")
   }, [])
 
   // 重置基准线
@@ -491,11 +491,11 @@ const BenchmarkTester = () => {
 
   // 导出基准测试结果
   const exportBenchmark = useCallback((result: BenchmarkResult) => {
-    const blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' })
+    const blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" })
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
+    const a = document.createElement("a")
     a.href = url
-    a.download = `benchmark-${result.timestamp.split('T')[0]}.json`
+    a.download = `benchmark-${result.timestamp.split("T")[0]}.json`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -512,9 +512,9 @@ const BenchmarkTester = () => {
       try {
         const result = JSON.parse(e.target?.result as string) as BenchmarkResult
         setBaselineResults(result)
-        toast.success('Baseline benchmark imported successfully!')
+        toast.success("Baseline benchmark imported successfully!")
       } catch (error) {
-        toast.error('Failed to import benchmark file')
+        toast.error("Failed to import benchmark file")
       }
     }
     reader.readAsText(file)
@@ -546,11 +546,21 @@ const BenchmarkTester = () => {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {benchmarkSuites.map((suite) => (
-                <div key={suite.id} className="border rounded-lg p-4 space-y-3">
+                <div
+                  key={suite.id}
+                  className="border rounded-lg p-4 space-y-3"
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <Checkbox id={suite.id} checked={suite.enabled} onCheckedChange={() => toggleSuite(suite.id)} />
-                      <Label htmlFor={suite.id} className="font-medium">
+                      <Checkbox
+                        id={suite.id}
+                        checked={suite.enabled}
+                        onCheckedChange={() => toggleSuite(suite.id)}
+                      />
+                      <Label
+                        htmlFor={suite.id}
+                        className="font-medium"
+                      >
                         {suite.name}
                       </Label>
                     </div>
@@ -558,7 +568,7 @@ const BenchmarkTester = () => {
                   </div>
                   <p className="text-sm text-muted-foreground">{suite.description}</p>
                   <div className="text-xs text-muted-foreground">
-                    Tests: {suite.tests.map((t) => `${t.testType}(${t.dataSize})`).join(', ')}
+                    Tests: {suite.tests.map((t) => `${t.testType}(${t.dataSize})`).join(", ")}
                   </div>
                 </div>
               ))}
@@ -572,11 +582,15 @@ const BenchmarkTester = () => {
                   className="flex items-center gap-2"
                 >
                   <Play className="w-4 h-4" />
-                  {isRunning ? 'Running Benchmark...' : baselineResults ? 'Run Comparison' : 'Run Baseline'}
+                  {isRunning ? "Running Benchmark..." : baselineResults ? "Run Comparison" : "Run Baseline"}
                 </Button>
 
                 {isRunning && (
-                  <Button onClick={stopBenchmark} variant="destructive" className="flex items-center gap-2">
+                  <Button
+                    onClick={stopBenchmark}
+                    variant="destructive"
+                    className="flex items-center gap-2"
+                  >
                     <Square className="w-4 h-4" />
                     Stop Benchmark
                   </Button>
@@ -584,7 +598,13 @@ const BenchmarkTester = () => {
               </div>
 
               <div className="flex items-center gap-2">
-                <input ref={fileInputRef} type="file" accept=".json" onChange={importBenchmark} className="hidden" />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".json"
+                  onChange={importBenchmark}
+                  className="hidden"
+                />
                 <Button
                   onClick={() => fileInputRef.current?.click()}
                   variant="outline"
@@ -606,7 +626,12 @@ const BenchmarkTester = () => {
                       <Download className="w-4 h-4" />
                       Export Baseline
                     </Button>
-                    <Button onClick={resetBaseline} variant="outline" size="sm" className="flex items-center gap-2">
+                    <Button
+                      onClick={resetBaseline}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
                       <RotateCcw className="w-4 h-4" />
                       Reset
                     </Button>
@@ -621,7 +646,10 @@ const BenchmarkTester = () => {
                   <span>Running: {currentTest}</span>
                   <span>{currentProgress.toFixed(1)}%</span>
                 </div>
-                <Progress value={currentProgress} className="w-full" />
+                <Progress
+                  value={currentProgress}
+                  className="w-full"
+                />
               </div>
             )}
           </CardContent>
@@ -698,7 +726,10 @@ const BenchmarkTester = () => {
             ) : (
               <div className="space-y-6">
                 {comparisons.map((comparison) => (
-                  <div key={comparison.id} className="border rounded-lg p-6 space-y-4">
+                  <div
+                    key={comparison.id}
+                    className="border rounded-lg p-6 space-y-4"
+                  >
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-medium text-lg">{comparison.name}</h4>
@@ -708,9 +739,9 @@ const BenchmarkTester = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge
-                          variant={comparison.overallScore > 0 ? 'default' : 'secondary'}
+                          variant={comparison.overallScore > 0 ? "default" : "secondary"}
                           className={
-                            comparison.overallScore > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            comparison.overallScore > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                           }
                         >
                           {comparison.overallScore > 0 ? (
@@ -721,7 +752,10 @@ const BenchmarkTester = () => {
                           {comparison.overallScore.toFixed(1)}% overall
                         </Badge>
                         {comparison.overallScore > 10 && (
-                          <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+                          <Badge
+                            variant="outline"
+                            className="text-yellow-600 border-yellow-600"
+                          >
                             <Award className="w-3 h-3 mr-1" />
                             Significant
                           </Badge>
@@ -731,8 +765,11 @@ const BenchmarkTester = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {Object.entries(comparison.improvements).map(([testType, improvements]) => (
-                        <div key={testType} className="border rounded-lg p-4 space-y-3">
-                          <h5 className="font-medium capitalize">{testType.replace('-', ' ')}</h5>
+                        <div
+                          key={testType}
+                          className="border rounded-lg p-4 space-y-3"
+                        >
+                          <h5 className="font-medium capitalize">{testType.replace("-", " ")}</h5>
 
                           <div className="space-y-2 text-sm">
                             <div className="flex items-center justify-between">
@@ -742,10 +779,10 @@ const BenchmarkTester = () => {
                               </span>
                               <span
                                 className={`font-mono ${
-                                  improvements.timeImprovement > 0 ? 'text-green-600' : 'text-red-600'
+                                  improvements.timeImprovement > 0 ? "text-green-600" : "text-red-600"
                                 }`}
                               >
-                                {improvements.timeImprovement > 0 ? '+' : ''}
+                                {improvements.timeImprovement > 0 ? "+" : ""}
                                 {improvements.timeImprovement.toFixed(1)}%
                               </span>
                             </div>
@@ -757,10 +794,10 @@ const BenchmarkTester = () => {
                               </span>
                               <span
                                 className={`font-mono ${
-                                  improvements.memoryImprovement > 0 ? 'text-green-600' : 'text-red-600'
+                                  improvements.memoryImprovement > 0 ? "text-green-600" : "text-red-600"
                                 }`}
                               >
-                                {improvements.memoryImprovement > 0 ? '+' : ''}
+                                {improvements.memoryImprovement > 0 ? "+" : ""}
                                 {improvements.memoryImprovement.toFixed(1)}%
                               </span>
                             </div>
@@ -772,10 +809,10 @@ const BenchmarkTester = () => {
                               </span>
                               <span
                                 className={`font-mono ${
-                                  improvements.throughputImprovement > 0 ? 'text-green-600' : 'text-red-600'
+                                  improvements.throughputImprovement > 0 ? "text-green-600" : "text-red-600"
                                 }`}
                               >
-                                {improvements.throughputImprovement > 0 ? '+' : ''}
+                                {improvements.throughputImprovement > 0 ? "+" : ""}
                                 {improvements.throughputImprovement.toFixed(1)}%
                               </span>
                             </div>
@@ -786,7 +823,7 @@ const BenchmarkTester = () => {
 
                     <div className="flex items-center justify-between pt-4 border-t">
                       <div className="text-sm text-muted-foreground">
-                        Baseline: {comparison.baseline.summary.totalTests} tests • Current:{' '}
+                        Baseline: {comparison.baseline.summary.totalTests} tests • Current:{" "}
                         {comparison.current.summary.totalTests} tests
                       </div>
                       <div className="flex items-center gap-2">

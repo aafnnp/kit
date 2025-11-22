@@ -1,4 +1,10 @@
 import { contextBridge, ipcRenderer } from "electron"
+import { z } from "zod"
+import { updateInfoSchema, updateProgressEventSchema, type UpdateInfo, type UpdateProgressEvent } from "./schemas"
+
+// Re-export types for external use
+export type { UpdateInfo, UpdateProgressEvent }
+export { updateInfoSchema, updateProgressEventSchema }
 
 export interface DesktopApi {
   openExternal: (url: string) => Promise<void>
@@ -16,21 +22,6 @@ export interface DesktopApi {
   }
 }
 
-export interface UpdateInfo {
-  version: string
-  date?: string
-  body?: string
-}
-
-export interface UpdateProgressEvent {
-  event: "Started" | "Progress" | "Finished"
-  data: {
-    downloaded?: number
-    chunkLength?: number
-    contentLength?: number
-  }
-}
-
 const desktopApi: DesktopApi = {
   openExternal: (url: string) => ipcRenderer.invoke("desktop:openExternal", url),
   relaunch: () => ipcRenderer.invoke("desktop:relaunch"),
@@ -41,14 +32,47 @@ const desktopApi: DesktopApi = {
     isMaximized: () => ipcRenderer.invoke("window:isMaximized"),
   },
   updater: {
-    check: () => ipcRenderer.invoke("updater:check"),
+    check: async () => {
+      const result = await ipcRenderer.invoke("updater:check")
+      if (result === null) {
+        return null
+      }
+      try {
+        return updateInfoSchema.parse(result)
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          console.error("Invalid update info received:", error.issues)
+          return null
+        }
+        throw error
+      }
+    },
     downloadAndInstall: (onProgress: (event: UpdateProgressEvent) => void) => {
       return new Promise<void>((resolve, reject) => {
-        const progressHandler = (_event: Electron.IpcRendererEvent, data: UpdateProgressEvent) => {
-          onProgress(data)
-          if (data.event === "Finished") {
-            ipcRenderer.removeListener("updater:progress", progressHandler)
-            resolve()
+        let isResolved = false
+        const progressHandler = (_event: Electron.IpcRendererEvent, data: unknown) => {
+          try {
+            const validatedData = updateProgressEventSchema.parse(data)
+            onProgress(validatedData)
+            if (validatedData.event === "Finished") {
+              if (!isResolved) {
+                isResolved = true
+                ipcRenderer.removeListener("updater:progress", progressHandler)
+                resolve()
+              }
+            }
+          } catch (error) {
+            if (error instanceof z.ZodError) {
+              console.error("Invalid progress event received:", error.issues)
+              // Continue listening for valid events, but don't resolve/reject yet
+              // The download may still complete successfully with subsequent valid events
+              return
+            }
+            if (!isResolved) {
+              isResolved = true
+              ipcRenderer.removeListener("updater:progress", progressHandler)
+              reject(error)
+            }
           }
         }
 
@@ -57,11 +81,22 @@ const desktopApi: DesktopApi = {
         ipcRenderer
           .invoke("updater:downloadAndInstall")
           .then(() => {
-            // Progress handler will resolve
+            // Progress handler will resolve when "Finished" event is received
+            // Set a timeout to prevent indefinite hanging if no progress events are received
+            setTimeout(() => {
+              if (!isResolved) {
+                isResolved = true
+                ipcRenderer.removeListener("updater:progress", progressHandler)
+                reject(new Error("Download timeout: No progress events received"))
+              }
+            }, 300000) // 5 minutes timeout
           })
           .catch((error) => {
-            ipcRenderer.removeListener("updater:progress", progressHandler)
-            reject(error)
+            if (!isResolved) {
+              isResolved = true
+              ipcRenderer.removeListener("updater:progress", progressHandler)
+              reject(error)
+            }
           })
       })
     },

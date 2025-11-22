@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react"
 import { toast } from "sonner"
-import { DragDropConfig, ValidationResult } from "@/types/common"
+import { DragDropConfig, ValidationResult } from "@/schemas/common.schema"
 
 export const useDragAndDrop = (onFilesDropped: (files: File[]) => void, config: DragDropConfig = {}) => {
   const {

@@ -9,14 +9,16 @@ export function CustomTitleBar() {
   const isDesktop = isDesktopApp()
 
   useEffect(() => {
-    if (!isDesktop || !desktopApi) return
+    if (!isDesktop || !desktopApi || !desktopApi.window) return
 
     // Check initial maximized state
     desktopApi.window.isMaximized().then(setIsMaximized)
 
     // Listen for window state changes
     const checkMaximized = () => {
-      desktopApi.window.isMaximized().then(setIsMaximized)
+      if (desktopApi?.window) {
+        desktopApi.window.isMaximized().then(setIsMaximized)
+      }
     }
 
     // Check periodically (Electron doesn't have a built-in event for this)
@@ -30,18 +32,18 @@ export function CustomTitleBar() {
   }
 
   const handleMinimize = () => {
-    desktopApi?.window.minimize()
+    desktopApi?.window?.minimize()
   }
 
   const handleMaximize = () => {
-    desktopApi?.window.maximize()
+    desktopApi?.window?.maximize()
     setTimeout(() => {
-      desktopApi?.window.isMaximized().then(setIsMaximized)
+      desktopApi?.window?.isMaximized().then(setIsMaximized)
     }, 100)
   }
 
   const handleClose = () => {
-    desktopApi?.window.close()
+    desktopApi?.window?.close()
   }
 
   const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0

@@ -2,23 +2,13 @@ import React, { useMemo, useRef, useEffect } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { motion } from "motion/react"
 import { ToolCard } from "@/components/features"
-import { TFunction } from "i18next"
 import { useRoutePrefetch } from "@/lib/routing"
 import { debounce } from "@/lib/utils"
-import type { Tool, ToolCategory } from "@/types/tool"
+import type { Tool, ToolCategory } from "@/schemas/tool.schema"
+import { type VirtualToolGridProps } from "@/components/features/schemas"
 
-interface VirtualToolGridProps {
-  categories: ToolCategory[]
-  showFavoriteButton?: boolean
-  onToolClick: (tool: Tool) => void
-  t: TFunction
-  className?: string
-  /**
-   * 触发虚拟滚动的工具数量阈值
-   * @default 50
-   */
-  threshold?: number
-}
+// Re-export type for backward compatibility
+export type { VirtualToolGridProps }
 
 /**
  * 虚拟滚动工具网格组件

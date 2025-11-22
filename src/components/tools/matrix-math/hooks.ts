@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef } from 'react'
-import { getWorkerManager } from '@/lib/workers'
-import type { Matrix, MatrixOperation, OperationType, MatrixAnalysis } from '@/types/matrix-math'
+import { useState, useCallback, useRef } from "react"
+import { getWorkerManager } from "@/lib/workers"
+import type { Matrix, MatrixOperation, OperationType, MatrixAnalysis } from "@/schemas/matrix-math.schema"
 
 export interface UseMatrixOperationsReturn {
   executeOperation: (operation: OperationType, matrices: Matrix[], params?: any) => Promise<MatrixOperation>
@@ -57,7 +57,7 @@ export function useMatrixOperations(
           id: taskId,
           type: `matrix-${operation}`,
           data,
-          priority: 'high',
+          priority: "high",
           onProgress: (value: number) => {
             setProgress(value)
             onProgress?.(value)
@@ -75,7 +75,7 @@ export function useMatrixOperations(
 
         const primaryMatrix = matrices[0]
         const analysis: MatrixAnalysis = {
-          dimensions: primaryMatrix ? `${primaryMatrix.rows}x${primaryMatrix.cols}` : '0x0',
+          dimensions: primaryMatrix ? `${primaryMatrix.rows}x${primaryMatrix.cols}` : "0x0",
           sparsity: primaryMatrix ? computeSparsity(primaryMatrix) : 0,
           norm: primaryMatrix ? computeFrobeniusNorm(primaryMatrix) : 0,
           condition: primaryMatrix ? estimateConditionNumber(primaryMatrix) : 0,
@@ -93,7 +93,7 @@ export function useMatrixOperations(
             complexity: workerResult?.metadata?.complexity ?? 0,
             numericalStability: calculateNumericalStability(matrices),
             memoryUsage: calculateMemoryUsage(matrices, workerResult?.result),
-            algorithmUsed: workerResult?.metadata?.algorithmUsed ?? '',
+            algorithmUsed: workerResult?.metadata?.algorithmUsed ?? "",
           },
           analysis,
           timestamp: new Date(),
@@ -148,66 +148,66 @@ export function useMatrixValidation() {
     }
 
     switch (operation) {
-      case 'add':
-      case 'subtract':
+      case "add":
+      case "subtract":
         if (matrices[0].rows !== matrices[1].rows || matrices[0].cols !== matrices[1].cols) {
           return {
             isValid: false,
-            error: 'Matrices must have the same dimensions for addition/subtraction',
+            error: "Matrices must have the same dimensions for addition/subtraction",
           }
         }
         break
 
-      case 'multiply':
+      case "multiply":
         if (matrices[0].cols !== matrices[1].rows) {
           return {
             isValid: false,
-            error: 'Number of columns in first matrix must equal number of rows in second matrix',
+            error: "Number of columns in first matrix must equal number of rows in second matrix",
           }
         }
         break
 
-      case 'inverse':
-      case 'determinant':
-      case 'eigenvalues':
-      case 'power':
+      case "inverse":
+      case "determinant":
+      case "eigenvalues":
+      case "power":
         if (matrices[0].rows !== matrices[0].cols) {
           return {
             isValid: false,
-            error: 'Matrix must be square for this operation',
+            error: "Matrix must be square for this operation",
           }
         }
         break
 
-      case 'lu':
-      case 'qr':
-      case 'svd':
+      case "lu":
+      case "qr":
+      case "svd":
         // 这些分解操作对矩阵形状没有严格要求
         break
 
-      case 'solve':
+      case "solve":
         if (matrices.length !== 2) {
           return {
             isValid: false,
-            error: 'Linear system solving requires exactly 2 matrices (A and b)',
+            error: "Linear system solving requires exactly 2 matrices (A and b)",
           }
         }
         if (matrices[0].rows !== matrices[0].cols) {
           return {
             isValid: false,
-            error: 'Coefficient matrix must be square',
+            error: "Coefficient matrix must be square",
           }
         }
         if (matrices[0].rows !== matrices[1].rows) {
           return {
             isValid: false,
-            error: 'Coefficient matrix rows must match constant vector rows',
+            error: "Coefficient matrix rows must match constant vector rows",
           }
         }
         if (matrices[1].cols !== 1) {
           return {
             isValid: false,
-            error: 'Constant vector must be a column vector',
+            error: "Constant vector must be a column vector",
           }
         }
         break
@@ -332,7 +332,7 @@ function calculateMemoryUsage(matrices: Matrix[], result: any): number {
   }
 
   // 计算结果的元素数
-  if (result && typeof result === 'object') {
+  if (result && typeof result === "object") {
     if (Array.isArray(result)) {
       if (Array.isArray(result[0])) {
         // 二维数组（矩阵）
@@ -353,20 +353,20 @@ function calculateMemoryUsage(matrices: Matrix[], result: any): number {
 
 function getExpectedMatrixCount(operation: OperationType): number {
   switch (operation) {
-    case 'add':
-    case 'subtract':
-    case 'multiply':
-    case 'solve':
+    case "add":
+    case "subtract":
+    case "multiply":
+    case "solve":
       return 2
-    case 'transpose':
-    case 'inverse':
-    case 'determinant':
-    case 'rank':
-    case 'eigenvalues':
-    case 'lu':
-    case 'qr':
-    case 'svd':
-    case 'power':
+    case "transpose":
+    case "inverse":
+    case "determinant":
+    case "rank":
+    case "eigenvalues":
+    case "lu":
+    case "qr":
+    case "svd":
+    case "power":
       return 1
     default:
       return 1

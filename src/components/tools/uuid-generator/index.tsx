@@ -40,7 +40,7 @@ import type {
   UUIDType,
   UUIDFormat,
   ExportFormat,
-} from "@/types/uuid-generator"
+} from "@/schemas/uuid-generator.schema"
 
 // Enhanced Types
 

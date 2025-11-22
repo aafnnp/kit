@@ -37,7 +37,7 @@ import type {
   RomanTemplate,
   ConversionValidation,
   ExportFormat,
-} from "@/types/roman-numeral"
+} from "@/schemas/roman-numeral.schema"
 // Utility functions
 
 const formatNumber = (num: number): string => {
@@ -1682,23 +1682,23 @@ const RomanNumeralCore = () => {
                   <h4 className="font-medium">Conversion Rules</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></div>
                       <div>Roman numerals are written from largest to smallest, left to right</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></div>
                       <div>When a smaller numeral appears before a larger one, it is subtracted</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 shrink-0"></div>
                       <div>Only I, X, and C can be used as subtractive numerals</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 shrink-0"></div>
                       <div>A numeral can only be repeated up to three times consecutively</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 shrink-0"></div>
                       <div>V, L, and D are never repeated or used subtractively</div>
                     </div>
                   </div>
@@ -1709,23 +1709,23 @@ const RomanNumeralCore = () => {
                   <h4 className="font-medium">Tool Features</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2 shrink-0"></div>
                       <div>Bidirectional conversion between Arabic numbers and Roman numerals</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-pink-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-pink-500 rounded-full mt-2 shrink-0"></div>
                       <div>Detailed analysis with historical context and mathematical properties</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 shrink-0"></div>
                       <div>Educational templates for learning and practice</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-cyan-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-cyan-500 rounded-full mt-2 shrink-0"></div>
                       <div>Export capabilities in multiple formats (JSON, HTML, CSV, XML)</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-teal-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-teal-500 rounded-full mt-2 shrink-0"></div>
                       <div>Conversion history with detailed metadata and analysis</div>
                     </div>
                   </div>

@@ -29,7 +29,7 @@ import {
   EncodingTemplate,
   EncodingOperation,
   EncodingFormat,
-} from "@/types/base64-encode"
+} from "@/schemas/base64-encode.schema"
 import { formatFileSize } from "@/lib/utils"
 import {
   useCopyToClipboard,
@@ -532,7 +532,7 @@ const Base64EncodeCore = () => {
                         className="border rounded-lg p-4"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -552,7 +552,7 @@ const Base64EncodeCore = () => {
                             )}
                             {file.error && <div className="text-red-600 text-sm">Error: {file.error}</div>}
                           </div>
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <Button
                               size="sm"
                               variant="ghost"

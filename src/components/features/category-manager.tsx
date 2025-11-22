@@ -29,11 +29,10 @@ import {
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { type CategoryManagerProps, type SortableCategoryCardProps } from "@/components/features/schemas"
 
-interface CategoryManagerProps {
-  allTools: any[]
-  onCategoryChange?: () => void
-}
+// Re-export types for backward compatibility
+export type { CategoryManagerProps, SortableCategoryCardProps }
 
 const CATEGORY_COLORS = [
   "#3b82f6", // blue
@@ -354,16 +353,7 @@ export function CategoryManager({ allTools, onCategoryChange }: CategoryManagerP
 }
 
 // 可排序的分类卡片组件
-interface SortableCategoryCardProps {
-  category: any
-  locale: string
-  allTools: any[]
-  onEdit: (category: any) => void
-  onDelete: (categoryId: string) => void
-  onAddTool: (categoryId: string, toolSlug: string) => void
-  onRemoveTool: (categoryId: string, toolSlug: string) => void
-  t: any
-}
+// SortableCategoryCardProps is imported from schemas.ts
 
 function SortableCategoryCard({
   category,

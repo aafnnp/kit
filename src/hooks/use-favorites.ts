@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import type { Tool } from "@/types/tool"
+import type { Tool } from "@/schemas/tool.schema"
 
 interface RecentTool extends Tool {
   lastUsed: number

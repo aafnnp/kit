@@ -1,53 +1,36 @@
-import { useState, useCallback, useMemo } from 'react'
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { ToolErrorBoundary } from '@/components/common/tool-error-boundary'
-import { useToolState } from '@/hooks/use-tool-state'
-import { useTemplateManager, BaseTemplate } from '@/hooks/use-template-manager'
-import { useSettingsManager, SettingGroup } from '@/hooks/use-settings-manager'
-import { Settings, FileText, History, Info, Zap } from 'lucide-react'
+import { useState, useCallback, useMemo } from "react"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { ToolErrorBoundary } from "@/components/common/tool-error-boundary"
+import { useToolState } from "@/hooks/use-tool-state"
+import { useTemplateManager, BaseTemplate } from "@/hooks/use-template-manager"
+import { useSettingsManager, SettingGroup } from "@/hooks/use-settings-manager"
+import { Settings, FileText, History, Info, Zap } from "lucide-react"
+import { type ToolTab, type ToolAction } from "@/components/common/schemas"
 
 // Grid columns mapping for Tailwind CSS
 const GRID_COLS_MAP: Record<number, string> = {
-  1: 'grid-cols-1',
-  2: 'grid-cols-2',
-  3: 'grid-cols-3',
-  4: 'grid-cols-4',
-  5: 'grid-cols-5',
-  6: 'grid-cols-6',
-  7: 'grid-cols-7',
-  8: 'grid-cols-8',
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-3",
+  4: "grid-cols-4",
+  5: "grid-cols-5",
+  6: "grid-cols-6",
+  7: "grid-cols-7",
+  8: "grid-cols-8",
 }
 
 const getGridColsClass = (count: number): string => {
-  return GRID_COLS_MAP[count] || 'grid-cols-1'
+  return GRID_COLS_MAP[count] || "grid-cols-1"
 }
 
-// 工具标签页类型
-export interface ToolTab {
-  id: string
-  label: string
-  icon: React.ReactNode
-  content: React.ReactNode
-  disabled?: boolean
-  badge?: string | number
-}
+// Re-export types for backward compatibility
+export type { ToolTab, ToolAction }
 
-// 工具操作按钮
-export interface ToolAction {
-  id: string
-  label: string
-  icon: React.ReactNode
-  onClick: () => void
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
-  disabled?: boolean
-  loading?: boolean
-}
-
-// 增强工具基础组件的 Props
+// 增强工具基础组件的 Props (使用泛型，zod 主要用于运行时验证的基础类型)
 export interface EnhancedToolBaseProps<
   TData = any,
   TTemplate extends BaseTemplate = BaseTemplate,
@@ -114,22 +97,22 @@ export function EnhancedToolBase<
   enableSettings = false,
   enableHistory = false,
   enableProgress = false,
-  className = '',
-  headerClassName = '',
-  contentClassName = '',
+  className = "",
+  headerClassName = "",
+  contentClassName = "",
 }: EnhancedToolBaseProps<TData, TTemplate, TSettings>) {
   // 状态管理
   const toolState = useToolState(initialData)
 
   // 模板管理
   const templateManager = useTemplateManager(templates, {
-    storageKey: templateStorageKey || `${toolName.toLowerCase().replace(/\s+/g, '-')}-templates`,
+    storageKey: templateStorageKey || `${toolName.toLowerCase().replace(/\s+/g, "-")}-templates`,
     enableLocalStorage: enableTemplates,
   })
 
   // 设置管理
   const settingsManager = useSettingsManager<TSettings>(settingGroups, {
-    storageKey: settingsStorageKey || `${toolName.toLowerCase().replace(/\s+/g, '-')}-settings`,
+    storageKey: settingsStorageKey || `${toolName.toLowerCase().replace(/\s+/g, "-")}-settings`,
     enableLocalStorage: enableSettings,
   })
 
@@ -138,7 +121,7 @@ export function EnhancedToolBase<
     if (tabs && tabs.length > 0) {
       return tabs.find((tab) => !tab.disabled)?.id || tabs[0].id
     }
-    return 'main'
+    return "main"
   })
 
   // 系统标签页
@@ -147,28 +130,38 @@ export function EnhancedToolBase<
 
     if (enableTemplates && templates.length > 0) {
       sysTabs.push({
-        id: 'templates',
-        label: 'Templates',
+        id: "templates",
+        label: "Templates",
         icon: <FileText className="h-4 w-4" />,
-        content: <TemplatePanel templateManager={templateManager} onTemplateApply={onTemplateApply} />,
+        content: (
+          <TemplatePanel
+            templateManager={templateManager}
+            onTemplateApply={onTemplateApply}
+          />
+        ),
         badge: templateManager.stats.custom > 0 ? templateManager.stats.custom : undefined,
       })
     }
 
     if (enableSettings && settingGroups.length > 0) {
       sysTabs.push({
-        id: 'settings',
-        label: 'Settings',
+        id: "settings",
+        label: "Settings",
         icon: <Settings className="h-4 w-4" />,
-        content: <SettingsPanel settingsManager={settingsManager} onSettingsChange={onSettingsChange} />,
-        badge: settingsManager.isDirty ? '•' : undefined,
+        content: (
+          <SettingsPanel
+            settingsManager={settingsManager}
+            onSettingsChange={onSettingsChange}
+          />
+        ),
+        badge: settingsManager.isDirty ? "•" : undefined,
       })
     }
 
     if (enableHistory) {
       sysTabs.push({
-        id: 'history',
-        label: 'History',
+        id: "history",
+        label: "History",
         icon: <History className="h-4 w-4" />,
         content: <HistoryPanel toolName={toolName} />,
       })
@@ -192,8 +185,8 @@ export function EnhancedToolBase<
   const allTabs = useMemo(() => {
     const mainTabs: ToolTab[] = tabs || [
       {
-        id: 'main',
-        label: 'Main',
+        id: "main",
+        label: "Main",
         icon: <Zap className="h-4 w-4" />,
         content: children,
       },
@@ -213,7 +206,10 @@ export function EnhancedToolBase<
           Skip to main content
         </a>
 
-        <div id="main-content" className="flex flex-col gap-6">
+        <div
+          id="main-content"
+          className="flex flex-col gap-6"
+        >
           {/* Header */}
           <Card className={headerClassName}>
             <CardHeader>
@@ -223,7 +219,10 @@ export function EnhancedToolBase<
                     {icon}
                     <CardTitle className="text-xl">{toolName}</CardTitle>
                     {version && (
-                      <Badge variant="outline" className="text-xs">
+                      <Badge
+                        variant="outline"
+                        className="text-xs"
+                      >
                         v{version}
                       </Badge>
                     )}
@@ -232,12 +231,18 @@ export function EnhancedToolBase<
                   {/* 状态指示器 */}
                   <div className="flex items-center gap-2">
                     {toolState.isLoading && (
-                      <Badge variant="secondary" className="animate-pulse">
+                      <Badge
+                        variant="secondary"
+                        className="animate-pulse"
+                      >
                         Loading...
                       </Badge>
                     )}
                     {toolState.isProcessing && (
-                      <Badge variant="default" className="animate-pulse">
+                      <Badge
+                        variant="default"
+                        className="animate-pulse"
+                      >
                         Processing...
                       </Badge>
                     )}
@@ -251,7 +256,7 @@ export function EnhancedToolBase<
                     {actions.map((action) => (
                       <Button
                         key={action.id}
-                        variant={action.variant || 'outline'}
+                        variant={action.variant || "outline"}
                         size="sm"
                         onClick={action.onClick}
                         disabled={action.disabled || toolState.isLoading || toolState.isProcessing}
@@ -278,7 +283,10 @@ export function EnhancedToolBase<
                     <span>Progress</span>
                     <span>{Math.round(toolState.progress)}%</span>
                   </div>
-                  <Progress value={toolState.progress} className="h-2" />
+                  <Progress
+                    value={toolState.progress}
+                    className="h-2"
+                  />
                 </div>
               )}
 
@@ -294,7 +302,11 @@ export function EnhancedToolBase<
           {/* 内容区域 */}
           <div className={contentClassName}>
             {allTabs.length > 1 ? (
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
                 <TabsList className={`grid w-full ${getGridColsClass(Math.min(allTabs.length, 6))}`}>
                   {allTabs.map((tab) => (
                     <TabsTrigger
@@ -306,7 +318,10 @@ export function EnhancedToolBase<
                       {tab.icon}
                       {tab.label}
                       {tab.badge && (
-                        <Badge variant="secondary" className="ml-1 text-xs">
+                        <Badge
+                          variant="secondary"
+                          className="ml-1 text-xs"
+                        >
                           {tab.badge}
                         </Badge>
                       )}
@@ -315,7 +330,11 @@ export function EnhancedToolBase<
                 </TabsList>
 
                 {allTabs.map((tab) => (
-                  <TabsContent key={tab.id} value={tab.id} className="space-y-6">
+                  <TabsContent
+                    key={tab.id}
+                    value={tab.id}
+                    className="space-y-6"
+                  >
                     {tab.content}
                   </TabsContent>
                 ))}
@@ -355,14 +374,17 @@ function TemplatePanel<T extends BaseTemplate>({ templateManager, onTemplateAppl
       </div>
 
       {Object.entries(templateManager.groupedTemplates).map(([category, templates]) => (
-        <div key={category} className="space-y-2">
+        <div
+          key={category}
+          className="space-y-2"
+        >
           <h4 className="font-medium text-muted-foreground">{category}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {templates.map((template) => (
               <Card
                 key={template.id}
                 className={`cursor-pointer transition-colors hover:bg-muted/50 ${
-                  templateManager.selectedTemplate === template.id ? 'ring-2 ring-primary' : ''
+                  templateManager.selectedTemplate === template.id ? "ring-2 ring-primary" : ""
                 }`}
                 onClick={() => handleTemplateSelect(template)}
               >
@@ -370,7 +392,10 @@ function TemplatePanel<T extends BaseTemplate>({ templateManager, onTemplateAppl
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm">{template.name}</CardTitle>
                     {template.isBuiltIn && (
-                      <Badge variant="outline" className="text-xs">
+                      <Badge
+                        variant="outline"
+                        className="text-xs"
+                      >
                         Built-in
                       </Badge>
                     )}
@@ -400,7 +425,11 @@ function SettingsPanel<T extends Record<string, any>>({ settingsManager }: Setti
         <div className="flex items-center gap-2">
           {settingsManager.isDirty && <Badge variant="secondary">Unsaved changes</Badge>}
           {!settingsManager.isValid && <Badge variant="destructive">Validation errors</Badge>}
-          <Button variant="outline" size="sm" onClick={settingsManager.resetSettings}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={settingsManager.resetSettings}
+          >
             Reset
           </Button>
         </div>
@@ -417,7 +446,10 @@ function SettingsPanel<T extends Record<string, any>>({ settingsManager }: Setti
           </CardHeader>
           <div className="p-6 pt-0 space-y-4">
             {settingsManager.getVisibleFields(group).map((field) => (
-              <div key={field.key} className="space-y-2">
+              <div
+                key={field.key}
+                className="space-y-2"
+              >
                 <label className="text-sm font-medium">
                   {field.label}
                   {field.description && <span className="text-muted-foreground ml-1">({field.description})</span>}
@@ -439,11 +471,9 @@ function SettingsPanel<T extends Record<string, any>>({ settingsManager }: Setti
 }
 
 // 历史面板组件
-interface HistoryPanelProps {
-  toolName: string
-}
+// HistoryPanelProps is imported from schemas.ts
 
-function HistoryPanel({ toolName }: HistoryPanelProps) {
+function HistoryPanel({ toolName }: { toolName: string }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">

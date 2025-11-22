@@ -39,7 +39,7 @@ import type {
   CompressionStats,
   CompressionTemplate,
   HistoryEntry,
-} from "@/types/image-compress"
+} from "@/schemas/image-compress.schema"
 import { formatFileSize } from "@/lib/utils"
 import { useImageCompression, validateImageFile, calculateCompressionRatio } from "./hooks"
 // Enhanced Types

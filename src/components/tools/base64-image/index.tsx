@@ -38,7 +38,7 @@ import {
   ConversionDirection,
   ImageFormat,
   ExportFormat,
-} from "@/types/base64-image"
+} from "@/schemas/base64-image.schema"
 import { formatFileSize } from "@/lib/utils"
 import { imageTemplates, useImageProcessing, useRealTimeValidation, useCopyToClipboard, useImageExport } from "./hooks"
 

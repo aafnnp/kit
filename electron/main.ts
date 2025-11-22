@@ -2,8 +2,10 @@ import { app, BrowserWindow, ipcMain, shell } from "electron"
 import updater from "electron-updater"
 import * as path from "path"
 import { fileURLToPath } from "url"
-import { existsSync } from "fs"
+import { existsSync, readFileSync } from "fs"
 import type { IpcMainInvokeEvent } from "electron"
+import { z } from "zod"
+import { updateInfoSchema, updateProgressEventSchema } from "./schemas"
 
 const { autoUpdater } = updater
 
@@ -11,6 +13,22 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged
+
+// Zod schemas for IPC validation
+const urlSchema = z.string().url()
+
+// Dynamically read package.json to avoid import path issues
+function getPackageJson() {
+  const packageJsonPath = isDev ? path.join(process.cwd(), "package.json") : path.join(__dirname, "../package.json")
+
+  try {
+    const packageJsonContent = readFileSync(packageJsonPath, "utf-8")
+    return JSON.parse(packageJsonContent)
+  } catch (error) {
+    console.error("Failed to read package.json:", error)
+    return { version: app.getVersion() }
+  }
+}
 
 let mainWindow: BrowserWindow | null = null
 
@@ -91,7 +109,6 @@ function createWindow() {
 
   if (isDev) {
     mainWindow.loadURL("http://localhost:5173")
-    mainWindow.webContents.openDevTools()
   } else {
     mainWindow.loadFile(path.join(__dirname, "../dist/index.html"))
   }
@@ -109,15 +126,28 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // Get icon path based on environment
+  const iconPath = isDev ? path.join(process.cwd(), "build/icon.png") : path.join(__dirname, "../build/icon.png")
+
   // Set app icon for macOS dock in development mode
   if (isDev && process.platform === "darwin") {
-    const devIconPath = path.join(process.cwd(), "build/icon.png")
-    if (existsSync(devIconPath)) {
-      app.dock.setIcon(devIconPath)
+    if (existsSync(iconPath)) {
+      app.dock.setIcon(iconPath)
     }
   }
 
   createWindow()
+
+  const packageJson = getPackageJson()
+  app.setAboutPanelOptions({
+    applicationName: "Kit",
+    applicationVersion: packageJson.version,
+    version: app.getVersion(),
+    iconPath: existsSync(iconPath) ? iconPath : undefined,
+    copyright: "Copyright © 2025 Manon. All rights reserved.",
+  })
+
+  app.setName("Kit")
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -134,7 +164,16 @@ app.on("window-all-closed", () => {
 
 // IPC Handlers
 ipcMain.handle("desktop:openExternal", async (_event: IpcMainInvokeEvent, url: string) => {
-  await shell.openExternal(url)
+  try {
+    const validatedUrl = urlSchema.parse(url)
+    await shell.openExternal(validatedUrl)
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error("Invalid URL provided:", error.issues)
+      throw new Error(`Invalid URL: ${error.issues.map((issue) => issue.message).join(", ")}`)
+    }
+    throw error
+  }
 })
 
 ipcMain.handle("desktop:relaunch", async () => {
@@ -177,14 +216,20 @@ ipcMain.handle("updater:check", async () => {
   try {
     const result = await autoUpdater.checkForUpdates()
     if (result && result.updateInfo) {
-      return {
+      const updateInfo = {
         version: result.updateInfo.version,
         date: result.updateInfo.releaseDate,
         body: result.updateInfo.releaseNotes,
       }
+      // Validate before sending
+      return updateInfoSchema.parse(updateInfo)
     }
     return null
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error("Invalid update info format:", error.issues)
+      return null
+    }
     console.error("Update check failed:", error)
     return null
   }
@@ -196,8 +241,21 @@ ipcMain.handle("updater:downloadAndInstall", async (event: IpcMainInvokeEvent) =
   }
 
   return new Promise<void>((resolve, reject) => {
+    const sendProgressEvent = (eventData: z.infer<typeof updateProgressEventSchema>) => {
+      try {
+        const validated = updateProgressEventSchema.parse(eventData)
+        event.sender.send("updater:progress", validated)
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          console.error("Invalid progress event format:", error.issues)
+        } else {
+          throw error
+        }
+      }
+    }
+
     const progressHandler = (progress: any) => {
-      event.sender.send("updater:progress", {
+      sendProgressEvent({
         event: "Progress",
         data: {
           downloaded: progress.transferred || 0,
@@ -208,7 +266,7 @@ ipcMain.handle("updater:downloadAndInstall", async (event: IpcMainInvokeEvent) =
     }
 
     const downloadedHandler = () => {
-      event.sender.send("updater:progress", {
+      sendProgressEvent({
         event: "Finished",
         data: {},
       })
@@ -230,7 +288,7 @@ ipcMain.handle("updater:downloadAndInstall", async (event: IpcMainInvokeEvent) =
     autoUpdater.on("error", errorHandler)
 
     // Send Started event
-    event.sender.send("updater:progress", {
+    sendProgressEvent({
       event: "Started",
       data: {
         contentLength: 0,

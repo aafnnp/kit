@@ -2,12 +2,10 @@ import { Search, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useTranslation } from "react-i18next"
+import { type SearchBarProps } from "@/components/features/schemas"
 
-interface SearchBarProps {
-  value: string
-  onChange: (value: string) => void
-  placeholder?: string
-}
+// Re-export type for backward compatibility
+export type { SearchBarProps }
 
 export function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
   const { t } = useTranslation()

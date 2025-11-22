@@ -43,7 +43,7 @@ import type {
   FileValidation,
   ExportFormat,
   SheetSelection,
-} from "@/types/excel-to-json"
+} from "@/schemas/excel-to-json.schema"
 import { formatFileSize } from "@/lib/utils"
 // Utility functions
 

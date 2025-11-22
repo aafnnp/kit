@@ -36,7 +36,7 @@ import type {
   GraphSettings,
   EquationType,
   ExportFormat,
-} from "@/types/quadratic-solver"
+} from "@/schemas/quadratic-solver.schema"
 
 // Utility functions
 
@@ -1795,15 +1795,15 @@ const QuadraticSolverCore = () => {
                   <h4 className="font-medium">Precision & Display</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></div>
                       <div>Solutions are displayed with up to 6 decimal places for clarity</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></div>
                       <div>Very small numbers (&lt; 1e-10) are treated as zero</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 shrink-0"></div>
                       <div>Complex numbers are displayed in standard a + bi format</div>
                     </div>
                   </div>
@@ -1845,19 +1845,19 @@ const QuadraticSolverCore = () => {
                   <h4 className="font-medium">Analysis Features</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 shrink-0"></div>
                       <div>Automatic detection of rational vs. irrational solutions</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 shrink-0"></div>
                       <div>Complete analysis of quadratic functions (vertex, axis of symmetry, etc.)</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2 shrink-0"></div>
                       <div>Domain and range calculation for all equation types</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-pink-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-pink-500 rounded-full mt-2 shrink-0"></div>
                       <div>Performance metrics including solution time and complexity</div>
                     </div>
                   </div>

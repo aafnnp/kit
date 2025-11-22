@@ -1,12 +1,12 @@
-import { useState, useCallback, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
+import { useState, useCallback, useRef } from "react"
+import { useTranslation } from "react-i18next"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 import {
   Play,
   Square,
@@ -21,17 +21,17 @@ import {
   CheckCircle,
   XCircle,
   Plus,
-} from 'lucide-react'
-import { useCopyToClipboard } from '@/hooks/use-clipboard'
+} from "lucide-react"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 import {
   PerformanceAnalyzerState,
   PerformanceTest,
   PerformanceResult,
   PERFORMANCE_TEMPLATES,
   formatPerformanceValue,
-} from '@/types/performance-analyzer'
-import { ToolBase } from '@/components/common/tool-base'
-import { nanoid } from 'nanoid'
+} from "@/schemas/performance-analyzer.schema"
+import { ToolBase } from "@/components/common/tool-base"
+import { nanoid } from "nanoid"
 
 // 性能测试执行器
 const executePerformanceTest = async (
@@ -73,10 +73,10 @@ const executePerformanceTest = async (
           metrics: [
             {
               id: nanoid(),
-              name: 'Execution Time',
+              name: "Execution Time",
               value: executionTime,
-              unit: 'ms',
-              category: 'timing',
+              unit: "ms",
+              category: "timing",
               timestamp: Date.now(),
             },
           ],
@@ -86,10 +86,10 @@ const executePerformanceTest = async (
         if (memoryUsage > 0) {
           performanceResult.metrics.push({
             id: nanoid(),
-            name: 'Memory Usage',
+            name: "Memory Usage",
             value: memoryUsage,
-            unit: 'bytes',
-            category: 'memory',
+            unit: "bytes",
+            category: "memory",
             timestamp: Date.now(),
           })
         }
@@ -113,7 +113,7 @@ const executePerformanceTest = async (
           executionTime: 0,
           metrics: [],
           timestamp: Date.now(),
-          error: error instanceof Error ? error.message : 'Test execution failed',
+          error: error instanceof Error ? error.message : "Test execution failed",
         })
       }
     }
@@ -165,9 +165,9 @@ const PerformanceAnalyzer = () => {
   })
 
   const [newTest, setNewTest] = useState<Partial<PerformanceTest>>({
-    name: '',
-    description: '',
-    code: '',
+    name: "",
+    description: "",
+    code: "",
     iterations: 1000,
     warmupRuns: 100,
   })
@@ -179,12 +179,12 @@ const PerformanceAnalyzer = () => {
     const test: PerformanceTest = {
       id: nanoid(),
       name: newTest.name,
-      description: newTest.description || '',
+      description: newTest.description || "",
       code: newTest.code,
       iterations: newTest.iterations || 1000,
       warmupRuns: newTest.warmupRuns || 100,
       results: [],
-      status: 'idle',
+      status: "idle",
       createdAt: Date.now(),
       updatedAt: Date.now(),
     }
@@ -197,9 +197,9 @@ const PerformanceAnalyzer = () => {
 
     // 重置表单
     setNewTest({
-      name: '',
-      description: '',
-      code: '',
+      name: "",
+      description: "",
+      code: "",
       iterations: 1000,
       warmupRuns: 100,
     })
@@ -229,7 +229,7 @@ const PerformanceAnalyzer = () => {
       // 更新测试状态
       setState((prev) => ({
         ...prev,
-        tests: prev.tests.map((t) => (t.id === test.id ? { ...t, status: 'running' as const } : t)),
+        tests: prev.tests.map((t) => (t.id === test.id ? { ...t, status: "running" as const } : t)),
       }))
 
       abortControllerRef.current = new AbortController()
@@ -247,7 +247,7 @@ const PerformanceAnalyzer = () => {
               ? {
                   ...t,
                   results,
-                  status: 'completed' as const,
+                  status: "completed" as const,
                   updatedAt: Date.now(),
                 }
               : t
@@ -258,9 +258,9 @@ const PerformanceAnalyzer = () => {
       } catch (error) {
         setState((prev) => ({
           ...prev,
-          tests: prev.tests.map((t) => (t.id === test.id ? { ...t, status: 'error' as const } : t)),
+          tests: prev.tests.map((t) => (t.id === test.id ? { ...t, status: "error" as const } : t)),
           isRunning: false,
-          error: error instanceof Error ? error.message : 'Test execution failed',
+          error: error instanceof Error ? error.message : "Test execution failed",
         }))
       }
     },
@@ -306,7 +306,7 @@ const PerformanceAnalyzer = () => {
         },
       }
 
-      copyToClipboard(JSON.stringify(data, null, 2), 'Test results')
+      copyToClipboard(JSON.stringify(data, null, 2), "Test results")
     },
     [copyToClipboard]
   )
@@ -321,9 +321,9 @@ const PerformanceAnalyzer = () => {
       exportedAt: new Date().toISOString(),
     }
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
+    const a = document.createElement("a")
     a.href = url
     a.download = `performance-results-${Date.now()}.json`
     document.body.appendChild(a)
@@ -334,11 +334,11 @@ const PerformanceAnalyzer = () => {
 
   return (
     <ToolBase
-      toolName={t('tools.performance-analyzer.title', 'Performance Analyzer')}
+      toolName={t("tools.performance-analyzer.title", "Performance Analyzer")}
       icon={<BarChart3 className="w-5 h-5" />}
       description={t(
-        'tools.performance-analyzer.description',
-        'Analyze and compare JavaScript performance with detailed metrics'
+        "tools.performance-analyzer.description",
+        "Analyze and compare JavaScript performance with detailed metrics"
       )}
     >
       <div className="space-y-6">
@@ -347,7 +347,7 @@ const PerformanceAnalyzer = () => {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Zap className="w-5 h-5" />
-              {t('tools.performance-analyzer.templates', 'Performance Test Templates')}
+              {t("tools.performance-analyzer.templates", "Performance Test Templates")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -375,24 +375,24 @@ const PerformanceAnalyzer = () => {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Play className="w-5 h-5" />
-              {t('tools.performance-analyzer.create-test', 'Create Performance Test')}
+              {t("tools.performance-analyzer.create-test", "Create Performance Test")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>{t('tools.performance-analyzer.test-name', 'Test Name')}</Label>
+                <Label>{t("tools.performance-analyzer.test-name", "Test Name")}</Label>
                 <Input
-                  value={newTest.name || ''}
+                  value={newTest.name || ""}
                   onChange={(e) => setNewTest((prev) => ({ ...prev, name: e.target.value }))}
                   placeholder="Enter test name..."
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>{t('tools.performance-analyzer.description', 'Description')}</Label>
+                <Label>{t("tools.performance-analyzer.description", "Description")}</Label>
                 <Input
-                  value={newTest.description || ''}
+                  value={newTest.description || ""}
                   onChange={(e) => setNewTest((prev) => ({ ...prev, description: e.target.value }))}
                   placeholder="Enter test description..."
                 />
@@ -401,7 +401,7 @@ const PerformanceAnalyzer = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>{t('tools.performance-analyzer.iterations', 'Iterations')}</Label>
+                <Label>{t("tools.performance-analyzer.iterations", "Iterations")}</Label>
                 <Input
                   type="number"
                   value={newTest.iterations || 1000}
@@ -412,7 +412,7 @@ const PerformanceAnalyzer = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>{t('tools.performance-analyzer.warmup-runs', 'Warmup Runs')}</Label>
+                <Label>{t("tools.performance-analyzer.warmup-runs", "Warmup Runs")}</Label>
                 <Input
                   type="number"
                   value={newTest.warmupRuns || 100}
@@ -424,18 +424,21 @@ const PerformanceAnalyzer = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>{t('tools.performance-analyzer.test-code', 'Test Code')}</Label>
+              <Label>{t("tools.performance-analyzer.test-code", "Test Code")}</Label>
               <Textarea
-                value={newTest.code || ''}
+                value={newTest.code || ""}
                 onChange={(e) => setNewTest((prev) => ({ ...prev, code: e.target.value }))}
                 placeholder="Enter JavaScript code to test...\n\n// Example:\nconst arr = [1, 2, 3, 4, 5]\nconst sum = arr.reduce((a, b) => a + b, 0)\nreturn sum"
                 className="min-h-[150px] font-mono text-sm"
               />
             </div>
 
-            <Button onClick={createTest} disabled={!newTest.name || !newTest.code || state.isRunning}>
+            <Button
+              onClick={createTest}
+              disabled={!newTest.name || !newTest.code || state.isRunning}
+            >
               <Plus className="w-4 h-4 mr-2" />
-              {t('tools.performance-analyzer.create', 'Create Test')}
+              {t("tools.performance-analyzer.create", "Create Test")}
             </Button>
           </CardContent>
         </Card>
@@ -447,12 +450,16 @@ const PerformanceAnalyzer = () => {
               <CardTitle className="text-lg flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <BarChart3 className="w-5 h-5" />
-                  {t('tools.performance-analyzer.tests', 'Performance Tests')}
+                  {t("tools.performance-analyzer.tests", "Performance Tests")}
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={exportResults}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={exportResults}
+                  >
                     <Download className="w-4 h-4 mr-2" />
-                    {t('common.export', 'Export')}
+                    {t("common.export", "Export")}
                   </Button>
                 </div>
               </CardTitle>
@@ -463,14 +470,21 @@ const PerformanceAnalyzer = () => {
                 <div className="mb-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">
-                      {t('tools.performance-analyzer.running', 'Running test...')}
+                      {t("tools.performance-analyzer.running", "Running test...")}
                     </span>
-                    <Button size="sm" variant="outline" onClick={stopTest}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={stopTest}
+                    >
                       <Square className="w-4 h-4 mr-2" />
-                      {t('common.stop', 'Stop')}
+                      {t("common.stop", "Stop")}
                     </Button>
                   </div>
-                  <Progress value={state.currentProgress} className="w-full" />
+                  <Progress
+                    value={state.currentProgress}
+                    className="w-full"
+                  />
                 </div>
               )}
 
@@ -487,16 +501,19 @@ const PerformanceAnalyzer = () => {
                   const stats = calculateStats(test.results)
 
                   return (
-                    <div key={test.id} className="border rounded-lg p-4">
+                    <div
+                      key={test.id}
+                      className="border rounded-lg p-4"
+                    >
                       <div className="flex items-center justify-between mb-3">
                         <div>
                           <h4 className="font-medium flex items-center gap-2">
                             {test.name}
                             <Badge variant="outline">
-                              {test.status === 'idle' && <Clock className="w-3 h-3 mr-1" />}
-                              {test.status === 'running' && <RefreshCw className="w-3 h-3 mr-1 animate-spin" />}
-                              {test.status === 'completed' && <CheckCircle className="w-3 h-3 mr-1" />}
-                              {test.status === 'error' && <XCircle className="w-3 h-3 mr-1" />}
+                              {test.status === "idle" && <Clock className="w-3 h-3 mr-1" />}
+                              {test.status === "running" && <RefreshCw className="w-3 h-3 mr-1 animate-spin" />}
+                              {test.status === "completed" && <CheckCircle className="w-3 h-3 mr-1" />}
+                              {test.status === "error" && <XCircle className="w-3 h-3 mr-1" />}
                               {test.status}
                             </Badge>
                           </h4>
@@ -504,18 +521,30 @@ const PerformanceAnalyzer = () => {
                         </div>
 
                         <div className="flex gap-2">
-                          <Button size="sm" onClick={() => runTest(test)} disabled={state.isRunning}>
+                          <Button
+                            size="sm"
+                            onClick={() => runTest(test)}
+                            disabled={state.isRunning}
+                          >
                             <Play className="w-4 h-4 mr-2" />
-                            {t('tools.performance-analyzer.run', 'Run')}
+                            {t("tools.performance-analyzer.run", "Run")}
                           </Button>
 
                           {stats && (
-                            <Button size="sm" variant="outline" onClick={() => copyTestResults(test)}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => copyTestResults(test)}
+                            >
                               <Copy className="w-4 h-4" />
                             </Button>
                           )}
 
-                          <Button size="sm" variant="ghost" onClick={() => deleteTest(test.id)}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => deleteTest(test.id)}
+                          >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -524,10 +553,10 @@ const PerformanceAnalyzer = () => {
                       {/* 测试配置 */}
                       <div className="flex gap-4 text-sm text-muted-foreground mb-3">
                         <span>
-                          {t('tools.performance-analyzer.iterations', 'Iterations')}: {test.iterations}
+                          {t("tools.performance-analyzer.iterations", "Iterations")}: {test.iterations}
                         </span>
                         <span>
-                          {t('tools.performance-analyzer.warmup', 'Warmup')}: {test.warmupRuns}
+                          {t("tools.performance-analyzer.warmup", "Warmup")}: {test.warmupRuns}
                         </span>
                       </div>
 
@@ -535,32 +564,32 @@ const PerformanceAnalyzer = () => {
                       {stats && (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-3 bg-muted rounded">
                           <div className="text-center">
-                            <div className="text-lg font-semibold">{formatPerformanceValue(stats.avg, 'ms')}</div>
+                            <div className="text-lg font-semibold">{formatPerformanceValue(stats.avg, "ms")}</div>
                             <div className="text-xs text-muted-foreground">
-                              {t('tools.performance-analyzer.avg-time', 'Avg Time')}
+                              {t("tools.performance-analyzer.avg-time", "Avg Time")}
                             </div>
                           </div>
 
                           <div className="text-center">
                             <div className="text-lg font-semibold">{stats.opsPerSecond.toFixed(0)}</div>
                             <div className="text-xs text-muted-foreground">
-                              {t('tools.performance-analyzer.ops-per-sec', 'Ops/sec')}
+                              {t("tools.performance-analyzer.ops-per-sec", "Ops/sec")}
                             </div>
                           </div>
 
                           <div className="text-center">
                             <div className="text-lg font-semibold">
-                              {formatPerformanceValue(stats.min, 'ms')} - {formatPerformanceValue(stats.max, 'ms')}
+                              {formatPerformanceValue(stats.min, "ms")} - {formatPerformanceValue(stats.max, "ms")}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {t('tools.performance-analyzer.min-max', 'Min - Max')}
+                              {t("tools.performance-analyzer.min-max", "Min - Max")}
                             </div>
                           </div>
 
                           <div className="text-center">
-                            <div className="text-lg font-semibold">±{formatPerformanceValue(stats.stdDev, 'ms')}</div>
+                            <div className="text-lg font-semibold">±{formatPerformanceValue(stats.stdDev, "ms")}</div>
                             <div className="text-xs text-muted-foreground">
-                              {t('tools.performance-analyzer.std-dev', 'Std Dev')}
+                              {t("tools.performance-analyzer.std-dev", "Std Dev")}
                             </div>
                           </div>
                         </div>

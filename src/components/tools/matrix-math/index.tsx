@@ -36,7 +36,7 @@ import type {
   MatrixValidation,
   OperationType,
   ExportFormat,
-} from "@/types/matrix-math"
+} from "@/schemas/matrix-math.schema"
 import { useMatrixOperations as useMatrixOperationsWorker } from "./hooks"
 
 // Utility functions
@@ -2099,15 +2099,15 @@ const MatrixMathCore = () => {
                   <h4 className="font-medium">Precision & Display</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></div>
                       <div>Matrix elements are displayed with up to 6 decimal places for clarity</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></div>
                       <div>Very small numbers (&lt; 1e-10) are treated as zero</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 shrink-0"></div>
                       <div>Scientific notation is used for very large or very small numbers</div>
                     </div>
                   </div>
@@ -2149,19 +2149,19 @@ const MatrixMathCore = () => {
                   <h4 className="font-medium">Performance & Best Practices</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 shrink-0"></div>
                       <div>Matrices larger than 10×10 may impact performance</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 shrink-0"></div>
                       <div>Ill-conditioned matrices may produce numerically unstable results</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2 shrink-0"></div>
                       <div>Sparse matrices (many zeros) are detected and flagged for optimization</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-pink-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-pink-500 rounded-full mt-2 shrink-0"></div>
                       <div>Matrix properties are automatically analyzed for mathematical insights</div>
                     </div>
                   </div>

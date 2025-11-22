@@ -30,7 +30,7 @@ import type {
   ConversionTemplate,
   ConversionValidation,
   ExportFormat,
-} from "@/types/currency-convert"
+} from "@/schemas/currency-convert.schema"
 
 // Utility functions
 
@@ -1850,19 +1850,19 @@ const CurrencyConvertCore = () => {
                   <h4 className="font-medium">Rate Information</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></div>
                       <div>Exchange rates are updated in real-time from multiple sources</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></div>
                       <div>Rates include bid/ask spreads and 24-hour high/low information</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 shrink-0"></div>
                       <div>Cryptocurrency rates are highly volatile and update frequently</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 shrink-0"></div>
                       <div>Cross-currency rates are calculated via USD when direct rates unavailable</div>
                     </div>
                   </div>
@@ -1873,23 +1873,23 @@ const CurrencyConvertCore = () => {
                   <h4 className="font-medium">Features & Capabilities</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 shrink-0"></div>
                       <div>Support for 30+ major fiat currencies and popular cryptocurrencies</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2 shrink-0"></div>
                       <div>Real-time conversion with automatic rate updates</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-pink-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-pink-500 rounded-full mt-2 shrink-0"></div>
                       <div>Conversion history with detailed rate information</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 shrink-0"></div>
                       <div>Export capabilities in multiple formats (JSON, CSV, XML, YAML)</div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-cyan-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 bg-cyan-500 rounded-full mt-2 shrink-0"></div>
                       <div>Template system for common conversion scenarios</div>
                     </div>
                   </div>

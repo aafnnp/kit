@@ -1,42 +1,42 @@
-import { createFileRoute, lazyRouteComponent } from '@tanstack/react-router'
-import { Suspense, useEffect } from 'react'
-import { perfBus, mark, measure } from '@/lib/performance'
-import tools from '@/lib/data'
-import { getToolLoaderBySlug, hasTool } from '@/lib/data'
-import { ToolNotFound } from '@/components/common'
-import { ToolLoading } from '@/components/ui/loading'
-import { AdSenseAd } from '@/components/ads'
-import { useRoutePrefetch } from '@/lib/routing'
-import { useSmartPreload } from '@/lib/data'
-import { QueryClient } from '@tanstack/react-query'
-import type { Tool, ToolCategory } from '@/types/tool'
+import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router"
+import { Suspense, useEffect } from "react"
+import { perfBus, mark, measure } from "@/lib/performance"
+import tools from "@/lib/data"
+import { getToolLoaderBySlug, hasTool } from "@/lib/data"
+import { ToolNotFound } from "@/components/common"
+import { ToolLoading } from "@/components/ui/loading"
+import { AdSenseAd } from "@/components/ads"
+import { useRoutePrefetch } from "@/lib/routing"
+import { useSmartPreload } from "@/lib/data"
+import { QueryClient } from "@tanstack/react-query"
+import type { Tool, ToolCategory } from "@/schemas/tool.schema"
 
 // 类型守卫：检查是否为工具
 function isTool(obj: unknown): obj is Tool {
   return (
-    typeof obj === 'object' && obj !== null && 'slug' in obj && 'name' in obj && typeof (obj as Tool).slug === 'string'
+    typeof obj === "object" && obj !== null && "slug" in obj && "name" in obj && typeof (obj as Tool).slug === "string"
   )
 }
 
 // 类型守卫：检查是否为工具分类
 function isToolCategory(obj: unknown): obj is ToolCategory {
   return (
-    typeof obj === 'object' &&
+    typeof obj === "object" &&
     obj !== null &&
-    'id' in obj &&
-    'tools' in obj &&
+    "id" in obj &&
+    "tools" in obj &&
     Array.isArray((obj as ToolCategory).tools)
   )
 }
 
-export const Route = createFileRoute('/tool/$tool')({
+export const Route = createFileRoute("/tool/$tool")({
   loader: async ({ context, params }) => {
     const { queryClient } = context as { queryClient: QueryClient }
     const slug = params.tool
     // 示例：若某些工具需要公共元信息，可在此预取（占位，避免真实网络依赖）
     // 这里用一个稳定键做演示，真实项目可替换为需要的接口
     await queryClient.prefetchQuery({
-      queryKey: ['tool-meta', slug],
+      queryKey: ["tool-meta", slug],
       queryFn: async () => ({ slug, ts: Date.now() }),
       staleTime: 5 * 60 * 1000,
     })
@@ -70,7 +70,7 @@ function RouteComponent() {
           if (!loader) throw new Error(`Tool loader not found for ${toolSlug}`)
           const m = await loader()
           // 处理不同的导出格式
-          if (m && typeof m === 'object' && 'default' in m) {
+          if (m && typeof m === "object" && "default" in m) {
             return { default: m.default as React.ComponentType<{ onReady?: () => void }> }
           }
           return { default: m as React.ComponentType<{ onReady?: () => void }> }
@@ -94,21 +94,21 @@ function RouteComponent() {
 
     document.title = title
 
-    const ensureMeta = (name: string, content: string, attr: 'name' | 'property' = 'name') => {
+    const ensureMeta = (name: string, content: string, attr: "name" | "property" = "name") => {
       let el = document.head.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement | null
       if (!el) {
-        el = document.createElement('meta')
+        el = document.createElement("meta")
         el.setAttribute(attr, name)
         document.head.appendChild(el)
       }
-      el.setAttribute('content', content)
+      el.setAttribute("content", content)
     }
 
-    ensureMeta('description', desc, 'name')
-    ensureMeta('og:title', title, 'property')
-    ensureMeta('og:description', desc, 'property')
-    ensureMeta('og:type', 'website', 'property')
-    ensureMeta('og:url', window.location.href, 'property')
+    ensureMeta("description", desc, "name")
+    ensureMeta("og:title", title, "property")
+    ensureMeta("og:description", desc, "property")
+    ensureMeta("og:type", "website", "property")
+    ensureMeta("og:url", window.location.href, "property")
 
     return () => {
       // 可保留 title，不强制回滚
@@ -129,7 +129,7 @@ function RouteComponent() {
                 mark(startMark)
                 const ms = measure(`tool_${toolSlug}_interactive`, startMark)
                 if (ms != null) {
-                  perfBus.emit('tool_interactive', { slug: toolSlug, ms, ts: Date.now() })
+                  perfBus.emit("tool_interactive", { slug: toolSlug, ms, ts: Date.now() })
                 }
                 // 记录工具使用，触发关联工具预热
                 trackToolUsage(toolSlug)

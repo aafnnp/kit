@@ -38,7 +38,7 @@ import type {
   TimezoneInfo,
   TimestampFormat,
   ExportFormat,
-} from "@/types/unix-timestamp"
+} from "@/schemas/unix-timestamp.schema"
 
 // Enhanced Types
 // Utility functions

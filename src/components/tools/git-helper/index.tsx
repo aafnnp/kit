@@ -1,12 +1,12 @@
-import { useState, useCallback, useMemo, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
+import { useState, useCallback, useMemo, useEffect } from "react"
+import { useTranslation } from "react-i18next"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
 import {
   GitBranch,
   Terminal,
@@ -21,8 +21,8 @@ import {
   AlertCircle,
   Trash2,
   Plus,
-} from 'lucide-react'
-import { useCopyToClipboard } from '@/hooks/use-clipboard'
+} from "lucide-react"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 import {
   GitHelperState,
   GitCommand,
@@ -32,9 +32,9 @@ import {
   GIT_WORKFLOW_TEMPLATES,
   formatGitCommand,
   validateGitParameters,
-} from '@/types/git-helper'
-import { ToolBase } from '@/components/common/tool-base'
-import { nanoid } from 'nanoid'
+} from "@/schemas/git-helper.schema"
+import { ToolBase } from "@/components/common/tool-base"
+import { nanoid } from "nanoid"
 
 export default function GitHelper() {
   const { t } = useTranslation()
@@ -48,11 +48,11 @@ export default function GitHelper() {
     isExecuting: false,
   })
 
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [selectedCommand, setSelectedCommand] = useState<GitCommand | null>(null)
   const [commandParameters, setCommandParameters] = useState<Record<string, any>>({})
-  const [customCommand, setCustomCommand] = useState('')
+  const [customCommand, setCustomCommand] = useState("")
 
   // 过滤命令
   const filteredCommands = useMemo(() => {
@@ -63,8 +63,8 @@ export default function GitHelper() {
         command.command.toLowerCase().includes(searchTerm.toLowerCase())
 
       const matchesCategory =
-        selectedCategory === 'all' ||
-        (selectedCategory === 'favorites' && state.favorites.includes(command.id)) ||
+        selectedCategory === "all" ||
+        (selectedCategory === "favorites" && state.favorites.includes(command.id)) ||
         command.category === selectedCategory
 
       return matchesSearch && matchesCategory
@@ -113,21 +113,21 @@ export default function GitHelper() {
         commandHistory: [execution, ...prev.commandHistory.slice(0, 49)], // 保留最近50条记录
       }))
 
-      copyToClipboard(command, 'Git command')
+      copyToClipboard(command, "Git command")
     },
     [commandParameters, copyToClipboard]
   )
 
   // 生成命令
   const generateCommand = useCallback(() => {
-    if (!selectedCommand) return ''
+    if (!selectedCommand) return ""
 
-    const errors = validateGitParameters(selectedCommand, commandParameters)
-    if (errors.length > 0) {
-      return ''
+    const validation = validateGitParameters(selectedCommand.parameters || [], commandParameters)
+    if (validation.errors.length > 0) {
+      return ""
     }
 
-    return formatGitCommand(selectedCommand, commandParameters)
+    return formatGitCommand(selectedCommand.command, commandParameters)
   }, [selectedCommand, commandParameters])
 
   // 验证参数并设置错误状态
@@ -137,10 +137,10 @@ export default function GitHelper() {
       return
     }
 
-    const errors = validateGitParameters(selectedCommand, commandParameters)
-    setState((prev) => ({ 
-      ...prev, 
-      error: errors.length > 0 ? errors.join('; ') : undefined 
+    const validation = validateGitParameters(selectedCommand.parameters || [], commandParameters)
+    setState((prev) => ({
+      ...prev,
+      error: validation.errors.length > 0 ? validation.errors.join("; ") : undefined,
     }))
   }, [selectedCommand, commandParameters])
 
@@ -161,7 +161,7 @@ export default function GitHelper() {
 
   // 加载工作流模板
   const loadWorkflow = useCallback((workflow: (typeof GIT_WORKFLOW_TEMPLATES)[0]) => {
-    const workflowText = workflow.commands.join('\n')
+    const workflowText = workflow.commands.join("\n")
     setCustomCommand(workflowText)
   }, [])
 
@@ -178,9 +178,9 @@ export default function GitHelper() {
       exportedAt: new Date().toISOString(),
     }
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
+    const a = document.createElement("a")
     a.href = url
     a.download = `git-history-${Date.now()}.json`
     document.body.appendChild(a)
@@ -193,33 +193,39 @@ export default function GitHelper() {
 
   return (
     <ToolBase
-      toolName={t('tools.git-helper.title', 'Git Helper')}
+      toolName={t("tools.git-helper.title", "Git Helper")}
       icon={<GitBranch className="w-5 h-5" />}
-      description={t('tools.git-helper.description', 'Interactive Git command builder and reference guide')}
+      description={t("tools.git-helper.description", "Interactive Git command builder and reference guide")}
     >
       <div className="space-y-6">
-        <Tabs defaultValue="commands" className="w-full">
+        <Tabs
+          defaultValue="commands"
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="commands">
               <Terminal className="w-4 h-4 mr-2" />
-              {t('tools.git-helper.commands', 'Commands')}
+              {t("tools.git-helper.commands", "Commands")}
             </TabsTrigger>
             <TabsTrigger value="workflows">
               <BookOpen className="w-4 h-4 mr-2" />
-              {t('tools.git-helper.workflows', 'Workflows')}
+              {t("tools.git-helper.workflows", "Workflows")}
             </TabsTrigger>
             <TabsTrigger value="custom">
               <Plus className="w-4 h-4 mr-2" />
-              {t('tools.git-helper.custom', 'Custom')}
+              {t("tools.git-helper.custom", "Custom")}
             </TabsTrigger>
             <TabsTrigger value="history">
               <History className="w-4 h-4 mr-2" />
-              {t('tools.git-helper.history', 'History')}
+              {t("tools.git-helper.history", "History")}
             </TabsTrigger>
           </TabsList>
 
           {/* 命令浏览器 */}
-          <TabsContent value="commands" className="space-y-4">
+          <TabsContent
+            value="commands"
+            className="space-y-4"
+          >
             {/* 搜索和过滤 */}
             <Card>
               <CardContent className="pt-6">
@@ -228,7 +234,7 @@ export default function GitHelper() {
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                       <Input
-                        placeholder={t('tools.git-helper.search-placeholder', 'Search commands...')}
+                        placeholder={t("tools.git-helper.search-placeholder", "Search commands...")}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10"
@@ -242,13 +248,18 @@ export default function GitHelper() {
                       onChange={(e) => setSelectedCategory(e.target.value)}
                       className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
                     >
-                      <option value="all">{t('tools.git-helper.all-categories', 'All Categories')}</option>
-                      <option value="favorites">{t('tools.git-helper.favorites', 'Favorites')}</option>
-                      {Object.entries(GIT_COMMAND_CATEGORIES).map(([key, category]) => (
-                        <option key={key} value={key}>
-                          {category.icon} {category.name}
-                        </option>
-                      ))}
+                      <option value="all">{t("tools.git-helper.all-categories", "All Categories")}</option>
+                      <option value="favorites">{t("tools.git-helper.favorites", "Favorites")}</option>
+                      {Object.entries(GIT_COMMAND_CATEGORIES).map(
+                        ([key, category]: [string, { name: string; icon: string; description: string }]) => (
+                          <option
+                            key={key}
+                            value={key}
+                          >
+                            {category.icon} {category.name}
+                          </option>
+                        )
+                      )}
                     </select>
                   </div>
                 </div>
@@ -259,7 +270,7 @@ export default function GitHelper() {
                     <div
                       key={command.id}
                       className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-muted ${
-                        selectedCommand?.id === command.id ? 'border-primary bg-primary/5' : ''
+                        selectedCommand?.id === command.id ? "border-primary bg-primary/5" : ""
                       }`}
                       onClick={() => selectCommand(command)}
                     >
@@ -267,7 +278,10 @@ export default function GitHelper() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-medium text-sm">{command.name}</h4>
-                            <Badge variant="outline" className="text-xs">
+                            <Badge
+                              variant="outline"
+                              className="text-xs"
+                            >
                               {GIT_COMMAND_CATEGORIES[command.category]?.icon} {command.category}
                             </Badge>
                           </div>
@@ -311,29 +325,35 @@ export default function GitHelper() {
                   {/* 参数输入 */}
                   {selectedCommand.parameters && selectedCommand.parameters.length > 0 && (
                     <div className="space-y-3">
-                      <h5 className="font-medium">{t('tools.git-helper.parameters', 'Parameters')}</h5>
+                      <h5 className="font-medium">{t("tools.git-helper.parameters", "Parameters")}</h5>
                       {selectedCommand.parameters.map((param) => (
-                        <div key={param.name} className="space-y-2">
+                        <div
+                          key={param.name}
+                          className="space-y-2"
+                        >
                           <Label className="flex items-center gap-2">
                             {param.name}
                             {param.required && <span className="text-red-500">*</span>}
                             <span className="text-xs text-muted-foreground">({param.type})</span>
                           </Label>
 
-                          {param.type === 'select' ? (
+                          {param.type === "select" ? (
                             <select
-                              value={commandParameters[param.name] || param.defaultValue || ''}
+                              value={commandParameters[param.name] || param.defaultValue || ""}
                               onChange={(e) => updateParameter(param.name, e.target.value)}
                               className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
                             >
                               {!param.required && <option value="">-- Optional --</option>}
                               {param.options?.map((option) => (
-                                <option key={option} value={option}>
+                                <option
+                                  key={option}
+                                  value={option}
+                                >
                                   {option}
                                 </option>
                               ))}
                             </select>
-                          ) : param.type === 'boolean' ? (
+                          ) : param.type === "boolean" ? (
                             <input
                               type="checkbox"
                               checked={commandParameters[param.name] || param.defaultValue || false}
@@ -342,8 +362,8 @@ export default function GitHelper() {
                             />
                           ) : (
                             <Input
-                              type={param.type === 'number' ? 'number' : 'text'}
-                              value={commandParameters[param.name] || ''}
+                              type={param.type === "number" ? "number" : "text"}
+                              value={commandParameters[param.name] || ""}
                               onChange={(e) => updateParameter(param.name, e.target.value)}
                               placeholder={param.placeholder}
                             />
@@ -357,12 +377,19 @@ export default function GitHelper() {
 
                   {/* 生成的命令 */}
                   <div className="space-y-2">
-                    <Label>{t('tools.git-helper.generated-command', 'Generated Command')}</Label>
+                    <Label>{t("tools.git-helper.generated-command", "Generated Command")}</Label>
                     <div className="flex gap-2">
-                      <Input value={currentCommand} readOnly className="font-mono text-sm" />
-                      <Button onClick={() => executeCommand(currentCommand)} disabled={!currentCommand}>
+                      <Input
+                        value={currentCommand}
+                        readOnly
+                        className="font-mono text-sm"
+                      />
+                      <Button
+                        onClick={() => executeCommand(currentCommand)}
+                        disabled={!currentCommand}
+                      >
                         <Copy className="w-4 h-4 mr-2" />
-                        {t('common.copy', 'Copy')}
+                        {t("common.copy", "Copy")}
                       </Button>
                     </div>
                   </div>
@@ -378,10 +405,13 @@ export default function GitHelper() {
                   {/* 示例 */}
                   {selectedCommand.examples && selectedCommand.examples.length > 0 && (
                     <div className="space-y-2">
-                      <Label>{t('tools.git-helper.examples', 'Examples')}</Label>
+                      <Label>{t("tools.git-helper.examples", "Examples")}</Label>
                       <div className="space-y-1">
                         {selectedCommand.examples.map((example, index) => (
-                          <code key={index} className="block text-xs bg-muted p-2 rounded">
+                          <code
+                            key={index}
+                            className="block text-xs bg-muted p-2 rounded"
+                          >
                             {example}
                           </code>
                         ))}
@@ -394,23 +424,33 @@ export default function GitHelper() {
           </TabsContent>
 
           {/* 工作流模板 */}
-          <TabsContent value="workflows" className="space-y-4">
+          <TabsContent
+            value="workflows"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <BookOpen className="w-5 h-5" />
-                  {t('tools.git-helper.workflow-templates', 'Workflow Templates')}
+                  {t("tools.git-helper.workflow-templates", "Workflow Templates")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {GIT_WORKFLOW_TEMPLATES.map((workflow, index) => (
-                    <div key={index} className="border rounded-lg p-4">
+                  {GIT_WORKFLOW_TEMPLATES.map((workflow, index: number) => (
+                    <div
+                      key={index}
+                      className="border rounded-lg p-4"
+                    >
                       <h4 className="font-medium mb-2">{workflow.name}</h4>
                       <p className="text-sm text-muted-foreground mb-3">{workflow.description}</p>
-                      <Button size="sm" onClick={() => loadWorkflow(workflow)} className="w-full">
+                      <Button
+                        size="sm"
+                        onClick={() => loadWorkflow(workflow)}
+                        className="w-full"
+                      >
                         <Download className="w-4 h-4 mr-2" />
-                        {t('tools.git-helper.load-workflow', 'Load Workflow')}
+                        {t("tools.git-helper.load-workflow", "Load Workflow")}
                       </Button>
                     </div>
                   ))}
@@ -420,17 +460,20 @@ export default function GitHelper() {
           </TabsContent>
 
           {/* 自定义命令 */}
-          <TabsContent value="custom" className="space-y-4">
+          <TabsContent
+            value="custom"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Plus className="w-5 h-5" />
-                  {t('tools.git-helper.custom-commands', 'Custom Commands')}
+                  {t("tools.git-helper.custom-commands", "Custom Commands")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>{t('tools.git-helper.command-sequence', 'Command Sequence')}</Label>
+                  <Label>{t("tools.git-helper.command-sequence", "Command Sequence")}</Label>
                   <Textarea
                     value={customCommand}
                     onChange={(e) => setCustomCommand(e.target.value)}
@@ -441,16 +484,19 @@ export default function GitHelper() {
 
                 <div className="flex gap-2">
                   <Button
-                    onClick={() => copyToClipboard(customCommand, 'Custom commands')}
+                    onClick={() => copyToClipboard(customCommand, "Custom commands")}
                     disabled={!customCommand.trim()}
                   >
                     <Copy className="w-4 h-4 mr-2" />
-                    {t('common.copy', 'Copy')}
+                    {t("common.copy", "Copy")}
                   </Button>
 
-                  <Button variant="outline" onClick={() => setCustomCommand('')}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCustomCommand("")}
+                  >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    {t('common.clear', 'Clear')}
+                    {t("common.clear", "Clear")}
                   </Button>
                 </div>
               </CardContent>
@@ -458,22 +504,33 @@ export default function GitHelper() {
           </TabsContent>
 
           {/* 命令历史 */}
-          <TabsContent value="history" className="space-y-4">
+          <TabsContent
+            value="history"
+            className="space-y-4"
+          >
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <History className="w-5 h-5" />
-                    {t('tools.git-helper.command-history', 'Command History')}
+                    {t("tools.git-helper.command-history", "Command History")}
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={exportHistory}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={exportHistory}
+                    >
                       <Download className="w-4 h-4 mr-2" />
-                      {t('common.export', 'Export')}
+                      {t("common.export", "Export")}
                     </Button>
-                    <Button size="sm" variant="outline" onClick={clearHistory}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={clearHistory}
+                    >
                       <Trash2 className="w-4 h-4 mr-2" />
-                      {t('common.clear', 'Clear')}
+                      {t("common.clear", "Clear")}
                     </Button>
                   </div>
                 </CardTitle>
@@ -481,27 +538,30 @@ export default function GitHelper() {
               <CardContent>
                 {state.commandHistory.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    {t('tools.git-helper.no-history', 'No command history yet')}
+                    {t("tools.git-helper.no-history", "No command history yet")}
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {state.commandHistory.map((execution) => (
-                      <div key={execution.id} className="border rounded-lg p-3">
+                      <div
+                        key={execution.id}
+                        className="border rounded-lg p-3"
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <code className="text-sm font-mono bg-muted px-2 py-1 rounded">{execution.command}</code>
                           <div className="flex items-center gap-2">
-                            <Badge variant={execution.exitCode === 0 ? 'default' : 'destructive'}>
+                            <Badge variant={execution.exitCode === 0 ? "default" : "destructive"}>
                               {execution.exitCode === 0 ? (
                                 <CheckCircle className="w-3 h-3 mr-1" />
                               ) : (
                                 <AlertCircle className="w-3 h-3 mr-1" />
                               )}
-                              {execution.exitCode === 0 ? 'Success' : 'Error'}
+                              {execution.exitCode === 0 ? "Success" : "Error"}
                             </Badge>
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => copyToClipboard(execution.command, 'Git command')}
+                              onClick={() => copyToClipboard(execution.command, "Git command")}
                             >
                               <Copy className="w-4 h-4" />
                             </Button>

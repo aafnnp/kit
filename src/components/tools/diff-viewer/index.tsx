@@ -38,7 +38,7 @@ import type {
   DiffAlgorithm,
   DiffFormat,
   DiffViewMode,
-} from "@/types/diff-viewer"
+} from "@/schemas/diff-viewer.schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 
@@ -1577,7 +1577,7 @@ const DiffViewerCore = () => {
                         className="border rounded-lg p-4"
                       >
                         <div className="flex items-start gap-3">
-                          <FileText className="h-6 w-6 text-muted-foreground flex-shrink-0 mt-1" />
+                          <FileText className="h-6 w-6 text-muted-foreground shrink-0 mt-1" />
                           <div className="flex-1 min-w-0">
                             <h4
                               className="font-medium truncate"

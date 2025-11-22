@@ -1,15 +1,15 @@
-import { useState, useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Send, Plus, Trash2, Copy, Clock, Globe, FileText, Settings, Eye, EyeOff } from 'lucide-react'
-import { useCopyToClipboard } from '@/hooks/use-clipboard'
+import { useState, useCallback } from "react"
+import { useTranslation } from "react-i18next"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
+import { Send, Plus, Trash2, Copy, Clock, Globe, FileText, Settings, Eye, EyeOff } from "lucide-react"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 import {
   ApiTesterState,
   ApiRequest,
@@ -18,12 +18,10 @@ import {
   HttpMethod,
   ApiHeader,
   ApiParam,
-  REQUEST_TEMPLATES,
-  getStatusCategory,
-  COMMON_HEADERS,
-} from '@/types/api-tester'
-import { ToolBase } from '@/components/common/tool-base'
-import { nanoid } from 'nanoid'
+} from "@/schemas/api-tester.schema"
+import { REQUEST_TEMPLATES, getStatusCategory, COMMON_HEADERS } from "@/schemas/api-tester.schema"
+import { ToolBase } from "@/components/common/tool-base"
+import { nanoid } from "nanoid"
 
 // 模拟 API 请求函数（在实际项目中可以使用 fetch 或 axios）
 const makeApiRequest = async (request: ApiRequest): Promise<ApiResponse> => {
@@ -54,7 +52,7 @@ const makeApiRequest = async (request: ApiRequest): Promise<ApiResponse> => {
     }
 
     // 添加请求体（如果需要）
-    if (['POST', 'PUT', 'PATCH'].includes(request.method) && request.body) {
+    if (["POST", "PUT", "PATCH"].includes(request.method) && request.body) {
       options.body = request.body
     }
 
@@ -79,7 +77,7 @@ const makeApiRequest = async (request: ApiRequest): Promise<ApiResponse> => {
       timestamp: Date.now(),
     }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : 'Request failed')
+    throw new Error(error instanceof Error ? error.message : "Request failed")
   }
 }
 
@@ -90,13 +88,13 @@ export function ApiTester() {
   const [state, setState] = useState<ApiTesterState>({
     currentRequest: {
       id: nanoid(),
-      name: 'New Request',
-      method: 'GET',
-      url: '',
-      headers: [{ id: nanoid(), key: '', value: '', enabled: true }],
-      params: [{ id: nanoid(), key: '', value: '', enabled: true }],
-      body: '',
-      bodyType: 'json',
+      name: "New Request",
+      method: "GET",
+      url: "",
+      headers: [{ id: nanoid(), key: "", value: "", enabled: true }],
+      params: [{ id: nanoid(), key: "", value: "", enabled: true }],
+      body: "",
+      bodyType: "json",
       timeout: 30,
       followRedirects: true,
     },
@@ -135,7 +133,7 @@ export function ApiTester() {
       const result: ApiTestResult = {
         id: nanoid(),
         request: { ...state.currentRequest },
-        error: error instanceof Error ? error.message : 'Request failed',
+        error: error instanceof Error ? error.message : "Request failed",
         isLoading: false,
         timestamp: Date.now(),
       }
@@ -156,8 +154,8 @@ export function ApiTester() {
         ...prev.currentRequest,
         ...template,
         id: nanoid(),
-        headers: template.headers || [{ id: nanoid(), key: '', value: '', enabled: true }],
-        params: template.params || [{ id: nanoid(), key: '', value: '', enabled: true }],
+        headers: template.headers || [{ id: nanoid(), key: "", value: "", enabled: true }],
+        params: template.params || [{ id: nanoid(), key: "", value: "", enabled: true }],
       },
     }))
   }, [])
@@ -168,7 +166,7 @@ export function ApiTester() {
       ...prev,
       currentRequest: {
         ...prev.currentRequest,
-        headers: [...prev.currentRequest.headers, { id: nanoid(), key: '', value: '', enabled: true }],
+        headers: [...prev.currentRequest.headers, { id: nanoid(), key: "", value: "", enabled: true }],
       },
     }))
   }, [])
@@ -201,7 +199,7 @@ export function ApiTester() {
       ...prev,
       currentRequest: {
         ...prev.currentRequest,
-        params: [...prev.currentRequest.params, { id: nanoid(), key: '', value: '', enabled: true }],
+        params: [...prev.currentRequest.params, { id: nanoid(), key: "", value: "", enabled: true }],
       },
     }))
   }, [])
@@ -250,13 +248,13 @@ export function ApiTester() {
       ...prev,
       currentRequest: {
         id: nanoid(),
-        name: 'New Request',
-        method: 'GET',
-        url: '',
-        headers: [{ id: nanoid(), key: '', value: '', enabled: true }],
-        params: [{ id: nanoid(), key: '', value: '', enabled: true }],
-        body: '',
-        bodyType: 'json',
+        name: "New Request",
+        method: "GET",
+        url: "",
+        headers: [{ id: nanoid(), key: "", value: "", enabled: true }],
+        params: [{ id: nanoid(), key: "", value: "", enabled: true }],
+        body: "",
+        bodyType: "json",
         timeout: 30,
         followRedirects: true,
       },
@@ -267,7 +265,7 @@ export function ApiTester() {
   const copyResponse = useCallback(
     (result: ApiTestResult) => {
       if (result.response) {
-        copyToClipboard(result.response.data, 'Response data')
+        copyToClipboard(result.response.data, "Response data")
       }
     },
     [copyToClipboard]
@@ -277,26 +275,26 @@ export function ApiTester() {
   const getStatusColor = (status: number) => {
     const category = getStatusCategory(status)
     switch (category) {
-      case 'success':
-        return 'bg-green-100 text-green-800'
-      case 'redirect':
-        return 'bg-blue-100 text-blue-800'
-      case 'client-error':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'server-error':
-        return 'bg-red-100 text-red-800'
+      case "success":
+        return "bg-green-100 text-green-800"
+      case "redirect":
+        return "bg-blue-100 text-blue-800"
+      case "client-error":
+        return "bg-yellow-100 text-yellow-800"
+      case "server-error":
+        return "bg-red-100 text-red-800"
       default:
-        return 'bg-gray-100 text-gray-800'
+        return "bg-gray-100 text-gray-800"
     }
   }
 
   return (
     <ToolBase
-      toolName={t('tools.api-tester.title', 'API Tester')}
+      toolName={t("tools.api-tester.title", "API Tester")}
       icon={<Send className="w-5 h-5" />}
       description={t(
-        'tools.api-tester.description',
-        'Test REST APIs with customizable requests and detailed responses'
+        "tools.api-tester.description",
+        "Test REST APIs with customizable requests and detailed responses"
       )}
     >
       <div className="space-y-6">
@@ -305,19 +303,28 @@ export function ApiTester() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <FileText className="w-5 h-5" />
-              {t('tools.api-tester.templates', 'Quick Templates')}
+              {t("tools.api-tester.templates", "Quick Templates")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {REQUEST_TEMPLATES.map((template, index) => (
-                <Button key={index} variant="outline" size="sm" onClick={() => handleLoadTemplate(template)}>
+              {REQUEST_TEMPLATES.map((template: Partial<ApiRequest>, index: number) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleLoadTemplate(template)}
+                >
                   {template.method} {template.name}
                 </Button>
               ))}
-              <Button variant="outline" size="sm" onClick={clearRequest}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearRequest}
+              >
                 <Trash2 className="w-4 h-4 mr-2" />
-                {t('common.clear', 'Clear')}
+                {t("common.clear", "Clear")}
               </Button>
             </div>
           </CardContent>
@@ -328,7 +335,7 @@ export function ApiTester() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Settings className="w-5 h-5" />
-              {t('tools.api-tester.request', 'Request Configuration')}
+              {t("tools.api-tester.request", "Request Configuration")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -375,25 +382,29 @@ export function ApiTester() {
                 size="lg"
               >
                 {state.isLoading ? <Clock className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
-                {state.isLoading ? t('tools.api-tester.sending', 'Sending...') : t('tools.api-tester.send', 'Send')}
+                {state.isLoading ? t("tools.api-tester.sending", "Sending...") : t("tools.api-tester.send", "Send")}
               </Button>
             </div>
 
             {/* 参数和请求头切换 */}
             <div className="flex gap-2">
-              <Button variant={showParams ? 'default' : 'outline'} size="sm" onClick={() => setShowParams(!showParams)}>
+              <Button
+                variant={showParams ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowParams(!showParams)}
+              >
                 {showParams ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-                {t('tools.api-tester.params', 'Parameters')} (
+                {t("tools.api-tester.params", "Parameters")} (
                 {state.currentRequest.params.filter((p) => p.enabled && p.key).length})
               </Button>
 
               <Button
-                variant={showHeaders ? 'default' : 'outline'}
+                variant={showHeaders ? "default" : "outline"}
                 size="sm"
                 onClick={() => setShowHeaders(!showHeaders)}
               >
                 {showHeaders ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-                {t('tools.api-tester.headers', 'Headers')} (
+                {t("tools.api-tester.headers", "Headers")} (
                 {state.currentRequest.headers.filter((h) => h.enabled && h.key).length})
               </Button>
             </div>
@@ -402,34 +413,45 @@ export function ApiTester() {
             {showParams && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>{t('tools.api-tester.query-params', 'Query Parameters')}</Label>
-                  <Button size="sm" variant="outline" onClick={addParam}>
+                  <Label>{t("tools.api-tester.query-params", "Query Parameters")}</Label>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={addParam}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
-                    {t('common.add', 'Add')}
+                    {t("common.add", "Add")}
                   </Button>
                 </div>
 
                 {state.currentRequest.params.map((param) => (
-                  <div key={param.id} className="flex gap-2 items-center">
+                  <div
+                    key={param.id}
+                    className="flex gap-2 items-center"
+                  >
                     <input
                       type="checkbox"
                       checked={param.enabled}
-                      onChange={(e) => updateParam(param.id, 'enabled', e.target.checked)}
+                      onChange={(e) => updateParam(param.id, "enabled", e.target.checked)}
                       className="rounded"
                     />
                     <Input
                       placeholder="Key"
                       value={param.key}
-                      onChange={(e) => updateParam(param.id, 'key', e.target.value)}
+                      onChange={(e) => updateParam(param.id, "key", e.target.value)}
                       className="flex-1"
                     />
                     <Input
                       placeholder="Value"
                       value={param.value}
-                      onChange={(e) => updateParam(param.id, 'value', e.target.value)}
+                      onChange={(e) => updateParam(param.id, "value", e.target.value)}
                       className="flex-1"
                     />
-                    <Button size="sm" variant="ghost" onClick={() => removeParam(param.id)}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeParam(param.id)}
+                    >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -441,35 +463,46 @@ export function ApiTester() {
             {showHeaders && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>{t('tools.api-tester.request-headers', 'Request Headers')}</Label>
-                  <Button size="sm" variant="outline" onClick={addHeader}>
+                  <Label>{t("tools.api-tester.request-headers", "Request Headers")}</Label>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={addHeader}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
-                    {t('common.add', 'Add')}
+                    {t("common.add", "Add")}
                   </Button>
                 </div>
 
                 {state.currentRequest.headers.map((header) => (
-                  <div key={header.id} className="flex gap-2 items-center">
+                  <div
+                    key={header.id}
+                    className="flex gap-2 items-center"
+                  >
                     <input
                       type="checkbox"
                       checked={header.enabled}
-                      onChange={(e) => updateHeader(header.id, 'enabled', e.target.checked)}
+                      onChange={(e) => updateHeader(header.id, "enabled", e.target.checked)}
                       className="rounded"
                     />
                     <Input
                       placeholder="Header name"
                       value={header.key}
-                      onChange={(e) => updateHeader(header.id, 'key', e.target.value)}
+                      onChange={(e) => updateHeader(header.id, "key", e.target.value)}
                       className="flex-1"
                       list="common-headers"
                     />
                     <Input
                       placeholder="Header value"
                       value={header.value}
-                      onChange={(e) => updateHeader(header.id, 'value', e.target.value)}
+                      onChange={(e) => updateHeader(header.id, "value", e.target.value)}
                       className="flex-1"
                     />
-                    <Button size="sm" variant="ghost" onClick={() => removeHeader(header.id)}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeHeader(header.id)}
+                    >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -477,18 +510,21 @@ export function ApiTester() {
 
                 {/* 常用请求头数据列表 */}
                 <datalist id="common-headers">
-                  {COMMON_HEADERS.map((header) => (
-                    <option key={header} value={header} />
+                  {COMMON_HEADERS.map((header: string) => (
+                    <option
+                      key={header}
+                      value={header}
+                    />
                   ))}
                 </datalist>
               </div>
             )}
 
             {/* 请求体 */}
-            {['POST', 'PUT', 'PATCH'].includes(state.currentRequest.method) && (
+            {["POST", "PUT", "PATCH"].includes(state.currentRequest.method) && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>{t('tools.api-tester.request-body', 'Request Body')}</Label>
+                  <Label>{t("tools.api-tester.request-body", "Request Body")}</Label>
                   <div className="flex gap-2">
                     <Select
                       value={state.currentRequest.bodyType}
@@ -510,9 +546,13 @@ export function ApiTester() {
                       </SelectContent>
                     </Select>
 
-                    {state.currentRequest.bodyType === 'json' && (
-                      <Button size="sm" variant="outline" onClick={formatJson}>
-                        {t('tools.api-tester.format', 'Format')}
+                    {state.currentRequest.bodyType === "json" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={formatJson}
+                      >
+                        {t("tools.api-tester.format", "Format")}
                       </Button>
                     )}
                   </div>
@@ -526,7 +566,7 @@ export function ApiTester() {
                       currentRequest: { ...prev.currentRequest, body: e.target.value },
                     }))
                   }
-                  placeholder={t('tools.api-tester.body-placeholder', 'Enter request body...')}
+                  placeholder={t("tools.api-tester.body-placeholder", "Enter request body...")}
                   className="min-h-[150px] font-mono text-sm"
                 />
               </div>
@@ -540,13 +580,16 @@ export function ApiTester() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Globe className="w-5 h-5" />
-                {t('tools.api-tester.responses', 'Responses')}
+                {t("tools.api-tester.responses", "Responses")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {state.results.map((result) => (
-                  <div key={result.id} className="border rounded-lg p-4">
+                  <div
+                    key={result.id}
+                    className="border rounded-lg p-4"
+                  >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">{result.request.method}</Badge>
@@ -565,7 +608,11 @@ export function ApiTester() {
                             {result.response.time}ms
                           </>
                         )}
-                        <Button size="sm" variant="ghost" onClick={() => copyResponse(result)}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => copyResponse(result)}
+                        >
                           <Copy className="w-4 h-4" />
                         </Button>
                       </div>
@@ -576,13 +623,19 @@ export function ApiTester() {
                         {result.error}
                       </div>
                     ) : result.response ? (
-                      <Tabs defaultValue="body" className="w-full">
+                      <Tabs
+                        defaultValue="body"
+                        className="w-full"
+                      >
                         <TabsList>
                           <TabsTrigger value="body">Body</TabsTrigger>
                           <TabsTrigger value="headers">Headers</TabsTrigger>
                         </TabsList>
 
-                        <TabsContent value="body" className="mt-3">
+                        <TabsContent
+                          value="body"
+                          className="mt-3"
+                        >
                           <Textarea
                             value={result.response.data}
                             readOnly
@@ -590,10 +643,16 @@ export function ApiTester() {
                           />
                         </TabsContent>
 
-                        <TabsContent value="headers" className="mt-3">
+                        <TabsContent
+                          value="headers"
+                          className="mt-3"
+                        >
                           <div className="space-y-2">
                             {Object.entries(result.response.headers).map(([key, value]) => (
-                              <div key={key} className="flex gap-2 text-sm">
+                              <div
+                                key={key}
+                                className="flex gap-2 text-sm"
+                              >
                                 <span className="font-medium min-w-[120px]">{key}:</span>
                                 <span className="text-muted-foreground break-all">{value}</span>
                               </div>

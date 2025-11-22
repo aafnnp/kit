@@ -33,7 +33,7 @@ import type {
   HashAlgorithm,
   OutputFormat,
   ExportFormat,
-} from "@/types/sha256-hash"
+} from "@/schemas/sha256-hash.schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions
@@ -1017,7 +1017,7 @@ const Sha256HashCore = () => {
                             )}
                             {file.error && <div className="text-red-600 text-sm">Error: {file.error}</div>}
                           </div>
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <Button
                               size="sm"
                               variant="ghost"

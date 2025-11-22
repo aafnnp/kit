@@ -5,9 +5,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import tools from "@/lib/data"
 import { IconChevronRight } from "@tabler/icons-react"
-import React, { useState, useEffect, useCallback, memo } from "react"
+import { useState, useEffect, useCallback, memo } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { useRouter, useLocation } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
@@ -15,8 +14,9 @@ import { loadIconComponent, getLoadedIconComponent, preloadIcons } from "@/lib/d
 import { preloader } from "@/lib/data"
 import { getToolLoaderBySlug } from "@/lib/data"
 import { useRoutePrefetch } from "@/lib/routing"
+import type { NavMainProps, OpenMap, IconComponentsMap } from "./schemas"
 
-function NavMainInner({ items }: { items: typeof tools }) {
+function NavMainInner({ items }: NavMainProps) {
   const router = useRouter()
   const { t } = useTranslation()
   const { prefetchOnHover } = useRoutePrefetch()
@@ -24,8 +24,8 @@ function NavMainInner({ items }: { items: typeof tools }) {
   const pathname = useLocation({ select: (l) => l.pathname })
   const match = pathname.match(/^\/tool\/([^\/]+)/)
   const currentSlug = match ? match[1] : null
-  const [openMap, setOpenMap] = useState<Record<string, boolean>>({})
-  const [iconComponents, setIconComponents] = useState<Record<string, React.ComponentType<any> | null>>({})
+  const [openMap, setOpenMap] = useState<OpenMap>({})
+  const [iconComponents, setIconComponents] = useState<IconComponentsMap>({})
 
   useEffect(() => {
     const uniqueIconNames = new Set<string>()

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner"
 import { Upload, Download, FileText, Loader2, FileImage, Trash2, BarChart3, BookOpen, Target } from "lucide-react"
 import { nanoid } from "nanoid"
-import type { TextFile, TextAnalysis, AnalysisSettings, AnalysisStats } from "@/types/word-count"
+import type { TextFile, TextAnalysis, AnalysisSettings, AnalysisStats } from "@/schemas/word-count.schema"
 import { formatFileSize } from "@/lib/utils"
 
 const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
@@ -1032,7 +1032,7 @@ const WordCount = () => {
                         className="border rounded-lg p-4"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
 

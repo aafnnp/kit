@@ -43,7 +43,7 @@ import type {
   UUIDFormat,
   ExportFormat,
   ViewMode,
-} from "@/types/uuid-batch"
+} from "@/schemas/uuid-batch.schema"
 
 // Utility functions
 

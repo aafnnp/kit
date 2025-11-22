@@ -40,8 +40,8 @@ import {
   type DataTypeCount,
   type ExportFormat,
   type CSVQuoting,
-} from "@/types/csv-to-json"
-import type { CSVRow, JSONArray } from "@/types/tool-types"
+} from "@/schemas/csv-to-json.schema"
+import type { CSVRow, JSONArray } from "@/schemas/common.schema"
 import { formatFileSize } from "@/lib/utils"
 
 const detectDelimiter = (csvText: string): string => {

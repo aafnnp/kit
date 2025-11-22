@@ -5,34 +5,7 @@ import { Activity, Monitor, Zap, Smartphone, Wifi, WifiOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTranslation } from "react-i18next"
-
-interface PerformanceMetrics {
-  renderTime: number
-  memoryUsage: number
-  itemCount: number
-  strategy: string
-  timestamp: number
-}
-
-interface NetworkInfo {
-  effectiveType: string
-  downlink: number
-  rtt: number
-  saveData: boolean
-}
-
-interface DeviceInfo {
-  isMobile: boolean
-  isTablet: boolean
-  isDesktop: boolean
-  userAgent: string
-}
-
-interface PerformanceMonitorProps {
-  isVisible?: boolean
-  onToggle?: () => void
-  className?: string
-}
+import type { PerformanceMetrics, NetworkInfo, DeviceInfo, PerformanceMonitorProps, PerformanceStats } from "./schemas"
 
 export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
   isVisible = false,
@@ -169,7 +142,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
   }
 
   // 获取性能统计
-  const getStats = () => {
+  const getStats = (): PerformanceStats | null => {
     if (metrics.length === 0) return null
 
     const renderTimes = metrics.map((m) => m.renderTime)

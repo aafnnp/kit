@@ -40,7 +40,7 @@ import type {
   RadialShape,
   RadialSize,
   ExportFormat,
-} from "@/types/gradient-maker"
+} from "@/schemas/gradient-maker.schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 
@@ -1426,7 +1426,7 @@ const GradientMakerCore = () => {
                             )}
                             {file.error && <div className="text-red-600 text-sm">Error: {file.error}</div>}
                           </div>
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <Button
                               size="sm"
                               variant="ghost"

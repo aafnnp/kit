@@ -42,7 +42,7 @@ import type {
   BatchStatistics,
   UserTemplate,
   ExportFormat,
-} from "@/types/fake-user"
+} from "@/schemas/fake-user.schema"
 // Utility functions
 
 // Data sources for fake user generation
@@ -345,8 +345,9 @@ const ethnicities = [
 // Fake user generation functions
 const generateFakeUser = (settings: GenerationSettings): FakeUser => {
   const gender = settings.gender === "random" ? (Math.random() > 0.5 ? "male" : "female") : settings.gender || "male"
-  const firstName = getRandomItem(firstNames[gender])
-  const lastName = getRandomItem(lastNames)
+  const genderKey = gender === "other" ? (Math.random() > 0.5 ? "male" : "female") : gender
+  const firstName = getRandomItem(firstNames[genderKey as "male" | "female"]) as string
+  const lastName = getRandomItem(lastNames) as string
   const age = getRandomNumber(settings.ageRange.min, settings.ageRange.max)
   const dateOfBirth = new Date()
   dateOfBirth.setFullYear(dateOfBirth.getFullYear() - age)
@@ -468,7 +469,7 @@ const generateFakeUser = (settings: GenerationSettings): FakeUser => {
 
   const socialInfo: SocialInfo = settings.includeSocial
     ? {
-        bio: generateBio(firstName, personalInfo.age),
+        bio: generateBio(firstName as string, personalInfo.age),
         interests: getRandomItems(interests, getRandomNumber(3, 7)),
         hobbies: getRandomItems(interests, getRandomNumber(2, 5)),
         languages: getRandomItems(languages, getRandomNumber(1, 4)),

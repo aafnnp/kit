@@ -1,21 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { Upload, FileImage } from "lucide-react"
 import { useDragAndDrop } from "@/hooks/use-drag-drop"
-import { DragDropConfig } from "@/types/common"
 import { formatFileSize } from "@/lib/utils"
+import { type FileUploadAreaProps } from "@/components/common/schemas"
 
-interface FileUploadAreaProps {
-  onFilesSelected: (files: File[]) => void
-  isProcessing?: boolean
-  accept?: string
-  multiple?: boolean
-  title?: string
-  description?: string
-  buttonText?: string
-  supportedFormatsText?: string
-  config?: DragDropConfig
-  icon?: React.ReactNode
-}
+// Re-export type for backward compatibility
+export type { FileUploadAreaProps }
 
 export function FileUploadArea({
   onFilesSelected,

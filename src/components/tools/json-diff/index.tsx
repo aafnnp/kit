@@ -31,7 +31,7 @@ import type {
   DiffTemplate,
   DiffValidation,
   ExportFormat,
-} from "@/types/json-diff"
+} from "@/schemas/json-diff.schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions

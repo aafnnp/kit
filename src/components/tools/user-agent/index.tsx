@@ -49,7 +49,7 @@ import type {
   UserAgentValidation,
   DeviceType,
   ExportFormat,
-} from "@/types/user-agent"
+} from "@/schemas/user-agent.schema"
 import { formatFileSize } from "@/lib/utils"
 // Utility functions
 

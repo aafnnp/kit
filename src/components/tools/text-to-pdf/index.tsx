@@ -34,7 +34,7 @@ import type {
   PageSize,
   FontFamily,
   TextAlign,
-} from "@/types/text-to-pdf"
+} from "@/schemas/text-to-pdf.schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions
@@ -1336,7 +1336,7 @@ const TextToPDFCore = () => {
                         className="border rounded-lg p-4"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <FileText className="h-8 w-8 text-muted-foreground" />
                           </div>
 
@@ -1375,7 +1375,7 @@ const TextToPDFCore = () => {
                             </div>
                           </div>
 
-                          <div className="flex-shrink-0 flex items-center gap-2">
+                          <div className="shrink-0 flex items-center gap-2">
                             {file.status === "completed" && file.pdfResult && (
                               <>
                                 <Button
