@@ -79,8 +79,5 @@ deb:
 appImage:
   artifactName: ${name}-${version}-${arch}.${ext}
 
-publish:
-  provider: github
-  owner: aafnnp
-  repo: kit
-  releaseType: release
+# Disable auto-publish, let GitHub Actions handle release uploads
+publish: null
