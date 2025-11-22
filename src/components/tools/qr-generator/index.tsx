@@ -23,7 +23,16 @@ import {
   Image,
 } from "lucide-react"
 import { nanoid } from "nanoid"
-import QRCode from "qrcode"
+
+// Dynamic import for qrcode to reduce initial bundle size
+let qrcodeModule: typeof import("qrcode") | null = null
+const loadQRCode = async (): Promise<typeof import("qrcode")> => {
+  if (!qrcodeModule) {
+    qrcodeModule = await import("qrcode")
+  }
+  return qrcodeModule
+}
+
 import type {
   QRCodeResult,
   QRMetadata,
@@ -49,6 +58,7 @@ import type {
 // QR Code generation functions (using standard 'qrcode' library)
 const generateQRCode = async (settings: QRSettings): Promise<QRCodeResult> => {
   try {
+    const QRCode = await loadQRCode()
     // Create a canvas and draw QR using 'qrcode' to ensure standards compliance
     const canvas = document.createElement("canvas")
     const marginModules = Math.max(0, Math.round(settings.margin / 8))
@@ -133,6 +143,7 @@ const addLogo = async (
 }
 
 const generateSVGQRCode = async (settings: QRSettings): Promise<string> => {
+  const QRCode = await loadQRCode()
   const marginModules = Math.max(0, Math.round(settings.margin / 8))
   const svg = await QRCode.toString(settings.content, {
     type: "svg",

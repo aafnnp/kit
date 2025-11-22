@@ -1115,7 +1115,7 @@ const LoremIpsumCore = () => {
                   className="h-auto min-h-[64px] w-full p-3 text-left flex flex-col items-start justify-center"
                 >
                   <span className="font-medium text-sm">{preset.name}</span>
-                  <span className="text-xs text-muted-foreground mt-1 break-words whitespace-normal">
+                  <span className="text-xs text-muted-foreground mt-1 wrap-break-word whitespace-normal">
                     {preset.description}
                   </span>
                 </Button>

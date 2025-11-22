@@ -1114,7 +1114,7 @@ const ImageCompressCore = () => {
                                 <div className="flex items-center gap-2">
                                   <div className="w-32 bg-muted rounded-full h-2">
                                     <div
-                                      className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all"
+                                      className="bg-linear-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all"
                                       style={{ width: `${Math.min(100, image.compressionRatio || 0)}%` }}
                                     />
                                   </div>

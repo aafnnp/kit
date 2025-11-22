@@ -66,9 +66,15 @@ export default defineConfig(() => ({
             if (id.includes("react") || id.includes("react-dom")) {
               return "react-vendor"
             }
-            // UI 库
-            if (id.includes("@radix-ui") || id.includes("lucide-react") || id.includes("motion")) {
+            // UI 库 - 进一步拆分
+            if (id.includes("@radix-ui")) {
               return "ui-vendor"
+            }
+            if (id.includes("lucide-react")) {
+              return "ui-utils-vendor"
+            }
+            if (id.includes("motion")) {
+              return "motion-vendor"
             }
             // 路由和状态管理
             if (id.includes("@tanstack")) {
@@ -79,8 +85,36 @@ export default defineConfig(() => ({
               return "i18n-vendor"
             }
             // 工具库
-            if (id.includes("clsx") || id.includes("tailwind-merge")) {
+            if (id.includes("clsx") || id.includes("tailwind-merge") || id.includes("class-variance-authority")) {
               return "utils-vendor"
+            }
+            // 验证库
+            if (id.includes("zod")) {
+              return "zod-vendor"
+            }
+            // 通知库
+            if (id.includes("sonner")) {
+              return "sonner-vendor"
+            }
+            // 主题库
+            if (id.includes("next-themes")) {
+              return "theme-vendor"
+            }
+            // 抽屉组件
+            if (id.includes("vaul")) {
+              return "vaul-vendor"
+            }
+            // 性能监控
+            if (id.includes("web-vitals")) {
+              return "vitals-vendor"
+            }
+            // 图标库
+            if (id.includes("@tabler/icons-react")) {
+              return "icons-vendor"
+            }
+            // DnD 库独立分包
+            if (id.includes("@dnd-kit")) {
+              return "dnd-vendor"
             }
             // 重型库独立分包，避免首屏拖拽
             if (id.includes("mermaid")) {
@@ -91,6 +125,21 @@ export default defineConfig(() => ({
             }
             if (id.includes("pdf-lib")) {
               return "pdf-chunk"
+            }
+            // 媒体处理库
+            if (id.includes("jsbarcode")) {
+              return "barcode-vendor"
+            }
+            if (id.includes("qrcode")) {
+              return "qrcode-vendor"
+            }
+            if (id.includes("gifuct-js") || id.includes("fflate")) {
+              return "media-vendor"
+            }
+            // 其他第三方库 - 按大小分组
+            // 小型工具库合并到 utils-vendor
+            if (id.includes("nanoid") || id.includes("date-fns") || id.includes("lodash-es") || id.includes("ramda")) {
+              return "utils-vendor"
             }
             // 其他第三方库
             return "vendor"
@@ -129,6 +178,22 @@ export default defineConfig(() => ({
         drop_debugger: true,
         // 移除未使用的代码
         dead_code: true,
+        // 移除未使用的函数参数和变量
+        unused: true,
+        // 内联单次使用的变量
+        collapse_vars: true,
+        // 优化条件表达式
+        conditionals: true,
+        // 优化循环
+        loops: true,
+        // 优化函数调用
+        pure_funcs: ["console.log", "console.info", "console.debug"],
+        // 多次压缩以获得更好的效果
+        passes: 2,
+      },
+      format: {
+        // 移除注释
+        comments: false,
       },
     },
     // 设置chunk大小警告阈值

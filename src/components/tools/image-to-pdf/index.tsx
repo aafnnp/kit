@@ -6,9 +6,17 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import { Upload, Download, Loader2, Trash2, BarChart3 } from "lucide-react"
-import { PDFDocument } from "pdf-lib"
 import { nanoid } from "nanoid"
 import type { ImageToPdfFile, ImageToPdfSettings, ImageToPdfStats } from "@/schemas/image-to-pdf.schema"
+
+// Dynamic import for pdf-lib to reduce initial bundle size
+let pdfLibModule: typeof import("pdf-lib") | null = null
+const loadPdfLib = async (): Promise<typeof import("pdf-lib")> => {
+  if (!pdfLibModule) {
+    pdfLibModule = await import("pdf-lib")
+  }
+  return pdfLibModule
+}
 
 // 默认设置
 const defaultSettings: ImageToPdfSettings = {
@@ -70,6 +78,7 @@ async function imagesToPdf(
   settings: ImageToPdfSettings,
   onProgress?: (p: number) => void
 ): Promise<Uint8Array> {
+  const { PDFDocument } = await loadPdfLib()
   const pdfDoc = await PDFDocument.create()
   const [pageWidth, pageHeight] = getPageSize(settings.pageSize, settings.orientation)
   for (let i = 0; i < files.length; i++) {

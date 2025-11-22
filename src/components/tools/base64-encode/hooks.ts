@@ -79,9 +79,18 @@ const decodeHex = (input: string): string => {
       throw new Error("Invalid hex string length")
     }
 
+    // Validate hex characters
+    if (!/^[0-9a-fA-F]+$/.test(cleanInput)) {
+      throw new Error("Invalid hex characters")
+    }
+
     const bytes = []
     for (let i = 0; i < cleanInput.length; i += 2) {
-      bytes.push(parseInt(cleanInput.substr(i, 2), 16))
+      const byte = parseInt(cleanInput.substr(i, 2), 16)
+      if (isNaN(byte)) {
+        throw new Error("Invalid hex string")
+      }
+      bytes.push(byte)
     }
 
     return new TextDecoder().decode(new Uint8Array(bytes))

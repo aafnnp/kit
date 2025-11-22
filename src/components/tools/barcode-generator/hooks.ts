@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react"
-import JsBarcode from "jsbarcode"
 import { toast } from "sonner"
 import { nanoid } from "nanoid"
 import {
@@ -22,9 +21,19 @@ import {
   ExportFormat,
 } from "@/schemas/barcode-generator.schema"
 
+// Dynamic import for jsbarcode to reduce initial bundle size
+let jsbarcodeModule: typeof import("jsbarcode") | null = null
+const loadJsBarcode = async (): Promise<typeof import("jsbarcode")> => {
+  if (!jsbarcodeModule) {
+    jsbarcodeModule = (await import("jsbarcode")).default
+  }
+  return jsbarcodeModule
+}
+
 // Barcode generation functions (using JsBarcode)
 const generateBarcode = async (settings: BarcodeSettings): Promise<BarcodeResult> => {
   try {
+    const JsBarcode = await loadJsBarcode()
     // Generate PNG via canvas
     const canvas = document.createElement("canvas")
     JsBarcode(canvas, settings.content, {

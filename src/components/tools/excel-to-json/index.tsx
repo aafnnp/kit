@@ -27,7 +27,6 @@ import {
   Layers,
   BarChart3,
 } from "lucide-react"
-import * as XLSX from "xlsx"
 import { nanoid } from "nanoid"
 import type {
   ExcelProcessingResult,
@@ -45,6 +44,15 @@ import type {
   SheetSelection,
 } from "@/schemas/excel-to-json.schema"
 import { formatFileSize } from "@/lib/utils"
+
+// Dynamic import for xlsx to reduce initial bundle size
+let xlsxModule: typeof import("xlsx") | null = null
+const loadXLSX = async (): Promise<typeof import("xlsx")> => {
+  if (!xlsxModule) {
+    xlsxModule = await import("xlsx")
+  }
+  return xlsxModule
+}
 // Utility functions
 
 const detectDataType = (value: any): string => {
@@ -71,6 +79,7 @@ const processExcelFile = async (file: File, settings: ProcessingSettings): Promi
   const startTime = performance.now()
 
   try {
+    const XLSX = await loadXLSX()
     const arrayBuffer = await file.arrayBuffer()
     const workbook = XLSX.read(arrayBuffer, {
       type: "array",
@@ -86,7 +95,7 @@ const processExcelFile = async (file: File, settings: ProcessingSettings): Promi
     let totalCells = 0
 
     // Process sheets based on selection
-    const sheetsToProcess = getSelectedSheets(workbook, settings.sheetSelection)
+    const sheetsToProcess = await getSelectedSheets(workbook, settings.sheetSelection)
 
     for (const sheetName of sheetsToProcess) {
       const worksheet = workbook.Sheets[sheetName]
@@ -107,7 +116,7 @@ const processExcelFile = async (file: File, settings: ProcessingSettings): Promi
       const columnCount = range.e.c - range.s.c + 1
 
       // Extract headers
-      const headers = extractHeaders(worksheet, settings.headerRow)
+      const headers = await extractHeaders(worksheet, settings.headerRow)
 
       // Analyze data types
       const dataTypes = analyzeDataTypes(jsonData)
@@ -185,14 +194,15 @@ const processExcelFile = async (file: File, settings: ProcessingSettings): Promi
   }
 }
 
-const getSelectedSheets = (workbook: XLSX.WorkBook, selection: SheetSelection): string[] => {
+const getSelectedSheets = async (workbook: any, selection: SheetSelection): Promise<string[]> => {
+  const XLSX = await loadXLSX()
   const allSheets = workbook.SheetNames
 
   switch (selection) {
     case "first":
       return allSheets.slice(0, 1)
     case "non-empty":
-      return allSheets.filter((name) => {
+      return allSheets.filter((name: string) => {
         const sheet = workbook.Sheets[name]
         const jsonData = XLSX.utils.sheet_to_json(sheet)
         return jsonData.length > 0
@@ -203,7 +213,8 @@ const getSelectedSheets = (workbook: XLSX.WorkBook, selection: SheetSelection): 
   }
 }
 
-const extractHeaders = (worksheet: XLSX.WorkSheet, headerRow: number): string[] => {
+const extractHeaders = async (worksheet: any, headerRow: number): Promise<string[]> => {
+  const XLSX = await loadXLSX()
   const headers: string[] = []
   const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1:A1")
 

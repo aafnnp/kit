@@ -21,7 +21,6 @@ import {
   ArrowDown,
   Combine,
 } from "lucide-react"
-import { PDFDocument, degrees } from "pdf-lib"
 import { nanoid } from "nanoid"
 import type {
   PDFFile,
@@ -36,11 +35,21 @@ import type {
 } from "@/schemas/merge-pdf.schema"
 import { formatFileSize } from "@/lib/utils"
 
+// Dynamic import for pdf-lib to reduce initial bundle size
+let pdfLibModule: typeof import("pdf-lib") | null = null
+const loadPdfLib = async (): Promise<typeof import("pdf-lib")> => {
+  if (!pdfLibModule) {
+    pdfLibModule = await import("pdf-lib")
+  }
+  return pdfLibModule
+}
+
 // Utility functions
 
 // PDF processing functions
 const processPDFFile = async (file: File): Promise<PDFFile> => {
   try {
+    const { PDFDocument } = await loadPdfLib()
     const arrayBuffer = await file.arrayBuffer()
     const pdfDoc = await PDFDocument.load(arrayBuffer)
 
@@ -131,6 +140,7 @@ const mergePDFs = async (
   const startTime = performance.now()
 
   try {
+    const { PDFDocument, degrees } = await loadPdfLib()
     const mergedPdf = await PDFDocument.create()
     let totalPages = 0
     let processedPages = 0
@@ -476,6 +486,7 @@ const usePDFMerger = () => {
         })
 
         // Create download URL
+        const { PDFDocument } = await loadPdfLib()
         const mergedPdf = await PDFDocument.create()
         for (const pdfFile of operation.files) {
           if (!pdfFile.isValid) continue
