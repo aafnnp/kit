@@ -50,5 +50,5 @@
 ### 进度追踪
 - [x] **P0**：预加载管理器改为 slug→Promise 惰性映射，并引入并发队列；工具 chunk 依业务域聚合（media/data/security/generator/misc），减少 80+ 小 chunk。
 - [x] **P1**：首页 Route 状态逻辑下沉到 `useToolDashboardState`，UI 分离为 `DashboardHero/Tabs`，并将 JSON Formatter 的解析/校验算法迁至 `src/lib/json/json-processor.ts`，新增 `json-processor.test.ts` 覆盖关键分支。
-- [ ] **P2**：完成工具 meta 自动生成与 CI 校验。
+- [x] **P2**：完成工具 meta 自动生成与 CI 校验。
 

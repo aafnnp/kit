@@ -3,7 +3,7 @@
  */
 
 import React from "react"
-import { getToolLoaderBySlug, hasTool } from "./tools-map"
+import { getToolChunkNameBySlug, getToolLoaderBySlug, hasTool } from "./tools-map"
 
 type PreloadPriority = "high" | "medium" | "low"
 
@@ -44,6 +44,7 @@ class PreloadManager {
   private preloadQueue = new Map<string, PreloadConfig>()
   private loadedModules = new Set<string>()
   private loadingModules = new Set<string>()
+  private loadedChunks = new Set<string>()
   private preloadPromises = new Map<string, Promise<void>>()
   private pendingQueue: QueueTask[] = []
   private deferredMap = new Map<string, Deferred<void>>()
@@ -82,6 +83,13 @@ class PreloadManager {
         this.stats.hits++
       }
       return existingPromise
+    }
+
+    const chunkName = getToolChunkNameBySlug(slug)
+    if (chunkName && this.loadedChunks.has(chunkName)) {
+      this.loadedModules.add(slug)
+      this.stats.hits++
+      return Promise.resolve()
     }
 
     const deferred = createDeferred<void>()
@@ -378,6 +386,7 @@ class PreloadManager {
     this.preloadPromises.clear()
     this.loadedModules.clear()
     this.loadingModules.clear()
+    this.loadedChunks.clear()
     this.activeLoads = 0
     this.resetStats()
   }
@@ -456,12 +465,16 @@ class PreloadManager {
       return
     }
 
+    const chunkName = getToolChunkNameBySlug(slug)
     const startTime = performance.now()
     this.loadingModules.add(slug)
 
     try {
       await loader()
       this.loadedModules.add(slug)
+      if (chunkName) {
+        this.loadedChunks.add(chunkName)
+      }
       const loadTime = performance.now() - startTime
       this.stats.preloadedModules++
       this.stats.loadCount++

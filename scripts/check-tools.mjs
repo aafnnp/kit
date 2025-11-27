@@ -1,42 +1,64 @@
-import fs from 'fs'
-import path from 'path'
+import fs from "node:fs"
+import path from "node:path"
 
-const root = path.resolve(process.cwd(), 'src/components/tools')
-const dataFile = path.resolve(process.cwd(), 'src/lib/data.ts')
+const toolsRoot = path.resolve(process.cwd(), "src/components/tools")
 
-const content = fs.readFileSync(dataFile, 'utf-8')
-const slugRegex = /slug:\s*'([^']+)'/g
-const slugs = new Set()
-let m
-while ((m = slugRegex.exec(content))) {
-  slugs.add(m[1])
+const issues = {
+  missingMeta: [],
+  missingComponent: [],
+  slugMismatch: [],
+  missingCategory: [],
 }
 
-const missing = []
-const extra = []
-
-// 检查 data.ts 是否存在对应目录
-for (const slug of slugs) {
-  const dir = path.join(root, slug)
-  const f = path.join(dir, 'index.tsx')
-  if (!fs.existsSync(f)) missing.push(slug)
-}
-
-// 检查目录中多余的工具未在 data.ts 声明
 const dirs = fs
-  .readdirSync(root, { withFileTypes: true })
-  .filter((d) => d.isDirectory())
-  .map((d) => d.name)
+  .readdirSync(toolsRoot, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name)
 
-for (const d of dirs) {
-  if (!slugs.has(d)) extra.push(d)
+for (const slug of dirs) {
+  const toolDir = path.join(toolsRoot, slug)
+  const componentPath = path.join(toolDir, "index.tsx")
+  if (!fs.existsSync(componentPath)) {
+    issues.missingComponent.push(slug)
+  }
+
+  const metaPath = path.join(toolDir, "meta.ts")
+  if (!fs.existsSync(metaPath)) {
+    issues.missingMeta.push(slug)
+    continue
+  }
+
+  const metaContent = fs.readFileSync(metaPath, "utf8")
+  const slugMatch = metaContent.match(/slug:\s*["'`](.+?)["'`]/)
+  if (!slugMatch) {
+    issues.slugMismatch.push(`${slug} (missing slug field)`)
+  } else if (slugMatch[1] !== slug) {
+    issues.slugMismatch.push(`${slug} (found ${slugMatch[1]})`)
+  }
+
+  const categoryMatch = metaContent.match(/category:\s*["'`](.+?)["'`]/)
+  if (!categoryMatch) {
+    issues.missingCategory.push(slug)
+  }
 }
 
-if (missing.length || extra.length) {
-  console.error('[tools check] Mismatch found:')
-  if (missing.length) console.error(' - Missing in filesystem:', missing.join(', '))
-  if (extra.length) console.error(' - Extra in filesystem:', extra.join(', '))
+const hasIssues = Object.values(issues).some((list) => list.length > 0)
+
+if (hasIssues) {
+  console.error("[tools check] Validation failed:")
+  if (issues.missingComponent.length) {
+    console.error(" - Missing component index.tsx:", issues.missingComponent.join(", "))
+  }
+  if (issues.missingMeta.length) {
+    console.error(" - Missing meta.ts:", issues.missingMeta.join(", "))
+  }
+  if (issues.slugMismatch.length) {
+    console.error(" - Slug mismatch:", issues.slugMismatch.join(", "))
+  }
+  if (issues.missingCategory.length) {
+    console.error(" - Missing category in meta.ts:", issues.missingCategory.join(", "))
+  }
   process.exit(1)
-} else {
-  console.log('[tools check] OK')
 }
+
+console.log("[tools check] OK")

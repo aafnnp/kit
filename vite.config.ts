@@ -4,6 +4,7 @@ import path from "path"
 import tailwindcss from "@tailwindcss/vite"
 import { tanstackRouter } from "@tanstack/router-plugin/vite"
 import fs from "fs"
+import { getToolChunkName } from "./src/lib/data/tool-chunk-rules"
 // 可选体积可视化插件，按需加载避免类型报错
 let visualizer: any
 try {
@@ -12,18 +13,6 @@ try {
 } catch {}
 
 const pkg = JSON.parse(fs.readFileSync("./package.json", "utf-8"))
-
-const toolChunkRules: Array<{ name: string; matcher: RegExp }> = [
-  { name: "tools-media", matcher: /(image|video|audio|svg|gif|sprite|pdf|ffmpeg)/ },
-  { name: "tools-data", matcher: /(json|yaml|csv|html|markdown|table|regex|diff|toc|slug|code)/ },
-  { name: "tools-security", matcher: /(hash|jwt|password|encrypt|decrypt|checksum|token)/ },
-  { name: "tools-generator", matcher: /(uuid|qr|barcode|fake|lorem|random|color|lottery|placeholder)/ },
-]
-
-const getToolChunkName = (slug: string): string => {
-  const rule = toolChunkRules.find((entry) => entry.matcher.test(slug))
-  return rule ? rule.name : "tools-misc"
-}
 
 export default defineConfig(() => ({
   plugins: [
