@@ -26,6 +26,7 @@ import {
   History,
 } from "lucide-react"
 import { nanoid } from "nanoid"
+import { formatNumber } from "@/lib/utils"
 import type {
   RomanConversion,
   ConversionMetadata,
@@ -39,10 +40,6 @@ import type {
   ExportFormat,
 } from "@/schemas/roman-numeral.schema"
 // Utility functions
-
-const formatNumber = (num: number): string => {
-  return new Intl.NumberFormat("en-US").format(num)
-}
 
 // Roman numeral data and constants
 const ROMAN_SYMBOLS: RomanSymbol[] = [

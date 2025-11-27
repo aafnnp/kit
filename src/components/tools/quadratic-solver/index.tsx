@@ -25,6 +25,7 @@ import {
   SquareFunction,
 } from "lucide-react"
 import { nanoid } from "nanoid"
+import { formatNumberWithPrecision } from "@/lib/utils"
 import type {
   EquationSolution,
   Solution,
@@ -39,14 +40,7 @@ import type {
 } from "@/schemas/quadratic-solver.schema"
 
 // Utility functions
-
-const formatNumber = (num: number, precision: number = 6): string => {
-  if (Math.abs(num) < 1e-10) return "0"
-  if (Math.abs(num) > 1e6 || Math.abs(num) < 1e-3) {
-    return num.toExponential(precision)
-  }
-  return parseFloat(num.toFixed(precision)).toString()
-}
+const formatNumber = formatNumberWithPrecision
 
 const formatComplexNumber = (complex: ComplexNumber): string => {
   const real = formatNumber(complex.real)

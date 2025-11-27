@@ -61,11 +61,9 @@ class RoutePrefetchManager {
         return
       }
 
-      // 使用预加载管理器预取模块
-      const modulePath = `/src/components/tools/${toolSlug}/index.tsx`
-      preloader.register(modulePath, { priority })
+      preloader.register(toolSlug, { priority })
       preloader
-        .preload(modulePath)
+        .preload(toolSlug, priority)
         .catch(() => {
           // 静默失败
         })

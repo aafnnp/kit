@@ -56,5 +56,27 @@ export function debounce<T extends (...args: any[]) => any>(func: T, wait: numbe
   }
 }
 
+/**
+ * Format number with locale-specific formatting
+ */
+export function formatNumber(num: number, options?: { locale?: string; minimumFractionDigits?: number; maximumFractionDigits?: number }): string {
+  const { locale = "en-US", minimumFractionDigits, maximumFractionDigits } = options || {}
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits,
+    maximumFractionDigits,
+  }).format(num)
+}
+
+/**
+ * Format number with scientific notation for very large or very small numbers
+ */
+export function formatNumberWithPrecision(num: number, precision: number = 6): string {
+  if (Math.abs(num) < 1e-10) return "0"
+  if (Math.abs(num) > 1e6 || Math.abs(num) < 1e-3) {
+    return num.toExponential(precision)
+  }
+  return parseFloat(num.toFixed(precision)).toString()
+}
+
 // Re-export logger for convenience
 export { logger } from "../data/logger"

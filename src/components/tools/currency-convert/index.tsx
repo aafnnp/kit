@@ -23,6 +23,7 @@ import {
   Repeat,
 } from "lucide-react"
 import { nanoid } from "nanoid"
+import { formatNumber } from "@/lib/utils"
 import type {
   CurrencyConversion,
   Currency,
@@ -41,13 +42,6 @@ const formatCurrency = (amount: number, currency: Currency): string => {
     minimumFractionDigits: currency.decimals,
     maximumFractionDigits: currency.decimals,
   }).format(amount)
-}
-
-const formatNumber = (num: number, decimals: number = 2): string => {
-  return new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(num)
 }
 
 // Currency data

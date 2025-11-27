@@ -116,9 +116,7 @@ function NavMainInner({ items }: NavMainProps) {
                               tooltip={t(`tools.${tool.slug}-desc`)}
                               ref={(el) => {
                                 if (!el) return
-                                // 可视即预加载
-                                const modulePath = `/src/components/tools/${tool.slug}/index.tsx`
-                                preloader.preloadOnVisible(el, modulePath)
+                                preloader.preloadOnVisible(el, tool.slug)
                               }}
                               onClick={() => {
                                 if (tool.href) {

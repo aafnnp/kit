@@ -86,8 +86,7 @@ function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCar
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onMouseEnter={() => {
-        const modulePath = `/src/components/tools/${tool.slug}/index.tsx`
-        preloader.preload(modulePath).catch(() => {})
+        preloader.preload(tool.slug, "high").catch(() => {})
       }}
       tabIndex={0}
       role="button"

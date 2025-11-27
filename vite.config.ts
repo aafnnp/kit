@@ -13,6 +13,18 @@ try {
 
 const pkg = JSON.parse(fs.readFileSync("./package.json", "utf-8"))
 
+const toolChunkRules: Array<{ name: string; matcher: RegExp }> = [
+  { name: "tools-media", matcher: /(image|video|audio|svg|gif|sprite|pdf|ffmpeg)/ },
+  { name: "tools-data", matcher: /(json|yaml|csv|html|markdown|table|regex|diff|toc|slug|code)/ },
+  { name: "tools-security", matcher: /(hash|jwt|password|encrypt|decrypt|checksum|token)/ },
+  { name: "tools-generator", matcher: /(uuid|qr|barcode|fake|lorem|random|color|lottery|placeholder)/ },
+]
+
+const getToolChunkName = (slug: string): string => {
+  const rule = toolChunkRules.find((entry) => entry.matcher.test(slug))
+  return rule ? rule.name : "tools-misc"
+}
+
 export default defineConfig(() => ({
   plugins: [
     tanstackRouter({
@@ -43,7 +55,7 @@ export default defineConfig(() => ({
     // 启用代码分割优化
     rollupOptions: {
       // 外部化 FFmpeg 相关模块，避免打包到构建产物中
-      external: ["@ffmpeg/ffmpeg", "@ffmpeg/core", "@ffmpeg/util", "@sentry/react"],
+      external: ["@ffmpeg/ffmpeg", "@ffmpeg/core", "@sentry/react"],
       plugins:
         visualizer && process.env.ANALYZE
           ? [
@@ -149,8 +161,7 @@ export default defineConfig(() => ({
           if (id.includes("/components/tools/")) {
             const toolName = id.split("/components/tools/")[1]?.split("/")[0]
             if (toolName) {
-              // 可以根据工具类型进一步分组
-              return `tool-${toolName}`
+              return getToolChunkName(toolName)
             }
           }
         },
@@ -158,9 +169,10 @@ export default defineConfig(() => ({
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId
           if (facadeModuleId && facadeModuleId.includes("/components/tools/")) {
-            // 工具组件使用特殊命名
-            const toolName = facadeModuleId.split("/").pop()?.replace(".tsx", "")
-            return `tools/[name]-${toolName}-[hash].js`
+            return `tools/[name]-[hash].js`
+          }
+          if (chunkInfo.name?.startsWith("tools-")) {
+            return `tools/[name]-[hash].js`
           }
           return "chunks/[name]-[hash].js"
         },

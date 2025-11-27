@@ -23,6 +23,7 @@ import {
   SquareFunction,
 } from "lucide-react"
 import { nanoid } from "nanoid"
+import { formatNumber } from "@/lib/utils"
 import type {
   PrimeAnalysis,
   PrimeFactor,
@@ -37,10 +38,6 @@ import type {
 } from "@/schemas/prime-checker.schema"
 
 // Utility functions
-
-const formatNumber = (num: number): string => {
-  return new Intl.NumberFormat().format(num)
-}
 
 // Prime checking algorithms
 const primeAlgorithms = {

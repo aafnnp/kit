@@ -38,16 +38,10 @@ import type {
   ExportFormat,
 } from "@/schemas/matrix-math.schema"
 import { useMatrixOperations as useMatrixOperationsWorker } from "./hooks"
+import { formatNumberWithPrecision } from "@/lib/utils"
 
 // Utility functions
-
-const formatNumber = (num: number, precision: number = 6): string => {
-  if (Math.abs(num) < 1e-10) return "0"
-  if (Math.abs(num) > 1e6 || Math.abs(num) < 1e-3) {
-    return num.toExponential(precision)
-  }
-  return parseFloat(num.toFixed(precision)).toString()
-}
+const formatNumber = formatNumberWithPrecision
 
 // Matrix creation and manipulation functions
 const createMatrix = (rows: number, cols: number, data?: number[][]): Matrix => {
