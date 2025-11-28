@@ -1,28 +1,35 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import { preloader } from "../data/preloader"
 
-const { loaderSpies, knownSlugs, mockedHasTool, mockedGetToolLoaderBySlug } = vi.hoisted(() => {
-  const spies: Record<string, ReturnType<typeof vi.fn>> = {}
-  const slugs = ["json-pretty", "base64-encode", "url-encode", "color-picker", "uuid-generator", "word-count"]
-  const hasToolMock = vi.fn((slug: string) => slugs.includes(slug))
-  const getLoaderMock = vi.fn((slug: string) => {
-    if (!spies[slug]) {
-      spies[slug] = vi.fn(() => Promise.resolve({ default: slug }))
-    }
-    return spies[slug]
-  })
+const { loaderSpies, knownSlugs, mockedHasTool, mockedGetToolLoaderBySlug, mockedGetToolChunkNameBySlug } = vi.hoisted(
+  () => {
+    const spies: Record<string, ReturnType<typeof vi.fn>> = {}
+    const slugs = ["json-pretty", "base64-encode", "url-encode", "color-picker", "uuid-generator", "word-count"]
+    const hasToolMock = vi.fn((slug: string) => slugs.includes(slug))
+    const getLoaderMock = vi.fn((slug: string) => {
+      if (!spies[slug]) {
+        spies[slug] = vi.fn(() => Promise.resolve({ default: slug }))
+      }
+      return spies[slug]
+    })
+    const getChunkNameMock = vi.fn((slug: string) => {
+      return slugs.includes(slug) ? `tool-${slug}` : undefined
+    })
 
-  return {
-    loaderSpies: spies,
-    knownSlugs: slugs,
-    mockedHasTool: hasToolMock,
-    mockedGetToolLoaderBySlug: getLoaderMock,
+    return {
+      loaderSpies: spies,
+      knownSlugs: slugs,
+      mockedHasTool: hasToolMock,
+      mockedGetToolLoaderBySlug: getLoaderMock,
+      mockedGetToolChunkNameBySlug: getChunkNameMock,
+    }
   }
-})
+)
 
 vi.mock("../data/tools-map", () => ({
   hasTool: mockedHasTool,
   getToolLoaderBySlug: mockedGetToolLoaderBySlug,
+  getToolChunkNameBySlug: mockedGetToolChunkNameBySlug,
 }))
 
 global.performance = {

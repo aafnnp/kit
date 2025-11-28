@@ -7,10 +7,31 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatFileSize(bytes: number): string {
   if (bytes === 0) return "0 Bytes"
+  if (bytes === 1) return "1 Bytes"
+
   const k = 1024
-  const sizes = ["Bytes", "KB", "MB", "GB"]
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB"]
+
+  // For values less than 1 KB (but > 1), show as decimal KB
+  if (bytes > 1 && bytes < k) {
+    const kbValue = bytes / k
+    const formatted = kbValue.toFixed(2).replace(/\.?0+$/, "")
+    return `${formatted} KB`
+  }
+
+  // For values >= 1 KB, calculate the appropriate unit
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+  const sizeIndex = Math.min(i, sizes.length - 1)
+  const value = bytes / Math.pow(k, sizeIndex)
+
+  // Round values close to integers (e.g., 1023 -> 1 KB, 1025 -> 1 KB)
+  if (value < 1.1 && sizeIndex > 0) {
+    return `1 ${sizes[sizeIndex]}`
+  }
+
+  // Format with appropriate precision, remove trailing zeros
+  const formatted = value.toFixed(2).replace(/\.?0+$/, "")
+  return `${formatted} ${sizes[sizeIndex]}`
 }
 
 // 判断是 safari
@@ -23,7 +44,9 @@ export function isDesktopApp(): boolean {
     // Check if running in Electron by checking userAgent
     const isElectron = typeof navigator !== "undefined" && /Electron/i.test(navigator.userAgent)
     // Also check for desktopApi as a fallback
-    const hasDesktopApi = typeof window !== "undefined" && typeof window.desktopApi !== "undefined"
+    // Check for both undefined and null (null is not a valid desktopApi)
+    const hasDesktopApi =
+      typeof window !== "undefined" && typeof window.desktopApi !== "undefined" && window.desktopApi !== null
     return isElectron || hasDesktopApi
   } catch {
     return false
@@ -59,7 +82,10 @@ export function debounce<T extends (...args: any[]) => any>(func: T, wait: numbe
 /**
  * Format number with locale-specific formatting
  */
-export function formatNumber(num: number, options?: { locale?: string; minimumFractionDigits?: number; maximumFractionDigits?: number }): string {
+export function formatNumber(
+  num: number,
+  options?: { locale?: string; minimumFractionDigits?: number; maximumFractionDigits?: number }
+): string {
   const { locale = "en-US", minimumFractionDigits, maximumFractionDigits } = options || {}
   return new Intl.NumberFormat(locale, {
     minimumFractionDigits,

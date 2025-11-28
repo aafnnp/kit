@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest"
+import { describe, it, expect, beforeEach, afterEach } from "vitest"
 import { cn, formatFileSize, isSafari, isDesktopApp } from "@/lib/utils"
 
 describe("cn", () => {
@@ -58,14 +58,29 @@ describe("formatFileSize", () => {
 })
 
 describe("isSafari", () => {
+  const originalUserAgent = navigator.userAgent
+
   beforeEach(() => {
     // Reset navigator.userAgent after each test
-    delete (navigator as any).userAgent
+    Object.defineProperty(navigator, "userAgent", {
+      configurable: true,
+      writable: true,
+      value: originalUserAgent,
+    })
+  })
+
+  afterEach(() => {
+    Object.defineProperty(navigator, "userAgent", {
+      configurable: true,
+      writable: true,
+      value: originalUserAgent,
+    })
   })
 
   it("should detect Safari browser", () => {
     // Mock navigator.userAgent
     Object.defineProperty(navigator, "userAgent", {
+      configurable: true,
       writable: true,
       value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15",
     })
@@ -75,6 +90,7 @@ describe("isSafari", () => {
 
   it("should return false for Chrome", () => {
     Object.defineProperty(navigator, "userAgent", {
+      configurable: true,
       writable: true,
       value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/91.0.4472.124",
     })
@@ -84,6 +100,7 @@ describe("isSafari", () => {
 
   it("should return false for Firefox", () => {
     Object.defineProperty(navigator, "userAgent", {
+      configurable: true,
       writable: true,
       value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0",
     })
@@ -93,6 +110,7 @@ describe("isSafari", () => {
 
   it("should return false for Edge", () => {
     Object.defineProperty(navigator, "userAgent", {
+      configurable: true,
       writable: true,
       value:
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59",
@@ -103,13 +121,29 @@ describe("isSafari", () => {
 })
 
 describe("isDesktopApp", () => {
+  const originalUserAgent = navigator.userAgent
+  const originalDesktopApi = (window as any).desktopApi
+
   beforeEach(() => {
     delete (window as any).desktopApi
     // Reset navigator.userAgent
     Object.defineProperty(navigator, "userAgent", {
-      writable: true,
       configurable: true,
+      writable: true,
       value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/91.0.4472.124",
+    })
+  })
+
+  afterEach(() => {
+    if (originalDesktopApi !== undefined) {
+      ;(window as any).desktopApi = originalDesktopApi
+    } else {
+      delete (window as any).desktopApi
+    }
+    Object.defineProperty(navigator, "userAgent", {
+      configurable: true,
+      writable: true,
+      value: originalUserAgent,
     })
   })
 
