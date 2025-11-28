@@ -6,7 +6,7 @@ import {
   baseTemplateSchema,
   baseAnalysisDataSchema,
   qualityMetricsSchema,
-} from "./common.schema"
+} from "@/schemas/common.schema"
 
 // ==================== Audio Convert Schemas ====================
 
