@@ -38,7 +38,7 @@ import type {
   URLOperation,
   URLEncodingType,
   ExportFormat,
-} from "@/schemas/url-encode.schema"
+} from "@/components/tools/url-encode/schema"
 import { formatFileSize } from "@/lib/utils"
 // Enhanced Types
 

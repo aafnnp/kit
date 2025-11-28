@@ -34,7 +34,7 @@ import type {
   CronTemplate,
   CronValidation,
   ExportFormat,
-} from "@/schemas/cron-parser.schema"
+} from "@/components/tools/cron-parser/schema"
 
 // Utility functions
 

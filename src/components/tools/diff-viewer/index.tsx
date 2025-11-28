@@ -38,7 +38,7 @@ import type {
   DiffAlgorithm,
   DiffFormat,
   DiffViewMode,
-} from "@/schemas/diff-viewer.schema"
+} from "@/components/tools/diff-viewer/schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 

@@ -38,7 +38,7 @@ import type {
   IndentStyle,
   BulletStyle,
   CaseStyle,
-} from "@/schemas/markdown-toc.schema"
+} from "@/components/tools/markdown-toc/schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 

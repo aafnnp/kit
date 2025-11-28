@@ -31,7 +31,7 @@ import type {
   ConversionTemplate,
   ConversionValidation,
   ExportFormat,
-} from "@/schemas/currency-convert.schema"
+} from "@/components/tools/currency-convert/schema"
 
 // Utility functions
 

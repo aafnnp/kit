@@ -39,7 +39,7 @@ import type {
   JSONValidation,
   JSONOperation,
   ExportFormat,
-} from "@/schemas/json-pretty.schema"
+} from "@/components/tools/json-pretty/schema"
 import { formatFileSize } from "@/lib/utils"
 import { analyzeJSON, processJSON, validateJSON } from "@/lib/json/json-processor"
 

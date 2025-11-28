@@ -47,7 +47,7 @@ import type {
   PreviewMode,
   DeviceSize,
   ExportFormat,
-} from "@/schemas/html-preview.schema"
+} from "@/components/tools/html-preview/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions

@@ -33,7 +33,7 @@ import type {
   ExifSettings,
   ExifTemplate,
   ExportFormat,
-} from "@/schemas/exif-viewer.schema"
+} from "@/components/tools/exif-viewer/schema"
 import { formatFileSize } from "@/lib/utils"
 // Utility functions
 

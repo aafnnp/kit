@@ -9,7 +9,7 @@ import { toast } from "sonner"
 import { Upload, Download, Loader2, FileImage, Trash2, BarChart3, Layers, Grid, Code2 } from "lucide-react"
 // @ts-ignore
 import { nanoid } from "nanoid"
-import type { IconFile, SpriteSettings, SpriteStats } from "@/schemas/icon-spriter.schema"
+import type { IconFile, SpriteSettings, SpriteStats } from "@/components/tools/icon-spriter/schema"
 import { formatFileSize } from "@/lib/utils"
 import { zipSync } from "fflate"
 

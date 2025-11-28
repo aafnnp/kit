@@ -38,7 +38,7 @@ import type {
   FaviconType,
   FaviconFormat,
   FaviconSize,
-} from "@/schemas/favicon-generator.schema"
+} from "@/components/tools/favicon-generator/schema"
 import { formatFileSize } from "@/lib/utils"
 // Utility functions
 

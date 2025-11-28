@@ -36,7 +36,7 @@ import type {
   DurationFormat,
   DurationPrecision,
   ExportFormat,
-} from "@/schemas/time-diff.schema"
+} from "@/components/tools/time-diff/schema"
 // Enhanced Types
 
 // Common timezones

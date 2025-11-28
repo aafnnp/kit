@@ -35,7 +35,7 @@ import type {
   BorderRadiusUnit,
   ExportFormat,
   BorderRadiusFile,
-} from "@/schemas/border-radius.schema"
+} from "@/components/tools/border-radius/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions

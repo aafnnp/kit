@@ -34,7 +34,7 @@ import type {
   CropTemplate,
   CropStats,
   HistoryEntry,
-} from "@/schemas/image-crop.schema"
+} from "@/components/tools/image-crop/schema"
 import { formatFileSize } from "@/lib/utils"
 // Enhanced Types
 

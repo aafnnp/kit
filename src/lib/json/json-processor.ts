@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid"
-import type { JSONOperation, JSONProcessingResult, JSONSettings, JSONStatistics, JSONValidation } from "@/schemas/json-pretty.schema"
+import type { JSONOperation, JSONProcessingResult, JSONSettings, JSONStatistics, JSONValidation } from "@/components/tools/json-pretty/schema"
 
 export const validateJSON = (input: string): JSONValidation => {
   const validation: JSONValidation = {

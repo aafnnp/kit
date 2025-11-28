@@ -51,7 +51,7 @@ import type {
   QRContentType,
   ErrorCorrectionLevel,
   ExportFormat,
-} from "@/schemas/qr-generator.schema"
+} from "@/components/tools/qr-generator/schema"
 
 // Utility functions
 

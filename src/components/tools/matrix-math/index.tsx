@@ -36,7 +36,7 @@ import type {
   MatrixValidation,
   OperationType,
   ExportFormat,
-} from "@/schemas/matrix-math.schema"
+} from "@/components/tools/matrix-math/schema"
 import { useMatrixOperations as useMatrixOperationsWorker } from "./hooks"
 import { formatNumberWithPrecision } from "@/lib/utils"
 

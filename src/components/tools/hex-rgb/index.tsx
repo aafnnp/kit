@@ -41,7 +41,7 @@ import type {
   ConversionSettings,
   ConversionTemplate,
   ColorFormat,
-} from "@/schemas/hex-rgb.schema"
+} from "@/components/tools/hex-rgb/schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { analyzeJSON, processJSON, validateJSON } from "../json-processor"
-import type { JSONSettings } from "@/schemas/json-pretty.schema"
+import type { JSONSettings } from "@/components/tools/json-pretty/schema"
 
 const baseSettings: JSONSettings = {
   indentSize: 2,

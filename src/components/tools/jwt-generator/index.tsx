@@ -38,7 +38,7 @@ import type {
   BatchStatistics,
   JWTAlgorithm,
   ExportFormat,
-} from "@/schemas/jwt-generator.schema"
+} from "@/components/tools/jwt-generator/schema"
 import { formatFileSize } from "@/lib/utils"
 // Utility functions
 

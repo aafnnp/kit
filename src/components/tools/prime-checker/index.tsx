@@ -35,7 +35,7 @@ import type {
   GenerationAlgorithm,
   NumberType,
   ExportFormat,
-} from "@/schemas/prime-checker.schema"
+} from "@/components/tools/prime-checker/schema"
 
 // Utility functions
 

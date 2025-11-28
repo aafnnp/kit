@@ -39,7 +39,7 @@ import type {
   PresetDimension,
   ResizeStats,
   HistoryEntry,
-} from "@/schemas/image-resize.schema"
+} from "@/components/tools/image-resize/schema"
 import { formatFileSize } from "@/lib/utils"
 // Enhanced Types
 

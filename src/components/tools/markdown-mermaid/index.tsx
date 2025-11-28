@@ -34,7 +34,7 @@ import type {
   MermaidDiagramType,
   ExportFormat,
   ViewMode,
-} from "@/schemas/markdown-mermaid.schema"
+} from "@/components/tools/markdown-mermaid/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions

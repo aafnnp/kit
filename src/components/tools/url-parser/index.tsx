@@ -49,7 +49,7 @@ import type {
   URLTemplate,
   URLValidation,
   ExportFormat,
-} from "@/schemas/url-parser.schema"
+} from "@/components/tools/url-parser/schema"
 
 // Utility functions
 

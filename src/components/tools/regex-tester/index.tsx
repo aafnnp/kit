@@ -32,7 +32,7 @@ import type {
   RegexSettings,
   RegexPattern,
   RegexTestResult,
-} from "@/schemas/regex-tester.schema"
+} from "@/components/tools/regex-tester/schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 

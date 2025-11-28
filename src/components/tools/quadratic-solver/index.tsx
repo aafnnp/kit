@@ -37,7 +37,7 @@ import type {
   GraphSettings,
   EquationType,
   ExportFormat,
-} from "@/schemas/quadratic-solver.schema"
+} from "@/components/tools/quadratic-solver/schema"
 
 // Utility functions
 const formatNumber = formatNumberWithPrecision

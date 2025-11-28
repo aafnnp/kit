@@ -36,7 +36,7 @@ import {
   getPasswordStrengthLevel,
   getStrengthColor,
   generatePassword,
-} from "@/schemas/password-strength.schema"
+} from "@/components/tools/password-strength/schema"
 import { ToolBase } from "@/components/common/tool-base"
 import { nanoid } from "nanoid"
 

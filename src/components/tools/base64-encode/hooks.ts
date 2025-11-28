@@ -8,7 +8,7 @@ import {
   EncodingOperation,
   EncodingFormat,
   ExportFormat,
-} from "@/schemas/base64-encode.schema"
+} from "@/components/tools/base64-encode/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions

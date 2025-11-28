@@ -9,7 +9,7 @@ import type {
   AudioValidationResult,
   AudioTemplate,
   AudioFormatInfo,
-} from "@/schemas/audio-convert.schema"
+} from "@/components/tools/audio-convert/schema"
 import { formatFileSize } from "@/lib/utils"
 
 export interface UseAudioConvertReturn {

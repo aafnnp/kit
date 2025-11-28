@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react"
 import { getWorkerManager } from "@/lib/workers"
-import type { Matrix, MatrixOperation, OperationType, MatrixAnalysis } from "@/schemas/matrix-math.schema"
+import type { Matrix, MatrixOperation, OperationType, MatrixAnalysis } from "@/components/tools/matrix-math/schema"
 
 export interface UseMatrixOperationsReturn {
   executeOperation: (operation: OperationType, matrices: Matrix[], params?: any) => Promise<MatrixOperation>

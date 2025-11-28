@@ -44,7 +44,7 @@ import type {
   ColorTemplate,
   CMYK,
   LAB,
-} from "@/schemas/color-picker.schema"
+} from "@/components/tools/color-picker/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions

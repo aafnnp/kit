@@ -4,7 +4,7 @@ import path from "path"
 import tailwindcss from "@tailwindcss/vite"
 import { tanstackRouter } from "@tanstack/router-plugin/vite"
 import fs from "fs"
-import { getToolChunkName } from "./src/lib/data/tool-chunk-rules"
+import { getToolChunkName } from "@/lib/data/tool-chunk-rules"
 // 可选体积可视化插件，按需加载避免类型报错
 let visualizer: any
 try {

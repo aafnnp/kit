@@ -34,7 +34,7 @@ import type {
   HashAlgorithm,
   OutputFormat,
   ExportFormat,
-} from "@/schemas/md5-hash.schema"
+} from "@/components/tools/md5-hash/schema"
 import { formatFileSize } from "@/lib/utils"
 // Utility functions
 

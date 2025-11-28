@@ -40,7 +40,7 @@ import type {
   JWTTemplate,
   JWTValidation,
   ExportFormat,
-} from "@/schemas/jwt-decode.schema"
+} from "@/components/tools/jwt-decode/schema"
 import { formatFileSize } from "@/lib/utils"
 // Enhanced Types
 

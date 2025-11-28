@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Copy, Download, Upload, RotateCcw, Wand2 } from "lucide-react"
 import { useCopyToClipboard } from "@/hooks/use-clipboard"
-import { CodeFormatterState, LANGUAGE_CONFIGS, FormatOptions, LanguageConfig } from "@/schemas/code-formatter.schema"
+import { CodeFormatterState, LANGUAGE_CONFIGS, FormatOptions, LanguageConfig } from "@/components/tools/code-formatter/schema"
 import { ToolBase } from "@/components/common/tool-base"
 
 // 简化的代码格式化函数（实际项目中可以使用 prettier 等库）

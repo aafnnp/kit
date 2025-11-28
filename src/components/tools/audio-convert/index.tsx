@@ -40,7 +40,7 @@ import { useHistory } from "@/hooks/use-history"
 import { formatFileSize } from "@/lib/utils"
 
 // 导入类型
-import { AudioFile, ConvertSettings, AudioConversionStats, AudioHistoryEntry } from "@/schemas/audio-convert.schema"
+import { AudioFile, ConvertSettings, AudioConversionStats, AudioHistoryEntry } from "@/components/tools/audio-convert/schema"
 import {
   audioFormats,
   audioTemplates,

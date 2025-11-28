@@ -18,8 +18,8 @@ import {
   HttpMethod,
   ApiHeader,
   ApiParam,
-} from "@/schemas/api-tester.schema"
-import { REQUEST_TEMPLATES, getStatusCategory, COMMON_HEADERS } from "@/schemas/api-tester.schema"
+} from "@/components/tools/api-tester/schema"
+import { REQUEST_TEMPLATES, getStatusCategory, COMMON_HEADERS } from "@/components/tools/api-tester/schema"
 import { ToolBase } from "@/components/common/tool-base"
 import { nanoid } from "nanoid"
 

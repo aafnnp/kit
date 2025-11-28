@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner"
 import { Upload, Download, Loader2, Trash2, BarChart3 } from "lucide-react"
 import { nanoid } from "nanoid"
-import type { ImageToPdfFile, ImageToPdfSettings, ImageToPdfStats } from "@/schemas/image-to-pdf.schema"
+import type { ImageToPdfFile, ImageToPdfSettings, ImageToPdfStats } from "@/components/tools/image-to-pdf/schema"
 
 // Dynamic import for pdf-lib to reduce initial bundle size
 let pdfLibModule: typeof import("pdf-lib") | null = null

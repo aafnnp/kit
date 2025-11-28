@@ -39,7 +39,7 @@ import type {
   GeneratedClamp,
   ResponsiveBreakpoint,
   ViewportRange,
-} from "@/schemas/css-clamp.schema"
+} from "@/components/tools/css-clamp/schema"
 import { formatFileSize } from "@/lib/utils"
 
 const validateCssFile = (file: File): { isValid: boolean; error?: string } => {

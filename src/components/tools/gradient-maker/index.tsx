@@ -40,7 +40,7 @@ import type {
   RadialShape,
   RadialSize,
   ExportFormat,
-} from "@/schemas/gradient-maker.schema"
+} from "@/components/tools/gradient-maker/schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 

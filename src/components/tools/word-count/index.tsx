@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner"
 import { Upload, Download, FileText, Loader2, FileImage, Trash2, BarChart3, BookOpen, Target } from "lucide-react"
 import { nanoid } from "nanoid"
-import type { TextFile, TextAnalysis, AnalysisSettings, AnalysisStats } from "@/schemas/word-count.schema"
+import type { TextFile, TextAnalysis, AnalysisSettings, AnalysisStats } from "@/components/tools/word-count/schema"
 import { formatFileSize } from "@/lib/utils"
 
 const validateTextFile = (file: File): { isValid: boolean; error?: string } => {

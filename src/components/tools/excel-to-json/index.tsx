@@ -42,7 +42,7 @@ import type {
   FileValidation,
   ExportFormat,
   SheetSelection,
-} from "@/schemas/excel-to-json.schema"
+} from "@/components/tools/excel-to-json/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Dynamic import for xlsx to reduce initial bundle size

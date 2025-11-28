@@ -32,7 +32,7 @@ import type {
   ProcessingSettings,
   PDFTemplate,
   PDFValidation,
-} from "@/schemas/merge-pdf.schema"
+} from "@/components/tools/merge-pdf/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Dynamic import for pdf-lib to reduce initial bundle size

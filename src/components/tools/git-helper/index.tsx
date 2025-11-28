@@ -32,7 +32,7 @@ import {
   GIT_WORKFLOW_TEMPLATES,
   formatGitCommand,
   validateGitParameters,
-} from "@/schemas/git-helper.schema"
+} from "@/components/tools/git-helper/schema"
 import { ToolBase } from "@/components/common/tool-base"
 import { nanoid } from "nanoid"
 

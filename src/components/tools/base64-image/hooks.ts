@@ -13,7 +13,7 @@ import {
   ImageValidation,
   ConversionDirection,
   ExportFormat,
-} from "@/schemas/base64-image.schema"
+} from "@/components/tools/base64-image/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions

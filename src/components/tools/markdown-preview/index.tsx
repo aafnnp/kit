@@ -29,7 +29,7 @@ import type {
   MarkdownStatistics,
   PreviewSettings,
   ExportOptions,
-} from "@/schemas/markdown-preview.schema"
+} from "@/components/tools/markdown-preview/schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 

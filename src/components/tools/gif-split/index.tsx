@@ -6,7 +6,7 @@ import { Upload, Download, Loader2, FileImage, Trash2, BarChart3, Image as Image
 // @ts-ignore
 import { parseGIF, decompressFrames } from "gifuct-js"
 import { nanoid } from "nanoid"
-import type { GifFile, GifFrame, GifStats } from "@/schemas/gif-split.schema"
+import type { GifFile, GifFrame, GifStats } from "@/components/tools/gif-split/schema"
 import { formatFileSize } from "@/lib/utils"
 import { zipSync } from "fflate"
 

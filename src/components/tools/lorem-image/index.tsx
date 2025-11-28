@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner"
 import { Loader2, Image as ImageIcon } from "lucide-react"
 import { nanoid } from "nanoid"
-import type { LoremImageFile, LoremImageSettings } from "@/schemas/lorem-image.schema"
+import type { LoremImageFile, LoremImageSettings } from "@/components/tools/lorem-image/schema"
 
 // 生成唯一 ID
 

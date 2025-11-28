@@ -47,7 +47,7 @@ import type {
   SecurityRisk,
   SearchMode,
   ExportFormat,
-} from "@/schemas/mime-search.schema"
+} from "@/components/tools/mime-search/schema"
 
 // Utility functions
 

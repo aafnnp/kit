@@ -38,7 +38,7 @@ import type {
   RomanTemplate,
   ConversionValidation,
   ExportFormat,
-} from "@/schemas/roman-numeral.schema"
+} from "@/components/tools/roman-numeral/schema"
 // Utility functions
 
 // Roman numeral data and constants

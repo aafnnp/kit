@@ -36,7 +36,7 @@ import type {
   ValidationResult,
   DataFormat,
   ExportFormat,
-} from "@/schemas/yaml-to-json.schema"
+} from "@/components/tools/yaml-to-json/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Advanced YAML parsing functions

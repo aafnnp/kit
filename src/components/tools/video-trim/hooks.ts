@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import { getWorkerManager } from '@/lib/workers'
-import type { VideoFile, TrimSettings, TrimResult, VideoStats } from '@/schemas/video-trim.schema'
+import type { VideoFile, TrimSettings, TrimResult, VideoStats } from '@/components/tools/video-trim/schema'
 
 export interface UseVideoTrimReturn {
   trimVideos: (videos: VideoFile[], settings: TrimSettings) => Promise<void>

@@ -41,7 +41,7 @@ import type {
   BcryptVerification,
   SecurityLevel,
   ExportFormat,
-} from "@/schemas/bcrypt-hash.schema"
+} from "@/components/tools/bcrypt-hash/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions

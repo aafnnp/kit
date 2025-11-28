@@ -25,7 +25,7 @@ import {
 } from "lucide-react"
 import { nanoid } from "nanoid"
 import { ToolBase } from "@/components/common/tool-base"
-import type { TestResult, TestConfig, BenchmarkResult } from "@/schemas/performance-tester.schema"
+import type { TestResult, TestConfig, BenchmarkResult } from "@/components/tools/performance-tester/schema"
 
 interface BenchmarkComparison {
   id: string

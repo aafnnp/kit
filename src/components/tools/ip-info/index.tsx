@@ -50,7 +50,7 @@ import type {
   IPTemplate,
   IPValidation,
   ExportFormat,
-} from "@/schemas/ip-info.schema"
+} from "@/components/tools/ip-info/schema"
 
 // Utility functions
 

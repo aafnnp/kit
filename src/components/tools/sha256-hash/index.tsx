@@ -33,7 +33,7 @@ import type {
   HashAlgorithm,
   OutputFormat,
   ExportFormat,
-} from "@/schemas/sha256-hash.schema"
+} from "@/components/tools/sha256-hash/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions

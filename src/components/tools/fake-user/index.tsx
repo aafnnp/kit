@@ -42,7 +42,7 @@ import type {
   BatchStatistics,
   UserTemplate,
   ExportFormat,
-} from "@/schemas/fake-user.schema"
+} from "@/components/tools/fake-user/schema"
 // Utility functions
 
 // Data sources for fake user generation

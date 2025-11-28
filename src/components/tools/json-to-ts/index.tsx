@@ -39,7 +39,7 @@ import type {
   TypeScriptTemplate,
   JSONValidation,
   ExportFormat,
-} from "@/schemas/json-to-ts.schema"
+} from "@/components/tools/json-to-ts/schema"
 import { formatFileSize } from "@/lib/utils"
 // Enhanced Types
 

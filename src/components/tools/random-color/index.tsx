@@ -42,7 +42,7 @@ import type {
   ColorFormat,
   PaletteType,
   ExportFormat,
-} from "@/schemas/random-color.schema"
+} from "@/components/tools/random-color/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions

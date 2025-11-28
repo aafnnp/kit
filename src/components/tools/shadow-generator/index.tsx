@@ -36,7 +36,7 @@ import type {
   ShadowTemplate,
   ShadowType,
   ExportFormat,
-} from "@/schemas/shadow-generator.schema"
+} from "@/components/tools/shadow-generator/schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 

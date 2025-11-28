@@ -29,7 +29,7 @@ import {
   PerformanceResult,
   PERFORMANCE_TEMPLATES,
   formatPerformanceValue,
-} from "@/schemas/performance-analyzer.schema"
+} from "@/components/tools/performance-analyzer/schema"
 import { ToolBase } from "@/components/common/tool-base"
 import { nanoid } from "nanoid"
 

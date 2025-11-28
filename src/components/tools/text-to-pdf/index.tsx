@@ -34,7 +34,7 @@ import type {
   PageSize,
   FontFamily,
   TextAlign,
-} from "@/schemas/text-to-pdf.schema"
+} from "@/components/tools/text-to-pdf/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions

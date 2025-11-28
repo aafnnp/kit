@@ -40,7 +40,7 @@ import type {
   DataType,
   SortDirection,
   DataFormat,
-} from "@/schemas/table-sorter.schema"
+} from "@/components/tools/table-sorter/schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 

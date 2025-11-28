@@ -40,7 +40,7 @@ import {
   type DataTypeCount,
   type ExportFormat,
   type CSVQuoting,
-} from "@/schemas/csv-to-json.schema"
+} from "@/components/tools/csv-to-json/schema"
 import type { CSVRow, JSONArray } from "@/schemas/common.schema"
 import { formatFileSize } from "@/lib/utils"
 

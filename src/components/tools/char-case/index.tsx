@@ -28,7 +28,7 @@ import type {
   TextFile,
   ConversionStats,
   CaseOption,
-} from "@/schemas/char-case.schema"
+} from "@/components/tools/char-case/schema"
 import { formatFileSize } from "@/lib/utils"
 
 const validateTextFile = (file: File): { isValid: boolean; error?: string } => {

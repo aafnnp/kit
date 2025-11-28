@@ -37,7 +37,7 @@ import type {
   FormatInfo,
   ConversionStats,
   HistoryEntry,
-} from "@/schemas/image-convert.schema"
+} from "@/components/tools/image-convert/schema"
 import { formatFileSize } from "@/lib/utils"
 // Enhanced Types
 

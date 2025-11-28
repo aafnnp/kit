@@ -1,64 +1,41 @@
 # Tool Type Schemas
 
-本目录包含所有工具类型的 Zod schema 定义。
+本目录包含通用和共享的 Zod schema 定义。
 
-## 已转换的类型文件
+## 目录结构
 
-- ✅ `common.schema.ts` - 通用类型
-- ✅ `shared.schema.ts` - 共享类型
-- ✅ `ip-info.schema.ts` - IP 信息工具
-- ✅ `user-agent.schema.ts` - User Agent 工具
-- ✅ `url-parser.schema.ts` - URL 解析工具
-- ✅ `qr-generator.schema.ts` - QR 码生成工具
-- ✅ `mime-search.schema.ts` - MIME 类型搜索工具
-- ✅ `uuid-generator.schema.ts` - UUID 生成工具
-- ✅ `base64-encode.schema.ts` - Base64 编码工具
-- ✅ `audio-convert.schema.ts` - 音频转换工具
-- ✅ `csv-to-json.schema.ts` - CSV/JSON 转换工具
-- ✅ `json-pretty.schema.ts` - JSON 格式化工具
-- ✅ `password-generator.schema.ts` - 密码生成工具
-- ✅ `hex-rgb.schema.ts` - 颜色转换工具
-- ✅ `image-compress.schema.ts` - 图片压缩工具
-- ✅ `jwt-generator.schema.ts` - JWT 生成工具
-- ✅ `markdown-preview.schema.ts` - Markdown 预览工具
-- ✅ `shadow-generator.schema.ts` - 阴影生成工具
-- ✅ `time-diff.schema.ts` - 时间差计算工具
-- ✅ `unix-timestamp.schema.ts` - Unix 时间戳工具
-- ✅ `word-count.schema.ts` - 字数统计工具
-- ✅ `char-case.schema.ts` - 字符大小写转换工具
-- ✅ `bcrypt-hash.schema.ts` - Bcrypt 哈希工具
+- ✅ `common.schema.ts` - 通用类型（BaseFile, BaseStats 等）
+- ✅ `shared.schema.ts` - 共享类型（ExportFormat 等）
+- ✅ `tool.schema.ts` - 工具元数据类型
+- ✅ `settings.schema.ts` - 设置相关类型
+
+**注意**: 工具特定的 schemas 已经迁移到各自的工具目录中（`src/components/tools/{tool-name}/schema.ts`）。
 
 ## 使用方式
 
-### 方式 1: 从 schemas 直接导入（推荐）
+### 方式 1: 从工具目录导入工具特定的 schemas（推荐）
 
 ```typescript
-import type { IPLookupResult, IPInfo } from "@/schemas/ip-info.schema"
-import { ipLookupResultSchema } from "@/schemas/ip-info.schema"
+// 工具特定的 schemas 现在位于各自的工具目录中
+import type { IPLookupResult, IPInfo } from "@/components/tools/ip-info/schema"
+import { ipLookupResultSchema } from "@/components/tools/ip-info/schema"
 
 // 使用 schema 进行验证
 const result = ipLookupResultSchema.parse(data)
 ```
 
-### 方式 2: 从统一导出导入（仅限通用类型）
+### 方式 2: 从 schemas 目录导入通用类型
 
 ```typescript
-// 只导入通用类型（common, shared）
+// 导入通用类型（common, shared）
 import type { BaseFile, BaseStats } from "@/schemas"
+import type { ExportFormat } from "@/schemas/shared.schema"
 
-// 工具特定类型请直接从各自的文件导入
-import type { IPLookupResult } from "@/schemas/ip-info.schema"
-import type { UserAgentProcessingResult } from "@/schemas/user-agent.schema"
+// 导入工具元数据类型
+import type { Tool, ToolCategory } from "@/schemas/tool.schema"
 ```
 
-**注意**: 由于不同工具可能有相同名称的类型（如 `ExportFormat`, `BatchStatistics` 等），统一导出文件不导出工具特定的类型，以避免命名冲突。
-
-### 方式 3: 从原始类型文件导入（向后兼容）
-
-```typescript
-// 这些导入仍然有效，但会从 schemas 重新导出
-import type { IPLookupResult } from "@/schemas/ip-info.schema"
-```
+**注意**: 由于不同工具可能有相同名称的类型（如 `ExportFormat`, `BatchStatistics` 等），工具特定的 schemas 已迁移到各自的工具目录，以避免命名冲突。
 
 ## 转换指南
 
@@ -66,7 +43,7 @@ import type { IPLookupResult } from "@/schemas/ip-info.schema"
 
 ### 1. 创建 schema 文件
 
-在 `src/schemas/` 目录下创建对应的 `.schema.ts` 文件。
+在对应的工具目录下创建 `schema.ts` 文件（例如：`src/components/tools/my-tool/schema.ts`）。
 
 ### 2. 转换规则
 
@@ -87,24 +64,13 @@ import type { IPLookupResult } from "@/schemas/ip-info.schema"
 export type MyType = z.infer<typeof myTypeSchema>
 ```
 
-### 4. 更新原始类型文件
+### 4. 在工具组件中导入
 
-将原始类型文件改为从 schemas 重新导出：
-
-```typescript
-/**
- * 类型声明
- * 这些类型现在从 zod schemas 导出以保持向后兼容
- */
-export * from "./schemas/my-type.schema"
-```
-
-### 5. 更新统一导出
-
-在 `src/schemas/index.ts` 中添加新的导出：
+在工具组件中直接从工具目录导入：
 
 ```typescript
-export * from "./my-type.schema"
+import type { MyResult } from "./schema"
+import { myResultSchema } from "./schema"
 ```
 
 ## 示例
@@ -146,9 +112,13 @@ export type Status = z.infer<typeof statusSchema>
 export type MyResult = z.infer<typeof myResultSchema>
 ```
 
-## 待转换的类型文件
+## 迁移状态
 
-以下类型文件尚未转换，需要按照上述指南进行转换（已转换 83 个，全部完成）：
+所有工具特定的 schemas 已经迁移到各自的工具目录中。每个工具的 schema 文件位于：
+
+- `src/components/tools/{tool-name}/schema.ts`
+
+以下工具已完成迁移（共 76 个）：
 
 - [x] `api-tester.ts` ✅
 - [x] `audio-convert.ts` ✅

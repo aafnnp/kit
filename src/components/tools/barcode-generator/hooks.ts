@@ -19,7 +19,7 @@ import {
   BarcodeSecurity,
   DataExposure,
   ExportFormat,
-} from "@/schemas/barcode-generator.schema"
+} from "@/components/tools/barcode-generator/schema"
 
 // Dynamic import for jsbarcode to reduce initial bundle size
 let jsbarcodeModule: typeof import("jsbarcode") | null = null

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import { detectImageFormat, isValidBase64Image, processImageToBase64, estimateColorCount, analyzeImage } from "../hooks"
 import { createMockImageFile } from "@/test/tool-test-helpers"
-import type { ProcessingSettings, ConversionDirection } from "@/schemas/base64-image.schema"
+import type { ProcessingSettings, ConversionDirection } from "@/components/tools/base64-image/schema"
 
 describe("Base64 Image Tool - hooks", () => {
   beforeEach(() => {

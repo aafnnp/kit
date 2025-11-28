@@ -35,7 +35,7 @@ import type {
   SvgTemplate,
   OptimizationLevel,
   ExportFormat,
-} from "@/schemas/svg-minify.schema"
+} from "@/components/tools/svg-minify/schema"
 import { formatFileSize } from "@/lib/utils"
 // Types
 

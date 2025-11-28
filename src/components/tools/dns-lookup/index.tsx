@@ -42,7 +42,7 @@ import type {
   DNSValidation,
   DNSRecordType,
   ExportFormat,
-} from "@/schemas/dns-lookup.schema"
+} from "@/components/tools/dns-lookup/schema"
 
 // Utility functions
 

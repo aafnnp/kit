@@ -44,7 +44,7 @@ import type {
   FileIntegrityCheck,
   HashAlgorithm,
   ExportFormat,
-} from "@/schemas/file-hash.schema"
+} from "@/components/tools/file-hash/schema"
 import { formatFileSize } from "@/lib/utils"
 
 // Utility functions
