@@ -102,7 +102,7 @@
     "@actions/github": "^6.0.1",
     "@tanstack/router-plugin": "^1.134.6",
     "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.0",
+    "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.9.2",
     "@types/qrcode": "^1.5.6",
