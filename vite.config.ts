@@ -15,6 +15,7 @@ try {
 const pkg = JSON.parse(fs.readFileSync("./package.json", "utf-8"))
 
 export default defineConfig(() => ({
+  base: "./", // 使用相对路径，兼容 Electron file:// 协议
   plugins: [
     tanstackRouter({
       target: "react",
