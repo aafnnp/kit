@@ -1015,15 +1015,15 @@ const generateTextFromConversion = (conversion: CurrencyConversion): string => {
 
 === CONVERSION DETAILS ===
 From: ${conversion.amount} ${conversion.fromCurrency.code} (${conversion.fromCurrency.name})
-To: ${formatNumber(conversion.convertedAmount, conversion.toCurrency.decimals)} ${conversion.toCurrency.code} (${conversion.toCurrency.name})
-Exchange Rate: 1 ${conversion.fromCurrency.code} = ${formatNumber(conversion.exchangeRate, 6)} ${conversion.toCurrency.code}
+To: ${formatNumber(conversion.convertedAmount, { minimumFractionDigits: conversion.toCurrency.decimals, maximumFractionDigits: conversion.toCurrency.decimals })} ${conversion.toCurrency.code} (${conversion.toCurrency.name})
+Exchange Rate: 1 ${conversion.fromCurrency.code} = ${formatNumber(conversion.exchangeRate, { maximumFractionDigits: 6 })} ${conversion.toCurrency.code}
 
 === RATE INFORMATION ===
 Source: ${conversion.metadata.rateSource}
 Rate Timestamp: ${conversion.metadata.rateTimestamp.toLocaleString()}
-Spread: ${formatNumber(conversion.metadata.spread, 6)}
-Volatility: ${formatNumber(conversion.metadata.volatility, 2)}%
-Confidence: ${formatNumber(conversion.metadata.confidence * 100, 1)}%
+Spread: ${formatNumber(conversion.metadata.spread, { maximumFractionDigits: 6 })}
+Volatility: ${formatNumber(conversion.metadata.volatility, { maximumFractionDigits: 2 })}%
+Confidence: ${formatNumber(conversion.metadata.confidence * 100, { maximumFractionDigits: 1 })}%
 Market Status: ${conversion.metadata.marketStatus.toUpperCase()}
 
 === CURRENCY DETAILS ===
@@ -1442,7 +1442,8 @@ const CurrencyConvertCore = () => {
                             {formatCurrency(currentConversion.convertedAmount, currentConversion.toCurrency)}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            1 {currentConversion.fromCurrency.code} = {formatNumber(currentConversion.exchangeRate, 6)}{" "}
+                            1 {currentConversion.fromCurrency.code} ={" "}
+                            {formatNumber(currentConversion.exchangeRate, { maximumFractionDigits: 6 })}{" "}
                             {currentConversion.toCurrency.code}
                           </div>
                         </div>
@@ -1489,19 +1490,19 @@ const CurrencyConvertCore = () => {
                           </div>
                           <div className="text-center">
                             <div className="text-lg font-bold text-green-600">
-                              {formatNumber(currentConversion.metadata.spread, 6)}
+                              {formatNumber(currentConversion.metadata.spread, { maximumFractionDigits: 6 })}
                             </div>
                             <div className="text-xs text-muted-foreground">Spread</div>
                           </div>
                           <div className="text-center">
                             <div className="text-lg font-bold text-orange-600">
-                              {formatNumber(currentConversion.metadata.volatility, 2)}%
+                              {formatNumber(currentConversion.metadata.volatility, { maximumFractionDigits: 2 })}%
                             </div>
                             <div className="text-xs text-muted-foreground">Volatility</div>
                           </div>
                           <div className="text-center">
                             <div className="text-lg font-bold text-purple-600">
-                              {formatNumber(currentConversion.metadata.confidence * 100, 1)}%
+                              {formatNumber(currentConversion.metadata.confidence * 100, { maximumFractionDigits: 1 })}%
                             </div>
                             <div className="text-xs text-muted-foreground">Confidence</div>
                           </div>
@@ -1594,16 +1595,22 @@ const CurrencyConvertCore = () => {
                               }`}
                             >
                               {rate.changePercent24h
-                                ? `${rate.changePercent24h > 0 ? "+" : ""}${formatNumber(rate.changePercent24h, 2)}%`
+                                ? `${rate.changePercent24h > 0 ? "+" : ""}${formatNumber(rate.changePercent24h, { maximumFractionDigits: 2 })}%`
                                 : "N/A"}
                             </div>
                           </div>
-                          <div className="text-2xl font-bold mb-2">{formatNumber(rate.rate, 6)}</div>
+                          <div className="text-2xl font-bold mb-2">
+                            {formatNumber(rate.rate, { maximumFractionDigits: 6 })}
+                          </div>
                           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                            <div>High: {rate.high24h ? formatNumber(rate.high24h, 6) : "N/A"}</div>
-                            <div>Low: {rate.low24h ? formatNumber(rate.low24h, 6) : "N/A"}</div>
-                            <div>Bid: {rate.bid ? formatNumber(rate.bid, 6) : "N/A"}</div>
-                            <div>Ask: {rate.ask ? formatNumber(rate.ask, 6) : "N/A"}</div>
+                            <div>
+                              High: {rate.high24h ? formatNumber(rate.high24h, { maximumFractionDigits: 6 }) : "N/A"}
+                            </div>
+                            <div>
+                              Low: {rate.low24h ? formatNumber(rate.low24h, { maximumFractionDigits: 6 }) : "N/A"}
+                            </div>
+                            <div>Bid: {rate.bid ? formatNumber(rate.bid, { maximumFractionDigits: 6 }) : "N/A"}</div>
+                            <div>Ask: {rate.ask ? formatNumber(rate.ask, { maximumFractionDigits: 6 }) : "N/A"}</div>
                           </div>
                           <div className="text-xs text-muted-foreground mt-2">
                             Updated: {rate.timestamp.toLocaleTimeString()}
@@ -1676,7 +1683,8 @@ const CurrencyConvertCore = () => {
                         <div className="space-y-2">
                           <div className="text-sm">
                             <strong>Rate:</strong> 1 {conversion.fromCurrency.code} ={" "}
-                            {formatNumber(conversion.exchangeRate, 6)} {conversion.toCurrency.code}
+                            {formatNumber(conversion.exchangeRate, { maximumFractionDigits: 6 })}{" "}
+                            {conversion.toCurrency.code}
                           </div>
                           <div className="grid grid-cols-4 gap-4 text-xs text-center">
                             <div>
@@ -1684,11 +1692,15 @@ const CurrencyConvertCore = () => {
                               <div className="text-muted-foreground">Source</div>
                             </div>
                             <div>
-                              <div className="font-medium">{formatNumber(conversion.metadata.spread, 6)}</div>
+                              <div className="font-medium">
+                                {formatNumber(conversion.metadata.spread, { maximumFractionDigits: 6 })}
+                              </div>
                               <div className="text-muted-foreground">Spread</div>
                             </div>
                             <div>
-                              <div className="font-medium">{formatNumber(conversion.metadata.volatility, 2)}%</div>
+                              <div className="font-medium">
+                                {formatNumber(conversion.metadata.volatility, { maximumFractionDigits: 2 })}%
+                              </div>
                               <div className="text-muted-foreground">Volatility</div>
                             </div>
                             <div>

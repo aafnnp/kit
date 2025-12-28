@@ -31,17 +31,15 @@ import {
 import { nanoid } from "nanoid"
 import type {
   JSONProcessingResult,
-  JSONStatistics,
   JSONBatch,
   JSONBatchStatistics,
   JSONSettings,
   JSONTemplate,
-  JSONValidation,
   JSONOperation,
   ExportFormat,
 } from "@/components/tools/json-pretty/schema"
 import { formatFileSize } from "@/lib/utils"
-import { analyzeJSON, processJSON, validateJSON } from "@/lib/json/json-processor"
+import { processJSON, validateJSON } from "@/lib/json/json-processor"
 
 // JSON templates for common use cases
 const jsonTemplates: JSONTemplate[] = [

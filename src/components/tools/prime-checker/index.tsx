@@ -946,7 +946,7 @@ Digit Count: ${analysis.metadata.digitCount}
 Number Type: ${analysis.metadata.numberType.replace(/_/g, " ").toUpperCase()}
 
 === FACTORIZATION ===
-All Factors: ${analysis.factors.map(formatNumber).join(", ")}
+All Factors: ${analysis.factors.map((factor) => formatNumber(factor)).join(", ")}
 Prime Factorization: ${
     analysis.primeFactorization
       .map((f) => (f.exponent === 1 ? f.prime.toString() : `${f.prime}^${f.exponent}`))
@@ -1353,7 +1353,8 @@ const PrimeCheckerCore = () => {
                           <Label className="text-sm font-medium">Factorization</Label>
                           <div className="p-3 bg-muted rounded text-sm">
                             <div className="mb-2">
-                              <strong>All Factors:</strong> {currentAnalysis.factors.map(formatNumber).join(", ")}
+                              <strong>All Factors:</strong>{" "}
+                              {currentAnalysis.factors.map((factor) => formatNumber(factor)).join(", ")}
                             </div>
                             <div>
                               <strong>Prime Factorization:</strong>{" "}
@@ -1712,7 +1713,10 @@ const PrimeCheckerCore = () => {
                         <div>
                           <div className="text-xs font-medium mb-1">Numbers ({template.numbers.length}):</div>
                           <div className="text-xs text-muted-foreground">
-                            {template.numbers.slice(0, 5).map(formatNumber).join(", ")}
+                            {template.numbers
+                              .slice(0, 5)
+                              .map((num) => formatNumber(num))
+                              .join(", ")}
                             {template.numbers.length > 5 ? "..." : ""}
                           </div>
                         </div>
