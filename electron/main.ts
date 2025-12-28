@@ -4,8 +4,7 @@ import * as path from "path"
 import { fileURLToPath } from "url"
 import { existsSync, readFileSync } from "fs"
 import type { IpcMainInvokeEvent } from "electron"
-import { z } from "zod"
-import { updateInfoSchema, updateProgressEventSchema } from "./schemas"
+import type { UpdateInfo, UpdateProgressEvent } from "./schemas"
 
 const { autoUpdater } = updater
 
@@ -14,8 +13,17 @@ const __dirname = path.dirname(__filename)
 
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged
 
-// Zod schemas for IPC validation
-const urlSchema = z.string().url()
+/**
+ * 简单的 URL 验证函数
+ */
+function isValidUrl(url: string): boolean {
+  try {
+    new URL(url)
+    return true
+  } catch {
+    return false
+  }
+}
 
 // Dynamically read package.json to avoid import path issues
 function getPackageJson() {
@@ -164,16 +172,10 @@ app.on("window-all-closed", () => {
 
 // IPC Handlers
 ipcMain.handle("desktop:openExternal", async (_event: IpcMainInvokeEvent, url: string) => {
-  try {
-    const validatedUrl = urlSchema.parse(url)
-    await shell.openExternal(validatedUrl)
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error("Invalid URL provided:", error.issues)
-      throw new Error(`Invalid URL: ${error.issues.map((issue) => issue.message).join(", ")}`)
-    }
-    throw error
+  if (!isValidUrl(url)) {
+    throw new Error(`Invalid URL: ${url}`)
   }
+  await shell.openExternal(url)
 })
 
 ipcMain.handle("desktop:relaunch", async () => {
@@ -209,27 +211,30 @@ ipcMain.handle("window:isMaximized", () => {
 })
 
 // Updater handlers
-ipcMain.handle("updater:check", async () => {
+ipcMain.handle("updater:check", async (): Promise<UpdateInfo | null> => {
   if (isDev) {
     return null
   }
   try {
     const result = await autoUpdater.checkForUpdates()
     if (result && result.updateInfo) {
-      const updateInfo = {
+      // 处理 releaseNotes，可能是 string | ReleaseNoteInfo[] | null | undefined
+      let body: string | undefined
+      if (typeof result.updateInfo.releaseNotes === "string") {
+        body = result.updateInfo.releaseNotes
+      } else if (Array.isArray(result.updateInfo.releaseNotes)) {
+        body = result.updateInfo.releaseNotes.map((note) => (typeof note === "string" ? note : note.note || "")).join("\n")
+      }
+
+      const updateInfo: UpdateInfo = {
         version: result.updateInfo.version,
         date: result.updateInfo.releaseDate,
-        body: result.updateInfo.releaseNotes,
+        body,
       }
-      // Validate before sending
-      return updateInfoSchema.parse(updateInfo)
+      return updateInfo
     }
     return null
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error("Invalid update info format:", error.issues)
-      return null
-    }
+  } catch (error: unknown) {
     console.error("Update check failed:", error)
     return null
   }
@@ -241,17 +246,8 @@ ipcMain.handle("updater:downloadAndInstall", async (event: IpcMainInvokeEvent) =
   }
 
   return new Promise<void>((resolve, reject) => {
-    const sendProgressEvent = (eventData: z.infer<typeof updateProgressEventSchema>) => {
-      try {
-        const validated = updateProgressEventSchema.parse(eventData)
-        event.sender.send("updater:progress", validated)
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          console.error("Invalid progress event format:", error.issues)
-        } else {
-          throw error
-        }
-      }
+    const sendProgressEvent = (eventData: UpdateProgressEvent) => {
+      event.sender.send("updater:progress", eventData)
     }
 
     const progressHandler = (progress: any) => {
@@ -295,8 +291,8 @@ ipcMain.handle("updater:downloadAndInstall", async (event: IpcMainInvokeEvent) =
       },
     })
 
-    autoUpdater.downloadUpdate().catch((error: Error) => {
-      errorHandler(error)
+    autoUpdater.downloadUpdate().catch((error: unknown) => {
+      errorHandler(error instanceof Error ? error : new Error(String(error)))
     })
   })
 })

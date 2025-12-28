@@ -1,10 +1,8 @@
 import { contextBridge, ipcRenderer } from "electron"
-import { z } from "zod"
-import { updateInfoSchema, updateProgressEventSchema, type UpdateInfo, type UpdateProgressEvent } from "./schemas"
+import type { UpdateInfo, UpdateProgressEvent } from "./schemas"
 
 // Re-export types for external use
 export type { UpdateInfo, UpdateProgressEvent }
-export { updateInfoSchema, updateProgressEventSchema }
 
 export interface DesktopApi {
   openExternal: (url: string) => Promise<void>
@@ -32,27 +30,19 @@ const desktopApi: DesktopApi = {
     isMaximized: () => ipcRenderer.invoke("window:isMaximized"),
   },
   updater: {
-    check: async () => {
+    check: async (): Promise<UpdateInfo | null> => {
       const result = await ipcRenderer.invoke("updater:check")
       if (result === null) {
         return null
       }
-      try {
-        return updateInfoSchema.parse(result)
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          console.error("Invalid update info received:", error.issues)
-          return null
-        }
-        throw error
-      }
+      return result as UpdateInfo
     },
     downloadAndInstall: (onProgress: (event: UpdateProgressEvent) => void) => {
       return new Promise<void>((resolve, reject) => {
         let isResolved = false
         const progressHandler = (_event: Electron.IpcRendererEvent, data: unknown) => {
           try {
-            const validatedData = updateProgressEventSchema.parse(data)
+            const validatedData = data as UpdateProgressEvent
             onProgress(validatedData)
             if (validatedData.event === "Finished") {
               if (!isResolved) {
@@ -62,12 +52,6 @@ const desktopApi: DesktopApi = {
               }
             }
           } catch (error) {
-            if (error instanceof z.ZodError) {
-              console.error("Invalid progress event received:", error.issues)
-              // Continue listening for valid events, but don't resolve/reject yet
-              // The download may still complete successfully with subsequent valid events
-              return
-            }
             if (!isResolved) {
               isResolved = true
               ipcRenderer.removeListener("updater:progress", progressHandler)
