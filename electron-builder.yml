@@ -44,9 +44,12 @@ mac:
     - dmg
   icon: build/icon.png
   minimumSystemVersion: 10.13
-  hardenedRuntime: false
-  gatekeeperAssess: false
-  entitlements: null
+  # 代码签名配置（生产环境需要）
+  # 如需配置代码签名，请参考 docs/MACOS_CODE_SIGNING.md
+  # identity: "Developer ID Application: Your Name (XXXXXXXXXX)"  # 取消注释并填写证书名称
+  hardenedRuntime: false # 生产环境应设置为 true
+  gatekeeperAssess: false # 生产环境应设置为 true
+  entitlements: null # 如需特定权限，创建 build/entitlements.mac.plist
   entitlementsInherit: null
 
 dmg:
