@@ -1,166 +1,149 @@
-import { z } from "zod"
-
-// ==================== JSON Plot Schemas ====================
+// ==================== JSON Plot Types ====================
 
 /**
- * Visualization Type schema
+ * Visualization Type type
  */
-export const visualizationTypeSchema = z.enum(["tree", "table", "chart", "graph", "raw", "formatted"])
+export type VisualizationType = "tree" | "table" | "chart" | "graph" | "raw" | "formatted"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml", "yaml", "svg", "png", "pdf"])
+export type ExportFormat = "json" | "csv" | "txt" | "xml" | "yaml" | "svg" | "png" | "pdf"
 
 /**
- * View Mode schema
+ * View Mode type
  */
-export const viewModeSchema = z.enum(["compact", "expanded", "minimal", "detailed"])
+export type ViewMode = "compact" | "expanded" | "minimal" | "detailed"
 
 /**
- * Theme schema
+ * Theme type
  */
-export const themeSchema = z.enum(["light", "dark", "auto"])
+export type Theme = "light" | "dark" | "auto"
 
 /**
- * Chart Config schema
+ * Chart Config type
  */
-export const chartConfigSchema = z.object({
-  title: z.string(),
-  width: z.number(),
-  height: z.number(),
-  theme: themeSchema,
-  colors: z.array(z.string()),
-  showLegend: z.boolean(),
-  showGrid: z.boolean(),
-  showTooltip: z.boolean(),
-  animation: z.boolean(),
-  responsive: z.boolean(),
-  xAxisKey: z.string().optional(),
-  yAxisKey: z.string().optional(),
-  valueKey: z.string().optional(),
-  labelKey: z.string().optional(),
-  groupKey: z.string().optional(),
-})
+export interface ChartConfig {
+  title: string,
+  width: number,
+  height: number,
+  theme: Theme,
+  colors: string[],
+  showLegend: boolean,
+  showGrid: boolean,
+  showTooltip: boolean,
+  animation: boolean,
+  responsive: boolean
+  xAxisKey?: string
+  yAxisKey?: string
+  valueKey?: string
+  labelKey?: string
+  groupKey?: string
+}
 
 /**
- * Visualization Metadata schema
+ * Visualization Metadata type
  */
-export const visualizationMetadataSchema = z.object({
-  dataSize: z.number(),
-  dataDepth: z.number(),
-  dataKeys: z.number(),
-  dataTypes: z.record(z.string(), z.number()),
-  arrayCount: z.number(),
-  objectCount: z.number(),
-  primitiveCount: z.number(),
-  processingTime: z.number(),
-  memoryUsage: z.number(),
-})
+export interface VisualizationMetadata {
+  dataSize: number,
+  dataDepth: number,
+  dataKeys: number,
+  dataTypes: Record<string, number>,
+  arrayCount: number,
+  objectCount: number,
+  primitiveCount: number,
+  processingTime: number,
+  memoryUsage: number,
+}
 
 /**
- * JSON Visualization schema
+ * JSON Visualization type
  */
-export const jsonVisualizationSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  data: z.any(),
-  rawJSON: z.string(),
-  visualizationType: visualizationTypeSchema,
-  chartConfig: chartConfigSchema,
-  metadata: visualizationMetadataSchema,
-  timestamp: z.date(),
-})
+export interface JSONVisualization {
+  id: string,
+  name: string,
+  data: any,
+  rawJSON: string,
+  visualizationType: VisualizationType,
+  chartConfig: ChartConfig,
+  metadata: VisualizationMetadata,
+  timestamp: Date,
+}
 
 /**
- * JSON Template schema
+ * JSON Template type
  */
-export const jsonTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  data: z.any(),
-  visualizationType: visualizationTypeSchema,
-  chartConfig: chartConfigSchema.partial(),
-  useCase: z.array(z.string()),
-})
+export interface JSONTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  data: any,
+  visualizationType: VisualizationType
+  chartConfig?: Partial<ChartConfig>
+  useCase: string[],
+}
 
 /**
- * JSON Error schema
+ * JSON Error type
  */
-export const jsonErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["syntax", "structure", "performance", "visualization"]),
-  severity: z.enum(["error", "warning", "info"]),
-  position: z.number().optional(),
-})
+export interface JSONError {
+  message: string,
+  type: "syntax"| "structure" | "performance" | "visualization",
+  severity: "error"| "warning" | "info"
+  position?: number
+}
 
 /**
- * JSON Validation schema
+ * JSON Validation type
  */
-export const jsonValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(jsonErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  qualityScore: z.number(),
-})
+export interface JSONValidation {
+  isValid: boolean,
+  errors: JSONError[],
+  warnings: string[],
+  suggestions: string[],
+  qualityScore: number,
+}
 
 /**
- * TreeNode schema (recursive)
+ * TreeNode type (recursive)
  */
-export const treeNodeSchema: z.ZodType<any> = z.lazy(() =>
-  z.object({
-    id: z.string(),
-    key: z.string(),
-    value: z.any(),
-    type: z.string(),
-    path: z.string(),
-    level: z.number(),
-    isExpanded: z.boolean(),
-    hasChildren: z.boolean(),
-    children: z.array(treeNodeSchema),
-    parent: treeNodeSchema.optional(),
-  })
-)
+export interface TreeNode {
+  id: string,
+  key: string,
+  value: any,
+  type: string,
+  path: string,
+  level: number,
+  isExpanded: boolean,
+  hasChildren: boolean,
+  children: TreeNode[]
+  parent?: TreeNode
+}
 
 /**
- * Chart Dataset schema
+ * Chart Dataset type
  */
-export const chartDatasetSchema = z.object({
-  label: z.string(),
-  data: z.array(z.number()),
-  backgroundColor: z.array(z.string()),
-  borderColor: z.array(z.string()),
-  borderWidth: z.number(),
-})
+export interface ChartDataset {
+  label: string,
+  data: number[],
+  backgroundColor: string[],
+  borderColor: string[],
+  borderWidth: number,
+}
 
 /**
- * Chart Data schema
+ * Chart Data type
  */
-export const chartDataSchema = z.object({
-  labels: z.array(z.string()),
-  datasets: z.array(chartDatasetSchema),
-  metadata: z.object({
-    totalPoints: z.number(),
-    dataRange: z.tuple([z.number(), z.number()]),
-    categories: z.array(z.string()),
-  }),
-})
+export interface ChartData {
+  labels: string[],
+  datasets: ChartDataset[],
+  metadata: {
+    totalPoints: number,
+  dataRange: [number, number],
+    categories: string[],
+  }
+}
 
 // ==================== Type Exports ====================
 
-export type VisualizationType = z.infer<typeof visualizationTypeSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type ViewMode = z.infer<typeof viewModeSchema>
-export type Theme = z.infer<typeof themeSchema>
-export type ChartConfig = z.infer<typeof chartConfigSchema>
-export type VisualizationMetadata = z.infer<typeof visualizationMetadataSchema>
-export type JSONVisualization = z.infer<typeof jsonVisualizationSchema>
-export type JSONTemplate = z.infer<typeof jsonTemplateSchema>
-export type JSONError = z.infer<typeof jsonErrorSchema>
-export type JSONValidation = z.infer<typeof jsonValidationSchema>
-export type TreeNode = z.infer<typeof treeNodeSchema>
-export type ChartDataset = z.infer<typeof chartDatasetSchema>
-export type ChartData = z.infer<typeof chartDataSchema>

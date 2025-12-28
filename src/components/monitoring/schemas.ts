@@ -1,215 +1,182 @@
-import { z } from "zod"
-
-// ==================== Performance Monitor Schemas ====================
+// ==================== Performance Monitor Types ====================
 
 /**
- * Performance metrics schema
+ * Performance metrics type
  * 性能指标类型定义
  */
-export const performanceMetricsSchema = z.object({
-  renderTime: z.number(),
-  memoryUsage: z.number(),
-  itemCount: z.number(),
-  strategy: z.string(),
-  timestamp: z.number(),
-})
+export interface PerformanceMetrics {
+  renderTime: number
+  memoryUsage: number
+  itemCount: number
+  strategy: string
+  timestamp: number
+}
 
 /**
- * Network info schema
+ * Network info type
  * 网络信息类型定义
  */
-export const networkInfoSchema = z.object({
-  effectiveType: z.string(),
-  downlink: z.number(),
-  rtt: z.number(),
-  saveData: z.boolean(),
-})
+export interface NetworkInfo {
+  effectiveType: string
+  downlink: number
+  rtt: number
+  saveData: boolean
+}
 
 /**
- * Device info schema
+ * Device info type
  * 设备信息类型定义
  */
-export const deviceInfoSchema = z.object({
-  isMobile: z.boolean(),
-  isTablet: z.boolean(),
-  isDesktop: z.boolean(),
-  userAgent: z.string(),
-})
+export interface DeviceInfo {
+  isMobile: boolean
+  isTablet: boolean
+  isDesktop: boolean
+  userAgent: string
+}
 
 /**
- * Performance monitor props schema
+ * Performance monitor props type
  * 性能监控组件属性类型定义
  */
-export const performanceMonitorPropsSchema = z.object({
-  isVisible: z.boolean().optional(),
-  onToggle: z.custom<() => void>().optional(),
-  className: z.string().optional(),
-})
+export interface PerformanceMonitorProps {
+  isVisible?: boolean
+  onToggle?: () => void
+  className?: string
+}
 
 /**
- * Performance stats schema
+ * Performance stats type
  * 性能统计类型定义
  */
-export const performanceStatsSchema = z.object({
-  avgRenderTime: z.number(),
-  maxRenderTime: z.number(),
-  minRenderTime: z.number(),
-  avgMemoryUsage: z.number(),
-  maxMemoryUsage: z.number(),
-  totalRecords: z.number(),
-})
+export interface PerformanceStats {
+  avgRenderTime: number
+  maxRenderTime: number
+  minRenderTime: number
+  avgMemoryUsage: number
+  maxMemoryUsage: number
+  totalRecords: number
+}
 
-// ==================== Dependency Analyzer Schemas ====================
+// ==================== Dependency Analyzer Types ====================
 
 /**
- * Dependency analysis schema
+ * Dependency analysis type
  * 依赖分析类型定义
  */
-export const dependencyAnalysisSchema = z.object({
-  heavy: z.array(z.string()),
-  optimizable: z.array(z.string()),
-  light: z.array(z.string()),
-  recommendations: z.array(z.string()),
-})
+export interface DependencyAnalysis {
+  heavy: string[]
+  optimizable: string[]
+  light: string[]
+  recommendations: string[]
+}
 
 /**
- * Optimization stats schema for dependency analyzer
+ * Optimization stats type for dependency analyzer
  * 依赖分析器优化统计类型定义
  */
-export const dependencyOptimizationStatsSchema = z.object({
-  totalDependencies: z.number(),
-  heavyDependencies: z.number(),
-  optimizableDependencies: z.number(),
-  lightDependencies: z.number(),
-  potentialSavings: z.string(),
-})
+export interface DependencyOptimizationStats {
+  totalDependencies: number
+  heavyDependencies: number
+  optimizableDependencies: number
+  lightDependencies: number
+  potentialSavings: string
+}
 
 /**
- * Audit totals schema
+ * Audit totals type
  * 审计总计类型定义
  */
-export const auditTotalsSchema = z.object({
-  low: z.number(),
-  moderate: z.number(),
-  high: z.number(),
-  critical: z.number(),
-  total: z.number(),
-})
+export interface AuditTotals {
+  low: number
+  moderate: number
+  high: number
+  critical: number
+  total: number
+}
 
 /**
- * Audit issues by package schema
+ * Audit issues by package type
  * 按包分组的审计问题类型定义
  */
-export const auditIssuesByPkgSchema = z.record(
-  z.string(),
-  z.object({
-    highestSeverity: z.enum(["low", "moderate", "high", "critical"]),
-    count: z.number(),
-    titles: z.array(z.string()),
-  })
-)
+export type AuditIssuesByPkg = Record<
+  string,
+  {
+    highestSeverity: "low" | "moderate" | "high" | "critical"
+    count: number
+    titles: string[]
+  }
+>
 
 /**
- * Replacement plan item schema
+ * Replacement plan item type
  * 替换计划项类型定义
  */
-export const replacementPlanItemSchema = z.object({
-  from: z.string(),
-  to: z.string(),
-  reason: z.string(),
-  severity: z.string().optional(), // Can be "low" | "moderate" | "high" | "critical" but allowing string for flexibility
-})
+export interface ReplacementPlanItem {
+  from: string
+  to: string
+  reason: string
+  severity?: string // Can be "low" | "moderate" | "high" | "critical" but allowing string for flexibility
+}
 
-// ==================== Resource Optimization Schemas ====================
+// ==================== Resource Optimization Types ====================
 
 /**
- * Optimization stats schema for resource optimization
+ * Optimization stats type for resource optimization
  * 资源优化统计类型定义
  */
-export const resourceOptimizationStatsSchema = z.object({
-  iconsLoaded: z.number(),
-  iconsCached: z.number(),
-  resourcesPreloaded: z.number(),
-  dependenciesAnalyzed: z.number(),
-  potentialSavings: z.string(),
-  optimizationScore: z.number(),
-})
+export interface ResourceOptimizationStats {
+  iconsLoaded: number
+  iconsCached: number
+  resourcesPreloaded: number
+  dependenciesAnalyzed: number
+  potentialSavings: string
+  optimizationScore: number
+}
 
-// ==================== Cache Strategy Manager Schemas ====================
+// ==================== Cache Strategy Manager Types ====================
 
 /**
- * Cache config schema
+ * Cache config type
  * 缓存配置类型定义
  */
-export const cacheConfigSchema = z.object({
-  maxMemoryUsage: z.number(), // MB
-  maxDiskUsage: z.number(), // MB
-  compressionEnabled: z.boolean(),
-  persistentCacheEnabled: z.boolean(),
-  autoCleanupInterval: z.number(), // minutes
-})
+export interface CacheConfig {
+  maxMemoryUsage: number // MB
+  maxDiskUsage: number // MB
+  compressionEnabled: boolean
+  persistentCacheEnabled: boolean
+  autoCleanupInterval: number // minutes
+}
 
 /**
- * Memory stats schema
+ * Memory stats type
  * 内存统计类型定义
  */
-export const memoryStatsSchema = z.object({
-  usedMemory: z.number(),
-  totalMemory: z.number(),
-  cacheMemory: z.number(),
-  heapUsed: z.number(),
-  heapTotal: z.number(),
-})
+export interface MemoryStats {
+  usedMemory: number
+  totalMemory: number
+  cacheMemory: number
+  heapUsed: number
+  heapTotal: number
+}
 
 /**
- * Cache strategy stats schema
+ * Cache strategy stats type
  * 缓存策略统计类型定义
  */
-export const cacheStrategyStatsSchema = z.object({
-  memoryStats: memoryStatsSchema,
-  diskCacheSize: z.number(),
-  compressionRatio: z.number(),
-  cleanupCount: z.number(),
-  lastCleanup: z.number(),
-  persistentCacheHits: z.number(),
-  persistentCacheMisses: z.number(),
-})
+export interface CacheStrategyStats {
+  memoryStats: MemoryStats
+  diskCacheSize: number
+  compressionRatio: number
+  cleanupCount: number
+  lastCleanup: number
+  persistentCacheHits: number
+  persistentCacheMisses: number
+}
 
 /**
- * Cache strategy manager props schema
+ * Cache strategy manager props type
  * 缓存策略管理器属性类型定义
  */
-export const cacheStrategyManagerPropsSchema = z.object({
-  className: z.string().optional(),
-})
-
-// ==================== Type Exports ====================
-
-/**
- * Type inference from zod schemas
- * 从 zod schemas 推断 TypeScript 类型
- */
-
-// Performance Monitor Types
-export type PerformanceMetrics = z.infer<typeof performanceMetricsSchema>
-export type NetworkInfo = z.infer<typeof networkInfoSchema>
-export type DeviceInfo = z.infer<typeof deviceInfoSchema>
-export type PerformanceMonitorProps = z.infer<typeof performanceMonitorPropsSchema>
-export type PerformanceStats = z.infer<typeof performanceStatsSchema>
-
-// Dependency Analyzer Types
-export type DependencyAnalysis = z.infer<typeof dependencyAnalysisSchema>
-export type DependencyOptimizationStats = z.infer<typeof dependencyOptimizationStatsSchema>
-export type AuditTotals = z.infer<typeof auditTotalsSchema>
-export type AuditIssuesByPkg = z.infer<typeof auditIssuesByPkgSchema>
-export type ReplacementPlanItem = z.infer<typeof replacementPlanItemSchema>
-
-// Resource Optimization Types
-export type ResourceOptimizationStats = z.infer<typeof resourceOptimizationStatsSchema>
-
-// Cache Strategy Manager Types
-export type CacheConfig = z.infer<typeof cacheConfigSchema>
-export type MemoryStats = z.infer<typeof memoryStatsSchema>
-export type CacheStrategyStats = z.infer<typeof cacheStrategyStatsSchema>
-export type CacheStrategyManagerProps = z.infer<typeof cacheStrategyManagerPropsSchema>
-
+export interface CacheStrategyManagerProps {
+  className?: string
+}

@@ -357,6 +357,10 @@ const tocTemplates: TOCTemplate[] = [
       indentStyle: "spaces",
       bulletStyle: "dash",
       caseStyle: "original",
+      customPrefix: "",
+      removeNumbers: false,
+      removeSpecialChars: false,
+      customAnchorPrefix: "",
     },
     example: "- [Introduction](#introduction)\n  - [Getting Started](#getting-started)",
   },
@@ -372,6 +376,10 @@ const tocTemplates: TOCTemplate[] = [
       indentStyle: "spaces",
       bulletStyle: "number",
       caseStyle: "original",
+      customPrefix: "",
+      removeNumbers: false,
+      removeSpecialChars: false,
+      customAnchorPrefix: "",
     },
     example: "1. [Introduction](#introduction)\n  1.1. [Getting Started](#getting-started)",
   },
@@ -387,6 +395,10 @@ const tocTemplates: TOCTemplate[] = [
       indentStyle: "none",
       bulletStyle: "dash",
       caseStyle: "original",
+      customPrefix: "",
+      removeNumbers: false,
+      removeSpecialChars: false,
+      customAnchorPrefix: "",
     },
     example: '<ul><li><a href="#introduction">Introduction</a></li></ul>',
   },
@@ -402,6 +414,10 @@ const tocTemplates: TOCTemplate[] = [
       indentStyle: "spaces",
       bulletStyle: "dash",
       caseStyle: "original",
+      customPrefix: "",
+      removeNumbers: false,
+      removeSpecialChars: false,
+      customAnchorPrefix: "",
     },
     example: "Introduction\n  Getting Started\n    Installation",
   },
@@ -417,6 +433,10 @@ const tocTemplates: TOCTemplate[] = [
       indentStyle: "spaces",
       bulletStyle: "asterisk",
       caseStyle: "original",
+      customPrefix: "",
+      removeNumbers: false,
+      removeSpecialChars: false,
+      customAnchorPrefix: "",
     },
     example: "* [Introduction](#introduction)\n  * [Setup](#setup)",
   },
@@ -1000,8 +1020,8 @@ const MarkdownTOCCore = () => {
                   <div className="space-y-2">
                     <Label htmlFor="bulletStyle">Bullet Style</Label>
                     <Select
-                      value={settings.bulletStyle}
-                      onValueChange={(value: BulletStyle) => setSettings((prev) => ({ ...prev, bulletStyle: value }))}
+                      value={String(settings.bulletStyle)}
+                      onValueChange={(value: string) => setSettings((prev) => ({ ...prev, bulletStyle: value as BulletStyle }))}
                     >
                       <SelectTrigger id="bulletStyle">
                         <SelectValue />

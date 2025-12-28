@@ -1,75 +1,71 @@
-import { z } from "zod"
-
-// ==================== Word Count Schemas ====================
+// ==================== Word Count Types ====================
 
 /**
- * Text Analysis schema
+ * Text Analysis type
  */
-export const textAnalysisSchema = z.object({
-  characters: z.number(),
-  charactersNoSpaces: z.number(),
-  words: z.number(),
-  sentences: z.number(),
-  paragraphs: z.number(),
-  lines: z.number(),
-  readingTime: z.number(),
-  averageWordsPerSentence: z.number(),
-  averageCharactersPerWord: z.number(),
-  readabilityScore: z.number(),
-  keywordFrequency: z.record(z.string(), z.number()),
-  mostCommonWords: z.array(
-    z.object({
-      word: z.string(),
-      count: z.number(),
-    })
-  ),
-  longestWord: z.string(),
-  shortestWord: z.string(),
-})
+export interface textAnalysis {
+  characters: number,
+  charactersNoSpaces: number,
+  words: number,
+  sentences: number,
+  paragraphs: number,
+  lines: number,
+  readingTime: number,
+  averageWordsPerSentence: number,
+  averageCharactersPerWord: number,
+  readabilityScore: number,
+  keywordFrequency: Record<string, number>,
+  mostCommonWords: Array<{
+    word: string,
+  count: number,
+  }>
+  longestWord: string,
+  shortestWord: string,
+}
 
 /**
- * Text File schema
+ * Text File type
  */
-export const textFileSchema = z.object({
-  id: z.string(),
-  file: z.instanceof(File),
-  content: z.string(),
-  name: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  analysis: textAnalysisSchema.optional(),
-})
+export interface textFile {
+  id: string,
+  file: File,
+  content: string,
+  name: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  analysis?: textAnalysis
+}
 
 /**
- * Analysis Settings schema
+ * Analysis Settings type
  */
-export const analysisSettingsSchema = z.object({
-  includeSpaces: z.boolean(),
-  countPunctuation: z.boolean(),
-  wordsPerMinute: z.number(),
-  minWordLength: z.number(),
-  excludeCommonWords: z.boolean(),
-  language: z.enum(["en", "zh", "auto"]),
-})
+export interface analysisSettings {
+  includeSpaces: boolean,
+  countPunctuation: boolean,
+  wordsPerMinute: number,
+  minWordLength: number,
+  excludeCommonWords: boolean,
+  language: "en"| "zh" | "auto",
+}
 
 /**
- * Analysis Stats schema
+ * Analysis Stats type
  */
-export const analysisStatsSchema = z.object({
-  totalFiles: z.number(),
-  totalCharacters: z.number(),
-  totalWords: z.number(),
-  totalSentences: z.number(),
-  totalParagraphs: z.number(),
-  averageReadingTime: z.number(),
-  averageReadabilityScore: z.number(),
-})
+export interface analysisStats {
+  totalFiles: number,
+  totalCharacters: number,
+  totalWords: number,
+  totalSentences: number,
+  totalParagraphs: number,
+  averageReadingTime: number,
+  averageReadabilityScore: number,
+}
 
 // ==================== Type Exports ====================
 
-export type TextAnalysis = z.infer<typeof textAnalysisSchema>
-export type TextFile = z.infer<typeof textFileSchema>
-export type AnalysisSettings = z.infer<typeof analysisSettingsSchema>
-export type AnalysisStats = z.infer<typeof analysisStatsSchema>
+export type TextAnalysis = textAnalysis
+export type TextFile = textFile
+export type AnalysisSettings = analysisSettings
+export type AnalysisStats = analysisStats

@@ -466,6 +466,8 @@ const ImageCropCore = () => {
     optimizeForWeb: true,
     enableSmartCrop: false,
     cropPadding: 0,
+    width: 0,
+    height: 0,
   })
   const [dragActive, setDragActive] = useState(false)
   const [activeTab, setActiveTab] = useState("crop")
@@ -1055,7 +1057,6 @@ const ImageCropCore = () => {
                           setSettings((prev) => ({
                             ...prev,
                             customAspectRatio: {
-                              ...prev.customAspectRatio,
                               width: Number(e.target.value),
                               height: prev.customAspectRatio?.height || 1,
                             },
@@ -1075,7 +1076,6 @@ const ImageCropCore = () => {
                             ...prev,
                             customAspectRatio: {
                               width: prev.customAspectRatio?.width || 1,
-                              ...prev.customAspectRatio,
                               height: Number(e.target.value),
                             },
                           }))

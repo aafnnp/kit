@@ -1,145 +1,132 @@
-import { z } from "zod"
-
-// ==================== JSON Pretty Schemas ====================
+// ==================== JSON Pretty Types ====================
 
 /**
- * JSON Operation schema
+ * JSON Operation type
  */
-export const jsonOperationSchema = z.enum(["format", "minify", "validate", "analyze", "escape", "unescape"])
+export type JSONOperation = "format" | "minify" | "validate" | "analyze" | "escape" | "unescape"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml"])
+export type ExportFormat = "json" | "csv" | "txt" | "xml"
 
 /**
- * JSON Statistics schema
+ * JSON Statistics type
  */
-export const jsonStatisticsSchema = z.object({
-  size: z.number(),
-  lines: z.number(),
-  depth: z.number(),
-  keys: z.number(),
-  arrays: z.number(),
-  objects: z.number(),
-  primitives: z.number(),
-  nullValues: z.number(),
-  booleans: z.number(),
-  numbers: z.number(),
-  strings: z.number(),
-  duplicateKeys: z.array(z.string()),
-  circularReferences: z.boolean(),
-})
+export interface JSONStatistics {
+  size: number,
+  lines: number,
+  depth: number,
+  keys: number,
+  arrays: number,
+  objects: number,
+  primitives: number,
+  nullValues: number,
+  booleans: number,
+  numbers: number,
+  strings: number,
+  duplicateKeys: string[],
+  circularReferences: boolean,
+}
 
 /**
- * JSON Schema schema
+ * JSON Schema type
  */
-export const jsonSchemaSchema = z.object({
-  type: z.string(),
-  properties: z.record(z.string(), z.any()).optional(),
-  items: z.any().optional(),
-  required: z.array(z.string()).optional(),
-  additionalProperties: z.boolean().optional(),
-  description: z.string().optional(),
-})
+export interface JSONSchema {
+  type: string
+  properties?: Record<string, any>
+  items?: any
+  required?: string[]
+  additionalProperties?: boolean
+  description?: string
+}
 
 /**
- * JSON Processing Result schema
+ * JSON Processing Result type
  */
-export const jsonProcessingResultSchema = z.object({
-  id: z.string(),
-  input: z.string(),
-  output: z.string(),
-  operation: jsonOperationSchema,
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  statistics: jsonStatisticsSchema,
-  schema: jsonSchemaSchema.optional(),
-  createdAt: z.date(),
-})
+export interface JSONProcessingResult {
+  id: string,
+  input: string,
+  output: string,
+  operation: JSONOperation,
+  isValid: boolean
+  error?: string
+  statistics: JSONStatistics
+  schema?: JSONSchema
+  createdAt: Date,
+}
 
 /**
- * JSON Batch Statistics schema
+ * JSON Batch Statistics type
  */
-export const jsonBatchStatisticsSchema = z.object({
-  totalProcessed: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  averageSize: z.number(),
-  totalSize: z.number(),
-  operationDistribution: z.record(z.string(), z.number()),
-  successRate: z.number(),
-})
+export interface JSONBatchStatistics {
+  totalProcessed: number,
+  validCount: number,
+  invalidCount: number,
+  averageSize: number,
+  totalSize: number,
+  operationDistribution: Record<string, number>,
+  successRate: number,
+}
 
 /**
- * JSON Settings schema
+ * JSON Settings type
  */
-export const jsonSettingsSchema = z.object({
-  indentSize: z.number(),
-  sortKeys: z.boolean(),
-  removeComments: z.boolean(),
-  validateSchema: z.boolean(),
-  showStatistics: z.boolean(),
-  realTimeProcessing: z.boolean(),
-  exportFormat: exportFormatSchema,
-  maxDepth: z.number(),
-  maxSize: z.number(),
-})
+export interface JSONSettings {
+  indentSize: number,
+  sortKeys: boolean,
+  removeComments: boolean,
+  validateSchema: boolean,
+  showStatistics: boolean,
+  realTimeProcessing: boolean,
+  exportFormat: ExportFormat,
+  maxDepth: number,
+  maxSize: number,
+}
 
 /**
- * JSON Batch schema
+ * JSON Batch type
  */
-export const jsonBatchSchema = z.object({
-  id: z.string(),
-  results: z.array(jsonProcessingResultSchema),
-  count: z.number(),
-  settings: jsonSettingsSchema,
-  createdAt: z.date(),
-  statistics: jsonBatchStatisticsSchema,
-})
+export interface JSONBatch {
+  id: string,
+  results: JSONProcessingResult[],
+  count: number,
+  settings: JSONSettings,
+  createdAt: Date,
+  statistics: JSONBatchStatistics,
+}
 
 /**
- * JSON Template schema
+ * JSON Template type
  */
-export const jsonTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  content: z.string(),
-  useCase: z.array(z.string()),
-})
+export interface JSONTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  content: string,
+  useCase: string[],
+}
 
 /**
- * JSON Error schema
+ * JSON Error type
  */
-export const jsonErrorSchema = z.object({
-  message: z.string(),
-  line: z.number().optional(),
-  column: z.number().optional(),
-  path: z.string().optional(),
-})
+export interface JSONError {
+  message: string
+  line?: number
+  column?: number
+  path?: string
+}
 
 /**
- * JSON Validation schema
+ * JSON Validation type
  */
-export const jsonValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(jsonErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-})
+export interface JSONValidation {
+  isValid: boolean,
+  errors: JSONError[],
+  warnings: string[],
+  suggestions: string[],
+}
 
 // ==================== Type Exports ====================
 
-export type JSONOperation = z.infer<typeof jsonOperationSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type JSONStatistics = z.infer<typeof jsonStatisticsSchema>
-export type JSONSchema = z.infer<typeof jsonSchemaSchema>
-export type JSONProcessingResult = z.infer<typeof jsonProcessingResultSchema>
-export type JSONBatchStatistics = z.infer<typeof jsonBatchStatisticsSchema>
-export type JSONSettings = z.infer<typeof jsonSettingsSchema>
-export type JSONBatch = z.infer<typeof jsonBatchSchema>
-export type JSONTemplate = z.infer<typeof jsonTemplateSchema>
-export type JSONError = z.infer<typeof jsonErrorSchema>
-export type JSONValidation = z.infer<typeof jsonValidationSchema>

@@ -9,26 +9,15 @@ export { default as ToolNotFound } from "./tool-not-found"
 export { ToolErrorBoundary } from "./tool-error-boundary"
 export type { ToolErrorBoundaryProps, ToolErrorBoundaryState } from "./tool-error-boundary"
 
-// Re-export schemas and types (excluding conflicting ToolErrorBoundaryState)
-export {
-  toolTabSchema,
-  toolActionSchema,
-  templatePanelPropsSchema,
-  settingsPanelPropsSchema,
-  historyPanelPropsSchema,
-  tabSchema,
-  toolBasePropsSchema,
-  fileUploadAreaPropsSchema,
-  toolErrorBoundaryPropsSchema,
-  toolErrorBoundaryStateSchema,
-  toolNotFoundPropsSchema,
-  type ToolTab,
-  type ToolAction,
-  type TemplatePanelPropsType,
-  type SettingsPanelPropsType,
-  type HistoryPanelProps,
-  type Tab,
-  type ToolBaseProps,
-  type FileUploadAreaProps,
-  type ToolNotFoundProps,
+// Re-export types
+export type {
+  ToolTab,
+  ToolAction,
+  TemplatePanelPropsType,
+  SettingsPanelPropsType,
+  HistoryPanelProps,
+  Tab,
+  ToolBaseProps,
+  FileUploadAreaProps,
+  ToolNotFoundProps,
 } from "./schemas"

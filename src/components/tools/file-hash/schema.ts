@@ -1,137 +1,135 @@
-import { z } from "zod"
-
-// ==================== File Hash Schemas ====================
+// ==================== File Hash Types ====================
 
 /**
- * Hash Algorithm schema
+ * Hash Algorithm type
  */
-export const hashAlgorithmSchema = z.enum(["MD5", "SHA-1", "SHA-256", "SHA-384", "SHA-512"])
+export type hashAlgorithm = "MD5" | "SHA-1" | "SHA-256" | "SHA-384" | "SHA-512"
 
 /**
- * Security Level schema
+ * Security Level type
  */
-export const securityLevelSchema = z.enum(["low", "medium", "high", "very-high"])
+export type securityLevel = "low" | "medium" | "high" | "very-high"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml"
 
 /**
- * File Content schema
+ * File Content type
  */
-export const fileContentSchema = z.object({
-  name: z.string(),
-  size: z.number(),
-  type: z.string(),
-  lastModified: z.date(),
-  checksum: z.string().optional(),
-})
+export interface fileContent {
+  name: string,
+  size: number,
+  type: string,
+  lastModified: Date
+  checksum?: string
+}
 
 /**
- * Hash Result schema
+ * Hash Result type
  */
-export const hashResultSchema = z.object({
-  algorithm: hashAlgorithmSchema,
-  hash: z.string(),
-  processingTime: z.number(),
-  verified: z.boolean().optional(),
-  chunks: z.number().optional(),
-})
+export interface hashResult {
+  algorithm: hashAlgorithm,
+  hash: string,
+  processingTime: number
+  verified?: boolean
+  chunks?: number
+}
 
 /**
- * File Hash Statistics schema
+ * File Hash Statistics type
  */
-export const fileHashStatisticsSchema = z.object({
-  totalFiles: z.number(),
-  totalSize: z.number(),
-  algorithmDistribution: z.record(z.string(), z.number()),
-  averageProcessingTime: z.number(),
-  totalProcessingTime: z.number(),
-  verificationCount: z.number(),
-  successRate: z.number(),
-  integrityScore: z.number(),
-  largestFile: z.number(),
-  smallestFile: z.number(),
-})
+export interface fileHashStatistics {
+  totalFiles: number,
+  totalSize: number,
+  algorithmDistribution: Record<string, number>,
+  averageProcessingTime: number,
+  totalProcessingTime: number,
+  verificationCount: number,
+  successRate: number,
+  integrityScore: number,
+  largestFile: number,
+  smallestFile: number,
+}
 
 /**
- * File Hash Settings schema
+ * File Hash Settings type
  */
-export const fileHashSettingsSchema = z.object({
-  algorithms: z.array(hashAlgorithmSchema),
-  includeTimestamp: z.boolean(),
-  enableVerification: z.boolean(),
-  batchProcessing: z.boolean(),
-  realTimeHashing: z.boolean(),
-  exportFormat: exportFormatSchema,
-  chunkSize: z.number(),
-  showProgress: z.boolean(),
-  integrityCheck: z.boolean(),
-})
+export interface fileHashSettings {
+  algorithms: hashAlgorithm[],
+  includeTimestamp: boolean,
+  enableVerification: boolean,
+  batchProcessing: boolean,
+  realTimeHashing: boolean,
+  exportFormat: exportFormat,
+  chunkSize: number,
+  showProgress: boolean,
+  integrityCheck: boolean,
+}
 
 /**
- * File Hash Data schema
+ * File Hash Data type
  */
-export const fileHashDataSchema = z.object({
-  original: fileContentSchema,
-  hashes: z.array(hashResultSchema),
-  statistics: fileHashStatisticsSchema,
-  settings: fileHashSettingsSchema,
-})
+export interface fileHashData {
+  original: fileContent,
+  hashes: hashResult[],
+  statistics: fileHashStatistics,
+  settings: fileHashSettings,
+}
 
 /**
- * File Hash Item schema
+ * File Hash Item type
  */
-export const fileHashItemSchema = z.object({
-  id: z.string(),
-  file: z.instanceof(File),
-  name: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  hashData: fileHashDataSchema.optional(),
-  progress: z.number().optional(),
-})
+export interface fileHashItem {
+  id: string,
+  file: File,
+  name: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  hashData?: fileHashData
+  progress?: number
+}
 
 /**
- * File Hash Template schema
+ * File Hash Template type
  */
-export const fileHashTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  settings: fileHashSettingsSchema.partial(),
-  algorithms: z.array(hashAlgorithmSchema),
-  securityLevel: securityLevelSchema,
-})
+export interface fileHashTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  settings: fileHashSettings,
+  algorithms: hashAlgorithm[],
+  securityLevel: securityLevel,
+}
 
 /**
- * File Integrity Check schema
+ * File Integrity Check type
  */
-export const fileIntegrityCheckSchema = z.object({
-  id: z.string(),
-  fileName: z.string(),
-  expectedHash: z.string(),
-  actualHash: z.string(),
-  algorithm: hashAlgorithmSchema,
-  isValid: z.boolean(),
-  processingTime: z.number(),
-})
+export interface fileIntegrityCheck {
+  id: string,
+  fileName: string,
+  expectedHash: string,
+  actualHash: string,
+  algorithm: hashAlgorithm,
+  isValid: boolean,
+  processingTime: number,
+}
 
 // ==================== Type Exports ====================
 
-export type HashAlgorithm = z.infer<typeof hashAlgorithmSchema>
-export type SecurityLevel = z.infer<typeof securityLevelSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type FileContent = z.infer<typeof fileContentSchema>
-export type HashResult = z.infer<typeof hashResultSchema>
-export type FileHashStatistics = z.infer<typeof fileHashStatisticsSchema>
-export type FileHashSettings = z.infer<typeof fileHashSettingsSchema>
-export type FileHashData = z.infer<typeof fileHashDataSchema>
-export type FileHashItem = z.infer<typeof fileHashItemSchema>
-export type FileHashTemplate = z.infer<typeof fileHashTemplateSchema>
-export type FileIntegrityCheck = z.infer<typeof fileIntegrityCheckSchema>
+export type HashAlgorithm = hashAlgorithm
+export type SecurityLevel = securityLevel
+export type ExportFormat = exportFormat
+export type FileContent = fileContent
+export type HashResult = hashResult
+export type FileHashStatistics = fileHashStatistics
+export type FileHashSettings = fileHashSettings
+export type FileHashData = fileHashData
+export type FileHashItem = fileHashItem
+export type FileHashTemplate = fileHashTemplate
+export type FileIntegrityCheck = fileIntegrityCheck

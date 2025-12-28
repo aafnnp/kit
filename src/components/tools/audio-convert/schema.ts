@@ -1,180 +1,168 @@
-import { z } from "zod"
-import {
-  baseFileSchema,
-  baseStatsSchema,
-  historyEntryBaseSchema,
-  baseTemplateSchema,
-  baseAnalysisDataSchema,
-  qualityMetricsSchema,
-} from "@/schemas/common.schema"
-
-// ==================== Audio Convert Schemas ====================
+// ==================== Audio Convert Types ====================
 
 /**
- * Audio Metadata schema
+ * Audio Metadata type
  */
-export const audioMetadataSchema = z.object({
-  title: z.string().optional(),
-  artist: z.string().optional(),
-  album: z.string().optional(),
-  year: z.number().optional(),
-  genre: z.string().optional(),
-  track: z.number().optional(),
-})
+export interface audioMetadata {
+  title?: string
+  artist?: string
+  album?: string
+  year?: number
+  genre?: string
+  track?: number
+}
 
 /**
- * Audio Stats schema
+ * Audio Stats type
  */
-export const audioStatsSchema = z.object({
-  duration: z.number(),
-  bitrate: z.number(),
-  sampleRate: z.number(),
-  channels: z.number(),
-  fileSize: z.number(),
-  format: z.string(),
-  codec: z.string().optional(),
-  metadata: audioMetadataSchema.optional(),
-})
+export interface audioStats {
+  duration: number,
+  bitrate: number,
+  sampleRate: number,
+  channels: number,
+  fileSize: number,
+  format: string
+  codec?: string
+  metadata?: audioMetadata
+}
 
 /**
- * Convert Settings schema
+ * Convert Settings type
  */
-export const convertSettingsSchema = z.object({
-  format: z.enum(["mp3", "wav", "aac", "ogg", "flac", "m4a", "wma", "webm"]),
-  bitrate: z.number(),
-  sampleRate: z.number(),
-  channels: z.number().optional(),
-  quality: z.number().optional(),
-  preserveMetadata: z.boolean(),
-  normalizeAudio: z.boolean(),
-  fadeIn: z.number().optional(),
-  fadeOut: z.number().optional(),
-  trimStart: z.number().optional(),
-  trimEnd: z.number().optional(),
-})
+export interface convertSettings {
+  format: "mp3" | "wav" | "aac" | "ogg" | "flac" | "m4a" | "wma" | "webm",
+  bitrate: number,
+  sampleRate: number
+  channels?: number
+  quality?: number
+  preserveMetadata: boolean,
+  normalizeAudio: boolean
+  fadeIn?: number
+  fadeOut?: number
+  trimStart?: number
+  trimEnd?: number
+}
 
 /**
- * Convert Result schema
+ * Convert Result type
  */
-export const convertResultSchema = z.object({
-  url: z.string(),
-  size: z.number(),
-  format: z.string(),
-  duration: z.number(),
-  bitrate: z.number().optional(),
-  sampleRate: z.number().optional(),
-  channels: z.number().optional(),
-})
+export interface convertResult {
+  url: string,
+  size: number,
+  format: string,
+  duration: number
+  bitrate?: number
+  sampleRate?: number
+  channels?: number
+}
 
 /**
- * Audio File schema
+ * Audio File type
  */
-export const audioFileSchema = baseFileSchema.extend({
-  url: z.string().optional(),
-  convertedUrl: z.string().optional(),
-  stats: audioStatsSchema.optional(),
-  convertResult: convertResultSchema.optional(),
-  originalFormat: z.string(),
-  targetFormat: z.string().optional(),
-  compressionRatio: z.number().optional(),
-  qualityScore: z.number().optional(),
-  progress: z.number().optional(),
-  progressMessage: z.string().optional(),
-})
+export interface audioFile {
+  id: string
+  file: File
+  name: string
+  size: number
+  type: string
+  status: "pending" | "processing" | "completed" | "error"
+  error?: string
+  timestamp: number
+  url: string
+  convertedUrl?: string
+  stats: audioStats
+  originalFormat: string
+  convertResult?: convertResult
+  processingTime?: number
+}
 
 /**
- * Audio Conversion Stats schema
+ * Audio Validation Result type
  */
-export const audioConversionStatsSchema = baseStatsSchema.extend({
-  totalOriginalSize: z.number(),
-  totalConvertedSize: z.number(),
-  totalSavings: z.number(),
-  averageSizeReduction: z.number(),
-  averageBitrateReduction: z.number(),
-  formatDistribution: z.record(z.string(), z.number()),
-  qualityMetrics: qualityMetricsSchema,
-})
+export interface audioValidationResult {
+  isValid: boolean
+  error?: string
+  warnings?: string[]
+  supportedFormats?: string[]
+  maxSize?: number
+}
 
 /**
- * Audio Template schema
+ * Audio Format Info type
  */
-export const audioTemplateSchema = baseTemplateSchema.extend({
-  settings: convertSettingsSchema,
-  useCase: z.string(),
-  pros: z.array(z.string()),
-  cons: z.array(z.string()),
-})
+export interface audioFormatInfo {
+  name: string
+  extension: string
+  description: string
+  supportsLossless: boolean
+  supportsLossy: boolean
+  supportsMetadata: boolean
+  maxQuality: number
+  useCase: string
+  pros: string[]
+  cons: string[]
+}
 
 /**
- * Audio History Entry schema
+ * Audio Template type
  */
-export const audioHistoryEntrySchema = historyEntryBaseSchema.extend({
-  settings: convertSettingsSchema,
-  stats: audioConversionStatsSchema,
-  fileCount: z.number(),
-  totalSavings: z.number(),
-})
+export interface audioTemplate {
+  id: string
+  name: string
+  description: string
+  category: string
+  tags: string[]
+  popularity: number
+  settings: convertSettings
+  useCase: string
+  pros: string[]
+  cons: string[]
+}
 
 /**
- * Audio Analysis Data schema
+ * Audio Conversion Stats type
  */
-export const audioAnalysisDataSchema = baseAnalysisDataSchema.extend({
-  bitrateDistribution: z.record(z.string(), z.number()),
-  durationDistribution: z.record(z.string(), z.number()),
-  channelDistribution: z.record(z.string(), z.number()),
-  codecDistribution: z.record(z.string(), z.number()),
-})
+export interface audioConversionStats {
+  totalFiles: number
+  processingTime: number
+  averageProcessingTime: number
+  totalSize: number
+  averageSize: number
+  totalOriginalSize: number
+  totalConvertedSize: number
+  totalSavings: number
+  averageSizeReduction: number
+  averageBitrateReduction: number
+  formatDistribution: Record<string, number>
+  qualityMetrics: {
+    averageQuality: number
+    compressionEfficiency: number
+    formatOptimization: number
+  }
+}
 
 /**
- * Audio Validation Result schema
+ * Audio History Entry type
  */
-export const audioValidationResultSchema = z.object({
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  warnings: z.array(z.string()).optional(),
-  supportedFormats: z.array(z.string()).optional(),
-  maxSize: z.number().optional(),
-})
-
-/**
- * Audio Processing Progress schema
- */
-export const audioProcessingProgressSchema = z.object({
-  current: z.number(),
-  total: z.number(),
-  percentage: z.number(),
-  currentFile: z.string().optional(),
-  stage: z.enum(["loading", "analyzing", "converting", "finalizing"]).optional(),
-  estimatedTimeRemaining: z.number().optional(),
-})
-
-/**
- * Audio Format Info schema
- */
-export const audioFormatInfoSchema = z.object({
-  name: z.string(),
-  extension: z.string(),
-  description: z.string(),
-  supportsLossless: z.boolean(),
-  supportsLossy: z.boolean(),
-  supportsMetadata: z.boolean(),
-  maxQuality: z.number(),
-  useCase: z.string(),
-  pros: z.array(z.string()),
-  cons: z.array(z.string()),
-})
+export interface audioHistoryEntry {
+  id: string
+  timestamp: number
+  description: string
+  settings: convertSettings
+  stats: audioConversionStats
+  fileCount: number
+  totalSavings: number
+}
 
 // ==================== Type Exports ====================
 
-export type AudioMetadata = z.infer<typeof audioMetadataSchema>
-export type AudioStats = z.infer<typeof audioStatsSchema>
-export type ConvertSettings = z.infer<typeof convertSettingsSchema>
-export type ConvertResult = z.infer<typeof convertResultSchema>
-export type AudioFile = z.infer<typeof audioFileSchema>
-export type AudioConversionStats = z.infer<typeof audioConversionStatsSchema>
-export type AudioTemplate = z.infer<typeof audioTemplateSchema>
-export type AudioHistoryEntry = z.infer<typeof audioHistoryEntrySchema>
-export type AudioAnalysisData = z.infer<typeof audioAnalysisDataSchema>
-export type AudioValidationResult = z.infer<typeof audioValidationResultSchema>
-export type AudioProcessingProgress = z.infer<typeof audioProcessingProgressSchema>
-export type AudioFormatInfo = z.infer<typeof audioFormatInfoSchema>
+export type AudioMetadata = audioMetadata
+export type AudioStats = audioStats
+export type ConvertSettings = convertSettings
+export type ConvertResult = convertResult
+export type AudioFile = audioFile
+export type AudioValidationResult = audioValidationResult
+export type AudioTemplate = audioTemplate
+export type AudioFormatInfo = audioFormatInfo
+export type AudioConversionStats = audioConversionStats
+export type AudioHistoryEntry = audioHistoryEntry

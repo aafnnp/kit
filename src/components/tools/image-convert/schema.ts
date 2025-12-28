@@ -1,106 +1,102 @@
-import { z } from "zod"
-
-// ==================== Image Convert Schemas ====================
+// ==================== Image Convert Types ====================
 
 /**
- * Image File schema
+ * Image File type
  */
-export const imageFileSchema = z.object({
-  id: z.string(),
-  file: z.instanceof(File),
-  originalUrl: z.string(),
-  convertedUrl: z.string().optional(),
-  originalSize: z.number(),
-  convertedSize: z.number().optional(),
-  originalFormat: z.string(),
-  targetFormat: z.string(),
-  originalDimensions: z.object({
-    width: z.number(),
-    height: z.number(),
-  }),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  timestamp: z.number(),
-  processingTime: z.number().optional(),
-  compressionRatio: z.number().optional(),
-  qualityScore: z.number().optional(),
-})
+export interface imageFile {
+  id: string,
+  file: File,
+  originalUrl: string
+  convertedUrl?: string
+  originalSize: number
+  convertedSize?: number
+  originalFormat: string,
+  targetFormat: string,
+  originalDimensions: {
+    width: number,
+    height: number,
+  },
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  timestamp: number
+  processingTime?: number
+  compressionRatio?: number
+  qualityScore?: number
+}
+/**
+ * Conversion Settings type
+ */
+export interface conversionSettings {
+  targetFormat: "png"| "jpeg" | "webp" | "gif" | "bmp" | "tiff",
+  quality: number,
+  preserveTransparency: boolean,
+  backgroundColor: string,
+  colorProfile: "sRGB" | "P3" | "Rec2020",
+  dithering: boolean,
+  progressive: boolean,
+  lossless: boolean,
+  resizeMode: "none"| "scale" | "crop" | "fit"
+  targetWidth?: number
+  targetHeight?: number
+  removeMetadata: boolean,
+  optimizeForWeb: boolean,
+}
 
 /**
- * Conversion Settings schema
+ * Format Info type
  */
-export const conversionSettingsSchema = z.object({
-  targetFormat: z.enum(["png", "jpeg", "webp", "gif", "bmp", "tiff"]),
-  quality: z.number(),
-  preserveTransparency: z.boolean(),
-  backgroundColor: z.string(),
-  colorProfile: z.enum(["sRGB", "P3", "Rec2020"]),
-  dithering: z.boolean(),
-  progressive: z.boolean(),
-  lossless: z.boolean(),
-  resizeMode: z.enum(["none", "scale", "crop", "fit"]),
-  targetWidth: z.number().optional(),
-  targetHeight: z.number().optional(),
-  removeMetadata: z.boolean(),
-  optimizeForWeb: z.boolean(),
-})
+export interface formatInfo {
+  name: string,
+  extension: string,
+  mimeType: string,
+  supportsTransparency: boolean,
+  supportsAnimation: boolean,
+  supportsLossless: boolean,
+  supportsLossy: boolean,
+  description: string,
+  maxQuality: number,
+  useCase: string,
+  pros: string[],
+  cons: string[],
+}
 
 /**
- * Format Info schema
+ * Conversion Stats type
  */
-export const formatInfoSchema = z.object({
-  name: z.string(),
-  extension: z.string(),
-  mimeType: z.string(),
-  supportsTransparency: z.boolean(),
-  supportsAnimation: z.boolean(),
-  supportsLossless: z.boolean(),
-  supportsLossy: z.boolean(),
-  description: z.string(),
-  maxQuality: z.number(),
-  useCase: z.string(),
-  pros: z.array(z.string()),
-  cons: z.array(z.string()),
-})
-
+export interface conversionStats {
+  totalOriginalSize: number,
+  totalConvertedSize: number,
+  totalSavings: number,
+  averageSizeChange: number,
+  formatDistribution: Record<string, number>,
+  processingTime: number,
+  imagesProcessed: number,
+  averageFileSize: number,
+  largestIncrease: number,
+  largestDecrease: number,
+  qualityMetrics: {
+    averageQuality: number,
+  compressionEfficiency: number,
+    formatOptimization: number,
+}
+}
 /**
- * Conversion Stats schema
+ * History Entry type
  */
-export const conversionStatsSchema = z.object({
-  totalOriginalSize: z.number(),
-  totalConvertedSize: z.number(),
-  totalSavings: z.number(),
-  averageSizeChange: z.number(),
-  formatDistribution: z.record(z.string(), z.number()),
-  processingTime: z.number(),
-  imagesProcessed: z.number(),
-  averageFileSize: z.number(),
-  largestIncrease: z.number(),
-  largestDecrease: z.number(),
-  qualityMetrics: z.object({
-    averageQuality: z.number(),
-    compressionEfficiency: z.number(),
-    formatOptimization: z.number(),
-  }),
-})
-
-/**
- * History Entry schema
- */
-export const historyEntrySchema = z.object({
-  id: z.string(),
-  timestamp: z.number(),
-  settings: conversionSettingsSchema,
-  stats: conversionStatsSchema,
-  imageCount: z.number(),
-  totalSavings: z.number(),
-  description: z.string(),
-})
+export interface historyEntry {
+  id: string,
+  timestamp: number,
+  settings: conversionSettings,
+  stats: conversionStats,
+  imageCount: number,
+  totalSavings: number,
+  description: string,
+}
 
 // ==================== Type Exports ====================
 
-export type ImageFile = z.infer<typeof imageFileSchema>
-export type ConversionSettings = z.infer<typeof conversionSettingsSchema>
-export type FormatInfo = z.infer<typeof formatInfoSchema>
-export type ConversionStats = z.infer<typeof conversionStatsSchema>
-export type HistoryEntry = z.infer<typeof historyEntrySchema>
+export type ImageFile = imageFile
+export type ConversionSettings = conversionSettings
+export type FormatInfo = formatInfo
+export type ConversionStats = conversionStats
+export type HistoryEntry = historyEntry

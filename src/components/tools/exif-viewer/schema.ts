@@ -1,197 +1,196 @@
-import { z } from "zod"
-
-// ==================== EXIF Viewer Schemas ====================
+// ==================== EXIF Viewer Types ====================
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml"
 
 /**
- * EXIF Category schema
+ * EXIF Category type
  */
-export const exifCategorySchema = z.enum(["basic", "camera", "exposure", "gps", "technical"])
+export type exifCategory = "basic" | "camera" | "exposure" | "gps" | "technical"
 
 /**
- * Image Dimensions schema
+ * Image Dimensions type
  */
-export const imageDimensionsSchema = z.object({
-  width: z.number(),
-  height: z.number(),
-  aspectRatio: z.number(),
-  megapixels: z.number(),
-})
+export interface imageDimensions {
+  width: number,
+  height: number,
+  aspectRatio: number,
+  megapixels: number,
+}
 
 /**
- * Basic Image Info schema
+ * Basic Image Info type
  */
-export const basicImageInfoSchema = z.object({
-  fileName: z.string(),
-  fileSize: z.number(),
-  fileType: z.string(),
-  mimeType: z.string(),
-  dimensions: imageDimensionsSchema,
-  colorSpace: z.string(),
-  bitDepth: z.number(),
-  compression: z.string(),
-  orientation: z.number(),
-})
+export interface basicImageInfo {
+  fileName: string,
+  fileSize: number,
+  fileType: string,
+  mimeType: string,
+  dimensions: imageDimensions,
+  colorSpace: string,
+  bitDepth: number,
+  compression: string,
+  orientation: number,
+}
 
 /**
- * Camera Info schema
+ * Camera Info type
  */
-export const cameraInfoSchema = z.object({
-  make: z.string(),
-  model: z.string(),
-  software: z.string(),
-  artist: z.string(),
-  copyright: z.string(),
-  dateTime: z.string(),
-  dateTimeOriginal: z.string(),
-  dateTimeDigitized: z.string(),
-  subSecTime: z.string(),
-})
+export interface cameraInfo {
+  make: string,
+  model: string,
+  software: string,
+  artist: string,
+  copyright: string,
+  dateTime: string,
+  dateTimeOriginal: string,
+  dateTimeDigitized: string,
+  subSecTime: string,
+}
 
 /**
- * Exposure Info schema
+ * Exposure Info type
  */
-export const exposureInfoSchema = z.object({
-  exposureTime: z.string(),
-  fNumber: z.string(),
-  exposureProgram: z.string(),
-  iso: z.number(),
-  exposureBias: z.string(),
-  meteringMode: z.string(),
-  flash: z.string(),
-  focalLength: z.string(),
-  focalLengthIn35mm: z.string(),
-  whiteBalance: z.string(),
-  sceneCaptureType: z.string(),
-})
+export interface exposureInfo {
+  exposureTime: string,
+  fNumber: string,
+  exposureProgram: string,
+  iso: number,
+  exposureBias: string,
+  meteringMode: string,
+  flash: string,
+  focalLength: string,
+  focalLengthIn35mm: string,
+  whiteBalance: string,
+  sceneCaptureType: string,
+}
 
 /**
- * GPS Info schema
+ * GPS Info type
  */
-export const gpsInfoSchema = z.object({
-  latitude: z.number().nullable(),
-  longitude: z.number().nullable(),
-  altitude: z.number().nullable(),
-  latitudeRef: z.string(),
-  longitudeRef: z.string(),
-  altitudeRef: z.string(),
-  timestamp: z.string(),
-  datestamp: z.string(),
-  mapDatum: z.string(),
-  processingMethod: z.string(),
-})
+export interface gpsInfo {
+  latitude?: number
+  longitude?: number
+  altitude?: number
+  latitudeRef: string,
+  longitudeRef: string,
+  altitudeRef: string,
+  timestamp: string,
+  datestamp: string,
+  mapDatum: string,
+  processingMethod: string,
+}
 
 /**
- * Technical Info schema
+ * Technical Info type
  */
-export const technicalInfoSchema = z.object({
-  colorSpace: z.string(),
-  pixelXDimension: z.number(),
-  pixelYDimension: z.number(),
-  resolutionUnit: z.string(),
-  xResolution: z.number(),
-  yResolution: z.number(),
-  yCbCrPositioning: z.string(),
-  exifVersion: z.string(),
-  flashpixVersion: z.string(),
-  componentConfiguration: z.string(),
-  compressedBitsPerPixel: z.string(),
-})
+export interface technicalInfo {
+  colorSpace: string,
+  pixelXDimension: number,
+  pixelYDimension: number,
+  resolutionUnit: string,
+  xResolution: number,
+  yResolution: number,
+  yCbCrPositioning: string,
+  exifVersion: string,
+  flashpixVersion: string,
+  componentConfiguration: string,
+  compressedBitsPerPixel: string,
+}
 
 /**
- * EXIF Statistics schema
+ * EXIF Statistics type
  */
-export const exifStatisticsSchema = z.object({
-  totalImages: z.number(),
-  formatDistribution: z.record(z.string(), z.number()),
-  cameraDistribution: z.record(z.string(), z.number()),
-  averageFileSize: z.number(),
-  averageMegapixels: z.number(),
-  gpsEnabledCount: z.number(),
-  processingTime: z.number(),
-})
+export interface exifStatistics {
+  totalImages: number,
+  formatDistribution: Record<string, number>,
+  cameraDistribution: Record<string, number>,
+  averageFileSize: number,
+  averageMegapixels: number,
+  gpsEnabledCount: number,
+  processingTime: number,
+}
 
 /**
- * EXIF Settings schema
+ * EXIF Settings type
  */
-export const exifSettingsSchema = z.object({
-  includeGPS: z.boolean(),
-  includeTechnical: z.boolean(),
-  includeCamera: z.boolean(),
-  includeExposure: z.boolean(),
-  exportFormat: exportFormatSchema,
-  privacyMode: z.boolean(),
-  showThumbnails: z.boolean(),
-})
+export interface exifSettings {
+  includeGPS: boolean,
+  includeTechnical: boolean,
+  includeCamera: boolean,
+  includeExposure: boolean,
+  exportFormat: exportFormat,
+  privacyMode: boolean,
+  showThumbnails: boolean,
+}
 
 /**
- * EXIF Field schema
+ * EXIF Field type
  */
-export const exifFieldSchema = z.object({
-  key: z.string(),
-  label: z.string(),
-  category: exifCategorySchema,
-  required: z.boolean(),
-  sensitive: z.boolean(),
-})
+export interface exifField {
+  key: string,
+  label: string,
+  category: exifCategory,
+  required: boolean,
+  sensitive: boolean,
+}
 
 /**
- * EXIF Data schema
+ * EXIF Data type
  */
-export const exifDataSchema = z.object({
-  basicInfo: basicImageInfoSchema,
-  cameraInfo: cameraInfoSchema,
-  exposureInfo: exposureInfoSchema,
-  gpsInfo: gpsInfoSchema,
-  technicalInfo: technicalInfoSchema,
-  statistics: exifStatisticsSchema,
-  settings: exifSettingsSchema,
-})
+export interface exifData {
+  basicInfo: basicImageInfo,
+  cameraInfo: cameraInfo,
+  exposureInfo: exposureInfo,
+  gpsInfo: gpsInfo,
+  technicalInfo: technicalInfo,
+  statistics: exifStatistics,
+  settings: exifSettings,
+}
 
 /**
- * EXIF File schema
+ * EXIF File type
  */
-export const exifFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  exifData: exifDataSchema.optional(),
-})
+export interface exifFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  exifData?: exifData
+}
 
 /**
- * EXIF Template schema
+ * EXIF Template type
  */
-export const exifTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  settings: exifSettingsSchema.partial(),
-  fields: z.array(exifFieldSchema),
-})
+export interface exifTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  settings: exifSettings,
+  fields: exifField[],
+}
 
 // ==================== Type Exports ====================
 
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type ExifCategory = z.infer<typeof exifCategorySchema>
-export type ImageDimensions = z.infer<typeof imageDimensionsSchema>
-export type BasicImageInfo = z.infer<typeof basicImageInfoSchema>
-export type CameraInfo = z.infer<typeof cameraInfoSchema>
-export type ExposureInfo = z.infer<typeof exposureInfoSchema>
-export type GPSInfo = z.infer<typeof gpsInfoSchema>
-export type TechnicalInfo = z.infer<typeof technicalInfoSchema>
-export type ExifStatistics = z.infer<typeof exifStatisticsSchema>
-export type ExifSettings = z.infer<typeof exifSettingsSchema>
-export type ExifField = z.infer<typeof exifFieldSchema>
-export type ExifData = z.infer<typeof exifDataSchema>
-export type ExifFile = z.infer<typeof exifFileSchema>
-export type ExifTemplate = z.infer<typeof exifTemplateSchema>
+export type ExportFormat = exportFormat
+export type ExifCategory = exifCategory
+export type ImageDimensions = imageDimensions
+export type BasicImageInfo = basicImageInfo
+export type CameraInfo = cameraInfo
+export type ExposureInfo = exposureInfo
+export type GPSInfo = gpsInfo
+export type TechnicalInfo = technicalInfo
+export type ExifStatistics = exifStatistics
+export type ExifSettings = exifSettings
+export type ExifField = exifField
+export type ExifData = exifData
+export type ExifFile = exifFile
+export type ExifTemplate = exifTemplate
+export type GpsInfo = gpsInfo

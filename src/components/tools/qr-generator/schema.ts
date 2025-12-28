@@ -1,274 +1,276 @@
-import { z } from "zod"
-
-// ==================== QR Generator Schemas ====================
+// ==================== QR Generator Types ====================
 
 /**
- * QR Content Type schema
+ * QR Content Type type
  */
-export const qrContentTypeSchema = z.enum([
-  "text",
-  "url",
-  "email",
-  "phone",
-  "sms",
-  "wifi",
-  "vcard",
-  "event",
-  "location",
-  "payment",
-])
+export type qrContentType = "text" | "url" | "email" | "phone" | "sms" | "wifi" | "vcard" | "event" | "location" | "payment"
 
 /**
- * QR Format schema
+ * QR Format type
  */
-export const qrFormatSchema = z.enum(["png", "svg", "jpeg", "webp"])
+export type qrFormat = "png" | "svg" | "jpeg" | "webp"
 
 /**
- * Error Correction Level schema
+ * Error Correction Level type
  */
-export const errorCorrectionLevelSchema = z.enum(["L", "M", "Q", "H"])
+export type errorCorrectionLevel = "L" | "M" | "Q" | "H"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["png", "svg", "pdf", "zip"])
+export type exportFormat = "png" | "svg" | "pdf" | "zip"
 
 /**
- * QR Capacity schema
+ * QR Capacity type
  */
-export const qrCapacitySchema = z.object({
-  numeric: z.number(),
-  alphanumeric: z.number(),
-  binary: z.number(),
-  kanji: z.number(),
-})
+export interface qrCapacity {
+  numeric: number,
+  alphanumeric: number,
+  binary: number,
+  kanji: number,
+}
 
 /**
- * QR Readability schema
+ * QR Readability type
  */
-export const qrReadabilitySchema = z.object({
-  contrastRatio: z.number(),
-  moduleSize: z.number(),
-  quietZone: z.number(),
-  readabilityScore: z.number(),
-  scanDistance: z.string(),
-  lightingConditions: z.array(z.string()),
-})
+export interface qrReadability {
+  contrastRatio: number,
+  moduleSize: number,
+  quietZone: number,
+  readabilityScore: number,
+  scanDistance: string,
+  lightingConditions: string[],
+}
 
 /**
- * QR Optimization schema
+ * QR Optimization type
  */
-export const qrOptimizationSchema = z.object({
-  dataEfficiency: z.number(),
-  sizeOptimization: z.number(),
-  errorCorrectionUtilization: z.number(),
-  versionOptimality: z.number(),
-  overallOptimization: z.number(),
-})
+export interface qrOptimization {
+  dataEfficiency: number,
+  sizeOptimization: number,
+  errorCorrectionUtilization: number,
+  versionOptimality: number,
+  overallOptimization: number,
+}
 
 /**
- * QR Compatibility schema
+ * QR Compatibility type
  */
-export const qrCompatibilitySchema = z.object({
-  readerCompatibility: z.array(z.string()),
-  deviceCompatibility: z.array(z.string()),
-  softwareCompatibility: z.array(z.string()),
-  standardsCompliance: z.array(z.string()),
-  limitations: z.array(z.string()),
-})
+export interface qrCompatibility {
+  readerCompatibility: string[],
+  deviceCompatibility: string[],
+  softwareCompatibility: string[],
+  standardsCompliance: string[],
+  limitations: string[],
+}
 
 /**
- * QR Security schema
+ * QR Security type
  */
-export const qrSecuritySchema = z.object({
-  dataExposure: z.enum(["low", "medium", "high"]),
-  tampering_resistance: z.enum(["low", "medium", "high"]),
-  privacy_level: z.enum(["low", "medium", "high"]),
-  security_score: z.number(),
-  vulnerabilities: z.array(z.string()),
-  recommendations: z.array(z.string()),
-})
+export interface qrSecurity {
+  dataExposure: "low"| "medium" | "high",
+  tampering_resistance: "low"| "medium" | "high",
+  privacy_level: "low"| "medium" | "high",
+  security_score: number,
+  vulnerabilities: string[],
+  recommendations: string[],
+}
 
 /**
- * QR Metadata schema
+ * QR Metadata type
  */
-export const qrMetadataSchema = z.object({
-  version: z.number(),
-  modules: z.number(),
-  capacity: qrCapacitySchema,
-  actualSize: z.number(),
-  errorCorrectionPercentage: z.number(),
-  dataType: z.string(),
-  encoding: z.string(),
-  compressionRatio: z.number(),
-  qualityScore: z.number(),
-})
+export interface qrMetadata {
+  version: number,
+  modules: number,
+  capacity: qrCapacity,
+  actualSize: number,
+  errorCorrectionPercentage: number,
+  dataType: string,
+  encoding: string,
+  compressionRatio: number,
+  qualityScore: number,
+}
 
 /**
- * QR Customization schema
+ * QR Customization type
  */
-export const qrCustomizationSchema = z.object({
-  cornerStyle: z.enum(["square", "rounded", "circle"]),
-  moduleStyle: z.enum(["square", "rounded", "circle", "diamond"]),
-  gradientEnabled: z.boolean(),
-  gradientColors: z.array(z.string()).optional(),
-  patternEnabled: z.boolean(),
-  patternType: z.enum(["dots", "lines", "squares"]).optional(),
-  borderEnabled: z.boolean(),
-  borderWidth: z.number().optional(),
-  borderColor: z.string().optional(),
-})
+export interface qrCustomization {
+  cornerStyle: "square"| "rounded" | "circle",
+  moduleStyle: "square"| "rounded" | "circle" | "diamond",
+  gradientEnabled: boolean
+  gradientColors?: string[]
+  patternEnabled: boolean
+  patternType?: "dots"| "lines" | "squares"
+  borderEnabled: boolean
+  borderWidth?: number
+  borderColor?: string
+}
 
 /**
- * QR Settings schema
+ * QR Settings type
  */
-export const qrSettingsSchema = z.object({
-  content: z.string(),
-  type: qrContentTypeSchema,
-  format: qrFormatSchema,
-  size: z.number(),
-  errorCorrection: errorCorrectionLevelSchema,
-  margin: z.number(),
-  foregroundColor: z.string(),
-  backgroundColor: z.string(),
-  logoUrl: z.string().optional(),
-  logoSize: z.number().optional(),
-  customization: qrCustomizationSchema,
-})
+export interface qrSettings {
+  content: string,
+  type: qrContentType,
+  format: qrFormat,
+  size: number,
+  errorCorrection: errorCorrectionLevel,
+  margin: number,
+  foregroundColor: string,
+  backgroundColor: string
+  logoUrl?: string
+  logoSize?: number
+  customization: qrCustomization,
+}
 
 /**
- * QR Analysis schema
+ * QR Analysis type
  */
-export const qrAnalysisSchema = z.object({
-  readability: qrReadabilitySchema,
-  optimization: qrOptimizationSchema,
-  compatibility: qrCompatibilitySchema,
-  security: qrSecuritySchema,
-  recommendations: z.array(z.string()),
-  warnings: z.array(z.string()),
-})
+export interface qrAnalysis {
+  readability: qrReadability,
+  optimization: qrOptimization,
+  compatibility: qrCompatibility,
+  security: qrSecurity,
+  recommendations: string[],
+  warnings: string[],
+}
 
 /**
- * QR Code Result schema
+ * QR Code Result type
  */
-export const qrCodeResultSchema = z.object({
-  id: z.string(),
-  content: z.string(),
-  type: qrContentTypeSchema,
-  format: qrFormatSchema,
-  size: z.number(),
-  errorCorrection: errorCorrectionLevelSchema,
-  dataUrl: z.string().optional(),
-  svgString: z.string().optional(),
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  metadata: qrMetadataSchema.optional(),
-  analysis: qrAnalysisSchema.optional(),
-  settings: qrSettingsSchema,
-  createdAt: z.date(),
-})
+export interface qrCodeResult {
+  id: string,
+  content: string,
+  type: qrContentType,
+  format: qrFormat,
+  size: number,
+  errorCorrection: errorCorrectionLevel
+  dataUrl?: string
+  svgString?: string
+  isValid: boolean
+  error?: string
+  metadata?: qrMetadata
+  analysis?: qrAnalysis
+  settings: qrSettings,
+  createdAt: Date,
+}
 
 /**
- * Batch Settings schema
+ * Batch Settings type
  */
-export const batchSettingsSchema = z.object({
-  baseSettings: qrSettingsSchema,
-  contentList: z.array(z.string()),
-  namingPattern: z.string(),
-  exportFormat: exportFormatSchema,
-  includeAnalysis: z.boolean(),
-  optimizeForBatch: z.boolean(),
-})
+export interface batchSettings {
+  baseSettings: qrSettings,
+  contentList: string[],
+  namingPattern: string,
+  exportFormat: exportFormat,
+  includeAnalysis: boolean,
+  optimizeForBatch: boolean,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalGenerated: z.number(),
-  successfulGenerated: z.number(),
-  failedGenerated: z.number(),
-  averageSize: z.number(),
-  averageQuality: z.number(),
-  totalProcessingTime: z.number(),
-  averageProcessingTime: z.number(),
-  sizeDistribution: z.record(z.string(), z.number()),
-  typeDistribution: z.record(z.string(), z.number()),
-})
+export interface batchStatistics {
+  totalGenerated: number,
+  successfulGenerated: number,
+  failedGenerated: number,
+  averageSize: number,
+  averageQuality: number,
+  totalProcessingTime: number,
+  averageProcessingTime: number,
+  sizeDistribution: Record<string, number>,
+  typeDistribution: Record<string, number>,
+}
 
 /**
- * QR Batch schema
+ * QR Batch type
  */
-export const qrBatchSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  qrCodes: z.array(qrCodeResultSchema),
-  settings: batchSettingsSchema,
-  status: z.enum(["pending", "processing", "completed", "failed"]),
-  progress: z.number(),
-  statistics: batchStatisticsSchema,
-  createdAt: z.date(),
-  completedAt: z.date().optional(),
-})
+export interface qrBatch {
+  id: string,
+  name: string,
+  qrCodes: qrCodeResult[],
+  settings: batchSettings,
+  status: "pending"| "processing" | "completed" | "failed",
+  progress: number,
+  statistics: batchStatistics,
+  createdAt: Date
+  completedAt?: Date
+}
 
 /**
- * QR Error schema
+ * QR Error type
  */
-export const qrErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["content", "size", "format", "settings", "capacity"]),
-  severity: z.enum(["error", "warning", "info"]),
-})
+export interface qrError {
+  message: string,
+  type: "content"| "size" | "format" | "settings" | "capacity",
+  severity: "error"| "warning" | "info",
+}
 
 /**
- * QR Validation schema
+ * QR Validation type
  */
-export const qrValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(qrErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  estimatedSize: z.number().optional(),
-  recommendedSettings: qrSettingsSchema.partial().optional(),
-})
+export interface qrValidation {
+  isValid: boolean,
+  errors: qrError[],
+  warnings: string[],
+  suggestions: string[]
+  estimatedSize?: number
+  recommendedSettings?: qrSettings
+}
 
 /**
- * QR Template schema
+ * QR Template type
  */
-export const qrTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  type: qrContentTypeSchema,
-  settings: qrSettingsSchema.partial(),
-  useCase: z.array(z.string()),
-  examples: z.array(z.string()),
-  preview: z.string().optional(),
-})
+export interface qrTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  type: qrContentType,
+  settings: qrSettings,
+  useCase: string[],
+  examples: string[]
+  preview?: string
+}
 
 // ==================== Type Exports ====================
 
 /**
- * Type inference from zod schemas
+ * Type definitions
  */
-export type QRContentType = z.infer<typeof qrContentTypeSchema>
-export type QRFormat = z.infer<typeof qrFormatSchema>
-export type ErrorCorrectionLevel = z.infer<typeof errorCorrectionLevelSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type QRCapacity = z.infer<typeof qrCapacitySchema>
-export type QRReadability = z.infer<typeof qrReadabilitySchema>
-export type QROptimization = z.infer<typeof qrOptimizationSchema>
-export type QRCompatibility = z.infer<typeof qrCompatibilitySchema>
-export type QRSecurity = z.infer<typeof qrSecuritySchema>
-export type QRMetadata = z.infer<typeof qrMetadataSchema>
-export type QRCustomization = z.infer<typeof qrCustomizationSchema>
-export type QRSettings = z.infer<typeof qrSettingsSchema>
-export type QRAnalysis = z.infer<typeof qrAnalysisSchema>
-export type QRCodeResult = z.infer<typeof qrCodeResultSchema>
-export type BatchSettings = z.infer<typeof batchSettingsSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type QRBatch = z.infer<typeof qrBatchSchema>
-export type QRError = z.infer<typeof qrErrorSchema>
-export type QRValidation = z.infer<typeof qrValidationSchema>
-export type QRTemplate = z.infer<typeof qrTemplateSchema>
-
+export type QRContentType = qrContentType
+export type QRFormat = qrFormat
+export type ErrorCorrectionLevel = errorCorrectionLevel
+export type ExportFormat = exportFormat
+export type QRCapacity = qrCapacity
+export type QRReadability = qrReadability
+export type QROptimization = qrOptimization
+export type QRCompatibility = qrCompatibility
+export type QRSecurity = qrSecurity
+export type QRMetadata = qrMetadata
+export type QRCustomization = qrCustomization
+export type QRSettings = qrSettings
+export type QRAnalysis = qrAnalysis
+export type QRCodeResult = qrCodeResult
+export type BatchSettings = batchSettings
+export type BatchStatistics = batchStatistics
+export type QRBatch = qrBatch
+export type QRError = qrError
+export type QRValidation = qrValidation
+export type QRTemplate = qrTemplate
+export type QrContentType = qrContentType
+export type QrFormat = qrFormat
+export type QrCapacity = qrCapacity
+export type QrReadability = qrReadability
+export type QrOptimization = qrOptimization
+export type QrCompatibility = qrCompatibility
+export type QrSecurity = qrSecurity
+export type QrMetadata = qrMetadata
+export type QrCustomization = qrCustomization
+export type QrSettings = qrSettings
+export type QrAnalysis = qrAnalysis
+export type QrCodeResult = qrCodeResult
+export type QrBatch = qrBatch
+export type QrError = qrError
+export type QrValidation = qrValidation
+export type QrTemplate = qrTemplate

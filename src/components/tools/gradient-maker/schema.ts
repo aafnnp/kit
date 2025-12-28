@@ -1,164 +1,149 @@
-import { z } from "zod"
-
-// ==================== Gradient Maker Schemas ====================
+// ==================== Gradient Maker Types ====================
 
 /**
- * Gradient Type schema
+ * Gradient Type type
  */
-export const gradientTypeSchema = z.enum(["linear", "radial", "conic", "repeating-linear", "repeating-radial"])
+export type gradientType = "linear" | "radial" | "conic" | "repeating-linear" | "repeating-radial"
 
 /**
- * Radial Shape schema
+ * Radial Shape type
  */
-export const radialShapeSchema = z.enum(["circle", "ellipse"])
+export type radialShape = "circle" | "ellipse"
 
 /**
- * Radial Size schema
+ * Radial Size type
  */
-export const radialSizeSchema = z.enum(["closest-side", "closest-corner", "farthest-side", "farthest-corner"])
+export type radialSize = "closest-side" | "closest-corner" | "farthest-side" | "farthest-corner"
 
 /**
- * Blend Mode schema
+ * Blend Mode type
  */
-export const blendModeSchema = z.enum([
-  "normal",
-  "multiply",
-  "screen",
-  "overlay",
-  "darken",
-  "lighten",
-  "color-dodge",
-  "color-burn",
-  "hard-light",
-  "soft-light",
-  "difference",
-  "exclusion",
-])
+export type blendMode = "normal" | "multiply" | "screen" | "overlay" | "darken" | "lighten" | "color-dodge" | "color-burn" | "hard-light" | "soft-light" | "difference" | "exclusion"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["css", "scss", "svg", "png", "json"])
+export type exportFormat = "css" | "scss" | "svg" | "png" | "json"
 
 /**
- * Color Stop schema
+ * Color Stop type
  */
-export const colorStopSchema = z.object({
-  id: z.string(),
-  color: z.string(),
-  position: z.number(),
-  opacity: z.number().optional(),
-})
+export interface colorStop {
+  id: string,
+  color: string,
+  position: number
+  opacity?: number
+}
 
 /**
- * Radial Position schema
+ * Radial Position type
  */
-export const radialPositionSchema = z.object({
-  x: z.number(),
-  y: z.number(),
-})
+export interface radialPosition {
+  x: number,
+  y: number,
+}
 
 /**
- * Gradient Accessibility schema
+ * Gradient Accessibility type
  */
-export const gradientAccessibilitySchema = z.object({
-  contrastRatio: z.number(),
-  wcagCompliant: z.boolean(),
-  colorBlindSafe: z.boolean(),
-  readabilityScore: z.number(),
-})
+export interface gradientAccessibility {
+  contrastRatio: number,
+  wcagCompliant: boolean,
+  colorBlindSafe: boolean,
+  readabilityScore: number,
+}
 
 /**
- * Gradient schema
+ * Gradient type
  */
-export const gradientSchema = z.object({
-  id: z.string(),
-  type: gradientTypeSchema,
-  colors: z.array(colorStopSchema),
-  angle: z.number().optional(),
-  position: radialPositionSchema.optional(),
-  shape: radialShapeSchema.optional(),
-  size: radialSizeSchema.optional(),
-  repeating: z.boolean().optional(),
-  blendMode: blendModeSchema.optional(),
-  css: z.string(),
-  svg: z.string(),
-  accessibility: gradientAccessibilitySchema,
-})
+export interface gradient {
+  id: string,
+  type: gradientType,
+  colors: colorStop[]
+  angle?: number
+  position?: radialPosition
+  shape?: radialShape
+  size?: radialSize
+  repeating?: boolean
+  blendMode?: blendMode
+  css: string,
+  svg: string,
+  accessibility: gradientAccessibility,
+}
 
 /**
- * Gradient Statistics schema
+ * Gradient Statistics type
  */
-export const gradientStatisticsSchema = z.object({
-  totalGradients: z.number(),
-  typeDistribution: z.record(gradientTypeSchema, z.number()),
-  averageColorStops: z.number(),
-  averageContrastRatio: z.number(),
-  accessibilityScore: z.number(),
-  processingTime: z.number(),
-})
+export interface gradientStatistics {
+  totalGradients: number,
+  typeDistribution: Record<string, number>,
+  averageColorStops: number,
+  averageContrastRatio: number,
+  accessibilityScore: number,
+  processingTime: number,
+}
 
 /**
- * Gradient Settings schema
+ * Gradient Settings type
  */
-export const gradientSettingsSchema = z.object({
-  defaultType: gradientTypeSchema,
-  maxColorStops: z.number(),
-  includeAccessibility: z.boolean(),
-  generateSVG: z.boolean(),
-  optimizeOutput: z.boolean(),
-  exportFormat: exportFormatSchema,
-})
+export interface gradientSettings {
+  defaultType: gradientType,
+  maxColorStops: number,
+  includeAccessibility: boolean,
+  generateSVG: boolean,
+  optimizeOutput: boolean,
+  exportFormat: exportFormat,
+}
 
 /**
- * Gradient Data schema
+ * Gradient Data type
  */
-export const gradientDataSchema = z.object({
-  gradients: z.array(gradientSchema),
-  statistics: gradientStatisticsSchema,
-  settings: gradientSettingsSchema,
-})
+export interface gradientData {
+  gradients: gradient[],
+  statistics: gradientStatistics,
+  settings: gradientSettings,
+}
 
 /**
- * Gradient File schema
+ * Gradient File type
  */
-export const gradientFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  gradientData: gradientDataSchema.optional(),
-})
+export interface gradientFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  gradientData?: gradientData
+}
 
 /**
- * Gradient Template schema
+ * Gradient Template type
  */
-export const gradientTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  gradient: gradientSchema.partial(),
-  preview: z.string(),
-})
+export interface gradientTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  gradient: Partial<gradient>,
+  preview: string,
+}
 
 // ==================== Type Exports ====================
 
-export type GradientType = z.infer<typeof gradientTypeSchema>
-export type RadialShape = z.infer<typeof radialShapeSchema>
-export type RadialSize = z.infer<typeof radialSizeSchema>
-export type BlendMode = z.infer<typeof blendModeSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type ColorStop = z.infer<typeof colorStopSchema>
-export type RadialPosition = z.infer<typeof radialPositionSchema>
-export type GradientAccessibility = z.infer<typeof gradientAccessibilitySchema>
-export type Gradient = z.infer<typeof gradientSchema>
-export type GradientStatistics = z.infer<typeof gradientStatisticsSchema>
-export type GradientSettings = z.infer<typeof gradientSettingsSchema>
-export type GradientData = z.infer<typeof gradientDataSchema>
-export type GradientFile = z.infer<typeof gradientFileSchema>
-export type GradientTemplate = z.infer<typeof gradientTemplateSchema>
+export type GradientType = gradientType
+export type RadialShape = radialShape
+export type RadialSize = radialSize
+export type BlendMode = blendMode
+export type ExportFormat = exportFormat
+export type ColorStop = colorStop
+export type RadialPosition = radialPosition
+export type GradientAccessibility = gradientAccessibility
+export type Gradient = gradient
+export type GradientStatistics = gradientStatistics
+export type GradientSettings = gradientSettings
+export type GradientData = gradientData
+export type GradientFile = gradientFile
+export type GradientTemplate = gradientTemplate

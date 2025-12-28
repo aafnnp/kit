@@ -1,208 +1,196 @@
-import { z } from "zod"
-
-// ==================== Quadratic Solver Schemas ====================
+// ==================== Quadratic Solver Types ====================
 
 /**
- * Equation Type schema
+ * Equation Type type
  */
-export const equationTypeSchema = z.enum([
-  "quadratic",
-  "linear",
-  "cubic",
-  "quartic",
-  "polynomial",
-  "rational",
-  "exponential",
-  "logarithmic",
-  "trigonometric",
-])
+export type equationType = "quadratic" | "linear" | "cubic" | "quartic" | "polynomial" | "rational" | "exponential" | "logarithmic" | "trigonometric"
 
 /**
- * Solution Type schema
+ * Solution Type type
  */
-export const solutionTypeSchema = z.enum(["real", "complex", "rational", "irrational", "repeated"])
+export type solutionType = "real" | "complex" | "rational" | "irrational" | "repeated"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml", "yaml", "latex", "mathml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml" | "yaml" | "latex" | "mathml"
 
 /**
- * Complex Number schema
+ * Complex Number type
  */
-export const complexNumberSchema = z.object({
-  real: z.number(),
-  imaginary: z.number(),
-  magnitude: z.number(),
-  argument: z.number(),
-})
+export interface complexNumber {
+  real: number,
+  imaginary: number,
+  magnitude: number,
+  argument: number,
+}
 
 /**
- * Solution schema
+ * Solution type
  */
-export const solutionSchema = z.object({
-  type: solutionTypeSchema,
-  value: z.union([z.number(), complexNumberSchema]),
-  multiplicity: z.number(),
-  isReal: z.boolean(),
-  isRational: z.boolean(),
-  approximation: z.string().optional(),
-})
+export interface solution {
+  type: solutionType,
+  value: number | complexNumber,
+  multiplicity: number,
+  isReal: boolean,
+  isRational: boolean
+  approximation?: string
+}
 
 /**
- * Point 2D schema
+ * Point 2D type
  */
-export const point2DSchema = z.object({
-  x: z.number(),
-  y: z.number(),
-})
+export interface point2D {
+  x: number,
+  y: number,
+}
 
 /**
- * Interval schema
+ * Interval type
  */
-export const intervalSchema = z.object({
-  min: z.union([z.number(), z.literal("-∞")]),
-  max: z.union([z.number(), z.literal("∞")]),
-  minInclusive: z.boolean(),
-  maxInclusive: z.boolean(),
-})
+export interface interval {
+  min: number | "-∞",
+  max: number | "∞",
+  minInclusive: boolean,
+  maxInclusive: boolean,
+}
 
 /**
- * Extremum schema
+ * Extremum type
  */
-export const extremumSchema = z.object({
-  type: z.enum(["minimum", "maximum"]),
-  point: point2DSchema,
-  isGlobal: z.boolean(),
-})
+export interface extremum {
+  type: "minimum"| "maximum",
+  point: point2D,
+  isGlobal: boolean,
+}
 
 /**
- * Asymptote schema
+ * Asymptote type
  */
-export const asymptoteSchema = z.object({
-  type: z.enum(["vertical", "horizontal", "oblique"]),
-  equation: z.string(),
-  value: z.number().optional(),
-})
+export interface asymptote {
+  type: "vertical"| "horizontal" | "oblique",
+  equation: string
+  value?: number
+}
 
 /**
- * Equation schema
+ * Equation type
  */
-export const equationSchema = z.object({
-  type: equationTypeSchema,
-  coefficients: z.array(z.number()),
-  variables: z.array(z.string()),
-  expression: z.string(),
-  standardForm: z.string(),
-})
+export interface equation {
+  type: equationType,
+  coefficients: number[],
+  variables: string[],
+  expression: string,
+  standardForm: string,
+}
 
 /**
- * Solution Metadata schema
+ * Solution Metadata type
  */
-export const solutionMetadataSchema = z.object({
-  solutionTime: z.number(),
-  discriminant: z.number().optional(),
-  numberOfSolutions: z.number(),
-  solutionTypes: z.array(solutionTypeSchema),
-  complexity: z.number(),
-  numericalStability: z.number(),
-})
+export interface solutionMetadata {
+  solutionTime: number
+  discriminant?: number
+  numberOfSolutions: number,
+  solutionTypes: solutionType[],
+  complexity: number,
+  numericalStability: number,
+}
 
 /**
- * Equation Analysis schema
+ * Equation Analysis type
  */
-export const equationAnalysisSchema = z.object({
-  vertex: point2DSchema.optional(),
-  axisOfSymmetry: z.number().optional(),
-  yIntercept: z.number().optional(),
-  xIntercepts: z.array(z.number()).optional(),
-  domain: intervalSchema,
-  range: intervalSchema,
-  concavity: z.enum(["up", "down", "none"]),
-  extrema: z.array(extremumSchema),
-  inflectionPoints: z.array(point2DSchema),
-  asymptotes: z.array(asymptoteSchema),
-})
+export interface equationAnalysis {
+  vertex?: point2D
+  axisOfSymmetry?: number
+  yIntercept?: number
+  xIntercepts?: number[]
+  domain: interval,
+  range: interval,
+  concavity: "up"| "down" | "none",
+  extrema: extremum[],
+  inflectionPoints: point2D[],
+  asymptotes: asymptote[],
+}
 
 /**
- * Equation Solution schema
+ * Equation Solution type
  */
-export const equationSolutionSchema = z.object({
-  id: z.string(),
-  equation: equationSchema,
-  solutions: z.array(solutionSchema),
-  metadata: solutionMetadataSchema,
-  analysis: equationAnalysisSchema,
-  timestamp: z.date(),
-})
+export interface equationSolution {
+  id: string,
+  equation: equation,
+  solutions: solution[],
+  metadata: solutionMetadata,
+  analysis: equationAnalysis,
+  timestamp: Date,
+}
 
 /**
- * Graph Settings schema
+ * Graph Settings type
  */
-export const graphSettingsSchema = z.object({
-  xMin: z.number(),
-  xMax: z.number(),
-  yMin: z.number(),
-  yMax: z.number(),
-  gridSize: z.number(),
-  showGrid: z.boolean(),
-  showAxes: z.boolean(),
-  showLabels: z.boolean(),
-  resolution: z.number(),
-})
+export interface graphSettings {
+  xMin: number,
+  xMax: number,
+  yMin: number,
+  yMax: number,
+  gridSize: number,
+  showGrid: boolean,
+  showAxes: boolean,
+  showLabels: boolean,
+  resolution: number,
+}
 
 /**
- * Equation Error schema
+ * Equation Error type
  */
-export const equationErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["coefficient", "structure", "numerical", "mathematical"]),
-  severity: z.enum(["error", "warning", "info"]),
-  coefficient: z.string().optional(),
-})
+export interface equationError {
+  message: string,
+  type: "coefficient"| "structure" | "numerical" | "mathematical",
+  severity: "error"| "warning" | "info"
+  coefficient?: string
+}
 
 /**
- * Equation Validation schema
+ * Equation Validation type
  */
-export const equationValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(equationErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  qualityScore: z.number(),
-})
+export interface equationValidation {
+  isValid: boolean,
+  errors: equationError[],
+  warnings: string[],
+  suggestions: string[],
+  qualityScore: number,
+}
 
 /**
- * Equation Template schema
+ * Equation Template type
  */
-export const equationTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  type: equationTypeSchema,
-  category: z.string(),
-  coefficients: z.array(z.number()),
-  expectedSolutions: z.number(),
-  useCase: z.array(z.string()),
-  difficulty: z.enum(["simple", "medium", "complex"]),
-})
+export interface equationTemplate {
+  id: string,
+  name: string,
+  description: string,
+  type: equationType,
+  category: string,
+  coefficients: number[],
+  expectedSolutions: number,
+  useCase: string[],
+  difficulty: "simple"| "medium" | "complex",
+}
 
 // ==================== Type Exports ====================
 
-export type EquationType = z.infer<typeof equationTypeSchema>
-export type SolutionType = z.infer<typeof solutionTypeSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type ComplexNumber = z.infer<typeof complexNumberSchema>
-export type Solution = z.infer<typeof solutionSchema>
-export type Point2D = z.infer<typeof point2DSchema>
-export type Interval = z.infer<typeof intervalSchema>
-export type Extremum = z.infer<typeof extremumSchema>
-export type Asymptote = z.infer<typeof asymptoteSchema>
-export type Equation = z.infer<typeof equationSchema>
-export type SolutionMetadata = z.infer<typeof solutionMetadataSchema>
-export type EquationAnalysis = z.infer<typeof equationAnalysisSchema>
-export type EquationSolution = z.infer<typeof equationSolutionSchema>
-export type GraphSettings = z.infer<typeof graphSettingsSchema>
-export type EquationError = z.infer<typeof equationErrorSchema>
-export type EquationValidation = z.infer<typeof equationValidationSchema>
-export type EquationTemplate = z.infer<typeof equationTemplateSchema>
+export type EquationType = equationType
+export type SolutionType = solutionType
+export type ExportFormat = exportFormat
+export type ComplexNumber = complexNumber
+export type Solution = solution
+export type Point2D = point2D
+export type Interval = interval
+export type Extremum = extremum
+export type Asymptote = asymptote
+export type Equation = equation
+export type SolutionMetadata = solutionMetadata
+export type EquationAnalysis = equationAnalysis
+export type EquationSolution = equationSolution
+export type GraphSettings = graphSettings
+export type EquationError = equationError
+export type EquationValidation = equationValidation
+export type EquationTemplate = equationTemplate

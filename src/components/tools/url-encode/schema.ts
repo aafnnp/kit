@@ -1,152 +1,161 @@
-import { z } from "zod"
-
-// ==================== URL Encode Schemas ====================
+// ==================== URL Encode Types ====================
 
 /**
- * URL Operation schema
+ * URL Operation type
  */
-export const urlOperationSchema = z.enum(["encode", "decode"])
+export type urlOperation = "encode" | "decode"
 
 /**
- * URL Encoding Type schema
+ * URL Encoding Type type
  */
-export const urlEncodingTypeSchema = z.enum(["component", "uri", "form", "path", "query"])
+export type urlEncodingType = "component" | "uri" | "form" | "path" | "query"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml"
 
 /**
- * URL Statistics schema
+ * URL Statistics type
  */
-export const urlStatisticsSchema = z.object({
-  inputSize: z.number(),
-  outputSize: z.number(),
-  inputLength: z.number(),
-  outputLength: z.number(),
-  compressionRatio: z.number(),
-  processingTime: z.number(),
-  characterChanges: z.number(),
-  specialCharacters: z.number(),
-})
+export interface urlStatistics {
+  inputSize: number,
+  outputSize: number,
+  inputLength: number,
+  outputLength: number,
+  compressionRatio: number,
+  processingTime: number,
+  characterChanges: number,
+  specialCharacters: number,
+}
 
 /**
- * URL Analysis schema
+ * URL Analysis type
  */
-export const urlAnalysisSchema = z.object({
-  protocol: z.string().optional(),
-  domain: z.string().optional(),
-  path: z.string().optional(),
-  queryParams: z.record(z.string(), z.string()).optional(),
-  fragment: z.string().optional(),
-  isValidURL: z.boolean(),
-  hasSpecialChars: z.boolean(),
-  hasUnicodeChars: z.boolean(),
-  hasSpaces: z.boolean(),
-  encodingNeeded: z.array(z.string()),
-  securityIssues: z.array(z.string()),
-})
+export interface urlAnalysis {
+  protocol?: string,
+  domain?: string,
+  path?: string,
+  queryParams?: Record<string, string>,
+  fragment?: string,
+  isValidURL: boolean,
+  hasSpecialChars: boolean,
+  hasUnicodeChars: boolean,
+  hasSpaces: boolean,
+  encodingNeeded: string[],
+  securityIssues: string[],
+}
 
 /**
- * URL Processing Result schema
+ * URL Processing Result type
  */
-export const urlProcessingResultSchema = z.object({
-  id: z.string(),
-  input: z.string(),
-  output: z.string(),
-  operation: urlOperationSchema,
-  encodingType: urlEncodingTypeSchema,
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  statistics: urlStatisticsSchema,
-  analysis: urlAnalysisSchema.optional(),
-  createdAt: z.date(),
-})
+export interface urlProcessingResult {
+  id: string,
+  input: string,
+  output: string,
+  operation: urlOperation,
+  encodingType: urlEncodingType,
+  isValid: boolean
+  error?: string,
+  statistics: urlStatistics
+  analysis?: urlAnalysis,
+  createdAt: Date,
+}
 
 /**
- * URL Batch Statistics schema
+ * URL Batch Statistics type
  */
-export const urlBatchStatisticsSchema = z.object({
-  totalProcessed: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  averageCompressionRatio: z.number(),
-  totalInputSize: z.number(),
-  totalOutputSize: z.number(),
-  operationDistribution: z.record(z.string(), z.number()),
-  successRate: z.number(),
-})
+export interface urlBatchStatistics {
+  totalProcessed: number,
+  validCount: number,
+  invalidCount: number,
+  averageCompressionRatio: number,
+  totalInputSize: number,
+  totalOutputSize: number,
+  operationDistribution: Record<string, number>,
+  successRate: number,
+}
 
 /**
- * URL Settings schema
+ * URL Settings type
  */
-export const urlSettingsSchema = z.object({
-  encodingType: urlEncodingTypeSchema,
-  realTimeProcessing: z.boolean(),
-  showAnalysis: z.boolean(),
-  validateURLs: z.boolean(),
-  exportFormat: exportFormatSchema,
-  maxLength: z.number(),
-  preserveCase: z.boolean(),
-})
+export interface urlSettings {
+  encodingType: urlEncodingType,
+  realTimeProcessing: boolean,
+  showAnalysis: boolean,
+  validateURLs: boolean,
+  exportFormat: exportFormat,
+  maxLength: number,
+  preserveCase: boolean,
+}
 
 /**
- * URL Batch schema
+ * URL Batch type
  */
-export const urlBatchSchema = z.object({
-  id: z.string(),
-  results: z.array(urlProcessingResultSchema),
-  count: z.number(),
-  settings: urlSettingsSchema,
-  createdAt: z.date(),
-  statistics: urlBatchStatisticsSchema,
-})
+export interface urlBatch {
+  id: string,
+  results: urlProcessingResult[],
+  count: number,
+  settings: urlSettings,
+  createdAt: Date,
+  statistics: urlBatchStatistics,
+}
 
 /**
- * URL Template schema
+ * URL Template type
  */
-export const urlTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  operation: urlOperationSchema,
-  encodingType: urlEncodingTypeSchema,
-  example: z.string(),
-  useCase: z.array(z.string()),
-})
+export interface urlTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  operation: urlOperation,
+  encodingType: urlEncodingType,
+  example: string,
+  useCase: string[],
+}
 
 /**
- * URL Error schema
+ * URL Error type
  */
-export const urlErrorSchema = z.object({
-  message: z.string(),
-  position: z.number().optional(),
-  character: z.string().optional(),
-})
+export interface urlError {
+  message: string
+  position?: number,
+  character?: string,
+}
 
 /**
- * URL Validation schema
+ * URL Validation type
  */
-export const urlValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(urlErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-})
+export interface urlValidation {
+  isValid: boolean,
+  errors: urlError[],
+  warnings: string[],
+  suggestions: string[],
+}
 
 // ==================== Type Exports ====================
 
-export type URLOperation = z.infer<typeof urlOperationSchema>
-export type URLEncodingType = z.infer<typeof urlEncodingTypeSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type URLStatistics = z.infer<typeof urlStatisticsSchema>
-export type URLAnalysis = z.infer<typeof urlAnalysisSchema>
-export type URLProcessingResult = z.infer<typeof urlProcessingResultSchema>
-export type URLBatchStatistics = z.infer<typeof urlBatchStatisticsSchema>
-export type URLSettings = z.infer<typeof urlSettingsSchema>
-export type URLBatch = z.infer<typeof urlBatchSchema>
-export type URLTemplate = z.infer<typeof urlTemplateSchema>
-export type URLError = z.infer<typeof urlErrorSchema>
-export type URLValidation = z.infer<typeof urlValidationSchema>
+export type URLOperation = urlOperation
+export type URLEncodingType = urlEncodingType
+export type ExportFormat = exportFormat
+export type URLStatistics = urlStatistics
+export type URLAnalysis = urlAnalysis
+export type URLProcessingResult = urlProcessingResult
+export type URLBatchStatistics = urlBatchStatistics
+export type URLSettings = urlSettings
+export type URLBatch = urlBatch
+export type URLTemplate = urlTemplate
+export type URLError = urlError
+export type URLValidation = urlValidation
+export type UrlOperation = urlOperation
+export type UrlEncodingType = urlEncodingType
+export type UrlStatistics = urlStatistics
+export type UrlAnalysis = urlAnalysis
+export type UrlProcessingResult = urlProcessingResult
+export type UrlBatchStatistics = urlBatchStatistics
+export type UrlSettings = urlSettings
+export type UrlBatch = urlBatch
+export type UrlTemplate = urlTemplate
+export type UrlError = urlError
+export type UrlValidation = urlValidation

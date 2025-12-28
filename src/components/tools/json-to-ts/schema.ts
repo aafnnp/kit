@@ -1,163 +1,163 @@
-import { z } from "zod"
-
-// ==================== JSON to TS Schemas ====================
+// ==================== JSON to TS Types ====================
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["ts", "json", "csv", "txt"])
+export type exportFormat = "ts" | "json" | "csv" | "txt"
 
 /**
- * Complexity Metrics schema
+ * Complexity Metrics type
  */
-export const complexityMetricsSchema = z.object({
-  depth: z.number(),
-  totalProperties: z.number(),
-  nestedObjects: z.number(),
-  arrays: z.number(),
-  optionalProperties: z.number(),
-  unionTypes: z.number(),
-})
+export interface complexityMetrics {
+  depth: number,
+  totalProperties: number,
+  nestedObjects: number,
+  arrays: number,
+  optionalProperties: number,
+  unionTypes: number,
+}
 
 /**
- * Type Count schema
+ * Type Count type
  */
-export const typeCountSchema = z.object({
-  primitives: z.number(),
-  objects: z.number(),
-  arrays: z.number(),
-  unions: z.number(),
-  literals: z.number(),
-  any: z.number(),
-})
+export interface typeCount {
+  primitives: number,
+  objects: number,
+  arrays: number,
+  unions: number,
+  literals: number,
+  any: number,
+}
 
 /**
- * Generation Statistics schema
+ * Generation Statistics type
  */
-export const generationStatisticsSchema = z.object({
-  inputSize: z.number(),
-  outputSize: z.number(),
-  inputLines: z.number(),
-  outputLines: z.number(),
-  processingTime: z.number(),
-  complexity: complexityMetricsSchema,
-  typeCount: typeCountSchema,
-})
+export interface generationStatistics {
+  inputSize: number,
+  outputSize: number,
+  inputLines: number,
+  outputLines: number,
+  processingTime: number,
+  complexity: complexityMetrics,
+  typeCount: typeCount,
+}
 
 /**
- * Type Analysis schema
+ * Type Analysis type
  */
-export const typeAnalysisSchema = z.object({
-  rootType: z.string(),
-  hasNestedObjects: z.boolean(),
-  hasArrays: z.boolean(),
-  hasOptionalProperties: z.boolean(),
-  hasUnionTypes: z.boolean(),
-  hasComplexTypes: z.boolean(),
-  suggestedImprovements: z.array(z.string()),
-  typeIssues: z.array(z.string()),
-})
+export interface typeAnalysis {
+  rootType: string,
+  hasNestedObjects: boolean,
+  hasArrays: boolean,
+  hasOptionalProperties: boolean,
+  hasUnionTypes: boolean,
+  hasComplexTypes: boolean,
+  suggestedImprovements: string[],
+  typeIssues: string[],
+}
 
 /**
- * TypeScript Generation Result schema
+ * TypeScript Generation Result type
  */
-export const typeScriptGenerationResultSchema = z.object({
-  id: z.string(),
-  input: z.string(),
-  output: z.string(),
-  interfaceName: z.string(),
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  statistics: generationStatisticsSchema,
-  analysis: typeAnalysisSchema.optional(),
-  createdAt: z.date(),
-})
+export interface typeScriptGenerationResult {
+  id: string,
+  input: string,
+  output: string,
+  interfaceName: string,
+  isValid: boolean
+  error?: string,
+  statistics: generationStatistics
+  analysis?: typeAnalysis,
+  createdAt: Date,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalGenerated: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  averageComplexity: z.number(),
-  totalInputSize: z.number(),
-  totalOutputSize: z.number(),
-  successRate: z.number(),
-})
+export interface batchStatistics {
+  totalGenerated: number,
+  validCount: number,
+  invalidCount: number,
+  averageComplexity: number,
+  totalInputSize: number,
+  totalOutputSize: number,
+  successRate: number,
+}
 
 /**
- * Generation Settings schema
+ * Generation Settings type
  */
-export const generationSettingsSchema = z.object({
-  interfaceName: z.string(),
-  useOptionalProperties: z.boolean(),
-  generateComments: z.boolean(),
-  useStrictTypes: z.boolean(),
-  exportInterface: z.boolean(),
-  realTimeGeneration: z.boolean(),
-  exportFormat: exportFormatSchema,
-  indentSize: z.number(),
-  useReadonly: z.boolean(),
-  generateUtilityTypes: z.boolean(),
-})
+export interface generationSettings {
+  interfaceName: string,
+  useOptionalProperties: boolean,
+  generateComments: boolean,
+  useStrictTypes: boolean,
+  exportInterface: boolean,
+  realTimeGeneration: boolean,
+  exportFormat: exportFormat,
+  indentSize: number,
+  useReadonly: boolean,
+  generateUtilityTypes: boolean,
+}
 
 /**
- * Generation Batch schema
+ * Generation Batch type
  */
-export const generationBatchSchema = z.object({
-  id: z.string(),
-  results: z.array(typeScriptGenerationResultSchema),
-  count: z.number(),
-  settings: generationSettingsSchema,
-  createdAt: z.date(),
-  statistics: batchStatisticsSchema,
-})
+export interface generationBatch {
+  id: string,
+  results: typeScriptGenerationResult[],
+  count: number,
+  settings: generationSettings,
+  createdAt: Date,
+  statistics: batchStatistics,
+}
 
 /**
- * TypeScript Template schema
+ * TypeScript Template type
  */
-export const typeScriptTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  jsonExample: z.string(),
-  expectedOutput: z.string(),
-  useCase: z.array(z.string()),
-})
+export interface typeScriptTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  jsonExample: string,
+  expectedOutput: string,
+  useCase: string[],
+}
 
 /**
- * JSON Error schema
+ * JSON Error type
  */
-export const jsonErrorSchema = z.object({
-  message: z.string(),
-  line: z.number().optional(),
-  column: z.number().optional(),
-  path: z.string().optional(),
-})
+export interface jsonError {
+  message: string
+  line?: number,
+  column?: number,
+  path?: string,
+}
 
 /**
- * JSON Validation schema
+ * JSON Validation type
  */
-export const jsonValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(jsonErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-})
+export interface jsonValidation {
+  isValid: boolean,
+  errors: jsonError[],
+  warnings: string[],
+  suggestions: string[],
+}
 
 // ==================== Type Exports ====================
 
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type ComplexityMetrics = z.infer<typeof complexityMetricsSchema>
-export type TypeCount = z.infer<typeof typeCountSchema>
-export type GenerationStatistics = z.infer<typeof generationStatisticsSchema>
-export type TypeAnalysis = z.infer<typeof typeAnalysisSchema>
-export type TypeScriptGenerationResult = z.infer<typeof typeScriptGenerationResultSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type GenerationSettings = z.infer<typeof generationSettingsSchema>
-export type GenerationBatch = z.infer<typeof generationBatchSchema>
-export type TypeScriptTemplate = z.infer<typeof typeScriptTemplateSchema>
-export type JSONError = z.infer<typeof jsonErrorSchema>
-export type JSONValidation = z.infer<typeof jsonValidationSchema>
+export type ExportFormat = exportFormat
+export type ComplexityMetrics = complexityMetrics
+export type TypeCount = typeCount
+export type GenerationStatistics = generationStatistics
+export type TypeAnalysis = typeAnalysis
+export type TypeScriptGenerationResult = typeScriptGenerationResult
+export type BatchStatistics = batchStatistics
+export type GenerationSettings = generationSettings
+export type GenerationBatch = generationBatch
+export type TypeScriptTemplate = typeScriptTemplate
+export type JSONError = jsonError
+export type JSONValidation = jsonValidation
+export type JsonError = jsonError
+export type JsonValidation = jsonValidation

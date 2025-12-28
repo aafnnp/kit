@@ -69,7 +69,7 @@ const performIPLookup = async (
   // Mock IP info
   const ipInfo: IPInfo = {
     ip,
-    version: ipVersion,
+    version: String(ipVersion) as "4" | "6",
     type: isPrivate ? "private" : isReserved ? "reserved" : "public",
     isValid: true,
     hostname: ip.includes("8.8.8.8") ? "dns.google" : ip.includes("1.1.1.1") ? "one.one.one.one" : undefined,
@@ -366,7 +366,7 @@ const validateIP = (ip: string): IPValidation => {
   const ipv4Match = trimmedIP.match(ipv4Regex)
 
   if (ipv4Match) {
-    validation.ipVersion = 4
+    validation.ipVersion = "4"
     validation.ipType = "IPv4"
 
     // Validate IPv4 octets
@@ -399,7 +399,7 @@ const validateIP = (ip: string): IPValidation => {
   const ipv6CompressedRegex = /^([0-9a-fA-F]{0,4}:)*::([0-9a-fA-F]{0,4}:)*[0-9a-fA-F]{0,4}$/
 
   if (ipv6Regex.test(trimmedIP) || ipv6CompressedRegex.test(trimmedIP)) {
-    validation.ipVersion = 6
+    validation.ipVersion = "6"
     validation.ipType = "IPv6"
 
     // Check for special IPv6 ranges

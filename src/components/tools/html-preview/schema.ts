@@ -1,201 +1,206 @@
-import { z } from "zod"
-
-// ==================== HTML Preview Schemas ====================
+// ==================== HTML Preview Types ====================
 
 /**
- * Preview Mode schema
+ * Preview Mode type
  */
-export const previewModeSchema = z.enum(["iframe", "popup", "split", "fullscreen"])
+export type previewMode = "iframe" | "popup" | "split" | "fullscreen"
 
 /**
- * Device Size schema
+ * Device Size type
  */
-export const deviceSizeSchema = z.enum(["desktop", "tablet", "mobile", "custom"])
+export type deviceSize = "desktop" | "tablet" | "mobile" | "custom"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["html", "pdf", "png", "json", "txt"])
+export type exportFormat = "html" | "pdf" | "png" | "json" | "txt"
 
 /**
- * External Resource schema
+ * External Resource type
  */
-export const externalResourceSchema = z.object({
-  type: z.enum(["css", "js", "image", "font", "other"]),
-  url: z.string(),
-  isLocal: z.boolean(),
-})
+export interface externalResource {
+  type: "css"| "js" | "image" | "font" | "other",
+  url: string,
+  isLocal: boolean,
+}
 
 /**
- * Accessibility Feature schema
+ * Accessibility Feature type
  */
-export const accessibilityFeatureSchema = z.object({
-  type: z.enum(["alt", "aria", "role", "label", "heading", "landmark"]),
-  element: z.string(),
-  description: z.string(),
-})
+export interface accessibilityFeature {
+  type: "alt"| "aria" | "role" | "label" | "heading" | "landmark",
+  element: string,
+  description: string,
+}
 
 /**
- * HTML Metrics schema
+ * HTML Metrics type
  */
-export const htmlMetricsSchema = z.object({
-  elementCount: z.number(),
-  tagTypes: z.array(z.string()),
-  hasDoctype: z.boolean(),
-  hasHead: z.boolean(),
-  hasBody: z.boolean(),
-  hasTitle: z.boolean(),
-  hasMeta: z.boolean(),
-  hasCSS: z.boolean(),
-  hasJavaScript: z.boolean(),
-  externalResources: z.array(externalResourceSchema),
-  semanticElements: z.array(z.string()),
-  accessibilityFeatures: z.array(accessibilityFeatureSchema),
-})
+export interface htmlMetrics {
+  elementCount: number,
+  tagTypes: string[],
+  hasDoctype: boolean,
+  hasHead: boolean,
+  hasBody: boolean,
+  hasTitle: boolean,
+  hasMeta: boolean,
+  hasCSS: boolean,
+  hasJavaScript: boolean,
+  externalResources: externalResource[],
+  semanticElements: string[],
+  accessibilityFeatures: accessibilityFeature[],
+}
 
 /**
- * Performance Metrics schema
+ * Performance Metrics type
  */
-export const performanceMetricsSchema = z.object({
-  renderTime: z.number(),
-  domComplexity: z.number(),
-  cssComplexity: z.number(),
-  jsComplexity: z.number(),
-  seoScore: z.number(),
-  accessibilityScore: z.number(),
-})
+export interface performanceMetrics {
+  renderTime: number,
+  domComplexity: number,
+  cssComplexity: number,
+  jsComplexity: number,
+  seoScore: number,
+  accessibilityScore: number,
+}
 
 /**
- * HTML Statistics schema
+ * HTML Statistics type
  */
-export const htmlStatisticsSchema = z.object({
-  inputSize: z.number(),
-  lineCount: z.number(),
-  characterCount: z.number(),
-  processingTime: z.number(),
-  htmlMetrics: htmlMetricsSchema,
-  performanceMetrics: performanceMetricsSchema,
-})
+export interface htmlStatistics {
+  inputSize: number,
+  lineCount: number,
+  characterCount: number,
+  processingTime: number,
+  htmlMetrics: htmlMetrics,
+  performanceMetrics: performanceMetrics,
+}
 
 /**
- * HTML Analysis schema
+ * HTML Analysis type
  */
-export const htmlAnalysisSchema = z.object({
-  isValidHTML: z.boolean(),
-  hasModernStructure: z.boolean(),
-  isResponsive: z.boolean(),
-  hasAccessibilityFeatures: z.boolean(),
-  hasSEOElements: z.boolean(),
-  suggestedImprovements: z.array(z.string()),
-  htmlIssues: z.array(z.string()),
-  qualityScore: z.number(),
-  securityIssues: z.array(z.string()),
-  performanceIssues: z.array(z.string()),
-})
+export interface htmlAnalysis {
+  isValidHTML: boolean,
+  hasModernStructure: boolean,
+  isResponsive: boolean,
+  hasAccessibilityFeatures: boolean,
+  hasSEOElements: boolean,
+  suggestedImprovements: string[],
+  htmlIssues: string[],
+  qualityScore: number,
+  securityIssues: string[],
+  performanceIssues: string[],
+}
 
 /**
- * HTML Processing Result schema
+ * HTML Processing Result type
  */
-export const htmlProcessingResultSchema = z.object({
-  id: z.string(),
-  input: z.string(),
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  statistics: htmlStatisticsSchema,
-  analysis: htmlAnalysisSchema.optional(),
-  createdAt: z.date(),
-})
+export interface htmlProcessingResult {
+  id: string,
+  input: string,
+  isValid: boolean
+  error?: string
+  statistics: htmlStatistics
+  analysis?: htmlAnalysis
+  createdAt: Date,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalProcessed: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  averageQuality: z.number(),
-  totalInputSize: z.number(),
-  successRate: z.number(),
-})
+export interface batchStatistics {
+  totalProcessed: number,
+  validCount: number,
+  invalidCount: number,
+  averageQuality: number,
+  totalInputSize: number,
+  successRate: number,
+}
 
 /**
- * Processing Settings schema
+ * Processing Settings type
  */
-export const processingSettingsSchema = z.object({
-  previewMode: previewModeSchema,
-  deviceSize: deviceSizeSchema,
-  showLineNumbers: z.boolean(),
-  enableSyntaxHighlighting: z.boolean(),
-  autoRefresh: z.boolean(),
-  refreshInterval: z.number(),
-  exportFormat: exportFormatSchema,
-  includeCSS: z.boolean(),
-  includeJS: z.boolean(),
-  sanitizeHTML: z.boolean(),
-  validateHTML: z.boolean(),
-})
+export interface processingSettings {
+  previewMode: previewMode,
+  deviceSize: deviceSize,
+  showLineNumbers: boolean,
+  enableSyntaxHighlighting: boolean,
+  autoRefresh: boolean,
+  refreshInterval: number,
+  exportFormat: exportFormat,
+  includeCSS: boolean,
+  includeJS: boolean,
+  sanitizeHTML: boolean,
+  validateHTML: boolean,
+}
 
 /**
- * Processing Batch schema
+ * Processing Batch type
  */
-export const processingBatchSchema = z.object({
-  id: z.string(),
-  results: z.array(htmlProcessingResultSchema),
-  count: z.number(),
-  settings: processingSettingsSchema,
-  createdAt: z.date(),
-  statistics: batchStatisticsSchema,
-})
+export interface processingBatch {
+  id: string,
+  results: htmlProcessingResult[],
+  count: number,
+  settings: processingSettings,
+  createdAt: Date,
+  statistics: batchStatistics,
+}
 
 /**
- * HTML Template schema
+ * HTML Template type
  */
-export const htmlTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  htmlCode: z.string(),
-  features: z.array(z.string()),
-  useCase: z.array(z.string()),
-})
+export interface htmlTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  htmlCode: string,
+  features: string[],
+  useCase: string[],
+}
 
 /**
- * HTML Error schema
+ * HTML Error type
  */
-export const htmlErrorSchema = z.object({
-  message: z.string(),
-  line: z.number().optional(),
-  column: z.number().optional(),
-  type: z.enum(["syntax", "structure", "accessibility", "security"]),
-  severity: z.enum(["error", "warning", "info"]),
-})
+export interface htmlError {
+  message: string
+  line?: number
+  column?: number
+  type: "syntax"| "structure" | "accessibility" | "security",
+  severity: "error"| "warning" | "info",
+}
 
 /**
- * HTML Validation schema
+ * HTML Validation type
  */
-export const htmlValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(htmlErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-})
+export interface htmlValidation {
+  isValid: boolean,
+  errors: htmlError[],
+  warnings: string[],
+  suggestions: string[],
+}
 
 // ==================== Type Exports ====================
 
-export type PreviewMode = z.infer<typeof previewModeSchema>
-export type DeviceSize = z.infer<typeof deviceSizeSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type ExternalResource = z.infer<typeof externalResourceSchema>
-export type AccessibilityFeature = z.infer<typeof accessibilityFeatureSchema>
-export type HTMLMetrics = z.infer<typeof htmlMetricsSchema>
-export type PerformanceMetrics = z.infer<typeof performanceMetricsSchema>
-export type HTMLStatistics = z.infer<typeof htmlStatisticsSchema>
-export type HTMLAnalysis = z.infer<typeof htmlAnalysisSchema>
-export type HTMLProcessingResult = z.infer<typeof htmlProcessingResultSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type ProcessingSettings = z.infer<typeof processingSettingsSchema>
-export type ProcessingBatch = z.infer<typeof processingBatchSchema>
-export type HTMLTemplate = z.infer<typeof htmlTemplateSchema>
-export type HTMLError = z.infer<typeof htmlErrorSchema>
-export type HTMLValidation = z.infer<typeof htmlValidationSchema>
+export type PreviewMode = previewMode
+export type DeviceSize = deviceSize
+export type ExportFormat = exportFormat
+export type ExternalResource = externalResource
+export type AccessibilityFeature = accessibilityFeature
+export type HTMLMetrics = htmlMetrics
+export type PerformanceMetrics = performanceMetrics
+export type HTMLStatistics = htmlStatistics
+export type HTMLAnalysis = htmlAnalysis
+export type HTMLProcessingResult = htmlProcessingResult
+export type BatchStatistics = batchStatistics
+export type ProcessingSettings = processingSettings
+export type ProcessingBatch = processingBatch
+export type HTMLTemplate = htmlTemplate
+export type HTMLError = htmlError
+export type HTMLValidation = htmlValidation
+export type HtmlMetrics = htmlMetrics
+export type HtmlStatistics = htmlStatistics
+export type HtmlAnalysis = htmlAnalysis
+export type HtmlProcessingResult = htmlProcessingResult
+export type HtmlTemplate = htmlTemplate
+export type HtmlError = htmlError
+export type HtmlValidation = htmlValidation

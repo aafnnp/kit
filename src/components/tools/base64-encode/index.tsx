@@ -545,9 +545,9 @@ const Base64EncodeCore = () => {
                             <div className="text-sm text-muted-foreground">
                               <span className="font-medium">Size:</span> {formatFileSize(file.size)}
                             </div>
-                            {file.status === "completed" && file.encodingData && (
+                            {file.status === "completed" && file.statistics && (
                               <div className="mt-2 text-xs">
-                                {file.encodingData.statistics.totalEncodings} encoding operations processed
+                                {file.statistics.totalEncodings} encoding operations processed
                               </div>
                             )}
                             {file.error && <div className="text-red-600 text-sm">Error: {file.error}</div>}

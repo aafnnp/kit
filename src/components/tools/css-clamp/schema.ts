@@ -1,171 +1,160 @@
-import { z } from "zod"
-
-// ==================== CSS Clamp Schemas ====================
+// ==================== CSS Clamp Types ====================
 
 /**
- * CSS Property schema
+ * CSS Property type
  */
-export const cssPropertySchema = z.enum([
-  "font-size",
-  "width",
-  "height",
-  "margin",
-  "padding",
-  "gap",
-  "border-radius",
-  "line-height",
-])
+export type cssProperty = "font-size" | "width" | "height" | "margin" | "padding" | "gap" | "border-radius" | "line-height"
 
 /**
- * CSS Unit schema
+ * CSS Unit type
  */
-export const cssUnitSchema = z.enum(["px", "rem", "em", "vw", "vh", "vmin", "vmax", "%", "ch", "ex"])
+export type cssUnit = "px" | "rem" | "em" | "vw" | "vh" | "vmin" | "vmax" | "%" | "ch" | "ex"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["css", "scss", "json", "js"])
+export type exportFormat = "css" | "scss" | "json" | "js"
 
 /**
- * Responsive Breakpoint schema
+ * Responsive Breakpoint type
  */
-export const responsiveBreakpointSchema = z.object({
-  name: z.string(),
-  width: z.number(),
-  value: z.number(),
-  unit: cssUnitSchema,
-})
+export interface responsiveBreakpoint {
+  name: string,
+  width: number,
+  value: number,
+  unit: cssUnit,
+}
 
 /**
- * Accessibility Info schema
+ * Accessibility Info type
  */
-export const accessibilityInfoSchema = z.object({
-  meetsMinimumSize: z.boolean(),
-  scalingRatio: z.number(),
-  readabilityScore: z.number(),
-  contrastCompatible: z.boolean(),
-})
+export interface accessibilityInfo {
+  meetsMinimumSize: boolean,
+  scalingRatio: number,
+  readabilityScore: number,
+  contrastCompatible: boolean,
+}
 
 /**
- * Clamp Metadata schema
+ * Clamp Metadata type
  */
-export const clampMetadataSchema = z.object({
-  minViewport: z.number(),
-  maxViewport: z.number(),
-  scalingFactor: z.number(),
-  responsiveRange: z.number(),
-  isValid: z.boolean(),
-  breakpoints: z.array(responsiveBreakpointSchema),
-  accessibility: accessibilityInfoSchema,
-})
+export interface clampMetadata {
+  minViewport: number,
+  maxViewport: number,
+  scalingFactor: number,
+  responsiveRange: number,
+  isValid: boolean,
+  breakpoints: responsiveBreakpoint[],
+  accessibility: accessibilityInfo,
+}
 
 /**
- * Generated Clamp schema
+ * Generated Clamp type
  */
-export const generatedClampSchema = z.object({
-  id: z.string(),
-  property: cssPropertySchema,
-  minValue: z.number(),
-  idealValue: z.number(),
-  maxValue: z.number(),
-  minUnit: cssUnitSchema,
-  idealUnit: cssUnitSchema,
-  maxUnit: cssUnitSchema,
-  clampRule: z.string(),
-  cssRule: z.string(),
-  metadata: clampMetadataSchema,
-})
+export interface generatedClamp {
+  id: string,
+  property: cssProperty,
+  minValue: number,
+  idealValue: number,
+  maxValue: number,
+  minUnit: cssUnit,
+  idealUnit: cssUnit,
+  maxUnit: cssUnit,
+  clampRule: string,
+  cssRule: string,
+  metadata: clampMetadata,
+}
 
 /**
- * Clamp Statistics schema
+ * Clamp Statistics type
  */
-export const clampStatisticsSchema = z.object({
-  totalClamps: z.number(),
-  propertyDistribution: z.record(cssPropertySchema, z.number()),
-  unitDistribution: z.record(cssUnitSchema, z.number()),
-  averageScalingFactor: z.number(),
-  responsiveRangeAverage: z.number(),
-  accessibilityScore: z.number(),
-  processingTime: z.number(),
-})
+export interface clampStatistics {
+  totalClamps: number,
+  propertyDistribution: Record<string, number>,
+  unitDistribution: Record<string, number>,
+  averageScalingFactor: number,
+  responsiveRangeAverage: number,
+  accessibilityScore: number,
+  processingTime: number,
+}
 
 /**
- * Viewport Range schema
+ * Viewport Range type
  */
-export const viewportRangeSchema = z.object({
-  minWidth: z.number(),
-  maxWidth: z.number(),
-})
+export interface viewportRange {
+  minWidth: number,
+  maxWidth: number,
+}
 
 /**
- * Clamp Settings schema
+ * Clamp Settings type
  */
-export const clampSettingsSchema = z.object({
-  defaultProperty: cssPropertySchema,
-  defaultMinUnit: cssUnitSchema,
-  defaultIdealUnit: cssUnitSchema,
-  defaultMaxUnit: cssUnitSchema,
-  includeBreakpoints: z.boolean(),
-  generateFullCSS: z.boolean(),
-  optimizeForAccessibility: z.boolean(),
-  exportFormat: exportFormatSchema,
-  viewportRange: viewportRangeSchema,
-})
+export interface clampSettings {
+  defaultProperty: cssProperty,
+  defaultMinUnit: cssUnit,
+  defaultIdealUnit: cssUnit,
+  defaultMaxUnit: cssUnit,
+  includeBreakpoints: boolean,
+  generateFullCSS: boolean,
+  optimizeForAccessibility: boolean,
+  exportFormat: exportFormat,
+  viewportRange: viewportRange,
+}
 
 /**
- * Clamp Data schema
+ * Clamp Data type
  */
-export const clampDataSchema = z.object({
-  clamps: z.array(generatedClampSchema),
-  statistics: clampStatisticsSchema,
-  settings: clampSettingsSchema,
-})
+export interface clampData {
+  clamps: generatedClamp[],
+  statistics: clampStatistics,
+  settings: clampSettings,
+}
 
 /**
- * CSS Clamp File schema
+ * CSS Clamp File type
  */
-export const cssClampFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  clampData: clampDataSchema.optional(),
-})
+export interface cssClampFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  clampData?: clampData
+}
 
 /**
- * Clamp Template schema
+ * Clamp Template type
  */
-export const clampTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  property: cssPropertySchema,
-  minValue: z.number(),
-  idealValue: z.number(),
-  maxValue: z.number(),
-  minUnit: cssUnitSchema,
-  idealUnit: cssUnitSchema,
-  maxUnit: cssUnitSchema,
-  viewportRange: viewportRangeSchema,
-})
+export interface clampTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  property: cssProperty,
+  minValue: number,
+  idealValue: number,
+  maxValue: number,
+  minUnit: cssUnit,
+  idealUnit: cssUnit,
+  maxUnit: cssUnit,
+  viewportRange: viewportRange,
+}
 
 // ==================== Type Exports ====================
 
-export type CssProperty = z.infer<typeof cssPropertySchema>
-export type CssUnit = z.infer<typeof cssUnitSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type ResponsiveBreakpoint = z.infer<typeof responsiveBreakpointSchema>
-export type AccessibilityInfo = z.infer<typeof accessibilityInfoSchema>
-export type ClampMetadata = z.infer<typeof clampMetadataSchema>
-export type GeneratedClamp = z.infer<typeof generatedClampSchema>
-export type ClampStatistics = z.infer<typeof clampStatisticsSchema>
-export type ViewportRange = z.infer<typeof viewportRangeSchema>
-export type ClampSettings = z.infer<typeof clampSettingsSchema>
-export type ClampData = z.infer<typeof clampDataSchema>
-export type CssClampFile = z.infer<typeof cssClampFileSchema>
-export type ClampTemplate = z.infer<typeof clampTemplateSchema>
+export type CssProperty = cssProperty
+export type CssUnit = cssUnit
+export type ExportFormat = exportFormat
+export type ResponsiveBreakpoint = responsiveBreakpoint
+export type AccessibilityInfo = accessibilityInfo
+export type ClampMetadata = clampMetadata
+export type GeneratedClamp = generatedClamp
+export type ClampStatistics = clampStatistics
+export type ViewportRange = viewportRange
+export type ClampSettings = clampSettings
+export type ClampData = clampData
+export type CssClampFile = cssClampFile
+export type ClampTemplate = clampTemplate

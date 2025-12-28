@@ -1,219 +1,201 @@
-import { z } from "zod"
-
-// ==================== MIME Search Schemas ====================
+// ==================== MIME Search Types ====================
 
 /**
- * Query Type schema
+ * Query Type type
  */
-export const queryTypeSchema = z.enum([
-  "extension",
-  "mimetype",
-  "keyword",
-  "category",
-])
+export type queryType = "extension" | "mimetype" | "keyword" | "category"
 
 /**
- * MIME Category schema
+ * MIME Category type
  */
-export const mimeCategorySchema = z.enum([
-  "image",
-  "video",
-  "audio",
-  "text",
-  "application",
-  "font",
-  "model",
-  "multipart",
-  "message",
-])
+export type mimeCategory = "image" | "video" | "audio" | "text" | "application" | "font" | "model" | "multipart" | "message"
 
 /**
- * Security Risk schema
+ * Security Risk type
  */
-export const securityRiskSchema = z.enum(["high", "medium", "low", "minimal"])
+export type securityRisk = "high" | "medium" | "low" | "minimal"
 
 /**
- * Search Mode schema
+ * Search Mode type
  */
-export const searchModeSchema = z.enum(["fuzzy", "exact", "partial", "regex"])
+export type searchMode = "fuzzy" | "exact" | "partial" | "regex"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "xml", "txt"])
+export type exportFormat = "json" | "csv" | "xml" | "txt"
 
 /**
- * Security Info schema
+ * Security Info type
  */
-export const securityInfoSchema = z.object({
-  riskLevel: securityRiskSchema,
-  executable: z.boolean(),
-  scriptable: z.boolean(),
-  canContainMalware: z.boolean(),
-  requiresSandbox: z.boolean(),
-  warnings: z.array(z.string()),
-})
+export interface securityInfo {
+  riskLevel: securityRisk,
+  executable: boolean,
+  scriptable: boolean,
+  canContainMalware: boolean,
+  requiresSandbox: boolean,
+  warnings: string[],
+}
 
 /**
- * Compression Info schema
+ * Compression Info type
  */
-export const compressionInfoSchema = z.object({
-  isCompressed: z.boolean(),
-  compressionType: z.string().optional(),
-  typicalSize: z.string(),
-  compressionRatio: z.number().optional(),
-})
+export interface compressionInfo {
+  isCompressed: boolean
+  compressionType?: string
+  typicalSize: string
+  compressionRatio?: number
+}
 
 /**
- * Browser Support schema
+ * Browser Support type
  */
-export const browserSupportSchema = z.object({
-  chrome: z.boolean(),
-  firefox: z.boolean(),
-  safari: z.boolean(),
-  edge: z.boolean(),
-  ie: z.boolean(),
-  mobile: z.boolean(),
-  notes: z.array(z.string()),
-})
+export interface browserSupport {
+  chrome: boolean,
+  firefox: boolean,
+  safari: boolean,
+  edge: boolean,
+  ie: boolean,
+  mobile: boolean,
+  notes: string[],
+}
 
 /**
- * MIME Type Info schema
+ * MIME Type Info type
  */
-export const mimeTypeInfoSchema = z.object({
-  mimeType: z.string(),
-  extensions: z.array(z.string()),
-  category: mimeCategorySchema,
-  description: z.string(),
-  commonName: z.string(),
-  isStandard: z.boolean(),
-  rfc: z.string().optional(),
-  usage: z.array(z.string()),
-  security: securityInfoSchema,
-  compression: compressionInfoSchema,
-  browserSupport: browserSupportSchema,
-})
+export interface mimeTypeInfo {
+  mimeType: string,
+  extensions: string[],
+  category: mimeCategory,
+  description: string,
+  commonName: string,
+  isStandard: boolean
+  rfc?: string
+  usage: string[],
+  security: securityInfo,
+  compression: compressionInfo,
+  browserSupport: browserSupport,
+}
 
 /**
- * MIME Statistics schema
+ * MIME Statistics type
  */
-export const mimeStatisticsSchema = z.object({
-  queryLength: z.number(),
-  resultCount: z.number(),
-  processingTime: z.number(),
-  categoryDistribution: z.record(z.string(), z.number()),
-  securityRiskCount: z.number(),
-  standardCompliantCount: z.number(),
-})
+export interface mimeStatistics {
+  queryLength: number,
+  resultCount: number,
+  processingTime: number,
+  categoryDistribution: Record<string, number>,
+  securityRiskCount: number,
+  standardCompliantCount: number,
+}
 
 /**
- * MIME Search Result schema
+ * MIME Search Result type
  */
-export const mimeSearchResultSchema = z.object({
-  id: z.string(),
-  query: z.string(),
-  queryType: queryTypeSchema,
-  results: z.array(mimeTypeInfoSchema),
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  statistics: mimeStatisticsSchema,
-  createdAt: z.date(),
-})
+export interface mimeSearchResult {
+  id: string,
+  query: string,
+  queryType: queryType,
+  results: mimeTypeInfo[],
+  isValid: boolean
+  error?: string
+  statistics: mimeStatistics,
+  createdAt: Date,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalProcessed: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  totalResults: z.number(),
-  categoryDistribution: z.record(z.string(), z.number()),
-  securityDistribution: z.record(z.string(), z.number()),
-  successRate: z.number(),
-})
+export interface batchStatistics {
+  totalProcessed: number,
+  validCount: number,
+  invalidCount: number,
+  totalResults: number,
+  categoryDistribution: Record<string, number>,
+  securityDistribution: Record<string, number>,
+  successRate: number,
+}
 
 /**
- * Processing Settings schema
+ * Processing Settings type
  */
-export const processingSettingsSchema = z.object({
-  searchMode: searchModeSchema,
-  includeDeprecated: z.boolean(),
-  includeExperimental: z.boolean(),
-  includeVendorSpecific: z.boolean(),
-  caseSensitive: z.boolean(),
-  exactMatch: z.boolean(),
-  includeSecurityInfo: z.boolean(),
-  includeBrowserSupport: z.boolean(),
-  exportFormat: exportFormatSchema,
-  realTimeSearch: z.boolean(),
-  maxResults: z.number(),
-})
+export interface processingSettings {
+  searchMode: searchMode,
+  includeDeprecated: boolean,
+  includeExperimental: boolean,
+  includeVendorSpecific: boolean,
+  caseSensitive: boolean,
+  exactMatch: boolean,
+  includeSecurityInfo: boolean,
+  includeBrowserSupport: boolean,
+  exportFormat: exportFormat,
+  realTimeSearch: boolean,
+  maxResults: number,
+}
 
 /**
- * Processing Batch schema
+ * Processing Batch type
  */
-export const processingBatchSchema = z.object({
-  id: z.string(),
-  results: z.array(mimeSearchResultSchema),
-  count: z.number(),
-  settings: processingSettingsSchema,
-  createdAt: z.date(),
-  statistics: batchStatisticsSchema,
-})
+export interface processingBatch {
+  id: string,
+  results: mimeSearchResult[],
+  count: number,
+  settings: processingSettings,
+  createdAt: Date,
+  statistics: batchStatistics,
+}
 
 /**
- * MIME Error schema
+ * MIME Error type
  */
-export const mimeErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["format", "syntax", "security", "compatibility"]),
-  severity: z.enum(["error", "warning", "info"]),
-})
+export interface mimeError {
+  message: string,
+  type: "format"| "syntax" | "security" | "compatibility",
+  severity: "error"| "warning" | "info",
+}
 
 /**
- * MIME Validation schema
+ * MIME Validation type
  */
-export const mimeValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(mimeErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-})
+export interface mimeValidation {
+  isValid: boolean,
+  errors: mimeError[],
+  warnings: string[],
+  suggestions: string[],
+}
 
 /**
- * MIME Template schema
+ * MIME Template type
  */
-export const mimeTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  examples: z.array(z.string()),
-  useCase: z.array(z.string()),
-  searchTerms: z.array(z.string()),
-})
+export interface mimeTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  examples: string[],
+  useCase: string[],
+  searchTerms: string[],
+}
 
 // ==================== Type Exports ====================
 
 /**
- * Type inference from zod schemas
+ * Type definitions
  */
-export type QueryType = z.infer<typeof queryTypeSchema>
-export type MimeCategory = z.infer<typeof mimeCategorySchema>
-export type SecurityRisk = z.infer<typeof securityRiskSchema>
-export type SearchMode = z.infer<typeof searchModeSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type SecurityInfo = z.infer<typeof securityInfoSchema>
-export type CompressionInfo = z.infer<typeof compressionInfoSchema>
-export type BrowserSupport = z.infer<typeof browserSupportSchema>
-export type MimeTypeInfo = z.infer<typeof mimeTypeInfoSchema>
-export type MimeStatistics = z.infer<typeof mimeStatisticsSchema>
-export type MimeSearchResult = z.infer<typeof mimeSearchResultSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type ProcessingSettings = z.infer<typeof processingSettingsSchema>
-export type ProcessingBatch = z.infer<typeof processingBatchSchema>
-export type MimeError = z.infer<typeof mimeErrorSchema>
-export type MimeValidation = z.infer<typeof mimeValidationSchema>
-export type MimeTemplate = z.infer<typeof mimeTemplateSchema>
-
+export type QueryType = queryType
+export type MimeCategory = mimeCategory
+export type SecurityRisk = securityRisk
+export type SearchMode = searchMode
+export type ExportFormat = exportFormat
+export type SecurityInfo = securityInfo
+export type CompressionInfo = compressionInfo
+export type BrowserSupport = browserSupport
+export type MimeTypeInfo = mimeTypeInfo
+export type MimeStatistics = mimeStatistics
+export type MimeSearchResult = mimeSearchResult
+export type BatchStatistics = batchStatistics
+export type ProcessingSettings = processingSettings
+export type ProcessingBatch = processingBatch
+export type MimeError = mimeError
+export type MimeValidation = mimeValidation
+export type MimeTemplate = mimeTemplate

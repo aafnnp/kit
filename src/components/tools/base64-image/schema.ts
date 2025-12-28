@@ -1,173 +1,171 @@
-import { z } from "zod"
-
-// ==================== Base64 Image Schemas ====================
+// ==================== Base64 Image Types ====================
 
 /**
- * Conversion Direction schema
+ * Conversion Direction type
  */
-export const conversionDirectionSchema = z.enum(["image-to-base64", "base64-to-image"])
+export type conversionDirection = "image-to-base64" | "base64-to-image"
 
 /**
- * Image Format schema
+ * Image Format type
  */
-export const imageFormatSchema = z.enum(["jpeg", "png", "webp", "gif", "bmp"])
+export type imageFormat = "jpeg" | "png" | "webp" | "gif" | "bmp"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["base64", "dataurl", "json", "txt"])
+export type exportFormat = "base64" | "dataurl" | "json" | "txt"
 
 /**
- * Image Metadata schema
+ * Image Metadata type
  */
-export const imageMetadataSchema = z.object({
-  width: z.number(),
-  height: z.number(),
-  format: z.string(),
-  mimeType: z.string(),
-  aspectRatio: z.number(),
-  pixelCount: z.number(),
-  estimatedColors: z.number(),
-  hasTransparency: z.boolean(),
-})
+export interface imageMetadata {
+  width: number,
+  height: number,
+  format: string,
+  mimeType: string,
+  aspectRatio: number,
+  pixelCount: number,
+  estimatedColors: number,
+  hasTransparency: boolean,
+}
 
 /**
- * Quality Metrics schema
+ * Quality Metrics type
  */
-export const qualityMetricsSchema = z.object({
-  resolution: z.string(),
-  sizeCategory: z.string(),
-  compressionEfficiency: z.number(),
-  dataUrlOverhead: z.number(),
-  base64Efficiency: z.number(),
-})
+export interface qualityMetrics {
+  resolution: string,
+  sizeCategory: string,
+  compressionEfficiency: number,
+  dataUrlOverhead: number,
+  base64Efficiency: number,
+}
 
 /**
- * Image Statistics schema
+ * Image Statistics type
  */
-export const imageStatisticsSchema = z.object({
-  inputSize: z.number(),
-  outputSize: z.number(),
-  compressionRatio: z.number(),
-  processingTime: z.number(),
-  imageMetadata: imageMetadataSchema,
-  qualityMetrics: qualityMetricsSchema,
-})
+export interface imageStatistics {
+  inputSize: number,
+  outputSize: number,
+  compressionRatio: number,
+  processingTime: number,
+  imageMetadata: imageMetadata,
+  qualityMetrics: qualityMetrics,
+}
 
 /**
- * Image Analysis schema
+ * Image Analysis type
  */
-export const imageAnalysisSchema = z.object({
-  isValidImage: z.boolean(),
-  hasDataUrlPrefix: z.boolean(),
-  isOptimized: z.boolean(),
-  suggestedImprovements: z.array(z.string()),
-  imageIssues: z.array(z.string()),
-  qualityScore: z.number(),
-  formatRecommendations: z.array(z.string()),
-})
+export interface imageAnalysis {
+  isValidImage: boolean,
+  hasDataUrlPrefix: boolean,
+  isOptimized: boolean,
+  suggestedImprovements: string[],
+  imageIssues: string[],
+  qualityScore: number,
+  formatRecommendations: string[],
+}
 
 /**
- * Image Processing Result schema
+ * Image Processing Result type
  */
-export const imageProcessingResultSchema = z.object({
-  id: z.string(),
-  input: z.string(),
-  output: z.string(),
-  direction: conversionDirectionSchema,
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  statistics: imageStatisticsSchema,
-  analysis: imageAnalysisSchema.optional(),
-  createdAt: z.date(),
-})
+export interface imageProcessingResult {
+  id: string,
+  input: string,
+  output: string,
+  direction: conversionDirection,
+  isValid: boolean
+  error?: string
+  statistics: imageStatistics
+  analysis?: imageAnalysis
+  createdAt: Date,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalProcessed: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  averageQuality: z.number(),
-  totalInputSize: z.number(),
-  totalOutputSize: z.number(),
-  successRate: z.number(),
-})
+export interface batchStatistics {
+  totalProcessed: number,
+  validCount: number,
+  invalidCount: number,
+  averageQuality: number,
+  totalInputSize: number,
+  totalOutputSize: number,
+  successRate: number,
+}
 
 /**
- * Processing Settings schema
+ * Processing Settings type
  */
-export const processingSettingsSchema = z.object({
-  outputFormat: imageFormatSchema,
-  quality: z.number(),
-  maxWidth: z.number(),
-  maxHeight: z.number(),
-  includeDataUrlPrefix: z.boolean(),
-  realTimeProcessing: z.boolean(),
-  exportFormat: exportFormatSchema,
-  compressionLevel: z.number(),
-  preserveMetadata: z.boolean(),
-  autoOptimize: z.boolean(),
-})
+export interface processingSettings {
+  outputFormat: imageFormat,
+  quality: number,
+  maxWidth: number,
+  maxHeight: number,
+  includeDataUrlPrefix: boolean,
+  realTimeProcessing: boolean,
+  exportFormat: exportFormat,
+  compressionLevel: number,
+  preserveMetadata: boolean,
+  autoOptimize: boolean,
+}
 
 /**
- * Processing Batch schema
+ * Processing Batch type
  */
-export const processingBatchSchema = z.object({
-  id: z.string(),
-  results: z.array(imageProcessingResultSchema),
-  count: z.number(),
-  settings: processingSettingsSchema,
-  createdAt: z.date(),
-  statistics: batchStatisticsSchema,
-})
+export interface processingBatch {
+  id: string,
+  results: imageProcessingResult[],
+  count: number,
+  settings: processingSettings,
+  createdAt: Date,
+  statistics: batchStatistics,
+}
 
 /**
- * Image Template schema
+ * Image Template type
  */
-export const imageTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  base64Example: z.string(),
-  imageInfo: z.string(),
-  useCase: z.array(z.string()),
-})
+export interface imageTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  base64Example: string,
+  imageInfo: string,
+  useCase: string[],
+}
 
 /**
- * Image Error schema
+ * Image Error type
  */
-export const imageErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["format", "size", "encoding", "corruption"]),
-  details: z.string().optional(),
-})
+export interface imageError {
+  message: string,
+  type: "format" | "size" | "encoding" | "corruption"
+  details?: string
+}
 
 /**
- * Image Validation schema
+ * Image Validation type
  */
-export const imageValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(imageErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-})
+export interface imageValidation {
+  isValid: boolean,
+  errors: imageError[],
+  warnings: string[],
+  suggestions: string[],
+}
 
 // ==================== Type Exports ====================
 
-export type ConversionDirection = z.infer<typeof conversionDirectionSchema>
-export type ImageFormat = z.infer<typeof imageFormatSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type ImageMetadata = z.infer<typeof imageMetadataSchema>
-export type QualityMetrics = z.infer<typeof qualityMetricsSchema>
-export type ImageStatistics = z.infer<typeof imageStatisticsSchema>
-export type ImageAnalysis = z.infer<typeof imageAnalysisSchema>
-export type ImageProcessingResult = z.infer<typeof imageProcessingResultSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type ProcessingSettings = z.infer<typeof processingSettingsSchema>
-export type ProcessingBatch = z.infer<typeof processingBatchSchema>
-export type ImageTemplate = z.infer<typeof imageTemplateSchema>
-export type ImageError = z.infer<typeof imageErrorSchema>
-export type ImageValidation = z.infer<typeof imageValidationSchema>
+export type ConversionDirection = conversionDirection
+export type ImageFormat = imageFormat
+export type ExportFormat = exportFormat
+export type ImageMetadata = imageMetadata
+export type QualityMetrics = qualityMetrics
+export type ImageStatistics = imageStatistics
+export type ImageAnalysis = imageAnalysis
+export type ImageProcessingResult = imageProcessingResult
+export type BatchStatistics = batchStatistics
+export type ProcessingSettings = processingSettings
+export type ProcessingBatch = processingBatch
+export type ImageTemplate = imageTemplate
+export type ImageError = imageError
+export type ImageValidation = imageValidation

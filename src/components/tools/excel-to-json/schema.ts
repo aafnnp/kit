@@ -1,189 +1,187 @@
-import { z } from "zod"
-
-// ==================== Excel to JSON Schemas ====================
+// ==================== Excel to JSON Types ====================
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xlsx"])
+export type exportFormat = "json" | "csv" | "txt" | "xlsx"
 
 /**
- * Sheet Selection schema
+ * Sheet Selection type
  */
-export const sheetSelectionSchema = z.enum(["all", "first", "selected", "non-empty"])
+export type sheetSelection = "all" | "first" | "selected" | "non-empty"
 
 /**
- * Data Type Distribution schema
+ * Data Type Distribution type
  */
-export const dataTypeDistributionSchema = z.object({
-  strings: z.number(),
-  numbers: z.number(),
-  dates: z.number(),
-  booleans: z.number(),
-  formulas: z.number(),
-  errors: z.number(),
-  empty: z.number(),
-})
+export interface dataTypeDistribution {
+  strings: number,
+  numbers: number,
+  dates: number,
+  booleans: number,
+  formulas: number,
+  errors: number,
+  empty: number,
+}
 
 /**
- * Sheet Data schema
+ * Sheet Data type
  */
-export const sheetDataSchema = z.object({
-  name: z.string(),
-  data: z.array(z.any()),
-  headers: z.array(z.string()),
-  rowCount: z.number(),
-  columnCount: z.number(),
-  isEmpty: z.boolean(),
-  hasHeaders: z.boolean(),
-  dataTypes: dataTypeDistributionSchema,
-})
+export interface sheetData {
+  name: string,
+  data: any[],
+  headers: string[],
+  rowCount: number,
+  columnCount: number,
+  isEmpty: boolean,
+  hasHeaders: boolean,
+  dataTypes: dataTypeDistribution,
+}
 
 /**
- * Processing Statistics schema
+ * Processing Statistics type
  */
-export const processingStatisticsSchema = z.object({
-  fileSize: z.number(),
-  totalSheets: z.number(),
-  totalRows: z.number(),
-  totalColumns: z.number(),
-  totalCells: z.number(),
-  emptySheets: z.number(),
-  processingTime: z.number(),
-  memoryUsage: z.number(),
-  compressionRatio: z.number(),
-})
+export interface processingStatistics {
+  fileSize: number,
+  totalSheets: number,
+  totalRows: number,
+  totalColumns: number,
+  totalCells: number,
+  emptySheets: number,
+  processingTime: number,
+  memoryUsage: number,
+  compressionRatio: number,
+}
 
 /**
- * Sheet Analysis schema
+ * Sheet Analysis type
  */
-export const sheetAnalysisSchema = z.object({
-  sheetName: z.string(),
-  dataQuality: z.number(),
-  headerConsistency: z.boolean(),
-  hasEmptyRows: z.boolean(),
-  hasEmptyColumns: z.boolean(),
-  dataTypeConsistency: z.boolean(),
-  recommendations: z.array(z.string()),
-})
+export interface sheetAnalysis {
+  sheetName: string,
+  dataQuality: number,
+  headerConsistency: boolean,
+  hasEmptyRows: boolean,
+  hasEmptyColumns: boolean,
+  dataTypeConsistency: boolean,
+  recommendations: string[],
+}
 
 /**
- * Excel Analysis schema
+ * Excel Analysis type
  */
-export const excelAnalysisSchema = z.object({
-  hasMultipleSheets: z.boolean(),
-  hasFormulas: z.boolean(),
-  hasErrors: z.boolean(),
-  hasEmptySheets: z.boolean(),
-  hasInconsistentHeaders: z.boolean(),
-  suggestedImprovements: z.array(z.string()),
-  dataIssues: z.array(z.string()),
-  qualityScore: z.number(),
-  sheetAnalysis: z.array(sheetAnalysisSchema),
-})
+export interface excelAnalysis {
+  hasMultipleSheets: boolean,
+  hasFormulas: boolean,
+  hasErrors: boolean,
+  hasEmptySheets: boolean,
+  hasInconsistentHeaders: boolean,
+  suggestedImprovements: string[],
+  dataIssues: string[],
+  qualityScore: number,
+  sheetAnalysis: sheetAnalysis[],
+}
 
 /**
- * Excel Processing Result schema
+ * Excel Processing Result type
  */
-export const excelProcessingResultSchema = z.object({
-  id: z.string(),
-  fileName: z.string(),
-  fileSize: z.number(),
-  sheets: z.array(sheetDataSchema),
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  statistics: processingStatisticsSchema,
-  analysis: excelAnalysisSchema.optional(),
-  createdAt: z.date(),
-})
+export interface excelProcessingResult {
+  id: string,
+  fileName: string,
+  fileSize: number,
+  sheets: sheetData[],
+  isValid: boolean
+  error?: string
+  statistics: processingStatistics
+  analysis?: excelAnalysis
+  createdAt: Date,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalProcessed: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  averageQuality: z.number(),
-  totalFileSize: z.number(),
-  totalSheets: z.number(),
-  successRate: z.number(),
-})
+export interface batchStatistics {
+  totalProcessed: number,
+  validCount: number,
+  invalidCount: number,
+  averageQuality: number,
+  totalFileSize: number,
+  totalSheets: number,
+  successRate: number,
+}
 
 /**
- * Processing Settings schema
+ * Processing Settings type
  */
-export const processingSettingsSchema = z.object({
-  includeEmptyRows: z.boolean(),
-  includeEmptyColumns: z.boolean(),
-  detectDataTypes: z.boolean(),
-  preserveFormulas: z.boolean(),
-  exportFormat: exportFormatSchema,
-  jsonIndentation: z.number(),
-  sheetSelection: sheetSelectionSchema,
-  headerRow: z.number(),
-  dateFormat: z.string(),
-  numberFormat: z.string(),
-  realTimeProcessing: z.boolean(),
-})
+export interface processingSettings {
+  includeEmptyRows: boolean,
+  includeEmptyColumns: boolean,
+  detectDataTypes: boolean,
+  preserveFormulas: boolean,
+  exportFormat: exportFormat,
+  jsonIndentation: number,
+  sheetSelection: sheetSelection,
+  headerRow: number,
+  dateFormat: string,
+  numberFormat: string,
+  realTimeProcessing: boolean,
+}
 
 /**
- * Processing Batch schema
+ * Processing Batch type
  */
-export const processingBatchSchema = z.object({
-  id: z.string(),
-  results: z.array(excelProcessingResultSchema),
-  count: z.number(),
-  settings: processingSettingsSchema,
-  createdAt: z.date(),
-  statistics: batchStatisticsSchema,
-})
+export interface processingBatch {
+  id: string,
+  results: excelProcessingResult[],
+  count: number,
+  settings: processingSettings,
+  createdAt: Date,
+  statistics: batchStatistics,
+}
 
 /**
- * Excel Template schema
+ * Excel Template type
  */
-export const excelTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  excelStructure: z.string(),
-  jsonExample: z.string(),
-  useCase: z.array(z.string()),
-})
+export interface excelTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  excelStructure: string,
+  jsonExample: string,
+  useCase: string[],
+}
 
 /**
- * File Error schema
+ * File Error type
  */
-export const fileErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["format", "size", "content", "permission"]),
-  details: z.string().optional(),
-})
+export interface fileError {
+  message: string,
+  type: "format"| "size" | "content" | "permission"
+  details?: string
+}
 
 /**
- * File Validation schema
+ * File Validation type
  */
-export const fileValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(fileErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-})
+export interface fileValidation {
+  isValid: boolean,
+  errors: fileError[],
+  warnings: string[],
+  suggestions: string[],
+}
 
 // ==================== Type Exports ====================
 
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type SheetSelection = z.infer<typeof sheetSelectionSchema>
-export type DataTypeDistribution = z.infer<typeof dataTypeDistributionSchema>
-export type SheetData = z.infer<typeof sheetDataSchema>
-export type ProcessingStatistics = z.infer<typeof processingStatisticsSchema>
-export type SheetAnalysis = z.infer<typeof sheetAnalysisSchema>
-export type ExcelAnalysis = z.infer<typeof excelAnalysisSchema>
-export type ExcelProcessingResult = z.infer<typeof excelProcessingResultSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type ProcessingSettings = z.infer<typeof processingSettingsSchema>
-export type ProcessingBatch = z.infer<typeof processingBatchSchema>
-export type ExcelTemplate = z.infer<typeof excelTemplateSchema>
-export type FileError = z.infer<typeof fileErrorSchema>
-export type FileValidation = z.infer<typeof fileValidationSchema>
+export type ExportFormat = exportFormat
+export type SheetSelection = sheetSelection
+export type DataTypeDistribution = dataTypeDistribution
+export type SheetData = sheetData
+export type ProcessingStatistics = processingStatistics
+export type SheetAnalysis = sheetAnalysis
+export type ExcelAnalysis = excelAnalysis
+export type ExcelProcessingResult = excelProcessingResult
+export type BatchStatistics = batchStatistics
+export type ProcessingSettings = processingSettings
+export type ProcessingBatch = processingBatch
+export type ExcelTemplate = excelTemplate
+export type FileError = fileError
+export type FileValidation = fileValidation

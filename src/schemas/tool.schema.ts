@@ -1,32 +1,24 @@
-import { z } from "zod"
-
-// ==================== Tool Schemas ====================
+// ==================== Tool Types ====================
 
 /**
- * Tool schema
+ * Tool type
  */
-export const toolSchema = z.object({
-  slug: z.string(),
-  name: z.string(),
-  icon: z.string().optional(),
-  href: z.string().optional(),
-})
+export interface Tool {
+  slug: string
+  name: string
+  icon?: string
+  href?: string
+}
 
 /**
- * Tool Category schema
+ * Tool Category type
  */
-export const toolCategorySchema = z.object({
-  id: z.string(),
-  tools: z.array(toolSchema),
-})
+export interface ToolCategory {
+  id: string
+  tools: Tool[]
+}
 
 /**
- * Tools Data schema
+ * Tools Data type
  */
-export const toolsDataSchema = z.array(toolCategorySchema)
-
-// ==================== Type Exports ====================
-
-export type Tool = z.infer<typeof toolSchema>
-export type ToolCategory = z.infer<typeof toolCategorySchema>
-export type ToolsData = z.infer<typeof toolsDataSchema>
+export type ToolsData = ToolCategory[]

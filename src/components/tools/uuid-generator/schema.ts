@@ -1,229 +1,222 @@
-import { z } from "zod"
-
-// ==================== UUID Generator Schemas ====================
+// ==================== UUID Generator Types ====================
 
 /**
- * UUID Type schema
+ * UUID Type type
  */
-export const uuidTypeSchema = z.enum([
-  "uuid_v1",
-  "uuid_v4",
-  "uuid_v5",
-  "nanoid",
-  "ulid",
-  "cuid",
-  "short_uuid",
-  "custom",
-])
+export type uuidType = "uuid_v1" | "uuid_v4" | "uuid_v5" | "nanoid" | "ulid" | "cuid" | "short_uuid" | "custom"
 
 /**
- * UUID Format schema
+ * UUID Format type
  */
-export const uuidFormatSchema = z.enum([
-  "standard",
-  "compact",
-  "braced",
-  "urn",
-  "base64",
-  "hex",
-])
+export type uuidFormat = "standard" | "compact" | "braced" | "urn" | "base64" | "hex"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["txt", "json", "csv", "xml"])
+export type exportFormat = "txt" | "json" | "csv" | "xml"
 
 /**
- * UUID Structure schema
+ * UUID Structure type
  */
-export const uuidStructureSchema = z.object({
-  segments: z.array(z.string()),
-  separators: z.array(z.string()),
-  character_set: z.string(),
-  case_format: z.enum(["uppercase", "lowercase", "mixed"]),
-  has_hyphens: z.boolean(),
-  has_braces: z.boolean(),
-  total_length: z.number(),
-  data_length: z.number(),
-})
+export interface uuidStructure {
+  segments: string[],
+  separators: string[],
+  character_set: string,
+  case_format: "uppercase"| "lowercase" | "mixed",
+  has_hyphens: boolean,
+  has_braces: boolean,
+  total_length: number,
+  data_length: number,
+}
 
 /**
- * UUID Security schema
+ * UUID Security type
  */
-export const uuidSecuritySchema = z.object({
-  predictability: z.enum(["low", "medium", "high"]),
-  entropy_bits: z.number(),
-  cryptographic_strength: z.enum(["weak", "moderate", "strong", "very_strong"]),
-  timing_attack_resistant: z.boolean(),
-  collision_resistance: z.enum(["low", "medium", "high", "very_high"]),
-  security_score: z.number(),
-})
+export interface uuidSecurity {
+  predictability: "low"| "medium" | "high",
+  entropy_bits: number,
+  cryptographic_strength: "weak"| "moderate" | "strong" | "very_strong",
+  timing_attack_resistant: boolean,
+  collision_resistance: "low"| "medium" | "high" | "very_high",
+  security_score: number,
+}
 
 /**
- * UUID Quality schema
+ * UUID Quality type
  */
-export const uuidQualitySchema = z.object({
-  uniqueness_score: z.number(),
-  randomness_score: z.number(),
-  format_compliance: z.number(),
-  readability_score: z.number(),
-  overall_quality: z.number(),
-  issues: z.array(z.string()),
-  strengths: z.array(z.string()),
-})
+export interface uuidQuality {
+  uniqueness_score: number,
+  randomness_score: number,
+  format_compliance: number,
+  readability_score: number,
+  overall_quality: number,
+  issues: string[],
+  strengths: string[],
+}
 
 /**
- * UUID Compatibility schema
+ * UUID Compatibility type
  */
-export const uuidCompatibilitySchema = z.object({
-  database_systems: z.array(z.string()),
-  programming_languages: z.array(z.string()),
-  web_standards: z.array(z.string()),
-  api_compatibility: z.array(z.string()),
-  limitations: z.array(z.string()),
-})
+export interface uuidCompatibility {
+  database_systems: string[],
+  programming_languages: string[],
+  web_standards: string[],
+  api_compatibility: string[],
+  limitations: string[],
+}
 
 /**
- * UUID Analysis schema
+ * UUID Analysis type
  */
-export const uuidAnalysisSchema = z.object({
-  structure: uuidStructureSchema,
-  security: uuidSecuritySchema,
-  quality: uuidQualitySchema,
-  compatibility: uuidCompatibilitySchema,
-  recommendations: z.array(z.string()),
-  warnings: z.array(z.string()),
-})
+export interface uuidAnalysis {
+  structure: uuidStructure,
+  security: uuidSecurity,
+  quality: uuidQuality,
+  compatibility: uuidCompatibility,
+  recommendations: string[],
+  warnings: string[],
+}
 
 /**
- * UUID Metadata schema
+ * UUID Metadata type
  */
-export const uuidMetadataSchema = z.object({
-  length: z.number(),
-  format: z.string(),
-  encoding: z.string(),
-  entropy: z.number(),
-  randomness: z.number(),
-  collision_probability: z.number(),
-  security_level: z.enum(["low", "medium", "high", "very_high"]),
-  use_cases: z.array(z.string()),
-  standards_compliance: z.array(z.string()),
-})
+export interface uuidMetadata {
+  length: number,
+  format: string,
+  encoding: string,
+  entropy: number,
+  randomness: number,
+  collision_probability: number,
+  security_level: "low"| "medium" | "high" | "very_high",
+  use_cases: string[],
+  standards_compliance: string[],
+}
 
 /**
- * UUID Result schema
+ * UUID Result type
  */
-export const uuidResultSchema = z.object({
-  id: z.string(),
-  value: z.string(),
-  type: uuidTypeSchema,
-  version: z.number().optional(),
-  variant: z.string().optional(),
-  timestamp: z.date().optional(),
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  metadata: uuidMetadataSchema.optional(),
-  analysis: uuidAnalysisSchema.optional(),
-  createdAt: z.date(),
-})
+export interface uuidResult {
+  id: string,
+  value: string,
+  type: uuidType
+  version?: number
+  variant?: string
+  timestamp?: Date
+  isValid: boolean
+  "error"?: string
+  metadata?: uuidMetadata
+  analysis?: uuidAnalysis
+  createdAt: Date,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalGenerated: z.number(),
-  uniqueCount: z.number(),
-  duplicateCount: z.number(),
-  averageEntropy: z.number(),
-  averageQuality: z.number(),
-  generationTime: z.number(),
-  collisionRate: z.number(),
-  securityDistribution: z.record(z.string(), z.number()),
-})
+export interface batchStatistics {
+  totalGenerated: number,
+  uniqueCount: number,
+  duplicateCount: number,
+  averageEntropy: number,
+  averageQuality: number,
+  generationTime: number,
+  collisionRate: number,
+  securityDistribution: Record<string, number>,
+}
 
 /**
- * Generation Settings schema
+ * Generation Settings type
  */
-export const generationSettingsSchema = z.object({
-  type: uuidTypeSchema,
-  count: z.number(),
-  format: uuidFormatSchema,
-  case: z.enum(["uppercase", "lowercase"]),
-  includeBraces: z.boolean(),
-  includeHyphens: z.boolean(),
-  customLength: z.number().optional(),
-  customAlphabet: z.string().optional(),
-  prefix: z.string().optional(),
-  suffix: z.string().optional(),
-  exportFormat: exportFormatSchema,
-})
+export interface generationSettings {
+  type: uuidType,
+  count: number,
+  format: uuidFormat,
+  case: "uppercase"| "lowercase",
+  includeBraces: boolean,
+  includeHyphens: boolean
+  customLength?: number
+  customAlphabet?: string
+  prefix?: string
+  suffix?: string
+  exportFormat: exportFormat,
+}
 
 /**
- * Generation Batch schema
+ * Generation Batch type
  */
-export const generationBatchSchema = z.object({
-  id: z.string(),
-  uuids: z.array(uuidResultSchema),
-  count: z.number(),
-  type: uuidTypeSchema,
-  settings: generationSettingsSchema,
-  createdAt: z.date(),
-  statistics: batchStatisticsSchema,
-})
+export interface generationBatch {
+  id: string,
+  uuids: uuidResult[],
+  count: number,
+  type: uuidType,
+  settings: generationSettings,
+  createdAt: Date,
+  statistics: batchStatistics,
+}
 
 /**
- * UUID Error schema
+ * UUID Error type
  */
-export const uuidErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["format", "length", "character", "structure", "version"]),
-  severity: z.enum(["error", "warning", "info"]),
-})
+export interface uuidError {
+  message: string,
+  type: "format"| "length" | "character" | "structure" | "version",
+  severity: "error"| "warning" | "info",
+}
 
 /**
- * UUID Validation schema
+ * UUID Validation type
  */
-export const uuidValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(uuidErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  detectedType: uuidTypeSchema.optional(),
-})
+export interface uuidValidation {
+  isValid: boolean,
+  errors: uuidError[],
+  warnings: string[],
+  suggestions: string[]
+  detectedType?: uuidType
+}
 
 /**
- * UUID Template schema
+ * UUID Template type
  */
-export const uuidTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  type: uuidTypeSchema,
-  settings: generationSettingsSchema.partial(),
-  useCase: z.array(z.string()),
-  examples: z.array(z.string()),
-})
+export interface uuidTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  type: uuidType,
+  settings: generationSettings,
+  useCase: string[],
+  examples: string[],
+}
 
 // ==================== Type Exports ====================
 
 /**
- * Type inference from zod schemas
+ * Type definitions
  */
-export type UUIDType = z.infer<typeof uuidTypeSchema>
-export type UUIDFormat = z.infer<typeof uuidFormatSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type UUIDStructure = z.infer<typeof uuidStructureSchema>
-export type UUIDSecurity = z.infer<typeof uuidSecuritySchema>
-export type UUIDQuality = z.infer<typeof uuidQualitySchema>
-export type UUIDCompatibility = z.infer<typeof uuidCompatibilitySchema>
-export type UUIDAnalysis = z.infer<typeof uuidAnalysisSchema>
-export type UUIDMetadata = z.infer<typeof uuidMetadataSchema>
-export type UUIDResult = z.infer<typeof uuidResultSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type GenerationSettings = z.infer<typeof generationSettingsSchema>
-export type GenerationBatch = z.infer<typeof generationBatchSchema>
-export type UUIDError = z.infer<typeof uuidErrorSchema>
-export type UUIDValidation = z.infer<typeof uuidValidationSchema>
-export type UUIDTemplate = z.infer<typeof uuidTemplateSchema>
-
+export type UUIDType = uuidType
+export type UUIDFormat = uuidFormat
+export type ExportFormat = exportFormat
+export type UUIDStructure = uuidStructure
+export type UUIDSecurity = uuidSecurity
+export type UUIDQuality = uuidQuality
+export type UUIDCompatibility = uuidCompatibility
+export type UUIDAnalysis = uuidAnalysis
+export type UUIDMetadata = uuidMetadata
+export type UUIDResult = uuidResult
+export type BatchStatistics = batchStatistics
+export type GenerationSettings = generationSettings
+export type GenerationBatch = generationBatch
+export type UUIDError = uuidError
+export type UUIDValidation = uuidValidation
+export type UUIDTemplate = uuidTemplate
+export type UuidType = uuidType
+export type UuidFormat = uuidFormat
+export type UuidStructure = uuidStructure
+export type UuidSecurity = uuidSecurity
+export type UuidQuality = uuidQuality
+export type UuidCompatibility = uuidCompatibility
+export type UuidAnalysis = uuidAnalysis
+export type UuidMetadata = uuidMetadata
+export type UuidResult = uuidResult
+export type UuidError = uuidError
+export type UuidValidation = uuidValidation
+export type UuidTemplate = uuidTemplate

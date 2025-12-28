@@ -1,122 +1,120 @@
-import { z } from "zod"
-
-// ==================== Diff Viewer Schemas ====================
+// ==================== Diff Viewer Types ====================
 
 /**
- * Diff Algorithm schema
+ * Diff Algorithm type
  */
-export const diffAlgorithmSchema = z.enum(["myers", "patience", "histogram", "minimal"])
+export type diffAlgorithm = "myers" | "patience" | "histogram" | "minimal"
 
 /**
- * Diff Format schema
+ * Diff Format type
  */
-export const diffFormatSchema = z.enum(["unified", "side-by-side", "split", "inline"])
+export type diffFormat = "unified" | "side-by-side" | "split" | "inline"
 
 /**
- * Diff View Mode schema
+ * Diff View Mode type
  */
-export const diffViewModeSchema = z.enum(["full", "changes-only", "context"])
+export type diffViewMode = "full" | "changes-only" | "context"
 
 /**
- * Diff File schema
+ * Diff File type
  */
-export const diffFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  pairedWith: z.string().optional(),
-})
+export interface diffFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  pairedWith?: string
+}
 
 /**
- * Word Diff schema
+ * Word Diff type
  */
-export const wordDiffSchema = z.object({
-  type: z.enum(["added", "removed", "unchanged"]),
-  content: z.string(),
-})
+export interface wordDiff {
+  type: "added"| "removed" | "unchanged",
+  content: string,
+}
 
 /**
- * Diff Line schema
+ * Diff Line type
  */
-export const diffLineSchema = z.object({
-  type: z.enum(["added", "removed", "modified", "unchanged", "context"]),
-  leftLineNumber: z.number().optional(),
-  rightLineNumber: z.number().optional(),
-  leftContent: z.string().optional(),
-  rightContent: z.string().optional(),
-  content: z.string(),
-  wordDiffs: z.array(wordDiffSchema).optional(),
-})
+export interface diffLine {
+  type: "added"| "removed" | "modified" | "unchanged" | "context"
+  leftLineNumber?: number
+  rightLineNumber?: number
+  leftContent?: string
+  rightContent?: string
+  content: string
+  wordDiffs?: wordDiff[]
+}
 
 /**
- * Diff Statistics schema
+ * Diff Statistics type
  */
-export const diffStatisticsSchema = z.object({
-  totalLines: z.number(),
-  addedLines: z.number(),
-  removedLines: z.number(),
-  modifiedLines: z.number(),
-  unchangedLines: z.number(),
-  addedWords: z.number(),
-  removedWords: z.number(),
-  similarity: z.number(),
-  executionTime: z.number(),
-})
+export interface diffStatistics {
+  totalLines: number,
+  addedLines: number,
+  removedLines: number,
+  modifiedLines: number,
+  unchangedLines: number,
+  addedWords: number,
+  removedWords: number,
+  similarity: number,
+  executionTime: number,
+}
 
 /**
- * Diff Result schema
+ * Diff Result type
  */
-export const diffResultSchema = z.object({
-  lines: z.array(diffLineSchema),
-  statistics: diffStatisticsSchema,
-  algorithm: diffAlgorithmSchema,
-  format: diffFormatSchema,
-})
+export interface diffResult {
+  lines: diffLine[],
+  statistics: diffStatistics,
+  algorithm: diffAlgorithm,
+  format: diffFormat,
+}
 
 /**
- * Diff Pair schema
+ * Diff Pair type
  */
-export const diffPairSchema = z.object({
-  id: z.string(),
-  leftFile: diffFileSchema,
-  rightFile: diffFileSchema,
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  result: diffResultSchema.optional(),
-  processedAt: z.date().optional(),
-})
+export interface diffPair {
+  id: string,
+  leftFile: diffFile,
+  rightFile: diffFile,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  result?: diffResult
+  processedAt?: Date
+}
 
 /**
- * Diff Settings schema
+ * Diff Settings type
  */
-export const diffSettingsSchema = z.object({
-  algorithm: diffAlgorithmSchema,
-  format: diffFormatSchema,
-  viewMode: diffViewModeSchema,
-  showLineNumbers: z.boolean(),
-  showWhitespace: z.boolean(),
-  ignoreWhitespace: z.boolean(),
-  ignoreCase: z.boolean(),
-  contextLines: z.number(),
-  wordLevelDiff: z.boolean(),
-  syntaxHighlighting: z.boolean(),
-  wrapLines: z.boolean(),
-})
+export interface diffSettings {
+  algorithm: diffAlgorithm,
+  format: diffFormat,
+  viewMode: diffViewMode,
+  showLineNumbers: boolean,
+  showWhitespace: boolean,
+  ignoreWhitespace: boolean,
+  ignoreCase: boolean,
+  contextLines: number,
+  wordLevelDiff: boolean,
+  syntaxHighlighting: boolean,
+  wrapLines: boolean,
+}
 
 // ==================== Type Exports ====================
 
-export type DiffAlgorithm = z.infer<typeof diffAlgorithmSchema>
-export type DiffFormat = z.infer<typeof diffFormatSchema>
-export type DiffViewMode = z.infer<typeof diffViewModeSchema>
-export type DiffFile = z.infer<typeof diffFileSchema>
-export type WordDiff = z.infer<typeof wordDiffSchema>
-export type DiffLine = z.infer<typeof diffLineSchema>
-export type DiffStatistics = z.infer<typeof diffStatisticsSchema>
-export type DiffResult = z.infer<typeof diffResultSchema>
-export type DiffPair = z.infer<typeof diffPairSchema>
-export type DiffSettings = z.infer<typeof diffSettingsSchema>
+export type DiffAlgorithm = diffAlgorithm
+export type DiffFormat = diffFormat
+export type DiffViewMode = diffViewMode
+export type DiffFile = diffFile
+export type WordDiff = wordDiff
+export type DiffLine = diffLine
+export type DiffStatistics = diffStatistics
+export type DiffResult = diffResult
+export type DiffPair = diffPair
+export type DiffSettings = diffSettings

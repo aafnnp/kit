@@ -1,197 +1,192 @@
-import { z } from "zod"
-
-// ==================== Color Picker Schemas ====================
+// ==================== Color Picker Types ====================
 
 /**
- * Color Format schema
+ * Color Format type
  */
-export const colorFormatSchema = z.enum(["hex", "rgb", "hsl", "hsv", "cmyk", "lab"])
+export type colorFormat = "hex" | "rgb" | "hsl" | "hsv" | "cmyk" | "lab"
 
 /**
- * Harmony Type schema
+ * Harmony Type type
  */
-export const harmonyTypeSchema = z.enum([
-  "complementary",
-  "analogous",
-  "triadic",
-  "tetradic",
-  "monochromatic",
-  "split-complementary",
-])
+export type harmonyType = "complementary" | "analogous" | "triadic" | "tetradic" | "monochromatic" | "split-complementary"
 
 /**
- * Sort By schema
+ * Sort By type
  */
-export const sortBySchema = z.enum(["hue", "saturation", "lightness", "brightness", "name"])
+export type sortBy = "hue" | "saturation" | "lightness" | "brightness" | "name"
 
 /**
- * RGB schema
+ * RGB type
  */
-export const rgbSchema = z.object({
-  r: z.number(),
-  g: z.number(),
-  b: z.number(),
-})
+export interface rgb {
+  r: number,
+  g: number,
+  b: number,
+}
 
 /**
- * HSL schema
+ * HSL type
  */
-export const hslSchema = z.object({
-  h: z.number(),
-  s: z.number(),
-  l: z.number(),
-})
+export interface hsl {
+  h: number,
+  s: number,
+  l: number,
+}
 
 /**
- * HSV schema
+ * HSV type
  */
-export const hsvSchema = z.object({
-  h: z.number(),
-  s: z.number(),
-  v: z.number(),
-})
+export interface hsv {
+  h: number,
+  s: number,
+  v: number,
+}
 
 /**
- * CMYK schema
+ * CMYK type
  */
-export const cmykSchema = z.object({
-  c: z.number(),
-  m: z.number(),
-  y: z.number(),
-  k: z.number(),
-})
+export interface cmyk {
+  c: number,
+  m: number,
+  y: number,
+  k: number,
+}
 
 /**
- * LAB schema
+ * LAB type
  */
-export const labSchema = z.object({
-  l: z.number(),
-  a: z.number(),
-  b: z.number(),
-})
+export interface lab {
+  l: number,
+  a: number,
+  b: number,
+}
 
 /**
- * Accessibility Info schema
+ * Accessibility Info type
  */
-export const accessibilityInfoSchema = z.object({
-  contrastRatios: z.object({
-    white: z.number(),
-    black: z.number(),
-  }),
-  wcagAA: z.object({
-    normal: z.boolean(),
-    large: z.boolean(),
-  }),
-  wcagAAA: z.object({
-    normal: z.boolean(),
-    large: z.boolean(),
-  }),
-  colorBlindSafe: z.boolean(),
-})
+export interface accessibilityInfo {
+  contrastRatios: {
+    white: number,
+    black: number,
+  }
+  wcagAA: {
+    normal: boolean,
+    large: boolean,
+  }
+  wcagAAA: {
+    normal: boolean,
+    large: boolean,
+  }
+  colorBlindSafe: boolean,
+}
+/**
+ * Color type
+ */
+export interface color {
+  hex: string,
+  rgb: rgb,
+  hsl: hsl,
+  hsv: hsv,
+  cmyk: cmyk,
+  lab: lab
+  name?: string
+  accessibility: accessibilityInfo,
+}
 
 /**
- * Color schema
+ * Color Palette type
  */
-export const colorSchema = z.object({
-  hex: z.string(),
-  rgb: rgbSchema,
-  hsl: hslSchema,
-  hsv: hsvSchema,
-  cmyk: cmykSchema,
-  lab: labSchema,
-  name: z.string().optional(),
-  accessibility: accessibilityInfoSchema,
-})
+export interface colorPalette {
+  primary: color,
+  complementary: color[],
+  analogous: color[],
+  triadic: color[],
+  tetradic: color[],
+  monochromatic: color[],
+  splitComplementary: color[],
+}
 
 /**
- * Color Palette schema
+ * Color Statistics type
  */
-export const colorPaletteSchema = z.object({
-  primary: colorSchema,
-  complementary: z.array(colorSchema),
-  analogous: z.array(colorSchema),
-  triadic: z.array(colorSchema),
-  tetradic: z.array(colorSchema),
-  monochromatic: z.array(colorSchema),
-  splitComplementary: z.array(colorSchema),
-})
+export interface colorStatistics {
+  totalColors: number,
+  dominantColor: color,
+  averageBrightness: number,
+  averageSaturation: number,
+  colorDistribution: Record<string, number>,
+  accessibilityScore: number,
+  processingTime: number,
+}
 
 /**
- * Color Statistics schema
+ * Color Settings type
  */
-export const colorStatisticsSchema = z.object({
-  totalColors: z.number(),
-  dominantColor: colorSchema,
-  averageBrightness: z.number(),
-  averageSaturation: z.number(),
-  colorDistribution: z.record(z.string(), z.number()),
-  accessibilityScore: z.number(),
-  processingTime: z.number(),
-})
+export interface colorSettings {
+  format: colorFormat,
+  paletteSize: number,
+  harmonyType: harmonyType,
+  includeAccessibility: boolean,
+  generateNames: boolean,
+  sortBy: sortBy,
+}
 
 /**
- * Color Settings schema
+ * Color Data type
  */
-export const colorSettingsSchema = z.object({
-  format: colorFormatSchema,
-  paletteSize: z.number(),
-  harmonyType: harmonyTypeSchema,
-  includeAccessibility: z.boolean(),
-  generateNames: z.boolean(),
-  sortBy: sortBySchema,
-})
+export interface colorData {
+  colors: color[],
+  palette: colorPalette,
+  statistics: colorStatistics,
+  format: colorFormat,
+}
 
 /**
- * Color Data schema
+ * Color File type
  */
-export const colorDataSchema = z.object({
-  colors: z.array(colorSchema),
-  palette: colorPaletteSchema,
-  statistics: colorStatisticsSchema,
-  format: colorFormatSchema,
-})
+export interface colorFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  colorData?: colorData
+}
 
 /**
- * Color File schema
+ * Color Template type
  */
-export const colorFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  colorData: colorDataSchema.optional(),
-})
-
-/**
- * Color Template schema
- */
-export const colorTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  colors: z.array(z.string()),
-  category: z.string(),
-})
+export interface colorTemplate {
+  id: string,
+  name: string,
+  description: string,
+  colors: string[],
+  category: string,
+}
 
 // ==================== Type Exports ====================
 
-export type ColorFormat = z.infer<typeof colorFormatSchema>
-export type HarmonyType = z.infer<typeof harmonyTypeSchema>
-export type SortBy = z.infer<typeof sortBySchema>
-export type RGB = z.infer<typeof rgbSchema>
-export type HSL = z.infer<typeof hslSchema>
-export type HSV = z.infer<typeof hsvSchema>
-export type CMYK = z.infer<typeof cmykSchema>
-export type LAB = z.infer<typeof labSchema>
-export type AccessibilityInfo = z.infer<typeof accessibilityInfoSchema>
-export type Color = z.infer<typeof colorSchema>
-export type ColorPalette = z.infer<typeof colorPaletteSchema>
-export type ColorStatistics = z.infer<typeof colorStatisticsSchema>
-export type ColorSettings = z.infer<typeof colorSettingsSchema>
-export type ColorData = z.infer<typeof colorDataSchema>
-export type ColorFile = z.infer<typeof colorFileSchema>
-export type ColorTemplate = z.infer<typeof colorTemplateSchema>
+export type ColorFormat = colorFormat
+export type HarmonyType = harmonyType
+export type SortBy = sortBy
+export type RGB = rgb
+export type HSL = hsl
+export type HSV = hsv
+export type CMYK = cmyk
+export type LAB = lab
+export type AccessibilityInfo = accessibilityInfo
+export type Color = color
+export type ColorPalette = colorPalette
+export type ColorStatistics = colorStatistics
+export type ColorSettings = colorSettings
+export type ColorData = colorData
+export type ColorFile = colorFile
+export type ColorTemplate = colorTemplate
+export type Rgb = rgb
+export type Hsl = hsl
+export type Hsv = hsv
+export type Cmyk = cmyk
+export type Lab = lab

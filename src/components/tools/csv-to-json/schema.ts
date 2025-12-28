@@ -1,179 +1,179 @@
-import { z } from "zod"
-
-// ==================== CSV to JSON Schemas ====================
+// ==================== CSV to JSON Types ====================
 
 /**
- * Conversion Direction schema
+ * Conversion Direction type
  */
-export const conversionDirectionSchema = z.enum(["csv-to-json", "json-to-csv"])
+export type conversionDirection = "csv-to-json" | "json-to-csv"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xlsx"])
+export type exportFormat = "json" | "csv" | "txt" | "xlsx"
 
 /**
- * CSV Quoting schema
+ * CSV Quoting type
  */
-export const csvQuotingSchema = z.enum(["minimal", "all", "non-numeric", "none"])
+export type csvQuoting = "minimal" | "all" | "non-numeric" | "none"
 
 /**
- * Data Type Count schema
+ * Data Type Count type
  */
-export const dataTypeCountSchema = z.object({
-  strings: z.number(),
-  numbers: z.number(),
-  booleans: z.number(),
-  nulls: z.number(),
-  dates: z.number(),
-  objects: z.number(),
-  arrays: z.number(),
-})
+export interface dataTypeCount {
+  strings: number,
+  numbers: number,
+  booleans: number,
+  nulls: number,
+  dates: number,
+  objects: number,
+  arrays: number,
+}
 
 /**
- * Data Metrics schema
+ * Data Metrics type
  */
-export const dataMetricsSchema = z.object({
-  rowCount: z.number(),
-  columnCount: z.number(),
-  totalCells: z.number(),
-  emptyValues: z.number(),
-  dataTypes: dataTypeCountSchema,
-  encoding: z.string(),
-})
+export interface dataMetrics {
+  rowCount: number,
+  columnCount: number,
+  totalCells: number,
+  emptyValues: number,
+  dataTypes: dataTypeCount,
+  encoding: string,
+}
 
 /**
- * Conversion Statistics schema
+ * Conversion Statistics type
  */
-export const conversionStatisticsSchema = z.object({
-  inputSize: z.number(),
-  outputSize: z.number(),
-  inputLines: z.number(),
-  outputLines: z.number(),
-  processingTime: z.number(),
-  dataMetrics: dataMetricsSchema,
-  compressionRatio: z.number(),
-})
+export interface conversionStatistics {
+  inputSize: number,
+  outputSize: number,
+  inputLines: number,
+  outputLines: number,
+  processingTime: number,
+  dataMetrics: dataMetrics,
+  compressionRatio: number,
+}
 
 /**
- * Data Analysis schema
+ * Data Analysis type
  */
-export const dataAnalysisSchema = z.object({
-  hasHeaders: z.boolean(),
-  delimiter: z.string(),
-  quoteChar: z.string(),
-  escapeChar: z.string(),
-  hasNestedData: z.boolean(),
-  hasSpecialChars: z.boolean(),
-  suggestedImprovements: z.array(z.string()),
-  dataIssues: z.array(z.string()),
-  qualityScore: z.number(),
-})
+export interface dataAnalysis {
+  hasHeaders: boolean,
+  delimiter: string,
+  quoteChar: string,
+  escapeChar: string,
+  hasNestedData: boolean,
+  hasSpecialChars: boolean,
+  suggestedImprovements: string[],
+  dataIssues: string[],
+  qualityScore: number,
+}
 
 /**
- * Conversion Result schema
+ * Conversion Result type
  */
-export const conversionResultSchema = z.object({
-  id: z.string(),
-  input: z.string(),
-  output: z.string(),
-  direction: conversionDirectionSchema,
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  statistics: conversionStatisticsSchema,
-  analysis: dataAnalysisSchema.optional(),
-  createdAt: z.date(),
-})
+export interface conversionResult {
+  id: string,
+  input: string,
+  output: string,
+  direction: conversionDirection,
+  isValid: boolean
+  error?: string,
+  statistics: conversionStatistics
+  analysis?: dataAnalysis,
+  createdAt: Date,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalConverted: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  averageQuality: z.number(),
-  totalInputSize: z.number(),
-  totalOutputSize: z.number(),
-  successRate: z.number(),
-})
+export interface batchStatistics {
+  totalConverted: number,
+  validCount: number,
+  invalidCount: number,
+  averageQuality: number,
+  totalInputSize: number,
+  totalOutputSize: number,
+  successRate: number,
+}
 
 /**
- * Conversion Settings schema
+ * Conversion Settings type
  */
-export const conversionSettingsSchema = z.object({
-  delimiter: z.string(),
-  quoteChar: z.string(),
-  escapeChar: z.string(),
-  hasHeaders: z.boolean(),
-  skipEmptyLines: z.boolean(),
-  trimWhitespace: z.boolean(),
-  realTimeConversion: z.boolean(),
-  exportFormat: exportFormatSchema,
-  jsonIndentation: z.number(),
-  csvQuoting: csvQuotingSchema,
-  dateFormat: z.string(),
-  numberFormat: z.string(),
-})
+export interface conversionSettings {
+  delimiter: string,
+  quoteChar: string,
+  escapeChar: string,
+  hasHeaders: boolean,
+  skipEmptyLines: boolean,
+  trimWhitespace: boolean,
+  realTimeConversion: boolean,
+  exportFormat: exportFormat,
+  jsonIndentation: number,
+  csvQuoting: csvQuoting,
+  dateFormat: string,
+  numberFormat: string,
+}
 
 /**
- * Conversion Batch schema
+ * Conversion Batch type
  */
-export const conversionBatchSchema = z.object({
-  id: z.string(),
-  results: z.array(conversionResultSchema),
-  count: z.number(),
-  settings: conversionSettingsSchema,
-  createdAt: z.date(),
-  statistics: batchStatisticsSchema,
-})
+export interface conversionBatch {
+  id: string,
+  results: conversionResult[],
+  count: number,
+  settings: conversionSettings,
+  createdAt: Date,
+  statistics: batchStatistics,
+}
 
 /**
- * CSV Template schema
+ * CSV Template type
  */
-export const csvTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  csvExample: z.string(),
-  jsonExample: z.string(),
-  useCase: z.array(z.string()),
-})
+export interface csvTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  csvExample: string,
+  jsonExample: string,
+  useCase: string[],
+}
 
 /**
- * Data Error schema
+ * Data Error type
  */
-export const dataErrorSchema = z.object({
-  message: z.string(),
-  line: z.number().optional(),
-  column: z.string().optional(),
-  value: z.string().optional(),
-})
+export interface dataError {
+  message: string
+  line?: number,
+  column?: string,
+  value?: string,
+}
 
 /**
- * Data Validation schema
+ * Data Validation type
  */
-export const dataValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(dataErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-})
+export interface dataValidation {
+  isValid: boolean,
+  errors: dataError[],
+  warnings: string[],
+  suggestions: string[],
+}
 
 // ==================== Type Exports ====================
 
-export type ConversionDirection = z.infer<typeof conversionDirectionSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type CSVQuoting = z.infer<typeof csvQuotingSchema>
-export type DataTypeCount = z.infer<typeof dataTypeCountSchema>
-export type DataMetrics = z.infer<typeof dataMetricsSchema>
-export type ConversionStatistics = z.infer<typeof conversionStatisticsSchema>
-export type DataAnalysis = z.infer<typeof dataAnalysisSchema>
-export type ConversionResult = z.infer<typeof conversionResultSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type ConversionSettings = z.infer<typeof conversionSettingsSchema>
-export type ConversionBatch = z.infer<typeof conversionBatchSchema>
-export type CSVTemplate = z.infer<typeof csvTemplateSchema>
-export type DataError = z.infer<typeof dataErrorSchema>
-export type DataValidation = z.infer<typeof dataValidationSchema>
+export type ConversionDirection = conversionDirection
+export type ExportFormat = exportFormat
+export type CSVQuoting = csvQuoting
+export type DataTypeCount = dataTypeCount
+export type DataMetrics = dataMetrics
+export type ConversionStatistics = conversionStatistics
+export type DataAnalysis = dataAnalysis
+export type ConversionResult = conversionResult
+export type BatchStatistics = batchStatistics
+export type ConversionSettings = conversionSettings
+export type ConversionBatch = conversionBatch
+export type CSVTemplate = csvTemplate
+export type DataError = dataError
+export type DataValidation = dataValidation
+export type CsvQuoting = csvQuoting
+export type CsvTemplate = csvTemplate

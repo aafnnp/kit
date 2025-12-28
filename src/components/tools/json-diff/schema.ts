@@ -1,130 +1,130 @@
-import { z } from "zod"
-
-// ==================== JSON Diff Schemas ====================
+// ==================== JSON Diff Types ====================
 
 /**
- * Diff Type schema
+ * Diff Type type
  */
-export const diffTypeSchema = z.enum(["added", "removed", "modified", "moved", "unchanged"])
+export type diffType = "added" | "removed" | "modified" | "moved" | "unchanged"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml", "yaml", "html"])
+export type exportFormat = "json" | "csv" | "txt" | "xml" | "yaml" | "html"
 
 /**
- * JSON Difference schema
+ * JSON Difference type
  */
-export const jsonDifferenceSchema = z.object({
-  path: z.string(),
-  type: diffTypeSchema,
-  leftValue: z.any().optional(),
-  rightValue: z.any().optional(),
-  description: z.string(),
-  severity: z.enum(["low", "medium", "high"]),
-})
+export interface jsonDifference {
+  path: string,
+  type: diffType
+  leftValue?: any
+  rightValue?: any
+  description: string,
+  severity: "low"| "medium" | "high",
+}
 
 /**
- * Diff Summary schema
+ * Diff Summary type
  */
-export const diffSummarySchema = z.object({
-  totalDifferences: z.number(),
-  added: z.number(),
-  removed: z.number(),
-  modified: z.number(),
-  moved: z.number(),
-  unchanged: z.number(),
-  similarity: z.number(),
-  complexity: z.number(),
-})
+export interface diffSummary {
+  totalDifferences: number,
+  added: number,
+  removed: number,
+  modified: number,
+  moved: number,
+  unchanged: number,
+  similarity: number,
+  complexity: number,
+}
 
 /**
- * Diff Metadata schema
+ * Diff Metadata type
  */
-export const diffMetadataSchema = z.object({
-  leftSize: z.number(),
-  rightSize: z.number(),
-  leftDepth: z.number(),
-  rightDepth: z.number(),
-  leftKeys: z.number(),
-  rightKeys: z.number(),
-  processingTime: z.number(),
-  memoryUsage: z.number(),
-})
+export interface diffMetadata {
+  leftSize: number,
+  rightSize: number,
+  leftDepth: number,
+  rightDepth: number,
+  leftKeys: number,
+  rightKeys: number,
+  processingTime: number,
+  memoryUsage: number,
+}
 
 /**
- * JSON Diff Result schema
+ * JSON Diff Result type
  */
-export const jsonDiffResultSchema = z.object({
-  id: z.string(),
-  leftJSON: z.any(),
-  rightJSON: z.any(),
-  leftText: z.string(),
-  rightText: z.string(),
-  differences: z.array(jsonDifferenceSchema),
-  summary: diffSummarySchema,
-  metadata: diffMetadataSchema,
-  timestamp: z.date(),
-})
+export interface jsonDiffResult {
+  id: string,
+  leftJSON: any,
+  rightJSON: any,
+  leftText: string,
+  rightText: string,
+  differences: jsonDifference[],
+  summary: diffSummary,
+  metadata: diffMetadata,
+  timestamp: Date,
+}
 
 /**
- * Diff Options schema
+ * Diff Options type
  */
-export const diffOptionsSchema = z.object({
-  ignoreCase: z.boolean(),
-  ignoreWhitespace: z.boolean(),
-  ignoreArrayOrder: z.boolean(),
-  ignoreExtraKeys: z.boolean(),
-  showUnchanged: z.boolean(),
-  maxDepth: z.number(),
-  precision: z.number(),
-  customComparator: z.custom<(a: any, b: any) => boolean>().optional(),
-})
+export interface diffOptions {
+  ignoreCase: boolean,
+  ignoreWhitespace: boolean,
+  ignoreArrayOrder: boolean,
+  ignoreExtraKeys: boolean,
+  showUnchanged: boolean,
+  maxDepth: number,
+  precision: number
+  customComparator?: (a: any, b: any) => boolean
+}
 
 /**
- * Diff Template schema
+ * Diff Template type
  */
-export const diffTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  leftJSON: z.string(),
-  rightJSON: z.string(),
-  category: z.string(),
-  useCase: z.array(z.string()),
-  expectedDifferences: z.number(),
-})
+export interface diffTemplate {
+  id: string,
+  name: string,
+  description: string,
+  leftJSON: string,
+  rightJSON: string,
+  category: string,
+  useCase: string[],
+  expectedDifferences: number,
+}
 
 /**
- * Diff Error schema
+ * Diff Error type
  */
-export const diffErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["syntax", "structure", "performance", "logic"]),
-  severity: z.enum(["error", "warning", "info"]),
-  position: z.string().optional(),
-})
+export interface diffError {
+  message: string,
+  type: "syntax"| "structure" | "performance" | "logic",
+  severity: "error"| "warning" | "info"
+  position?: string
+}
 
 /**
- * Diff Validation schema
+ * Diff Validation type
  */
-export const diffValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(diffErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  qualityScore: z.number(),
-})
+export interface diffValidation {
+  isValid: boolean,
+  errors: diffError[],
+  warnings: string[],
+  suggestions: string[],
+  qualityScore: number,
+}
 
 // ==================== Type Exports ====================
 
-export type DiffType = z.infer<typeof diffTypeSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type JSONDifference = z.infer<typeof jsonDifferenceSchema>
-export type DiffSummary = z.infer<typeof diffSummarySchema>
-export type DiffMetadata = z.infer<typeof diffMetadataSchema>
-export type JSONDiffResult = z.infer<typeof jsonDiffResultSchema>
-export type DiffOptions = z.infer<typeof diffOptionsSchema>
-export type DiffTemplate = z.infer<typeof diffTemplateSchema>
-export type DiffError = z.infer<typeof diffErrorSchema>
-export type DiffValidation = z.infer<typeof diffValidationSchema>
+export type DiffType = diffType
+export type ExportFormat = exportFormat
+export type JSONDifference = jsonDifference
+export type DiffSummary = diffSummary
+export type DiffMetadata = diffMetadata
+export type JSONDiffResult = jsonDiffResult
+export type DiffOptions = diffOptions
+export type DiffTemplate = diffTemplate
+export type DiffError = diffError
+export type DiffValidation = diffValidation
+export type JsonDifference = jsonDifference
+export type JsonDiffResult = jsonDiffResult

@@ -1,215 +1,204 @@
-import { z } from "zod"
-
-// ==================== DNS Lookup Schemas ====================
+// ==================== DNS Lookup Types ====================
 
 /**
- * DNS Record Type schema
+ * DNS Record Type type
  */
-export const dnsRecordTypeSchema = z.enum([
-  "A",
-  "AAAA",
-  "CNAME",
-  "MX",
-  "NS",
-  "TXT",
-  "SOA",
-  "PTR",
-  "SRV",
-  "CAA",
-  "DNSKEY",
-  "DS",
-  "RRSIG",
-  "NSEC",
-  "NSEC3",
-  "SPF",
-  "DMARC",
-])
+export type dnsRecordType = "A" | "AAAA" | "CNAME" | "MX" | "NS" | "TXT" | "SOA" | "PTR" | "SRV" | "CAA" | "DNSKEY" | "DS" | "RRSIG" | "NSEC" | "NSEC3" | "SPF" | "DMARC"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "xml", "txt"])
+export type exportFormat = "json" | "csv" | "xml" | "txt"
 
 /**
- * DNS Record schema
+ * DNS Record type
  */
-export const dnsRecordSchema = z.object({
-  type: dnsRecordTypeSchema,
-  name: z.string(),
-  value: z.string(),
-  ttl: z.number().optional(),
-  priority: z.number().optional(),
-  weight: z.number().optional(),
-  port: z.number().optional(),
-  target: z.string().optional(),
-  class: z.string().optional(),
-  flags: z.string().optional(),
-})
+export interface dnsRecord {
+  type: dnsRecordType,
+  name: string,
+  value: string
+  ttl?: number
+  priority?: number
+  weight?: number
+  port?: number
+  target?: string
+  class?: string
+  flags?: string
+}
 
 /**
- * TTL Analysis schema
+ * TTL Analysis type
  */
-export const ttlAnalysisSchema = z.object({
-  minTTL: z.number(),
-  maxTTL: z.number(),
-  averageTTL: z.number(),
-  commonTTL: z.number(),
-  ttlDistribution: z.record(z.string(), z.number()),
-})
+export interface ttlAnalysis {
+  minTTL: number,
+  maxTTL: number,
+  averageTTL: number,
+  commonTTL: number,
+  ttlDistribution: Record<string, number>,
+}
 
 /**
- * Security Metrics schema
+ * Security Metrics type
  */
-export const securityMetricsSchema = z.object({
-  hasDNSSEC: z.boolean(),
-  hasCAA: z.boolean(),
-  hasSPF: z.boolean(),
-  hasDMARC: z.boolean(),
-  hasDKIM: z.boolean(),
-  securityScore: z.number(),
-  vulnerabilities: z.array(z.string()),
-  recommendations: z.array(z.string()),
-})
+export interface securityMetrics {
+  hasDNSSEC: boolean,
+  hasCAA: boolean,
+  hasSPF: boolean,
+  hasDMARC: boolean,
+  hasDKIM: boolean,
+  securityScore: number,
+  vulnerabilities: string[],
+  recommendations: string[],
+}
 
 /**
- * DNS Statistics schema
+ * DNS Statistics type
  */
-export const dnsStatisticsSchema = z.object({
-  domainLength: z.number(),
-  recordCount: z.number(),
-  processingTime: z.number(),
-  responseTime: z.number(),
-  recordTypeDistribution: z.record(z.string(), z.number()),
-  ttlAnalysis: ttlAnalysisSchema,
-  securityMetrics: securityMetricsSchema,
-})
+export interface dnsStatistics {
+  domainLength: number,
+  recordCount: number,
+  processingTime: number,
+  responseTime: number,
+  recordTypeDistribution: Record<string, number>,
+  ttlAnalysis: ttlAnalysis,
+  securityMetrics: securityMetrics,
+}
 
 /**
- * DNS Analysis schema
+ * DNS Analysis type
  */
-export const dnsAnalysisSchema = z.object({
-  isValidDomain: z.boolean(),
-  hasIPv4: z.boolean(),
-  hasIPv6: z.boolean(),
-  hasMailServers: z.boolean(),
-  hasNameServers: z.boolean(),
-  hasSecurityRecords: z.boolean(),
-  domainAge: z.number().optional(),
-  registrar: z.string().optional(),
-  nameServers: z.array(z.string()),
-  mailServers: z.array(z.string()),
-  ipAddresses: z.array(z.string()),
-  suggestedImprovements: z.array(z.string()),
-  dnsIssues: z.array(z.string()),
-  qualityScore: z.number(),
-  performanceIssues: z.array(z.string()),
-  securityIssues: z.array(z.string()),
-})
+export interface dnsAnalysis {
+  isValidDomain: boolean,
+  hasIPv4: boolean,
+  hasIPv6: boolean,
+  hasMailServers: boolean,
+  hasNameServers: boolean,
+  hasSecurityRecords: boolean
+  domainAge?: number
+  registrar?: string
+  nameServers: string[],
+  mailServers: string[],
+  ipAddresses: string[],
+  suggestedImprovements: string[],
+  dnsIssues: string[],
+  qualityScore: number,
+  performanceIssues: string[],
+  securityIssues: string[],
+}
 
 /**
- * DNS Lookup Result schema
+ * DNS Lookup Result type
  */
-export const dnsLookupResultSchema = z.object({
-  id: z.string(),
-  domain: z.string(),
-  recordType: dnsRecordTypeSchema,
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  records: z.array(dnsRecordSchema),
-  statistics: dnsStatisticsSchema,
-  analysis: dnsAnalysisSchema.optional(),
-  createdAt: z.date(),
-})
+export interface dnsLookupResult {
+  id: string,
+  domain: string,
+  recordType: dnsRecordType,
+  isValid: boolean
+  error?: string
+  records: dnsRecord[],
+  statistics: dnsStatistics
+  analysis?: dnsAnalysis
+  createdAt: Date,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalProcessed: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  averageQuality: z.number(),
-  totalRecords: z.number(),
-  successRate: z.number(),
-  recordTypeDistribution: z.record(z.string(), z.number()),
-  securityDistribution: z.record(z.string(), z.number()),
-})
+export interface batchStatistics {
+  totalProcessed: number,
+  validCount: number,
+  invalidCount: number,
+  averageQuality: number,
+  totalRecords: number,
+  successRate: number,
+  recordTypeDistribution: Record<string, number>,
+  securityDistribution: Record<string, number>,
+}
 
 /**
- * Processing Settings schema
+ * Processing Settings type
  */
-export const processingSettingsSchema = z.object({
-  recordTypes: z.array(dnsRecordTypeSchema),
-  includeSecurityAnalysis: z.boolean(),
-  includePerformanceAnalysis: z.boolean(),
-  includeDomainAnalysis: z.boolean(),
-  timeout: z.number(),
-  retryAttempts: z.number(),
-  usePublicDNS: z.boolean(),
-  dnsServer: z.string(),
-  exportFormat: exportFormatSchema,
-  realTimeLookup: z.boolean(),
-  maxResults: z.number(),
-})
+export interface processingSettings {
+  recordTypes: dnsRecordType[],
+  includeSecurityAnalysis: boolean,
+  includePerformanceAnalysis: boolean,
+  includeDomainAnalysis: boolean,
+  timeout: number,
+  retryAttempts: number,
+  usePublicDNS: boolean,
+  dnsServer: string,
+  exportFormat: exportFormat,
+  realTimeLookup: boolean,
+  maxResults: number,
+}
 
 /**
- * Processing Batch schema
+ * Processing Batch type
  */
-export const processingBatchSchema = z.object({
-  id: z.string(),
-  results: z.array(dnsLookupResultSchema),
-  count: z.number(),
-  settings: processingSettingsSchema,
-  createdAt: z.date(),
-  statistics: batchStatisticsSchema,
-})
+export interface processingBatch {
+  id: string,
+  results: dnsLookupResult[],
+  count: number,
+  settings: processingSettings,
+  createdAt: Date,
+  statistics: batchStatistics,
+}
 
 /**
- * DNS Template schema
+ * DNS Template type
  */
-export const dnsTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  domains: z.array(z.string()),
-  recordTypes: z.array(dnsRecordTypeSchema),
-  useCase: z.array(z.string()),
-  examples: z.array(z.string()),
-})
+export interface dnsTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  domains: string[],
+  recordTypes: dnsRecordType[],
+  useCase: string[],
+  examples: string[],
+}
 
 /**
- * DNS Error schema
+ * DNS Error type
  */
-export const dnsErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["format", "syntax", "network", "security"]),
-  severity: z.enum(["error", "warning", "info"]),
-})
+export interface dnsError {
+  message: string,
+  type: "format"| "syntax" | "network" | "security",
+  severity: "error"| "warning" | "info",
+}
 
 /**
- * DNS Validation schema
+ * DNS Validation type
  */
-export const dnsValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(dnsErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-})
+export interface dnsValidation {
+  isValid: boolean,
+  errors: dnsError[],
+  warnings: string[],
+  suggestions: string[],
+}
 
 // ==================== Type Exports ====================
 
-export type DNSRecordType = z.infer<typeof dnsRecordTypeSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type DNSRecord = z.infer<typeof dnsRecordSchema>
-export type TTLAnalysis = z.infer<typeof ttlAnalysisSchema>
-export type SecurityMetrics = z.infer<typeof securityMetricsSchema>
-export type DNSStatistics = z.infer<typeof dnsStatisticsSchema>
-export type DNSAnalysis = z.infer<typeof dnsAnalysisSchema>
-export type DNSLookupResult = z.infer<typeof dnsLookupResultSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type ProcessingSettings = z.infer<typeof processingSettingsSchema>
-export type ProcessingBatch = z.infer<typeof processingBatchSchema>
-export type DNSTemplate = z.infer<typeof dnsTemplateSchema>
-export type DNSError = z.infer<typeof dnsErrorSchema>
-export type DNSValidation = z.infer<typeof dnsValidationSchema>
+export type DNSRecordType = dnsRecordType
+export type ExportFormat = exportFormat
+export type DNSRecord = dnsRecord
+export type TTLAnalysis = ttlAnalysis
+export type SecurityMetrics = securityMetrics
+export type DNSStatistics = dnsStatistics
+export type DNSAnalysis = dnsAnalysis
+export type DNSLookupResult = dnsLookupResult
+export type BatchStatistics = batchStatistics
+export type ProcessingSettings = processingSettings
+export type ProcessingBatch = processingBatch
+export type DNSTemplate = dnsTemplate
+export type DNSError = dnsError
+export type DNSValidation = dnsValidation
+export type DnsRecordType = dnsRecordType
+export type DnsRecord = dnsRecord
+export type TtlAnalysis = ttlAnalysis
+export type DnsStatistics = dnsStatistics
+export type DnsAnalysis = dnsAnalysis
+export type DnsLookupResult = dnsLookupResult
+export type DnsTemplate = dnsTemplate
+export type DnsError = dnsError
+export type DnsValidation = dnsValidation

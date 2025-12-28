@@ -1,137 +1,135 @@
-import { z } from "zod"
-
-// ==================== Timezone Convert Schemas ====================
+// ==================== Timezone Convert Types ====================
 
 /**
- * Date Format schema
+ * Date Format type
  */
-export const dateFormatSchema = z.enum(["iso", "us", "eu", "local", "custom"])
+export type dateFormat = "iso" | "us" | "eu" | "local" | "custom"
 
 /**
- * Time Format schema
+ * Time Format type
  */
-export const timeFormatSchema = z.enum(["12h", "24h"])
+export type timeFormat = "12h" | "24h"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml"
 
 /**
- * Timezone Info schema
+ * Timezone Info type
  */
-export const timezoneInfoSchema = z.object({
-  name: z.string(),
-  abbreviation: z.string(),
-  offset: z.string(),
-  offsetMinutes: z.number(),
-  isDST: z.boolean(),
-  currentTime: z.string(),
-  utcOffset: z.string(),
-})
+export interface timezoneInfo {
+  name: string,
+  abbreviation: string,
+  offset: string,
+  offsetMinutes: number,
+  isDST: boolean,
+  currentTime: string,
+  utcOffset: string,
+}
 
 /**
- * Timezone Conversion schema
+ * Timezone Conversion type
  */
-export const timezoneConversionSchema = z.object({
-  id: z.string(),
-  inputTime: z.string(),
-  inputTimezone: z.string(),
-  outputTimezone: z.string(),
-  inputDate: z.date(),
-  outputDate: z.date(),
-  outputTime: z.string(),
-  timeDifference: z.number(),
-  isDST: z.boolean(),
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  createdAt: z.date(),
-})
+export interface timezoneConversion {
+  id: string,
+  inputTime: string,
+  inputTimezone: string,
+  outputTimezone: string,
+  inputDate: Date,
+  outputDate: Date,
+  outputTime: string,
+  timeDifference: number,
+  isDST: boolean,
+  isValid: boolean
+  error?: string,
+  createdAt: Date,
+}
 
 /**
- * World Clock schema
+ * World Clock type
  */
-export const worldClockSchema = z.object({
-  timezone: z.string(),
-  currentTime: z.date(),
-  formattedTime: z.string(),
-  info: timezoneInfoSchema,
-})
+export interface worldClock {
+  timezone: string,
+  currentTime: Date,
+  formattedTime: string,
+  info: timezoneInfo,
+}
 
 /**
- * Timezone Statistics schema
+ * Timezone Statistics type
  */
-export const timezoneStatisticsSchema = z.object({
-  totalConversions: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  timezoneDistribution: z.record(z.string(), z.number()),
-  averageTimeDifference: z.number(),
-  dstCount: z.number(),
-  successRate: z.number(),
-})
+export interface timezoneStatistics {
+  totalConversions: number,
+  validCount: number,
+  invalidCount: number,
+  timezoneDistribution: Record<string, number>,
+  averageTimeDifference: number,
+  dstCount: number,
+  successRate: number,
+}
 
 /**
- * Timezone Settings schema
+ * Timezone Settings type
  */
-export const timezoneSettingsSchema = z.object({
-  defaultInputTimezone: z.string(),
-  defaultOutputTimezone: z.string(),
-  dateFormat: dateFormatSchema,
-  timeFormat: timeFormatSchema,
-  includeSeconds: z.boolean(),
-  show24Hour: z.boolean(),
-  showDST: z.boolean(),
-  realTimeConversion: z.boolean(),
-  autoRefresh: z.boolean(),
-  refreshInterval: z.number(),
-  exportFormat: exportFormatSchema,
-})
+export interface timezoneSettings {
+  defaultInputTimezone: string,
+  defaultOutputTimezone: string,
+  dateFormat: dateFormat,
+  timeFormat: timeFormat,
+  includeSeconds: boolean,
+  show24Hour: boolean,
+  showDST: boolean,
+  realTimeConversion: boolean,
+  autoRefresh: boolean,
+  refreshInterval: number,
+  exportFormat: exportFormat,
+}
 
 /**
- * Timezone Conversion Batch schema
+ * Timezone Conversion Batch type
  */
-export const timezoneConversionBatchSchema = z.object({
-  id: z.string(),
-  conversions: z.array(timezoneConversionSchema),
-  count: z.number(),
-  settings: timezoneSettingsSchema,
-  createdAt: z.date(),
-  statistics: timezoneStatisticsSchema,
-})
+export interface timezoneConversionBatch {
+  id: string,
+  conversions: timezoneConversion[],
+  count: number,
+  settings: timezoneSettings,
+  createdAt: Date,
+  statistics: timezoneStatistics,
+}
 
 /**
- * Timezone Template schema
+ * Timezone Template type
  */
-export const timezoneTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  inputTimezone: z.string(),
-  outputTimezone: z.string(),
-  useCase: z.array(z.string()),
-})
+export interface timezoneTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  inputTimezone: string,
+  outputTimezone: string,
+  useCase: string[],
+}
 
 /**
- * DateTime Validation schema
+ * DateTime Validation type
  */
-export const dateTimeValidationSchema = z.object({
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  parsedDate: z.date().optional(),
-})
+export interface dateTimeValidation {
+  isValid: boolean
+  error?: string,
+  parsedDate?: Date,
+}
 
 // ==================== Type Exports ====================
 
-export type DateFormat = z.infer<typeof dateFormatSchema>
-export type TimeFormat = z.infer<typeof timeFormatSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type TimezoneInfo = z.infer<typeof timezoneInfoSchema>
-export type TimezoneConversion = z.infer<typeof timezoneConversionSchema>
-export type WorldClock = z.infer<typeof worldClockSchema>
-export type TimezoneStatistics = z.infer<typeof timezoneStatisticsSchema>
-export type TimezoneSettings = z.infer<typeof timezoneSettingsSchema>
-export type TimezoneConversionBatch = z.infer<typeof timezoneConversionBatchSchema>
-export type TimezoneTemplate = z.infer<typeof timezoneTemplateSchema>
-export type DateTimeValidation = z.infer<typeof dateTimeValidationSchema>
+export type DateFormat = dateFormat
+export type TimeFormat = timeFormat
+export type ExportFormat = exportFormat
+export type TimezoneInfo = timezoneInfo
+export type TimezoneConversion = timezoneConversion
+export type WorldClock = worldClock
+export type TimezoneStatistics = timezoneStatistics
+export type TimezoneSettings = timezoneSettings
+export type TimezoneConversionBatch = timezoneConversionBatch
+export type TimezoneTemplate = timezoneTemplate
+export type DateTimeValidation = dateTimeValidation

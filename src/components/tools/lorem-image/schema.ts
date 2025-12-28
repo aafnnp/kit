@@ -1,66 +1,64 @@
-import { z } from "zod"
-
-// ==================== Lorem Image Schemas ====================
+// ==================== Lorem Image Types ====================
 
 /**
- * Image Format schema
+ * Image Format type
  */
-export const imageFormatSchema = z.enum(["png", "jpeg", "webp", "svg"])
+export type imageFormat = "png" | "jpeg" | "webp" | "svg"
 
 /**
- * Status schema
+ * Status type
  */
-export const statusSchema = z.enum(["pending", "generating", "completed", "error"])
+export type status = "pending" | "generating" | "completed" | "error"
 
 /**
- * Lorem Image File schema
+ * Lorem Image File type
  */
-export const loremImageFileSchema = z.object({
-  id: z.string(),
-  url: z.string(),
-  width: z.number(),
-  height: z.number(),
-  format: imageFormatSchema,
-  bgColor: z.string(),
-  fgColor: z.string(),
-  text: z.string(),
-  category: z.string().optional(),
-  status: statusSchema,
-  error: z.string().optional(),
-  size: z.number().optional(),
-  generatedAt: z.date().optional(),
-})
+export interface loremImageFile {
+  id: string,
+  url: string,
+  width: number,
+  height: number,
+  format: imageFormat,
+  bgColor: string,
+  fgColor: string,
+  text: string
+  category?: string,
+  status: status
+  error?: string,
+  size?: number,
+  generatedAt?: Date,
+}
 
 /**
- * Lorem Image Settings schema
+ * Lorem Image Settings type
  */
-export const loremImageSettingsSchema = z.object({
-  width: z.number(),
-  height: z.number(),
-  format: imageFormatSchema,
-  bgColor: z.string(),
-  fgColor: z.string(),
-  text: z.string(),
-  category: z.string().optional(),
-  batchCount: z.number(),
-  template: z.string().optional(),
-})
+export interface loremImageSettings {
+  width: number,
+  height: number,
+  format: imageFormat,
+  bgColor: string,
+  fgColor: string,
+  text: string
+  category?: string,
+  batchCount: number
+  template?: string,
+}
 
 /**
- * Lorem Image Stats schema
+ * Lorem Image Stats type
  */
-export const loremImageStatsSchema = z.object({
-  totalCount: z.number(),
-  totalSize: z.number(),
-  averageSize: z.number(),
-  formats: z.record(z.string(), z.number()),
-  categories: z.record(z.string(), z.number()),
-})
+export interface loremImageStats {
+  totalCount: number,
+  totalSize: number,
+  averageSize: number,
+  formats: Record<string, number>,
+  categories: Record<string, number>,
+}
 
 // ==================== Type Exports ====================
 
-export type ImageFormat = z.infer<typeof imageFormatSchema>
-export type Status = z.infer<typeof statusSchema>
-export type LoremImageFile = z.infer<typeof loremImageFileSchema>
-export type LoremImageSettings = z.infer<typeof loremImageSettingsSchema>
-export type LoremImageStats = z.infer<typeof loremImageStatsSchema>
+export type ImageFormat = imageFormat
+export type Status = status
+export type LoremImageFile = loremImageFile
+export type LoremImageSettings = loremImageSettings
+export type LoremImageStats = loremImageStats

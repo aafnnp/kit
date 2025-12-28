@@ -1,24 +1,16 @@
-import { z } from "zod"
-
-// ==================== Settings Schemas ====================
+// ==================== Settings Types ====================
 
 /**
- * Settings Step schema
+ * Settings Step type
  */
-export const settingsStepSchema = z.enum(["idle", "confirm", "downloading", "finished"])
+export type SettingsStep = "idle" | "confirm" | "downloading" | "finished"
 
 /**
- * Update Info schema
- * Note: downloadAndInstall is a function, so we use z.custom() for it
+ * Update Info type
  */
-export const updateInfoSchema = z.object({
-  version: z.string(),
-  date: z.string(),
-  body: z.string(),
-  downloadAndInstall: z.custom<(cb: (event: any) => void) => Promise<void>>(),
-})
-
-// ==================== Type Exports ====================
-
-export type SettingsStep = z.infer<typeof settingsStepSchema>
-export type UpdateInfo = z.infer<typeof updateInfoSchema>
+export interface UpdateInfo {
+  version: string
+  date: string
+  body: string
+  downloadAndInstall: (cb: (event: any) => void) => Promise<void>
+}

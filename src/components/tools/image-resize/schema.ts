@@ -1,101 +1,95 @@
-import { z } from "zod"
-
-// ==================== Image Resize Schemas ====================
+// ==================== Image Resize Types ====================
 
 /**
- * Image File schema
+ * Image File type
  */
-export const imageFileSchema = z.object({
-  id: z.string(),
-  file: z.instanceof(File),
-  originalUrl: z.string(),
-  resizedUrl: z.string().optional(),
-  originalSize: z.number(),
-  resizedSize: z.number().optional(),
-  originalDimensions: z.object({
-    width: z.number(),
-    height: z.number(),
-  }),
-  resizedDimensions: z
-    .object({
-      width: z.number(),
-      height: z.number(),
-    })
-    .optional(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  timestamp: z.number(),
-  processingTime: z.number().optional(),
-  format: z.string().optional(),
-  aspectRatio: z.number().optional(),
-})
+export interface imageFile {
+  id: string,
+  file: File,
+  originalUrl: string
+  resizedUrl?: string
+  originalSize: number
+  resizedSize?: number
+  originalDimensions: {
+    width: number,
+  height: number,
+  },
+  resizedDimensions?: {
+    width: number,
+    height: number,
+  },
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  timestamp: number,
+  processingTime?: number,
+  format?: string,
+  aspectRatio: number,
+}
+/**
+ * Resize Settings type
+ */
+export interface resizeSettings {
+  width: number,
+  height: number,
+  maintainAspectRatio: boolean,
+  resizeMode: "exact"| "fit" | "fill" | "stretch",
+  format: "png"| "jpeg" | "webp",
+  quality: number,
+  backgroundColor: string,
+  interpolation: "nearest"| "bilinear" | "bicubic" | "lanczos",
+  sharpen: boolean,
+  removeMetadata: boolean,
+}
 
 /**
- * Resize Settings schema
+ * Preset Dimension type
  */
-export const resizeSettingsSchema = z.object({
-  width: z.number(),
-  height: z.number(),
-  maintainAspectRatio: z.boolean(),
-  resizeMode: z.enum(["exact", "fit", "fill", "stretch"]),
-  format: z.enum(["png", "jpeg", "webp"]),
-  quality: z.number(),
-  backgroundColor: z.string(),
-  interpolation: z.enum(["nearest", "bilinear", "bicubic", "lanczos"]),
-  sharpen: z.boolean(),
-  removeMetadata: z.boolean(),
-})
+export interface presetDimension {
+  name: string,
+  width: number,
+  height: number,
+  category: "social"| "web" | "print" | "video" | "mobile",
+  description: string,
+  aspectRatio: string,
+  useCase: string,
+}
 
 /**
- * Preset Dimension schema
+ * Resize Stats type
  */
-export const presetDimensionSchema = z.object({
-  name: z.string(),
-  width: z.number(),
-  height: z.number(),
-  category: z.enum(["social", "web", "print", "video", "mobile"]),
-  description: z.string(),
-  aspectRatio: z.string(),
-  useCase: z.string(),
-})
-
+export interface resizeStats {
+  totalOriginalSize: number,
+  totalResizedSize: number,
+  totalSavings: number,
+  averageSizeReduction: number,
+  processingTime: number,
+  imagesProcessed: number,
+  averageFileSize: number,
+  largestIncrease: number,
+  largestDecrease: number,
+  dimensionChanges: {
+    averageWidthChange: number,
+  averageHeightChange: number,
+    aspectRatioChanges: number,
+}
+}
 /**
- * Resize Stats schema
+ * History Entry type
  */
-export const resizeStatsSchema = z.object({
-  totalOriginalSize: z.number(),
-  totalResizedSize: z.number(),
-  totalSavings: z.number(),
-  averageSizeReduction: z.number(),
-  processingTime: z.number(),
-  imagesProcessed: z.number(),
-  averageFileSize: z.number(),
-  largestIncrease: z.number(),
-  largestDecrease: z.number(),
-  dimensionChanges: z.object({
-    averageWidthChange: z.number(),
-    averageHeightChange: z.number(),
-    aspectRatioChanges: z.number(),
-  }),
-})
-
-/**
- * History Entry schema
- */
-export const historyEntrySchema = z.object({
-  id: z.string(),
-  timestamp: z.number(),
-  settings: resizeSettingsSchema,
-  stats: resizeStatsSchema,
-  imageCount: z.number(),
-  totalSavings: z.number(),
-  description: z.string(),
-})
+export interface historyEntry {
+  id: string,
+  timestamp: number,
+  settings: resizeSettings,
+  stats: resizeStats,
+  imageCount: number,
+  totalSavings: number,
+  description: string,
+}
 
 // ==================== Type Exports ====================
 
-export type ImageFile = z.infer<typeof imageFileSchema>
-export type ResizeSettings = z.infer<typeof resizeSettingsSchema>
-export type PresetDimension = z.infer<typeof presetDimensionSchema>
-export type ResizeStats = z.infer<typeof resizeStatsSchema>
-export type HistoryEntry = z.infer<typeof historyEntrySchema>
+export type ImageFile = imageFile
+export type ResizeSettings = resizeSettings
+export type PresetDimension = presetDimension
+export type ResizeStats = resizeStats
+export type HistoryEntry = historyEntry

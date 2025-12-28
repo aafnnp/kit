@@ -1,114 +1,112 @@
-import { z } from "zod"
-
-// ==================== SHA-256 Hash Schemas ====================
+// ==================== SHA-256 Hash Types ====================
 
 /**
- * Hash Algorithm schema
+ * Hash Algorithm type
  */
-export const hashAlgorithmSchema = z.enum(["SHA-256", "SHA-1", "SHA-384", "SHA-512", "MD5", "SHA-3"])
+export type hashAlgorithm = "SHA-256" | "SHA-1" | "SHA-384" | "SHA-512" | "MD5" | "SHA-3"
 
 /**
- * Output Format schema
+ * Output Format type
  */
-export const outputFormatSchema = z.enum(["hex", "base64", "binary"])
+export type outputFormat = "hex" | "base64" | "binary"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml"
 
 /**
- * Hash Content schema
+ * Hash Content type
  */
-export const hashContentSchema = z.object({
-  content: z.union([z.string(), z.instanceof(ArrayBuffer)]),
-  size: z.number(),
-  type: z.enum(["text", "file"]),
-  encoding: z.string(),
-})
+export interface hashContent {
+  content: string | ArrayBuffer,
+  size: number,
+  type: "text"| "file",
+  encoding: string,
+}
 
 /**
- * Hash Result schema
+ * Hash Result type
  */
-export const hashResultSchema = z.object({
-  algorithm: hashAlgorithmSchema,
-  hash: z.string(),
-  processingTime: z.number(),
-  verified: z.boolean().optional(),
-})
+export interface hashResult {
+  algorithm: hashAlgorithm,
+  hash: string,
+  processingTime: number
+  verified?: boolean
+}
 
 /**
- * Hash Statistics schema
+ * Hash Statistics type
  */
-export const hashStatisticsSchema = z.object({
-  totalHashes: z.number(),
-  algorithmDistribution: z.record(z.string(), z.number()),
-  averageProcessingTime: z.number(),
-  totalProcessingTime: z.number(),
-  collisionCount: z.number(),
-  verificationCount: z.number(),
-  successRate: z.number(),
-})
+export interface hashStatistics {
+  totalHashes: number,
+  algorithmDistribution: Record<string, number>,
+  averageProcessingTime: number,
+  totalProcessingTime: number,
+  collisionCount: number,
+  verificationCount: number,
+  successRate: number,
+}
 
 /**
- * Hash Settings schema
+ * Hash Settings type
  */
-export const hashSettingsSchema = z.object({
-  algorithms: z.array(hashAlgorithmSchema),
-  outputFormat: outputFormatSchema,
-  includeTimestamp: z.boolean(),
-  enableVerification: z.boolean(),
-  batchProcessing: z.boolean(),
-  realTimeHashing: z.boolean(),
-  exportFormat: exportFormatSchema,
-})
+export interface hashSettings {
+  algorithms: hashAlgorithm[],
+  outputFormat: outputFormat,
+  includeTimestamp: boolean,
+  enableVerification: boolean,
+  batchProcessing: boolean,
+  realTimeHashing: boolean,
+  exportFormat: exportFormat,
+}
 
 /**
- * Hash Data schema
+ * Hash Data type
  */
-export const hashDataSchema = z.object({
-  original: hashContentSchema,
-  hashes: z.array(hashResultSchema),
-  statistics: hashStatisticsSchema,
-  settings: hashSettingsSchema,
-})
+export interface hashData {
+  original: hashContent,
+  hashes: hashResult[],
+  statistics: hashStatistics,
+  settings: hashSettings,
+}
 
 /**
- * Hash File schema
+ * Hash File type
  */
-export const hashFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.union([z.string(), z.instanceof(ArrayBuffer)]),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  hashData: hashDataSchema.optional(),
-})
+export interface hashFile {
+  id: string,
+  name: string,
+  content: string | ArrayBuffer,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  hashData?: hashData
+}
 
 /**
- * Hash Template schema
+ * Hash Template type
  */
-export const hashTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  settings: hashSettingsSchema.partial(),
-  algorithms: z.array(hashAlgorithmSchema),
-})
+export interface hashTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  settings: hashSettings,
+  algorithms: hashAlgorithm[],
+}
 
 // ==================== Type Exports ====================
 
-export type HashAlgorithm = z.infer<typeof hashAlgorithmSchema>
-export type OutputFormat = z.infer<typeof outputFormatSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type HashContent = z.infer<typeof hashContentSchema>
-export type HashResult = z.infer<typeof hashResultSchema>
-export type HashStatistics = z.infer<typeof hashStatisticsSchema>
-export type HashSettings = z.infer<typeof hashSettingsSchema>
-export type HashData = z.infer<typeof hashDataSchema>
-export type HashFile = z.infer<typeof hashFileSchema>
-export type HashTemplate = z.infer<typeof hashTemplateSchema>
+export type HashAlgorithm = hashAlgorithm
+export type OutputFormat = outputFormat
+export type ExportFormat = exportFormat
+export type HashContent = hashContent
+export type HashResult = hashResult
+export type HashStatistics = hashStatistics
+export type HashSettings = hashSettings
+export type HashData = hashData
+export type HashFile = hashFile
+export type HashTemplate = hashTemplate

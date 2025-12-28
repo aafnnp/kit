@@ -1,5 +1,5 @@
 import type { Tool, ToolsData } from "@/schemas/tool.schema"
-import { toolMetaSchema, type ToolMeta } from "./tool-meta"
+import { defineToolMeta, type ToolMeta } from "./tool-meta"
 
 type CategoryId = string
 type CategorizedTools = Record<CategoryId, Tool[]>
@@ -24,7 +24,7 @@ const metaModules = import.meta.glob<ToolMetaModule>("/src/components/tools/*/me
 })
 
 const groupedTools = Object.entries(metaModules).reduce<CategorizedTools>((acc, [path, mod]) => {
-  const meta = toolMetaSchema.parse(mod.default)
+  const meta = defineToolMeta(mod.default as ToolMeta)
   const slugFromPath = path.split("/components/tools/")[1]?.split("/")[0]
   if (slugFromPath && slugFromPath !== meta.slug) {
     throw new Error(`Tool meta slug mismatch for ${path}`)

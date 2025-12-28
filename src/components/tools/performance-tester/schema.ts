@@ -1,135 +1,133 @@
-import { z } from "zod"
-
-// ==================== Performance Tester Schemas ====================
+// ==================== Performance Tester Types ====================
 
 /**
- * Test Type schema
+ * Test Type type
  */
-export const testTypeSchema = z.enum(["image-compress", "audio-convert", "video-trim", "matrix-math"])
+export type testType = "image-compress" | "audio-convert" | "video-trim" | "matrix-math"
 
 /**
- * Data Size schema
+ * Data Size type
  */
-export const dataSizeSchema = z.enum(["small", "medium", "large"])
+export type dataSize = "small" | "medium" | "large"
 
 /**
- * Test Status schema
+ * Test Status type
  */
-export const testStatusSchema = z.enum(["completed", "failed", "running", "pending"])
+export type testStatus = "completed" | "failed" | "running" | "pending"
 
 /**
- * Memory Usage schema
+ * Memory Usage type
  */
-export const memoryUsageSchema = z.object({
-  worker: z.number(),
-  mainThread: z.number(),
-})
+export interface memoryUsage {
+  worker: number,
+  mainThread: number,
+}
 
 /**
- * Throughput schema
+ * Throughput type
  */
-export const throughputSchema = z.object({
-  worker: z.number(),
-  mainThread: z.number(),
-})
+export interface throughput {
+  worker: number,
+  mainThread: number,
+}
 
 /**
- * Test Result schema
+ * Test Result type
  */
-export const testResultSchema = z.object({
-  id: z.string(),
-  testName: z.string(),
-  testType: testTypeSchema,
-  workerTime: z.number(),
-  mainThreadTime: z.number(),
-  improvement: z.number(),
-  memoryUsage: memoryUsageSchema,
-  throughput: throughputSchema,
-  timestamp: z.number(),
-  status: testStatusSchema,
-  error: z.string().optional(),
-})
+export interface testResult {
+  id: string,
+  testName: string,
+  testType: testType,
+  workerTime: number,
+  mainThreadTime: number,
+  improvement: number,
+  memoryUsage: memoryUsage,
+  throughput: throughput,
+  timestamp: number,
+  status: testStatus
+  error?: string,
+}
 
 /**
- * Test Config schema
+ * Test Config type
  */
-export const testConfigSchema = z.object({
-  testType: testTypeSchema,
-  iterations: z.number(),
-  dataSize: dataSizeSchema,
-  concurrency: z.number(),
-  measureMemory: z.boolean(),
-})
+export interface testConfig {
+  testType: testType,
+  iterations: number,
+  dataSize: dataSize,
+  concurrency: number,
+  measureMemory: boolean,
+}
 
 /**
- * Performance Metrics schema
+ * Performance Metrics type
  */
-export const performanceMetricsSchema = z.object({
-  time: z.number(),
-  memory: z.number(),
-  throughput: z.number(),
-})
+export interface performanceMetrics {
+  time: number,
+  memory: number,
+  throughput: number,
+}
 
 /**
- * Test Summary schema
+ * Test Summary type
  */
-export const testSummarySchema = z.object({
-  totalTests: z.number(),
-  successfulTests: z.number(),
-  failedTests: z.number(),
-  averageImprovement: z.number(),
-  bestImprovement: z.number(),
-})
+export interface testSummary {
+  totalTests: number,
+  successfulTests: number,
+  failedTests: number,
+  averageImprovement: number,
+  bestImprovement: number,
+}
 
 /**
- * Environment schema
+ * Environment type
  */
-export const environmentSchema = z.object({
-  userAgent: z.string(),
-  platform: z.string(),
-  cores: z.number(),
-  memory: z.number(),
-})
+export interface environment {
+  userAgent: string,
+  platform: string,
+  cores: number,
+  memory: number,
+}
 
 /**
- * Benchmark Result schema
+ * Benchmark Result type
  */
-export const benchmarkResultSchema = z.object({
-  timestamp: z.string(),
-  results: z.array(testResultSchema),
-  summary: testSummarySchema,
-  environment: environmentSchema,
-})
+export interface benchmarkResult {
+  timestamp: string,
+  results: testResult[],
+  summary: testSummary,
+  environment: environment,
+}
 
 /**
- * Test Data schema
+ * Test Data type
  */
-export const testDataSchema = z.object({
-  width: z.number().optional(),
-  height: z.number().optional(),
-  format: z.string().optional(),
-  quality: z.number().optional(),
-  duration: z.number().optional(),
-  sampleRate: z.number().optional(),
-  channels: z.number().optional(),
-  resolution: z.string().optional(),
-  fps: z.number().optional(),
-  size: z.number().optional(),
-  operation: z.string().optional(),
-  density: z.number().optional(),
-})
+export interface testData {
+  width?: number,
+  height?: number,
+  format?: string,
+  quality?: number,
+  duration?: number,
+  sampleRate?: number,
+  channels?: number,
+  resolution?: string,
+  fps?: number,
+  size?: number,
+  operation?: string,
+  density?: number,
+}
 
 // ==================== Type Exports ====================
 
-export type TestType = z.infer<typeof testTypeSchema>
-export type DataSize = z.infer<typeof dataSizeSchema>
-export type TestStatus = z.infer<typeof testStatusSchema>
-export type MemoryUsage = z.infer<typeof memoryUsageSchema>
-export type Throughput = z.infer<typeof throughputSchema>
-export type TestResult = z.infer<typeof testResultSchema>
-export type TestConfig = z.infer<typeof testConfigSchema>
-export type PerformanceMetrics = z.infer<typeof performanceMetricsSchema>
-export type TestSummary = z.infer<typeof testSummarySchema>
-export type Environment = z.infer<typeof environmentSchema>
-export type BenchmarkResult = z.infer<typeof benchmarkResultSchema>
-export type TestData = z.infer<typeof testDataSchema>
+export type TestType = testType
+export type DataSize = dataSize
+export type TestStatus = testStatus
+export type MemoryUsage = memoryUsage
+export type Throughput = throughput
+export type TestResult = testResult
+export type TestConfig = testConfig
+export type PerformanceMetrics = performanceMetrics
+export type TestSummary = testSummary
+export type Environment = environment
+export type BenchmarkResult = benchmarkResult
+export type TestData = testData

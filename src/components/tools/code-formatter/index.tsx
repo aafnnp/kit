@@ -105,13 +105,13 @@ export function CodeFormatter() {
       jsxBracketSameLine: false,
     },
     isFormatting: false,
-    error: null,
+    error: undefined,
   })
 
   const handleFormat = useCallback(async () => {
     if (!state.input.trim()) return
 
-    setState((prev) => ({ ...prev, isFormatting: true, error: null }))
+    setState((prev) => ({ ...prev, isFormatting: true, error: undefined }))
 
     try {
       const formatOptions: FormatOptions = {
@@ -139,11 +139,11 @@ export function CodeFormatter() {
 
   const handleLoadExample = useCallback(() => {
     const example = LANGUAGE_CONFIGS[state.language].example
-    setState((prev) => ({ ...prev, input: example, output: "", error: null }))
+    setState((prev) => ({ ...prev, input: example, output: "", error: undefined }))
   }, [state.language])
 
   const handleClear = useCallback(() => {
-    setState((prev) => ({ ...prev, input: "", output: "", error: null }))
+    setState((prev) => ({ ...prev, input: "", output: "", error: undefined }))
   }, [])
 
   const handleCopy = useCallback(() => {
@@ -181,7 +181,7 @@ export function CodeFormatter() {
     const reader = new FileReader()
     reader.onload = (e) => {
       const content = e.target?.result as string
-      setState((prev) => ({ ...prev, input: content, output: "", error: null }))
+      setState((prev) => ({ ...prev, input: content, output: "", error: undefined }))
     }
     reader.readAsText(file)
   }, [])
@@ -215,7 +215,7 @@ export function CodeFormatter() {
               <Select
                 value={state.language}
                 onValueChange={(value: any) =>
-                  setState((prev) => ({ ...prev, language: value, output: "", error: null }))
+                  setState((prev) => ({ ...prev, language: value, output: "", error: undefined }))
                 }
               >
                 <SelectTrigger>

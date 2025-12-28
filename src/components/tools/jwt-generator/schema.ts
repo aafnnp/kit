@@ -1,256 +1,267 @@
-import { z } from "zod"
-
-// ==================== JWT Generator Schemas ====================
+// ==================== JWT Generator Types ====================
 
 /**
- * JWT Algorithm schema
+ * JWT Algorithm type
  */
-export const jwtAlgorithmSchema = z.enum([
-  "HS256",
-  "HS384",
-  "HS512",
-  "RS256",
-  "RS384",
-  "RS512",
-  "ES256",
-  "ES384",
-  "ES512",
-  "PS256",
-  "PS384",
-  "PS512",
-  "none",
-])
+export type jwtAlgorithm = "HS256" | "HS384" | "HS512" | "RS256" | "RS384" | "RS512" | "ES256" | "ES384" | "ES512" | "PS256" | "PS384" | "PS512" | "none"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml", "yaml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml" | "yaml"
 
 /**
- * JWT Header schema
+ * JWT Header type
  */
-export const jwtHeaderSchema = z
-  .object({
-    alg: jwtAlgorithmSchema,
-    typ: z.string(),
-    kid: z.string().optional(),
-    cty: z.string().optional(),
-    crit: z.array(z.string()).optional(),
-    x5c: z.array(z.string()).optional(),
-    x5t: z.string().optional(),
-    x5u: z.string().optional(),
-    jku: z.string().optional(),
-    jwk: z.any().optional(),
-  })
-  .catchall(z.any())
+export interface jwtHeader {
+  alg: string,
+  typ?: string,
+  kid?: string,
+  [key: string]: any,
+}
 
 /**
- * JWT Payload schema
+ * JWT Payload type
  */
-export const jwtPayloadSchema = z
-  .object({
-    iss: z.string().optional(),
-    sub: z.string().optional(),
-    aud: z.union([z.string(), z.array(z.string())]).optional(),
-    exp: z.number().optional(),
-    nbf: z.number().optional(),
-    iat: z.number().optional(),
-    jti: z.string().optional(),
-    scope: z.string().optional(),
-    roles: z.array(z.string()).optional(),
-    permissions: z.array(z.string()).optional(),
-  })
-  .catchall(z.any())
+export interface jwtPayload {
+  iss?: string,
+  sub?: string,
+  aud?: string | string[],
+  exp?: number,
+  nbf?: number,
+  iat?: number,
+  jti?: string,
+  [key: string]: any,
+}
 
 /**
- * JWT Options schema
+ * JWT Generator Options type
  */
-export const jwtOptionsSchema = z.object({
-  includeIssuedAt: z.boolean(),
-  includeJwtId: z.boolean(),
-  includeKeyId: z.boolean(),
-  validateClaims: z.boolean(),
-  allowInsecureAlgorithms: z.boolean(),
-  customHeaderClaims: z.boolean(),
-  timestampPrecision: z.enum(["seconds", "milliseconds"]),
-})
+export interface jwtGeneratorOptions {
+  includeIssuedAt: boolean,
+  includeJwtId: boolean,
+  includeKeyId: boolean,
+  validateClaims: boolean,
+  allowInsecureAlgorithms: boolean,
+  customHeaderClaims: boolean,
+  timestampPrecision: "seconds" | "milliseconds",
+}
 
 /**
- * JWT Compliance schema
+ * JWT Generator Config type
  */
-export const jwtComplianceSchema = z.object({
-  rfc7519Compliant: z.boolean(),
-  hasRequiredClaims: z.boolean(),
-  hasRecommendedClaims: z.boolean(),
-  algorithmSupported: z.boolean(),
-  structureValid: z.boolean(),
-  complianceScore: z.number(),
-})
+export interface jwtGeneratorConfig {
+  id: string,
+  name: string,
+  header: jwtHeader,
+  payload: jwtPayload,
+  secret: string,
+  algorithm: jwtAlgorithm,
+  expiresIn?: string,
+  issuer?: string,
+  subject?: string,
+  audience?: string,
+  notBefore?: string,
+  jwtId?: string,
+  customClaims: Record<string, any>,
+  options: jwtGeneratorOptions,
+  createdAt: Date,
+}
 
 /**
- * JWT Error schema
+ * JWT Structure type
  */
-export const jwtErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum([
-    "header",
-    "payload",
-    "signature",
-    "algorithm",
-    "claims",
-    "security",
-  ]),
-  severity: z.enum(["error", "warning", "info"]),
-  field: z.string().optional(),
-})
+export interface jwtStructure {
+  hasHeader: boolean,
+  hasPayload: boolean,
+  hasSignature: boolean,
+  headerValid: boolean,
+  payloadValid: boolean,
+  signaturePresent: boolean,
+  partsCount: number,
+  encoding: string,
+}
 
 /**
- * JWT Analysis schema
+ * JWT Claims type
  */
-export const jwtAnalysisSchema = z.object({
-  isValid: z.boolean(),
-  securityLevel: z.enum(["high", "medium", "low", "critical"]),
-  riskScore: z.number(),
-  compliance: jwtComplianceSchema,
-  recommendations: z.array(z.string()),
-  warnings: z.array(z.string()),
-  errors: z.array(z.string()),
-})
+export interface jwtClaims {
+  standardClaims: string[],
+  customClaims: string[],
+  missingRecommendedClaims: string[],
+  claimTypes: Record<string, string>,
+  claimSizes: Record<string, number>,
+}
 
 /**
- * JWT Validation schema
+ * JWT Timing type
  */
-export const jwtValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(jwtErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  qualityScore: z.number(),
-})
+export interface jwtTiming {
+  issuedAt?: Date,
+  expiresAt?: Date,
+  notBefore?: Date,
+  timeToExpiry?: number,
+  isExpired: boolean,
+  isNotYetValid: boolean,
+  lifetime?: number,
+  age?: number,
+}
 
 /**
- * JWT Metadata schema
+ * JWT Compliance type
  */
-export const jwtMetadataSchema = z.object({
-  size: z.number(),
-  headerSize: z.number(),
-  payloadSize: z.number(),
-  signatureSize: z.number(),
-  entropy: z.number(),
-  uniqueClaims: z.number(),
-  estimatedStrength: z.number(),
-})
+export interface jwtCompliance {
+  rfc7519Compliant: boolean,
+  hasRequiredClaims: boolean,
+  hasRecommendedClaims: boolean,
+  algorithmSupported: boolean,
+  structureValid: boolean,
+  complianceScore: number,
+}
 
 /**
- * JWT Generator Config schema
+ * JWT Analysis type
  */
-export const jwtGeneratorConfigSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  header: jwtHeaderSchema,
-  payload: jwtPayloadSchema,
-  secret: z.string(),
-  algorithm: jwtAlgorithmSchema,
-  expiresIn: z.string(),
-  notBefore: z.string().optional(),
-  audience: z.string().optional(),
-  issuer: z.string().optional(),
-  subject: z.string().optional(),
-  jwtId: z.string().optional(),
-  customClaims: z.record(z.string(), z.any()),
-  options: jwtOptionsSchema,
-  createdAt: z.date(),
-})
+export interface jwtAnalysis {
+  isValid: boolean,
+  securityLevel: "high" | "medium" | "low" | "critical",
+  riskScore: number,
+  compliance: jwtCompliance,
+  recommendations: string[],
+  warnings: string[],
+  errors: string[],
+}
 
 /**
- * Generated JWT schema
+ * JWT Validation Error type
  */
-export const generatedJWTSchema = z.object({
-  id: z.string(),
-  token: z.string(),
-  config: jwtGeneratorConfigSchema,
-  header: jwtHeaderSchema,
-  payload: jwtPayloadSchema,
-  signature: z.string(),
-  analysis: jwtAnalysisSchema,
-  validation: jwtValidationSchema,
-  metadata: jwtMetadataSchema,
-  createdAt: z.date(),
-})
+export interface jwtValidationError {
+  message: string,
+  type: "header" | "payload" | "security" | "structure" | "algorithm",
+  severity: "error" | "warning" | "info",
+  field?: string,
+}
 
 /**
- * JWT Template schema
+ * JWT Validation type
  */
-export const jwtTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  config: jwtGeneratorConfigSchema.partial(),
-  useCase: z.array(z.string()),
-  features: z.array(z.string()),
-  securityLevel: z.enum(["high", "medium", "low"]),
-  example: z.string().optional(),
-})
+export interface jwtValidation {
+  isValid: boolean,
+  errors: jwtValidationError[],
+  warnings: string[],
+  suggestions: string[],
+  qualityScore: number,
+}
 
 /**
- * Batch Settings schema
+ * JWT Metadata type
  */
-export const batchSettingsSchema = z.object({
-  baseConfig: jwtGeneratorConfigSchema,
-  count: z.number(),
-  namingPattern: z.string(),
-  exportFormat: exportFormatSchema,
-  includeAnalysis: z.boolean(),
-  varyPayload: z.boolean(),
-  varyExpiration: z.boolean(),
-})
+export interface jwtMetadata {
+  size: number,
+  headerSize: number,
+  payloadSize: number,
+  signatureSize: number,
+  entropy: number,
+  uniqueClaims: number,
+  estimatedStrength: number,
+}
 
 /**
- * Batch Statistics schema
+ * Generated JWT type
  */
-export const batchStatisticsSchema = z.object({
-  totalGenerated: z.number(),
-  successfulGenerated: z.number(),
-  failedGenerated: z.number(),
-  averageSize: z.number(),
-  averageSecurityScore: z.number(),
-  algorithmDistribution: z.record(z.string(), z.number()),
-  totalProcessingTime: z.number(),
-  averageProcessingTime: z.number(),
-})
+export interface generatedJWT {
+  id: string,
+  token: string,
+  config: jwtGeneratorConfig,
+  header: jwtHeader,
+  payload: jwtPayload,
+  signature: string,
+  analysis: jwtAnalysis,
+  validation: jwtValidation,
+  metadata: jwtMetadata,
+  createdAt: Date,
+}
 
 /**
- * JWT Batch schema
+ * Batch Settings type
  */
-export const jwtBatchSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  tokens: z.array(generatedJWTSchema),
-  settings: batchSettingsSchema,
-  status: z.enum(["pending", "processing", "completed", "failed"]),
-  progress: z.number(),
-  statistics: batchStatisticsSchema,
-  createdAt: z.date(),
-  completedAt: z.date().optional(),
-})
+export interface batchSettings {
+  includeAnalysis: boolean,
+  includeValidation: boolean,
+  exportFormat: exportFormat,
+  realTimeProcessing: boolean,
+  namingPattern?: string,
+  count?: number,
+  baseConfig?: Partial<jwtGeneratorConfig>,
+  varyPayload?: boolean,
+  varyExpiration?: boolean,
+}
+
+/**
+ * Batch Statistics type
+ */
+export interface batchStatistics {
+  totalGenerated: number,
+  successfulGenerated?: number,
+  failedGenerated?: number,
+  validCount: number,
+  invalidCount: number,
+  averageQualityScore?: number,
+  averageSecurityScore?: number,
+  algorithmDistribution: Record<string, number>,
+  processingTime: number,
+  totalProcessingTime?: number,
+  averageProcessingTime?: number,
+}
+
+/**
+ * JWT Batch type
+ */
+export interface jwtBatch {
+  id: string,
+  name?: string,
+  tokens: generatedJWT[],
+  count: number,
+  settings: batchSettings,
+  statistics: batchStatistics,
+  status?: "pending" | "processing" | "completed" | "failed",
+  progress?: number,
+  createdAt: Date,
+  completedAt?: Date,
+}
+
+/**
+ * JWT Template type
+ */
+export interface jwtTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  config: Partial<jwtGeneratorConfig>,
+  useCase: string[],
+  features?: string[],
+  securityLevel: "high" | "medium" | "low",
+}
 
 // ==================== Type Exports ====================
 
-export type JWTAlgorithm = z.infer<typeof jwtAlgorithmSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type JWTHeader = z.infer<typeof jwtHeaderSchema>
-export type JWTPayload = z.infer<typeof jwtPayloadSchema>
-export type JWTOptions = z.infer<typeof jwtOptionsSchema>
-export type JWTCompliance = z.infer<typeof jwtComplianceSchema>
-export type JWTError = z.infer<typeof jwtErrorSchema>
-export type JWTAnalysis = z.infer<typeof jwtAnalysisSchema>
-export type JWTValidation = z.infer<typeof jwtValidationSchema>
-export type JWTMetadata = z.infer<typeof jwtMetadataSchema>
-export type JWTGeneratorConfig = z.infer<typeof jwtGeneratorConfigSchema>
-export type GeneratedJWT = z.infer<typeof generatedJWTSchema>
-export type JWTTemplate = z.infer<typeof jwtTemplateSchema>
-export type BatchSettings = z.infer<typeof batchSettingsSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type JWTBatch = z.infer<typeof jwtBatchSchema>
-
+export type JWTAlgorithm = jwtAlgorithm
+export type ExportFormat = exportFormat
+export type JWTHeader = jwtHeader
+export type JWTPayload = jwtPayload
+export type JWTGeneratorOptions = jwtGeneratorOptions
+export type JWTGeneratorConfig = jwtGeneratorConfig
+export type JWTStructure = jwtStructure
+export type JWTClaims = jwtClaims
+export type JWTTiming = jwtTiming
+export type JWTCompliance = jwtCompliance
+export type JWTAnalysis = jwtAnalysis
+export type JWTValidationError = jwtValidationError
+export type JWTValidation = jwtValidation
+export type JWTMetadata = jwtMetadata
+export type GeneratedJWT = generatedJWT
+export type BatchSettings = batchSettings
+export type BatchStatistics = batchStatistics
+export type JWTBatch = jwtBatch
+export type JWTTemplate = jwtTemplate

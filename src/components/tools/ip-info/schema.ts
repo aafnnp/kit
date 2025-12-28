@@ -1,305 +1,310 @@
-import { z } from "zod"
-
-// ==================== IP Info Schemas ====================
+// ==================== IP Info Types ====================
 
 /**
- * ASN Info schema
+ * ASN Info type
  */
-export const asnInfoSchema = z.object({
-  asn: z.number(),
-  name: z.string(),
-  description: z.string(),
-  country: z.string(),
-  registry: z.string(),
-  cidr: z.string(),
-  routes: z.array(z.string()),
-  peers: z.number(),
-})
+export interface asnInfo {
+  asn: number,
+  name: string,
+  description: string,
+  country: string,
+  registry: string,
+  cidr: string,
+  routes: string[],
+  peers: number,
+}
 
 /**
- * Contact Info schema
+ * Contact Info type
  */
-export const contactInfoSchema = z.object({
-  type: z.enum(["registrant", "admin", "tech", "billing"]),
-  name: z.string().optional(),
-  organization: z.string().optional(),
-  email: z.string().optional(),
-  phone: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  country: z.string().optional(),
-  postalCode: z.string().optional(),
-})
+export interface contactInfo {
+  type: "registrant"| "admin" | "tech" | "billing"
+  name?: string
+  organization?: string
+  email?: string
+  phone?: string
+  address?: string
+  city?: string
+  state?: string
+  country?: string
+  postalCode?: string
+}
 
 /**
- * Whois Info schema
+ * Whois Info type
  */
-export const whoisInfoSchema = z.object({
-  registrar: z.string().optional(),
-  registrationDate: z.string().optional(),
-  expirationDate: z.string().optional(),
-  lastUpdated: z.string().optional(),
-  nameServers: z.array(z.string()),
-  contacts: z.array(contactInfoSchema),
-  status: z.array(z.string()),
-  dnssec: z.boolean(),
-})
+export interface whoisInfo {
+  registrar?: string
+  registrationDate?: string
+  expirationDate?: string
+  lastUpdated?: string
+  nameServers: string[],
+  contacts: contactInfo[],
+  status: string[],
+  dnssec: boolean,
+}
 
 /**
- * IP Info schema
+ * IP Info type
  */
-export const ipInfoSchema = z.object({
-  ip: z.string(),
-  version: z.union([z.literal(4), z.literal(6)]),
-  type: z.enum(["public", "private", "reserved", "loopback", "multicast"]),
-  isValid: z.boolean(),
-  hostname: z.string().optional(),
-  reverseDNS: z.string().optional(),
-  asn: asnInfoSchema.optional(),
-  whois: whoisInfoSchema.optional(),
-})
+export interface ipInfo {
+  ip: string,
+  version: "4" | "6",
+  type: "public"| "private" | "reserved" | "loopback" | "multicast",
+  isValid: boolean
+  hostname?: string
+  reverseDNS?: string
+  asn?: asnInfo
+  whois?: whoisInfo
+}
 
 /**
- * Geolocation Info schema
+ * Geolocation Info type
  */
-export const geolocationInfoSchema = z.object({
-  country: z.string(),
-  countryCode: z.string(),
-  region: z.string(),
-  regionCode: z.string(),
-  city: z.string(),
-  zipCode: z.string().optional(),
-  latitude: z.number(),
-  longitude: z.number(),
-  timezone: z.string(),
-  utcOffset: z.string(),
-  accuracy: z.number(),
-  isp: z.string(),
-  organization: z.string(),
-  connectionType: z.string(),
-  usageType: z.string(),
-})
+export interface geolocationInfo {
+  country: string,
+  countryCode: string,
+  region: string,
+  regionCode: string,
+  city: string
+  zipCode?: string
+  latitude: number,
+  longitude: number,
+  timezone: string,
+  utcOffset: string,
+  accuracy: number,
+  isp: string,
+  organization: string,
+  connectionType: string,
+  usageType: string,
+}
 
 /**
- * Security Info schema
+ * Security Info type
  */
-export const securityInfoSchema = z.object({
-  isThreat: z.boolean(),
-  threatLevel: z.enum(["low", "medium", "high"]),
-  threatTypes: z.array(z.string()),
-  isProxy: z.boolean(),
-  isVPN: z.boolean(),
-  isTor: z.boolean(),
-  isBot: z.boolean(),
-  isMalicious: z.boolean(),
-  reputation: z.number(),
-  blacklists: z.array(z.string()),
-  securityScore: z.number(),
-  riskFactors: z.array(z.string()),
-  recommendations: z.array(z.string()),
-})
+export interface securityInfo {
+  isThreat: boolean,
+  threatLevel: "low"| "medium" | "high",
+  threatTypes: string[],
+  isProxy: boolean,
+  isVPN: boolean,
+  isTor: boolean,
+  isBot: boolean,
+  isMalicious: boolean,
+  reputation: number,
+  blacklists: string[],
+  securityScore: number,
+  riskFactors: string[],
+  recommendations: string[],
+}
 
 /**
- * Network Info schema
+ * Network Info type
  */
-export const networkInfoSchema = z.object({
-  asn: z.number(),
-  asnOrg: z.string(),
-  isp: z.string(),
-  carrier: z.string().optional(),
-  connectionType: z.string(),
-  speed: z.string(),
-  domain: z.string().optional(),
-  routes: z.array(z.string()),
-  peers: z.number(),
-  prefixes: z.array(z.string()),
-  registeredCountry: z.string(),
-  allocatedDate: z.string(),
-})
+export interface networkInfo {
+  asn: number,
+  asnOrg: string,
+  isp: string
+  carrier?: string
+  connectionType: string,
+  speed: string
+  domain?: string
+  routes: string[],
+  peers: number,
+  prefixes: string[],
+  registeredCountry: string,
+  allocatedDate: string,
+}
 
 /**
- * Network Analysis Stats schema
+ * Network Analysis Stats type
  */
-export const networkAnalysisStatsSchema = z.object({
-  hopCount: z.number(),
-  latency: z.number(),
-  packetLoss: z.number(),
-  bandwidth: z.string(),
-  mtu: z.number(),
-  routingPath: z.array(z.string()),
-})
+export interface networkAnalysisStats {
+  hopCount: number,
+  latency: number,
+  packetLoss: number,
+  bandwidth: string,
+  mtu: number,
+  routingPath: string[],
+}
 
 /**
- * IP Statistics schema
+ * IP Statistics type
  */
-export const ipStatisticsSchema = z.object({
-  ipLength: z.number(),
-  processingTime: z.number(),
-  responseTime: z.number(),
-  lookupCount: z.number(),
-  validationScore: z.number(),
-  geolocationAccuracy: z.number(),
-  securityChecks: z.number(),
-  networkAnalysis: networkAnalysisStatsSchema,
-})
+export interface ipStatistics {
+  ipLength: number,
+  processingTime: number,
+  responseTime: number,
+  lookupCount: number,
+  validationScore: number,
+  geolocationAccuracy: number,
+  securityChecks: number,
+  networkAnalysis: networkAnalysisStats,
+}
 
 /**
- * Compliance Info schema
+ * Compliance Info type
  */
-export const complianceInfoSchema = z.object({
-  gdprCompliant: z.boolean(),
-  ccpaCompliant: z.boolean(),
-  coppaCompliant: z.boolean(),
-  hipaaCompliant: z.boolean(),
-  issues: z.array(z.string()),
-  recommendations: z.array(z.string()),
-})
+export interface complianceInfo {
+  gdprCompliant: boolean,
+  ccpaCompliant: boolean,
+  coppaCompliant: boolean,
+  hipaaCompliant: boolean,
+  issues: string[],
+  recommendations: string[],
+}
 
 /**
- * IP Analysis schema
+ * IP Analysis type
  */
-export const ipAnalysisSchema = z.object({
-  isValidIP: z.boolean(),
-  ipVersion: z.union([z.literal(4), z.literal(6)]),
-  isPublic: z.boolean(),
-  isPrivate: z.boolean(),
-  isReserved: z.boolean(),
-  hasGeolocation: z.boolean(),
-  hasSecurityInfo: z.boolean(),
-  hasNetworkInfo: z.boolean(),
-  qualityScore: z.number(),
-  reliabilityScore: z.number(),
-  privacyScore: z.number(),
-  securityIssues: z.array(z.string()),
-  performanceIssues: z.array(z.string()),
-  suggestedActions: z.array(z.string()),
-  complianceStatus: complianceInfoSchema,
-})
+export interface ipAnalysis {
+  isValidIP: boolean,
+  ipVersion: "4" | "6",
+  isPublic: boolean,
+  isPrivate: boolean,
+  isReserved: boolean,
+  hasGeolocation: boolean,
+  hasSecurityInfo: boolean,
+  hasNetworkInfo: boolean,
+  qualityScore: number,
+  reliabilityScore: number,
+  privacyScore: number,
+  securityIssues: string[],
+  performanceIssues: string[],
+  suggestedActions: string[],
+  complianceStatus: complianceInfo,
+}
 
 /**
- * IP Lookup Result schema
+ * IP Lookup Result type
  */
-export const ipLookupResultSchema = z.object({
-  id: z.string(),
-  ip: z.string(),
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  ipInfo: ipInfoSchema.optional(),
-  geolocation: geolocationInfoSchema.optional(),
-  security: securityInfoSchema.optional(),
-  network: networkInfoSchema.optional(),
-  statistics: ipStatisticsSchema,
-  analysis: ipAnalysisSchema.optional(),
-  createdAt: z.date(),
-})
+export interface ipLookupResult {
+  id: string,
+  ip: string,
+  isValid: boolean
+  error?: string
+  ipInfo?: ipInfo
+  geolocation?: geolocationInfo
+  security?: securityInfo
+  network?: networkInfo
+  statistics: ipStatistics
+  analysis?: ipAnalysis
+  createdAt: Date,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalProcessed: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  averageQuality: z.number(),
-  averageSecurity: z.number(),
-  successRate: z.number(),
-  geolocationDistribution: z.record(z.string(), z.number()),
-  securityDistribution: z.record(z.string(), z.number()),
-  networkDistribution: z.record(z.string(), z.number()),
-})
+export interface batchStatistics {
+  totalProcessed: number,
+  validCount: number,
+  invalidCount: number,
+  averageQuality: number,
+  averageSecurity: number,
+  successRate: number,
+  geolocationDistribution: Record<string, number>,
+  securityDistribution: Record<string, number>,
+  networkDistribution: Record<string, number>,
+}
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "xml", "txt"])
+export type exportFormat = "json" | "csv" | "xml" | "txt"
 
 /**
- * Processing Settings schema
+ * Processing Settings type
  */
-export const processingSettingsSchema = z.object({
-  includeGeolocation: z.boolean(),
-  includeSecurityAnalysis: z.boolean(),
-  includeNetworkAnalysis: z.boolean(),
-  includeWhoisData: z.boolean(),
-  timeout: z.number(),
-  retryAttempts: z.number(),
-  useCache: z.boolean(),
-  exportFormat: exportFormatSchema,
-  realTimeLookup: z.boolean(),
-  maxResults: z.number(),
-  privacyMode: z.boolean(),
-})
+export interface processingSettings {
+  includeGeolocation: boolean,
+  includeSecurityAnalysis: boolean,
+  includeNetworkAnalysis: boolean,
+  includeWhoisData: boolean,
+  timeout: number,
+  retryAttempts: number,
+  useCache: boolean,
+  exportFormat: exportFormat,
+  realTimeLookup: boolean,
+  maxResults: number,
+  privacyMode: boolean,
+}
 
 /**
- * Processing Batch schema
+ * Processing Batch type
  */
-export const processingBatchSchema = z.object({
-  id: z.string(),
-  results: z.array(ipLookupResultSchema),
-  count: z.number(),
-  settings: processingSettingsSchema,
-  createdAt: z.date(),
-  statistics: batchStatisticsSchema,
-})
+export interface processingBatch {
+  id: string,
+  results: ipLookupResult[],
+  count: number,
+  settings: processingSettings,
+  createdAt: Date,
+  statistics: batchStatistics,
+}
 
 /**
- * IP Error schema
+ * IP Error type
  */
-export const ipErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["format", "range", "reserved", "security"]),
-  severity: z.enum(["error", "warning", "info"]),
-})
+export interface ipError {
+  message: string,
+  type: "format"| "range" | "reserved" | "security",
+  severity: "error"| "warning" | "info",
+}
 
 /**
- * IP Validation schema
+ * IP Validation type
  */
-export const ipValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(ipErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  ipVersion: z.union([z.literal(4), z.literal(6)]).optional(),
-  ipType: z.string().optional(),
-})
+export interface ipValidation {
+  isValid: boolean,
+  errors: ipError[],
+  warnings: string[],
+  suggestions: string[]
+  ipVersion?: "4" | "6"
+  ipType?: string
+}
 
 /**
- * IP Template schema
+ * IP Template type
  */
-export const ipTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  ips: z.array(z.string()),
-  analysisTypes: z.array(z.string()),
-  useCase: z.array(z.string()),
-  examples: z.array(z.string()),
-})
+export interface ipTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  ips: string[],
+  analysisTypes: string[],
+  useCase: string[],
+  examples: string[],
+}
 
 // ==================== Type Exports ====================
 
 /**
- * Type inference from zod schemas
+ * Type definitions
  */
-export type ASNInfo = z.infer<typeof asnInfoSchema>
-export type ContactInfo = z.infer<typeof contactInfoSchema>
-export type WhoisInfo = z.infer<typeof whoisInfoSchema>
-export type IPInfo = z.infer<typeof ipInfoSchema>
-export type GeolocationInfo = z.infer<typeof geolocationInfoSchema>
-export type SecurityInfo = z.infer<typeof securityInfoSchema>
-export type NetworkInfo = z.infer<typeof networkInfoSchema>
-export type NetworkAnalysisStats = z.infer<typeof networkAnalysisStatsSchema>
-export type IPStatistics = z.infer<typeof ipStatisticsSchema>
-export type ComplianceInfo = z.infer<typeof complianceInfoSchema>
-export type IPAnalysis = z.infer<typeof ipAnalysisSchema>
-export type IPLookupResult = z.infer<typeof ipLookupResultSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type ProcessingSettings = z.infer<typeof processingSettingsSchema>
-export type ProcessingBatch = z.infer<typeof processingBatchSchema>
-export type IPError = z.infer<typeof ipErrorSchema>
-export type IPValidation = z.infer<typeof ipValidationSchema>
-export type IPTemplate = z.infer<typeof ipTemplateSchema>
-
+export type ASNInfo = asnInfo
+export type ContactInfo = contactInfo
+export type WhoisInfo = whoisInfo
+export type IPInfo = ipInfo
+export type GeolocationInfo = geolocationInfo
+export type SecurityInfo = securityInfo
+export type NetworkInfo = networkInfo
+export type NetworkAnalysisStats = networkAnalysisStats
+export type IPStatistics = ipStatistics
+export type ComplianceInfo = complianceInfo
+export type IPAnalysis = ipAnalysis
+export type IPLookupResult = ipLookupResult
+export type BatchStatistics = batchStatistics
+export type ExportFormat = exportFormat
+export type ProcessingSettings = processingSettings
+export type ProcessingBatch = processingBatch
+export type IPError = ipError
+export type IPValidation = ipValidation
+export type IPTemplate = ipTemplate
+export type AsnInfo = asnInfo
+export type IpInfo = ipInfo
+export type IpStatistics = ipStatistics
+export type IpAnalysis = ipAnalysis
+export type IpLookupResult = ipLookupResult
+export type IpError = ipError
+export type IpValidation = ipValidation
+export type IpTemplate = ipTemplate

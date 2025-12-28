@@ -1,240 +1,248 @@
-import { z } from "zod"
-
-// ==================== URL Parser Schemas ====================
+// ==================== URL Parser Types ====================
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "xml", "txt"])
+export type exportFormat = "json" | "csv" | "xml" | "txt"
 
 /**
- * URL Search Param schema
+ * URL Search Param type
  */
-export const urlSearchParamSchema = z.object({
-  key: z.string(),
-  value: z.string(),
-  encoded: z.boolean(),
-})
+export interface urlSearchParam {
+  key: string,
+  value: string,
+  encoded: boolean,
+}
 
 /**
- * URL Components schema
+ * URL Components type
  */
-export const urlComponentsSchema = z.object({
-  protocol: z.string(),
-  hostname: z.string(),
-  port: z.string(),
-  pathname: z.string(),
-  search: z.string(),
-  hash: z.string(),
-  origin: z.string(),
-  host: z.string(),
-  username: z.string().optional(),
-  password: z.string().optional(),
-  searchParams: z.array(urlSearchParamSchema),
-  pathSegments: z.array(z.string()),
-  subdomain: z.string().optional(),
-  domain: z.string(),
-  tld: z.string(),
-  isSecure: z.boolean(),
-  defaultPort: z.boolean(),
-  hasCredentials: z.boolean(),
-})
+export interface urlComponents {
+  protocol: string,
+  hostname: string,
+  port: string,
+  pathname: string,
+  search: string,
+  hash: string,
+  origin: string,
+  host: string
+  username?: string
+  password?: string
+  searchParams: urlSearchParam[],
+  pathSegments: string[]
+  subdomain?: string
+  domain: string,
+  tld: string,
+  isSecure: boolean,
+  defaultPort: boolean,
+  hasCredentials: boolean,
+}
 
 /**
- * URL Compliance schema
+ * URL Compliance type
  */
-export const urlComplianceSchema = z.object({
-  rfc3986Compliant: z.boolean(),
-  w3cCompliant: z.boolean(),
-  seoFriendly: z.boolean(),
-  accessibilityFriendly: z.boolean(),
-  issues: z.array(z.string()),
-  recommendations: z.array(z.string()),
-})
+export interface urlCompliance {
+  rfc3986Compliant: boolean,
+  w3cCompliant: boolean,
+  seoFriendly: boolean,
+  accessibilityFriendly: boolean,
+  issues: string[],
+  recommendations: string[],
+}
 
 /**
- * URL Analysis schema
+ * URL Analysis type
  */
-export const urlAnalysisSchema = z.object({
-  isValidURL: z.boolean(),
-  urlType: z.enum(["absolute", "relative", "protocol-relative", "invalid"]),
-  hasCredentials: z.boolean(),
-  hasQuery: z.boolean(),
-  hasFragment: z.boolean(),
-  hasPort: z.boolean(),
-  isLocalhost: z.boolean(),
-  isIP: z.boolean(),
-  isDomain: z.boolean(),
-  pathDepth: z.number(),
-  queryParamCount: z.number(),
-  urlLength: z.number(),
-  qualityScore: z.number(),
-  usabilityScore: z.number(),
-  securityScore: z.number(),
-  seoScore: z.number(),
-  issues: z.array(z.string()),
-  recommendations: z.array(z.string()),
-  compliance: urlComplianceSchema,
-})
+export interface urlAnalysis {
+  isValidURL: boolean,
+  urlType: "absolute"| "relative" | "protocol-relative" | "invalid",
+  hasCredentials: boolean,
+  hasQuery: boolean,
+  hasFragment: boolean,
+  hasPort: boolean,
+  isLocalhost: boolean,
+  isIP: boolean,
+  isDomain: boolean,
+  pathDepth: number,
+  queryParamCount: number,
+  urlLength: number,
+  qualityScore: number,
+  usabilityScore: number,
+  securityScore: number,
+  seoScore: number,
+  issues: string[],
+  recommendations: string[],
+  compliance: urlCompliance,
+}
 
 /**
- * URL Security schema
+ * URL Security type
  */
-export const urlSecuritySchema = z.object({
-  isSecure: z.boolean(),
-  hasCredentials: z.boolean(),
-  credentialExposure: z.boolean(),
-  suspiciousPatterns: z.array(z.string()),
-  securityIssues: z.array(z.string()),
-  riskLevel: z.enum(["low", "medium", "high"]),
-  securityScore: z.number(),
-  recommendations: z.array(z.string()),
-  phishingIndicators: z.array(z.string()),
-  malwareIndicators: z.array(z.string()),
-})
+export interface urlSecurity {
+  isSecure: boolean,
+  hasCredentials: boolean,
+  credentialExposure: boolean,
+  suspiciousPatterns: string[],
+  securityIssues: string[],
+  riskLevel: "low"| "medium" | "high",
+  securityScore: number,
+  recommendations: string[],
+  phishingIndicators: string[],
+  malwareIndicators: string[],
+}
 
 /**
- * URL SEO Analysis schema
+ * URL SEO Analysis type
  */
-export const urlSEOAnalysisSchema = z.object({
-  isSearchEngineFriendly: z.boolean(),
-  hasReadableStructure: z.boolean(),
-  hasKeywords: z.boolean(),
-  pathStructureScore: z.number(),
-  readabilityScore: z.number(),
-  lengthScore: z.number(),
-  issues: z.array(z.string()),
-  recommendations: z.array(z.string()),
-  keywords: z.array(z.string()),
-  stopWords: z.array(z.string()),
-})
+export interface urlSEOAnalysis {
+  isSearchEngineFriendly: boolean,
+  hasReadableStructure: boolean,
+  hasKeywords: boolean,
+  pathStructureScore: number,
+  readabilityScore: number,
+  lengthScore: number,
+  issues: string[],
+  recommendations: string[],
+  keywords: string[],
+  stopWords: string[],
+}
 
 /**
- * URL Statistics schema
+ * URL Statistics type
  */
-export const urlStatisticsSchema = z.object({
-  urlLength: z.number(),
-  pathLength: z.number(),
-  queryLength: z.number(),
-  fragmentLength: z.number(),
-  parameterCount: z.number(),
-  pathSegmentCount: z.number(),
-  processingTime: z.number(),
-  complexityScore: z.number(),
-  readabilityIndex: z.number(),
-})
+export interface urlStatistics {
+  urlLength: number,
+  pathLength: number,
+  queryLength: number,
+  fragmentLength: number,
+  parameterCount: number,
+  pathSegmentCount: number,
+  processingTime: number,
+  complexityScore: number,
+  readabilityIndex: number,
+}
 
 /**
- * URL Parse Result schema
+ * URL Parse Result type
  */
-export const urlParseResultSchema = z.object({
-  id: z.string(),
-  url: z.string(),
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  components: urlComponentsSchema.optional(),
-  analysis: urlAnalysisSchema.optional(),
-  security: urlSecuritySchema.optional(),
-  seo: urlSEOAnalysisSchema.optional(),
-  statistics: urlStatisticsSchema,
-  createdAt: z.date(),
-})
+export interface urlParseResult {
+  id: string,
+  url: string,
+  isValid: boolean
+  error?: string
+  components?: urlComponents
+  analysis?: urlAnalysis
+  security?: urlSecurity
+  seo?: urlSEOAnalysis
+  statistics: urlStatistics,
+  createdAt: Date,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalProcessed: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  averageQuality: z.number(),
-  averageSecurity: z.number(),
-  averageSEO: z.number(),
-  successRate: z.number(),
-  protocolDistribution: z.record(z.string(), z.number()),
-  domainDistribution: z.record(z.string(), z.number()),
-  securityDistribution: z.record(z.string(), z.number()),
-})
+export interface batchStatistics {
+  totalProcessed: number,
+  validCount: number,
+  invalidCount: number,
+  averageQuality: number,
+  averageSecurity: number,
+  averageSEO: number,
+  successRate: number,
+  protocolDistribution: Record<string, number>,
+  domainDistribution: Record<string, number>,
+  securityDistribution: Record<string, number>,
+}
 
 /**
- * Processing Settings schema
+ * Processing Settings type
  */
-export const processingSettingsSchema = z.object({
-  includeSecurityAnalysis: z.boolean(),
-  includeSEOAnalysis: z.boolean(),
-  includeCompliance: z.boolean(),
-  validateDomains: z.boolean(),
-  checkSuspiciousPatterns: z.boolean(),
-  exportFormat: exportFormatSchema,
-  realTimeValidation: z.boolean(),
-  maxResults: z.number(),
-  strictMode: z.boolean(),
-})
+export interface processingSettings {
+  includeSecurityAnalysis: boolean,
+  includeSEOAnalysis: boolean,
+  includeCompliance: boolean,
+  validateDomains: boolean,
+  checkSuspiciousPatterns: boolean,
+  exportFormat: exportFormat,
+  realTimeValidation: boolean,
+  maxResults: number,
+  strictMode: boolean,
+}
 
 /**
- * Processing Batch schema
+ * Processing Batch type
  */
-export const processingBatchSchema = z.object({
-  id: z.string(),
-  results: z.array(urlParseResultSchema),
-  count: z.number(),
-  settings: processingSettingsSchema,
-  createdAt: z.date(),
-  statistics: batchStatisticsSchema,
-})
+export interface processingBatch {
+  id: string,
+  results: urlParseResult[],
+  count: number,
+  settings: processingSettings,
+  createdAt: Date,
+  statistics: batchStatistics,
+}
 
 /**
- * URL Error schema
+ * URL Error type
  */
-export const urlErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["format", "protocol", "domain", "security", "compliance"]),
-  severity: z.enum(["error", "warning", "info"]),
-})
+export interface urlError {
+  message: string,
+  type: "format"| "protocol" | "domain" | "security" | "compliance",
+  severity: "error"| "warning" | "info",
+}
 
 /**
- * URL Validation schema
+ * URL Validation type
  */
-export const urlValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(urlErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  urlType: z.string().optional(),
-})
+export interface urlValidation {
+  isValid: boolean,
+  errors: urlError[],
+  warnings: string[],
+  suggestions: string[]
+  urlType?: string
+}
 
 /**
- * URL Template schema
+ * URL Template type
  */
-export const urlTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  urls: z.array(z.string()),
-  analysisTypes: z.array(z.string()),
-  useCase: z.array(z.string()),
-  examples: z.array(z.string()),
-})
+export interface urlTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  urls: string[],
+  analysisTypes: string[],
+  useCase: string[],
+  examples: string[],
+}
 
 // ==================== Type Exports ====================
 
 /**
- * Type inference from zod schemas
+ * Type definitions
  */
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type URLSearchParam = z.infer<typeof urlSearchParamSchema>
-export type URLComponents = z.infer<typeof urlComponentsSchema>
-export type URLCompliance = z.infer<typeof urlComplianceSchema>
-export type URLAnalysis = z.infer<typeof urlAnalysisSchema>
-export type URLSecurity = z.infer<typeof urlSecuritySchema>
-export type URLSEOAnalysis = z.infer<typeof urlSEOAnalysisSchema>
-export type URLStatistics = z.infer<typeof urlStatisticsSchema>
-export type URLParseResult = z.infer<typeof urlParseResultSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type ProcessingSettings = z.infer<typeof processingSettingsSchema>
-export type ProcessingBatch = z.infer<typeof processingBatchSchema>
-export type URLError = z.infer<typeof urlErrorSchema>
-export type URLValidation = z.infer<typeof urlValidationSchema>
-export type URLTemplate = z.infer<typeof urlTemplateSchema>
-
+export type ExportFormat = exportFormat
+export type URLSearchParam = urlSearchParam
+export type URLComponents = urlComponents
+export type URLCompliance = urlCompliance
+export type URLAnalysis = urlAnalysis
+export type URLSecurity = urlSecurity
+export type URLSEOAnalysis = urlSEOAnalysis
+export type URLStatistics = urlStatistics
+export type URLParseResult = urlParseResult
+export type BatchStatistics = batchStatistics
+export type ProcessingSettings = processingSettings
+export type ProcessingBatch = processingBatch
+export type URLError = urlError
+export type URLValidation = urlValidation
+export type URLTemplate = urlTemplate
+export type UrlSearchParam = urlSearchParam
+export type UrlComponents = urlComponents
+export type UrlCompliance = urlCompliance
+export type UrlAnalysis = urlAnalysis
+export type UrlSecurity = urlSecurity
+export type UrlSEOAnalysis = urlSEOAnalysis
+export type UrlStatistics = urlStatistics
+export type UrlParseResult = urlParseResult
+export type UrlError = urlError
+export type UrlValidation = urlValidation
+export type UrlTemplate = urlTemplate

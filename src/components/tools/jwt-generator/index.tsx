@@ -737,10 +737,12 @@ const useJWTGenerator = () => {
     const startTime = performance.now()
 
     try {
+      const count = batchSettings.count || 1
       const batch: JWTBatch = {
         id: nanoid(),
         name: batchSettings.namingPattern || "JWT Batch",
         tokens: [],
+        count: count,
         settings: batchSettings,
         status: "processing",
         progress: 0,
@@ -748,9 +750,11 @@ const useJWTGenerator = () => {
           totalGenerated: 0,
           successfulGenerated: 0,
           failedGenerated: 0,
-          averageSize: 0,
+          validCount: 0,
+          invalidCount: 0,
           averageSecurityScore: 0,
           algorithmDistribution: {},
+          processingTime: 0,
           totalProcessingTime: 0,
           averageProcessingTime: 0,
         },
@@ -759,9 +763,9 @@ const useJWTGenerator = () => {
 
       const batchTokens: GeneratedJWT[] = []
 
-      for (let i = 0; i < batchSettings.count; i++) {
+      for (let i = 0; i < count; i++) {
         try {
-          let config = { ...batchSettings.baseConfig }
+          let config = { ...batchSettings.baseConfig } as JWTGeneratorConfig
 
           // Vary payload if requested
           if (batchSettings.varyPayload) {
@@ -782,7 +786,7 @@ const useJWTGenerator = () => {
           batchTokens.push(token)
 
           // Update progress
-          const progress = ((i + 1) / batchSettings.count) * 100
+          const progress = ((i + 1) / count) * 100
           batch.progress = progress
         } catch (error) {
           console.error("Failed to generate JWT:", error)
@@ -808,9 +812,11 @@ const useJWTGenerator = () => {
         totalGenerated: batchTokens.length,
         successfulGenerated: successful.length,
         failedGenerated: batchTokens.length - successful.length,
-        averageSize: batchTokens.length > 0 ? totalSize / batchTokens.length : 0,
+        validCount: successful.length,
+        invalidCount: batchTokens.length - successful.length,
         averageSecurityScore: batchTokens.length > 0 ? totalSecurityScore / batchTokens.length : 0,
         algorithmDistribution,
+        processingTime: totalProcessingTime,
         totalProcessingTime,
         averageProcessingTime: totalProcessingTime / batchTokens.length,
       }
@@ -1863,7 +1869,7 @@ const JWTGeneratorCore = () => {
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Features:</div>
-                            <div className="text-xs text-muted-foreground">{template.features.join(", ")}</div>
+                            <div className="text-xs text-muted-foreground">{template.features?.join(", ") || "N/A"}</div>
                           </div>
                           {template.config && (
                             <div>

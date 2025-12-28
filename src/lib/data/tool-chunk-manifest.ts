@@ -1,5 +1,4 @@
 import type { ComponentType } from "react"
-import { z } from "zod"
 import { getToolChunkName } from "./tool-chunk-rules"
 
 type ToolModuleLoader = () => Promise<{ default: ComponentType }>
@@ -37,30 +36,31 @@ const manifestEntries = Object.entries(toolModules).reduce<ToolManifestRecord>((
   const loaderFn: ToolModuleLoader =
     typeof loader === "function" ? loader : () => Promise.resolve({ default: (() => null) as ComponentType })
 
+  // 简单的验证逻辑
+  if (!absolutePath || absolutePath.trim().length === 0) {
+    throw new Error("Tool path is required")
+  }
+
+  const chunk = getToolChunkName(slug)
+  if (!chunk || chunk.trim().length === 0) {
+    throw new Error("Chunk name is required")
+  }
+
+  if (typeof loaderFn !== "function") {
+    throw new Error("Loader must be a function")
+  }
+
   acc[slug] = {
     path: absolutePath,
-    chunk: getToolChunkName(slug),
+    chunk,
     loader: loaderFn,
   }
 
   return acc
 }, {})
 
-const manifestSchema: z.ZodType<ToolManifestRecord> = z.record(
-  z.string(),
-  z.object({
-    path: z.string().min(1, "Tool path is required"),
-    chunk: z.string().min(1, "Chunk name is required"),
-    loader: z.custom<ToolModuleLoader>((value) => typeof value === "function", {
-      message: "Loader must be a function",
-    }),
-  })
-)
-
-// In test environment, import.meta.glob may return invalid format
-// Use safeParse and fallback to empty object if validation fails
-const parseResult = manifestSchema.safeParse(manifestEntries)
-export const toolChunkManifest: ToolManifestRecord = parseResult.success ? parseResult.data : manifestEntries
+// 直接使用 manifestEntries，不再进行 zod 验证
+export const toolChunkManifest: ToolManifestRecord = manifestEntries
 
 export type ToolChunkManifest = typeof toolChunkManifest
 

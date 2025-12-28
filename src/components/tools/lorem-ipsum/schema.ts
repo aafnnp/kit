@@ -1,86 +1,75 @@
-import { z } from "zod"
-
-// ==================== Lorem Ipsum Schemas ====================
+// ==================== Lorem Ipsum Types ====================
 
 /**
- * Text Style schema
+ * Text Style type
  */
-export const textStyleSchema = z.enum([
-  "classic-latin",
-  "modern-english",
-  "tech-jargon",
-  "business-formal",
-  "creative-writing",
-  "academic-paper",
-  "casual-blog",
-  "custom",
-])
+export type textStyle = "classic-latin" | "modern-english" | "tech-jargon" | "business-formal" | "creative-writing" | "academic-paper" | "casual-blog" | "custom"
 
 /**
- * Output Format schema
+ * Output Format type
  */
-export const outputFormatSchema = z.enum(["plain", "html", "markdown", "json"])
+export type outputFormat = "plain" | "html" | "markdown" | "json"
 
 /**
- * Generated Text schema
+ * Generated Text type
  */
-export const generatedTextSchema = z.object({
-  id: z.string(),
-  content: z.string(),
-  format: outputFormatSchema,
-  style: textStyleSchema,
-  wordCount: z.number(),
-  paragraphCount: z.number(),
-  sentenceCount: z.number(),
-  characterCount: z.number(),
-  generatedAt: z.date(),
-})
+export interface generatedText {
+  id: string,
+  content: string,
+  format: outputFormat,
+  style: textStyle,
+  wordCount: number,
+  paragraphCount: number,
+  sentenceCount: number,
+  characterCount: number,
+  generatedAt: Date,
+}
 
 /**
- * Generation Settings schema
+ * Generation Settings type
  */
-export const generationSettingsSchema = z.object({
-  textStyle: textStyleSchema,
-  outputFormat: outputFormatSchema,
-  paragraphCount: z.number(),
-  sentencesPerParagraph: z.number(),
-  wordsPerSentence: z.number(),
-  includeTitle: z.boolean(),
-  titleStyle: z.enum(["h1", "h2", "h3", "none"]),
-  customWordList: z.array(z.string()),
-  useCustomWords: z.boolean(),
-  startWithLorem: z.boolean(),
-  includeNumbers: z.boolean(),
-  includePunctuation: z.boolean(),
-})
+export interface generationSettings {
+  textStyle: textStyle,
+  outputFormat: outputFormat,
+  paragraphCount: number,
+  sentencesPerParagraph: number,
+  wordsPerSentence: number,
+  includeTitle: boolean,
+  titleStyle: "h1"| "h2" | "h3" | "none",
+  customWordList: string[],
+  useCustomWords: boolean,
+  startWithLorem: boolean,
+  includeNumbers: boolean,
+  includePunctuation: boolean,
+}
 
 /**
- * Generation Stats schema
+ * Generation Stats type
  */
-export const generationStatsSchema = z.object({
-  totalGenerated: z.number(),
-  totalWords: z.number(),
-  totalCharacters: z.number(),
-  averageWordsPerParagraph: z.number(),
-  averageSentencesPerParagraph: z.number(),
-  mostUsedStyle: textStyleSchema,
-  generationTime: z.number(),
-})
+export interface generationStats {
+  totalGenerated: number,
+  totalWords: number,
+  totalCharacters: number,
+  averageWordsPerParagraph: number,
+  averageSentencesPerParagraph: number,
+  mostUsedStyle: textStyle,
+  generationTime: number,
+}
 
 /**
- * Text Preset schema
+ * Text Preset type
  */
-export const textPresetSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  settings: generationSettingsSchema.partial(),
-})
+export interface textPreset {
+  name: string,
+  description: string,
+  settings: generationSettings,
+}
 
 // ==================== Type Exports ====================
 
-export type TextStyle = z.infer<typeof textStyleSchema>
-export type OutputFormat = z.infer<typeof outputFormatSchema>
-export type GeneratedText = z.infer<typeof generatedTextSchema>
-export type GenerationSettings = z.infer<typeof generationSettingsSchema>
-export type GenerationStats = z.infer<typeof generationStatsSchema>
-export type TextPreset = z.infer<typeof textPresetSchema>
+export type TextStyle = textStyle
+export type OutputFormat = outputFormat
+export type GeneratedText = generatedText
+export type GenerationSettings = generationSettings
+export type GenerationStats = generationStats
+export type TextPreset = textPreset

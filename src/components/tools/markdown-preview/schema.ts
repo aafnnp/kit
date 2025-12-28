@@ -1,71 +1,68 @@
-import { z } from "zod"
-
-// ==================== Markdown Preview Schemas ====================
+// ==================== Markdown Preview Types ====================
 
 /**
- * Markdown Statistics schema
+ * Markdown Statistics type
  */
-export const markdownStatisticsSchema = z.object({
-  wordCount: z.number(),
-  characterCount: z.number(),
-  lineCount: z.number(),
-  paragraphCount: z.number(),
-  headingCount: z.number(),
-  linkCount: z.number(),
-  imageCount: z.number(),
-  codeBlockCount: z.number(),
-  listItemCount: z.number(),
-  tableCount: z.number(),
-  readingTime: z.number(),
-})
+export interface markdownStatistics {
+  wordCount: number,
+  characterCount: number,
+  lineCount: number,
+  paragraphCount: number,
+  headingCount: number,
+  linkCount: number,
+  imageCount: number,
+  codeBlockCount: number,
+  listItemCount: number,
+  tableCount: number,
+  readingTime: number,
+}
 
 /**
- * Markdown File schema
+ * Markdown File type
  */
-export const markdownFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  htmlContent: z.string().optional(),
-  statistics: markdownStatisticsSchema.optional(),
-})
+export interface markdownFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  htmlContent?: string
+  statistics?: markdownStatistics
+}
 
 /**
- * Preview Settings schema
+ * Preview Settings type
  */
-export const previewSettingsSchema = z.object({
-  viewMode: z.enum(["split", "preview", "source"]),
-  theme: z.enum(["light", "dark", "auto"]),
-  fontSize: z.enum(["small", "medium", "large"]),
-  lineNumbers: z.boolean(),
-  wordWrap: z.boolean(),
-  syntaxHighlighting: z.boolean(),
-  mathSupport: z.boolean(),
-  mermaidSupport: z.boolean(),
-  tableOfContents: z.boolean(),
-  autoSave: z.boolean(),
-})
+export interface previewSettings {
+  viewMode: "split"| "preview" | "source",
+  theme: "light"| "dark" | "auto",
+  fontSize: "small"| "medium" | "large",
+  lineNumbers: boolean,
+  wordWrap: boolean,
+  syntaxHighlighting: boolean,
+  mathSupport: boolean,
+  mermaidSupport: boolean,
+  tableOfContents: boolean,
+  autoSave: boolean,
+}
 
 /**
- * Export Options schema
+ * Export Options type
  */
-export const exportOptionsSchema = z.object({
-  format: z.enum(["html", "pdf", "txt", "docx"]),
-  includeCSS: z.boolean(),
-  includeTableOfContents: z.boolean(),
-  pageBreaks: z.boolean(),
-  customCSS: z.string().optional(),
-})
+export interface exportOptions {
+  format: "html"| "pdf" | "txt" | "docx",
+  includeCSS: boolean,
+  includeTableOfContents: boolean,
+  pageBreaks: boolean
+  customCSS?: string
+}
 
 // ==================== Type Exports ====================
 
-export type MarkdownStatistics = z.infer<typeof markdownStatisticsSchema>
-export type MarkdownFile = z.infer<typeof markdownFileSchema>
-export type PreviewSettings = z.infer<typeof previewSettingsSchema>
-export type ExportOptions = z.infer<typeof exportOptionsSchema>
-
+export type MarkdownStatistics = markdownStatistics
+export type MarkdownFile = markdownFile
+export type PreviewSettings = previewSettings
+export type ExportOptions = exportOptions

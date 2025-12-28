@@ -1,177 +1,149 @@
-import { z } from "zod"
-
-// ==================== Favicon Generator Schemas ====================
+// ==================== Favicon Generator Types ====================
 
 /**
- * Favicon Type schema
+ * Favicon Type type
  */
-export const faviconTypeSchema = z.enum(["standard", "apple-touch", "android", "ms-application", "web-app"])
+export type faviconType = "standard" | "apple-touch" | "android" | "ms-application" | "web-app"
 
 /**
- * Favicon Format schema
+ * Favicon Format type
  */
-export const faviconFormatSchema = z.enum(["ico", "png", "svg", "webp", "jpg"])
+export type faviconFormat = "ico" | "png" | "svg" | "webp" | "jpg"
 
 /**
- * Favicon Size schema
+ * Favicon Size type
  */
-export const faviconSizeSchema = z.union([
-  z.literal(16),
-  z.literal(32),
-  z.literal(48),
-  z.literal(64),
-  z.literal(96),
-  z.literal(128),
-  z.literal(152),
-  z.literal(167),
-  z.literal(180),
-  z.literal(192),
-  z.literal(256),
-  z.literal(512),
-])
+export type faviconSize = number
 
 /**
- * Favicon Purpose schema
+ * Favicon Metadata type
  */
-export const faviconPurposeSchema = z.enum(["any", "maskable", "monochrome"])
+export interface faviconMetadata {
+  width: number,
+  height: number,
+  colorDepth: number,
+  hasTransparency: boolean,
+  compressionRatio: number,
+  processingTime: number,
+  purpose: string[],
+}
 
 /**
- * Export Format schema
+ * Generated Favicon type
  */
-export const exportFormatSchema = z.enum(["zip", "individual", "html"])
+export interface generatedFavicon {
+  id: string,
+  type: faviconType,
+  size: faviconSize,
+  format: faviconFormat,
+  url: string,
+  filename: string,
+  fileSize: number,
+  quality: number,
+  optimized: boolean,
+  metadata: faviconMetadata,
+}
 
 /**
- * Favicon Metadata schema
+ * Favicon Statistics type
  */
-export const faviconMetadataSchema = z.object({
-  width: z.number(),
-  height: z.number(),
-  colorDepth: z.number(),
-  hasTransparency: z.boolean(),
-  compressionRatio: z.number(),
-  processingTime: z.number(),
-  purpose: z.array(faviconPurposeSchema),
-})
+export interface faviconStatistics {
+  totalFavicons: number,
+  typeDistribution: Record<faviconType, number>,
+  formatDistribution: Record<faviconFormat, number>,
+  averageFileSize: number,
+  totalPackageSize: number,
+  processingTime: number,
+  optimizationSavings: number,
+}
 
 /**
- * Generated Favicon schema
+ * Favicon Settings type
  */
-export const generatedFaviconSchema = z.object({
-  id: z.string(),
-  type: faviconTypeSchema,
-  size: faviconSizeSchema,
-  format: faviconFormatSchema,
-  url: z.string(),
-  filename: z.string(),
-  fileSize: z.number(),
-  quality: z.number(),
-  optimized: z.boolean(),
-  metadata: faviconMetadataSchema,
-})
+export interface faviconSettings {
+  includeStandardSizes: boolean,
+  includeAppleSizes: boolean,
+  includeAndroidSizes: boolean,
+  includeMSApplicationSizes: boolean,
+  generateManifest: boolean,
+  optimizeImages: boolean,
+  backgroundColor: string,
+  themeColor: string,
+}
 
 /**
- * Manifest Icon schema
+ * Manifest Icon type
  */
-export const manifestIconSchema = z.object({
-  src: z.string(),
-  sizes: z.string(),
-  type: z.string(),
-  purpose: z.string().optional(),
-})
+export interface manifestIcon {
+  src: string,
+  sizes: string,
+  type: string,
+  purpose: string,
+}
 
 /**
- * Web App Manifest schema
+ * Web App Manifest type
  */
-export const webAppManifestSchema = z.object({
-  name: z.string(),
-  short_name: z.string(),
-  description: z.string(),
-  start_url: z.string(),
-  display: z.string(),
-  background_color: z.string(),
-  theme_color: z.string(),
-  icons: z.array(manifestIconSchema),
-})
+export interface webAppManifest {
+  name: string,
+  short_name: string,
+  description: string,
+  start_url: string,
+  display: string,
+  background_color: string,
+  theme_color: string,
+  icons: manifestIcon[],
+}
 
 /**
- * Favicon Statistics schema
+ * Favicon Template type
  */
-export const faviconStatisticsSchema = z.object({
-  totalFavicons: z.number(),
-  typeDistribution: z.record(faviconTypeSchema, z.number()),
-  formatDistribution: z.record(faviconFormatSchema, z.number()),
-  averageFileSize: z.number(),
-  totalPackageSize: z.number(),
-  processingTime: z.number(),
-  optimizationSavings: z.number(),
-})
+export interface faviconTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  sizes: faviconSize[],
+  formats: faviconFormat[],
+  settings: Partial<faviconSettings>,
+}
 
 /**
- * Favicon Settings schema
+ * Favicon File type
  */
-export const faviconSettingsSchema = z.object({
-  includeStandardSizes: z.boolean(),
-  includeAppleSizes: z.boolean(),
-  includeAndroidSizes: z.boolean(),
-  includeMSApplicationSizes: z.boolean(),
-  generateManifest: z.boolean(),
-  optimizeImages: z.boolean(),
-  backgroundColor: z.string(),
-  themeColor: z.string(),
-  exportFormat: exportFormatSchema,
-})
+export interface faviconFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending" | "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  faviconData?: faviconData
+}
 
 /**
- * Favicon Data schema
+ * Favicon Data type
  */
-export const faviconDataSchema = z.object({
-  favicons: z.array(generatedFaviconSchema),
-  statistics: faviconStatisticsSchema,
-  settings: faviconSettingsSchema,
-  manifest: webAppManifestSchema,
-})
-
-/**
- * Favicon File schema
- */
-export const faviconFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  faviconData: faviconDataSchema.optional(),
-})
-
-/**
- * Favicon Template schema
- */
-export const faviconTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  sizes: z.array(faviconSizeSchema),
-  formats: z.array(faviconFormatSchema),
-  settings: faviconSettingsSchema.partial(),
-})
+export interface faviconData {
+  favicons: generatedFavicon[],
+  statistics: faviconStatistics,
+  settings: faviconSettings,
+  manifest: webAppManifest,
+}
 
 // ==================== Type Exports ====================
 
-export type FaviconType = z.infer<typeof faviconTypeSchema>
-export type FaviconFormat = z.infer<typeof faviconFormatSchema>
-export type FaviconSize = z.infer<typeof faviconSizeSchema>
-export type FaviconPurpose = z.infer<typeof faviconPurposeSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type FaviconMetadata = z.infer<typeof faviconMetadataSchema>
-export type GeneratedFavicon = z.infer<typeof generatedFaviconSchema>
-export type ManifestIcon = z.infer<typeof manifestIconSchema>
-export type WebAppManifest = z.infer<typeof webAppManifestSchema>
-export type FaviconStatistics = z.infer<typeof faviconStatisticsSchema>
-export type FaviconSettings = z.infer<typeof faviconSettingsSchema>
-export type FaviconData = z.infer<typeof faviconDataSchema>
-export type FaviconFile = z.infer<typeof faviconFileSchema>
-export type FaviconTemplate = z.infer<typeof faviconTemplateSchema>
+export type FaviconType = faviconType
+export type FaviconFormat = faviconFormat
+export type FaviconSize = faviconSize
+export type FaviconMetadata = faviconMetadata
+export type GeneratedFavicon = generatedFavicon
+export type FaviconStatistics = faviconStatistics
+export type FaviconSettings = faviconSettings
+export type ManifestIcon = manifestIcon
+export type WebAppManifest = webAppManifest
+export type FaviconTemplate = faviconTemplate
+export type FaviconFile = faviconFile
+export type FaviconData = faviconData

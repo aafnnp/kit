@@ -1,137 +1,135 @@
-import { z } from "zod"
-
-// ==================== Roman Numeral Schemas ====================
+// ==================== Roman Numeral Types ====================
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml", "yaml", "html"])
+export type exportFormat = "json" | "csv" | "txt" | "xml" | "yaml" | "html"
 
 /**
- * Roman Symbol schema
+ * Roman Symbol type
  */
-export const romanSymbolSchema = z.object({
-  symbol: z.string(),
-  value: z.number(),
-  name: z.string(),
-  origin: z.string(),
-  modernUsage: z.array(z.string()),
-})
+export interface romanSymbol {
+  symbol: string,
+  value: number,
+  name: string,
+  origin: string,
+  modernUsage: string[],
+}
 
 /**
- * Roman Breakdown schema
+ * Roman Breakdown type
  */
-export const romanBreakdownSchema = z.object({
-  symbol: z.string(),
-  value: z.number(),
-  count: z.number(),
-  position: z.number(),
-  type: z.enum(["additive", "subtractive"]),
-  explanation: z.string(),
-})
+export interface romanBreakdown {
+  symbol: string,
+  value: number,
+  count: number,
+  position: number,
+  type: "additive"| "subtractive",
+  explanation: string,
+}
 
 /**
- * Historical Context schema
+ * Historical Context type
  */
-export const historicalContextSchema = z.object({
-  period: z.string(),
-  usage: z.string(),
-  significance: z.string(),
-  modernApplications: z.array(z.string()),
-})
+export interface historicalContext {
+  period: string,
+  usage: string,
+  significance: string,
+  modernApplications: string[],
+}
 
 /**
- * Mathematical Property schema
+ * Mathematical Property type
  */
-export const mathematicalPropertySchema = z.object({
-  name: z.string(),
-  value: z.union([z.boolean(), z.number(), z.string()]),
-  description: z.string(),
-  category: z.enum(["number-theory", "arithmetic", "representation"]),
-})
+export interface mathematicalProperty {
+  name: string,
+  value: boolean | number | string,
+  description: string,
+  category: "number-theory" | "arithmetic" | "representation",
+}
 
 /**
- * Roman Analysis schema
+ * Roman Analysis type
  */
-export const romanAnalysisSchema = z.object({
-  breakdown: z.array(romanBreakdownSchema),
-  historicalContext: historicalContextSchema,
-  mathematicalProperties: z.array(mathematicalPropertySchema),
-  educationalNotes: z.array(z.string()),
-  commonUsages: z.array(z.string()),
-})
+export interface romanAnalysis {
+  breakdown: romanBreakdown[],
+  historicalContext: historicalContext,
+  mathematicalProperties: mathematicalProperty[],
+  educationalNotes: string[],
+  commonUsages: string[],
+}
 
 /**
- * Conversion Metadata schema
+ * Conversion Metadata type
  */
-export const conversionMetadataSchema = z.object({
-  conversionTime: z.number(),
-  complexity: z.number(),
-  romanLength: z.number(),
-  digitCount: z.number(),
-  isValid: z.boolean(),
-  hasSubtractiveCases: z.boolean(),
-  romanSymbols: z.array(romanSymbolSchema),
-})
+export interface conversionMetadata {
+  conversionTime: number,
+  complexity: number,
+  romanLength: number,
+  digitCount: number,
+  isValid: boolean,
+  hasSubtractiveCases: boolean,
+  romanSymbols: romanSymbol[],
+}
 
 /**
- * Roman Conversion schema
+ * Roman Conversion type
  */
-export const romanConversionSchema = z.object({
-  id: z.string(),
-  arabicNumber: z.number(),
-  romanNumeral: z.string(),
-  conversionType: z.enum(["arabic-to-roman", "roman-to-arabic"]),
-  metadata: conversionMetadataSchema,
-  analysis: romanAnalysisSchema,
-  timestamp: z.date(),
-})
+export interface romanConversion {
+  id: string,
+  arabicNumber: number,
+  romanNumeral: string,
+  conversionType: "arabic-to-roman" | "roman-to-arabic",
+  metadata: conversionMetadata,
+  analysis: romanAnalysis,
+  timestamp: Date,
+}
 
 /**
- * Roman Template schema
+ * Roman Template type
  */
-export const romanTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  numbers: z.array(z.number()),
-  useCase: z.array(z.string()),
-  difficulty: z.enum(["simple", "medium", "complex"]),
-  historicalSignificance: z.string().optional(),
-})
+export interface romanTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  numbers: number[],
+  useCase: string[],
+  difficulty: "simple"| "medium" | "complex"
+  historicalSignificance?: string
+}
 
 /**
- * Conversion Error schema
+ * Conversion Error type
  */
-export const conversionErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["format", "range", "syntax", "historical"]),
-  severity: z.enum(["error", "warning", "info"]),
-  position: z.number().optional(),
-})
+export interface conversionError {
+  message: string,
+  type: "format"| "range" | "syntax" | "historical",
+  severity: "error"| "warning" | "info"
+  position?: number
+}
 
 /**
- * Conversion Validation schema
+ * Conversion Validation type
  */
-export const conversionValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(conversionErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  qualityScore: z.number(),
-})
+export interface conversionValidation {
+  isValid: boolean,
+  errors: conversionError[],
+  warnings: string[],
+  suggestions: string[],
+  qualityScore: number,
+}
 
 // ==================== Type Exports ====================
 
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type RomanSymbol = z.infer<typeof romanSymbolSchema>
-export type RomanBreakdown = z.infer<typeof romanBreakdownSchema>
-export type HistoricalContext = z.infer<typeof historicalContextSchema>
-export type MathematicalProperty = z.infer<typeof mathematicalPropertySchema>
-export type RomanAnalysis = z.infer<typeof romanAnalysisSchema>
-export type ConversionMetadata = z.infer<typeof conversionMetadataSchema>
-export type RomanConversion = z.infer<typeof romanConversionSchema>
-export type RomanTemplate = z.infer<typeof romanTemplateSchema>
-export type ConversionError = z.infer<typeof conversionErrorSchema>
-export type ConversionValidation = z.infer<typeof conversionValidationSchema>
+export type ExportFormat = exportFormat
+export type RomanSymbol = romanSymbol
+export type RomanBreakdown = romanBreakdown
+export type HistoricalContext = historicalContext
+export type MathematicalProperty = mathematicalProperty
+export type RomanAnalysis = romanAnalysis
+export type ConversionMetadata = conversionMetadata
+export type RomanConversion = romanConversion
+export type RomanTemplate = romanTemplate
+export type ConversionError = conversionError
+export type ConversionValidation = conversionValidation

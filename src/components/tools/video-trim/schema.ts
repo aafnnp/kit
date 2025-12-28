@@ -1,58 +1,56 @@
-import { z } from "zod"
-
-// ==================== Video Trim Schemas ====================
+// ==================== Video Trim Types ====================
 
 /**
- * Video Stats schema
+ * Video Stats type
  */
-export const videoStatsSchema = z.object({
-  duration: z.number(),
-  width: z.number(),
-  height: z.number(),
-  bitrate: z.number(),
-  fileSize: z.number(),
-  format: z.string(),
-})
+export interface videoStats {
+  duration: number,
+  width: number,
+  height: number,
+  bitrate: number,
+  fileSize: number,
+  format: string,
+}
 
 /**
- * Trim Settings schema
+ * Trim Settings type
  */
-export const trimSettingsSchema = z.object({
-  start: z.number(),
-  end: z.number(),
-  format: z.enum(["mp4", "webm", "mov"]),
-})
+export interface trimSettings {
+  start: number,
+  end: number,
+  format: "mp4"| "webm" | "mov",
+}
 
 /**
- * Trim Result schema
+ * Trim Result type
  */
-export const trimResultSchema = z.object({
-  url: z.string(),
-  size: z.number(),
-  format: z.string(),
-  duration: z.number(),
-})
+export interface trimResult {
+  url: string,
+  size: number,
+  format: string,
+  duration: number,
+}
 
 /**
- * Video File schema
+ * Video File type
  */
-export const videoFileSchema = z.object({
-  id: z.string(),
-  file: z.instanceof(File),
-  name: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  url: z.string().optional(),
-  trimmedUrl: z.string().optional(),
-  stats: videoStatsSchema.optional(),
-  trimResult: trimResultSchema.optional(),
-})
+export interface videoFile {
+  id: string,
+  file: File,
+  name: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  url?: string
+  trimmedUrl?: string
+  stats?: videoStats
+  trimResult?: trimResult
+}
 
 // ==================== Type Exports ====================
 
-export type VideoStats = z.infer<typeof videoStatsSchema>
-export type TrimSettings = z.infer<typeof trimSettingsSchema>
-export type TrimResult = z.infer<typeof trimResultSchema>
-export type VideoFile = z.infer<typeof videoFileSchema>
+export type VideoStats = videoStats
+export type TrimSettings = trimSettings
+export type TrimResult = trimResult
+export type VideoFile = videoFile

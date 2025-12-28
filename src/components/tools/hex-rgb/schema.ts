@@ -1,187 +1,178 @@
-import { z } from "zod"
-
-// ==================== HEX-RGB Schemas ====================
+// ==================== HEX-RGB Types ====================
 
 /**
- * Color Format schema
+ * Color Format type
  */
-export const colorFormatSchema = z.enum([
-  "hex",
-  "rgb",
-  "hsl",
-  "hsv",
-  "cmyk",
-  "lab",
-])
+export type colorFormat = "hex" | "rgb" | "hsl" | "hsv" | "cmyk" | "lab"
 
 /**
- * RGB schema
+ * RGB type
  */
-export const rgbSchema = z.object({
-  r: z.number(),
-  g: z.number(),
-  b: z.number(),
-})
+export interface rgb {
+  r: number,
+  g: number,
+  b: number,
+}
 
 /**
- * HSL schema
+ * HSL type
  */
-export const hslSchema = z.object({
-  h: z.number(),
-  s: z.number(),
-  l: z.number(),
-})
+export interface hsl {
+  h: number,
+  s: number,
+  l: number,
+}
 
 /**
- * HSV schema
+ * HSV type
  */
-export const hsvSchema = z.object({
-  h: z.number(),
-  s: z.number(),
-  v: z.number(),
-})
+export interface hsv {
+  h: number,
+  s: number,
+  v: number,
+}
 
 /**
- * CMYK schema
+ * CMYK type
  */
-export const cmykSchema = z.object({
-  c: z.number(),
-  m: z.number(),
-  y: z.number(),
-  k: z.number(),
-})
+export interface cmyk {
+  c: number,
+  m: number,
+  y: number,
+  k: number,
+}
 
 /**
- * LAB schema
+ * LAB type
  */
-export const labSchema = z.object({
-  l: z.number(),
-  a: z.number(),
-  b: z.number(),
-})
+export interface lab {
+  l: number,
+  a: number,
+  b: number,
+}
 
 /**
- * Accessibility Info schema
+ * Accessibility Info type
  */
-export const accessibilityInfoSchema = z.object({
-  contrastRatios: z.object({
-    white: z.number(),
-    black: z.number(),
-  }),
-  wcagAA: z.object({
-    normal: z.boolean(),
-    large: z.boolean(),
-  }),
-  wcagAAA: z.object({
-    normal: z.boolean(),
-    large: z.boolean(),
-  }),
-  colorBlindSafe: z.boolean(),
-})
+export interface accessibilityInfo {
+  contrastRatios: {
+    white: number,
+    black: number,
+  },
+  wcagAA: {
+    normal: boolean,
+    large: boolean,
+  },
+  wcagAAA: {
+    normal: boolean,
+    large: boolean,
+  },
+  colorBlindSafe: boolean,
+}
+/**
+ * Converted Color type
+ */
+export interface convertedColor {
+  hex: string,
+  rgb: rgb,
+  hsl: hsl,
+  hsv: hsv,
+  cmyk: cmyk,
+  lab: lab,
+  accessibility: accessibilityInfo,
+}
 
 /**
- * Converted Color schema
+ * Color Conversion type
  */
-export const convertedColorSchema = z.object({
-  hex: z.string(),
-  rgb: rgbSchema,
-  hsl: hslSchema,
-  hsv: hsvSchema,
-  cmyk: cmykSchema,
-  lab: labSchema,
-  accessibility: accessibilityInfoSchema,
-})
+export interface colorConversion {
+  original: string,
+  originalFormat: colorFormat,
+  converted: convertedColor,
+  isValid: boolean
+  error?: string
+}
 
 /**
- * Color Conversion schema
+ * Conversion Statistics type
  */
-export const colorConversionSchema = z.object({
-  original: z.string(),
-  originalFormat: colorFormatSchema,
-  converted: convertedColorSchema,
-  isValid: z.boolean(),
-  error: z.string().optional(),
-})
+export interface conversionStatistics {
+  totalConversions: number,
+  successfulConversions: number,
+  failedConversions: number,
+  formatDistribution: Record<string, number>,
+  averageAccessibilityScore: number,
+  processingTime: number,
+}
 
 /**
- * Conversion Statistics schema
+ * Conversion Settings type
  */
-export const conversionStatisticsSchema = z.object({
-  totalConversions: z.number(),
-  successfulConversions: z.number(),
-  failedConversions: z.number(),
-  formatDistribution: z.record(colorFormatSchema, z.number()),
-  averageAccessibilityScore: z.number(),
-  processingTime: z.number(),
-})
+export interface conversionSettings {
+  inputFormat: colorFormat,
+  outputFormat: colorFormat,
+  includeAccessibility: boolean,
+  validateColors: boolean,
+  preserveCase: boolean,
+  batchMode: boolean,
+}
 
 /**
- * Conversion Settings schema
+ * Conversion Data type
  */
-export const conversionSettingsSchema = z.object({
-  inputFormat: colorFormatSchema,
-  outputFormat: colorFormatSchema,
-  includeAccessibility: z.boolean(),
-  validateColors: z.boolean(),
-  preserveCase: z.boolean(),
-  batchMode: z.boolean(),
-})
+export interface conversionData {
+  conversions: colorConversion[],
+  statistics: conversionStatistics,
+  settings: conversionSettings,
+}
 
 /**
- * Conversion Data schema
+ * Color Conversion File type
  */
-export const conversionDataSchema = z.object({
-  conversions: z.array(colorConversionSchema),
-  statistics: conversionStatisticsSchema,
-  settings: conversionSettingsSchema,
-})
+export interface colorConversionFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  conversionData?: conversionData
+}
 
 /**
- * Color Conversion File schema
+ * Conversion Template type
  */
-export const colorConversionFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  conversionData: conversionDataSchema.optional(),
-})
-
-/**
- * Conversion Template schema
- */
-export const conversionTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  inputFormat: colorFormatSchema,
-  outputFormat: colorFormatSchema,
-  examples: z.array(
-    z.object({
-      input: z.string(),
-      output: z.string(),
-    })
-  ),
-})
-
+export interface conversionTemplate {
+  id: string,
+  name: string,
+  description: string,
+  inputFormat: colorFormat,
+  outputFormat: colorFormat,
+  examples: {
+    input: string,
+    output: string,
+  }[]
+}
 // ==================== Type Exports ====================
 
-export type ColorFormat = z.infer<typeof colorFormatSchema>
-export type RGB = z.infer<typeof rgbSchema>
-export type HSL = z.infer<typeof hslSchema>
-export type HSV = z.infer<typeof hsvSchema>
-export type CMYK = z.infer<typeof cmykSchema>
-export type LAB = z.infer<typeof labSchema>
-export type AccessibilityInfo = z.infer<typeof accessibilityInfoSchema>
-export type ConvertedColor = z.infer<typeof convertedColorSchema>
-export type ColorConversion = z.infer<typeof colorConversionSchema>
-export type ConversionStatistics = z.infer<typeof conversionStatisticsSchema>
-export type ConversionSettings = z.infer<typeof conversionSettingsSchema>
-export type ConversionData = z.infer<typeof conversionDataSchema>
-export type ColorConversionFile = z.infer<typeof colorConversionFileSchema>
-export type ConversionTemplate = z.infer<typeof conversionTemplateSchema>
-
+export type ColorFormat = colorFormat
+export type RGB = rgb
+export type HSL = hsl
+export type HSV = hsv
+export type CMYK = cmyk
+export type LAB = lab
+export type AccessibilityInfo = accessibilityInfo
+export type ConvertedColor = convertedColor
+export type ColorConversion = colorConversion
+export type ConversionStatistics = conversionStatistics
+export type ConversionSettings = conversionSettings
+export type ConversionData = conversionData
+export type ColorConversionFile = colorConversionFile
+export type ConversionTemplate = conversionTemplate
+export type Rgb = rgb
+export type Hsl = hsl
+export type Hsv = hsv
+export type Cmyk = cmyk
+export type Lab = lab

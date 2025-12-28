@@ -1,249 +1,236 @@
-import { z } from "zod"
-
-// ==================== User Agent Schemas ====================
+// ==================== User Agent Types ====================
 
 /**
- * Device Type schema
+ * Device Type type
  */
-export const deviceTypeSchema = z.enum([
-  "desktop",
-  "mobile",
-  "tablet",
-  "tv",
-  "console",
-  "bot",
-  "unknown",
-])
+export type deviceType = "desktop" | "mobile" | "tablet" | "tv" | "console" | "bot" | "unknown"
 
 /**
- * Privacy Level schema
+ * Privacy Level type
  */
-export const privacyLevelSchema = z.enum(["high", "medium", "low", "minimal"])
+export type privacyLevel = "high" | "medium" | "low" | "minimal"
 
 /**
- * Security Risk schema
+ * Security Risk type
  */
-export const securityRiskSchema = z.enum(["high", "medium", "low", "minimal"])
+export type securityRisk = "high" | "medium" | "low" | "minimal"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml"
 
 /**
- * Hardware Info schema
+ * Hardware Info type
  */
-export const hardwareInfoSchema = z.object({
-  cpuCores: z.number().optional(),
-  memory: z.number().optional(),
-  platform: z.string(),
-  vendor: z.string().optional(),
-  model: z.string().optional(),
-})
+export interface hardwareInfo {
+  cpuCores?: number
+  memory?: number
+  platform: string
+  vendor?: string
+  model?: string
+}
 
 /**
- * Browser Capability schema
+ * Browser Capability type
  */
-export const browserCapabilitySchema = z.object({
-  name: z.string(),
-  supported: z.boolean(),
-  version: z.string().optional(),
-  description: z.string(),
-})
+export interface browserCapability {
+  name: string,
+  supported: boolean
+  version?: string
+  description: string,
+}
 
 /**
- * Operating System schema
+ * Operating System type
  */
-export const operatingSystemSchema = z.object({
-  name: z.string(),
-  version: z.string(),
-  family: z.string(),
-  architecture: z.string().optional(),
-})
+export interface operatingSystem {
+  name: string,
+  version: string,
+  family: string
+  architecture?: string
+}
 
 /**
- * User Agent Metrics schema
+ * User Agent Metrics type
  */
-export const userAgentMetricsSchema = z.object({
-  length: z.number(),
-  tokenCount: z.number(),
-  hasValidStructure: z.boolean(),
-  detectedComponents: z.array(z.string()),
-  securityFeatures: z.array(z.string()),
-  privacyFeatures: z.array(z.string()),
-})
+export interface userAgentMetrics {
+  length: number,
+  tokenCount: number,
+  hasValidStructure: boolean,
+  detectedComponents: string[],
+  securityFeatures: string[],
+  privacyFeatures: string[],
+}
 
 /**
- * Device Metrics schema
+ * Device Metrics type
  */
-export const deviceMetricsSchema = z.object({
-  deviceType: deviceTypeSchema,
-  operatingSystem: operatingSystemSchema,
-  architecture: z.string(),
-  screenResolution: z.string().optional(),
-  touchSupport: z.boolean(),
-  mobileFeatures: z.array(z.string()),
-  hardwareInfo: hardwareInfoSchema,
-})
+export interface deviceMetrics {
+  deviceType: deviceType,
+  operatingSystem: operatingSystem,
+  architecture: string
+  screenResolution?: string
+  touchSupport: boolean,
+  mobileFeatures: string[],
+  hardwareInfo: hardwareInfo,
+}
 
 /**
- * Browser Metrics schema
+ * Browser Metrics type
  */
-export const browserMetricsSchema = z.object({
-  browserName: z.string(),
-  browserVersion: z.string(),
-  engineName: z.string(),
-  engineVersion: z.string(),
-  features: z.array(z.string()),
-  capabilities: z.array(browserCapabilitySchema),
-  securityFeatures: z.array(z.string()),
-  modernFeatures: z.array(z.string()),
-})
+export interface browserMetrics {
+  browserName: string,
+  browserVersion: string,
+  engineName: string,
+  engineVersion: string,
+  features: string[],
+  capabilities: browserCapability[],
+  securityFeatures: string[],
+  modernFeatures: string[],
+}
 
 /**
- * User Agent Statistics schema
+ * User Agent Statistics type
  */
-export const userAgentStatisticsSchema = z.object({
-  inputSize: z.number(),
-  processingTime: z.number(),
-  userAgentMetrics: userAgentMetricsSchema,
-  deviceMetrics: deviceMetricsSchema,
-  browserMetrics: browserMetricsSchema,
-})
+export interface userAgentStatistics {
+  inputSize: number,
+  processingTime: number,
+  userAgentMetrics: userAgentMetrics,
+  deviceMetrics: deviceMetrics,
+  browserMetrics: browserMetrics,
+}
 
 /**
- * User Agent Analysis schema
+ * User Agent Analysis type
  */
-export const userAgentAnalysisSchema = z.object({
-  isValidUserAgent: z.boolean(),
-  hasModernStructure: z.boolean(),
-  isBot: z.boolean(),
-  isMobile: z.boolean(),
-  isTablet: z.boolean(),
-  isDesktop: z.boolean(),
-  privacyLevel: privacyLevelSchema,
-  securityRisk: securityRiskSchema,
-  suggestedImprovements: z.array(z.string()),
-  userAgentIssues: z.array(z.string()),
-  qualityScore: z.number(),
-  compatibilityIssues: z.array(z.string()),
-  modernityScore: z.number(),
-})
+export interface userAgentAnalysis {
+  isValidUserAgent: boolean,
+  hasModernStructure: boolean,
+  isBot: boolean,
+  isMobile: boolean,
+  isTablet: boolean,
+  isDesktop: boolean,
+  privacyLevel: privacyLevel,
+  securityRisk: securityRisk,
+  suggestedImprovements: string[],
+  userAgentIssues: string[],
+  qualityScore: number,
+  compatibilityIssues: string[],
+  modernityScore: number,
+}
 
 /**
- * User Agent Processing Result schema
+ * User Agent Processing Result type
  */
-export const userAgentProcessingResultSchema = z.object({
-  id: z.string(),
-  input: z.string(),
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  statistics: userAgentStatisticsSchema,
-  analysis: userAgentAnalysisSchema.optional(),
-  createdAt: z.date(),
-})
+export interface userAgentProcessingResult {
+  id: string,
+  input: string,
+  isValid: boolean
+  error?: string
+  statistics: userAgentStatistics
+  analysis?: userAgentAnalysis
+  createdAt: Date,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalProcessed: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  averageQuality: z.number(),
-  totalInputSize: z.number(),
-  successRate: z.number(),
-  deviceTypeDistribution: z.record(z.string(), z.number()),
-  browserDistribution: z.record(z.string(), z.number()),
-  osDistribution: z.record(z.string(), z.number()),
-})
+export interface batchStatistics {
+  totalProcessed: number,
+  validCount: number,
+  invalidCount: number,
+  averageQuality: number,
+  totalInputSize: number,
+  successRate: number,
+  deviceTypeDistribution: Record<string, number>,
+  browserDistribution: Record<string, number>,
+  osDistribution: Record<string, number>,
+}
 
 /**
- * Processing Settings schema
+ * Processing Settings type
  */
-export const processingSettingsSchema = z.object({
-  includeDeviceInfo: z.boolean(),
-  includeBrowserInfo: z.boolean(),
-  includeSecurityAnalysis: z.boolean(),
-  includePrivacyAnalysis: z.boolean(),
-  detectBots: z.boolean(),
-  analyzeCapabilities: z.boolean(),
-  exportFormat: exportFormatSchema,
-  realTimeProcessing: z.boolean(),
-  showDetailedAnalysis: z.boolean(),
-})
+export interface processingSettings {
+  includeDeviceInfo: boolean,
+  includeBrowserInfo: boolean,
+  includeSecurityAnalysis: boolean,
+  includePrivacyAnalysis: boolean,
+  detectBots: boolean,
+  analyzeCapabilities: boolean,
+  exportFormat: exportFormat,
+  realTimeProcessing: boolean,
+  showDetailedAnalysis: boolean,
+}
 
 /**
- * Processing Batch schema
+ * Processing Batch type
  */
-export const processingBatchSchema = z.object({
-  id: z.string(),
-  results: z.array(userAgentProcessingResultSchema),
-  count: z.number(),
-  settings: processingSettingsSchema,
-  createdAt: z.date(),
-  statistics: batchStatisticsSchema,
-})
+export interface processingBatch {
+  id: string,
+  results: userAgentProcessingResult[],
+  count: number,
+  settings: processingSettings,
+  createdAt: Date,
+  statistics: batchStatistics,
+}
 
 /**
- * User Agent Error schema
+ * User Agent Error type
  */
-export const userAgentErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["format", "structure", "security", "compatibility"]),
-  severity: z.enum(["error", "warning", "info"]),
-})
+export interface userAgentError {
+  message: string,
+  type: "format"| "structure" | "security" | "compatibility",
+  severity: "error"| "warning" | "info",
+}
 
 /**
- * User Agent Validation schema
+ * User Agent Validation type
  */
-export const userAgentValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(userAgentErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-})
+export interface userAgentValidation {
+  isValid: boolean,
+  errors: userAgentError[],
+  warnings: string[],
+  suggestions: string[],
+}
 
 /**
- * User Agent Template schema
+ * User Agent Template type
  */
-export const userAgentTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  userAgent: z.string(),
-  deviceType: deviceTypeSchema,
-  browserName: z.string(),
-  osName: z.string(),
-  features: z.array(z.string()),
-  useCase: z.array(z.string()),
-})
+export interface userAgentTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  userAgent: string,
+  deviceType: deviceType,
+  browserName: string,
+  osName: string,
+  features: string[],
+  useCase: string[],
+}
 
 // ==================== Type Exports ====================
 
 /**
- * Type inference from zod schemas
+ * Type definitions
  */
-export type DeviceType = z.infer<typeof deviceTypeSchema>
-export type PrivacyLevel = z.infer<typeof privacyLevelSchema>
-export type SecurityRisk = z.infer<typeof securityRiskSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type HardwareInfo = z.infer<typeof hardwareInfoSchema>
-export type BrowserCapability = z.infer<typeof browserCapabilitySchema>
-export type OperatingSystem = z.infer<typeof operatingSystemSchema>
-export type UserAgentMetrics = z.infer<typeof userAgentMetricsSchema>
-export type DeviceMetrics = z.infer<typeof deviceMetricsSchema>
-export type BrowserMetrics = z.infer<typeof browserMetricsSchema>
-export type UserAgentStatistics = z.infer<typeof userAgentStatisticsSchema>
-export type UserAgentAnalysis = z.infer<typeof userAgentAnalysisSchema>
-export type UserAgentProcessingResult = z.infer<
-  typeof userAgentProcessingResultSchema
->
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type ProcessingSettings = z.infer<typeof processingSettingsSchema>
-export type ProcessingBatch = z.infer<typeof processingBatchSchema>
-export type UserAgentError = z.infer<typeof userAgentErrorSchema>
-export type UserAgentValidation = z.infer<typeof userAgentValidationSchema>
-export type UserAgentTemplate = z.infer<typeof userAgentTemplateSchema>
-
+export type DeviceType = deviceType
+export type PrivacyLevel = privacyLevel
+export type SecurityRisk = securityRisk
+export type ExportFormat = exportFormat
+export type HardwareInfo = hardwareInfo
+export type BrowserCapability = browserCapability
+export type OperatingSystem = operatingSystem
+export type UserAgentMetrics = userAgentMetrics
+export type DeviceMetrics = deviceMetrics
+export type BrowserMetrics = browserMetrics
+export type UserAgentStatistics = userAgentStatistics
+export type UserAgentAnalysis = userAgentAnalysis
+export type UserAgentProcessingResult = userAgentProcessingResult
+export type BatchStatistics = batchStatistics
+export type ProcessingSettings = processingSettings
+export type ProcessingBatch = processingBatch
+export type UserAgentError = userAgentError
+export type UserAgentValidation = userAgentValidation
+export type UserAgentTemplate = userAgentTemplate

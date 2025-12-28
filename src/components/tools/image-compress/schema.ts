@@ -1,93 +1,89 @@
-import { z } from "zod"
-
-// ==================== Image Compress Schemas ====================
+// ==================== Image Compress Types ====================
 
 /**
- * Compression Settings schema
+ * Compression Settings type
  */
-export const compressionSettingsSchema = z.object({
-  quality: z.number(),
-  format: z.enum(["jpeg", "png", "webp"]),
-  maxWidth: z.number().optional(),
-  maxHeight: z.number().optional(),
-  maintainAspectRatio: z.boolean(),
-  enableProgressive: z.boolean(),
-  removeMetadata: z.boolean(),
-  resizeMethod: z.enum(["lanczos", "bilinear", "bicubic"]),
-  colorSpace: z.enum(["srgb", "p3", "rec2020"]),
-  dithering: z.boolean(),
-})
+export interface compressionSettings {
+  quality: number,
+  format: "jpeg"| "png" | "webp"
+  maxWidth?: number
+  maxHeight?: number
+  maintainAspectRatio: boolean,
+  enableProgressive: boolean,
+  removeMetadata: boolean,
+  resizeMethod: "lanczos"| "bilinear" | "bicubic",
+  colorSpace: "srgb"| "p3" | "rec2020",
+  dithering: boolean,
+}
 
 /**
- * Image File schema
+ * Image File type
  */
-export const imageFileSchema = z.object({
-  id: z.string(),
-  file: z.instanceof(File),
-  originalUrl: z.string(),
-  compressedUrl: z.string().optional(),
-  originalSize: z.number(),
-  compressedSize: z.number().optional(),
-  compressionRatio: z.number().optional(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  dimensions: z
-    .object({
-      width: z.number(),
-      height: z.number(),
-    })
-    .optional(),
-  format: z.string().optional(),
-  timestamp: z.number(),
-  processingTime: z.number().optional(),
-})
+export interface imageFile {
+  id: string,
+  file: File,
+  originalUrl: string
+  compressedUrl?: string
+  originalSize: number
+  compressedSize?: number
+  compressionRatio?: number
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  dimensions?: {
+    width: number,
+    height: number,
+  },
+  width?: number,
+  height?: number
+  format?: string,
+  timestamp: number,
+  processingTime?: number,
+}
+/**
+ * Compression Stats type
+ */
+export interface compressionStats {
+  totalOriginalSize: number,
+  totalCompressedSize: number,
+  totalSavings: number,
+  averageCompressionRatio: number,
+  processingTime: number,
+  imagesProcessed: number,
+  averageFileSize: number,
+  largestReduction: number,
+  smallestReduction: number,
+}
 
 /**
- * Compression Stats schema
+ * Compression Template type
  */
-export const compressionStatsSchema = z.object({
-  totalOriginalSize: z.number(),
-  totalCompressedSize: z.number(),
-  totalSavings: z.number(),
-  averageCompressionRatio: z.number(),
-  processingTime: z.number(),
-  imagesProcessed: z.number(),
-  averageFileSize: z.number(),
-  largestReduction: z.number(),
-  smallestReduction: z.number(),
-})
+export interface compressionTemplate {
+  id: string,
+  name: string,
+  description: string,
+  settings: compressionSettings,
+  category: "web"| "print" | "mobile" | "social" | "custom",
+  useCase: string,
+  estimatedSavings: string,
+}
 
 /**
- * Compression Template schema
+ * History Entry type
  */
-export const compressionTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  settings: compressionSettingsSchema,
-  category: z.enum(["web", "print", "mobile", "social", "custom"]),
-  useCase: z.string(),
-  estimatedSavings: z.string(),
-})
-
-/**
- * History Entry schema
- */
-export const historyEntrySchema = z.object({
-  id: z.string(),
-  timestamp: z.number(),
-  settings: compressionSettingsSchema,
-  stats: compressionStatsSchema,
-  imageCount: z.number(),
-  totalSavings: z.number(),
-  description: z.string(),
-})
+export interface historyEntry {
+  id: string,
+  timestamp: number,
+  settings: compressionSettings,
+  stats: compressionStats,
+  imageCount: number,
+  totalSavings: number,
+  description: string,
+}
 
 // ==================== Type Exports ====================
 
-export type CompressionSettings = z.infer<typeof compressionSettingsSchema>
-export type ImageFile = z.infer<typeof imageFileSchema>
-export type CompressionStats = z.infer<typeof compressionStatsSchema>
-export type CompressionTemplate = z.infer<typeof compressionTemplateSchema>
-export type HistoryEntry = z.infer<typeof historyEntrySchema>
-
+export type CompressionSettings = compressionSettings
+export type ImageFile = imageFile
+export type CompressionStats = compressionStats
+export type CompressionTemplate = compressionTemplate
+export type HistoryEntry = historyEntry

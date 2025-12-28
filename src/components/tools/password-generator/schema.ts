@@ -1,170 +1,147 @@
-import { z } from "zod"
-
-// ==================== Password Generator Schemas ====================
+// ==================== Password Generator Types ====================
 
 /**
- * Password Type schema
+ * Password Type type
  */
-export const passwordTypeSchema = z.enum([
-  "random",
-  "memorable",
-  "pin",
-  "passphrase",
-  "custom",
-  "pronounceable",
-])
+export type passwordType = "random" | "memorable" | "pin" | "passphrase" | "custom" | "pronounceable"
 
 /**
- * Security Level schema
+ * Security Level type
  */
-export const securityLevelSchema = z.enum([
-  "low",
-  "medium",
-  "high",
-  "very-high",
-  "maximum",
-])
+export type securityLevel = "low" | "medium" | "high" | "very-high" | "maximum"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml"
 
 /**
- * Password Requirement schema
+ * Password Requirement type
  */
-export const passwordRequirementSchema = z.object({
-  name: z.string(),
-  met: z.boolean(),
-  description: z.string(),
-  weight: z.number(),
-})
+export interface passwordRequirement {
+  name: string,
+  met: boolean,
+  description: string,
+  weight: number,
+}
 
 /**
- * Password Strength schema
+ * Password Strength type
  */
-export const passwordStrengthSchema = z.object({
-  score: z.number(),
-  level: z.enum([
-    "very-weak",
-    "weak",
-    "fair",
-    "good",
-    "strong",
-    "very-strong",
-  ]),
-  feedback: z.array(z.string()),
-  requirements: z.array(passwordRequirementSchema),
-  entropy: z.number(),
-  timeToCrack: z.string(),
-})
+export interface passwordStrength {
+  score: number,
+  level: "weak"| "fair" | "good" | "strong" | "very_strong" | "very-weak" | "very-strong",
+  feedback: string[],
+  requirements: passwordRequirement[],
+  entropy: number,
+  timeToCrack: string,
+}
 
 /**
- * Password Settings schema
+ * Password Settings type
  */
-export const passwordSettingsSchema = z.object({
-  length: z.number(),
-  includeUppercase: z.boolean(),
-  includeLowercase: z.boolean(),
-  includeNumbers: z.boolean(),
-  includeSymbols: z.boolean(),
-  excludeSimilar: z.boolean(),
-  excludeAmbiguous: z.boolean(),
-  customCharacters: z.string(),
-  pattern: z.string(),
-  wordCount: z.number(),
-  separator: z.string(),
-  minLength: z.number(),
-  maxLength: z.number(),
-})
+export interface passwordSettings {
+  length: number,
+  includeUppercase: boolean,
+  includeLowercase: boolean,
+  includeNumbers: boolean,
+  includeSymbols: boolean,
+  excludeSimilar: boolean,
+  excludeAmbiguous: boolean,
+  customCharacters: string,
+  pattern: string,
+  wordCount: number,
+  separator: string,
+  minLength: number,
+  maxLength: number,
+}
 
 /**
- * Password Item schema
+ * Password Item type
  */
-export const passwordItemSchema = z.object({
-  id: z.string(),
-  password: z.string(),
-  type: passwordTypeSchema,
-  strength: passwordStrengthSchema,
-  entropy: z.number(),
-  createdAt: z.date(),
-  settings: passwordSettingsSchema,
-})
+export interface passwordItem {
+  id: string,
+  password: string,
+  type: passwordType,
+  strength: passwordStrength,
+  entropy: number,
+  createdAt: Date,
+  settings: passwordSettings,
+}
 
 /**
- * Password Template schema
+ * Password Template type
  */
-export const passwordTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  settings: passwordSettingsSchema.partial(),
-  type: passwordTypeSchema,
-  securityLevel: securityLevelSchema,
-})
+export interface passwordTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  settings: passwordSettings,
+  type: passwordType,
+  securityLevel: securityLevel,
+}
 
 /**
- * Pattern Analysis schema
+ * Pattern Analysis type
  */
-export const patternAnalysisSchema = z.object({
-  commonPatterns: z.array(z.string()),
-  uniqueCharacters: z.number(),
-  repetitionScore: z.number(),
-  sequenceScore: z.number(),
-  dictionaryScore: z.number(),
-})
+export interface patternAnalysis {
+  commonPatterns: string[],
+  uniqueCharacters: number,
+  repetitionScore: number,
+  sequenceScore: number,
+  dictionaryScore: number,
+}
 
 /**
- * Password Statistics schema
+ * Password Statistics type
  */
-export const passwordStatisticsSchema = z.object({
-  totalGenerated: z.number(),
-  averageStrength: z.number(),
-  averageEntropy: z.number(),
-  strengthDistribution: z.record(z.string(), z.number()),
-  typeDistribution: z.record(z.string(), z.number()),
-  characterDistribution: z.record(z.string(), z.number()),
-  patternAnalysis: patternAnalysisSchema,
-})
+export interface passwordStatistics {
+  totalGenerated: number,
+  averageStrength: number,
+  averageEntropy: number,
+  strengthDistribution: Record<string, number>,
+  typeDistribution: Record<string, number>,
+  characterDistribution: Record<string, number>,
+  patternAnalysis: patternAnalysis,
+}
 
 /**
- * Password Batch schema
+ * Password Batch type
  */
-export const passwordBatchSchema = z.object({
-  id: z.string(),
-  passwords: z.array(passwordItemSchema),
-  count: z.number(),
-  type: passwordTypeSchema,
-  settings: passwordSettingsSchema,
-  createdAt: z.date(),
-  statistics: passwordStatisticsSchema,
-})
+export interface passwordBatch {
+  id: string,
+  passwords: passwordItem[],
+  count: number,
+  type: passwordType,
+  settings: passwordSettings,
+  createdAt: Date,
+  statistics: passwordStatistics,
+}
 
 /**
- * Password History schema
+ * Password History type
  */
-export const passwordHistorySchema = z.object({
-  id: z.string(),
-  password: z.string(),
-  type: passwordTypeSchema,
-  strength: passwordStrengthSchema,
-  createdAt: z.date(),
-  used: z.boolean(),
-})
+export interface passwordHistory {
+  id: string,
+  password: string,
+  type: passwordType,
+  strength: passwordStrength,
+  createdAt: Date,
+  used: boolean,
+}
 
 // ==================== Type Exports ====================
 
-export type PasswordType = z.infer<typeof passwordTypeSchema>
-export type SecurityLevel = z.infer<typeof securityLevelSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type PasswordRequirement = z.infer<typeof passwordRequirementSchema>
-export type PasswordStrength = z.infer<typeof passwordStrengthSchema>
-export type PasswordSettings = z.infer<typeof passwordSettingsSchema>
-export type PasswordItem = z.infer<typeof passwordItemSchema>
-export type PasswordTemplate = z.infer<typeof passwordTemplateSchema>
-export type PatternAnalysis = z.infer<typeof patternAnalysisSchema>
-export type PasswordStatistics = z.infer<typeof passwordStatisticsSchema>
-export type PasswordBatch = z.infer<typeof passwordBatchSchema>
-export type PasswordHistory = z.infer<typeof passwordHistorySchema>
-
+export type PasswordType = passwordType
+export type SecurityLevel = securityLevel
+export type ExportFormat = exportFormat
+export type PasswordRequirement = passwordRequirement
+export type PasswordStrength = passwordStrength
+export type PasswordSettings = passwordSettings
+export type PasswordItem = passwordItem
+export type PasswordTemplate = passwordTemplate
+export type PatternAnalysis = patternAnalysis
+export type PasswordStatistics = passwordStatistics
+export type PasswordBatch = passwordBatch
+export type PasswordHistory = passwordHistory

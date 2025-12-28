@@ -543,7 +543,7 @@ const generateFakeUser = (settings: GenerationSettings): FakeUser => {
     : ({} as SocialInfo)
 
   const preferences: UserPreferences = {
-    theme: getRandomItem(["light", "dark", "auto"]),
+    theme: getRandomItem(["light", "dark", "auto"]) as "light" | "dark" | "auto",
     language: getRandomItem(["en", "es", "fr", "de", "it", "pt", "ru", "zh", "ja", "ko"]),
     timezone: addressInfo.timezone || "UTC",
     notifications: Math.random() > 0.3,

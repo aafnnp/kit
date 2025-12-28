@@ -1,285 +1,269 @@
-import { z } from "zod"
-
-// ==================== Barcode Generator Schemas ====================
+// ==================== Barcode Generator Types ====================
 
 /**
- * Data Exposure schema
+ * Data Exposure type
  */
-export const dataExposureSchema = z.enum(["low", "medium", "high"])
+export type dataExposure = "low" | "medium" | "high"
 
 /**
- * Barcode Format schema
+ * Barcode Format type
  */
-export const barcodeFormatSchema = z.enum([
-  "CODE128",
-  "EAN13",
-  "EAN8",
-  "UPC",
-  "CODE39",
-  "ITF14",
-  "MSI",
-  "pharmacode",
-  "codabar",
-  "CODE93",
-])
+export type barcodeFormat = "CODE128" | "EAN13" | "EAN8" | "UPC" | "CODE39" | "ITF14" | "MSI" | "pharmacode" | "codabar" | "CODE93"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["png", "svg", "pdf", "zip"])
+export type exportFormat = "png" | "svg" | "pdf" | "zip"
 
 /**
- * Barcode Capacity schema
+ * Barcode Capacity type
  */
-export const barcodeCapacitySchema = z.object({
-  numeric: z.number(),
-  alphanumeric: z.number(),
-  binary: z.number(),
-  maxLength: z.number(),
-  minLength: z.number(),
-})
+export interface barcodeCapacity {
+  numeric: number,
+  alphanumeric: number,
+  binary: number,
+  maxLength: number,
+  minLength: number,
+}
 
 /**
- * Barcode Metadata schema
+ * Barcode Metadata type
  */
-export const barcodeMetadataSchema = z.object({
-  format: barcodeFormatSchema,
-  capacity: barcodeCapacitySchema,
-  actualSize: z.object({
-    width: z.number(),
-    height: z.number(),
-  }),
-  dataLength: z.number(),
-  checksum: z.string().optional(),
-  encoding: z.string(),
-  compressionRatio: z.number(),
-  qualityScore: z.number(),
-  readabilityScore: z.number(),
-})
+export interface barcodeMetadata {
+  format: barcodeFormat,
+  capacity: barcodeCapacity,
+  actualSize: {
+    width: number,
+    height: number,
+  },
+  dataLength: number
+  checksum?: string
+  encoding: string,
+  compressionRatio: number,
+  qualityScore: number,
+  readabilityScore: number,
+}
 
 /**
- * Barcode Readability schema
+ * Barcode Readability type
  */
-export const barcodeReadabilitySchema = z.object({
-  contrastRatio: z.number(),
-  barWidth: z.number(),
-  quietZone: z.number(),
-  aspectRatio: z.number(),
-  readabilityScore: z.number(),
-  scanDistance: z.string(),
-  lightingConditions: z.array(z.string()),
-  printQuality: dataExposureSchema,
-})
+export interface barcodeReadability {
+  contrastRatio: number,
+  barWidth: number,
+  quietZone: number,
+  aspectRatio: number,
+  readabilityScore: number,
+  scanDistance: string,
+  lightingConditions: string[],
+  printQuality: dataExposure,
+}
 
 /**
- * Barcode Optimization schema
+ * Barcode Optimization type
  */
-export const barcodeOptimizationSchema = z.object({
-  dataEfficiency: z.number(),
-  sizeOptimization: z.number(),
-  printOptimization: z.number(),
-  scanOptimization: z.number(),
-  overallOptimization: z.number(),
-})
+export interface barcodeOptimization {
+  dataEfficiency: number,
+  sizeOptimization: number,
+  printOptimization: number,
+  scanOptimization: number,
+  overallOptimization: number,
+}
 
 /**
- * Barcode Compatibility schema
+ * Barcode Compatibility type
  */
-export const barcodeCompatibilitySchema = z.object({
-  scannerCompatibility: z.array(z.string()),
-  industryStandards: z.array(z.string()),
-  printCompatibility: z.array(z.string()),
-  softwareCompatibility: z.array(z.string()),
-  limitations: z.array(z.string()),
-})
+export interface barcodeCompatibility {
+  scannerCompatibility: string[],
+  industryStandards: string[],
+  printCompatibility: string[],
+  softwareCompatibility: string[],
+  limitations: string[],
+}
 
 /**
- * Barcode Security schema
+ * Barcode Security type
  */
-export const barcodeSecuritySchema = z.object({
-  dataExposure: dataExposureSchema,
-  tampering_resistance: dataExposureSchema,
-  privacy_level: dataExposureSchema,
-  security_score: z.number(),
-  vulnerabilities: z.array(z.string()),
-  recommendations: z.array(z.string()),
-})
+export interface barcodeSecurity {
+  dataExposure: dataExposure,
+  tampering_resistance: dataExposure,
+  privacy_level: dataExposure,
+  security_score: number,
+  vulnerabilities: string[],
+  recommendations: string[],
+}
 
 /**
- * Barcode Analysis schema
+ * Barcode Analysis type
  */
-export const barcodeAnalysisSchema = z.object({
-  readability: barcodeReadabilitySchema,
-  optimization: barcodeOptimizationSchema,
-  compatibility: barcodeCompatibilitySchema,
-  security: barcodeSecuritySchema,
-  recommendations: z.array(z.string()),
-  warnings: z.array(z.string()),
-})
+export interface barcodeAnalysis {
+  readability: barcodeReadability,
+  optimization: barcodeOptimization,
+  compatibility: barcodeCompatibility,
+  security: barcodeSecurity,
+  recommendations: string[],
+  warnings: string[],
+}
 
 /**
- * Barcode Customization schema
+ * Barcode Customization type
  */
-export const barcodeCustomizationSchema = z.object({
-  showBorder: z.boolean(),
-  borderWidth: z.number(),
-  borderColor: z.string(),
-  showQuietZone: z.boolean(),
-  quietZoneSize: z.number(),
-  customFont: z.boolean(),
-  fontWeight: z.enum(["normal", "bold"]),
-  textCase: z.enum(["none", "uppercase", "lowercase"]),
-})
+export interface barcodeCustomization {
+  showBorder: boolean,
+  borderWidth: number,
+  borderColor: string,
+  showQuietZone: boolean,
+  quietZoneSize: number,
+  customFont: boolean,
+  fontWeight: "normal" | "bold",
+  textCase: "none" | "uppercase" | "lowercase",
+}
 
 /**
- * Barcode Settings schema
+ * Barcode Settings type
  */
-export const barcodeSettingsSchema = z.object({
-  content: z.string(),
-  format: barcodeFormatSchema,
-  width: z.number(),
-  height: z.number(),
-  displayValue: z.boolean(),
-  backgroundColor: z.string(),
-  lineColor: z.string(),
-  fontSize: z.number(),
-  fontFamily: z.string(),
-  textAlign: z.enum(["left", "center", "right"]),
-  textPosition: z.enum(["top", "bottom"]),
-  textMargin: z.number(),
-  margin: z.number(),
-  customization: barcodeCustomizationSchema,
-})
+export interface barcodeSettings {
+  content: string,
+  format: barcodeFormat,
+  width: number,
+  height: number,
+  displayValue: boolean,
+  backgroundColor: string,
+  lineColor: string,
+  fontSize: number,
+  fontFamily: string,
+  textAlign: "left" | "center" | "right",
+  textPosition: "top" | "bottom",
+  textMargin: number,
+  margin: number,
+  customization: barcodeCustomization,
+}
 
 /**
- * Barcode Result schema
+ * Barcode Result type
  */
-export const barcodeResultSchema = z.object({
-  id: z.string(),
-  content: z.string(),
-  format: barcodeFormatSchema,
-  width: z.number(),
-  height: z.number(),
-  displayValue: z.boolean(),
-  backgroundColor: z.string(),
-  lineColor: z.string(),
-  fontSize: z.number(),
-  fontFamily: z.string(),
-  textAlign: z.enum(["left", "center", "right"]),
-  textPosition: z.enum(["top", "bottom"]),
-  textMargin: z.number(),
-  margin: z.number(),
-  dataUrl: z.string().optional(),
-  svgString: z.string().optional(),
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  metadata: barcodeMetadataSchema.optional(),
-  analysis: barcodeAnalysisSchema.optional(),
-  settings: barcodeSettingsSchema,
-  createdAt: z.date(),
-})
+export interface barcodeResult {
+  id: string,
+  content: string,
+  format: barcodeFormat,
+  width: number,
+  height: number,
+  displayValue: boolean,
+  backgroundColor: string,
+  lineColor: string,
+  fontSize: number,
+  fontFamily: string,
+  textAlign: "left" | "center" | "right",
+  textPosition: "top" | "bottom",
+  textMargin: number,
+  margin: number
+  dataUrl?: string
+  svgString?: string
+  isValid: boolean
+  error?: string
+  metadata?: barcodeMetadata
+  analysis?: barcodeAnalysis
+  settings: barcodeSettings,
+  createdAt: Date,
+}
 
 /**
- * Batch Settings schema
+ * Batch Settings type
  */
-export const batchSettingsSchema = z.object({
-  baseSettings: barcodeSettingsSchema,
-  contentList: z.array(z.string()),
-  namingPattern: z.string(),
-  exportFormat: exportFormatSchema,
-  includeAnalysis: z.boolean(),
-  optimizeForBatch: z.boolean(),
-})
+export interface batchSettings {
+  baseSettings: barcodeSettings,
+  contentList: string[],
+  namingPattern: string,
+  exportFormat: exportFormat,
+  includeAnalysis: boolean,
+  optimizeForBatch: boolean,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalGenerated: z.number(),
-  successfulGenerated: z.number(),
-  failedGenerated: z.number(),
-  averageSize: z.number(),
-  averageQuality: z.number(),
-  totalProcessingTime: z.number(),
-  averageProcessingTime: z.number(),
-  sizeDistribution: z.record(z.string(), z.number()),
-  formatDistribution: z.record(z.string(), z.number()),
-})
+export interface batchStatistics {
+  totalGenerated: number,
+  successfulGenerated: number,
+  failedGenerated: number,
+  averageSize: number,
+  averageQuality: number,
+  totalProcessingTime: number,
+  averageProcessingTime: number,
+  sizeDistribution: Record<string, number>,
+  formatDistribution: Record<string, number>,
+}
 
 /**
- * Barcode Batch schema
+ * Barcode Batch type
  */
-export const barcodeBatchSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  barcodes: z.array(barcodeResultSchema),
-  settings: batchSettingsSchema,
-  status: z.enum(["pending", "processing", "completed", "failed"]),
-  progress: z.number(),
-  statistics: batchStatisticsSchema,
-  createdAt: z.date(),
-  completedAt: z.date().optional(),
-})
+export interface barcodeBatch {
+  id: string,
+  name: string,
+  barcodes: barcodeResult[],
+  settings: batchSettings,
+  status: "pending" | "processing" | "completed" | "failed",
+  progress: number,
+  statistics: batchStatistics,
+  createdAt: Date
+  completedAt?: Date
+}
 
 /**
- * Barcode Template schema
+ * Barcode Template type
  */
-export const barcodeTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  format: barcodeFormatSchema,
-  settings: barcodeSettingsSchema.partial(),
-  useCase: z.array(z.string()),
-  examples: z.array(z.string()),
-  preview: z.string().optional(),
-})
+export interface barcodeTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  format: barcodeFormat,
+  settings: barcodeSettings,
+  useCase: string[],
+  examples: string[]
+  preview?: string
+}
 
 /**
- * Barcode Error schema
+ * Barcode Error type
  */
-export const barcodeErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["content", "format", "size", "settings", "compatibility"]),
-  severity: z.enum(["error", "warning", "info"]),
-})
+export interface barcodeError {
+  message: string,
+  type: "content" | "format" | "size" | "settings" | "compatibility",
+  severity: "error" | "warning" | "info",
+}
 
 /**
- * Barcode Validation schema
+ * Barcode Validation type
  */
-export const barcodeValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(barcodeErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  estimatedSize: z
-    .object({
-      width: z.number(),
-      height: z.number(),
-    })
-    .optional(),
-  recommendedSettings: barcodeSettingsSchema.partial().optional(),
-})
+export interface barcodeValidation {
+  isValid: boolean,
+  errors: barcodeError[],
+  warnings: string[],
+  suggestions: string[],
+  estimatedSize: number,
+  width: number,
+  height: number
+  recommendedSettings?: barcodeSettings
+}
 
 // ==================== Type Exports ====================
 
-export type DataExposure = z.infer<typeof dataExposureSchema>
-export type BarcodeFormat = z.infer<typeof barcodeFormatSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type BarcodeCapacity = z.infer<typeof barcodeCapacitySchema>
-export type BarcodeMetadata = z.infer<typeof barcodeMetadataSchema>
-export type BarcodeReadability = z.infer<typeof barcodeReadabilitySchema>
-export type BarcodeOptimization = z.infer<typeof barcodeOptimizationSchema>
-export type BarcodeCompatibility = z.infer<typeof barcodeCompatibilitySchema>
-export type BarcodeSecurity = z.infer<typeof barcodeSecuritySchema>
-export type BarcodeAnalysis = z.infer<typeof barcodeAnalysisSchema>
-export type BarcodeCustomization = z.infer<typeof barcodeCustomizationSchema>
-export type BarcodeSettings = z.infer<typeof barcodeSettingsSchema>
-export type BarcodeResult = z.infer<typeof barcodeResultSchema>
-export type BatchSettings = z.infer<typeof batchSettingsSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type BarcodeBatch = z.infer<typeof barcodeBatchSchema>
-export type BarcodeTemplate = z.infer<typeof barcodeTemplateSchema>
-export type BarcodeError = z.infer<typeof barcodeErrorSchema>
-export type BarcodeValidation = z.infer<typeof barcodeValidationSchema>
+export type DataExposure = dataExposure
+export type BarcodeFormat = barcodeFormat
+export type ExportFormat = exportFormat
+export type BarcodeCapacity = barcodeCapacity
+export type BarcodeMetadata = barcodeMetadata
+export type BarcodeReadability = barcodeReadability
+export type BarcodeOptimization = barcodeOptimization
+export type BarcodeCompatibility = barcodeCompatibility
+export type BarcodeSecurity = barcodeSecurity
+export type BarcodeAnalysis = barcodeAnalysis
+export type BarcodeCustomization = barcodeCustomization
+export type BarcodeSettings = barcodeSettings
+export type BarcodeResult = barcodeResult
+export type BatchSettings = batchSettings
+export type BatchStatistics = batchStatistics
+export type BarcodeBatch = barcodeBatch
+export type BarcodeTemplate = barcodeTemplate
+export type BarcodeError = barcodeError
+export type BarcodeValidation = barcodeValidation

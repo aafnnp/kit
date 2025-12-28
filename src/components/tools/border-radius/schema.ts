@@ -1,124 +1,122 @@
-import { z } from "zod"
-
-// ==================== Border Radius Schemas ====================
+// ==================== Border Radius Types ====================
 
 /**
- * Border Radius Type schema
+ * Border Radius Type type
  */
-export const borderRadiusTypeSchema = z.enum(["uniform", "individual", "percentage"])
+export type borderRadiusType = "uniform" | "individual" | "percentage"
 
 /**
- * Border Radius Unit schema
+ * Border Radius Unit type
  */
-export const borderRadiusUnitSchema = z.enum(["px", "rem", "em", "%"])
+export type borderRadiusUnit = "px" | "rem" | "em" | "%"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["css", "scss", "json", "tailwind"])
+export type exportFormat = "css" | "scss" | "json" | "tailwind"
 
 /**
- * Border Radius Corners schema
+ * Border Radius Corners type
  */
-export const borderRadiusCornersSchema = z.object({
-  topLeft: z.number(),
-  topRight: z.number(),
-  bottomRight: z.number(),
-  bottomLeft: z.number(),
-  unit: borderRadiusUnitSchema,
-})
+export interface borderRadiusCorners {
+  topLeft: number,
+  topRight: number,
+  bottomRight: number,
+  bottomLeft: number,
+  unit: borderRadiusUnit,
+}
 
 /**
- * Border Radius Accessibility schema
+ * Border Radius Accessibility type
  */
-export const borderRadiusAccessibilitySchema = z.object({
-  uniformity: z.enum(["uniform", "mixed"]),
-  readabilityImpact: z.enum(["none", "minimal", "moderate"]),
-  designConsistency: z.enum(["consistent", "varied", "chaotic"]),
-  usabilityScore: z.number(),
-})
+export interface borderRadiusAccessibility {
+  uniformity: "uniform" | "mixed",
+  readabilityImpact: "none" | "minimal" | "moderate",
+  designConsistency: "consistent" | "varied" | "chaotic",
+  usabilityScore: number,
+}
 
 /**
- * Border Radius schema
+ * Border Radius type
  */
-export const borderRadiusSchema = z.object({
-  id: z.string(),
-  type: borderRadiusTypeSchema,
-  corners: borderRadiusCornersSchema,
-  css: z.string(),
-  accessibility: borderRadiusAccessibilitySchema,
-})
+export interface borderRadius {
+  id: string,
+  type: borderRadiusType,
+  corners: borderRadiusCorners,
+  css: string,
+  accessibility: borderRadiusAccessibility,
+}
 
 /**
- * Border Radius Statistics schema
+ * Border Radius Statistics type
  */
-export const borderRadiusStatisticsSchema = z.object({
-  totalBorderRadii: z.number(),
-  typeDistribution: z.record(borderRadiusTypeSchema, z.number()),
-  averageRadius: z.number(),
-  uniformityRatio: z.number(),
-  accessibilityScore: z.number(),
-  processingTime: z.number(),
-})
+export interface borderRadiusStatistics {
+  totalBorderRadii: number,
+  typeDistribution: Record<string, number>,
+  averageRadius: number,
+  uniformityRatio: number,
+  accessibilityScore: number,
+  processingTime: number,
+}
 
 /**
- * Border Radius Settings schema
+ * Border Radius Settings type
  */
-export const borderRadiusSettingsSchema = z.object({
-  defaultType: borderRadiusTypeSchema,
-  defaultUnit: borderRadiusUnitSchema,
-  maxRadius: z.number(),
-  includeAccessibility: z.boolean(),
-  optimizeOutput: z.boolean(),
-  exportFormat: exportFormatSchema,
-})
+export interface borderRadiusSettings {
+  defaultType: borderRadiusType,
+  defaultUnit: borderRadiusUnit,
+  maxRadius: number,
+  includeAccessibility: boolean,
+  optimizeOutput: boolean,
+  exportFormat: exportFormat,
+}
 
 /**
- * Border Radius Data schema
+ * Border Radius Data type
  */
-export const borderRadiusDataSchema = z.object({
-  borderRadii: z.array(borderRadiusSchema),
-  statistics: borderRadiusStatisticsSchema,
-  settings: borderRadiusSettingsSchema,
-})
+export interface borderRadiusData {
+  borderRadii: borderRadius[],
+  statistics: borderRadiusStatistics,
+  settings: borderRadiusSettings,
+}
 
 /**
- * Border Radius File schema
+ * Border Radius File type
  */
-export const borderRadiusFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  borderRadiusData: borderRadiusDataSchema.optional(),
-})
+export interface borderRadiusFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending" | "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  borderRadiusData?: borderRadiusData
+}
 
 /**
- * Border Radius Template schema
+ * Border Radius Template type
  */
-export const borderRadiusTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  borderRadius: borderRadiusSchema.partial(),
-  preview: z.string(),
-})
+export interface borderRadiusTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  borderRadius: Partial<borderRadius>,
+  preview: string,
+}
 
 // ==================== Type Exports ====================
 
-export type BorderRadiusType = z.infer<typeof borderRadiusTypeSchema>
-export type BorderRadiusUnit = z.infer<typeof borderRadiusUnitSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type BorderRadiusCorners = z.infer<typeof borderRadiusCornersSchema>
-export type BorderRadiusAccessibility = z.infer<typeof borderRadiusAccessibilitySchema>
-export type BorderRadius = z.infer<typeof borderRadiusSchema>
-export type BorderRadiusStatistics = z.infer<typeof borderRadiusStatisticsSchema>
-export type BorderRadiusSettings = z.infer<typeof borderRadiusSettingsSchema>
-export type BorderRadiusData = z.infer<typeof borderRadiusDataSchema>
-export type BorderRadiusFile = z.infer<typeof borderRadiusFileSchema>
-export type BorderRadiusTemplate = z.infer<typeof borderRadiusTemplateSchema>
+export type BorderRadiusType = borderRadiusType
+export type BorderRadiusUnit = borderRadiusUnit
+export type ExportFormat = exportFormat
+export type BorderRadiusCorners = borderRadiusCorners
+export type BorderRadiusAccessibility = borderRadiusAccessibility
+export type BorderRadius = borderRadius
+export type BorderRadiusStatistics = borderRadiusStatistics
+export type BorderRadiusSettings = borderRadiusSettings
+export type BorderRadiusData = borderRadiusData
+export type BorderRadiusFile = borderRadiusFile
+export type BorderRadiusTemplate = borderRadiusTemplate

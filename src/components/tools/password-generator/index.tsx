@@ -336,8 +336,8 @@ const analyzePasswordStrength = (password: string): PasswordStrength => {
   const metRequirements = requirements.filter((req) => req.met)
   const score = metRequirements.reduce((sum, req) => sum + req.weight, 0)
 
-  let level: PasswordStrength["level"] = "very-weak"
-  if (score >= 90) level = "very-strong"
+  let level: PasswordStrength["level"] = "weak"
+  if (score >= 90) level = "very_strong"
   else if (score >= 75) level = "strong"
   else if (score >= 60) level = "good"
   else if (score >= 40) level = "fair"
@@ -400,6 +400,12 @@ const passwordTemplates: PasswordTemplate[] = [
       includeSymbols: true,
       excludeSimilar: true,
       excludeAmbiguous: false,
+      customCharacters: "",
+      pattern: "",
+      wordCount: 4,
+      separator: "-",
+      minLength: 8,
+      maxLength: 128,
     },
     type: "random",
     securityLevel: "very-high",
@@ -416,6 +422,13 @@ const passwordTemplates: PasswordTemplate[] = [
       includeSymbols: false,
       includeUppercase: true,
       includeLowercase: true,
+      length: 0,
+      excludeSimilar: false,
+      excludeAmbiguous: false,
+      customCharacters: "",
+      pattern: "",
+      minLength: 8,
+      maxLength: 128,
     },
     type: "memorable",
     securityLevel: "high",
@@ -433,6 +446,12 @@ const passwordTemplates: PasswordTemplate[] = [
       includeSymbols: true,
       excludeSimilar: true,
       excludeAmbiguous: true,
+      customCharacters: "",
+      pattern: "",
+      wordCount: 4,
+      separator: "-",
+      minLength: 8,
+      maxLength: 128,
     },
     type: "random",
     securityLevel: "maximum",
@@ -448,6 +467,14 @@ const passwordTemplates: PasswordTemplate[] = [
       includeLowercase: true,
       includeNumbers: true,
       includeSymbols: false,
+      excludeSimilar: false,
+      excludeAmbiguous: false,
+      customCharacters: "",
+      pattern: "",
+      wordCount: 4,
+      separator: "-",
+      minLength: 8,
+      maxLength: 128,
     },
     type: "pronounceable",
     securityLevel: "medium",
@@ -464,6 +491,13 @@ const passwordTemplates: PasswordTemplate[] = [
       includeSymbols: false,
       includeUppercase: false,
       includeLowercase: true,
+      length: 0,
+      excludeSimilar: false,
+      excludeAmbiguous: false,
+      customCharacters: "",
+      pattern: "",
+      minLength: 8,
+      maxLength: 128,
     },
     type: "passphrase",
     securityLevel: "high",
@@ -479,6 +513,14 @@ const passwordTemplates: PasswordTemplate[] = [
       includeUppercase: false,
       includeLowercase: false,
       includeSymbols: false,
+      excludeSimilar: false,
+      excludeAmbiguous: false,
+      customCharacters: "",
+      pattern: "",
+      wordCount: 4,
+      separator: "-",
+      minLength: 8,
+      maxLength: 128,
     },
     type: "pin",
     securityLevel: "low",
@@ -1210,7 +1252,7 @@ const PasswordGeneratorCore = () => {
                           <span>Password Strength:</span>
                           <span
                             className={`font-medium ${
-                              currentPassword.strength.level === "very-strong"
+                              currentPassword.strength.level === "very_strong"
                                 ? "text-green-600"
                                 : currentPassword.strength.level === "strong"
                                   ? "text-blue-600"
@@ -1227,7 +1269,7 @@ const PasswordGeneratorCore = () => {
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
                             className={`h-2 rounded-full transition-all ${
-                              currentPassword.strength.level === "very-strong"
+                              currentPassword.strength.level === "very_strong"
                                 ? "bg-green-600"
                                 : currentPassword.strength.level === "strong"
                                   ? "bg-blue-600"

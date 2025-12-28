@@ -1,105 +1,82 @@
-import { z } from "zod"
 import type { Tool, ToolCategory } from "@/schemas/tool.schema"
+import type { TFunction } from "i18next"
 
-// ==================== Tool Card Schemas ====================
+// ==================== Tool Card Types ====================
 
 /**
- * Tool card props schema
+ * Tool card props type
  * 工具卡片属性类型定义
  */
-export const toolCardPropsSchema = z.object({
-  tool: z.custom<Tool>(),
-  showFavoriteButton: z.boolean().optional(),
-  onClick: z.custom<() => void>().optional(),
-})
+export interface ToolCardProps {
+  tool: Tool
+  showFavoriteButton?: boolean
+  onClick?: () => void
+}
 
-// ==================== Search Bar Schemas ====================
+// ==================== Search Bar Types ====================
 
 /**
- * Search bar props schema
+ * Search bar props type
  * 搜索栏属性类型定义
  */
-export const searchBarPropsSchema = z.object({
-  value: z.string(),
-  onChange: z.custom<(value: string) => void>(),
-  placeholder: z.string().optional(),
-})
+export interface SearchBarProps {
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+}
 
-// ==================== Virtual Tool Grid Schemas ====================
+// ==================== Virtual Tool Grid Types ====================
 
 /**
- * Virtual tool grid props schema
+ * Virtual tool grid props type
  * 虚拟滚动工具网格属性类型定义
  */
-export const virtualToolGridPropsSchema = z.object({
-  categories: z.custom<ToolCategory[]>(),
-  showFavoriteButton: z.boolean().optional(),
-  onToolClick: z.custom<(tool: Tool) => void>(),
-  t: z.custom<import("i18next").TFunction>(),
-  className: z.string().optional(),
+export interface VirtualToolGridProps {
+  categories: ToolCategory[]
+  showFavoriteButton?: boolean
+  onToolClick: (tool: Tool) => void
+  t: TFunction
+  className?: string
   /**
    * 触发虚拟滚动的工具数量阈值
    * @default 50
    */
-  threshold: z.number().optional(),
-})
+  threshold?: number
+}
 
-// ==================== Category Manager Schemas ====================
+// ==================== Category Manager Types ====================
 
 /**
- * Category manager props schema
+ * Category manager props type
  * 分类管理器属性类型定义
  */
-export const categoryManagerPropsSchema = z.object({
-  allTools: z.array(z.any()),
-  onCategoryChange: z.custom<() => void>().optional(),
-})
+export interface CategoryManagerProps {
+  allTools: any[]
+  onCategoryChange?: () => void
+}
 
 /**
- * Sortable category card props schema
+ * Sortable category card props type
  * 可排序分类卡片属性类型定义
  */
-export const sortableCategoryCardPropsSchema = z.object({
-  category: z.any(),
-  locale: z.string(),
-  allTools: z.array(z.any()),
-  onEdit: z.custom<(category: any) => void>(),
-  onDelete: z.custom<(categoryId: string) => void>(),
-  onAddTool: z.custom<(categoryId: string, toolSlug: string) => void>(),
-  onRemoveTool: z.custom<(categoryId: string, toolSlug: string) => void>(),
-  t: z.any(),
-})
+export interface SortableCategoryCardProps {
+  category: any
+  locale: string
+  allTools: any[]
+  onEdit: (category: any) => void
+  onDelete: (categoryId: string) => void
+  onAddTool: (categoryId: string, toolSlug: string) => void
+  onRemoveTool: (categoryId: string, toolSlug: string) => void
+  t: any
+}
 
-// ==================== Settings Dialog Schemas ====================
+// ==================== Settings Dialog Types ====================
 
 /**
- * Settings dialog props schema
+ * Settings dialog props type
  * 设置对话框属性类型定义
  */
-export const settingsDialogPropsSchema = z.object({
-  open: z.boolean(),
-  onOpenChange: z.custom<(open: boolean) => void>(),
-})
-
-// ==================== Type Exports ====================
-
-/**
- * Type inference from zod schemas
- * 从 zod schemas 推断 TypeScript 类型
- */
-
-// Tool Card Types
-export type ToolCardProps = z.infer<typeof toolCardPropsSchema>
-
-// Search Bar Types
-export type SearchBarProps = z.infer<typeof searchBarPropsSchema>
-
-// Virtual Tool Grid Types
-export type VirtualToolGridProps = z.infer<typeof virtualToolGridPropsSchema>
-
-// Category Manager Types
-export type CategoryManagerProps = z.infer<typeof categoryManagerPropsSchema>
-export type SortableCategoryCardProps = z.infer<typeof sortableCategoryCardPropsSchema>
-
-// Settings Dialog Types
-export type SettingsDialogProps = z.infer<typeof settingsDialogPropsSchema>
+export interface SettingsDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}

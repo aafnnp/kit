@@ -1,241 +1,246 @@
-import { z } from "zod"
-
-// ==================== Merge PDF Schemas ====================
+// ==================== Merge PDF Types ====================
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["pdf", "zip"])
+export type exportFormat = "pdf" | "zip"
 
 /**
- * Page Order schema
+ * Page Order type
  */
-export const pageOrderSchema = z.enum(["original", "reverse", "custom"])
+export type pageOrder = "original" | "reverse" | "custom"
 
 /**
- * Quality schema
+ * Quality type
  */
-export const qualitySchema = z.enum(["high", "medium", "low"])
+export type quality = "high" | "medium" | "low"
 
 /**
- * Watermark Position schema
+ * Watermark Position type
  */
-export const watermarkPositionSchema = z.enum(["center", "top-left", "top-right", "bottom-left", "bottom-right"])
+export type watermarkPosition = "center" | "top-left" | "top-right" | "bottom-left" | "bottom-right"
 
 /**
- * PDF Permissions schema
+ * PDF Permissions type
  */
-export const pdfPermissionsSchema = z.object({
-  canPrint: z.boolean(),
-  canModify: z.boolean(),
-  canCopy: z.boolean(),
-  canAnnotate: z.boolean(),
-  canFillForms: z.boolean(),
-  canExtractForAccessibility: z.boolean(),
-  canAssemble: z.boolean(),
-  canPrintHighQuality: z.boolean(),
-})
+export interface pdfPermissions {
+  canPrint: boolean,
+  canModify: boolean,
+  canCopy: boolean,
+  canAnnotate: boolean,
+  canFillForms: boolean,
+  canExtractForAccessibility: boolean,
+  canAssemble: boolean,
+  canPrintHighQuality: boolean,
+}
 
 /**
- * PDF Page Info schema
+ * PDF Page Info type
  */
-export const pdfPageInfoSchema = z.object({
-  pageNumber: z.number(),
-  width: z.number(),
-  height: z.number(),
-  rotation: z.number(),
-  selected: z.boolean(),
-  thumbnail: z.string().optional(),
-})
+export interface pdfPageInfo {
+  pageNumber: number,
+  width: number,
+  height: number,
+  rotation: number,
+  selected: boolean
+  thumbnail?: string
+}
 
 /**
- * PDF Metadata schema
+ * PDF Metadata type
  */
-export const pdfMetadataSchema = z.object({
-  title: z.string().optional(),
-  author: z.string().optional(),
-  subject: z.string().optional(),
-  creator: z.string().optional(),
-  producer: z.string().optional(),
-  creationDate: z.date().optional(),
-  modificationDate: z.date().optional(),
-  keywords: z.array(z.string()).optional(),
-  pageCount: z.number(),
-  fileSize: z.number(),
-  version: z.string().optional(),
-  encrypted: z.boolean(),
-  permissions: pdfPermissionsSchema.optional(),
-})
+export interface pdfMetadata {
+  title?: string
+  author?: string
+  subject?: string
+  creator?: string
+  producer?: string
+  creationDate?: Date
+  modificationDate?: Date
+  keywords?: string[]
+  pageCount: number,
+  fileSize: number
+  version?: string
+  encrypted: boolean
+  permissions?: pdfPermissions
+}
 
 /**
- * PDF File schema
+ * PDF File type
  */
-export const pdfFileSchema = z.object({
-  id: z.string(),
-  file: z.instanceof(File),
-  name: z.string(),
-  size: z.number(),
-  pageCount: z.number().optional(),
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  thumbnail: z.string().optional(),
-  metadata: pdfMetadataSchema.optional(),
-  pages: z.array(pdfPageInfoSchema).optional(),
-  createdAt: z.date(),
-})
+export interface pdfFile {
+  id: string,
+  file: File,
+  name: string,
+  size: number
+  pageCount?: number
+  isValid: boolean
+  error?: string
+  thumbnail?: string
+  metadata?: pdfMetadata
+  pages?: pdfPageInfo[]
+  createdAt: Date,
+}
 
 /**
- * Page Range schema
+ * Page Range type
  */
-export const pageRangeSchema = z.object({
-  fileId: z.string(),
-  startPage: z.number(),
-  endPage: z.number(),
-})
+export interface pageRange {
+  fileId: string,
+  startPage: number,
+  endPage: number,
+}
 
 /**
- * Watermark Settings schema
+ * Watermark Settings type
  */
-export const watermarkSettingsSchema = z.object({
-  enabled: z.boolean(),
-  text: z.string(),
-  opacity: z.number(),
-  position: watermarkPositionSchema,
-  fontSize: z.number(),
-  color: z.string(),
-})
+export interface watermarkSettings {
+  enabled: boolean,
+  text: string,
+  opacity: number,
+  position: watermarkPosition,
+  fontSize: number,
+  color: string,
+}
 
 /**
- * Security Settings schema
+ * Security Settings type
  */
-export const securitySettingsSchema = z.object({
-  enabled: z.boolean(),
-  userPassword: z.string().optional(),
-  ownerPassword: z.string().optional(),
-  permissions: pdfPermissionsSchema,
-})
+export interface securitySettings {
+  enabled: boolean
+  userPassword?: string
+  ownerPassword?: string
+  permissions: pdfPermissions,
+}
 
 /**
- * Merge Settings schema
+ * Merge Settings type
  */
-export const mergeSettingsSchema = z.object({
-  outputFileName: z.string(),
-  pageOrder: pageOrderSchema,
-  includeBookmarks: z.boolean(),
-  includeMetadata: z.boolean(),
-  optimizeSize: z.boolean(),
-  removeBlankPages: z.boolean(),
-  pageRange: z.array(pageRangeSchema).optional(),
-  watermark: watermarkSettingsSchema.optional(),
-  security: securitySettingsSchema.optional(),
-  quality: qualitySchema,
-  compression: z.boolean(),
-})
+export interface mergeSettings {
+  outputFileName: string,
+  pageOrder: pageOrder,
+  includeBookmarks: boolean,
+  includeMetadata: boolean,
+  optimizeSize: boolean,
+  removeBlankPages: boolean
+  pageRange?: pageRange[]
+  watermark?: watermarkSettings
+  security?: securitySettings
+  quality: quality,
+  compression: boolean,
+}
 
 /**
- * Merge Statistics schema
+ * Merge Statistics type
  */
-export const mergeStatisticsSchema = z.object({
-  totalFiles: z.number(),
-  totalPages: z.number(),
-  totalSize: z.number(),
-  compressionRatio: z.number(),
-  processingTime: z.number(),
-  qualityScore: z.number(),
-  optimizationSavings: z.number(),
-})
+export interface mergeStatistics {
+  totalFiles: number,
+  totalPages: number,
+  totalSize: number,
+  compressionRatio: number,
+  processingTime: number,
+  qualityScore: number,
+  optimizationSavings: number,
+}
 
 /**
- * Merge Result schema
+ * Merge Result type
  */
-export const mergeResultSchema = z.object({
-  fileName: z.string(),
-  fileSize: z.number(),
-  pageCount: z.number(),
-  processingTime: z.number(),
-  downloadUrl: z.string().optional(),
-  statistics: mergeStatisticsSchema,
-})
+export interface mergeResult {
+  fileName: string,
+  fileSize: number,
+  pageCount: number,
+  processingTime: number
+  downloadUrl?: string
+  statistics: mergeStatistics,
+}
 
 /**
- * Merge Operation schema
+ * Merge Operation type
  */
-export const mergeOperationSchema = z.object({
-  id: z.string(),
-  files: z.array(pdfFileSchema),
-  settings: mergeSettingsSchema,
-  result: mergeResultSchema.optional(),
-  status: z.enum(["pending", "processing", "completed", "failed"]),
-  progress: z.number(),
-  error: z.string().optional(),
-  createdAt: z.date(),
-  completedAt: z.date().optional(),
-})
+export interface mergeOperation {
+  id: string,
+  files: pdfFile[],
+  settings: mergeSettings
+  result?: mergeResult
+  status: "pending"| "processing" | "completed" | "failed",
+  progress: number
+  error?: string
+  createdAt: Date
+  completedAt?: Date
+}
 
 /**
- * Processing Settings schema
+ * Processing Settings type
  */
-export const processingSettingsSchema = z.object({
-  maxFileSize: z.number(),
-  maxFiles: z.number(),
-  allowedFormats: z.array(z.string()),
-  autoOptimize: z.boolean(),
-  preserveQuality: z.boolean(),
-  enableParallelProcessing: z.boolean(),
-  exportFormat: exportFormatSchema,
-  realTimePreview: z.boolean(),
-})
+export interface processingSettings {
+  maxFileSize: number,
+  maxFiles: number,
+  allowedFormats: string[],
+  autoOptimize: boolean,
+  preserveQuality: boolean,
+  enableParallelProcessing: boolean,
+  exportFormat: exportFormat,
+  realTimePreview: boolean,
+}
 
 /**
- * PDF Template schema
+ * PDF Template type
  */
-export const pdfTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  settings: mergeSettingsSchema.partial(),
-  useCase: z.array(z.string()),
-  examples: z.array(z.string()),
-})
+export interface pdfTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  settings: mergeSettings,
+  useCase: string[],
+  examples: string[],
+}
 
 /**
- * PDF Error schema
+ * PDF Error type
  */
-export const pdfErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["format", "size", "corruption", "security", "compatibility"]),
-  severity: z.enum(["error", "warning", "info"]),
-})
+export interface pdfError {
+  message: string,
+  type: "format"| "size" | "corruption" | "security" | "compatibility",
+  severity: "error"| "warning" | "info",
+}
 
 /**
- * PDF Validation schema
+ * PDF Validation type
  */
-export const pdfValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(pdfErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-})
+export interface pdfValidation {
+  isValid: boolean,
+  errors: pdfError[],
+  warnings: string[],
+  suggestions: string[],
+}
 
 // ==================== Type Exports ====================
 
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type PageOrder = z.infer<typeof pageOrderSchema>
-export type Quality = z.infer<typeof qualitySchema>
-export type WatermarkPosition = z.infer<typeof watermarkPositionSchema>
-export type PDFPermissions = z.infer<typeof pdfPermissionsSchema>
-export type PDFPageInfo = z.infer<typeof pdfPageInfoSchema>
-export type PDFMetadata = z.infer<typeof pdfMetadataSchema>
-export type PDFFile = z.infer<typeof pdfFileSchema>
-export type PageRange = z.infer<typeof pageRangeSchema>
-export type WatermarkSettings = z.infer<typeof watermarkSettingsSchema>
-export type SecuritySettings = z.infer<typeof securitySettingsSchema>
-export type MergeSettings = z.infer<typeof mergeSettingsSchema>
-export type MergeStatistics = z.infer<typeof mergeStatisticsSchema>
-export type MergeResult = z.infer<typeof mergeResultSchema>
-export type MergeOperation = z.infer<typeof mergeOperationSchema>
-export type ProcessingSettings = z.infer<typeof processingSettingsSchema>
-export type PDFTemplate = z.infer<typeof pdfTemplateSchema>
-export type PDFError = z.infer<typeof pdfErrorSchema>
-export type PDFValidation = z.infer<typeof pdfValidationSchema>
+export type ExportFormat = exportFormat
+export type PageOrder = pageOrder
+export type Quality = quality
+export type WatermarkPosition = watermarkPosition
+export type PDFPermissions = pdfPermissions
+export type PDFPageInfo = pdfPageInfo
+export type PDFMetadata = pdfMetadata
+export type PDFFile = pdfFile
+export type PageRange = pageRange
+export type WatermarkSettings = watermarkSettings
+export type SecuritySettings = securitySettings
+export type MergeSettings = mergeSettings
+export type MergeStatistics = mergeStatistics
+export type MergeResult = mergeResult
+export type MergeOperation = mergeOperation
+export type ProcessingSettings = processingSettings
+export type PDFTemplate = pdfTemplate
+export type PDFError = pdfError
+export type PDFValidation = pdfValidation
+export type PdfPermissions = pdfPermissions
+export type PdfPageInfo = pdfPageInfo
+export type PdfMetadata = pdfMetadata
+export type PdfFile = pdfFile
+export type PdfTemplate = pdfTemplate
+export type PdfError = pdfError
+export type PdfValidation = pdfValidation

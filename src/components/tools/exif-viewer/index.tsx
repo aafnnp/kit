@@ -140,9 +140,9 @@ const createMockExifData = (): Partial<ExifData> => {
       sceneCaptureType: "Standard",
     },
     gpsInfo: {
-      latitude: null,
-      longitude: null,
-      altitude: null,
+      latitude: undefined,
+      longitude: undefined,
+      altitude: undefined,
       latitudeRef: "",
       longitudeRef: "",
       altitudeRef: "",
@@ -244,6 +244,8 @@ const exifTemplates: ExifTemplate[] = [
       includeGPS: false,
       includeTechnical: false,
       privacyMode: false,
+      exportFormat: "json",
+      showThumbnails: false,
     },
     fields: [
       { key: "make", label: "Camera Make", category: "camera", required: true, sensitive: false },
@@ -265,6 +267,8 @@ const exifTemplates: ExifTemplate[] = [
       includeGPS: true,
       includeTechnical: true,
       privacyMode: false,
+      exportFormat: "json",
+      showThumbnails: true,
     },
     fields: [
       { key: "make", label: "Camera Make", category: "camera", required: true, sensitive: false },
@@ -288,6 +292,8 @@ const exifTemplates: ExifTemplate[] = [
       includeGPS: false,
       includeTechnical: false,
       privacyMode: true,
+      exportFormat: "json",
+      showThumbnails: false,
     },
     fields: [
       { key: "fileName", label: "File Name", category: "basic", required: true, sensitive: false },
@@ -307,6 +313,8 @@ const exifTemplates: ExifTemplate[] = [
       includeGPS: false,
       includeTechnical: true,
       privacyMode: false,
+      exportFormat: "json",
+      showThumbnails: false,
     },
     fields: [
       { key: "colorSpace", label: "Color Space", category: "technical", required: true, sensitive: false },
@@ -327,6 +335,8 @@ const exifTemplates: ExifTemplate[] = [
       includeGPS: true,
       includeTechnical: false,
       privacyMode: false,
+      exportFormat: "json",
+      showThumbnails: false,
     },
     fields: [
       { key: "latitude", label: "Latitude", category: "gps", required: true, sensitive: true },
@@ -346,6 +356,8 @@ const exifTemplates: ExifTemplate[] = [
       includeGPS: false,
       includeTechnical: true,
       privacyMode: true,
+      exportFormat: "json",
+      showThumbnails: false,
     },
     fields: [
       { key: "dimensions", label: "Dimensions", category: "basic", required: true, sensitive: false },

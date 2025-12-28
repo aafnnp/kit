@@ -681,11 +681,19 @@ export const barcodeTemplates: BarcodeTemplate[] = [
 
 // Validation functions
 export const validateBarcodeSettings = (settings: BarcodeSettings): BarcodeValidation => {
+  // Estimate barcode size first
+  const estimatedWidth = settings.width * settings.content.length + settings.margin * 2
+  const estimatedHeight =
+    settings.height + settings.margin * 2 + (settings.displayValue ? settings.fontSize + settings.textMargin : 0)
+  
   const validation: BarcodeValidation = {
     isValid: true,
     errors: [],
     warnings: [],
     suggestions: [],
+    estimatedSize: estimatedWidth * estimatedHeight,
+    width: estimatedWidth,
+    height: estimatedHeight,
   }
 
   // Content validation
@@ -784,14 +792,9 @@ export const validateBarcodeSettings = (settings: BarcodeSettings): BarcodeValid
     validation.suggestions.push("Increase font size for better readability")
   }
 
-  // Estimate barcode size
-  const estimatedWidth = settings.width * settings.content.length + settings.margin * 2
-  const estimatedHeight =
-    settings.height + settings.margin * 2 + (settings.displayValue ? settings.fontSize + settings.textMargin : 0)
-  validation.estimatedSize = { width: estimatedWidth, height: estimatedHeight }
-
   // Recommend optimal settings
   validation.recommendedSettings = {
+    ...settings,
     width: Math.max(1.5, Math.min(3, settings.width)),
     height: Math.max(50, Math.min(100, settings.height)),
     margin: Math.max(10, settings.margin),

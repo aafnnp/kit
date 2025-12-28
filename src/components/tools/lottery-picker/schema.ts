@@ -1,202 +1,193 @@
-import { z } from "zod"
-
-// ==================== Lottery Picker Schemas ====================
+// ==================== Lottery Picker Types ====================
 
 /**
- * Selection Mode schema
+ * Selection Mode type
  */
-export const selectionModeSchema = z.enum([
-  "single",
-  "multiple",
-  "weighted",
-  "tournament",
-  "elimination",
-  "round-robin",
-])
+export type selectionMode = "single" | "multiple" | "weighted" | "tournament" | "elimination" | "round-robin"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml", "yaml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml" | "yaml"
 
 /**
- * Sort By schema
+ * Sort By type
  */
-export const sortBySchema = z.enum(["alphabetical", "weight", "category", "random"])
+export type sortBy = "alphabetical" | "weight" | "category" | "random"
 
 /**
- * Sort Order schema
+ * Sort Order type
  */
-export const sortOrderSchema = z.enum(["asc", "desc"])
+export type sortOrder = "asc" | "desc"
 
 /**
- * Lottery Item schema
+ * Lottery Item type
  */
-export const lotteryItemSchema = z.object({
-  id: z.string(),
-  value: z.string(),
-  weight: z.number(),
-  category: z.string().optional(),
-  description: z.string().optional(),
-  isSelected: z.boolean(),
-  selectionCount: z.number(),
-  lastSelected: z.date().optional(),
-})
+export interface lotteryItem {
+  id: string,
+  value: string,
+  weight: number
+  category?: string
+  description?: string
+  isSelected: boolean,
+  selectionCount: number
+  lastSelected?: Date
+}
 
 /**
- * Filter Settings schema
+ * Filter Settings type
  */
-export const filterSettingsSchema = z.object({
-  enabled: z.boolean(),
-  minLength: z.number(),
-  maxLength: z.number(),
-  excludePatterns: z.array(z.string()),
-  includePatterns: z.array(z.string()),
-  caseSensitive: z.boolean(),
-})
+export interface filterSettings {
+  enabled: boolean,
+  minLength: number,
+  maxLength: number,
+  excludePatterns: string[],
+  includePatterns: string[],
+  caseSensitive: boolean,
+}
 
 /**
- * Sort Settings schema
+ * Sort Settings type
  */
-export const sortSettingsSchema = z.object({
-  enabled: z.boolean(),
-  sortBy: sortBySchema,
-  sortOrder: sortOrderSchema,
-})
+export interface sortSettings {
+  enabled: boolean,
+  sortBy: sortBy,
+  sortOrder: sortOrder,
+}
 
 /**
- * Lottery Settings schema
+ * Lottery Settings type
  */
-export const lotterySettingsSchema = z.object({
-  selectionMode: selectionModeSchema,
-  selectionCount: z.number(),
-  allowDuplicates: z.boolean(),
-  useWeights: z.boolean(),
-  excludePrevious: z.boolean(),
-  animationEnabled: z.boolean(),
-  soundEnabled: z.boolean(),
-  customSeparators: z.array(z.string()),
-  filterSettings: filterSettingsSchema,
-  sortSettings: sortSettingsSchema,
-})
+export interface lotterySettings {
+  selectionMode: selectionMode,
+  selectionCount: number,
+  allowDuplicates: boolean,
+  useWeights: boolean,
+  excludePrevious: boolean,
+  animationEnabled: boolean,
+  soundEnabled: boolean,
+  customSeparators: string[],
+  filterSettings: filterSettings,
+  sortSettings: sortSettings,
+}
 
 /**
- * Lottery Statistics schema
+ * Lottery Statistics type
  */
-export const lotteryStatisticsSchema = z.object({
-  totalItems: z.number(),
-  totalSelections: z.number(),
-  averageWeight: z.number(),
-  selectionDistribution: z.record(z.string(), z.number()),
-  categoryDistribution: z.record(z.string(), z.number()),
-  fairnessScore: z.number(),
-  randomnessScore: z.number(),
-})
+export interface lotteryStatistics {
+  totalItems: number,
+  totalSelections: number,
+  averageWeight: number,
+  selectionDistribution: Record<string, number>,
+  categoryDistribution: Record<string, number>,
+  fairnessScore: number,
+  randomnessScore: number,
+}
 
 /**
- * Lottery Result schema
+ * Lottery Result type
  */
-export const lotteryResultSchema = z.object({
-  id: z.string(),
-  items: z.array(lotteryItemSchema),
-  selectedItems: z.array(lotteryItemSchema),
-  selectionMode: selectionModeSchema,
-  timestamp: z.date(),
-  settings: lotterySettingsSchema,
-  statistics: lotteryStatisticsSchema,
-})
+export interface lotteryResult {
+  id: string,
+  items: lotteryItem[],
+  selectedItems: lotteryItem[],
+  selectionMode: selectionMode,
+  timestamp: Date,
+  settings: lotterySettings,
+  statistics: lotteryStatistics,
+}
 
 /**
- * Batch Settings schema
+ * Batch Settings type
  */
-export const batchSettingsSchema = z.object({
-  baseSettings: lotterySettingsSchema,
-  iterations: z.number(),
-  namingPattern: z.string(),
-  exportFormat: exportFormatSchema,
-  includeAnalysis: z.boolean(),
-  trackHistory: z.boolean(),
-})
+export interface batchSettings {
+  baseSettings: lotterySettings,
+  iterations: number,
+  namingPattern: string,
+  exportFormat: exportFormat,
+  includeAnalysis: boolean,
+  trackHistory: boolean,
+}
 
 /**
- * Batch Statistics schema
+ * Batch Statistics type
  */
-export const batchStatisticsSchema = z.object({
-  totalIterations: z.number(),
-  successfulIterations: z.number(),
-  failedIterations: z.number(),
-  averageFairnessScore: z.number(),
-  averageRandomnessScore: z.number(),
-  totalProcessingTime: z.number(),
-  averageProcessingTime: z.number(),
-  itemFrequency: z.record(z.string(), z.number()),
-})
+export interface batchStatistics {
+  totalIterations: number,
+  successfulIterations: number,
+  failedIterations: number,
+  averageFairnessScore: number,
+  averageRandomnessScore: number,
+  totalProcessingTime: number,
+  averageProcessingTime: number,
+  itemFrequency: Record<string, number>,
+}
 
 /**
- * Lottery Batch schema
+ * Lottery Batch type
  */
-export const lotteryBatchSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  results: z.array(lotteryResultSchema),
-  settings: batchSettingsSchema,
-  status: z.enum(["pending", "processing", "completed", "failed"]),
-  progress: z.number(),
-  statistics: batchStatisticsSchema,
-  createdAt: z.date(),
-  completedAt: z.date().optional(),
-})
+export interface lotteryBatch {
+  id: string,
+  name: string,
+  results: lotteryResult[],
+  settings: batchSettings,
+  status: "pending"| "processing" | "completed" | "failed",
+  progress: number,
+  statistics: batchStatistics,
+  createdAt: Date
+  completedAt?: Date
+}
 
 /**
- * Lottery Template schema
+ * Lottery Template type
  */
-export const lotteryTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  items: z.array(z.string()),
-  settings: lotterySettingsSchema.partial(),
-  useCase: z.array(z.string()),
-  examples: z.array(z.string()),
-  preview: z.string().optional(),
-})
+export interface lotteryTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  items: string[],
+  settings: lotterySettings,
+  useCase: string[],
+  examples: string[]
+  preview?: string
+}
 
 /**
- * Lottery Error schema
+ * Lottery Error type
  */
-export const lotteryErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["items", "settings", "weights", "selection"]),
-  severity: z.enum(["error", "warning", "info"]),
-})
+export interface lotteryError {
+  message: string,
+  type: "items"| "settings" | "weights" | "selection",
+  severity: "error"| "warning" | "info",
+}
 
 /**
- * Lottery Validation schema
+ * Lottery Validation type
  */
-export const lotteryValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(lotteryErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  qualityScore: z.number(),
-})
+export interface lotteryValidation {
+  isValid: boolean,
+  errors: lotteryError[],
+  warnings: string[],
+  suggestions: string[],
+  qualityScore: number,
+}
 
 // ==================== Type Exports ====================
 
-export type SelectionMode = z.infer<typeof selectionModeSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type SortBy = z.infer<typeof sortBySchema>
-export type SortOrder = z.infer<typeof sortOrderSchema>
-export type LotteryItem = z.infer<typeof lotteryItemSchema>
-export type FilterSettings = z.infer<typeof filterSettingsSchema>
-export type SortSettings = z.infer<typeof sortSettingsSchema>
-export type LotterySettings = z.infer<typeof lotterySettingsSchema>
-export type LotteryStatistics = z.infer<typeof lotteryStatisticsSchema>
-export type LotteryResult = z.infer<typeof lotteryResultSchema>
-export type BatchSettings = z.infer<typeof batchSettingsSchema>
-export type BatchStatistics = z.infer<typeof batchStatisticsSchema>
-export type LotteryBatch = z.infer<typeof lotteryBatchSchema>
-export type LotteryTemplate = z.infer<typeof lotteryTemplateSchema>
-export type LotteryError = z.infer<typeof lotteryErrorSchema>
-export type LotteryValidation = z.infer<typeof lotteryValidationSchema>
+export type SelectionMode = selectionMode
+export type ExportFormat = exportFormat
+export type SortBy = sortBy
+export type SortOrder = sortOrder
+export type LotteryItem = lotteryItem
+export type FilterSettings = filterSettings
+export type SortSettings = sortSettings
+export type LotterySettings = lotterySettings
+export type LotteryStatistics = lotteryStatistics
+export type LotteryResult = lotteryResult
+export type BatchSettings = batchSettings
+export type BatchStatistics = batchStatistics
+export type LotteryBatch = lotteryBatch
+export type LotteryTemplate = lotteryTemplate
+export type LotteryError = lotteryError
+export type LotteryValidation = lotteryValidation

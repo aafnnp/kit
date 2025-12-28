@@ -1,67 +1,64 @@
-import { z } from "zod"
-
-// ==================== Code Formatter Schemas ====================
+// ==================== Code Formatter Types ====================
 
 /**
- * Language schema
+ * Language type
  */
-export const languageSchema = z.enum(["javascript", "typescript", "css", "html", "json"])
+export type language = "javascript" | "typescript" | "css" | "html" | "json"
 
 /**
- * Trailing Comma schema
+ * Trailing Comma type
  */
-export const trailingCommaSchema = z.enum(["none", "es5", "all"])
+export type trailingComma = "none" | "es5" | "all"
 
 /**
- * Format Options schema
+ * Format Options type
  */
-export const formatOptionsSchema = z.object({
-  parser: z.string(),
-  tabWidth: z.number(),
-  useTabs: z.boolean(),
-  semi: z.boolean(),
-  singleQuote: z.boolean(),
-  trailingComma: trailingCommaSchema,
-  bracketSpacing: z.boolean(),
-  jsxBracketSameLine: z.boolean(),
-})
+export interface formatOptions {
+  parser: string,
+  tabWidth: number,
+  useTabs: boolean,
+  semi: boolean,
+  singleQuote: boolean,
+  trailingComma: trailingComma,
+  bracketSpacing: boolean,
+  jsxBracketSameLine: boolean,
+}
 
 /**
- * Code Formatter State schema
+ * Code Formatter State type
  */
-export const codeFormatterStateSchema = z.object({
-  input: z.string(),
-  output: z.string(),
-  language: languageSchema,
-  options: z.object({
-    tabWidth: z.number(),
-    useTabs: z.boolean(),
-    semicolons: z.boolean(),
-    singleQuote: z.boolean(),
-    trailingComma: trailingCommaSchema,
-    bracketSpacing: z.boolean(),
-    jsxBracketSameLine: z.boolean(),
-  }),
-  isFormatting: z.boolean(),
-  error: z.string().nullable(),
-})
-
+export interface codeFormatterState {
+  input: string,
+  output: string,
+  language: language,
+  options: {
+    tabWidth: number,
+    useTabs: boolean,
+    semicolons: boolean,
+    singleQuote: boolean,
+    trailingComma: trailingComma,
+    bracketSpacing: boolean,
+    jsxBracketSameLine: boolean,
+  }
+  isFormatting: boolean
+  error?: string
+}
 /**
- * Language Config schema
+ * Language Config type
  */
-export const languageConfigSchema = z.object({
-  name: z.string(),
-  parser: z.string(),
-  example: z.string(),
-})
+export interface languageConfig {
+  name: string,
+  parser: string,
+  example: string,
+}
 
 // ==================== Type Exports ====================
 
-export type Language = z.infer<typeof languageSchema>
-export type TrailingComma = z.infer<typeof trailingCommaSchema>
-export type FormatOptions = z.infer<typeof formatOptionsSchema>
-export type CodeFormatterState = z.infer<typeof codeFormatterStateSchema>
-export type LanguageConfig = z.infer<typeof languageConfigSchema>
+export type Language = language
+export type TrailingComma = trailingComma
+export type FormatOptions = formatOptions
+export type CodeFormatterState = codeFormatterState
+export type LanguageConfig = languageConfig
 
 // ==================== Constants ====================
 
@@ -87,7 +84,7 @@ export const LANGUAGE_CONFIGS: Record<Language, LanguageConfig> = {
     name: "CSS",
     parser: "css",
     example: `.container {
-  display: flex;
+  display: "flex"
   justify-content: center;
 }`,
   },
@@ -103,7 +100,7 @@ export const LANGUAGE_CONFIGS: Record<Language, LanguageConfig> = {
     parser: "json",
     example: `{
   "name": "example",
-  "value": 123
+  "value": 123,
 }`,
-  },
+  }
 }

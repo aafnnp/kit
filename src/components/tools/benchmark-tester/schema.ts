@@ -1,56 +1,57 @@
-import { z } from "zod"
-
-import { benchmarkResultSchema, testConfigSchema } from "@/components/tools/performance-tester/schema"
+import type { benchmarkResult, testConfig } from "@/components/tools/performance-tester/schema"
 
 /**
- * Benchmark improvement metrics schema
+ * Benchmark improvement metrics type
  */
-export const improvementMetricsSchema = z.object({
-  timeImprovement: z.number(),
-  memoryImprovement: z.number(),
-  throughputImprovement: z.number(),
-})
+export interface improvementMetrics {
+  timeImprovement: number,
+  memoryImprovement: number,
+  throughputImprovement: number,
+}
 
 /**
- * Benchmark comparison schema
+ * Benchmark comparison type
  */
-export const benchmarkComparisonSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  baseline: benchmarkResultSchema,
-  current: benchmarkResultSchema,
-  improvements: z.record(z.string(), improvementMetricsSchema),
-  overallScore: z.number(),
-  timestamp: z.number(),
-})
+export interface benchmarkComparison {
+  id: string,
+  name: string,
+  baseline: benchmarkResult,
+  current: benchmarkResult,
+  improvements: Record<string, improvementMetrics>,
+  overallScore: number,
+  timestamp: number,
+}
 
 /**
- * Benchmark suite schema
+ * Benchmark suite type
  */
-export const benchmarkSuiteSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  tests: z.array(testConfigSchema),
-  enabled: z.boolean(),
-})
+export interface benchmarkSuite {
+  id: string,
+  name: string,
+  description: string,
+  tests: testConfig[],
+  enabled: boolean,
+}
 
 /**
- * Benchmark tester state schema
+ * Benchmark tester state type
  */
-export const benchmarkTesterStateSchema = z.object({
-  suites: z.array(benchmarkSuiteSchema),
-  comparisons: z.array(benchmarkComparisonSchema),
-  isRunning: z.boolean(),
-  currentProgress: z.number(),
-  currentTest: z.string(),
-  baselineResults: benchmarkResultSchema.nullable(),
-})
+export interface benchmarkTesterState {
+  suites: benchmarkSuite[],
+  comparisons: benchmarkComparison[],
+  isRunning: boolean,
+  currentProgress: number,
+  currentTest: string,
+  baselineResults?: benchmarkResult
+}
 
 /**
  * Benchmark tester export helpers
  */
-export type ImprovementMetrics = z.infer<typeof improvementMetricsSchema>
-export type BenchmarkComparison = z.infer<typeof benchmarkComparisonSchema>
-export type BenchmarkSuite = z.infer<typeof benchmarkSuiteSchema>
-export type BenchmarkTesterState = z.infer<typeof benchmarkTesterStateSchema>
+export type ImprovementMetrics = improvementMetrics
+export type BenchmarkComparison = benchmarkComparison
+export type BenchmarkSuite = benchmarkSuite
+export type BenchmarkTesterState = benchmarkTesterState
+
+// ==================== Type Exports ====================
+

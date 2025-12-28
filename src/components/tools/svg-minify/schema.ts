@@ -1,145 +1,143 @@
-import { z } from "zod"
-
-// ==================== SVG Minify Schemas ====================
+// ==================== SVG Minify Types ====================
 
 /**
- * Optimization Level schema
+ * Optimization Level type
  */
-export const optimizationLevelSchema = z.enum(["basic", "aggressive", "custom"])
+export type optimizationLevel = "basic" | "aggressive" | "custom"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["svg", "minified", "gzipped", "base64"])
+export type exportFormat = "svg" | "minified" | "gzipped" | "base64"
 
 /**
- * Optimization Type schema
+ * Optimization Type type
  */
-export const optimizationTypeSchema = z.enum(["comments", "whitespace", "attributes", "paths", "metadata", "unused"])
+export type optimizationType = "comments" | "whitespace" | "attributes" | "paths" | "metadata" | "unused"
 
 /**
- * SVG Element schema
+ * SVG Element type
  */
-export const svgElementSchema = z.object({
-  tag: z.string(),
-  count: z.number(),
-  attributes: z.array(z.string()),
-  hasChildren: z.boolean(),
-})
+export interface svgElement {
+  tag: string,
+  count: number,
+  attributes: string[],
+  hasChildren: boolean,
+}
 
 /**
- * SVG Attribute schema
+ * SVG Attribute type
  */
-export const svgAttributeSchema = z.object({
-  name: z.string(),
-  count: z.number(),
-  totalLength: z.number(),
-  canOptimize: z.boolean(),
-})
+export interface svgAttribute {
+  name: string,
+  count: number,
+  totalLength: number,
+  canOptimize: boolean,
+}
 
 /**
- * SVG Metadata schema
+ * SVG Metadata type
  */
-export const svgMetadataSchema = z.object({
-  viewBox: z.string(),
-  width: z.string(),
-  height: z.string(),
-  xmlns: z.string(),
-  version: z.string(),
-  hasComments: z.boolean(),
-  hasWhitespace: z.boolean(),
-  hasUnusedElements: z.boolean(),
-})
+export interface svgMetadata {
+  viewBox: string,
+  width: string,
+  height: string,
+  xmlns: string,
+  version: string,
+  hasComments: boolean,
+  hasWhitespace: boolean,
+  hasUnusedElements: boolean,
+}
 
 /**
- * SVG Content schema
+ * SVG Content type
  */
-export const svgContentSchema = z.object({
-  content: z.string(),
-  size: z.number(),
-  elements: z.array(svgElementSchema),
-  attributes: z.array(svgAttributeSchema),
-  metadata: svgMetadataSchema,
-})
+export interface svgContent {
+  content: string,
+  size: number,
+  elements: svgElement[],
+  attributes: svgAttribute[],
+  metadata: svgMetadata,
+}
 
 /**
- * SVG Statistics schema
+ * SVG Statistics type
  */
-export const svgStatisticsSchema = z.object({
-  originalSize: z.number(),
-  optimizedSize: z.number(),
-  compressionRatio: z.number(),
-  spaceSaved: z.number(),
-  elementsRemoved: z.number(),
-  attributesOptimized: z.number(),
-  commentsRemoved: z.number(),
-  whitespaceRemoved: z.number(),
-  processingTime: z.number(),
-})
+export interface svgStatistics {
+  originalSize: number,
+  optimizedSize: number,
+  compressionRatio: number,
+  spaceSaved: number,
+  elementsRemoved: number,
+  attributesOptimized: number,
+  commentsRemoved: number,
+  whitespaceRemoved: number,
+  processingTime: number,
+}
 
 /**
- * SVG Settings schema
+ * SVG Settings type
  */
-export const svgSettingsSchema = z.object({
-  optimizationLevel: optimizationLevelSchema,
-  removeComments: z.boolean(),
-  removeWhitespace: z.boolean(),
-  removeUnusedElements: z.boolean(),
-  optimizeAttributes: z.boolean(),
-  simplifyPaths: z.boolean(),
-  removeMetadata: z.boolean(),
-  exportFormat: exportFormatSchema,
-  preserveAccessibility: z.boolean(),
-})
+export interface svgSettings {
+  optimizationLevel: optimizationLevel,
+  removeComments: boolean,
+  removeWhitespace: boolean,
+  removeUnusedElements: boolean,
+  optimizeAttributes: boolean,
+  simplifyPaths: boolean,
+  removeMetadata: boolean,
+  exportFormat: exportFormat,
+  preserveAccessibility: boolean,
+}
 
 /**
- * SVG Data schema
+ * SVG Data type
  */
-export const svgDataSchema = z.object({
-  original: svgContentSchema,
-  optimized: svgContentSchema,
-  statistics: svgStatisticsSchema,
-  settings: svgSettingsSchema,
-})
+export interface svgData {
+  original: svgContent,
+  optimized: svgContent,
+  statistics: svgStatistics,
+  settings: svgSettings,
+}
 
 /**
- * SVG File schema
+ * SVG File type
  */
-export const svgFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  svgData: svgDataSchema.optional(),
-})
+export interface svgFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  svgData?: svgData
+}
 
 /**
- * SVG Template schema
+ * SVG Template type
  */
-export const svgTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  settings: svgSettingsSchema.partial(),
-  optimizations: z.array(optimizationTypeSchema),
-})
+export interface svgTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  settings: svgSettings,
+  optimizations: optimizationType[],
+}
 
 // ==================== Type Exports ====================
 
-export type OptimizationLevel = z.infer<typeof optimizationLevelSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type OptimizationType = z.infer<typeof optimizationTypeSchema>
-export type SvgElement = z.infer<typeof svgElementSchema>
-export type SvgAttribute = z.infer<typeof svgAttributeSchema>
-export type SvgMetadata = z.infer<typeof svgMetadataSchema>
-export type SvgContent = z.infer<typeof svgContentSchema>
-export type SvgStatistics = z.infer<typeof svgStatisticsSchema>
-export type SvgSettings = z.infer<typeof svgSettingsSchema>
-export type SvgData = z.infer<typeof svgDataSchema>
-export type SvgFile = z.infer<typeof svgFileSchema>
-export type SvgTemplate = z.infer<typeof svgTemplateSchema>
+export type OptimizationLevel = optimizationLevel
+export type ExportFormat = exportFormat
+export type OptimizationType = optimizationType
+export type SvgElement = svgElement
+export type SvgAttribute = svgAttribute
+export type SvgMetadata = svgMetadata
+export type SvgContent = svgContent
+export type SvgStatistics = svgStatistics
+export type SvgSettings = svgSettings
+export type SvgData = svgData
+export type SvgFile = svgFile
+export type SvgTemplate = svgTemplate

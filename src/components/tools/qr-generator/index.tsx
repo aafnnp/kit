@@ -658,6 +658,7 @@ const validateQRSettings = (settings: QRSettings): QRValidation => {
 
   // Recommend optimal settings
   validation.recommendedSettings = {
+    ...settings,
     errorCorrection: settings.content.length > 500 ? "Q" : "M",
     size: Math.max(200, Math.min(500, settings.content.length * 2)),
     margin: Math.max(20, settings.size * 0.05),

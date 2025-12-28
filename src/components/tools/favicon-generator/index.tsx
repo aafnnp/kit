@@ -746,7 +746,6 @@ const FaviconGeneratorCore = () => {
     optimizeImages: true,
     backgroundColor: "#ffffff",
     themeColor: "#000000",
-    exportFormat: "zip",
   })
   const [generatedFavicons, setGeneratedFavicons] = useState<FaviconData | null>(null)
 

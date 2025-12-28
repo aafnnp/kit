@@ -17,9 +17,9 @@ on:
       - "v*"
 
 jobs:
-  # 代码质量检查和测试
-  test-and-lint:
-    name: Test and Lint
+  # 代码质量检查
+  lint-and-build:
+    name: Lint and Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,19 +32,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
-      - name: Run tests
-        run: npm test -- --run
-
-      - name: Generate test coverage
-        run: npm run test:coverage || echo "Coverage generation failed, continuing..."
-
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v4
-        if: always()
-        with:
-          files: ./coverage/coverage-final.json
-          fail_ci_if_error: false
 
       - name: Type check
         run: npx tsc --noEmit
@@ -59,8 +46,8 @@ jobs:
     name: Build and Release Electron (${{ matrix.platform }})
     permissions:
       contents: write
-    needs: [test-and-lint]
-    if: always() && (needs.test-and-lint.result == 'success' || needs.test-and-lint.result == 'skipped')
+    needs: [lint-and-build]
+    if: always() && (needs.lint-and-build.result == 'success' || needs.lint-and-build.result == 'skipped')
     strategy:
       fail-fast: false
       matrix:

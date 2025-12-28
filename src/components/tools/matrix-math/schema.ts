@@ -1,165 +1,144 @@
-import { z } from "zod"
-
-// ==================== Matrix Math Schemas ====================
+// ==================== Matrix Math Types ====================
 
 /**
- * Operation Type schema
+ * Operation Type type
  */
-export const operationTypeSchema = z.enum([
-  "add",
-  "subtract",
-  "multiply",
-  "transpose",
-  "inverse",
-  "determinant",
-  "trace",
-  "rank",
-  "eigenvalues",
-  "lu",
-  "qr",
-  "svd",
-  "solve",
-  "power",
-])
+export type operationType = "add" | "subtract" | "multiply" | "transpose" | "inverse" | "determinant" | "trace" | "rank" | "eigenvalues" | "lu" | "qr" | "svd" | "solve" | "power"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "matlab", "python", "latex", "mathml"])
+export type exportFormat = "json" | "csv" | "txt" | "matlab" | "python" | "latex" | "mathml"
 
 /**
- * Decomposition Type schema
+ * Decomposition Type type
  */
-export const decompositionTypeSchema = z.enum(["LU", "QR", "SVD", "Eigenvalue"])
+export type decompositionType = "LU" | "QR" | "SVD" | "Eigenvalue"
 
 /**
- * Matrix Properties schema
+ * Matrix Properties type
  */
-export const matrixPropertiesSchema = z.object({
-  isSquare: z.boolean(),
-  isSymmetric: z.boolean(),
-  isIdentity: z.boolean(),
-  isZero: z.boolean(),
-  isDiagonal: z.boolean(),
-  isUpperTriangular: z.boolean(),
-  isLowerTriangular: z.boolean(),
-  isOrthogonal: z.boolean(),
-  isInvertible: z.boolean(),
-  rank: z.number(),
-  determinant: z.number().optional(),
-  trace: z.number().optional(),
-  eigenvalues: z.array(z.number()).optional(),
-  condition: z.number().optional(),
-})
+export interface matrixProperties {
+  isSquare: boolean,
+  isSymmetric: boolean,
+  isIdentity: boolean,
+  isZero: boolean,
+  isDiagonal: boolean,
+  isUpperTriangular: boolean,
+  isLowerTriangular: boolean,
+  isOrthogonal: boolean,
+  isInvertible: boolean,
+  rank: number
+  determinant?: number
+  trace?: number
+  eigenvalues?: number[]
+  condition?: number
+}
 
 /**
- * Matrix schema
+ * Matrix type
  */
-export const matrixSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  data: z.array(z.array(z.number())),
-  rows: z.number(),
-  cols: z.number(),
-  properties: matrixPropertiesSchema,
-})
+export interface matrix {
+  id: string,
+  name: string,
+  data: number[][],
+  rows: number,
+  cols: number,
+  properties: matrixProperties,
+}
 
 /**
- * Operation Metadata schema
+ * Operation Metadata type
  */
-export const operationMetadataSchema = z.object({
-  operationTime: z.number(),
-  complexity: z.number(),
-  numericalStability: z.number(),
-  memoryUsage: z.number(),
-  algorithmUsed: z.string(),
-})
+export interface operationMetadata {
+  operationTime: number,
+  complexity: number,
+  numericalStability: number,
+  memoryUsage: number,
+  algorithmUsed: string,
+}
 
 /**
- * Matrix Decomposition schema
+ * Matrix Decomposition type
  */
-export const matrixDecompositionSchema = z.object({
-  type: decompositionTypeSchema,
-  factors: z.array(matrixSchema),
-  metadata: z.any(),
-})
+export interface matrixDecomposition {
+  type: decompositionType,
+  factors: matrix[],
+  metadata: any,
+}
 
 /**
- * Matrix Analysis schema
+ * Matrix Analysis type
  */
-export const matrixAnalysisSchema = z.object({
-  dimensions: z.string(),
-  sparsity: z.number(),
-  norm: z.number(),
-  condition: z.number(),
-  singularValues: z.array(z.number()).optional(),
-  decomposition: matrixDecompositionSchema.optional(),
-})
+export interface matrixAnalysis {
+  dimensions: string,
+  sparsity: number,
+  norm: number,
+  condition: number
+  singularValues?: number[]
+  decomposition?: matrixDecomposition
+}
 
 /**
- * Matrix Operation schema
+ * Matrix Operation type
  */
-export const matrixOperationSchema = z.object({
-  id: z.string(),
-  operation: operationTypeSchema,
-  matrices: z.array(matrixSchema),
-  result: z.union([matrixSchema, z.number(), z.null()]),
-  metadata: operationMetadataSchema,
-  analysis: matrixAnalysisSchema,
-  timestamp: z.date(),
-})
+export interface matrixOperation {
+  id: string,
+  operation: operationType,
+  matrices: matrix[],
+  result: matrix | number | null,
+  metadata: operationMetadata,
+  analysis: matrixAnalysis,
+  timestamp: Date,
+}
 
 /**
- * Matrix Template schema
+ * Matrix Template type
  */
-export const matrixTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  matrices: z.array(matrixSchema),
-  operation: operationTypeSchema,
-  useCase: z.array(z.string()),
-  difficulty: z.enum(["simple", "medium", "complex"]),
-})
+export interface matrixTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  matrices: matrix[],
+  operation: operationType,
+  useCase: string[],
+  difficulty: "simple"| "medium" | "complex",
+}
 
 /**
- * Matrix Error schema
+ * Matrix Error type
  */
-export const matrixErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["dimension", "format", "numerical", "operation"]),
-  severity: z.enum(["error", "warning", "info"]),
-  position: z
-    .object({
-      row: z.number(),
-      col: z.number(),
-    })
-    .optional(),
-})
-
+export interface matrixError {
+  message: string,
+  type: "dimension"| "format" | "numerical" | "operation",
+  severity: "error"| "warning" | "info",
+  position?: number,
+  row?: number,
+  col?: number,
+}
 /**
- * Matrix Validation schema
+ * Matrix Validation type
  */
-export const matrixValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(matrixErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  qualityScore: z.number(),
-})
+export interface matrixValidation {
+  isValid: boolean,
+  errors: matrixError[],
+  warnings: string[],
+  suggestions: string[],
+  qualityScore: number,
+}
 
 // ==================== Type Exports ====================
 
-export type OperationType = z.infer<typeof operationTypeSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type DecompositionType = z.infer<typeof decompositionTypeSchema>
-export type MatrixProperties = z.infer<typeof matrixPropertiesSchema>
-export type Matrix = z.infer<typeof matrixSchema>
-export type OperationMetadata = z.infer<typeof operationMetadataSchema>
-export type MatrixDecomposition = z.infer<typeof matrixDecompositionSchema>
-export type MatrixAnalysis = z.infer<typeof matrixAnalysisSchema>
-export type MatrixOperation = z.infer<typeof matrixOperationSchema>
-export type MatrixTemplate = z.infer<typeof matrixTemplateSchema>
-export type MatrixError = z.infer<typeof matrixErrorSchema>
-export type MatrixValidation = z.infer<typeof matrixValidationSchema>
+export type OperationType = operationType
+export type ExportFormat = exportFormat
+export type DecompositionType = decompositionType
+export type MatrixProperties = matrixProperties
+export type Matrix = matrix
+export type OperationMetadata = operationMetadata
+export type MatrixDecomposition = matrixDecomposition
+export type MatrixAnalysis = matrixAnalysis
+export type MatrixOperation = matrixOperation
+export type MatrixTemplate = matrixTemplate
+export type MatrixError = matrixError
+export type MatrixValidation = matrixValidation

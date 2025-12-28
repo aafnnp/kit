@@ -1,170 +1,168 @@
-import { z } from "zod"
-
-// ==================== Git Helper Schemas ====================
+// ==================== Git Helper Types ====================
 
 /**
- * Git Command Category schema
+ * Git Command Category type
  */
-export const gitCommandCategorySchema = z.enum(["basic", "branching", "remote", "history", "advanced"])
+export type gitCommandCategory = "basic" | "branching" | "remote" | "history" | "advanced"
 
 /**
- * Git Parameter Type schema
+ * Git Parameter Type type
  */
-export const gitParameterTypeSchema = z.enum(["string", "boolean", "number", "select"])
+export type gitParameterType = "string" | "boolean" | "number" | "select"
 
 /**
- * Repository Status schema
+ * Repository Status type
  */
-export const repositoryStatusSchema = z.enum(["clean", "modified", "staged", "conflict"])
+export type repositoryStatus = "clean" | "modified" | "staged" | "conflict"
 
 /**
- * Remote Type schema
+ * Remote Type type
  */
-export const remoteTypeSchema = z.enum(["fetch", "push"])
+export type remoteType = "fetch" | "push"
 
 /**
- * File Status schema
+ * File Status type
  */
-export const fileStatusSchema = z.enum(["added", "modified", "deleted", "renamed", "copied", "untracked", "conflicted"])
+export type fileStatus = "added" | "modified" | "deleted" | "renamed" | "copied" | "untracked" | "conflicted"
 
 /**
- * Git Parameter schema
+ * Git Parameter type
  */
-export const gitParameterSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  type: gitParameterTypeSchema,
-  required: z.boolean(),
-  defaultValue: z.union([z.string(), z.number(), z.boolean()]).optional(),
-  options: z.array(z.string()).optional(),
-  placeholder: z.string().optional(),
-})
+export interface gitParameter {
+  name: string,
+  description: string,
+  type: gitParameterType,
+  required: boolean
+  defaultValue?: string | number | boolean,
+  options?: string[],
+  placeholder?: string,
+}
 
 /**
- * Git Command schema
+ * Git Command type
  */
-export const gitCommandSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  command: z.string(),
-  category: gitCommandCategorySchema,
-  parameters: z.array(gitParameterSchema).optional(),
-  examples: z.array(z.string()).optional(),
-  documentation: z.string().optional(),
-})
+export interface gitCommand {
+  id: string,
+  name: string,
+  description: string,
+  command: string,
+  category: gitCommandCategory
+  parameters?: gitParameter[],
+  examples?: string[],
+  documentation?: string,
+}
 
 /**
- * Git Remote schema
+ * Git Remote type
  */
-export const gitRemoteSchema = z.object({
-  name: z.string(),
-  url: z.string(),
-  type: remoteTypeSchema,
-})
+export interface gitRemote {
+  name: string,
+  url: string,
+  type: remoteType,
+}
 
 /**
- * Git Commit schema
+ * Git Commit type
  */
-export const gitCommitSchema = z.object({
-  hash: z.string(),
-  message: z.string(),
-  author: z.string(),
-  date: z.string(),
-  files: z.array(z.string()),
-})
+export interface gitCommit {
+  hash: string,
+  message: string,
+  author: string,
+  date: string,
+  files: string[],
+}
 
 /**
- * Git Branch schema
+ * Git Branch type
  */
-export const gitBranchSchema = z.object({
-  name: z.string(),
-  current: z.boolean(),
-  remote: z.string().optional(),
-  lastCommit: gitCommitSchema.optional(),
-})
+export interface gitBranch {
+  name: string,
+  current: boolean
+  remote?: string,
+  lastCommit?: gitCommit,
+}
 
 /**
- * Git File schema
+ * Git File type
  */
-export const gitFileSchema = z.object({
-  path: z.string(),
-  status: fileStatusSchema,
-  oldPath: z.string().optional(),
-})
+export interface gitFile {
+  path: string,
+  status: fileStatus
+  oldPath?: string,
+}
 
 /**
- * Git Status schema
+ * Git Status type
  */
-export const gitStatusSchema = z.object({
-  branch: z.string(),
-  ahead: z.number(),
-  behind: z.number(),
-  staged: z.array(gitFileSchema),
-  modified: z.array(gitFileSchema),
-  untracked: z.array(gitFileSchema),
-  conflicted: z.array(gitFileSchema),
-})
+export interface gitStatus {
+  branch: string,
+  ahead: number,
+  behind: number,
+  staged: gitFile[],
+  modified: gitFile[],
+  untracked: gitFile[],
+  conflicted: gitFile[],
+}
 
 /**
- * Git Repository schema
+ * Git Repository type
  */
-export const gitRepositorySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  path: z.string(),
-  branch: z.string(),
-  status: repositoryStatusSchema,
-  remotes: z.array(gitRemoteSchema),
-  lastCommit: gitCommitSchema.optional(),
-  createdAt: z.number(),
-  updatedAt: z.number(),
-})
+export interface gitRepository {
+  id: string,
+  name: string,
+  path: string,
+  branch: string,
+  status: repositoryStatus,
+  remotes: gitRemote[]
+  lastCommit?: gitCommit,
+  createdAt: number,
+  updatedAt: number,
+}
 
 /**
- * Git Command Execution schema
+ * Git Command Execution type
  */
-export const gitCommandExecutionSchema = z.object({
-  id: z.string(),
-  command: z.string(),
-  parameters: z.record(z.string(), z.any()),
-  output: z.string(),
-  exitCode: z.number(),
-  timestamp: z.number(),
-  duration: z.number(),
-  repository: z.string().optional(),
-})
+export interface gitCommandExecution {
+  id: string,
+  command: string,
+  parameters: Record<string, any>,
+  output: string,
+  exitCode: number,
+  timestamp: number,
+  duration: number
+  repository?: string,
+}
 
 /**
- * Git Helper State schema
+ * Git Helper State type
  */
-export const gitHelperStateSchema = z.object({
-  repositories: z.array(gitRepositorySchema),
-  activeRepository: gitRepositorySchema.optional(),
-  commands: z.array(gitCommandSchema),
-  commandHistory: z.array(gitCommandExecutionSchema),
-  favorites: z.array(z.string()),
-  isExecuting: z.boolean(),
-  error: z.string().optional(),
-})
+export interface gitHelperState {
+  repositories: gitRepository[]
+  activeRepository?: gitRepository,
+  commands: gitCommand[],
+  commandHistory: gitCommandExecution[],
+  favorites: string[],
+  isExecuting: boolean
+  error?: string,
+}
 
 // ==================== Type Exports ====================
 
-export type GitCommandCategory = z.infer<typeof gitCommandCategorySchema>
-export type GitParameterType = z.infer<typeof gitParameterTypeSchema>
-export type RepositoryStatus = z.infer<typeof repositoryStatusSchema>
-export type RemoteType = z.infer<typeof remoteTypeSchema>
-export type FileStatus = z.infer<typeof fileStatusSchema>
-export type GitParameter = z.infer<typeof gitParameterSchema>
-export type GitCommand = z.infer<typeof gitCommandSchema>
-export type GitRemote = z.infer<typeof gitRemoteSchema>
-export type GitCommit = z.infer<typeof gitCommitSchema>
-export type GitBranch = z.infer<typeof gitBranchSchema>
-export type GitFile = z.infer<typeof gitFileSchema>
-export type GitStatus = z.infer<typeof gitStatusSchema>
-export type GitRepository = z.infer<typeof gitRepositorySchema>
-export type GitCommandExecution = z.infer<typeof gitCommandExecutionSchema>
-export type GitHelperState = z.infer<typeof gitHelperStateSchema>
+export type GitCommandCategory = gitCommandCategory
+export type GitParameterType = gitParameterType
+export type RepositoryStatus = repositoryStatus
+export type RemoteType = remoteType
+export type FileStatus = fileStatus
+export type GitParameter = gitParameter
+export type GitCommand = gitCommand
+export type GitRemote = gitRemote
+export type GitCommit = gitCommit
+export type GitBranch = gitBranch
+export type GitFile = gitFile
+export type GitStatus = gitStatus
+export type GitRepository = gitRepository
+export type GitCommandExecution = gitCommandExecution
+export type GitHelperState = gitHelperState
 
 // ==================== Constants and Utility Functions ====================
 

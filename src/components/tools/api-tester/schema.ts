@@ -1,119 +1,117 @@
-import { z } from "zod"
-
-// ==================== API Tester Schemas ====================
+// ==================== API Tester Types ====================
 
 /**
- * HTTP Method schema
+ * HTTP Method type
  */
-export const httpMethodSchema = z.enum(["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"])
+export type httpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD" | "OPTIONS"
 
 /**
- * API Header schema
+ * API Header type
  */
-export const apiHeaderSchema = z.object({
-  id: z.string(),
-  key: z.string(),
-  value: z.string(),
-  enabled: z.boolean(),
-})
+export interface apiHeader {
+  id: string,
+  key: string,
+  value: string,
+  enabled: boolean,
+}
 
 /**
- * API Param schema
+ * API Param type
  */
-export const apiParamSchema = z.object({
-  id: z.string(),
-  key: z.string(),
-  value: z.string(),
-  enabled: z.boolean(),
-})
+export interface apiParam {
+  id: string,
+  key: string,
+  value: string,
+  enabled: boolean,
+}
 
 /**
- * API Request schema
+ * API Request type
  */
-export const apiRequestSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  method: httpMethodSchema,
-  url: z.string(),
-  headers: z.array(apiHeaderSchema),
-  params: z.array(apiParamSchema),
-  body: z.string(),
-  bodyType: z.enum(["json", "form", "text", "xml"]),
-  timeout: z.number(),
-  followRedirects: z.boolean(),
-})
+export interface apiRequest {
+  id: string,
+  name: string,
+  method: httpMethod,
+  url: string,
+  headers: apiHeader[],
+  params: apiParam[],
+  body: string,
+  bodyType: "json" | "form" | "text" | "xml",
+  timeout: number,
+  followRedirects: boolean,
+}
 
 /**
- * API Response schema
+ * API Response type
  */
-export const apiResponseSchema = z.object({
-  status: z.number(),
-  statusText: z.string(),
-  headers: z.record(z.string(), z.string()),
-  data: z.string(),
-  size: z.number(),
-  time: z.number(),
-  timestamp: z.number(),
-})
+export interface apiResponse {
+  status: number,
+  statusText: string,
+  headers: Record<string, string>,
+  data: string,
+  size: number,
+  time: number,
+  timestamp: number,
+}
 
 /**
- * API Test Result schema
+ * API Test Result type
  */
-export const apiTestResultSchema = z.object({
-  id: z.string(),
-  request: apiRequestSchema,
-  response: apiResponseSchema.optional(),
-  error: z.string().optional(),
-  isLoading: z.boolean(),
-  timestamp: z.number(),
-})
+export interface apiTestResult {
+  id: string,
+  request: apiRequest
+  response?: apiResponse
+  error?: string
+  isLoading: boolean,
+  timestamp: number,
+}
 
 /**
- * API Collection schema
+ * API Collection type
  */
-export const apiCollectionSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  requests: z.array(apiRequestSchema),
-  createdAt: z.number(),
-  updatedAt: z.number(),
-})
+export interface apiCollection {
+  id: string,
+  name: string,
+  description: string,
+  requests: apiRequest[],
+  createdAt: number,
+  updatedAt: number,
+}
 
 /**
- * API Environment schema
+ * API Environment type
  */
-export const apiEnvironmentSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  variables: z.record(z.string(), z.string()),
-  isActive: z.boolean(),
-})
+export interface apiEnvironment {
+  id: string,
+  name: string,
+  variables: Record<string, string>,
+  isActive: boolean,
+}
 
 /**
- * API Tester State schema
+ * API Tester State type
  */
-export const apiTesterStateSchema = z.object({
-  currentRequest: apiRequestSchema,
-  results: z.array(apiTestResultSchema),
-  collections: z.array(apiCollectionSchema),
-  environments: z.array(apiEnvironmentSchema),
-  activeEnvironment: z.string().optional(),
-  isLoading: z.boolean(),
-  error: z.string().optional(),
-})
+export interface apiTesterState {
+  currentRequest: apiRequest,
+  results: apiTestResult[],
+  collections: apiCollection[],
+  environments: apiEnvironment[]
+  activeEnvironment?: string
+  isLoading: boolean
+  error?: string
+}
 
 // ==================== Type Exports ====================
 
-export type HttpMethod = z.infer<typeof httpMethodSchema>
-export type ApiHeader = z.infer<typeof apiHeaderSchema>
-export type ApiParam = z.infer<typeof apiParamSchema>
-export type ApiRequest = z.infer<typeof apiRequestSchema>
-export type ApiResponse = z.infer<typeof apiResponseSchema>
-export type ApiTestResult = z.infer<typeof apiTestResultSchema>
-export type ApiCollection = z.infer<typeof apiCollectionSchema>
-export type ApiEnvironment = z.infer<typeof apiEnvironmentSchema>
-export type ApiTesterState = z.infer<typeof apiTesterStateSchema>
+export type HttpMethod = httpMethod
+export type ApiHeader = apiHeader
+export type ApiParam = apiParam
+export type ApiRequest = apiRequest
+export type ApiResponse = apiResponse
+export type ApiTestResult = apiTestResult
+export type ApiCollection = apiCollection
+export type ApiEnvironment = apiEnvironment
+export type ApiTesterState = apiTesterState
 
 // ==================== Utilities ====================
 

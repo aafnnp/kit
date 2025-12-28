@@ -1,145 +1,143 @@
-import { z } from "zod"
-
-// ==================== Bcrypt Hash Schemas ====================
+// ==================== Bcrypt Hash Types ====================
 
 /**
- * Security Level schema
+ * Security Level type
  */
-export const securityLevelSchema = z.enum(["low", "medium", "high", "very-high"])
+export type securityLevel = "low" | "medium" | "high" | "very-high"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml"
 
 /**
- * Password Requirement schema
+ * Password Requirement type
  */
-export const passwordRequirementSchema = z.object({
-  name: z.string(),
-  met: z.boolean(),
-  description: z.string(),
-})
+export interface passwordRequirement {
+  name: string,
+  met: boolean,
+  description: string,
+}
 
 /**
- * Password Strength schema
+ * Password Strength type
  */
-export const passwordStrengthSchema = z.object({
-  score: z.number(),
-  level: z.enum(["very-weak", "weak", "fair", "good", "strong"]),
-  feedback: z.array(z.string()),
-  requirements: z.array(passwordRequirementSchema),
-})
+export interface passwordStrength {
+  score: number,
+  level: "very-weak" | "weak" | "fair" | "good" | "strong",
+  feedback: string[],
+  requirements: passwordRequirement[],
+}
 
 /**
- * Bcrypt Content schema
+ * Bcrypt Content type
  */
-export const bcryptContentSchema = z.object({
-  content: z.string(),
-  size: z.number(),
-  type: z.enum(["password", "text"]),
-  strength: passwordStrengthSchema.optional(),
-})
+export interface bcryptContent {
+  content: string,
+  size: number,
+  type: "password" | "text"
+  strength?: passwordStrength
+}
 
 /**
- * Bcrypt Result schema
+ * Bcrypt Result type
  */
-export const bcryptResultSchema = z.object({
-  saltRounds: z.number(),
-  hash: z.string(),
-  salt: z.string(),
-  processingTime: z.number(),
-  verified: z.boolean().optional(),
-  securityLevel: securityLevelSchema,
-})
+export interface bcryptResult {
+  saltRounds: number,
+  hash: string,
+  salt: string,
+  processingTime: number
+  verified?: boolean
+  securityLevel: securityLevel,
+}
 
 /**
- * Bcrypt Statistics schema
+ * Bcrypt Statistics type
  */
-export const bcryptStatisticsSchema = z.object({
-  totalHashes: z.number(),
-  saltRoundDistribution: z.record(z.string(), z.number()),
-  averageProcessingTime: z.number(),
-  totalProcessingTime: z.number(),
-  verificationCount: z.number(),
-  successRate: z.number(),
-  securityScore: z.number(),
-})
+export interface bcryptStatistics {
+  totalHashes: number,
+  saltRoundDistribution: Record<string, number>,
+  averageProcessingTime: number,
+  totalProcessingTime: number,
+  verificationCount: number,
+  successRate: number,
+  securityScore: number,
+}
 
 /**
- * Bcrypt Settings schema
+ * Bcrypt Settings type
  */
-export const bcryptSettingsSchema = z.object({
-  saltRounds: z.array(z.number()),
-  includeTimestamp: z.boolean(),
-  enableVerification: z.boolean(),
-  batchProcessing: z.boolean(),
-  realTimeHashing: z.boolean(),
-  exportFormat: exportFormatSchema,
-  showPasswords: z.boolean(),
-  passwordStrengthCheck: z.boolean(),
-})
+export interface bcryptSettings {
+  saltRounds: number[],
+  includeTimestamp: boolean,
+  enableVerification: boolean,
+  batchProcessing: boolean,
+  realTimeHashing: boolean,
+  exportFormat: exportFormat,
+  showPasswords: boolean,
+  passwordStrengthCheck: boolean,
+}
 
 /**
- * Bcrypt Data schema
+ * Bcrypt Data type
  */
-export const bcryptDataSchema = z.object({
-  original: bcryptContentSchema,
-  hashes: z.array(bcryptResultSchema),
-  statistics: bcryptStatisticsSchema,
-  settings: bcryptSettingsSchema,
-})
+export interface bcryptData {
+  original: bcryptContent,
+  hashes: bcryptResult[],
+  statistics: bcryptStatistics,
+  settings: bcryptSettings,
+}
 
 /**
- * Bcrypt File schema
+ * Bcrypt File type
  */
-export const bcryptFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  bcryptData: bcryptDataSchema.optional(),
-})
+export interface bcryptFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending" | "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  bcryptData?: bcryptData
+}
 
 /**
- * Bcrypt Template schema
+ * Bcrypt Template type
  */
-export const bcryptTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  settings: bcryptSettingsSchema.partial(),
-  saltRounds: z.array(z.number()),
-  securityLevel: securityLevelSchema,
-})
+export interface bcryptTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  settings: bcryptSettings,
+  saltRounds: number[],
+  securityLevel: securityLevel,
+}
 
 /**
- * Bcrypt Verification schema
+ * Bcrypt Verification type
  */
-export const bcryptVerificationSchema = z.object({
-  id: z.string(),
-  password: z.string(),
-  hash: z.string(),
-  isValid: z.boolean(),
-  processingTime: z.number(),
-})
+export interface bcryptVerification {
+  id: string,
+  password: string,
+  hash: string,
+  isValid: boolean,
+  processingTime: number,
+}
 
 // ==================== Type Exports ====================
 
-export type SecurityLevel = z.infer<typeof securityLevelSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type PasswordRequirement = z.infer<typeof passwordRequirementSchema>
-export type PasswordStrength = z.infer<typeof passwordStrengthSchema>
-export type BcryptContent = z.infer<typeof bcryptContentSchema>
-export type BcryptResult = z.infer<typeof bcryptResultSchema>
-export type BcryptStatistics = z.infer<typeof bcryptStatisticsSchema>
-export type BcryptSettings = z.infer<typeof bcryptSettingsSchema>
-export type BcryptData = z.infer<typeof bcryptDataSchema>
-export type BcryptFile = z.infer<typeof bcryptFileSchema>
-export type BcryptTemplate = z.infer<typeof bcryptTemplateSchema>
-export type BcryptVerification = z.infer<typeof bcryptVerificationSchema>
+export type SecurityLevel = securityLevel
+export type ExportFormat = exportFormat
+export type PasswordRequirement = passwordRequirement
+export type PasswordStrength = passwordStrength
+export type BcryptContent = bcryptContent
+export type BcryptResult = bcryptResult
+export type BcryptStatistics = bcryptStatistics
+export type BcryptSettings = bcryptSettings
+export type BcryptData = bcryptData
+export type BcryptFile = bcryptFile
+export type BcryptTemplate = bcryptTemplate
+export type BcryptVerification = bcryptVerification

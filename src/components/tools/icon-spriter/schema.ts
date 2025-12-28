@@ -1,62 +1,60 @@
-import { z } from "zod"
-
-// ==================== Icon Spriter Schemas ====================
+// ==================== Icon Spriter Types ====================
 
 /**
- * Layout schema
+ * Layout type
  */
-export const layoutSchema = z.enum(["symbol", "grid"])
+export type layout = "symbol" | "grid"
 
 /**
- * Naming schema
+ * Naming type
  */
-export const namingSchema = z.enum(["auto", "filename", "custom"])
+export type naming = "auto" | "filename" | "custom"
 
 /**
- * Output Format schema
+ * Output Format type
  */
-export const outputFormatSchema = z.enum(["svg", "png", "css", "zip"])
+export type outputFormat = "svg" | "png" | "css" | "zip"
 
 /**
- * Icon File schema
+ * Icon File type
  */
-export const iconFileSchema = z.object({
-  id: z.string(),
-  file: z.instanceof(File),
-  name: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  content: z.string().optional(),
-  url: z.string().optional(),
-})
+export interface iconFile {
+  id: string,
+  file: File,
+  name: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  content?: string
+  url?: string
+}
 
 /**
- * Sprite Settings schema
+ * Sprite Settings type
  */
-export const spriteSettingsSchema = z.object({
-  layout: layoutSchema,
-  spacing: z.number(),
-  naming: namingSchema,
-  customPrefix: z.string(),
-  output: outputFormatSchema,
-})
+export interface spriteSettings {
+  layout: layout,
+  spacing: number,
+  naming: naming,
+  customPrefix: string,
+  output: outputFormat,
+}
 
 /**
- * Sprite Stats schema
+ * Sprite Stats type
  */
-export const spriteStatsSchema = z.object({
-  iconCount: z.number(),
-  totalSize: z.number(),
-  formats: z.array(z.string()),
-})
+export interface spriteStats {
+  iconCount: number,
+  totalSize: number,
+  formats: string[],
+}
 
 // ==================== Type Exports ====================
 
-export type Layout = z.infer<typeof layoutSchema>
-export type Naming = z.infer<typeof namingSchema>
-export type OutputFormat = z.infer<typeof outputFormatSchema>
-export type IconFile = z.infer<typeof iconFileSchema>
-export type SpriteSettings = z.infer<typeof spriteSettingsSchema>
-export type SpriteStats = z.infer<typeof spriteStatsSchema>
+export type Layout = layout
+export type Naming = naming
+export type OutputFormat = outputFormat
+export type IconFile = iconFile
+export type SpriteSettings = spriteSettings
+export type SpriteStats = spriteStats

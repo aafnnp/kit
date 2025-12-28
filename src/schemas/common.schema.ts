@@ -1,162 +1,141 @@
-import { z } from "zod"
-
-// ==================== Common Schemas ====================
+// ==================== Common Types ====================
 
 /**
- * Base File schema
+ * Base File type
  */
-export const baseFileSchema = z.object({
-  id: z.string(),
-  file: z.instanceof(File),
-  name: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  timestamp: z.number(),
-  processingTime: z.number().optional(),
-})
+export interface BaseFile {
+  id: string
+  file: File
+  name: string
+  size: number
+  type: string
+  status: "pending" | "processing" | "completed" | "error"
+  error?: string
+  timestamp: number
+  processingTime?: number
+}
 
 /**
- * Base Stats schema
+ * Base Stats type
  */
-export const baseStatsSchema = z.object({
-  totalFiles: z.number(),
-  processingTime: z.number(),
-  averageProcessingTime: z.number(),
-  totalSize: z.number(),
-  averageSize: z.number(),
-})
+export interface BaseStats {
+  totalFiles: number
+  processingTime: number
+  averageProcessingTime: number
+  totalSize: number
+  averageSize: number
+}
 
 /**
- * History Entry Base schema
+ * History Entry Base type
  */
-export const historyEntryBaseSchema = z.object({
-  id: z.string(),
-  timestamp: z.number(),
-  description: z.string(),
-})
+export interface HistoryEntryBase {
+  id: string
+  timestamp: number
+  description: string
+}
 
 /**
- * Export Options schema
+ * Export Options type
  */
-export const exportOptionsSchema = z.object({
-  format: z.enum(["json", "csv", "txt", "html", "zip"]),
-  includeMetadata: z.boolean(),
-  prettyPrint: z.boolean().optional(),
-  filename: z.string().optional(),
-})
+export interface ExportOptions {
+  format: "json" | "csv" | "txt" | "html" | "zip"
+  includeMetadata: boolean
+  prettyPrint?: boolean
+  filename?: string
+}
 
 /**
- * Processing Progress schema
+ * Processing Progress type
  */
-export const processingProgressSchema = z.object({
-  current: z.number(),
-  total: z.number(),
-  percentage: z.number(),
-  currentFile: z.string().optional(),
-})
+export interface ProcessingProgress {
+  current: number
+  total: number
+  percentage: number
+  currentFile?: string
+}
 
 /**
- * Quality Metrics schema
+ * Quality Metrics type
  */
-export const qualityMetricsSchema = z.object({
-  averageQuality: z.number(),
-  compressionEfficiency: z.number(),
-  formatOptimization: z.number(),
-})
+export interface QualityMetrics {
+  averageQuality: number
+  compressionEfficiency: number
+  formatOptimization: number
+}
 
 /**
- * Validation Result schema
+ * Validation Result type
  */
-export const validationResultSchema = z.object({
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  warnings: z.array(z.string()).optional(),
-})
+export interface ValidationResult {
+  isValid: boolean
+  error?: string
+  warnings?: string[]
+}
 
 /**
- * Base Settings schema
+ * Base Settings type
  */
-export const baseSettingsSchema = z.object({
-  outputFormat: z.string(),
-  quality: z.number(),
-  preserveMetadata: z.boolean(),
-  optimizeForWeb: z.boolean(),
-})
+export interface BaseSettings {
+  outputFormat: string
+  quality: number
+  preserveMetadata: boolean
+  optimizeForWeb: boolean
+}
 
 /**
- * Base Template schema
+ * Base Template type
  */
-export const baseTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  tags: z.array(z.string()),
-  popularity: z.number(),
-  settings: z.record(z.string(), z.any()),
-})
+export interface BaseTemplate {
+  id: string
+  name: string
+  description: string
+  category: string
+  tags: string[]
+  popularity: number
+  settings: Record<string, any>
+}
 
 /**
- * Performance Metrics schema
+ * Performance Metrics type
  */
-export const performanceMetricsSchema = z.object({
-  averageProcessingTime: z.number(),
-  totalProcessingTime: z.number(),
-  throughput: z.number(),
-})
+export interface PerformanceMetrics {
+  averageProcessingTime: number
+  totalProcessingTime: number
+  throughput: number
+}
 
 /**
- * Base Analysis Data schema
+ * Base Analysis Data type
  */
-export const baseAnalysisDataSchema = z.object({
-  formatDistribution: z.record(z.string(), z.number()),
-  sizeDistribution: z.record(z.string(), z.number()),
-  qualityDistribution: z.record(z.string(), z.number()),
-  performanceMetrics: performanceMetricsSchema,
-})
+export interface BaseAnalysisData {
+  formatDistribution: Record<string, number>
+  sizeDistribution: Record<string, number>
+  qualityDistribution: Record<string, number>
+  performanceMetrics: PerformanceMetrics
+}
 
 /**
- * Drag Drop Config schema
+ * Drag Drop Config type
  */
-export const dragDropConfigSchema = z.object({
-  accept: z.union([z.string(), z.array(z.string())]).optional(),
-  maxSize: z.number().optional(),
-  maxFiles: z.number().optional(),
-  multiple: z.boolean().optional(),
-})
+export interface DragDropConfig {
+  accept?: string | string[]
+  maxSize?: number
+  maxFiles?: number
+  multiple?: boolean
+}
 
 /**
- * Processing Error schema
+ * Processing Error type
  */
-export const processingErrorSchema = z.object({
-  name: z.string(),
-  message: z.string(),
-  stack: z.string().optional(),
-  code: z.string().optional(),
-  details: z.any().optional(),
-  recoverable: z.boolean().optional(),
-})
-
-// ==================== Type Exports ====================
-
-/**
- * Type inference from zod schemas
- */
-export type BaseFile = z.infer<typeof baseFileSchema>
-export type BaseStats = z.infer<typeof baseStatsSchema>
-export type HistoryEntryBase = z.infer<typeof historyEntryBaseSchema>
-export type ExportOptions = z.infer<typeof exportOptionsSchema>
-export type ProcessingProgress = z.infer<typeof processingProgressSchema>
-export type QualityMetrics = z.infer<typeof qualityMetricsSchema>
-export type ValidationResult = z.infer<typeof validationResultSchema>
-export type BaseSettings = z.infer<typeof baseSettingsSchema>
-export type BaseTemplate = z.infer<typeof baseTemplateSchema>
-export type PerformanceMetrics = z.infer<typeof performanceMetricsSchema>
-export type BaseAnalysisData = z.infer<typeof baseAnalysisDataSchema>
-export type DragDropConfig = z.infer<typeof dragDropConfigSchema>
-export type ProcessingError = z.infer<typeof processingErrorSchema> & Error
+export interface ProcessingError extends Error {
+  name: string
+  message: string
+  stack?: string
+  code?: string
+  details?: any
+  recoverable?: boolean
+}
 
 /**
  * Shortcut Map type

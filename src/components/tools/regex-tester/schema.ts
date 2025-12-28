@@ -1,105 +1,103 @@
-import { z } from "zod"
-
-// ==================== Regex Tester Schemas ====================
+// ==================== Regex Tester Types ====================
 
 /**
- * Regex Match schema
+ * Regex Match type
  */
-export const regexMatchSchema = z.object({
-  match: z.string(),
-  index: z.number(),
-  groups: z.array(z.string()),
-  namedGroups: z.record(z.string(), z.string()),
-  input: z.string(),
-  length: z.number(),
-})
+export interface regexMatch {
+  match: string,
+  index: number,
+  groups: string[],
+  namedGroups: Record<string, string>,
+  input: string,
+  length: number,
+}
 
 /**
- * Regex Statistics schema
+ * Regex Statistics type
  */
-export const regexStatisticsSchema = z.object({
-  totalMatches: z.number(),
-  uniqueMatches: z.number(),
-  averageMatchLength: z.number(),
-  matchPositions: z.array(z.number()),
-  captureGroups: z.number(),
-  namedGroups: z.array(z.string()),
-  executionTime: z.number(),
-  textLength: z.number(),
-  coverage: z.number(),
-})
+export interface regexStatistics {
+  totalMatches: number,
+  uniqueMatches: number,
+  averageMatchLength: number,
+  matchPositions: number[],
+  captureGroups: number,
+  namedGroups: string[],
+  executionTime: number,
+  textLength: number,
+  coverage: number,
+}
 
 /**
- * Text File schema
+ * Text File type
  */
-export const textFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  matches: z.array(regexMatchSchema).optional(),
-  statistics: regexStatisticsSchema.optional(),
-})
+export interface textFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  matches?: regexMatch[]
+  statistics?: regexStatistics
+}
 
 /**
- * Regex Flags schema
+ * Regex Flags type
  */
-export const regexFlagsSchema = z.object({
-  global: z.boolean(),
-  ignoreCase: z.boolean(),
-  multiline: z.boolean(),
-  dotAll: z.boolean(),
-  unicode: z.boolean(),
-  sticky: z.boolean(),
-})
+export interface regexFlags {
+  global: boolean,
+  ignoreCase: boolean,
+  multiline: boolean,
+  dotAll: boolean,
+  unicode: boolean,
+  sticky: boolean,
+}
 
 /**
- * Regex Settings schema
+ * Regex Settings type
  */
-export const regexSettingsSchema = z.object({
-  flags: regexFlagsSchema,
-  highlightMatches: z.boolean(),
-  showCaptureGroups: z.boolean(),
-  showMatchPositions: z.boolean(),
-  maxMatches: z.number(),
-  timeout: z.number(),
-  enableReplacement: z.boolean(),
-  replacementText: z.string(),
-})
+export interface regexSettings {
+  flags: regexFlags,
+  highlightMatches: boolean,
+  showCaptureGroups: boolean,
+  showMatchPositions: boolean,
+  maxMatches: number,
+  timeout: number,
+  enableReplacement: boolean,
+  replacementText: string,
+}
 
 /**
- * Regex Pattern schema
+ * Regex Pattern type
  */
-export const regexPatternSchema = z.object({
-  name: z.string(),
-  pattern: z.string(),
-  description: z.string(),
-  category: z.string(),
-  flags: z.string(),
-  example: z.string(),
-})
+export interface regexPattern {
+  name: string,
+  pattern: string,
+  description: string,
+  category: string,
+  flags: string,
+  example: string,
+}
 
 /**
- * Regex Test Result schema
+ * Regex Test Result type
  */
-export const regexTestResultSchema = z.object({
-  isValid: z.boolean(),
-  matches: z.array(regexMatchSchema),
-  statistics: regexStatisticsSchema,
-  error: z.string().optional(),
-  replacementResult: z.string().optional(),
-})
+export interface regexTestResult {
+  isValid: boolean,
+  matches: regexMatch[],
+  statistics: regexStatistics
+  error?: string
+  replacementResult?: string
+}
 
 // ==================== Type Exports ====================
 
-export type RegexMatch = z.infer<typeof regexMatchSchema>
-export type RegexStatistics = z.infer<typeof regexStatisticsSchema>
-export type TextFile = z.infer<typeof textFileSchema>
-export type RegexFlags = z.infer<typeof regexFlagsSchema>
-export type RegexSettings = z.infer<typeof regexSettingsSchema>
-export type RegexPattern = z.infer<typeof regexPatternSchema>
-export type RegexTestResult = z.infer<typeof regexTestResultSchema>
+export type RegexMatch = regexMatch
+export type RegexStatistics = regexStatistics
+export type TextFile = textFile
+export type RegexFlags = regexFlags
+export type RegexSettings = regexSettings
+export type RegexPattern = regexPattern
+export type RegexTestResult = regexTestResult

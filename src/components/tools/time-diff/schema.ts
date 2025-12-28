@@ -1,170 +1,149 @@
-import { z } from "zod"
-
-// ==================== Time Diff Schemas ====================
+// ==================== Time Diff Types ====================
 
 /**
- * Date Format schema
+ * Date Format type
  */
-export const dateFormatSchema = z.enum([
-  "iso8601",
-  "rfc2822",
-  "unix",
-  "unix-ms",
-  "local",
-  "custom",
-])
+export type dateFormat = "iso8601" | "rfc2822" | "unix" | "unix-ms" | "local" | "custom"
 
 /**
- * Duration Format schema
+ * Duration Format type
  */
-export const durationFormatSchema = z.enum([
-  "detailed",
-  "compact",
-  "human",
-  "iso8601",
-])
+export type durationFormat = "detailed" | "compact" | "human" | "iso8601"
 
 /**
- * Duration Precision schema
+ * Duration Precision type
  */
-export const durationPrecisionSchema = z.enum([
-  "milliseconds",
-  "seconds",
-  "minutes",
-  "hours",
-  "days",
-])
+export type durationPrecision = "milliseconds" | "seconds" | "minutes" | "hours" | "days"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml"
 
 /**
- * Duration Breakdown schema
+ * Duration Breakdown type
  */
-export const durationBreakdownSchema = z.object({
-  years: z.number(),
-  months: z.number(),
-  weeks: z.number(),
-  days: z.number(),
-  hours: z.number(),
-  minutes: z.number(),
-  seconds: z.number(),
-  milliseconds: z.number(),
-})
+export interface durationBreakdown {
+  years: number,
+  months: number,
+  weeks: number,
+  days: number,
+  hours: number,
+  minutes: number,
+  seconds: number,
+  milliseconds: number,
+}
 
 /**
- * Duration schema
+ * Duration type
  */
-export const durationSchema = z.object({
-  totalMilliseconds: z.number(),
-  totalSeconds: z.number(),
-  totalMinutes: z.number(),
-  totalHours: z.number(),
-  totalDays: z.number(),
-  totalWeeks: z.number(),
-  totalMonths: z.number(),
-  totalYears: z.number(),
-  breakdown: durationBreakdownSchema,
-  humanReadable: z.string(),
-  relative: z.string(),
-})
+export interface duration {
+  totalMilliseconds: number,
+  totalSeconds: number,
+  totalMinutes: number,
+  totalHours: number,
+  totalDays: number,
+  totalWeeks: number,
+  totalMonths: number,
+  totalYears: number,
+  breakdown: durationBreakdown,
+  humanReadable: string,
+  relative: string,
+}
 
 /**
- * Time Difference schema
+ * Time Difference type
  */
-export const timeDifferenceSchema = z.object({
-  id: z.string(),
-  startDate: z.date(),
-  endDate: z.date(),
-  startInput: z.string(),
-  endInput: z.string(),
-  startFormat: dateFormatSchema,
-  endFormat: dateFormatSchema,
-  timezone: z.string(),
-  duration: durationSchema,
-  businessDays: z.number(),
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  createdAt: z.date(),
-})
+export interface timeDifference {
+  id: string,
+  startDate: Date,
+  endDate: Date,
+  startInput: string,
+  endInput: string,
+  startFormat: dateFormat,
+  endFormat: dateFormat,
+  timezone: string,
+  duration: duration,
+  businessDays: number,
+  isValid: boolean
+  error?: string,
+  createdAt: Date,
+}
 
 /**
- * Time Diff Statistics schema
+ * Time Diff Statistics type
  */
-export const timeDiffStatisticsSchema = z.object({
-  totalCalculations: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  averageDuration: z.number(),
-  longestDuration: z.number(),
-  shortestDuration: z.number(),
-  durationDistribution: z.record(z.string(), z.number()),
-  timezoneDistribution: z.record(z.string(), z.number()),
-  successRate: z.number(),
-})
+export interface timeDiffStatistics {
+  totalCalculations: number,
+  validCount: number,
+  invalidCount: number,
+  averageDuration: number,
+  longestDuration: number,
+  shortestDuration: number,
+  durationDistribution: Record<string, number>,
+  timezoneDistribution: Record<string, number>,
+  successRate: number,
+}
 
 /**
- * Time Diff Settings schema
+ * Time Diff Settings type
  */
-export const timeDiffSettingsSchema = z.object({
-  defaultTimezone: z.string(),
-  includeBusinessDays: z.boolean(),
-  includeTime: z.boolean(),
-  outputFormat: durationFormatSchema,
-  exportFormat: exportFormatSchema,
-  realTimeCalculation: z.boolean(),
-  showRelativeTime: z.boolean(),
-  precision: durationPrecisionSchema,
-})
+export interface timeDiffSettings {
+  defaultTimezone: string,
+  includeBusinessDays: boolean,
+  includeTime: boolean,
+  outputFormat: durationFormat,
+  exportFormat: exportFormat,
+  realTimeCalculation: boolean,
+  showRelativeTime: boolean,
+  precision: durationPrecision,
+}
 
 /**
- * Time Diff Batch schema
+ * Time Diff Batch type
  */
-export const timeDiffBatchSchema = z.object({
-  id: z.string(),
-  calculations: z.array(timeDifferenceSchema),
-  count: z.number(),
-  settings: timeDiffSettingsSchema,
-  createdAt: z.date(),
-  statistics: timeDiffStatisticsSchema,
-})
+export interface timeDiffBatch {
+  id: string,
+  calculations: timeDifference[],
+  count: number,
+  settings: timeDiffSettings,
+  createdAt: Date,
+  statistics: timeDiffStatistics,
+}
 
 /**
- * Time Diff Template schema
+ * Time Diff Template type
  */
-export const timeDiffTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  startDate: z.string(),
-  endDate: z.string(),
-  useCase: z.array(z.string()),
-})
+export interface timeDiffTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  startDate: string,
+  endDate: string,
+  useCase: string[],
+}
 
 /**
- * Date Validation schema
+ * Date Validation type
  */
-export const dateValidationSchema = z.object({
-  isValid: z.boolean(),
-  error: z.string().optional(),
-  parsedDate: z.date().optional(),
-})
+export interface dateValidation {
+  isValid: boolean
+  error?: string,
+  parsedDate?: Date,
+}
 
 // ==================== Type Exports ====================
 
-export type DateFormat = z.infer<typeof dateFormatSchema>
-export type DurationFormat = z.infer<typeof durationFormatSchema>
-export type DurationPrecision = z.infer<typeof durationPrecisionSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type DurationBreakdown = z.infer<typeof durationBreakdownSchema>
-export type Duration = z.infer<typeof durationSchema>
-export type TimeDifference = z.infer<typeof timeDifferenceSchema>
-export type TimeDiffStatistics = z.infer<typeof timeDiffStatisticsSchema>
-export type TimeDiffSettings = z.infer<typeof timeDiffSettingsSchema>
-export type TimeDiffBatch = z.infer<typeof timeDiffBatchSchema>
-export type TimeDiffTemplate = z.infer<typeof timeDiffTemplateSchema>
-export type DateValidation = z.infer<typeof dateValidationSchema>
-
+export type DateFormat = dateFormat
+export type DurationFormat = durationFormat
+export type DurationPrecision = durationPrecision
+export type ExportFormat = exportFormat
+export type DurationBreakdown = durationBreakdown
+export type Duration = duration
+export type TimeDifference = timeDifference
+export type TimeDiffStatistics = timeDiffStatistics
+export type TimeDiffSettings = timeDiffSettings
+export type TimeDiffBatch = timeDiffBatch
+export type TimeDiffTemplate = timeDiffTemplate
+export type DateValidation = dateValidation

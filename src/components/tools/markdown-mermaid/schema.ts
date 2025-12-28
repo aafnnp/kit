@@ -1,246 +1,228 @@
-import { z } from "zod"
-
-// ==================== Markdown Mermaid Schemas ====================
+// ==================== Markdown Mermaid Types ====================
 
 /**
- * Mermaid Diagram Type schema
+ * Mermaid Diagram Type type
  */
-export const mermaidDiagramTypeSchema = z.enum([
-  "flowchart",
-  "sequence",
-  "classDiagram",
-  "stateDiagram",
-  "entityRelationship",
-  "userJourney",
-  "gantt",
-  "pie",
-  "gitgraph",
-  "mindmap",
-  "timeline",
-  "quadrantChart",
-  "requirementDiagram",
-  "c4Context",
-])
+export type mermaidDiagramType = "flowchart" | "sequence" | "classDiagram" | "stateDiagram" | "entityRelationship" | "userJourney" | "gantt" | "pie" | "gitgraph" | "mindmap" | "timeline" | "quadrantChart" | "requirementDiagram" | "c4Context"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["svg", "png", "pdf", "markdown", "html", "json"])
+export type exportFormat = "svg" | "png" | "pdf" | "markdown" | "html" | "json"
 
 /**
- * View Mode schema
+ * View Mode type
  */
-export const viewModeSchema = z.enum(["split", "editor", "preview", "fullscreen"])
+export type viewMode = "split" | "editor" | "preview" | "fullscreen"
 
 /**
- * Theme schema
+ * Theme type
  */
-export const themeSchema = z.enum(["default", "dark", "forest", "neutral", "base"])
+export type theme = "default" | "dark" | "forest" | "neutral" | "base"
 
 /**
- * Curve schema
+ * Curve type
  */
-export const curveSchema = z.enum(["basis", "linear", "cardinal"])
+export type curve = "basis" | "linear" | "cardinal"
 
 /**
- * Diagram Metadata schema
+ * Diagram Metadata type
  */
-export const diagramMetadataSchema = z.object({
-  codeSize: z.number(),
-  svgSize: z.number(),
-  nodeCount: z.number(),
-  edgeCount: z.number(),
-  complexity: z.number(),
-  renderTime: z.number(),
-  memoryUsage: z.number(),
-  diagramDepth: z.number(),
-})
+export interface diagramMetadata {
+  codeSize: number,
+  svgSize: number,
+  nodeCount: number,
+  edgeCount: number,
+  complexity: number,
+  renderTime: number,
+  memoryUsage: number,
+  diagramDepth: number,
+}
 
 /**
- * Flowchart Config schema
+ * Flowchart Config type
  */
-export const flowchartConfigSchema = z.object({
-  diagramPadding: z.number(),
-  htmlLabels: z.boolean(),
-  nodeSpacing: z.number(),
-  rankSpacing: z.number(),
-  curve: curveSchema,
-  padding: z.number(),
-  useMaxWidth: z.boolean(),
-})
+export interface flowchartConfig {
+  diagramPadding: number,
+  htmlLabels: boolean,
+  nodeSpacing: number,
+  rankSpacing: number,
+  curve: curve,
+  padding: number,
+  useMaxWidth: boolean,
+}
 
 /**
- * Sequence Config schema
+ * Sequence Config type
  */
-export const sequenceConfigSchema = z.object({
-  diagramMarginX: z.number(),
-  diagramMarginY: z.number(),
-  actorMargin: z.number(),
-  width: z.number(),
-  height: z.number(),
-  boxMargin: z.number(),
-  boxTextMargin: z.number(),
-  noteMargin: z.number(),
-  messageMargin: z.number(),
-  mirrorActors: z.boolean(),
-  bottomMarginAdj: z.number(),
-  useMaxWidth: z.boolean(),
-  rightAngles: z.boolean(),
-})
+export interface sequenceConfig {
+  diagramMarginX: number,
+  diagramMarginY: number,
+  actorMargin: number,
+  width: number,
+  height: number,
+  boxMargin: number,
+  boxTextMargin: number,
+  noteMargin: number,
+  messageMargin: number,
+  mirrorActors: boolean,
+  bottomMarginAdj: number,
+  useMaxWidth: boolean,
+  rightAngles: boolean,
+}
 
 /**
- * Gantt Config schema
+ * Gantt Config type
  */
-export const ganttConfigSchema = z.object({
-  titleTopMargin: z.number(),
-  barHeight: z.number(),
-  barGap: z.number(),
-  topPadding: z.number(),
-  leftPadding: z.number(),
-  gridLineStartPadding: z.number(),
-  fontSize: z.number(),
-  fontFamily: z.string(),
-  numberSectionStyles: z.number(),
-  axisFormat: z.string(),
-  topAxis: z.boolean(),
-  displayMode: z.string(),
-})
+export interface ganttConfig {
+  titleTopMargin: number,
+  barHeight: number,
+  barGap: number,
+  topPadding: number,
+  leftPadding: number,
+  gridLineStartPadding: number,
+  fontSize: number,
+  fontFamily: string,
+  numberSectionStyles: number,
+  axisFormat: string,
+  topAxis: boolean,
+  displayMode: string,
+}
 
 /**
- * Journey Config schema
+ * Journey Config type
  */
-export const journeyConfigSchema = z.object({
-  diagramMarginX: z.number(),
-  diagramMarginY: z.number(),
-  leftMargin: z.number(),
-  width: z.number(),
-  height: z.number(),
-  boxMargin: z.number(),
-  boxTextMargin: z.number(),
-  noteMargin: z.number(),
-  messageMargin: z.number(),
-  bottomMarginAdj: z.number(),
-  useMaxWidth: z.boolean(),
-  rightAngles: z.boolean(),
-})
+export interface journeyConfig {
+  diagramMarginX: number,
+  diagramMarginY: number,
+  leftMargin: number,
+  width: number,
+  height: number,
+  boxMargin: number,
+  boxTextMargin: number,
+  noteMargin: number,
+  messageMargin: number,
+  bottomMarginAdj: number,
+  useMaxWidth: boolean,
+  rightAngles: boolean,
+}
 
 /**
- * Pie Config schema
+ * Pie Config type
  */
-export const pieConfigSchema = z.object({
-  textPosition: z.number(),
-  useMaxWidth: z.boolean(),
-})
+export interface pieConfig {
+  textPosition: number,
+  useMaxWidth: boolean,
+}
 
 /**
- * Gitgraph Config schema
+ * Gitgraph Config type
  */
-export const gitgraphConfigSchema = z.object({
-  diagramPadding: z.number(),
-  nodeLabel: z.object({
-    width: z.number(),
-    height: z.number(),
-    x: z.number(),
-    y: z.number(),
-  }),
-  mainBranchName: z.string(),
-  showBranches: z.boolean(),
-  showCommitLabel: z.boolean(),
-  rotateCommitLabel: z.boolean(),
-})
+export interface gitgraphConfig {
+  diagramPadding: number,
+  nodeLabel: {
+    width: number,
+    height: number,
+    x: number,
+    y: number,
+  },
+  mainBranchName: string,
+  showBranches: boolean,
+  showCommitLabel: boolean,
+  rotateCommitLabel: boolean,
+}
+/**
+ * Mermaid Config type
+ */
+export interface mermaidConfig {
+  theme: theme,
+  fontFamily: string,
+  fontSize: number,
+  primaryColor: string,
+  primaryTextColor: string,
+  primaryBorderColor: string,
+  lineColor: string,
+  secondaryColor: string,
+  tertiaryColor: string,
+  background: string,
+  mainBkg: string,
+  secondBkg: string,
+  tertiaryBkg: string,
+  flowchart: flowchartConfig,
+  sequence: sequenceConfig,
+  gantt: ganttConfig,
+  journey: journeyConfig,
+  pie: pieConfig,
+  gitgraph: gitgraphConfig,
+}
 
 /**
- * Mermaid Config schema
+ * Mermaid Diagram type
  */
-export const mermaidConfigSchema = z.object({
-  theme: themeSchema,
-  fontFamily: z.string(),
-  fontSize: z.number(),
-  primaryColor: z.string(),
-  primaryTextColor: z.string(),
-  primaryBorderColor: z.string(),
-  lineColor: z.string(),
-  secondaryColor: z.string(),
-  tertiaryColor: z.string(),
-  background: z.string(),
-  mainBkg: z.string(),
-  secondBkg: z.string(),
-  tertiaryBkg: z.string(),
-  flowchart: flowchartConfigSchema,
-  sequence: sequenceConfigSchema,
-  gantt: ganttConfigSchema,
-  journey: journeyConfigSchema,
-  pie: pieConfigSchema,
-  gitgraph: gitgraphConfigSchema,
-})
+export interface mermaidDiagram {
+  id: string,
+  name: string,
+  type: mermaidDiagramType,
+  code: string,
+  svg: string,
+  markdown: string,
+  metadata: diagramMetadata,
+  config: mermaidConfig,
+  timestamp: Date,
+}
 
 /**
- * Mermaid Diagram schema
+ * Diagram Template type
  */
-export const mermaidDiagramSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  type: mermaidDiagramTypeSchema,
-  code: z.string(),
-  svg: z.string(),
-  markdown: z.string(),
-  metadata: diagramMetadataSchema,
-  config: mermaidConfigSchema,
-  timestamp: z.date(),
-})
+export interface diagramTemplate {
+  id: string,
+  name: string,
+  description: string,
+  type: mermaidDiagramType,
+  category: string,
+  code: string,
+  useCase: string[],
+  complexity: "simple"| "medium" | "complex",
+}
 
 /**
- * Diagram Template schema
+ * Diagram Error type
  */
-export const diagramTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  type: mermaidDiagramTypeSchema,
-  category: z.string(),
-  code: z.string(),
-  useCase: z.array(z.string()),
-  complexity: z.enum(["simple", "medium", "complex"]),
-})
+export interface diagramError {
+  message: string,
+  type: "syntax"| "structure" | "performance" | "rendering",
+  severity: "error"| "warning" | "info"
+  line?: number
+  column?: number
+}
 
 /**
- * Diagram Error schema
+ * Diagram Validation type
  */
-export const diagramErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["syntax", "structure", "performance", "rendering"]),
-  severity: z.enum(["error", "warning", "info"]),
-  line: z.number().optional(),
-  column: z.number().optional(),
-})
-
-/**
- * Diagram Validation schema
- */
-export const diagramValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(diagramErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  qualityScore: z.number(),
-})
+export interface diagramValidation {
+  isValid: boolean,
+  errors: diagramError[],
+  warnings: string[],
+  suggestions: string[],
+  qualityScore: number,
+}
 
 // ==================== Type Exports ====================
 
-export type MermaidDiagramType = z.infer<typeof mermaidDiagramTypeSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type ViewMode = z.infer<typeof viewModeSchema>
-export type Theme = z.infer<typeof themeSchema>
-export type Curve = z.infer<typeof curveSchema>
-export type DiagramMetadata = z.infer<typeof diagramMetadataSchema>
-export type FlowchartConfig = z.infer<typeof flowchartConfigSchema>
-export type SequenceConfig = z.infer<typeof sequenceConfigSchema>
-export type GanttConfig = z.infer<typeof ganttConfigSchema>
-export type JourneyConfig = z.infer<typeof journeyConfigSchema>
-export type PieConfig = z.infer<typeof pieConfigSchema>
-export type GitgraphConfig = z.infer<typeof gitgraphConfigSchema>
-export type MermaidConfig = z.infer<typeof mermaidConfigSchema>
-export type MermaidDiagram = z.infer<typeof mermaidDiagramSchema>
-export type DiagramTemplate = z.infer<typeof diagramTemplateSchema>
-export type DiagramError = z.infer<typeof diagramErrorSchema>
-export type DiagramValidation = z.infer<typeof diagramValidationSchema>
+export type MermaidDiagramType = mermaidDiagramType
+export type ExportFormat = exportFormat
+export type ViewMode = viewMode
+export type Theme = theme
+export type Curve = curve
+export type DiagramMetadata = diagramMetadata
+export type FlowchartConfig = flowchartConfig
+export type SequenceConfig = sequenceConfig
+export type GanttConfig = ganttConfig
+export type JourneyConfig = journeyConfig
+export type PieConfig = pieConfig
+export type GitgraphConfig = gitgraphConfig
+export type MermaidConfig = mermaidConfig
+export type MermaidDiagram = mermaidDiagram
+export type DiagramTemplate = diagramTemplate
+export type DiagramError = diagramError
+export type DiagramValidation = diagramValidation

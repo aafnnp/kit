@@ -1,102 +1,79 @@
-import { z } from "zod"
 import type { ToolCategory } from "@/schemas/tool.schema"
+import type React from "react"
 
-// ==================== App Sidebar Schemas ====================
+// ==================== App Sidebar Types ====================
 
 /**
- * App sidebar props schema
+ * App sidebar props type
  * 应用侧边栏属性类型定义
  */
-export const appSidebarPropsSchema = z.object({
+export interface AppSidebarProps {
   // Extends React.ComponentProps<typeof Sidebar>
-  // Using z.any() for complex React component props
-  className: z.string().optional(),
-  defaultOpen: z.boolean().optional(),
-  open: z.boolean().optional(),
-  onOpenChange: z.custom<(open: boolean) => void>().optional(),
-})
+  // Using any for complex React component props
+  className?: string
+  defaultOpen?: boolean
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}
 
-// ==================== Site Header Schemas ====================
+// ==================== Site Header Types ====================
 
 /**
- * Site header props schema
+ * Site header props type
  * 站点头部属性类型定义
  * Note: SiteHeader has no props currently
  */
-export const siteHeaderPropsSchema = z.object({})
+export interface SiteHeaderProps {}
 
-// ==================== Custom Title Bar Schemas ====================
+// ==================== Custom Title Bar Types ====================
 
 /**
- * Custom title bar props schema
+ * Custom title bar props type
  * 自定义标题栏属性类型定义
  * Note: CustomTitleBar has no props currently
  */
-export const customTitleBarPropsSchema = z.object({})
+export interface CustomTitleBarProps {}
 
 /**
- * Drag style schema
+ * Drag style type
  * 拖拽样式类型定义
  */
-export const dragStyleSchema = z.object({
-  WebkitAppRegion: z.literal("drag").optional(),
-  appRegion: z.literal("drag").optional(),
-  WebkitUserSelect: z.literal("none").optional(),
-  userSelect: z.literal("none").optional(),
-  pointerEvents: z.literal("auto").optional(),
-  cursor: z.literal("default").optional(),
-})
+export interface DragStyle {
+  WebkitAppRegion?: "drag"
+  appRegion?: "drag"
+  WebkitUserSelect?: "none"
+  userSelect?: "none"
+  pointerEvents?: "auto"
+  cursor?: "default"
+}
 
 /**
- * No drag style schema
+ * No drag style type
  * 非拖拽样式类型定义
  */
-export const noDragStyleSchema = z.object({
-  WebkitAppRegion: z.literal("no-drag").optional(),
-  appRegion: z.literal("no-drag").optional(),
-})
+export interface NoDragStyle {
+  WebkitAppRegion?: "no-drag"
+  appRegion?: "no-drag"
+}
 
-// ==================== Nav Main Schemas ====================
+// ==================== Nav Main Types ====================
 
 /**
- * Nav main props schema
+ * Nav main props type
  * 导航主组件属性类型定义
  */
-export const navMainPropsSchema = z.object({
-  items: z.custom<ToolCategory[]>(),
-})
+export interface NavMainProps {
+  items: ToolCategory[]
+}
 
 /**
- * Open map schema
+ * Open map type
  * 展开状态映射类型定义
  */
-export const openMapSchema = z.record(z.string(), z.boolean())
+export type OpenMap = Record<string, boolean>
 
 /**
- * Icon components map schema
+ * Icon components map type
  * 图标组件映射类型定义
  */
-export const iconComponentsMapSchema = z.record(z.string(), z.custom<React.ComponentType<any> | null>())
-
-// ==================== Type Exports ====================
-
-/**
- * Type inference from zod schemas
- * 从 zod schemas 推断 TypeScript 类型
- */
-
-// App Sidebar Types
-export type AppSidebarProps = z.infer<typeof appSidebarPropsSchema>
-
-// Site Header Types
-export type SiteHeaderProps = z.infer<typeof siteHeaderPropsSchema>
-
-// Custom Title Bar Types
-export type CustomTitleBarProps = z.infer<typeof customTitleBarPropsSchema>
-export type DragStyle = z.infer<typeof dragStyleSchema>
-export type NoDragStyle = z.infer<typeof noDragStyleSchema>
-
-// Nav Main Types
-export type NavMainProps = z.infer<typeof navMainPropsSchema>
-export type OpenMap = z.infer<typeof openMapSchema>
-export type IconComponentsMap = z.infer<typeof iconComponentsMapSchema>
+export type IconComponentsMap = Record<string, React.ComponentType<any> | null>

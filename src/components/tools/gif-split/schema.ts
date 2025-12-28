@@ -1,48 +1,46 @@
-import { z } from "zod"
-
-// ==================== GIF Split Schemas ====================
+// ==================== GIF Split Types ====================
 
 /**
- * GIF Frame schema
+ * GIF Frame type
  */
-export const gifFrameSchema = z.object({
-  index: z.number(),
-  imageDataUrl: z.string(),
-  delay: z.number(),
-  width: z.number(),
-  height: z.number(),
-  disposalType: z.number(),
-})
+export interface gifFrame {
+  index: number,
+  imageDataUrl: string,
+  delay: number,
+  width: number,
+  height: number,
+  disposalType: number,
+}
 
 /**
- * GIF Stats schema
+ * GIF Stats type
  */
-export const gifStatsSchema = z.object({
-  frameCount: z.number(),
-  duration: z.number(),
-  width: z.number(),
-  height: z.number(),
-  fileSize: z.number(),
-  avgDelay: z.number(),
-})
+export interface gifStats {
+  frameCount: number,
+  duration: number,
+  width: number,
+  height: number,
+  fileSize: number,
+  avgDelay: number,
+}
 
 /**
- * GIF File schema
+ * GIF File type
  */
-export const gifFileSchema = z.object({
-  id: z.string(),
-  file: z.instanceof(File),
-  name: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  frames: z.array(gifFrameSchema).optional(),
-  stats: gifStatsSchema.optional(),
-})
+export interface gifFile {
+  id: string,
+  file: File,
+  name: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  frames?: gifFrame[]
+  stats?: gifStats
+}
 
 // ==================== Type Exports ====================
 
-export type GifFrame = z.infer<typeof gifFrameSchema>
-export type GifStats = z.infer<typeof gifStatsSchema>
-export type GifFile = z.infer<typeof gifFileSchema>
+export type GifFrame = gifFrame
+export type GifStats = gifStats
+export type GifFile = gifFile

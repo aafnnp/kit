@@ -1,115 +1,116 @@
-import { z } from "zod"
-
-// ==================== Markdown TOC Schemas ====================
+// ==================== Markdown TOC Types ====================
 
 /**
- * TOC Format schema
+ * TOC Format type
  */
-export const tocFormatSchema = z.enum(["markdown", "html", "json", "plain", "numbered"])
+export type tocFormat = "markdown" | "html" | "json" | "plain" | "numbered"
 
 /**
- * Indent Style schema
+ * Indent Style type
  */
-export const indentStyleSchema = z.enum(["spaces", "tabs", "none"])
+export type indentStyle = "spaces" | "tabs" | "none"
 
 /**
- * Bullet Style schema
+ * Bullet Style type
  */
-export const bulletStyleSchema = z.enum(["dash", "asterisk", "plus", "number", "custom"])
+export type bulletStyle = "dash" | "asterisk" | "plus" | "number" | "custom"
 
 /**
- * Case Style schema
+ * Case Style type
  */
-export const caseStyleSchema = z.enum(["original", "lowercase", "uppercase", "title", "sentence"])
+export type caseStyle = "original" | "lowercase" | "uppercase" | "title" | "sentence"
 
 /**
- * Heading schema
+ * Heading type (recursive)
  */
-export const headingSchema: z.ZodType<any> = z.lazy(() =>
-  z.object({
-    level: z.number(),
-    text: z.string(),
-    anchor: z.string(),
-    line: z.number(),
-    children: z.array(headingSchema),
-  })
-)
+export interface heading {
+  level: number,
+  text: string,
+  anchor: string,
+  line: number,
+  children: heading[],
+}
 
 /**
- * TOC Statistics schema
+ * TOC Statistics type
  */
-export const tocStatisticsSchema = z.object({
-  totalHeadings: z.number(),
-  headingsByLevel: z.record(z.string(), z.number()),
-  maxDepth: z.number(),
-  averageDepth: z.number(),
-  duplicateAnchors: z.array(z.string()),
-  processingTime: z.number(),
-})
+export interface tocStatistics {
+  totalHeadings: number,
+  headingsByLevel: Record<string, number>,
+  maxDepth: number,
+  averageDepth: number,
+  duplicateAnchors: string[],
+  processingTime: number,
+}
 
 /**
- * TOC Settings schema
+ * TOC Settings type
  */
-export const tocSettingsSchema = z.object({
-  format: tocFormatSchema,
-  maxDepth: z.number(),
-  minDepth: z.number(),
-  includeLinks: z.boolean(),
-  customPrefix: z.string(),
-  indentStyle: indentStyleSchema,
-  bulletStyle: bulletStyleSchema,
-  caseStyle: caseStyleSchema,
-  removeNumbers: z.boolean(),
-  removeSpecialChars: z.boolean(),
-  customAnchorPrefix: z.string(),
-})
+export interface tocSettings {
+  format: tocFormat,
+  maxDepth: number,
+  minDepth: number,
+  includeLinks: boolean,
+  customPrefix: string,
+  indentStyle: indentStyle,
+  bulletStyle: bulletStyle,
+  caseStyle: caseStyle,
+  removeNumbers: boolean,
+  removeSpecialChars: boolean,
+  customAnchorPrefix: string,
+}
 
 /**
- * TOC Result schema
+ * TOC Result type
  */
-export const tocResultSchema = z.object({
-  toc: z.string(),
-  headings: z.array(headingSchema),
-  statistics: tocStatisticsSchema,
-  format: tocFormatSchema,
-  settings: tocSettingsSchema,
-})
+export interface tocResult {
+  toc: string,
+  headings: heading[],
+  statistics: tocStatistics,
+  format: tocFormat,
+  settings: tocSettings,
+}
 
 /**
- * Markdown File schema
+ * Markdown File type
  */
-export const markdownFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  tocResult: tocResultSchema.optional(),
-})
+export interface markdownFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  tocResult?: tocResult
+}
 
 /**
- * TOC Template schema
+ * TOC Template type
  */
-export const tocTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  settings: tocSettingsSchema.partial(),
-  example: z.string(),
-})
+export interface tocTemplate {
+  id: string,
+  name: string,
+  description: string,
+  settings: tocSettings,
+  example: string,
+}
 
 // ==================== Type Exports ====================
 
-export type TOCFormat = z.infer<typeof tocFormatSchema>
-export type IndentStyle = z.infer<typeof indentStyleSchema>
-export type BulletStyle = z.infer<typeof bulletStyleSchema>
-export type CaseStyle = z.infer<typeof caseStyleSchema>
-export type Heading = z.infer<typeof headingSchema>
-export type TOCStatistics = z.infer<typeof tocStatisticsSchema>
-export type TOCSettings = z.infer<typeof tocSettingsSchema>
-export type TOCResult = z.infer<typeof tocResultSchema>
-export type MarkdownFile = z.infer<typeof markdownFileSchema>
-export type TOCTemplate = z.infer<typeof tocTemplateSchema>
+export type TOCFormat = tocFormat
+export type IndentStyle = indentStyle
+export type BulletStyle = bulletStyle
+export type CaseStyle = caseStyle
+export type Heading = heading
+export type TOCStatistics = tocStatistics
+export type TOCSettings = tocSettings
+export type TOCResult = tocResult
+export type MarkdownFile = markdownFile
+export type TOCTemplate = tocTemplate
+export type TocFormat = tocFormat
+export type TocStatistics = tocStatistics
+export type TocSettings = tocSettings
+export type TocResult = tocResult
+export type TocTemplate = tocTemplate

@@ -1,129 +1,131 @@
-import { z } from "zod"
-
-// ==================== Text to PDF Schemas ====================
+// ==================== Text to PDF Types ====================
 
 /**
- * Page Size schema
+ * Page Size type
  */
-export const pageSizeSchema = z.enum(["A4", "A3", "A5", "Letter", "Legal", "Tabloid"])
+export type pageSize = "A4" | "A3" | "A5" | "Letter" | "Legal" | "Tabloid"
 
 /**
- * Font Family schema
+ * Font Family type
  */
-export const fontFamilySchema = z.enum(["Arial", "Times", "Courier", "Helvetica", "Georgia", "Verdana"])
+export type fontFamily = "Arial" | "Times" | "Courier" | "Helvetica" | "Georgia" | "Verdana"
 
 /**
- * Text Align schema
+ * Text Align type
  */
-export const textAlignSchema = z.enum(["left", "center", "right", "justify"])
+export type textAlign = "left" | "center" | "right" | "justify"
 
 /**
- * PDF Settings schema
+ * PDF Settings type
  */
-export const pdfSettingsSchema = z.object({
-  pageSize: pageSizeSchema,
-  orientation: z.enum(["portrait", "landscape"]),
-  margins: z.object({
-    top: z.number(),
-    right: z.number(),
-    bottom: z.number(),
-    left: z.number(),
-  }),
-  font: z.object({
-    family: fontFamilySchema,
-    size: z.number(),
-    lineHeight: z.number(),
-  }),
-  styling: z.object({
-    textAlign: textAlignSchema,
-    textColor: z.string(),
-    backgroundColor: z.string(),
-    enableSyntaxHighlighting: z.boolean(),
-  }),
-  header: z.object({
-    enabled: z.boolean(),
-    text: z.string(),
-    fontSize: z.number(),
-    alignment: textAlignSchema,
-  }),
-  footer: z.object({
-    enabled: z.boolean(),
-    text: z.string(),
-    fontSize: z.number(),
-    alignment: textAlignSchema,
-    showPageNumbers: z.boolean(),
-  }),
-  tableOfContents: z.object({
-    enabled: z.boolean(),
-    title: z.string(),
-    maxDepth: z.number(),
-  }),
-  metadata: z.object({
-    title: z.string(),
-    author: z.string(),
-    subject: z.string(),
-    keywords: z.string(),
-  }),
-})
+export interface pdfSettings {
+  pageSize: pageSize,
+  orientation: "portrait"| "landscape",
+  margins: {
+    top: number,
+    right: number,
+    bottom: number,
+    left: number,
+  },
+  font: {
+    family: fontFamily,
+    size: number,
+    lineHeight: number,
+  },
+  styling: {
+    textAlign: textAlign,
+    textColor: string,
+    backgroundColor: string,
+    enableSyntaxHighlighting: boolean,
+  },
+  header: {
+    enabled: boolean,
+    text: string,
+    fontSize: number,
+    alignment: textAlign,
+  },
+  footer: {
+    enabled: boolean,
+    text: string,
+    fontSize: number,
+    alignment: textAlign,
+    showPageNumbers: boolean,
+  },
+  tableOfContents: {
+    enabled: boolean,
+    title: string,
+    maxDepth: number,
+  },
+  metadata: {
+    title: string,
+    author: string,
+    subject: string,
+    keywords: string,
+  }
+}
 
 /**
- * PDF Result schema
+ * PDF Result type
  */
-export const pdfResultSchema = z.object({
-  blob: z.instanceof(Blob),
-  url: z.string(),
-  filename: z.string(),
-  size: z.number(),
-  pageCount: z.number(),
-  generationTime: z.number(),
-  settings: pdfSettingsSchema,
-})
+export interface pdfResult {
+  blob: Blob,
+  url: string,
+  filename: string,
+  size: number,
+  pageCount: number,
+  generationTime: number,
+  settings: pdfSettings,
+}
 
 /**
- * Text File schema
+ * Text File type
  */
-export const textFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  pdfResult: pdfResultSchema.optional(),
-})
+export interface textFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  pdfResult?: pdfResult
+}
 
 /**
- * PDF Statistics schema
+ * PDF Statistics type
  */
-export const pdfStatisticsSchema = z.object({
-  totalFiles: z.number(),
-  totalPages: z.number(),
-  totalSize: z.number(),
-  averageGenerationTime: z.number(),
-  successfulConversions: z.number(),
-  failedConversions: z.number(),
-})
+export interface pdfStatistics {
+  totalFiles: number,
+  totalPages: number,
+  totalSize: number,
+  averageGenerationTime: number,
+  successfulConversions: number,
+  failedConversions: number,
+}
 
 /**
- * PDF Template schema
+ * PDF Template type
  */
-export const pdfTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  settings: pdfSettingsSchema.partial(),
-  preview: z.string(),
-})
+export interface pdfTemplate {
+  id: string,
+  name: string,
+  description: string,
+  settings: Partial<pdfSettings>,
+  preview: string,
+}
 
 // ==================== Type Exports ====================
 
-export type PageSize = z.infer<typeof pageSizeSchema>
-export type FontFamily = z.infer<typeof fontFamilySchema>
-export type TextAlign = z.infer<typeof textAlignSchema>
-export type PDFSettings = z.infer<typeof pdfSettingsSchema>
-export type PDFResult = z.infer<typeof pdfResultSchema>
-export type TextFile = z.infer<typeof textFileSchema>
-export type PDFStatistics = z.infer<typeof pdfStatisticsSchema>
-export type PDFTemplate = z.infer<typeof pdfTemplateSchema>
+export type PageSize = pageSize
+export type FontFamily = fontFamily
+export type TextAlign = textAlign
+export type PDFSettings = pdfSettings
+export type PDFResult = pdfResult
+export type TextFile = textFile
+export type PDFStatistics = pdfStatistics
+export type PDFTemplate = pdfTemplate
+export type PdfSettings = pdfSettings
+export type PdfResult = pdfResult
+export type PdfStatistics = pdfStatistics
+export type PdfTemplate = pdfTemplate

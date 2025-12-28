@@ -1,132 +1,123 @@
-import { z } from "zod"
-
-// ==================== Prime Checker Schemas ====================
+// ==================== Prime Checker Types ====================
 
 /**
- * Prime Algorithm schema
+ * Prime Algorithm type
  */
-export const primeAlgorithmSchema = z.enum([
-  "trial_division",
-  "sieve_of_eratosthenes",
-  "miller_rabin",
-  "fermat",
-  "solovay_strassen",
-  "aks",
-])
+export type primeAlgorithm = "trial_division" | "sieve_of_eratosthenes" | "miller_rabin" | "fermat" | "solovay_strassen" | "aks"
 
 /**
- * Generation Algorithm schema
+ * Generation Algorithm type
  */
-export const generationAlgorithmSchema = z.enum(["sieve", "incremental", "wheel", "segmented_sieve"])
+export type generationAlgorithm = "sieve" | "incremental" | "wheel" | "segmented_sieve"
 
 /**
- * Number Type schema
+ * Number Type type
  */
-export const numberTypeSchema = z.enum(["small", "medium", "large", "very_large"])
+export type numberType = "small" | "medium" | "large" | "very_large"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml", "yaml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml" | "yaml"
 
 /**
- * Prime Factor schema
+ * Prime Factor type
  */
-export const primeFactorSchema = z.object({
-  prime: z.number(),
-  exponent: z.number(),
-})
+export interface primeFactor {
+  prime: number,
+  exponent: number,
+}
 
 /**
- * Mathematical Property schema
+ * Mathematical Property type
  */
-export const mathematicalPropertySchema = z.object({
-  name: z.string(),
-  value: z.union([z.boolean(), z.number(), z.string()]),
-  description: z.string(),
-})
+export interface mathematicalProperty {
+  name: string,
+  value: boolean | number | string,
+  description: string,
+}
 
 /**
- * Related Prime schema
+ * Related Prime type
  */
-export const relatedPrimeSchema = z.object({
-  type: z.enum(["twin", "cousin", "sexy", "safe", "sophie_germain", "mersenne", "fermat"]),
-  prime: z.number(),
-  relationship: z.string(),
-})
+export interface relatedPrime {
+  type: "twin"| "cousin" | "sexy" | "safe" | "sophie_germain" | "mersenne" | "fermat",
+  prime: number,
+  relationship: string,
+}
 
 /**
- * Prime Metadata schema
+ * Prime Metadata type
  */
-export const primeMetadataSchema = z.object({
-  testTime: z.number(),
-  complexity: z.number(),
-  digitCount: z.number(),
-  numberType: numberTypeSchema,
-  mathematicalProperties: z.array(mathematicalPropertySchema),
-  relatedPrimes: z.array(relatedPrimeSchema),
-  primeGaps: z.array(z.number()),
-})
+export interface primeMetadata {
+  testTime: number,
+  complexity: number,
+  digitCount: number,
+  numberType: numberType,
+  mathematicalProperties: mathematicalProperty[],
+  relatedPrimes: relatedPrime[],
+  primeGaps: number[],
+}
 
 /**
- * Prime Analysis schema
+ * Prime Analysis type
  */
-export const primeAnalysisSchema = z.object({
-  id: z.string(),
-  number: z.number(),
-  isPrime: z.boolean(),
-  algorithm: primeAlgorithmSchema,
-  factors: z.array(z.number()),
-  primeFactorization: z.array(primeFactorSchema),
-  metadata: primeMetadataSchema,
-  timestamp: z.date(),
-})
+export interface primeAnalysis {
+  id: string,
+  number: number,
+  isPrime: boolean,
+  algorithm: primeAlgorithm,
+  factors: number[],
+  primeFactorization: primeFactor[],
+  metadata: primeMetadata,
+  timestamp: Date,
+}
 
 /**
- * Prime Error schema
+ * Prime Error type
  */
-export const primeErrorSchema = z.object({
-  message: z.string(),
-  type: z.enum(["input", "range", "performance", "algorithm"]),
-  severity: z.enum(["error", "warning", "info"]),
-})
+export interface primeError {
+  message: string,
+  type: "input"| "range" | "performance" | "algorithm",
+  severity: "error"| "warning" | "info",
+}
 
 /**
- * Prime Validation schema
+ * Prime Validation type
  */
-export const primeValidationSchema = z.object({
-  isValid: z.boolean(),
-  errors: z.array(primeErrorSchema),
-  warnings: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  qualityScore: z.number(),
-})
+export interface primeValidation {
+  isValid: boolean,
+  errors: primeError[],
+  warnings: string[],
+  suggestions: string[],
+  qualityScore: number,
+}
 
 /**
- * Prime Template schema
+ * Prime Template type
  */
-export const primeTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  numbers: z.array(z.number()),
-  expectedResults: z.array(z.boolean()),
-  useCase: z.array(z.string()),
-  difficulty: z.enum(["simple", "medium", "complex"]),
-})
+export interface primeTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  numbers: number[],
+  expectedResults: boolean[],
+  useCase: string[],
+  difficulty: "simple"| "medium" | "complex",
+}
 
 // ==================== Type Exports ====================
 
-export type PrimeAlgorithm = z.infer<typeof primeAlgorithmSchema>
-export type GenerationAlgorithm = z.infer<typeof generationAlgorithmSchema>
-export type NumberType = z.infer<typeof numberTypeSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type PrimeFactor = z.infer<typeof primeFactorSchema>
-export type MathematicalProperty = z.infer<typeof mathematicalPropertySchema>
-export type RelatedPrime = z.infer<typeof relatedPrimeSchema>
-export type PrimeMetadata = z.infer<typeof primeMetadataSchema>
-export type PrimeAnalysis = z.infer<typeof primeAnalysisSchema>
-export type PrimeError = z.infer<typeof primeErrorSchema>
-export type PrimeValidation = z.infer<typeof primeValidationSchema>
-export type PrimeTemplate = z.infer<typeof primeTemplateSchema>
+export type PrimeAlgorithm = primeAlgorithm
+export type GenerationAlgorithm = generationAlgorithm
+export type NumberType = numberType
+export type ExportFormat = exportFormat
+export type PrimeFactor = primeFactor
+export type MathematicalProperty = mathematicalProperty
+export type RelatedPrime = relatedPrime
+export type PrimeMetadata = primeMetadata
+export type PrimeAnalysis = primeAnalysis
+export type PrimeError = primeError
+export type PrimeValidation = primeValidation
+export type PrimeTemplate = primeTemplate

@@ -1,127 +1,113 @@
-import { z } from "zod"
-
-// ==================== Base64 Encode Schemas ====================
+// ==================== Base64 Encode Types ====================
 
 /**
- * Encoding Operation schema
+ * Encoding Operation type
  */
-export const encodingOperationSchema = z.enum(["encode", "decode"])
+export type encodingOperation = "encode" | "decode"
 
 /**
- * Encoding Format schema
+ * Encoding Format type
  */
-export const encodingFormatSchema = z.enum([
-  "text",
-  "base64",
-  "url",
-  "hex",
-  "binary",
-])
+export type encodingFormat = "text" | "base64" | "url" | "hex" | "binary"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["txt", "json", "csv"])
+export type exportFormat = "txt" | "json" | "csv"
 
 /**
- * Encoding Metadata schema
+ * Encoding Metadata type
  */
-export const encodingMetadataSchema = z.object({
-  inputSize: z.number(),
-  outputSize: z.number(),
-  compressionRatio: z.number(),
-  processingTime: z.number(),
-  isValid: z.boolean(),
-  encoding: z.string(),
-})
+export interface encodingMetadata {
+  inputSize: number,
+  outputSize: number,
+  compressionRatio: number,
+  processingTime: number,
+  isValid: boolean,
+  encoding: string,
+}
 
 /**
- * Encoding Result schema
+ * Encoding Result type
  */
-export const encodingResultSchema = z.object({
-  id: z.string(),
-  operation: encodingOperationSchema,
-  input: z.string(),
-  output: z.string(),
-  inputFormat: encodingFormatSchema,
-  outputFormat: encodingFormatSchema,
-  metadata: encodingMetadataSchema,
-})
+export interface encodingResult {
+  id: string,
+  operation: encodingOperation,
+  input: string,
+  output: string,
+  inputFormat: encodingFormat,
+  outputFormat: encodingFormat,
+  metadata: encodingMetadata,
+}
 
 /**
- * Encoding Statistics schema
+ * Encoding Statistics type
  */
-export const encodingStatisticsSchema = z.object({
-  totalEncodings: z.number(),
-  operationDistribution: z.record(encodingOperationSchema, z.number()),
-  averageCompressionRatio: z.number(),
-  averageProcessingTime: z.number(),
-  successRate: z.number(),
-  processingTime: z.number(),
-})
+export interface encodingStatistics {
+  totalEncodings: number,
+  operationDistribution: Record<string, number>,
+  averageCompressionRatio: number,
+  averageProcessingTime: number,
+  successRate: number,
+  processingTime: number,
+}
 
 /**
- * Encoding Settings schema
+ * Encoding Settings type
  */
-export const encodingSettingsSchema = z.object({
-  defaultOperation: encodingOperationSchema,
-  defaultFormat: encodingFormatSchema,
-  includeMetadata: z.boolean(),
-  optimizeOutput: z.boolean(),
-  exportFormat: exportFormatSchema,
-  chunkSize: z.number(),
-})
+export interface encodingSettings {
+  defaultOperation: encodingOperation,
+  defaultFormat: encodingFormat,
+  includeMetadata: boolean,
+  optimizeOutput: boolean,
+  exportFormat: exportFormat,
+  chunkSize: number,
+}
 
 /**
- * Base64 File schema
+ * Base64 File type
  */
-export const base64FileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  encodingData: z
-    .object({
-      encodings: z.array(encodingResultSchema),
-      statistics: encodingStatisticsSchema,
-      settings: encodingSettingsSchema,
-    })
-    .optional(),
-})
+export interface base64File {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending" | "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  encodingData?: encodingMetadata,
+  encodings?: encodingResult[],
+  statistics?: encodingStatistics,
+  settings?: encodingSettings,
+}
 
 /**
- * Encoding Template schema
+ * Encoding Template type
  */
-export const encodingTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  operation: encodingOperationSchema,
-  inputFormat: encodingFormatSchema,
-  outputFormat: encodingFormatSchema,
-  example: z.string(),
-})
+export interface encodingTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  operation: encodingOperation,
+  inputFormat: encodingFormat,
+  outputFormat: encodingFormat,
+  example: string,
+}
 
 // ==================== Type Exports ====================
 
 /**
- * Type inference from zod schemas
+ * Type definitions
  */
-export type EncodingOperation = z.infer<typeof encodingOperationSchema>
-export type EncodingFormat = z.infer<typeof encodingFormatSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type EncodingMetadata = z.infer<typeof encodingMetadataSchema>
-export type EncodingResult = z.infer<typeof encodingResultSchema>
-export type EncodingStatistics = z.infer<typeof encodingStatisticsSchema>
-export type EncodingSettings = z.infer<typeof encodingSettingsSchema>
-export type Base64File = z.infer<typeof base64FileSchema>
-export type EncodingData = z.infer<
-  typeof base64FileSchema.shape.encodingData
->
-export type EncodingTemplate = z.infer<typeof encodingTemplateSchema>
-
+export type EncodingOperation = encodingOperation
+export type EncodingFormat = encodingFormat
+export type ExportFormat = exportFormat
+export type EncodingMetadata = encodingMetadata
+export type EncodingResult = encodingResult
+export type EncodingStatistics = encodingStatistics
+export type EncodingSettings = encodingSettings
+export type Base64File = base64File
+export type EncodingData = encodingMetadata
+export type EncodingTemplate = encodingTemplate

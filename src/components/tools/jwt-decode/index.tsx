@@ -116,6 +116,7 @@ const parseJWT = (token: string): JWTToken => {
       signature: "",
       isValid: false,
       isExpired: false,
+      timeToExpiry: undefined,
       algorithm: "unknown",
       analysis: {
         structure: {
@@ -781,19 +782,24 @@ const useJWTDecoder = () => {
         id: nanoid(),
         name: batchSettings.namingPattern || "JWT Batch",
         tokens: [],
+        count: tokenStrings.length,
         settings: batchSettings,
         status: "processing",
         progress: 0,
         statistics: {
+          totalProcessed: 0,
           totalTokens: 0,
+          validCount: 0,
           validTokens: 0,
-          expiredTokens: 0,
+          invalidCount: 0,
           invalidTokens: 0,
+          expiredCount: 0,
+          expiredTokens: 0,
           averageSecurityScore: 0,
           averageComplianceScore: 0,
           algorithmDistribution: {},
           issuerDistribution: {},
-          totalProcessingTime: 0,
+          processingTime: 0,
           averageProcessingTime: 0,
         },
         createdAt: new Date(),
@@ -838,15 +844,19 @@ const useJWTDecoder = () => {
       })
 
       const statistics: BatchStatistics = {
+        totalProcessed: batchTokens.length,
         totalTokens: batchTokens.length,
+        validCount: validTokens.length,
         validTokens: validTokens.length,
-        expiredTokens: expiredTokens.length,
+        invalidCount: invalidTokens.length,
         invalidTokens: invalidTokens.length,
+        expiredCount: expiredTokens.length,
+        expiredTokens: expiredTokens.length,
         averageSecurityScore: batchTokens.length > 0 ? totalSecurityScore / batchTokens.length : 0,
         averageComplianceScore: batchTokens.length > 0 ? totalComplianceScore / batchTokens.length : 0,
         algorithmDistribution,
         issuerDistribution,
-        totalProcessingTime,
+        processingTime: totalProcessingTime,
         averageProcessingTime: totalProcessingTime / batchTokens.length,
       }
 
@@ -1783,7 +1793,7 @@ const JWTDecodeCore = () => {
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Features:</div>
-                            <div className="text-xs text-muted-foreground">{template.features.join(", ")}</div>
+                            <div className="text-xs text-muted-foreground">{template.features?.join(", ") || "N/A"}</div>
                           </div>
                           <div>
                             <div className="text-xs font-medium mb-1">Example Token:</div>

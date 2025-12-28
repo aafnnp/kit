@@ -1,177 +1,175 @@
-import { z } from "zod"
-
-// ==================== Performance Analyzer Schemas ====================
+// ==================== Performance Analyzer Types ====================
 
 /**
- * Metric Category schema
+ * Metric Category type
  */
-export const metricCategorySchema = z.enum(["timing", "memory", "network", "rendering", "custom"])
+export type metricCategory = "timing" | "memory" | "network" | "rendering" | "custom"
 
 /**
- * Test Status schema
+ * Test Status type
  */
-export const testStatusSchema = z.enum(["idle", "running", "completed", "error"])
+export type testStatus = "idle" | "running" | "completed" | "error"
 
 /**
- * Resource Type schema
+ * Resource Type type
  */
-export const resourceTypeSchema = z.enum(["script", "stylesheet", "image", "font", "fetch", "other"])
+export type resourceType = "script" | "stylesheet" | "image" | "font" | "fetch" | "other"
 
 /**
- * User Timing Type schema
+ * User Timing Type type
  */
-export const userTimingTypeSchema = z.enum(["mark", "measure"])
+export type userTimingType = "mark" | "measure"
 
 /**
- * Performance Metric schema
+ * Performance Metric type
  */
-export const performanceMetricSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  value: z.number(),
-  unit: z.string(),
-  category: metricCategorySchema,
-  timestamp: z.number(),
-  description: z.string().optional(),
-})
+export interface performanceMetric {
+  id: string,
+  name: string,
+  value: number,
+  unit: string,
+  category: metricCategory,
+  timestamp: number
+  description?: string,
+}
 
 /**
- * Performance Result schema
+ * Performance Result type
  */
-export const performanceResultSchema = z.object({
-  id: z.string(),
-  testId: z.string(),
-  runNumber: z.number(),
-  executionTime: z.number(),
-  memoryUsage: z.number().optional(),
-  cpuUsage: z.number().optional(),
-  metrics: z.array(performanceMetricSchema),
-  timestamp: z.number(),
-  error: z.string().optional(),
-})
+export interface performanceResult {
+  id: string,
+  testId: string,
+  runNumber: number,
+  executionTime: number
+  memoryUsage?: number,
+  cpuUsage?: number,
+  metrics: performanceMetric[],
+  timestamp: number
+  error?: string,
+}
 
 /**
- * Performance Test schema
+ * Performance Test type
  */
-export const performanceTestSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  code: z.string(),
-  iterations: z.number(),
-  warmupRuns: z.number(),
-  results: z.array(performanceResultSchema),
-  status: testStatusSchema,
-  createdAt: z.number(),
-  updatedAt: z.number(),
-})
+export interface performanceTest {
+  id: string,
+  name: string,
+  description: string,
+  code: string,
+  iterations: number,
+  warmupRuns: number,
+  results: performanceResult[],
+  status: testStatus,
+  createdAt: number,
+  updatedAt: number,
+}
 
 /**
- * Comparison Result schema
+ * Comparison Result type
  */
-export const comparisonResultSchema = z.object({
-  testId: z.string(),
-  testName: z.string(),
-  avgTime: z.number(),
-  minTime: z.number(),
-  maxTime: z.number(),
-  stdDev: z.number(),
-  opsPerSecond: z.number(),
-  relativePerformance: z.number(),
-})
+export interface comparisonResult {
+  testId: string,
+  testName: string,
+  avgTime: number,
+  minTime: number,
+  maxTime: number,
+  stdDev: number,
+  opsPerSecond: number,
+  relativePerformance: number,
+}
 
 /**
- * Performance Comparison schema
+ * Performance Comparison type
  */
-export const performanceComparisonSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  tests: z.array(performanceTestSchema),
-  results: z.array(comparisonResultSchema),
-  createdAt: z.number(),
-})
+export interface performanceComparison {
+  id: string,
+  name: string,
+  tests: performanceTest[],
+  results: comparisonResult[],
+  createdAt: number,
+}
 
 /**
- * Performance Metrics schema
+ * Performance Metrics type
  */
-export const performanceMetricsSchema = z.object({
-  fcp: z.number(),
-  lcp: z.number(),
-  fid: z.number(),
-  cls: z.number(),
-  ttfb: z.number(),
-  domContentLoaded: z.number(),
-  loadComplete: z.number(),
-})
+export interface performanceMetrics {
+  fcp: number,
+  lcp: number,
+  fid: number,
+  cls: number,
+  ttfb: number,
+  domContentLoaded: number,
+  loadComplete: number,
+}
 
 /**
- * Resource Timing schema
+ * Resource Timing type
  */
-export const resourceTimingSchema = z.object({
-  name: z.string(),
-  type: resourceTypeSchema,
-  startTime: z.number(),
-  duration: z.number(),
-  size: z.number(),
-  transferSize: z.number(),
-  encodedBodySize: z.number(),
-  decodedBodySize: z.number(),
-})
+export interface resourceTiming {
+  name: string,
+  type: resourceType,
+  startTime: number,
+  duration: number,
+  size: number,
+  transferSize: number,
+  encodedBodySize: number,
+  decodedBodySize: number,
+}
 
 /**
- * User Timing schema
+ * User Timing type
  */
-export const userTimingSchema = z.object({
-  name: z.string(),
-  type: userTimingTypeSchema,
-  startTime: z.number(),
-  duration: z.number().optional(),
-})
+export interface userTiming {
+  name: string,
+  type: userTimingType,
+  startTime: number
+  duration?: number,
+}
 
 /**
- * Performance Profile schema
+ * Performance Profile type
  */
-export const performanceProfileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  url: z.string().optional(),
-  startTime: z.number(),
-  endTime: z.number(),
-  duration: z.number(),
-  metrics: performanceMetricsSchema,
-  resources: z.array(resourceTimingSchema),
-  userTiming: z.array(userTimingSchema),
-})
+export interface performanceProfile {
+  id: string,
+  name: string
+  url?: string,
+  startTime: number,
+  endTime: number,
+  duration: number,
+  metrics: performanceMetrics,
+  resources: resourceTiming[],
+  userTiming: userTiming[],
+}
 
 /**
- * Performance Analyzer State schema
+ * Performance Analyzer State type
  */
-export const performanceAnalyzerStateSchema = z.object({
-  tests: z.array(performanceTestSchema),
-  activeTest: performanceTestSchema.optional(),
-  comparisons: z.array(performanceComparisonSchema),
-  profiles: z.array(performanceProfileSchema),
-  isRunning: z.boolean(),
-  currentProgress: z.number(),
-  error: z.string().optional(),
-})
+export interface performanceAnalyzerState {
+  tests: performanceTest[]
+  activeTest?: performanceTest,
+  comparisons: performanceComparison[],
+  profiles: performanceProfile[],
+  isRunning: boolean,
+  currentProgress: number
+  error?: string,
+}
 
 // ==================== Type Exports ====================
 
-export type MetricCategory = z.infer<typeof metricCategorySchema>
-export type TestStatus = z.infer<typeof testStatusSchema>
-export type ResourceType = z.infer<typeof resourceTypeSchema>
-export type UserTimingType = z.infer<typeof userTimingTypeSchema>
-export type PerformanceMetric = z.infer<typeof performanceMetricSchema>
-export type PerformanceResult = z.infer<typeof performanceResultSchema>
-export type PerformanceTest = z.infer<typeof performanceTestSchema>
-export type ComparisonResult = z.infer<typeof comparisonResultSchema>
-export type PerformanceComparison = z.infer<typeof performanceComparisonSchema>
-export type PerformanceMetrics = z.infer<typeof performanceMetricsSchema>
-export type ResourceTiming = z.infer<typeof resourceTimingSchema>
-export type UserTiming = z.infer<typeof userTimingSchema>
-export type PerformanceProfile = z.infer<typeof performanceProfileSchema>
-export type PerformanceAnalyzerState = z.infer<typeof performanceAnalyzerStateSchema>
+export type MetricCategory = metricCategory
+export type TestStatus = testStatus
+export type ResourceType = resourceType
+export type UserTimingType = userTimingType
+export type PerformanceMetric = performanceMetric
+export type PerformanceResult = performanceResult
+export type PerformanceTest = performanceTest
+export type ComparisonResult = comparisonResult
+export type PerformanceComparison = performanceComparison
+export type PerformanceMetrics = performanceMetrics
+export type ResourceTiming = resourceTiming
+export type UserTiming = userTiming
+export type PerformanceProfile = performanceProfile
+export type PerformanceAnalyzerState = performanceAnalyzerState
 
 // ==================== Constants and Utility Functions ====================
 

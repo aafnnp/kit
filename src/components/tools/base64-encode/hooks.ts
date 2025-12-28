@@ -477,8 +477,8 @@ export const useEncodingExport = () => {
       }
 
       completedFiles.forEach((file) => {
-        if (file.encodingData) {
-          file.encodingData.encodings.forEach((result, index) => {
+        if (file.encodings) {
+          file.encodings.forEach((result, index) => {
             const baseName = file.name.replace(/\.[^/.]+$/, "")
             exportResult(result, "txt", `${baseName}-encoded-${index + 1}.txt`)
           })
@@ -492,15 +492,15 @@ export const useEncodingExport = () => {
 
   const exportStatistics = useCallback((files: Base64File[]) => {
     const stats = files
-      .filter((f) => f.encodingData)
+      .filter((f) => f.statistics)
       .map((file) => ({
         filename: file.name,
         originalSize: formatFileSize(file.size),
-        totalEncodings: file.encodingData!.statistics.totalEncodings,
-        averageCompressionRatio: file.encodingData!.statistics.averageCompressionRatio.toFixed(2),
-        averageProcessingTime: `${file.encodingData!.statistics.averageProcessingTime.toFixed(2)}ms`,
-        successRate: `${file.encodingData!.statistics.successRate.toFixed(1)}%`,
-        processingTime: `${file.encodingData!.statistics.processingTime.toFixed(2)}ms`,
+        totalEncodings: file.statistics!.totalEncodings,
+        averageCompressionRatio: file.statistics!.averageCompressionRatio.toFixed(2),
+        averageProcessingTime: `${file.statistics!.averageProcessingTime.toFixed(2)}ms`,
+        successRate: `${file.statistics!.successRate.toFixed(1)}%`,
+        processingTime: `${file.statistics!.processingTime.toFixed(2)}ms`,
         status: file.status,
       }))
 

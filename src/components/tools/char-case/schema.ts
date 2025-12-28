@@ -1,89 +1,76 @@
-import { z } from "zod"
+import type React from "react"
 
-// ==================== Char Case Schemas ====================
-
-/**
- * Case Type schema
- */
-export const caseTypeSchema = z.enum([
-  "uppercase",
-  "lowercase",
-  "titlecase",
-  "sentencecase",
-  "camelcase",
-  "pascalcase",
-  "snakecase",
-  "kebabcase",
-  "constantcase",
-  "dotcase",
-  "pathcase",
-  "togglecase",
-])
+// ==================== Char Case Types ====================
 
 /**
- * Conversion Result schema
+ * Case Type type
  */
-export const conversionResultSchema = z.object({
-  type: caseTypeSchema,
-  content: z.string(),
-  preview: z.string(),
-})
+export type caseType = "uppercase" | "lowercase" | "titlecase" | "sentencecase" | "camelcase" | "pascalcase" | "snakecase" | "kebabcase" | "constantcase" | "dotcase" | "pathcase" | "togglecase"
 
 /**
- * Text File schema
+ * Conversion Result type
  */
-export const textFileSchema = z.object({
-  id: z.string(),
-  file: z.instanceof(File),
-  originalContent: z.string(),
-  convertedContent: z.string(),
-  name: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  conversions: z.array(conversionResultSchema).optional(),
-})
+export interface conversionResult {
+  type: caseType,
+  content: string,
+  preview: string,
+}
 
 /**
- * Conversion Settings schema
+ * Text File type
  */
-export const conversionSettingsSchema = z.object({
-  preserveFormatting: z.boolean(),
-  handleSpecialChars: z.boolean(),
-  customDelimiter: z.string(),
-  batchMode: z.boolean(),
-  previewLength: z.number(),
-})
+export interface textFile {
+  id: string,
+  file: File,
+  originalContent: string,
+  convertedContent: string,
+  name: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  conversions?: conversionResult[]
+}
 
 /**
- * Conversion Stats schema
+ * Conversion Settings type
  */
-export const conversionStatsSchema = z.object({
-  totalFiles: z.number(),
-  totalCharacters: z.number(),
-  totalWords: z.number(),
-  totalConversions: z.number(),
-  averageFileSize: z.number(),
-  processingTime: z.number(),
-})
+export interface conversionSettings {
+  preserveFormatting: boolean,
+  handleSpecialChars: boolean,
+  customDelimiter: string,
+  batchMode: boolean,
+  previewLength: number,
+}
 
 /**
- * Case Option schema
+ * Conversion Stats type
  */
-export const caseOptionSchema = z.object({
-  value: caseTypeSchema,
-  name: z.string(),
-  description: z.string(),
-  example: z.string(),
-  icon: z.custom<React.ReactNode>(),
-})
+export interface conversionStats {
+  totalFiles: number,
+  totalCharacters: number,
+  totalWords: number,
+  totalConversions: number,
+  averageFileSize: number,
+  processingTime: number,
+}
+
+/**
+ * Case Option type
+ */
+export interface caseOption {
+  value: caseType,
+  name: string,
+  description: string,
+  example: string,
+  icon: React.ReactNode,
+}
 
 // ==================== Type Exports ====================
 
-export type CaseType = z.infer<typeof caseTypeSchema>
-export type ConversionResult = z.infer<typeof conversionResultSchema>
-export type TextFile = z.infer<typeof textFileSchema>
-export type ConversionSettings = z.infer<typeof conversionSettingsSchema>
-export type ConversionStats = z.infer<typeof conversionStatsSchema>
-export type CaseOption = z.infer<typeof caseOptionSchema>
+export type CaseType = caseType
+export type ConversionResult = conversionResult
+export type TextFile = textFile
+export type ConversionSettings = conversionSettings
+export type ConversionStats = conversionStats
+export type CaseOption = caseOption

@@ -1,14 +1,22 @@
-import { z } from "zod"
-import { toolSchema } from "@/schemas/tool.schema"
+import type { Tool } from "@/schemas/tool.schema"
 
-const toolMetaSchema = toolSchema.extend({
-  category: z.string().min(1, "Category is required"),
-})
+/**
+ * Tool Meta type
+ * 扩展 Tool 类型，添加 category 字段
+ */
+export interface ToolMeta extends Tool {
+  category: string
+}
 
-export type ToolMeta = z.infer<typeof toolMetaSchema>
-
-export const defineToolMeta = (meta: ToolMeta): ToolMeta => toolMetaSchema.parse(meta)
-
-export { toolMetaSchema }
+/**
+ * 定义工具元数据
+ * 简单的类型断言，不再进行运行时验证
+ */
+export const defineToolMeta = (meta: ToolMeta): ToolMeta => {
+  if (!meta.category || meta.category.trim().length === 0) {
+    throw new Error("Category is required")
+  }
+  return meta
+}
 
 

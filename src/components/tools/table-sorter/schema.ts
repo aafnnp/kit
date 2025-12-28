@@ -1,110 +1,108 @@
-import { z } from "zod"
-
-// ==================== Table Sorter Schemas ====================
+// ==================== Table Sorter Types ====================
 
 /**
- * Data Type schema
+ * Data Type type
  */
-export const dataTypeSchema = z.enum(["string", "number", "date", "boolean", "mixed"])
+export type dataType = "string" | "number" | "date" | "boolean" | "mixed"
 
 /**
- * Sort Direction schema
+ * Sort Direction type
  */
-export const sortDirectionSchema = z.enum(["asc", "desc"])
+export type sortDirection = "asc" | "desc"
 
 /**
- * Data Format schema
+ * Data Format type
  */
-export const dataFormatSchema = z.enum(["csv", "tsv", "json", "auto"])
+export type dataFormat = "csv" | "tsv" | "json" | "auto"
 
 /**
- * Table Data Metadata schema
+ * Table Data Metadata type
  */
-export const tableDataMetadataSchema = z.object({
-  rowCount: z.number(),
-  columnCount: z.number(),
-  dataTypes: z.array(dataTypeSchema),
-  hasHeaders: z.boolean(),
-})
+export interface tableDataMetadata {
+  rowCount: number,
+  columnCount: number,
+  dataTypes: dataType[],
+  hasHeaders: boolean,
+}
 
 /**
- * Table Data schema
+ * Table Data type
  */
-export const tableDataSchema = z.object({
-  headers: z.array(z.string()),
-  rows: z.array(z.array(z.union([z.string(), z.number()]))),
-  metadata: tableDataMetadataSchema,
-})
+export interface tableData {
+  headers: string[],
+  rows: (string | number)[][],
+  metadata: tableDataMetadata,
+}
 
 /**
- * Sort Config schema
+ * Sort Config type
  */
-export const sortConfigSchema = z.object({
-  column: z.number(),
-  direction: sortDirectionSchema,
-  dataType: dataTypeSchema,
-})
+export interface sortConfig {
+  column: number,
+  direction: sortDirection,
+  dataType: dataType,
+}
 
 /**
- * Sort Settings schema
+ * Sort Settings type
  */
-export const sortSettingsSchema = z.object({
-  multiColumn: z.boolean(),
-  sortConfigs: z.array(sortConfigSchema),
-  caseSensitive: z.boolean(),
-  nullsFirst: z.boolean(),
-  customOrder: z.array(z.string()).optional(),
-})
+export interface sortSettings {
+  multiColumn: boolean,
+  sortConfigs: sortConfig[],
+  caseSensitive: boolean,
+  nullsFirst: boolean
+  customOrder?: string[]
+}
 
 /**
- * Data File schema
+ * Data File type
  */
-export const dataFileSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  size: z.number(),
-  type: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  parsedData: tableDataSchema.optional(),
-  sortedData: tableDataSchema.optional(),
-})
+export interface dataFile {
+  id: string,
+  name: string,
+  content: string,
+  size: number,
+  type: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  parsedData?: tableData
+  sortedData?: tableData
+}
 
 /**
- * Table Statistics schema
+ * Table Statistics type
  */
-export const tableStatisticsSchema = z.object({
-  totalFiles: z.number(),
-  totalRows: z.number(),
-  totalColumns: z.number(),
-  averageProcessingTime: z.number(),
-  successfulSorts: z.number(),
-  failedSorts: z.number(),
-  dataTypeDistribution: z.record(dataTypeSchema, z.number()),
-})
+export interface tableStatistics {
+  totalFiles: number,
+  totalRows: number,
+  totalColumns: number,
+  averageProcessingTime: number,
+  successfulSorts: number,
+  failedSorts: number,
+  dataTypeDistribution: Record<string, number>,
+}
 
 /**
- * Sort Preset schema
+ * Sort Preset type
  */
-export const sortPresetSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  settings: sortSettingsSchema.partial(),
-  example: z.string(),
-})
+export interface sortPreset {
+  id: string,
+  name: string,
+  description: string,
+  settings: sortSettings,
+  example: string,
+}
 
 // ==================== Type Exports ====================
 
-export type DataType = z.infer<typeof dataTypeSchema>
-export type SortDirection = z.infer<typeof sortDirectionSchema>
-export type DataFormat = z.infer<typeof dataFormatSchema>
-export type TableDataMetadata = z.infer<typeof tableDataMetadataSchema>
-export type TableData = z.infer<typeof tableDataSchema>
-export type SortConfig = z.infer<typeof sortConfigSchema>
-export type SortSettings = z.infer<typeof sortSettingsSchema>
-export type DataFile = z.infer<typeof dataFileSchema>
-export type TableStatistics = z.infer<typeof tableStatisticsSchema>
-export type SortPreset = z.infer<typeof sortPresetSchema>
+export type DataType = dataType
+export type SortDirection = sortDirection
+export type DataFormat = dataFormat
+export type TableDataMetadata = tableDataMetadata
+export type TableData = tableData
+export type SortConfig = sortConfig
+export type SortSettings = sortSettings
+export type DataFile = dataFile
+export type TableStatistics = tableStatistics
+export type SortPreset = sortPreset

@@ -1,130 +1,128 @@
-import { z } from "zod"
-
-// ==================== Unix Timestamp Schemas ====================
+// ==================== Unix Timestamp Types ====================
 
 /**
- * Timestamp Format schema
+ * Timestamp Format type
  */
-export const timestampFormatSchema = z.enum(["unix", "unix-ms", "iso8601", "rfc2822", "local", "utc", "custom"])
+export type timestampFormat = "unix" | "unix-ms" | "iso8601" | "rfc2822" | "local" | "utc" | "custom"
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml"
 
 /**
- * Timestamp Output schema
+ * Timestamp Output type
  */
-export const timestampOutputSchema = z.object({
-  format: timestampFormatSchema,
-  value: z.string(),
-  timezone: z.string(),
-  isValid: z.boolean(),
-  relativeTime: z.string().optional(),
-})
+export interface timestampOutput {
+  format: timestampFormat,
+  value: string,
+  timezone: string,
+  isValid: boolean
+  relativeTime?: string
+}
 
 /**
- * Timestamp Item schema
+ * Timestamp Item type
  */
-export const timestampItemSchema = z.object({
-  id: z.string(),
-  input: z.string(),
-  inputType: timestampFormatSchema,
-  outputs: z.array(timestampOutputSchema),
-  timezone: z.string(),
-  status: z.enum(["pending", "processing", "completed", "error"]),
-  error: z.string().optional(),
-  processedAt: z.date().optional(),
-  isValid: z.boolean(),
-})
+export interface timestampItem {
+  id: string,
+  input: string,
+  inputType: timestampFormat,
+  outputs: timestampOutput[],
+  timezone: string,
+  status: "pending"| "processing" | "completed" | "error"
+  error?: string
+  processedAt?: Date
+  isValid: boolean,
+}
 
 /**
- * Timestamp Statistics schema
+ * Timestamp Statistics type
  */
-export const timestampStatisticsSchema = z.object({
-  totalProcessed: z.number(),
-  validCount: z.number(),
-  invalidCount: z.number(),
-  formatDistribution: z.record(z.string(), z.number()),
-  timezoneDistribution: z.record(z.string(), z.number()),
-  averageProcessingTime: z.number(),
-  totalProcessingTime: z.number(),
-  successRate: z.number(),
-})
+export interface timestampStatistics {
+  totalProcessed: number,
+  validCount: number,
+  invalidCount: number,
+  formatDistribution: Record<string, number>,
+  timezoneDistribution: Record<string, number>,
+  averageProcessingTime: number,
+  totalProcessingTime: number,
+  successRate: number,
+}
 
 /**
- * Timestamp Settings schema
+ * Timestamp Settings type
  */
-export const timestampSettingsSchema = z.object({
-  inputFormat: timestampFormatSchema,
-  outputFormats: z.array(timestampFormatSchema),
-  timezone: z.string(),
-  includeRelativeTime: z.boolean(),
-  includeTimestamp: z.boolean(),
-  batchProcessing: z.boolean(),
-  realTimeConversion: z.boolean(),
-  exportFormat: exportFormatSchema,
-  autoRefresh: z.boolean(),
-  refreshInterval: z.number(),
-})
+export interface timestampSettings {
+  inputFormat: timestampFormat,
+  outputFormats: timestampFormat[],
+  timezone: string,
+  includeRelativeTime: boolean,
+  includeTimestamp: boolean,
+  batchProcessing: boolean,
+  realTimeConversion: boolean,
+  exportFormat: exportFormat,
+  autoRefresh: boolean,
+  refreshInterval: number,
+}
 
 /**
- * Timestamp Batch schema
+ * Timestamp Batch type
  */
-export const timestampBatchSchema = z.object({
-  id: z.string(),
-  items: z.array(timestampItemSchema),
-  count: z.number(),
-  settings: timestampSettingsSchema,
-  createdAt: z.date(),
-  statistics: timestampStatisticsSchema,
-})
+export interface timestampBatch {
+  id: string,
+  items: timestampItem[],
+  count: number,
+  settings: timestampSettings,
+  createdAt: Date,
+  statistics: timestampStatistics,
+}
 
 /**
- * Timestamp Template schema
+ * Timestamp Template type
  */
-export const timestampTemplateSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  category: z.string(),
-  settings: timestampSettingsSchema.partial(),
-  formats: z.array(timestampFormatSchema),
-})
+export interface timestampTemplate {
+  id: string,
+  name: string,
+  description: string,
+  category: string,
+  settings: timestampSettings,
+  formats: timestampFormat[],
+}
 
 /**
- * Current Time schema
+ * Current Time type
  */
-export const currentTimeSchema = z.object({
-  unix: z.number(),
-  unixMs: z.number(),
-  iso: z.string(),
-  rfc2822: z.string(),
-  local: z.string(),
-  utc: z.string(),
-  timezone: z.string(),
-  relativeTime: z.string(),
-})
+export interface currentTime {
+  unix: number,
+  unixMs: number,
+  iso: string,
+  rfc2822: string,
+  local: string,
+  utc: string,
+  timezone: string,
+  relativeTime: string,
+}
 
 /**
- * Timezone Info schema
+ * Timezone Info type
  */
-export const timezoneInfoSchema = z.object({
-  name: z.string(),
-  offset: z.string(),
-  abbreviation: z.string(),
-  isDST: z.boolean(),
-})
+export interface timezoneInfo {
+  name: string,
+  offset: string,
+  abbreviation: string,
+  isDST: boolean,
+}
 
 // ==================== Type Exports ====================
 
-export type TimestampFormat = z.infer<typeof timestampFormatSchema>
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type TimestampOutput = z.infer<typeof timestampOutputSchema>
-export type TimestampItem = z.infer<typeof timestampItemSchema>
-export type TimestampStatistics = z.infer<typeof timestampStatisticsSchema>
-export type TimestampSettings = z.infer<typeof timestampSettingsSchema>
-export type TimestampBatch = z.infer<typeof timestampBatchSchema>
-export type TimestampTemplate = z.infer<typeof timestampTemplateSchema>
-export type CurrentTime = z.infer<typeof currentTimeSchema>
-export type TimezoneInfo = z.infer<typeof timezoneInfoSchema>
+export type TimestampFormat = timestampFormat
+export type ExportFormat = exportFormat
+export type TimestampOutput = timestampOutput
+export type TimestampItem = timestampItem
+export type TimestampStatistics = timestampStatistics
+export type TimestampSettings = timestampSettings
+export type TimestampBatch = timestampBatch
+export type TimestampTemplate = timestampTemplate
+export type CurrentTime = currentTime
+export type TimezoneInfo = timezoneInfo

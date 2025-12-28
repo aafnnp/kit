@@ -1,132 +1,130 @@
-import { z } from "zod"
-
-// ==================== Regex Cheatsheet Schemas ====================
+// ==================== Regex Cheatsheet Types ====================
 
 /**
- * Export Format schema
+ * Export Format type
  */
-export const exportFormatSchema = z.enum(["json", "csv", "txt", "xml", "yaml"])
+export type exportFormat = "json" | "csv" | "txt" | "xml" | "yaml"
 
 /**
- * Difficulty schema
+ * Difficulty type
  */
-export const difficultySchema = z.enum(["beginner", "intermediate", "advanced", "expert"])
+export type difficulty = "beginner" | "intermediate" | "advanced" | "expert"
 
 /**
- * Performance schema
+ * Performance type
  */
-export const performanceSchema = z.enum(["fast", "medium", "slow"])
+export type performance = "fast" | "medium" | "slow"
 
 /**
- * Regex Example schema
+ * Regex Example type
  */
-export const regexExampleSchema = z.object({
-  input: z.string(),
-  matches: z.boolean(),
-  explanation: z.string(),
-  groups: z.array(z.string()).optional(),
-})
+export interface regexExample {
+  input: string,
+  matches: boolean,
+  explanation: string
+  groups?: string[]
+}
 
 /**
- * Regex Category schema
+ * Regex Category type
  */
-export const regexCategorySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  icon: z.string(),
-  color: z.string(),
-  patterns: z.number(),
-})
+export interface regexCategory {
+  id: string,
+  name: string,
+  description: string,
+  icon: string,
+  color: string,
+  patterns: number,
+}
 
 /**
- * Regex Pattern schema
+ * Regex Pattern type
  */
-export const regexPatternSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  pattern: z.string(),
-  flags: z.string().optional(),
-  category: regexCategorySchema,
-  difficulty: difficultySchema,
-  examples: z.array(regexExampleSchema),
-  explanation: z.string(),
-  useCase: z.array(z.string()),
-  tags: z.array(z.string()),
-  alternatives: z.array(z.string()).optional(),
-  performance: performanceSchema,
-  compatibility: z.array(z.string()),
-  createdAt: z.date(),
-})
+export interface regexPattern {
+  id: string,
+  name: string,
+  description: string,
+  pattern: string
+  flags?: string
+  category: regexCategory,
+  difficulty: difficulty,
+  examples: regexExample[],
+  explanation: string,
+  useCase: string[],
+  tags: string[]
+  alternatives?: string[]
+  performance: performance,
+  compatibility: string[],
+  createdAt: Date,
+}
 
 /**
- * Regex Match schema
+ * Regex Match type
  */
-export const regexMatchSchema = z.object({
-  match: z.string(),
-  index: z.number(),
-  groups: z.array(z.string()),
-  namedGroups: z.record(z.string(), z.string()).optional(),
-})
+export interface regexMatch {
+  match: string,
+  index: number,
+  groups: string[]
+  namedGroups?: Record<string, string>
+}
 
 /**
- * Regex Performance schema
+ * Regex Performance type
  */
-export const regexPerformanceSchema = z.object({
-  steps: z.number(),
-  backtracking: z.boolean(),
-  complexity: z.enum(["linear", "polynomial", "exponential"]),
-  recommendation: z.string().optional(),
-})
+export interface regexPerformance {
+  steps: number,
+  backtracking: boolean,
+  complexity: "linear"| "polynomial" | "exponential"
+  recommendation?: string
+}
 
 /**
- * Regex Test Result schema
+ * Regex Test Result type
  */
-export const regexTestResultSchema = z.object({
-  isValid: z.boolean(),
-  matches: z.array(regexMatchSchema),
-  groups: z.array(z.string()),
-  error: z.string().optional(),
-  executionTime: z.number(),
-  performance: regexPerformanceSchema,
-})
+export interface regexTestResult {
+  isValid: boolean,
+  matches: regexMatch[],
+  groups: string[]
+  error?: string
+  executionTime: number,
+  performance: regexPerformance,
+}
 
 /**
- * Regex Test schema
+ * Regex Test type
  */
-export const regexTestSchema = z.object({
-  id: z.string(),
-  pattern: z.string(),
-  flags: z.string(),
-  testString: z.string(),
-  result: regexTestResultSchema,
-  timestamp: z.date(),
-})
+export interface regexTest {
+  id: string,
+  pattern: string,
+  flags: string,
+  testString: string,
+  result: regexTestResult,
+  timestamp: Date,
+}
 
 /**
- * Regex Cheatsheet schema
+ * Regex Cheatsheet type
  */
-export const regexCheatsheetSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  categories: z.array(regexCategorySchema),
-  patterns: z.array(regexPatternSchema),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
+export interface regexCheatsheet {
+  id: string,
+  name: string,
+  description: string,
+  categories: regexCategory[],
+  patterns: regexPattern[],
+  createdAt: Date,
+  updatedAt: Date,
+}
 
 // ==================== Type Exports ====================
 
-export type ExportFormat = z.infer<typeof exportFormatSchema>
-export type Difficulty = z.infer<typeof difficultySchema>
-export type Performance = z.infer<typeof performanceSchema>
-export type RegexExample = z.infer<typeof regexExampleSchema>
-export type RegexCategory = z.infer<typeof regexCategorySchema>
-export type RegexPattern = z.infer<typeof regexPatternSchema>
-export type RegexMatch = z.infer<typeof regexMatchSchema>
-export type RegexPerformance = z.infer<typeof regexPerformanceSchema>
-export type RegexTestResult = z.infer<typeof regexTestResultSchema>
-export type RegexTest = z.infer<typeof regexTestSchema>
-export type RegexCheatsheet = z.infer<typeof regexCheatsheetSchema>
+export type ExportFormat = exportFormat
+export type Difficulty = difficulty
+export type Performance = performance
+export type RegexExample = regexExample
+export type RegexCategory = regexCategory
+export type RegexPattern = regexPattern
+export type RegexMatch = regexMatch
+export type RegexPerformance = regexPerformance
+export type RegexTestResult = regexTestResult
+export type RegexTest = regexTest
+export type RegexCheatsheet = regexCheatsheet

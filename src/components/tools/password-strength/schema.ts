@@ -1,161 +1,159 @@
-import { z } from "zod"
-
-// ==================== Password Strength Schemas ====================
+// ==================== Password Strength Types ====================
 
 /**
- * Password Level schema
+ * Password Level type
  */
-export const passwordLevelSchema = z.enum(["very-weak", "weak", "fair", "good", "strong", "very-strong"])
+export type passwordLevel = "very-weak" | "weak" | "fair" | "good" | "strong" | "very-strong"
 
 /**
- * Check Category schema
+ * Check Category type
  */
-export const checkCategorySchema = z.enum(["length", "complexity", "patterns", "dictionary"])
+export type checkCategory = "length" | "complexity" | "patterns" | "dictionary"
 
 /**
- * Password Feedback schema
+ * Password Feedback type
  */
-export const passwordFeedbackSchema = z.object({
-  warning: z.string().optional(),
-  suggestions: z.array(z.string()),
-  positives: z.array(z.string()),
-})
+export interface passwordFeedback {
+  warning?: string
+  suggestions: string[],
+  positives: string[],
+}
 
 /**
- * Crack Time Estimate schema
+ * Crack Time Estimate type
  */
-export const crackTimeEstimateSchema = z.object({
-  onlineThrottling: z.string(),
-  onlineNoThrottling: z.string(),
-  offlineSlowHashing: z.string(),
-  offlineFastHashing: z.string(),
-})
+export interface crackTimeEstimate {
+  onlineThrottling: string,
+  onlineNoThrottling: string,
+  offlineSlowHashing: string,
+  offlineFastHashing: string,
+}
 
 /**
- * Password Check schema
+ * Password Check type
  */
-export const passwordCheckSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  passed: z.boolean(),
-  weight: z.number(),
-  category: checkCategorySchema,
-})
+export interface passwordCheck {
+  id: string,
+  name: string,
+  description: string,
+  passed: boolean,
+  weight: number,
+  category: checkCategory,
+}
 
 /**
- * Password Strength Result schema
+ * Password Strength Result type
  */
-export const passwordStrengthResultSchema = z.object({
-  score: z.number(),
-  level: passwordLevelSchema,
-  feedback: passwordFeedbackSchema,
-  entropy: z.number(),
-  crackTime: crackTimeEstimateSchema,
-  checks: z.array(passwordCheckSchema),
-})
+export interface passwordStrengthResult {
+  score: number,
+  level: passwordLevel,
+  feedback: passwordFeedback,
+  entropy: number,
+  crackTime: crackTimeEstimate,
+  checks: passwordCheck[],
+}
 
 /**
- * Password Pattern schema
+ * Password Pattern type
  */
-export const passwordPatternSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  regex: z.custom<RegExp>(),
-  description: z.string(),
-  penalty: z.number(),
-})
+export interface passwordPattern {
+  id: string,
+  name: string,
+  regex: RegExp,
+  description: string,
+  penalty: number,
+}
 
 /**
- * Password Rule schema (validator function cannot be serialized)
+ * Password Rule type (validator function cannot be serialized)
  */
-export const passwordRuleSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  validator: z.custom<(password: string) => boolean>(),
-  weight: z.number(),
-})
+export interface passwordRule {
+  id: string,
+  name: string,
+  description: string,
+  validator: (password: string) => boolean,
+  weight: number,
+}
 
 /**
- * Password Policy schema
+ * Password Policy type
  */
-export const passwordPolicySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  minLength: z.number(),
-  maxLength: z.number().optional(),
-  requireUppercase: z.boolean(),
-  requireLowercase: z.boolean(),
-  requireNumbers: z.boolean(),
-  requireSymbols: z.boolean(),
-  forbiddenPatterns: z.array(z.string()),
-  customRules: z.array(passwordRuleSchema).optional(),
-})
+export interface passwordPolicy {
+  id: string,
+  name: string,
+  description: string,
+  minLength: number
+  maxLength?: number
+  requireUppercase: boolean,
+  requireLowercase: boolean,
+  requireNumbers: boolean,
+  requireSymbols: boolean,
+  forbiddenPatterns: string[]
+  customRules?: passwordRule[]
+}
 
 /**
- * Password Generation Options schema
+ * Password Generation Options type
  */
-export const passwordGenerationOptionsSchema = z.object({
-  length: z.number(),
-  includeUppercase: z.boolean(),
-  includeLowercase: z.boolean(),
-  includeNumbers: z.boolean(),
-  includeSymbols: z.boolean(),
-  excludeSimilar: z.boolean(),
-  excludeAmbiguous: z.boolean(),
-  customCharset: z.string().optional(),
-})
+export interface passwordGenerationOptions {
+  length: number,
+  includeUppercase: boolean,
+  includeLowercase: boolean,
+  includeNumbers: boolean,
+  includeSymbols: boolean,
+  excludeSimilar: boolean,
+  excludeAmbiguous: boolean
+  customCharset?: string
+}
 
 /**
- * Generated Password schema
+ * Generated Password type
  */
-export const generatedPasswordSchema = z.object({
-  id: z.string(),
-  password: z.string(),
-  strength: passwordStrengthResultSchema,
-  options: passwordGenerationOptionsSchema,
-  createdAt: z.number(),
-})
+export interface generatedPassword {
+  id: string,
+  password: string,
+  strength: passwordStrengthResult,
+  options: passwordGenerationOptions,
+  createdAt: number,
+}
 
 /**
- * Password History Entry schema
+ * Password History Entry type
  */
-export const passwordHistoryEntrySchema = z.object({
-  id: z.string(),
-  password: z.string(),
-  strength: passwordStrengthResultSchema,
-  timestamp: z.number(),
-})
+export interface passwordHistoryEntry {
+  id: string,
+  password: string,
+  strength: passwordStrengthResult,
+  timestamp: number,
+}
 
 /**
- * Password Strength State schema
+ * Password Strength State type
  */
-export const passwordStrengthStateSchema = z.object({
-  password: z.string(),
-  result: passwordStrengthResultSchema.optional(),
-  selectedPolicy: passwordPolicySchema.optional(),
-  showPassword: z.boolean(),
-  generatedPasswords: z.array(generatedPasswordSchema),
-  history: z.array(passwordHistoryEntrySchema),
-})
+export interface passwordStrengthState {
+  password: string
+  result?: passwordStrengthResult
+  selectedPolicy?: passwordPolicy
+  showPassword: boolean,
+  generatedPasswords: generatedPassword[],
+  history: passwordHistoryEntry[],
+}
 
 // ==================== Type Exports ====================
 
-export type PasswordLevel = z.infer<typeof passwordLevelSchema>
-export type CheckCategory = z.infer<typeof checkCategorySchema>
-export type PasswordFeedback = z.infer<typeof passwordFeedbackSchema>
-export type CrackTimeEstimate = z.infer<typeof crackTimeEstimateSchema>
-export type PasswordCheck = z.infer<typeof passwordCheckSchema>
-export type PasswordStrengthResult = z.infer<typeof passwordStrengthResultSchema>
-export type PasswordPattern = z.infer<typeof passwordPatternSchema>
-export type PasswordRule = z.infer<typeof passwordRuleSchema>
-export type PasswordPolicy = z.infer<typeof passwordPolicySchema>
-export type PasswordGenerationOptions = z.infer<typeof passwordGenerationOptionsSchema>
-export type GeneratedPassword = z.infer<typeof generatedPasswordSchema>
-export type PasswordHistoryEntry = z.infer<typeof passwordHistoryEntrySchema>
-export type PasswordStrengthState = z.infer<typeof passwordStrengthStateSchema>
+export type PasswordLevel = passwordLevel
+export type CheckCategory = checkCategory
+export type PasswordFeedback = passwordFeedback
+export type CrackTimeEstimate = crackTimeEstimate
+export type PasswordCheck = passwordCheck
+export type PasswordStrengthResult = passwordStrengthResult
+export type PasswordPattern = passwordPattern
+export type PasswordRule = passwordRule
+export type PasswordPolicy = passwordPolicy
+export type PasswordGenerationOptions = passwordGenerationOptions
+export type GeneratedPassword = generatedPassword
+export type PasswordHistoryEntry = passwordHistoryEntry
+export type PasswordStrengthState = passwordStrengthState
 
 // ==================== Constants and Utility Functions ====================
 
@@ -334,10 +332,10 @@ export function estimateCrackTime(entropy: number): CrackTimeEstimate {
   }
 
   return {
-    onlineThrottling: formatTime(seconds * 1000), // Assume 1000x slower with throttling
+    onlineThrottling: formatTime(seconds * 1000), // Assume 1000x slower with throttling,
     onlineNoThrottling: formatTime(seconds),
-    offlineSlowHashing: formatTime(seconds / 100), // Assume 100x faster offline
-    offlineFastHashing: formatTime(seconds / 10000), // Assume 10000x faster with fast hashing
+    offlineSlowHashing: formatTime(seconds / 100), // Assume 100x faster offline,
+    offlineFastHashing: formatTime(seconds / 10000), // Assume 10000x faster with fast hashing,
   }
 }
 

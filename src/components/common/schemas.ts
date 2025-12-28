@@ -1,162 +1,134 @@
-import { z } from "zod"
-import { ErrorSeverity } from "@/lib/utils/error-handler"
+import type { ErrorSeverity } from "@/lib/utils/error-handler"
+import type React from "react"
 
-// ==================== Enhanced Tool Base Schemas ====================
+// ==================== Enhanced Tool Base Types ====================
 
 /**
- * Tool tab schema
+ * Tool tab type
  * 工具标签页类型定义
  */
-export const toolTabSchema = z.object({
-  id: z.string(),
-  label: z.string(),
-  icon: z.custom<React.ReactNode>(),
-  content: z.custom<React.ReactNode>(),
-  disabled: z.boolean().optional(),
-  badge: z.union([z.string(), z.number()]).optional(),
-})
+export interface ToolTab {
+  id: string
+  label: string
+  icon: React.ReactNode
+  content: React.ReactNode
+  disabled?: boolean
+  badge?: string | number
+}
 
 /**
- * Tool action schema
+ * Tool action type
  * 工具操作按钮类型定义
  */
-export const toolActionSchema = z.object({
-  id: z.string(),
-  label: z.string(),
-  icon: z.custom<React.ReactNode>(),
-  onClick: z.custom<() => void>(),
-  variant: z.enum(["default", "destructive", "outline", "secondary", "ghost", "link"]).optional(),
-  disabled: z.boolean().optional(),
-  loading: z.boolean().optional(),
-})
+export interface ToolAction {
+  id: string
+  label: string
+  icon: React.ReactNode
+  onClick: () => void
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
+  disabled?: boolean
+  loading?: boolean
+}
 
 /**
- * Template panel props schema
+ * Template panel props type
  * 模板面板属性类型定义
  */
-export const templatePanelPropsSchema = z.object({
-  templateManager: z.any(), // ReturnType is complex, using z.any()
-  onTemplateApply: z.custom<(template: any) => void>().optional(),
-})
+export interface TemplatePanelPropsType {
+  templateManager: any // ReturnType is complex, using any
+  onTemplateApply?: (template: any) => void
+}
 
 /**
- * Settings panel props schema
+ * Settings panel props type
  * 设置面板属性类型定义
  */
-export const settingsPanelPropsSchema = z.object({
-  settingsManager: z.any(), // ReturnType is complex, using z.any()
-  onSettingsChange: z.custom<(settings: any) => void>().optional(),
-})
+export interface SettingsPanelPropsType {
+  settingsManager: any // ReturnType is complex, using any
+  onSettingsChange?: (settings: any) => void
+}
 
 /**
- * History panel props schema
+ * History panel props type
  * 历史面板属性类型定义
  */
-export const historyPanelPropsSchema = z.object({
-  toolName: z.string(),
-})
+export interface HistoryPanelProps {
+  toolName: string
+}
 
-// ==================== Tool Base Schemas ====================
+// ==================== Tool Base Types ====================
 
 /**
- * Tab schema for tool base
+ * Tab type for tool base
  * 工具基础标签页类型定义
  */
-export const tabSchema = z.object({
-  id: z.string(),
-  label: z.string(),
-  icon: z.custom<React.ReactNode>(),
-  content: z.custom<React.ReactNode>(),
-})
+export interface Tab {
+  id: string
+  label: string
+  icon: React.ReactNode
+  content: React.ReactNode
+}
 
 /**
- * Tool base props schema
+ * Tool base props type
  * 工具基础组件属性类型定义
  */
-export const toolBasePropsSchema = z.object({
-  toolName: z.string(),
-  icon: z.custom<React.ReactNode>(),
-  description: z.string(),
-  children: z.custom<React.ReactNode>(),
-  tabs: z.array(tabSchema).optional(),
-})
+export interface ToolBaseProps {
+  toolName: string
+  icon: React.ReactNode
+  description: string
+  children: React.ReactNode
+  tabs?: Tab[]
+}
 
-// ==================== File Upload Area Schemas ====================
+// ==================== File Upload Area Types ====================
 
 /**
- * File upload area props schema
+ * File upload area props type
  * 文件上传区域属性类型定义
  */
-export const fileUploadAreaPropsSchema = z.object({
-  onFilesSelected: z.custom<(files: File[]) => void>(),
-  isProcessing: z.boolean().optional(),
-  accept: z.string().optional(),
-  multiple: z.boolean().optional(),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  buttonText: z.string().optional(),
-  supportedFormatsText: z.string().optional(),
-  config: z.any().optional(), // DragDropConfig from types/common
-  icon: z.custom<React.ReactNode>().optional(),
-})
+export interface FileUploadAreaProps {
+  onFilesSelected: (files: File[]) => void
+  isProcessing?: boolean
+  accept?: string
+  multiple?: boolean
+  title?: string
+  description?: string
+  buttonText?: string
+  supportedFormatsText?: string
+  config?: any // DragDropConfig from types/common
+  icon?: React.ReactNode
+}
 
-// ==================== Tool Error Boundary Schemas ====================
+// ==================== Tool Error Boundary Types ====================
 
 /**
- * Tool error boundary props schema
+ * Tool error boundary props type
  * 工具错误边界属性类型定义
  */
-export const toolErrorBoundaryPropsSchema = z.object({
-  toolName: z.string(),
-  children: z.custom<React.ReactNode>(),
-})
+export interface ToolErrorBoundaryProps {
+  toolName: string
+  children: React.ReactNode
+}
 
 /**
- * Tool error boundary state schema
+ * Tool error boundary state type
  * 工具错误边界状态类型定义
  */
-export const toolErrorBoundaryStateSchema = z.object({
-  hasError: z.boolean(),
-  error: z.instanceof(Error).optional(),
-  errorInfo: z.any().optional(), // React.ErrorInfo
-  recoverySuggestions: z.array(z.string()).optional(),
-  errorSeverity: z.nativeEnum(ErrorSeverity).optional(),
-})
+export interface ToolErrorBoundaryState {
+  hasError: boolean
+  error?: Error
+  errorInfo?: any // React.ErrorInfo
+  recoverySuggestions?: string[]
+  errorSeverity?: ErrorSeverity
+}
 
-// ==================== Tool Not Found Schemas ====================
+// ==================== Tool Not Found Types ====================
 
 /**
- * Tool not found props schema
+ * Tool not found props type
  * 工具未找到属性类型定义
  */
-export const toolNotFoundPropsSchema = z.object({
-  toolSlug: z.string().optional(),
-})
-
-// ==================== Type Exports ====================
-
-/**
- * Type inference from zod schemas
- * 从 zod schemas 推断 TypeScript 类型
- */
-
-// Enhanced Tool Base Types
-export type ToolTab = z.infer<typeof toolTabSchema>
-export type ToolAction = z.infer<typeof toolActionSchema>
-export type TemplatePanelPropsType = z.infer<typeof templatePanelPropsSchema>
-export type SettingsPanelPropsType = z.infer<typeof settingsPanelPropsSchema>
-export type HistoryPanelProps = z.infer<typeof historyPanelPropsSchema>
-
-// Tool Base Types
-export type Tab = z.infer<typeof tabSchema>
-export type ToolBaseProps = z.infer<typeof toolBasePropsSchema>
-
-// File Upload Area Types
-export type FileUploadAreaProps = z.infer<typeof fileUploadAreaPropsSchema>
-
-// Tool Error Boundary Types
-export type ToolErrorBoundaryProps = z.infer<typeof toolErrorBoundaryPropsSchema>
-export type ToolErrorBoundaryState = z.infer<typeof toolErrorBoundaryStateSchema>
-
-// Tool Not Found Types
-export type ToolNotFoundProps = z.infer<typeof toolNotFoundPropsSchema>
+export interface ToolNotFoundProps {
+  toolSlug?: string
+}
