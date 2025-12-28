@@ -118,7 +118,11 @@ function createWindow() {
   if (isDev) {
     mainWindow.loadURL("http://localhost:5173")
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"))
+    // In production, use app.getAppPath() to get the correct app path
+    // This handles asar packaging correctly
+    const appPath = app.getAppPath()
+    const indexPath = path.join(appPath, "dist", "index.html")
+    mainWindow.loadFile(indexPath)
   }
 
   mainWindow.on("closed", () => {
