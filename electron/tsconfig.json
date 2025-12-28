@@ -13,6 +13,6 @@
     "rootDir": ".",
     "types": ["node", "electron"]
   },
-  "include": ["main.ts"],
+  "include": ["main.ts", "schemas.ts"],
   "exclude": ["node_modules", "dist-electron", "preload.ts"]
 }
