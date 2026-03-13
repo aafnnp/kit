@@ -19,19 +19,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
-          cache: "npm"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Type check
         run: npx tsc --noEmit
 
       - name: Lint
-        run: npm run lint || echo "Lint script not found, skipping..."
+        run: pnpm run lint || echo "Lint script not found, skipping..."
 
       - name: Build frontend
-        run: npm run build
+        run: pnpm run build
 
   tauri-test-build:
     name: Tauri Test Build
@@ -48,7 +48,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
-          cache: "npm"
+          cache: "pnpm"
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -64,9 +64,9 @@ jobs:
             rpm
 
       - name: Install dependencies
-        run: npm install --prefer-offline --no-audit
+        run: pnpm install --prefer-offline --no-audit
 
       - name: Test Tauri build
         env:
           NODE_ENV: production
-        run: npm run tauri:build
+        run: pnpm run tauri:build

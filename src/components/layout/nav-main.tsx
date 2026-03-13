@@ -85,12 +85,12 @@ function NavMainInner({ items }: NavMainProps) {
             return (
               <SidebarGroup key={item.id}>
                 <div
-                  className="flex items-center gap-2 mb-1 sm:mb-2 justify-between cursor-pointer select-none px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors touch-manipulation"
+                  className="flex items-center gap-2 mb-1 sm:mb-2 justify-between cursor-pointer select-none px-2 py-1.5 rounded-md text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
                   onClick={() => toggleGroup(item.id)}
                 >
-                  <span className="text-xs sm:text-sm font-medium truncate">{t(`tools.${item.id}`)}</span>
+                  <span className="truncate">{t(`tools.${item.id}`)}</span>
                   <IconChevronRight
-                    className={`size-3.5! sm:size-4! transition-transform shrink-0 ${isOpen ? "rotate-90" : ""}`}
+                    className={`size-3.5! sm:size-4! transition-transform shrink-0 text-muted-foreground ${isOpen ? "rotate-90 text-foreground" : ""}`}
                   />
                 </div>
                 <AnimatePresence initial={false}>

@@ -1,6 +1,5 @@
 import { useCallback, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -88,7 +87,7 @@ const compareObjects = (
   path: string,
   differences: JSONDifference[],
   options: DiffOptions,
-  visited: Set<string>
+  visited: Set<string>,
 ): void => {
   const currentPath = path || "root"
 
@@ -191,7 +190,7 @@ const compareArrays = (
   path: string,
   differences: JSONDifference[],
   options: DiffOptions,
-  visited: Set<string>
+  visited: Set<string>,
 ): void => {
   if (options.ignoreArrayOrder) {
     // Compare arrays ignoring order
@@ -259,7 +258,7 @@ const compareObjectProperties = (
   path: string,
   differences: JSONDifference[],
   options: DiffOptions,
-  visited: Set<string>
+  visited: Set<string>,
 ): void => {
   const leftKeys = Object.keys(left)
   const rightKeys = Object.keys(right)
@@ -396,7 +395,7 @@ const countTotalItems = (obj: any): number => {
   if (typeof obj === "object" && obj !== null) {
     return Object.values(obj).reduce(
       (count: number, value: any) => count + countTotalItems(value),
-      Object.keys(obj).length
+      Object.keys(obj).length,
     )
   }
   return 1
@@ -410,7 +409,7 @@ const calculateComplexity = (obj: any): number => {
   if (typeof obj === "object" && obj !== null) {
     return Object.values(obj).reduce(
       (complexity: number, value: any) => complexity + calculateComplexity(value),
-      Object.keys(obj).length
+      Object.keys(obj).length,
     )
   }
   return 1
@@ -682,7 +681,7 @@ const useJSONDiff = () => {
         setIsProcessing(false)
       }
     },
-    []
+    [],
   )
 
   const clearResults = useCallback(() => {
@@ -821,7 +820,7 @@ ${diff.leftValue !== undefined ? `Left: ${JSON.stringify(diff.leftValue)}` : ""}
 ${diff.rightValue !== undefined ? `Right: ${JSON.stringify(diff.rightValue)}` : ""}
 Description: ${diff.description}
 Severity: ${diff.severity}
-`
+`,
   )
   .join("\n---\n")}`
 }
@@ -853,7 +852,7 @@ ${result.differences
       <rightValue>${diff.rightValue !== undefined ? JSON.stringify(diff.rightValue) : ""}</rightValue>
       <description>${diff.description}</description>
       <severity>${diff.severity}</severity>
-    </difference>`
+    </difference>`,
   )
   .join("\n")}
   </differences>
@@ -883,7 +882,7 @@ ${result.differences
     leftValue: ${JSON.stringify(diff.leftValue)}
     rightValue: ${JSON.stringify(diff.rightValue)}
     description: ${diff.description}
-    severity: ${diff.severity}`
+    severity: ${diff.severity}`,
   )
   .join("\n")}`
 }
@@ -925,7 +924,7 @@ const generateHTMLFromResult = (result: JSONDiffResult): string => {
     ${diff.leftValue !== undefined ? `<div>Left: <span class="value">${JSON.stringify(diff.leftValue)}</span></div>` : ""}
     ${diff.rightValue !== undefined ? `<div>Right: <span class="value">${JSON.stringify(diff.rightValue)}</span></div>` : ""}
     <div>${diff.description}</div>
-  </div>`
+  </div>`,
     )
     .join("")}
 </body>
@@ -1021,51 +1020,47 @@ const JSONDiffCore = () => {
         id="main-content"
         className="flex flex-col gap-4"
       >
-        {/* Header */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <GitCompare className="h-5 w-5" />
-              JSON Diff & Comparison Tool
-            </CardTitle>
-            <CardDescription>
-              Advanced JSON comparison and analysis tool with visual diff display, deep comparison, and multiple
-              comparison modes. Compare JSON objects with detailed analysis, performance metrics, and comprehensive
-              export options. Use keyboard navigation: Tab to move between controls, Enter or Space to activate buttons.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        {/* 顶部简介区：标题 + 简要说明 */}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <GitCompare className="h-5 w-5 text-primary" />
+            <h1 className="text-xl font-semibold tracking-tight">JSON Diff & Comparison</h1>
+          </div>
+          <p className="max-w-2xl text-sm text-muted-foreground">
+            对比两份 JSON，快速查看新增、删除与变更字段，并导出对比结果。适用于调试接口响应、配置变更和数据校验。
+          </p>
+        </div>
 
         {/* Main Tabs */}
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as "diff" | "history" | "templates" | "settings")}
         >
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="tabs-mobile grid w-full grid-cols-4 gap-1 rounded-full bg-muted/60 p-1 text-xs sm:text-sm">
             <TabsTrigger
               value="diff"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 rounded-full px-2 py-1 data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
               <GitCompare className="h-4 w-4" />
               Diff
             </TabsTrigger>
             <TabsTrigger
               value="history"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 rounded-full px-2 py-1 data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
               <Clock className="h-4 w-4" />
               History
             </TabsTrigger>
             <TabsTrigger
               value="templates"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 rounded-full px-2 py-1 data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
               <BookOpen className="h-4 w-4" />
               Templates
             </TabsTrigger>
             <TabsTrigger
               value="settings"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 rounded-full px-2 py-1 data-[state=active]:bg-background data-[state=active]:shadow-sm"
             >
               <Settings className="h-4 w-4" />
               Settings
@@ -1077,16 +1072,14 @@ const JSONDiffCore = () => {
             value="diff"
             className="space-y-4"
           >
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               {/* JSON Input */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Code className="h-5 w-5" />
-                    JSON Input
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <section className="border-b border-border/60 pb-4">
+                <div className="flex items-center gap-2 pb-3">
+                  <Code className="h-5 w-5 text-muted-foreground" />
+                  <h2 className="text-base font-semibold tracking-tight sm:text-lg">JSON Input</h2>
+                </div>
+                <div className="space-y-4">
                   <div>
                     <Label
                       htmlFor="left-json"
@@ -1098,8 +1091,8 @@ const JSONDiffCore = () => {
                       id="left-json"
                       value={leftJSON}
                       onChange={(e) => setLeftJSON(e.target.value)}
-                      placeholder="Enter your original JSON here..."
-                      className="mt-2 font-mono text-xs"
+                      placeholder="在此粘贴原始 JSON..."
+                      className="mt-2 font-mono text-sm"
                       rows={12}
                     />
                   </div>
@@ -1115,13 +1108,13 @@ const JSONDiffCore = () => {
                       id="right-json"
                       value={rightJSON}
                       onChange={(e) => setRightJSON(e.target.value)}
-                      placeholder="Enter your modified JSON here..."
-                      className="mt-2 font-mono text-xs"
+                      placeholder="在此粘贴修改后的 JSON..."
+                      className="mt-2 font-mono text-sm"
                       rows={12}
                     />
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <Button
                       onClick={handleDiff}
                       disabled={isProcessing || !leftJSON.trim() || !rightJSON.trim()}
@@ -1147,10 +1140,10 @@ const JSONDiffCore = () => {
                     </Button>
                   </div>
 
-                  {/* Quick Options */}
-                  <div className="space-y-2 border-t pt-4">
-                    <Label className="text-sm font-medium">Quick Options</Label>
-                    <div className="grid grid-cols-2 gap-2">
+                  {/* 操作区下的快捷选项 */}
+                  <div className="space-y-3 border-t pt-4">
+                    <Label className="text-sm font-medium">对比选项</Label>
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <div className="flex items-center space-x-2">
                         <input
                           id="ignore-case"
@@ -1161,9 +1154,9 @@ const JSONDiffCore = () => {
                         />
                         <Label
                           htmlFor="ignore-case"
-                          className="text-xs"
+                          className="text-xs sm:text-sm"
                         >
-                          Ignore case
+                          忽略大小写
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -1176,9 +1169,9 @@ const JSONDiffCore = () => {
                         />
                         <Label
                           htmlFor="ignore-array-order"
-                          className="text-xs"
+                          className="text-xs sm:text-sm"
                         >
-                          Ignore array order
+                          忽略数组顺序
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -1191,9 +1184,9 @@ const JSONDiffCore = () => {
                         />
                         <Label
                           htmlFor="show-unchanged"
-                          className="text-xs"
+                          className="text-xs sm:text-sm"
                         >
-                          Show unchanged
+                          显示未变化字段
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -1206,45 +1199,43 @@ const JSONDiffCore = () => {
                         />
                         <Label
                           htmlFor="ignore-extra-keys"
-                          className="text-xs"
+                          className="text-xs sm:text-sm"
                         >
-                          Ignore extra keys
+                          忽略额外字段
                         </Label>
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </section>
 
               {/* Diff Results */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <GitBranch className="h-5 w-5" />
-                    Comparison Results
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+              <section className="border-b border-border/60 pb-4">
+                <div className="flex items-center gap-2 pb-3">
+                  <GitBranch className="h-5 w-5 text-muted-foreground" />
+                  <h2 className="text-base font-semibold tracking-tight sm:text-lg">Comparison Results</h2>
+                </div>
+                <div>
                   {currentResult ? (
                     <div className="space-y-4">
                       {/* Summary */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-blue-600">
+                          <div className="text-2xl font-semibold text-primary">
                             {currentResult.summary.totalDifferences}
                           </div>
                           <div className="text-xs text-muted-foreground">Total Differences</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-green-600">{currentResult.summary.added}</div>
+                          <div className="text-2xl font-semibold text-foreground">{currentResult.summary.added}</div>
                           <div className="text-xs text-muted-foreground">Added</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-red-600">{currentResult.summary.removed}</div>
+                          <div className="text-2xl font-semibold text-foreground">{currentResult.summary.removed}</div>
                           <div className="text-xs text-muted-foreground">Removed</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-orange-600">{currentResult.summary.modified}</div>
+                          <div className="text-2xl font-semibold text-foreground">{currentResult.summary.modified}</div>
                           <div className="text-xs text-muted-foreground">Modified</div>
                         </div>
                       </div>
@@ -1255,16 +1246,16 @@ const JSONDiffCore = () => {
                           <span className="text-sm font-medium">Similarity</span>
                           <span className="text-sm font-medium">{currentResult.summary.similarity.toFixed(1)}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="h-2 w-full rounded-full bg-muted">
                           <div
-                            className="h-2 rounded-full bg-green-500"
+                            className="h-2 rounded-full bg-primary"
                             style={{ width: `${currentResult.summary.similarity}%` }}
                           ></div>
                         </div>
                       </div>
 
                       {/* Metadata */}
-                      <div className="grid grid-cols-2 gap-4 text-xs">
+                      <div className="grid grid-cols-2 gap-4 text-xs sm:text-sm">
                         <div>
                           <div className="font-medium">Left JSON</div>
                           <div className="text-muted-foreground">
@@ -1293,7 +1284,7 @@ const JSONDiffCore = () => {
                       </div>
 
                       {/* Export Options */}
-                      <div className="flex gap-2 pt-4 border-t">
+                      <div className="flex flex-wrap gap-2 border-t pt-4">
                         <Button
                           onClick={() => exportResult(currentResult, "json")}
                           variant="outline"
@@ -1322,75 +1313,73 @@ const JSONDiffCore = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center py-8">
-                      <GitCompare className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No Comparison</h3>
+                    <div className="py-8 text-center">
+                      <GitCompare className="mb-4 mx-auto h-12 w-12 text-muted-foreground" />
+                      <h3 className="mb-2 text-lg font-semibold">No Comparison</h3>
                       <p className="text-muted-foreground">
                         Enter JSON data in both fields to see the comparison results
                       </p>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </section>
             </div>
 
             {/* Detailed Differences */}
             {currentResult && currentResult.differences.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <List className="h-5 w-5" />
-                    Detailed Differences
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
+              <section className="border-b border-border/60 pb-4">
+                <div className="flex items-center gap-2 pb-3">
+                  <List className="h-5 w-5 text-muted-foreground" />
+                  <h2 className="text-base font-semibold tracking-tight sm:text-lg">Detailed Differences</h2>
+                </div>
+                <div>
+                  <div className="max-h-96 space-y-2 overflow-y-auto">
                     {currentResult.differences.map((diff, index) => (
                       <div
                         key={index}
-                        className={`p-3 rounded-lg border ${
+                        className={`border border-border/50 p-3 text-xs sm:text-sm ${
                           diff.type === "added"
-                            ? "bg-green-50 border-green-200"
+                            ? "border-l-4 border-l-emerald-400/80"
                             : diff.type === "removed"
-                              ? "bg-red-50 border-red-200"
+                              ? "border-l-4 border-l-rose-400/80"
                               : diff.type === "modified"
-                                ? "bg-orange-50 border-orange-200"
-                                : "bg-gray-50 border-gray-200"
+                                ? "border-l-4 border-l-amber-400/80"
+                                : "border-l-4 border-l-muted"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <code className="text-sm font-mono bg-white px-2 py-1 rounded">{diff.path}</code>
+                          <code className="rounded bg-muted px-2 py-1 font-mono text-xs sm:text-sm">{diff.path}</code>
                           <span
                             className={`text-xs px-2 py-1 rounded font-medium ${
                               diff.type === "added"
-                                ? "bg-green-100 text-green-800"
+                                ? "bg-emerald-50 text-emerald-700"
                                 : diff.type === "removed"
-                                  ? "bg-red-100 text-red-800"
+                                  ? "bg-rose-50 text-rose-700"
                                   : diff.type === "modified"
-                                    ? "bg-orange-100 text-orange-800"
-                                    : "bg-gray-100 text-gray-800"
+                                    ? "bg-amber-50 text-amber-700"
+                                    : "bg-muted text-muted-foreground"
                             }`}
                           >
                             {diff.type.toUpperCase()}
                           </span>
                         </div>
 
-                        <div className="text-sm text-muted-foreground mb-2">{diff.description}</div>
+                        <div className="mb-2 text-xs text-muted-foreground sm:text-sm">{diff.description}</div>
 
                         {(diff.leftValue !== undefined || diff.rightValue !== undefined) && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                          <div className="grid grid-cols-1 gap-2 text-[11px] md:grid-cols-2 md:text-xs">
                             {diff.leftValue !== undefined && (
                               <div>
-                                <div className="font-medium text-red-600 mb-1">Left (Original):</div>
-                                <code className="block bg-white p-2 rounded border">
+                                <div className="mb-1 font-medium text-rose-600">Left (Original):</div>
+                                <code className="block border border-border/50 bg-muted/30 p-2">
                                   {JSON.stringify(diff.leftValue, null, 2)}
                                 </code>
                               </div>
                             )}
                             {diff.rightValue !== undefined && (
                               <div>
-                                <div className="font-medium text-green-600 mb-1">Right (Modified):</div>
-                                <code className="block bg-white p-2 rounded border">
+                                <div className="mb-1 font-medium text-emerald-600">Right (Modified):</div>
+                                <code className="block border border-border/50 bg-muted/30 p-2">
                                   {JSON.stringify(diff.rightValue, null, 2)}
                                 </code>
                               </div>
@@ -1400,8 +1389,8 @@ const JSONDiffCore = () => {
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </section>
             )}
           </TabsContent>
 
@@ -1410,12 +1399,12 @@ const JSONDiffCore = () => {
             value="history"
             className="space-y-4"
           >
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Comparison History</CardTitle>
-                <CardDescription>View and manage your JSON comparison history</CardDescription>
-              </CardHeader>
-              <CardContent>
+            <section className="border-b border-border/60 pb-4">
+              <div className="pb-3">
+                <h2 className="text-base font-semibold tracking-tight sm:text-lg">Comparison History</h2>
+                <p className="text-sm text-muted-foreground">View and manage your JSON comparison history</p>
+              </div>
+              <div>
                 {results.length > 0 ? (
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
@@ -1505,8 +1494,8 @@ const JSONDiffCore = () => {
                     <p className="text-muted-foreground">Perform some JSON comparisons to see them here</p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </section>
           </TabsContent>
 
           {/* Templates Tab */}
@@ -1514,18 +1503,18 @@ const JSONDiffCore = () => {
             value="templates"
             className="space-y-4"
           >
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Comparison Templates</CardTitle>
-                <CardDescription>Pre-configured JSON examples for testing</CardDescription>
-              </CardHeader>
-              <CardContent>
+            <section className="border-b border-border/60 pb-4">
+              <div className="pb-3">
+                <h2 className="text-base font-semibold tracking-tight sm:text-lg">Comparison Templates</h2>
+                <p className="text-sm text-muted-foreground">Pre-configured JSON examples for testing</p>
+              </div>
+              <div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {diffTemplates.map((template) => (
                     <div
                       key={template.id}
-                      className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedTemplate === template.id ? "border-primary bg-primary/5" : "hover:border-primary/50"
+                      className={`border border-border/60 p-4 cursor-pointer transition-colors ${
+                        selectedTemplate === template.id ? "border-primary/60 bg-primary/5" : "hover:border-primary/40"
                       }`}
                       onClick={() => applyTemplate(template.id)}
                     >
@@ -1549,8 +1538,8 @@ const JSONDiffCore = () => {
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </section>
           </TabsContent>
 
           {/* Settings Tab */}
@@ -1558,12 +1547,12 @@ const JSONDiffCore = () => {
             value="settings"
             className="space-y-4"
           >
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Comparison Settings</CardTitle>
-                <CardDescription>Configure how JSON comparison is performed</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
+            <section className="border-b border-border/60 pb-4">
+              <div className="pb-3">
+                <h2 className="text-base font-semibold tracking-tight sm:text-lg">Comparison Settings</h2>
+                <p className="text-sm text-muted-foreground">Configure how JSON comparison is performed</p>
+              </div>
+              <div className="space-y-6">
                 {/* String Comparison */}
                 <div className="space-y-4">
                   <h4 className="font-medium">String Comparison</h4>
@@ -1709,8 +1698,8 @@ const JSONDiffCore = () => {
                     Reset to Defaults
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </section>
           </TabsContent>
         </Tabs>
       </div>
