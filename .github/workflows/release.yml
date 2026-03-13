@@ -29,12 +29,18 @@ jobs:
         with:
           node-version: "lts/*"
           cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
 
       - name: Lint
         run: pnpm run lint || echo "Lint script not found, skipping..."
@@ -91,6 +97,12 @@ jobs:
         with:
           node-version: "lts/*"
           cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -98,7 +110,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Install frontend dependencies
-        run: pnpm install --prefer-offline --no-audit
+        run: pnpm install --frozen-lockfile --prefer-offline --no-audit
 
       - name: Sync version to app configs
         shell: bash
