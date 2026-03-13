@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 .vercel
 .tanstack
+ 
+# Tauri / Rust build artifacts
+src-tauri/target
+src-tauri/.tauri

@@ -112,7 +112,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Install frontend dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install --frozen-lockfile --prefer-offline --no-audit
 
       - name: Sync version to app configs
         shell: bash

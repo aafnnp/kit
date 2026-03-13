@@ -1,7 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use serde::Serialize;
-use tauri::{AppHandle, Emitter, Manager, WebviewWindow};
+use tauri::{AppHandle, Emitter, WebviewWindow};
 use tauri_plugin_shell::ShellExt;
 use tauri_plugin_updater::UpdaterExt;
 
@@ -27,12 +27,9 @@ enum UpdateProgressEvent {
 /// 打开外部链接
 #[tauri::command]
 async fn open_external(app_handle: AppHandle, url: String) -> Result<(), String> {
-  let parsed = url::Url::parse(&url).map_err(|e| format!("Invalid URL: {e}"))?;
-
   app_handle
-    .plugins()
     .shell()
-    .open(parsed, None)
+    .open(url, None)
     .map_err(|e| format!("Failed to open external url: {e}"))?;
 
   Ok(())
@@ -40,9 +37,8 @@ async fn open_external(app_handle: AppHandle, url: String) -> Result<(), String>
 
 /// 重新启动应用（尽量模拟 Electron 的 relaunch 语义）
 #[tauri::command]
-fn relaunch(app_handle: AppHandle) -> Result<(), String> {
+fn relaunch(app_handle: AppHandle) {
   app_handle.restart();
-  Ok(())
 }
 
 /// 窗口控制相关命令
@@ -73,15 +69,14 @@ fn window_is_maximized(window: WebviewWindow) -> Result<bool, String> {
 /// 检查是否有可用更新
 #[tauri::command]
 async fn updater_check(app_handle: AppHandle) -> Result<Option<UpdateInfo>, String> {
-  let updater = app_handle.updater_builder().map_err(|e| e.to_string())?;
+  let updater = app_handle.updater_builder().build().map_err(|e| e.to_string())?;
   let update = updater.check().await.map_err(|e| e.to_string())?;
 
   if let Some(info) = update {
-    let meta = info.manifest;
     Ok(Some(UpdateInfo {
-      version: meta.version,
-      date: meta.date,
-      body: meta.body,
+      version: info.version,
+      date: info.date.map(|date| date.to_string()),
+      body: info.body,
     }))
   } else {
     Ok(None)
@@ -91,31 +86,49 @@ async fn updater_check(app_handle: AppHandle) -> Result<Option<UpdateInfo>, Stri
 /// 下载并安装更新，同时通过事件推送进度
 #[tauri::command]
 async fn updater_download_and_install(app_handle: AppHandle) -> Result<(), String> {
-  let updater = app_handle.updater_builder().map_err(|e| e.to_string())?;
-  let mut session = updater.download().await.map_err(|e| e.to_string())?;
-
-  let content_length = session.content_length();
+  let updater = app_handle.updater_builder().build().map_err(|e| e.to_string())?;
+  let update = updater
+    .check()
+    .await
+    .map_err(|e| e.to_string())?
+    .ok_or_else(|| "No update available".to_string())?;
+  let mut downloaded = 0_u64;
+  let mut emit_error: Option<String> = None;
 
   app_handle
     .emit(
       "updater:progress",
-      UpdateProgressEvent::Started { content_length },
+      UpdateProgressEvent::Started {
+        content_length: None,
+      },
     )
     .map_err(|e| e.to_string())?;
 
-  while let Some(chunk) = session.chunk().await.map_err(|e| e.to_string())? {
-    app_handle
-      .emit(
-        "updater:progress",
-        UpdateProgressEvent::Progress {
-          downloaded: chunk.bytes_downloaded(),
-          content_length,
-        },
-      )
-      .map_err(|e| e.to_string())?;
-  }
+  update
+    .download_and_install(
+      |chunk_length, content_length| {
+        if emit_error.is_some() {
+          return;
+        }
+        downloaded += chunk_length as u64;
+        if let Err(error) = app_handle.emit(
+          "updater:progress",
+          UpdateProgressEvent::Progress {
+            downloaded,
+            content_length,
+          },
+        ) {
+          emit_error = Some(error.to_string());
+        }
+      },
+      || {},
+    )
+    .await
+    .map_err(|e| e.to_string())?;
 
-  session.install().await.map_err(|e| e.to_string())?;
+  if let Some(error) = emit_error {
+    return Err(error);
+  }
 
   app_handle
     .emit("updater:progress", UpdateProgressEvent::Finished {})
@@ -127,9 +140,16 @@ async fn updater_download_and_install(app_handle: AppHandle) -> Result<(), Strin
 /// 执行更新安装（通常在下载完成后调用）
 #[tauri::command]
 async fn updater_install(app_handle: AppHandle) -> Result<(), String> {
-  let updater = app_handle.updater_builder().map_err(|e| e.to_string())?;
-  let mut session = updater.download().await.map_err(|e| e.to_string())?;
-  session.install().await.map_err(|e| e.to_string())?;
+  let updater = app_handle.updater_builder().build().map_err(|e| e.to_string())?;
+  let update = updater
+    .check()
+    .await
+    .map_err(|e| e.to_string())?
+    .ok_or_else(|| "No update available".to_string())?;
+  update
+    .download_and_install(|_, _| {}, || {})
+    .await
+    .map_err(|e| e.to_string())?;
   Ok(())
 }
 
@@ -151,4 +171,3 @@ fn main() {
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
-
