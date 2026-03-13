@@ -1,0 +1,11 @@
+/Users/pfan/Workplaces/self/kit/src-tauri/target/debug/deps/tauri_runtime-b76732b15669f876.d: /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/lib.rs /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/dpi.rs /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/monitor.rs /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/webview.rs /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/window.rs
+
+/Users/pfan/Workplaces/self/kit/src-tauri/target/debug/deps/libtauri_runtime-b76732b15669f876.rlib: /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/lib.rs /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/dpi.rs /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/monitor.rs /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/webview.rs /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/window.rs
+
+/Users/pfan/Workplaces/self/kit/src-tauri/target/debug/deps/libtauri_runtime-b76732b15669f876.rmeta: /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/lib.rs /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/dpi.rs /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/monitor.rs /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/webview.rs /Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/window.rs
+
+/Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/lib.rs:
+/Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/dpi.rs:
+/Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/monitor.rs:
+/Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/webview.rs:
+/Users/pfan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-2.10.1/src/window.rs:

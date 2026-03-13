@@ -1,0 +1,33 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/v2/plugins/schemas/desktop-schema.json",
+  "productName": "Kit",
+  "version": "0.1.0",
+  "identifier": "dev.kit.app",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build:base",
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "title": "Kit",
+        "width": 1440,
+        "height": 900,
+        "resizable": true,
+        "decorations": false,
+        "fullscreen": false
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": ["../build/icon.png"]
+  }
+}
