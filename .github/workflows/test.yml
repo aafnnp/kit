@@ -78,7 +78,7 @@ jobs:
             rpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline --no-audit
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Test Tauri build
         env:
