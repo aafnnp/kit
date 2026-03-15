@@ -19,10 +19,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       role="navigation"
       className="sidebar-tablet lg:sidebar-desktop"
     >
-      <SidebarContent
-        className={`px-2 sm:px-3 ${isDesktop ? "pt-[calc(32px+0.75rem)]" : ""}`}
-        role="main"
-      >
+      <SidebarContent className={`px-2 sm:px-3 ${isDesktop ? "pt-[calc(32px+0.75rem)]" : ""}`}>
         <NavMain items={data.navMain} />
       </SidebarContent>
     </Sidebar>

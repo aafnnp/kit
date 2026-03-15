@@ -10,7 +10,6 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-electron/dist-electron
 *.local
 
 # Editor directories and files
@@ -25,3 +24,7 @@ electron/dist-electron
 *.sw?
 .vercel
 .tanstack
+ 
+# Tauri / Rust build artifacts
+src-tauri/target
+src-tauri/.tauri

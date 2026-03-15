@@ -42,14 +42,12 @@ show_help() {
     echo "  -a, --analyze           构建并分析产物"
     echo "  -f, --fast              快速构建（用于测试）"
     echo "  -c, --clean             构建前清理"
-    echo "  -e, --electron          构建 Electron 应用"
     echo "  -r, --release [type]    发布版本 (patch|minor|major)"
     echo "  --debug                 启用调试模式"
     echo ""
     echo "示例:"
     echo "  $0 --production         # 生产构建"
     echo "  $0 --analyze            # 构建并分析"
-    echo "  $0 --electron --fast    # 快速 Electron 构建"
     echo "  $0 --release minor      # 发布次要版本"
 }
 
@@ -67,10 +65,6 @@ check_dependencies() {
         exit 1
     fi
     
-    if [[ "$BUILD_ELECTRON" == "true" ]] && ! command -v electron-builder &> /dev/null && ! npm list -g electron-builder &> /dev/null; then
-        log_warning "electron-builder 未全局安装，将使用项目本地版本"
-    fi
-    
     log_success "依赖检查完成"
 }
 
@@ -79,8 +73,6 @@ clean_build() {
     log_info "清理构建产物..."
     
     rm -rf dist
-    rm -rf electron/dist-electron
-    rm -rf release
     rm -rf node_modules/.vite
     
     if [[ "$CLEAN_ALL" == "true" ]]; then
@@ -114,28 +106,6 @@ build_frontend() {
     fi
     
     log_success "前端构建完成"
-}
-
-# Electron 构建
-build_electron() {
-    log_info "构建 Electron 应用..."
-    
-    # 编译 TypeScript
-    log_info "编译 Electron TypeScript 文件..."
-    npm run electron:compile
-    
-    # 使用 electron-builder 构建
-    if [[ "$BUILD_MODE" == "development" ]]; then
-        npm run electron:build -- --dir
-    elif [[ "$BUILD_MODE" == "fast" ]]; then
-        npm run electron:build -- --dir
-    elif [[ "$DEBUG_MODE" == "true" ]]; then
-        DEBUG=electron-builder npm run electron:build
-    else
-        npm run electron:build
-    fi
-    
-    log_success "Electron 构建完成"
 }
 
 # 分析构建产物
@@ -185,7 +155,6 @@ release_version() {
 show_build_info() {
     log_info "构建配置:"
     echo "  模式: $BUILD_MODE"
-    echo "  Electron: $BUILD_ELECTRON"
     echo "  分析: $ANALYZE"
     echo "  清理: $CLEAN"
     echo "  调试: $DEBUG_MODE"
@@ -213,11 +182,6 @@ main() {
     # 构建前端
     build_frontend
     
-    # 构建 Electron（如果需要）
-    if [[ "$BUILD_ELECTRON" == "true" ]]; then
-        build_electron
-    fi
-    
     # 分析构建产物（如果需要）
     if [[ "$ANALYZE" == "true" ]]; then
         analyze_build
@@ -236,7 +200,6 @@ main() {
 
 # 默认配置
 BUILD_MODE="production"
-BUILD_ELECTRON="false"
 ANALYZE="false"
 CLEAN="false"
 DEBUG_MODE="false"
@@ -273,10 +236,6 @@ while [[ $# -gt 0 ]]; do
         --clean-all)
             CLEAN="true"
             CLEAN_ALL="true"
-            shift
-            ;;
-        -e|--electron)
-            BUILD_ELECTRON="true"
             shift
             ;;
         -r|--release)

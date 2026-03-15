@@ -1,7 +1,6 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router"
 import "../App.css"
-import { AppSidebar, CustomTitleBar } from "@/components/layout"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { CustomTitleBar } from "@/components/layout"
 import { PerformanceMonitor } from "@/components/monitoring"
 import { isDesktopApp } from "@/lib/utils"
 import { useState, useEffect } from "react"
@@ -46,25 +45,21 @@ export const Route = createRootRoute({
 
         <CustomTitleBar />
 
-        <SidebarProvider>
-          <AppSidebar />
-          <SidebarInset className="flex flex-col">
-            <main className="flex-1 px-4 py-12">
-              <Outlet />
-            </main>
-          </SidebarInset>
-        </SidebarProvider>
+        <div className="flex min-h-screen flex-1 flex-col">
+          <main className="flex-1 p-0">
+            <Outlet />
+          </main>
+        </div>
 
         <PerformanceMonitor
           isVisible={showPerformanceMonitor}
           onToggle={() => setShowPerformanceMonitor(false)}
         />
 
-        {/* 性能监控切换按钮 */}
         {!showPerformanceMonitor && (
           <button
             onClick={() => setShowPerformanceMonitor(true)}
-            className="fixed bottom-4 right-4 p-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors z-50"
+            className="fixed bottom-4 right-4 inline-flex h-9 items-center justify-center rounded-full border border-border bg-background/90 px-3 text-xs font-medium text-muted-foreground shadow-sm hover:border-primary/40 hover:text-primary transition-colors z-40"
             title={t("routes.root.open-performance-monitor")}
           >
             📊

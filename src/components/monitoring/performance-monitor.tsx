@@ -166,7 +166,8 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
         onClick={onToggle}
         variant="outline"
         size="sm"
-        className={`fixed bottom-4 right-4 z-50 ${className}`}
+        className={`fixed bottom-4 right-4 z-50 h-9 w-9 rounded-full ${className}`}
+        aria-label={t("performanceMonitor.toggle", "打开性能监控面板")}
       >
         <Monitor className="h-4 w-4" />
       </Button>
@@ -192,7 +193,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
                 onClick={() => setIsRecording(!isRecording)}
                 variant={isRecording ? "destructive" : "outline"}
                 size="sm"
-                className="h-6 px-2 text-xs"
+                className="h-8 px-3 text-xs"
               >
                 {isRecording ? t("common.stop") : t("common.start")}
               </Button>
@@ -200,9 +201,10 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
                 onClick={onToggle}
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0"
+                className="h-8 w-8 p-0"
+                aria-label={t("performanceMonitor.close", "关闭性能监控面板")}
               >
-                ×
+                <span aria-hidden="true">×</span>
               </Button>
             </div>
           </div>
@@ -326,7 +328,7 @@ export const recordPerformanceMetrics = (
   renderTime: number,
   memoryUsage: number,
   itemCount: number,
-  strategy: string
+  strategy: string,
 ) => {
   // 这个函数可以被其他组件调用来记录性能指标
   if (typeof window !== "undefined" && (window as any).__performanceMonitor) {
