@@ -29,8 +29,9 @@
     "ci:build:analyze": "cross-env ANALYZE=1 npm run build && node scripts/build-optimizer.mjs",
     "clean:all": "npm run clean && rm -rf node_modules",
     "ci:check-tools": "node scripts/check-tools.mjs",
+    "prepare:icons": "node scripts/prepare-icons.mjs",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build",
+    "tauri:build": "node scripts/prepare-icons.mjs && tauri build",
     "fix:mac": "echo '请使用: ./scripts/fix-mac-gatekeeper.sh <应用路径>' && echo '例如: ./scripts/fix-mac-gatekeeper.sh ~/Downloads/Kit.app'"
   },
   "dependencies": {

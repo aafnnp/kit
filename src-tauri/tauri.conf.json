@@ -28,6 +28,6 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "icon": ["../build/icon.png"]
+    "icon": ["../build/icon.icns", "../build/icon.ico", "../build/icon.png"]
   }
 }
