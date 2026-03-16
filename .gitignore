@@ -28,3 +28,10 @@ dist-ssr
 # Tauri / Rust build artifacts
 src-tauri/target
 src-tauri/.tauri
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
