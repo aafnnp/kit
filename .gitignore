@@ -35,3 +35,13 @@ src-tauri/.tauri
 !.dev.vars.example
 .env*
 !.env.example
+
+# Build analysis artifacts
+stats.html
+build-report.json
+
+# npm cache
+.npm-cache
+
+# local pnpm store fallback
+.pnpm-store

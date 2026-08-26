@@ -55,7 +55,7 @@ We all hop between countless “small tools” daily: JSON formatter, image comp
 
 ## Under the Hood
 
-- Frontend: React 19, TypeScript 5.9, Vite 7, TailwindCSS 4, Motion
+- Frontend: React 19, TypeScript 5.9, Vite 8, TailwindCSS 4, Motion
 - Routing/Data: @tanstack/react-router, @tanstack/react-query
 - UI/UX: Radix UI, shadcn/ui, lucide-react, @dnd-kit
 - Desktop: Tauri 2 (Rust), multi-platform packaging

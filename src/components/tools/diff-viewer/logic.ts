@@ -93,7 +93,8 @@ const buildDiffFromTrace = (linesA: string[], linesB: string[], trace: number[][
   for (let depth = d; depth > 0; depth--) {
     const v = trace[depth]
     const k = x - y
-    const max = depth + linesA.length + linesB.length
+    // 偏移量需与 myersDiff 中 v 数组的索引一致（常量 n + m），不可叠加 depth
+    const max = linesA.length + linesB.length
 
     let prevK: number
     if (k === -depth || (k !== depth && v[k - 1 + max] < v[k + 1 + max])) {
@@ -137,6 +138,20 @@ const buildDiffFromTrace = (linesA: string[], linesB: string[], trace: number[][
         y--
       }
     }
+  }
+
+  // 收尾：回溯完成后剩余的未变化行（覆盖 d=0 完全相同文本的情况）
+  while (x > 0 && y > 0) {
+    result.unshift({
+      type: "unchanged",
+      leftLineNumber: x,
+      rightLineNumber: y,
+      leftContent: linesA[x - 1],
+      rightContent: linesB[y - 1],
+      content: linesA[x - 1],
+    })
+    x--
+    y--
   }
 
   return result

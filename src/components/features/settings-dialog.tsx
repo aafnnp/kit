@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next"
+import { changeLocale } from "@/locales"
 import { useEffect, useState, useMemo } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { Card } from "@/components/ui/card"
@@ -38,7 +39,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "system")
   const locale = i18n.language.startsWith("en") ? "en" : "zh"
 
-  // 判断是否为桌面版（Electron 应用）
+  // 判断是否为桌面版（Tauri 应用）
   const isDesktop = isDesktopApp()
 
   // 数据持久化相关
@@ -298,14 +299,14 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                         <div className="flex gap-2">
                           <Button
                             variant={locale === "zh" ? "default" : "outline"}
-                            onClick={() => i18n.changeLanguage("zh")}
+                            onClick={() => changeLocale("zh")}
                             disabled={locale === "zh"}
                           >
                             {t("settings.chinese")}
                           </Button>
                           <Button
                             variant={locale === "en" ? "default" : "outline"}
-                            onClick={() => i18n.changeLanguage("en")}
+                            onClick={() => changeLocale("en")}
                             disabled={locale === "en"}
                           >
                             {t("settings.english")}

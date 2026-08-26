@@ -11,20 +11,28 @@ export function CustomTitleBar() {
   useEffect(() => {
     if (!isDesktop || !desktopApi || !desktopApi.window) return
 
-    // Check initial maximized state
-    desktopApi.window.isMaximized().then(setIsMaximized)
-
-    // Listen for window state changes
     const checkMaximized = () => {
       if (desktopApi?.window) {
         desktopApi.window.isMaximized().then(setIsMaximized)
       }
     }
 
-    // Check periodically (Electron doesn't have a built-in event for this)
-    const interval = setInterval(checkMaximized, 100)
+    // Check initial maximized state
+    checkMaximized()
 
-    return () => clearInterval(interval)
+    // 事件驱动：监听 Tauri 窗口事件，替代 100ms 轮询
+    const tauri = (window as any).__TAURI__
+    const unlisteners: Array<() => void> = []
+    if (tauri?.event?.listen) {
+      const events = ["tauri://resize", "tauri://move", "tauri://focus"]
+      events.forEach((eventName) => {
+        tauri.event.listen(eventName, checkMaximized).then((fn: () => void) => unlisteners.push(fn))
+      })
+    }
+
+    return () => {
+      unlisteners.forEach((fn) => fn())
+    }
   }, [desktopApi, isDesktop])
 
   if (!isDesktop || !desktopApi) {
@@ -37,9 +45,7 @@ export function CustomTitleBar() {
 
   const handleMaximize = () => {
     desktopApi?.window?.maximize()
-    setTimeout(() => {
-      desktopApi?.window?.isMaximized().then(setIsMaximized)
-    }, 100)
+    // 状态由 tauri://resize 事件驱动更新
   }
 
   const handleClose = () => {
@@ -65,7 +71,7 @@ export function CustomTitleBar() {
 
   return (
     <div
-      className="electron-title-bar"
+      className="app-title-bar"
       style={{
         ...dragStyle,
         position: "fixed",

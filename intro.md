@@ -114,88 +114,9 @@ Kit 是一个现代化的多功能工具集合，专为开发者、设计师和�
 - **Currency Converter** - 汇率换算器
 - **Roman↔Arabic** - 罗马数字转换
 
-## 🚀 技术栈
+##  技术栈
 
-Kit 采用现代化的前端技术栈构建，确保性能和用户体验：
-
-### 前端框架
-
-- **React 18** - 现代化 UI 框架
-- **TypeScript 5** - 类型安全的 JavaScript
-- **Vite 6** - 极速构建工具
-- **TailwindCSS 4** - 原子化 CSS 框架
-
-### 桌面端
-
-- **Tauri 2** - 轻量级跨平台桌面应用框架
-- **Rust** - 高性能系统编程语言
-
-### 路由和状态管理
-
-- **@tanstack/react-router** - 类型安全的路由系统
-- **@tanstack/react-query** - 强大的数据获取和缓存
-
-### UI 组件库
-
-- **Radix UI** - 无障碍访问的组件基础
-- **Lucide React** - 精美的图标库
-- **Motion** - 流畅的动画库
-- **Shadcn/ui** - 现代化组件设计
-
-### 国际化和工具
-
-- **React i18next** - 国际化解决方案
-- **Class Variance Authority** - 组件变体管理
-- **Tailwind Merge** - TailwindCSS 类名合并
-
-## 📦 安装和使用
-
-### Web 端体验
-
-直接访问在线版本，无需安装：
-
-```
-https://kit.manon.icu/
-```
-
-### 本地开发
-
-```bash
-# 克隆项目
-git clone https://github.com/aafnnp/kit.git
-cd kit
-
-# 安装依赖
-npm install
-
-# 启动开发服务器
-npm run dev
-```
-
-### 桌面端安装
-
-#### 开发环境
-
-```bash
-# 安装 Tauri 环境
-# 参考：https://tauri.app/v2/guides/getting-started/prerequisites/
-
-# 启动桌面端开发
-npm run tauri dev
-```
-
-#### 构建安装包
-
-```bash
-# 构建桌面端应用
-npm run tauri build
-```
-
-构建产物位于 `src-tauri/target/` 目录，支持：
-
-- **Windows** - `.msi` 安装包
-- **macOS** - `.dmg` 安装包
-- **Linux** - `.deb` / `.rpm` 安装包
+完整技术栈（React 19 / Vite 8 / TypeScript 5.9 / TailwindCSS 4 / Tauri 2 / TanStack Router 等）与安装运行说明，请见 **[README.md](./README.md)**。
 
 ## 🎯 使用场景
 
@@ -248,7 +169,7 @@ npm run tauri build
 
 - **TypeScript** - 完整的类型定义
 - **组件化** - 高度模块化的代码结构
-- **测试覆盖** - 完善的单元测试
+- **测试覆盖** - Vitest 单元测试（公共组件与工具函数）
 - **文档完善** - 详细的开发文档
 - **CI/CD** - 自动化构建和部署
 

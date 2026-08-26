@@ -37,6 +37,9 @@ jobs:
       - name: Lint
         run: pnpm run lint || echo "Lint script not found, skipping..."
 
+      - name: Unit tests
+        run: pnpm test
+
       - name: Build frontend
         run: pnpm run build
 

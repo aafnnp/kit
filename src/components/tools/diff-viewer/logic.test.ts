@@ -59,5 +59,5 @@ describe("diff-viewer logic", () => {
     expect(validateTextFile(ok).isValid).toBe(true)
     expect(validateTextFile(badExt).isValid).toBe(false)
   })
-}
+})
 

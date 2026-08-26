@@ -5,7 +5,7 @@ use tauri::{AppHandle, Emitter, WebviewWindow};
 use tauri_plugin_shell::ShellExt;
 use tauri_plugin_updater::UpdaterExt;
 
-/// 更新信息，复用现有 Electron 侧的字段语义
+/// 更新信息
 #[derive(Serialize, Clone)]
 struct UpdateInfo {
   version: String,
@@ -35,7 +35,7 @@ async fn open_external(app_handle: AppHandle, url: String) -> Result<(), String>
   Ok(())
 }
 
-/// 重新启动应用（尽量模拟 Electron 的 relaunch 语义）
+/// 重新启动应用
 #[tauri::command]
 fn relaunch(app_handle: AppHandle) {
   app_handle.restart();
@@ -157,6 +157,8 @@ fn main() {
   tauri::Builder::default()
     .plugin(tauri_plugin_shell::init())
     .plugin(tauri_plugin_updater::Builder::new().build())
+    // 记住窗口位置/大小，关闭后重启恢复
+    .plugin(tauri_plugin_window_state::Builder::default().build())
     .invoke_handler(tauri::generate_handler![
       open_external,
       relaunch,

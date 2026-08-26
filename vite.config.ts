@@ -15,11 +15,13 @@ try {
 const pkg = JSON.parse(fs.readFileSync("./package.json", "utf-8"))
 
 export default defineConfig(() => ({
-  base: "./", // 使用相对路径，兼容 Electron file:// 协议
+  base: "./", // 使用相对路径，兼容 Tauri 自定义协议加载
   plugins: [
     tanstackRouter({
       target: "react",
       autoCodeSplitting: true,
+      // 非路由模块目录（组件、hooks），避免被当作 route 文件扫描并产生警告
+      routeFileIgnorePattern: "^(components|hooks)$",
     }),
     react({
       // 优化JSX运行时

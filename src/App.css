@@ -137,9 +137,9 @@
   }
 }
 
-/* Custom title bar drag region for Electron */
+/* Custom title bar drag region (Tauri) */
 @layer components {
-  .electron-title-bar {
+  .app-title-bar {
     -webkit-app-region: drag !important;
     app-region: drag !important;
     -webkit-user-select: none !important;
@@ -149,21 +149,21 @@
   }
 
   /* Interactive elements should not be draggable */
-  .electron-title-bar button,
-  .electron-title-bar a,
-  .electron-title-bar input,
-  .electron-title-bar select,
-  .electron-title-bar textarea,
-  .electron-title-bar [style*="no-drag"],
-  .electron-title-bar [style*="WebkitAppRegion: no-drag"] {
+  .app-title-bar button,
+  .app-title-bar a,
+  .app-title-bar input,
+  .app-title-bar select,
+  .app-title-bar textarea,
+  .app-title-bar [style*="no-drag"],
+  .app-title-bar [style*="WebkitAppRegion: no-drag"] {
     -webkit-app-region: no-drag !important;
     app-region: no-drag !important;
     pointer-events: auto !important;
   }
 
   /* Text elements should inherit drag region from parent */
-  .electron-title-bar span:not(button span),
-  .electron-title-bar p:not(button p) {
+  .app-title-bar span:not(button span),
+  .app-title-bar p:not(button p) {
     -webkit-app-region: drag !important;
     app-region: drag !important;
     pointer-events: none !important;

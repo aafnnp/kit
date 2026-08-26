@@ -116,9 +116,9 @@ Kit 内置数十种高频开发/生活工具，全部本地运行，数据隐私
 
 ## 🛠 技术栈
 
-- React 18
-- Vite 6
-- TypeScript 5
+- React 19
+- Vite 8
+- TypeScript 5.9
 - TailwindCSS 4
 - Tauri 2（桌面端）
 - @tanstack/react-router & react-query
