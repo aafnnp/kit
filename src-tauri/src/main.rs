@@ -2,7 +2,7 @@
 
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, WebviewWindow};
-use tauri_plugin_shell::ShellExt;
+use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_updater::UpdaterExt;
 
 /// 更新信息
@@ -28,8 +28,8 @@ enum UpdateProgressEvent {
 #[tauri::command]
 async fn open_external(app_handle: AppHandle, url: String) -> Result<(), String> {
   app_handle
-    .shell()
-    .open(url, None)
+    .opener()
+    .open_url(url, None::<&str>)
     .map_err(|e| format!("Failed to open external url: {e}"))?;
 
   Ok(())
@@ -155,7 +155,7 @@ async fn updater_install(app_handle: AppHandle) -> Result<(), String> {
 
 fn main() {
   tauri::Builder::default()
-    .plugin(tauri_plugin_shell::init())
+    .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_updater::Builder::new().build())
     // 记住窗口位置/大小，关闭后重启恢复
     .plugin(tauri_plugin_window_state::Builder::default().build())

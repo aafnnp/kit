@@ -29,6 +29,10 @@ dist-ssr
 src-tauri/target
 src-tauri/.tauri
 
+# Generated app icons (build/icon.png is the tracked source)
+build/icon.icns
+build/icon.ico
+
 # wrangler files
 .wrangler
 .dev.vars*
