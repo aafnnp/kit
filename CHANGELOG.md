@@ -5,6 +5,131 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## v0.4.0
+
+*发布日期: 2026-08-28*
+
+### ✨ Features
+
+- enhance theme and layout with new styles and emojis ([3659eb4](../../commit/3659eb4))
+- update Vite configuration for Tauri compatibility and add Vitest configuration file ([4b1e5cd](../../commit/4b1e5cd))
+
+### 🔧 Chores
+
+- 0.4.0 ([ce40e86](../../commit/ce40e86))
+- **deps**: update tauri/rust dependencies and migrate shell to opener plugin ([d7def5f](../../commit/d7def5f))
+- update deps ([6434889](../../commit/6434889))
+
+### 📊 统计信息
+
+- 总提交数: 5
+- 参与开发者: 1
+- 新功能: 2
+- 问题修复: 0
+- 对比版本: [v0.3.0...v0.4.0](../../compare/v0.3.0...v0.4.0)
+
+---
+
+## v0.3.0
+
+*发布日期: 2026-03-16*
+
+### ✨ Features
+
+- Add Cloudflare Workers configuration ([2033f2c](../../commit/2033f2c))
+
+### 👷 Build System
+
+- 添加图标生成脚本并更新构建配置 ([2683a6e](../../commit/2683a6e))
+
+### 💚 Continuous Integration
+
+- **release**: 重构版本更新脚本以增强健壮性 ([cb0de32](../../commit/cb0de32))
+- 修复 Cargo.toml 版本替换中的正则表达式捕获组使用 ([b49b73d](../../commit/b49b73d))
+- 移除 pnpm install 中的 --no-audit 参数 ([e47cbde](../../commit/e47cbde))
+- **workflow**: 更新 Ubuntu 依赖项并调整构建命令 ([a4a77d2](../../commit/a4a77d2))
+- 移除 pnpm install 中的 --no-audit 参数 ([0b7fe5c](../../commit/0b7fe5c))
+- 在 GitHub Actions 中固定 pnpm 版本为 9 ([4a57033](../../commit/4a57033))
+
+### 🔧 Chores
+
+- remove tauri ignore files ([78cb261](../../commit/78cb261))
+- streamline pnpm setup in GitHub Actions workflows ([2be7412](../../commit/2be7412))
+- update GitHub Actions workflows for pnpm integration ([2f6d59c](../../commit/2f6d59c))
+- update package dependencies and configuration for pnpm ([fb7570e](../../commit/fb7570e))
+- test ([194cac1](../../commit/194cac1))
+
+### 📊 统计信息
+
+- 总提交数: 13
+- 参与开发者: 2
+- 新功能: 1
+- 问题修复: 0
+- 对比版本: [v0.2.0...v0.3.0](../../compare/v0.2.0...v0.3.0)
+
+---
+
+## v0.2.0
+
+*发布日期: 2025-12-28*
+
+### ✨ Features
+
+- set base path for Electron compatibility ([cd7bfe8](../../commit/cd7bfe8))
+- include schemas in build configuration and TypeScript settings ([c67ebd9](../../commit/c67ebd9))
+- enhance macOS code signing and build process ([764260e](../../commit/764260e))
+- add integration tests for ApiTester and AudioConvert components ([672eec3](../../commit/672eec3))
+- introduce Nitro configuration and enhance build scripts ([f285c37](../../commit/f285c37))
+- add new tools and schemas for enhanced functionality ([32e8336](../../commit/32e8336))
+- integrate Electron support and update project structure ([3b08936](../../commit/3b08936))
+
+### 🐛 Bug Fixes
+
+- update production file loading to handle asar packaging correctly ([87fc12c](../../commit/87fc12c))
+
+### ♻️ Code Refactoring
+
+- simplify URL validation and update IPC handlers ([968dc18](../../commit/968dc18))
+- standardize number formatting across currency conversion and prime checker tools ([a4d243a](../../commit/a4d243a))
+- update routeTree generation and enhance tool schemas ([3be006c](../../commit/3be006c))
+- enhance tool management and introduce chunking strategy ([1f5c5eb](../../commit/1f5c5eb))
+- enhance tool preloading and optimize JSON processing ([c307bd7](../../commit/c307bd7))
+- simplify AppSidebar component and improve layout structure ([64a3092](../../commit/64a3092))
+- enhance code consistency and improve accessibility attributes ([70d520c](../../commit/70d520c))
+- simplify padding in CustomTitleBar component ([547aeea](../../commit/547aeea))
+- remove migration tasks and update release workflow for Electron ([672adc1](../../commit/672adc1))
+- enhance accessibility and improve code consistency ([a559d6b](../../commit/a559d6b))
+- clean up accessibility attributes and improve code consistency ([4415d1b](../../commit/4415d1b))
+- remove optimization recommendations document and enhance translation keys ([feaf267](../../commit/feaf267))
+- update Electron configuration and enhance code organization ([f73e7f9](../../commit/f73e7f9))
+- enhance performance and code organization ([49322e6](../../commit/49322e6))
+
+### 📚 Documentation
+
+- update changelog ([1c0a1bc](../../commit/1c0a1bc))
+
+### 🔧 Chores
+
+- remove unused files and update package dependencies ([89aecab](../../commit/89aecab))
+- update dependencies and improve testing setup ([94988bc](../../commit/94988bc))
+- update dependencies and enhance testing tools ([ffa4a4b](../../commit/ffa4a4b))
+- update Electron build configuration for GitHub Actions ([1fb61b3](../../commit/1fb61b3))
+- update schemas and remove unused type definitions ([8711954](../../commit/8711954))
+- update Electron build configuration and add icon preparation script ([19c76fa](../../commit/19c76fa))
+- streamline Electron build process and enhance script functionality ([44a7c89](../../commit/44a7c89))
+- update Electron configuration and package metadata ([9c2915f](../../commit/9c2915f))
+- add support for feature-electron tag in release workflow ([f9244d9](../../commit/f9244d9))
+
+### 📊 统计信息
+
+- 总提交数: 32
+- 参与开发者: 2
+- 新功能: 7
+- 问题修复: 1
+- 对比版本: [v0.1.7...v0.2.0](../../compare/v0.1.7...v0.2.0)
+
+---
+
 ## v0.1.7
 
 *发布日期: 2025-11-02*
