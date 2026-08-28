@@ -33,8 +33,8 @@ const ThemeToggle = React.forwardRef<HTMLButtonElement, React.ComponentProps<"bu
           className="h-8 w-8 rounded-full hover:bg-accent/80 dark:hover:bg-accent/60 transition-all duration-300 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           {...props}
         >
-          <IconSun className="h-4 w-4 rotate-0 scale-100 transition-all duration-500 ease-in-out dark:rotate-180 dark:scale-0 text-amber-500 dark:text-amber-400" />
-          <IconMoon className="absolute h-4 w-4 rotate-180 scale-0 transition-all duration-500 ease-in-out dark:rotate-0 dark:scale-100 text-slate-700 dark:text-blue-300" />
+          <IconSun className="h-4 w-4 rotate-0 scale-100 transition-all duration-500 ease-in-out dark:rotate-180 dark:scale-0 text-blue-600 dark:text-blue-400" />
+          <IconMoon className="absolute h-4 w-4 rotate-180 scale-0 transition-all duration-500 ease-in-out dark:rotate-0 dark:scale-100 text-gray-700 dark:text-blue-300" />
           <span className="sr-only">{getThemeLabel()}</span>
         </Button>
       </DropdownMenuTrigger>
@@ -51,7 +51,7 @@ const ThemeToggle = React.forwardRef<HTMLButtonElement, React.ComponentProps<"bu
           role="menuitemradio"
           tabIndex={0}
         >
-          <IconSun className="mr-2 h-4 w-4 text-amber-500" />
+          <IconSun className="mr-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
           <span>{t("theme.light", "浅色")}</span>
           {theme === "light" && <div className="ml-auto h-2 w-2 rounded-full bg-primary animate-pulse" />}
         </DropdownMenuItem>
@@ -75,7 +75,7 @@ const ThemeToggle = React.forwardRef<HTMLButtonElement, React.ComponentProps<"bu
           role="menuitemradio"
           tabIndex={0}
         >
-          <IconDeviceDesktop className="mr-2 h-4 w-4 text-slate-600 dark:text-slate-300" />
+          <IconDeviceDesktop className="mr-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
           <span>{t("theme.system", "系统")}</span>
           {theme === "system" && <div className="ml-auto h-2 w-2 rounded-full bg-primary animate-pulse" />}
         </DropdownMenuItem>

@@ -82,7 +82,7 @@ function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCar
 
   return (
     <Card
-      className="group cursor-pointer transition-all duration-500 ease-out hover:shadow-xl hover:shadow-primary/15 hover:scale-[1.02] border border-border/50 hover:border-primary/40 dark:hover:border-primary/50 dark:hover:shadow-primary/25 bg-linear-to-b from-background via-background/80 to-background/95 dark:from-muted/20 dark:via-muted/10 dark:to-background/40 backdrop-blur-xl touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:-translate-y-1 active:scale-[0.98] active:translate-y-0 will-change-transform tool-card-xs sm:tool-card-mobile md:tool-card-tablet lg:tool-card-desktop rounded-2xl"
+      className="group cursor-pointer gap-2! sm:gap-3! transition-all duration-300 ease-out hover:shadow-xl hover:shadow-primary/10 hover:border-primary/40 dark:hover:border-primary/40 dark:hover:shadow-primary/20 border border-border/60 bg-linear-to-b from-card via-card/90 to-card/80 dark:from-muted/20 dark:via-muted/10 dark:to-background/40 backdrop-blur-xl touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:-translate-y-1 active:scale-[0.98] active:translate-y-0 will-change-transform tool-card-xs tool-card-mobile tool-card-tablet tool-card-desktop rounded-2xl"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onMouseEnter={() => {
@@ -91,21 +91,21 @@ function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCar
       tabIndex={0}
       role="button"
     >
-      <CardHeader className="pb-3 p-4 sm:p-5">
+      <CardHeader className="pb-2.5 p-3 sm:p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
-            <div className="p-2.5 sm:p-3 rounded-2xl bg-linear-to-br from-primary/15 via-primary/10 to-primary/5 text-primary group-hover:from-primary/30 group-hover:via-primary/20 group-hover:to-primary/10 dark:group-hover:from-primary/25 dark:group-hover:via-primary/20 dark:group-hover:to-primary/15 transition-all duration-500 group-hover:scale-110 dark:text-primary-foreground/90 shrink-0 group-hover:shadow-lg group-hover:shadow-primary/20 dark:group-hover:shadow-primary/30 border border-primary/10">
+            <div className="p-2.5 sm:p-3 rounded-xl bg-linear-to-br from-blue-500 to-cyan-500 text-white ring-1 ring-white/20 shadow-sm shadow-blue-500/25 group-hover:from-blue-500 group-hover:to-cyan-400 group-hover:shadow-lg group-hover:shadow-blue-500/40 transition-all duration-500 group-hover:scale-110 shrink-0">
               {IconComponent ? (
-                <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 transition-all duration-500 group-hover:-rotate-6 group-hover:scale-110 dark:drop-shadow-md" />
+                <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 transition-all duration-500 group-hover:-rotate-6 group-hover:scale-110 drop-shadow-sm" />
               ) : (
-                <div className="h-5 w-5 sm:h-6 sm:w-6 flex items-center justify-center font-semibold text-sm sm:text-base transition-all duration-500 group-hover:-rotate-6 group-hover:scale-110 dark:drop-shadow-md">
+                <div className="h-5 w-5 sm:h-6 sm:w-6 flex items-center justify-center font-semibold text-sm sm:text-base transition-all duration-500 group-hover:-rotate-6 group-hover:scale-110 drop-shadow-sm">
                   {firstLetter}
                 </div>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-base sm:text-lg font-semibold tracking-tight group-hover:text-primary dark:group-hover:text-primary/95 transition-all duration-500 flex items-center gap-2">
-                {t(`tools.${tool.slug}`, tool.name)}
+              <CardTitle className="text-base sm:text-lg font-semibold tracking-tight group-hover:text-primary dark:group-hover:text-primary/95 transition-all duration-500 flex items-center gap-2 min-w-0">
+                <span className="min-w-0 truncate">{t(`tools.${tool.slug}`, tool.name)}</span>
                 {tool.href && (
                   <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-90 dark:opacity-70 dark:group-hover:opacity-100 transition-all duration-500 shrink-0 group-hover:scale-110" />
                 )}
@@ -134,7 +134,7 @@ function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCar
           )}
         </div>
       </CardHeader>
-      <CardContent className="pt-0 p-4 sm:px-5 sm:pb-5">
+      <CardContent className="pt-0 p-3 sm:px-4 sm:pb-4">
         <CardDescription
           id={`tool-desc-${tool.slug}`}
           className="text-xs sm:text-sm text-muted-foreground dark:text-muted-foreground/90 leading-relaxed group-hover:text-foreground/90 dark:group-hover:text-foreground/85 transition-all duration-500 line-clamp-2"

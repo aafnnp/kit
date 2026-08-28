@@ -5,6 +5,7 @@ import { ToolCard } from "@/components/features"
 import { useRoutePrefetch } from "@/lib/routing"
 import { debounce } from "@/lib/utils"
 import type { Tool, ToolCategory } from "@/schemas/tool.schema"
+import { CATEGORY_EMOJIS } from "@/lib/data"
 import { type VirtualToolGridProps } from "@/components/features/schemas"
 
 // Re-export type for backward compatibility
@@ -53,7 +54,7 @@ export const VirtualToolGrid: React.FC<VirtualToolGridProps> = ({
     estimateSize: (index) => {
       const item = flatItems[index]
       if (item.type === "category") {
-        return 80 // 分类标题高度
+        return 96 // 分类标题高度（含分割线与 emoji）
       }
       return 120 // 工具卡片高度（包含间距）
     },
@@ -92,7 +93,7 @@ export const VirtualToolGrid: React.FC<VirtualToolGridProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleTools.length, useVirtual, prefetchDebounced])
 
-  // 渲染分类标题
+  // 渲染分类标题（emoji 风格，分类之间带分割线）
   const renderCategoryHeader = (category: ToolCategory, index: number) => {
     return (
       <motion.div
@@ -100,17 +101,25 @@ export const VirtualToolGrid: React.FC<VirtualToolGridProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: index * 0.05 }}
-        className="mb-3 sm:mb-4 px-1 sm:px-0"
+        className={`${index > 0 ? "border-t border-border/70 pt-6 sm:pt-8 " : ""}mb-4 sm:mb-5 px-1 sm:px-0`}
       >
-        <h2 className="text-xl sm:text-2xl font-semibold text-foreground">{t(`tools.${category.id}`)}</h2>
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <span className="text-lg sm:text-xl leading-none" aria-hidden="true">
+            {CATEGORY_EMOJIS[category.id] ?? "🗂️"}
+          </span>
+          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">{t(`tools.${category.id}`)}</h2>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+            {category.tools.length}
+          </span>
+        </div>
       </motion.div>
     )
   }
 
-  // 渲染工具网格
+  // 渲染工具网格（flex 换行：完整行占满整行，不完整行自动居中，避免大屏下出现缺角）
   const renderToolGrid = (tools: Tool[]) => {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mb-6">
+      <div className="flex flex-wrap justify-center gap-4 mb-6">
         {tools.map((tool, toolIndex) => (
           <motion.div
             key={tool.slug + toolIndex}
@@ -118,6 +127,7 @@ export const VirtualToolGrid: React.FC<VirtualToolGridProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: toolIndex * 0.05 }}
             onMouseEnter={() => prefetchOnHover(tool.slug)}
+            className="basis-full sm:basis-[calc((100%-1rem)/2)] md:basis-[calc((100%-2rem)/3)] lg:basis-[calc((100%-2rem)/3)] xl:basis-[calc((100%-3rem)/4)] 2xl:basis-[calc((100%-3rem)/4)]"
           >
             <ToolCard
               tool={tool}

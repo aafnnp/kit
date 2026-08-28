@@ -455,8 +455,20 @@ if (typeof window !== "undefined" && import.meta.env.VITE_SENTRY_DSN) {
 
 // 全局错误处理
 if (typeof window !== "undefined") {
+  // 第三方广告脚本（AdSense）在异步回调中抛出的错误无法被业务 try/catch 捕获，
+  // 属于已知噪音，不应作为高严重度错误上报到监控系统
+  const isThirdPartyAdError = (error?: unknown): boolean => {
+    if (!error) return false
+    const text =
+      typeof error === "string"
+        ? error
+        : `${(error as { message?: string }).message ?? ""} ${(error as { stack?: string }).stack ?? ""}`
+    return text.includes("adsbygoogle") || text.includes("TagError")
+  }
+
   // 捕获未处理的错误
   window.addEventListener("error", (event) => {
+    if (isThirdPartyAdError(event.error || event.message)) return
     errorHandler.logError(event.error || event.message, {
       component: "Global",
       action: "UnhandledError",
@@ -465,6 +477,7 @@ if (typeof window !== "undefined") {
 
   // 捕获未处理的 Promise 拒绝
   window.addEventListener("unhandledrejection", (event) => {
+    if (isThirdPartyAdError(event.reason)) return
     errorHandler.handlePromiseRejection(event.reason, {
       component: "Global",
       action: "UnhandledRejection",

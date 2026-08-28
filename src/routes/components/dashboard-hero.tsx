@@ -13,7 +13,7 @@ export function DashboardHero({ title, description }: DashboardHeroProps) {
       transition={{ duration: 0.5 }}
       className="text-center mb-6 sm:mb-8"
     >
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent leading-tight">
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 tracking-tight leading-tight">
         {title}
       </h1>
       <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-4 sm:mb-6 px-2 sm:px-0">{description}</p>

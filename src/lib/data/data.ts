@@ -58,4 +58,18 @@ const dynamicCategories = Object.keys(groupedTools)
 
 const data: ToolsData = [...orderedCategories, ...dynamicCategories]
 
+/** 分类 id → emoji（用于分类标题的 emoji 风格展示） */
+export const CATEGORY_EMOJIS: Record<string, string> = {
+  "text-processing": "📝",
+  "color-design": "🎨",
+  "image-audio-video": "🎬",
+  "encryption-hashing": "🔐",
+  "date-time": "🕐",
+  "data-format-conversion": "🔄",
+  "network-tools": "🌐",
+  "random-generator": "🎲",
+  "other-development-tools": "🧰",
+  "developer-tools": "🛠️",
+}
+
 export default data

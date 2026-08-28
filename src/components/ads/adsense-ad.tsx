@@ -1,18 +1,20 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { isDesktopApp } from "@/lib/utils"
-import { useLocation } from "@tanstack/react-router"
 
 export function AdSenseAd() {
-  const location = useLocation()
+  // 每个实例只 push 一次：React StrictMode 在开发环境会重复执行 effect，
+  // 重复 push 会触发 Adsbygoogle TagError（"All 'ins' elements ... already have ads in them"）
+  const pushedRef = useRef(false)
 
   useEffect(() => {
-    if (isDesktopApp()) return
+    if (isDesktopApp() || pushedRef.current) return
+    pushedRef.current = true
     try {
       ;(window.adsbygoogle = window.adsbygoogle || []).push({})
     } catch (e) {
       console.error("AdSense error:", e)
     }
-  }, [location.pathname])
+  }, [])
 
   if (isDesktopApp()) return null
 

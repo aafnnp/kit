@@ -6,6 +6,7 @@ import { motion } from "motion/react"
 import { Heart, Clock, Grid3X3, Trash2, Settings } from "lucide-react"
 import type { TFunction } from "i18next"
 import type { Tool, ToolCategory } from "@/schemas/tool.schema"
+import { isDesktopApp } from "@/lib/utils"
 
 interface DashboardTabsProps {
   isDesktop: boolean
@@ -68,13 +69,14 @@ export function DashboardTabs({
       if (activeTab === "favorites" || activeTab === "recent") {
         const list = toolsToRender as Tool[]
         return (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 grid-mobile-1 sm:grid-mobile-2 md:grid-tablet-3 lg:grid-desktop-4 xl:grid-desktop-5 2xl:grid-ultrawide-6">
+          <div className="flex flex-wrap justify-center gap-4">
             {list.map((tool, index) => (
               <motion.div
                 key={tool.slug + index}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
+                className="basis-full sm:basis-[calc((100%-1rem)/2)] md:basis-[calc((100%-2rem)/3)] lg:basis-[calc((100%-2rem)/3)] xl:basis-[calc((100%-3rem)/4)] 2xl:basis-[calc((100%-3rem)/4)]"
               >
                 <ToolCard tool={tool} showFavoriteButton={showFavoriteButton} onClick={() => handleToolClick(tool)} />
               </motion.div>
@@ -101,7 +103,7 @@ export function DashboardTabs({
   return (
     <div
       className={`sticky z-10 bg-background/95 backdrop-blur-md border-b border-border -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-4 mb-6 ${
-        isDesktop ? "top-[89px]" : "top-[57px]"
+        isDesktopApp() ? "top-8" : "top-0"
       }`}
     >
       {!isDesktop && (

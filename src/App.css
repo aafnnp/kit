@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -43,86 +44,86 @@
 
 :root {
   --radius: 0.625rem;
-  /* 浅色模式：略偏暖的中性背景与文本 */
-  --background: oklch(0.99 0.03 85);
-  --foreground: oklch(0.2 0.05 85);
-  --card: oklch(0.995 0.025 85);
-  --card-foreground: oklch(0.2 0.05 85);
-  --popover: oklch(1 0.02 85);
-  --popover-foreground: oklch(0.2 0.05 85);
-  /* 主色：偏琥珀/橙的暖色 */
-  --primary: oklch(0.78 0.16 70);
-  --primary-foreground: oklch(0.18 0.04 70);
-  --secondary: oklch(0.96 0.03 85);
-  --secondary-foreground: oklch(0.3 0.05 85);
-  --muted: oklch(0.96 0.02 85);
-  --muted-foreground: oklch(0.55 0.04 85);
-  --accent: oklch(0.97 0.04 80);
-  --accent-foreground: oklch(0.28 0.05 80);
-  --destructive: oklch(0.65 0.19 25);
-  --border: oklch(0.92 0.02 85);
-  --input: oklch(0.92 0.02 85);
-  --ring: oklch(0.72 0.05 80);
-  /* 图表与侧边栏使用同一暖色系，降低杂色感 */
-  --chart-1: oklch(0.78 0.16 70);
-  --chart-2: oklch(0.7 0.12 55);
-  --chart-3: oklch(0.74 0.1 95);
-  --chart-4: oklch(0.82 0.14 80);
-  --chart-5: oklch(0.68 0.16 40);
-  --sidebar: oklch(0.985 0.02 85);
-  --sidebar-foreground: oklch(0.22 0.05 85);
-  --sidebar-primary: oklch(0.78 0.16 70);
-  --sidebar-primary-foreground: oklch(0.16 0.04 70);
-  --sidebar-accent: oklch(0.97 0.03 85);
-  --sidebar-accent-foreground: oklch(0.32 0.05 85);
-  --sidebar-border: oklch(0.92 0.02 85);
-  --sidebar-ring: oklch(0.72 0.05 80);
+  /* 参考 manon.icu：浅色模式 = 白色背景 + 蓝色主色 + 冷灰中性色 */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.21 0.032 265); /* gray-900 #111827 */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.032 265);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.032 265);
+  /* 主色：蓝色 blue-600 #2563eb */
+  --primary: oklch(0.546 0.215 263);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.967 0.003 265); /* gray-100 #f3f4f6 */
+  --secondary-foreground: oklch(0.373 0.031 260); /* gray-700 #374151 */
+  --muted: oklch(0.985 0.002 248); /* gray-50 #f9fafb */
+  --muted-foreground: oklch(0.551 0.023 264); /* gray-500 #6b7280 */
+  --accent: oklch(0.97 0.014 255); /* blue-50 #eff6ff */
+  --accent-foreground: oklch(0.424 0.181 266); /* blue-800 #1e40af */
+  --destructive: oklch(0.637 0.208 25); /* red-500 #ef4444 */
+  --border: oklch(0.928 0.006 265); /* gray-200 #e5e7eb */
+  --input: oklch(0.872 0.009 258); /* gray-300 #d1d5db */
+  --ring: oklch(0.623 0.188 260); /* blue-500 #3b82f6 */
+  /* 图表与侧边栏沿用蓝色系，保持低杂色感 */
+  --chart-1: oklch(0.546 0.215 263);
+  --chart-2: oklch(0.424 0.181 266);
+  --chart-3: oklch(0.623 0.188 260);
+  --chart-4: oklch(0.714 0.143 255);
+  --chart-5: oklch(0.696 0.149 162);
+  --sidebar: oklch(0.985 0.002 248);
+  --sidebar-foreground: oklch(0.21 0.032 265);
+  --sidebar-primary: oklch(0.546 0.215 263);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.97 0.014 255);
+  --sidebar-accent-foreground: oklch(0.379 0.138 266);
+  --sidebar-border: oklch(0.928 0.006 265);
+  --sidebar-ring: oklch(0.623 0.188 260);
 }
 
 .dark {
-  /* 深色模式：偏暖的低饱和背景，避免冷色霓虹感 */
-  --background: oklch(0.13 0.03 70);
-  --foreground: oklch(0.97 0.03 85);
+  /* 参考 manon.icu：深色模式 = 深海军蓝 gray-950 #030712 + gray-900 卡片 + 蓝色主色 */
+  --background: oklch(0.13 0.027 262); /* gray-950 #030712 */
+  --foreground: oklch(0.985 0.002 248); /* gray-50 #f9fafb */
 
-  --card: oklch(0.18 0.03 70);
-  --card-foreground: oklch(0.97 0.03 85);
+  --card: oklch(0.21 0.032 265); /* gray-900 #111827 */
+  --card-foreground: oklch(0.985 0.002 248);
 
-  --popover: oklch(0.18 0.03 70);
-  --popover-foreground: oklch(0.97 0.03 85);
+  --popover: oklch(0.21 0.032 265);
+  --popover-foreground: oklch(0.985 0.002 248);
 
-  /* 主色改为暖色，与浅色模式统一 */
-  --primary: oklch(0.8 0.16 70);
-  --primary-foreground: oklch(0.16 0.04 70);
+  /* 主色：蓝色 blue-500 #3b82f6 */
+  --primary: oklch(0.623 0.188 260);
+  --primary-foreground: oklch(1 0 0);
 
-  --secondary: oklch(0.24 0.03 70);
-  --secondary-foreground: oklch(0.93 0.03 85);
+  --secondary: oklch(0.278 0.03 257); /* gray-800 #1f2937 */
+  --secondary-foreground: oklch(0.985 0.002 248);
 
-  --muted: oklch(0.22 0.02 70);
-  --muted-foreground: oklch(0.78 0.03 85);
+  --muted: oklch(0.278 0.03 257);
+  --muted-foreground: oklch(0.714 0.019 261); /* gray-400 #9ca3af */
 
-  --accent: oklch(0.28 0.04 70);
-  --accent-foreground: oklch(0.93 0.03 85);
+  --accent: oklch(0.379 0.138 266); /* blue-900 #1e3a8a */
+  --accent-foreground: oklch(0.882 0.057 254); /* blue-200 #bfdbfe */
 
-  --destructive: oklch(0.7 0.19 25);
+  --destructive: oklch(0.637 0.208 25);
 
-  --border: oklch(1 0 0 / 15%);
-  --input: oklch(1 0 0 / 20%);
-  --ring: oklch(0.7 0.04 80);
+  --border: oklch(0.278 0.03 257); /* gray-800 #1f2937 */
+  --input: oklch(0.373 0.031 260); /* gray-700 #374151 */
+  --ring: oklch(0.623 0.188 260); /* blue-500 #3b82f6 */
 
-  --chart-1: oklch(0.78 0.16 70);
-  --chart-2: oklch(0.72 0.13 55);
-  --chart-3: oklch(0.76 0.11 95);
-  --chart-4: oklch(0.82 0.14 80);
-  --chart-5: oklch(0.7 0.16 40);
+  --chart-1: oklch(0.623 0.188 260);
+  --chart-2: oklch(0.714 0.143 255);
+  --chart-3: oklch(0.696 0.149 162);
+  --chart-4: oklch(0.488 0.217 264);
+  --chart-5: oklch(0.769 0.165 70);
 
-  --sidebar: oklch(0.17 0.03 70);
-  --sidebar-foreground: oklch(0.93 0.03 85);
-  --sidebar-primary: oklch(0.78 0.16 70);
-  --sidebar-primary-foreground: oklch(0.16 0.04 70);
-  --sidebar-accent: oklch(0.22 0.03 70);
-  --sidebar-accent-foreground: oklch(0.9 0.03 85);
+  --sidebar: oklch(0.18 0.028 263);
+  --sidebar-foreground: oklch(0.985 0.002 248);
+  --sidebar-primary: oklch(0.623 0.188 260);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.278 0.03 257);
+  --sidebar-accent-foreground: oklch(0.882 0.057 254);
   --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.7 0.04 80);
+  --sidebar-ring: oklch(0.623 0.188 260);
 }
 
 @layer base {
@@ -131,10 +132,23 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     /* Ensure body doesn't interfere with drag region */
     -webkit-app-region: no-drag;
     app-region: no-drag;
   }
+}
+
+/* 参考 manon.icu 的 hero 渐变氛围背景 */
+body {
+  background-image: radial-gradient(70rem 45rem at 88% -12%, oklch(0.546 0.215 263 / 6%), transparent 62%);
+}
+
+.dark body {
+  background-image:
+    radial-gradient(60rem 42rem at 85% -10%, oklch(0.623 0.188 260 / 14%), transparent 60%),
+    radial-gradient(50rem 36rem at -8% 8%, oklch(0.488 0.217 264 / 10%), transparent 55%),
+    linear-gradient(to right bottom, oklch(0.13 0.027 262) 0%, oklch(0.185 0.03 263) 50%, oklch(0.13 0.027 262) 100%);
 }
 
 /* Custom title bar drag region (Tauri) */
@@ -172,11 +186,11 @@
 
 /* 深色模式优化样式 */
 @layer components {
-  /* 优化卡片在深色模式下的视觉效果 */
+  /* 优化卡片在深色模式下的视觉效果（manon.icu 深海军蓝方案） */
   .dark .group:hover {
     @apply ring-1 ring-primary/30 shadow-lg shadow-primary/15;
-    background: linear-gradient(135deg, oklch(0.15 0.02 240) 0%, oklch(0.12 0.01 240) 100%);
-    border-color: oklch(0.85 0.1 220 / 40%);
+    background: linear-gradient(135deg, oklch(0.2 0.025 262) 0%, oklch(0.17 0.02 262) 100%);
+    border-color: oklch(0.714 0.143 255 / 35%);
   }
 
   /* 优化工具卡片的深色模式悬停效果 */
@@ -185,8 +199,8 @@
     box-shadow:
       0 20px 25px -5px oklch(0 0 0 / 40%),
       0 10px 10px -5px oklch(0 0 0 / 20%),
-      0 0 0 1px oklch(0.85 0.1 220 / 30%);
-    background: linear-gradient(135deg, oklch(0.16 0.02 240) 0%, oklch(0.13 0.01 240) 100%);
+      0 0 0 1px oklch(0.714 0.143 255 / 30%);
+    background: linear-gradient(135deg, oklch(0.21 0.03 262) 0%, oklch(0.18 0.02 262) 100%);
   }
 
   /* 优化图标在深色模式下的可见性和动画效果 */
@@ -202,58 +216,58 @@
 
   /* 优化工具卡片图标容器的深色模式效果 */
   .dark .group:hover .bg-primary\/10 {
-    background: linear-gradient(135deg, oklch(0.85 0.1 220 / 25%) 0%, oklch(0.85 0.1 220 / 35%) 100%);
+    background: linear-gradient(135deg, oklch(0.623 0.188 260 / 22%) 0%, oklch(0.623 0.188 260 / 32%) 100%);
     box-shadow:
-      0 4px 8px oklch(0.85 0.1 220 / 20%),
+      0 4px 8px oklch(0.623 0.188 260 / 18%),
       inset 0 1px 0 oklch(1 0 0 / 10%);
   }
 
   /* 优化按钮在深色模式下的交互效果 */
   .dark .tool-card.group:hover button {
     @apply shadow-md shadow-primary/20;
-    background: linear-gradient(135deg, oklch(0.85 0.1 220) 0%, oklch(0.8 0.12 220) 100%);
+    background: linear-gradient(135deg, oklch(0.623 0.188 260) 0%, oklch(0.546 0.215 263) 100%);
   }
 
   /* 优化文本在深色模式下的可读性 */
   .dark .text-muted-foreground {
-    color: oklch(0.78 0.02 240);
+    color: oklch(0.714 0.019 261);
   }
 
   .dark .group:hover .text-muted-foreground {
-    color: oklch(0.85 0.03 240);
+    color: oklch(0.809 0.096 252);
   }
 
   /* 优化标题文本在深色模式下的对比度 */
   .dark .font-semibold {
-    color: oklch(0.95 0.02 240);
+    color: oklch(0.97 0.008 255);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
 
   /* 优化边框在深色模式下的可见性 */
   .dark .border {
-    border-color: oklch(1 0 0 / 18%);
+    border-color: oklch(0.373 0.031 260 / 55%);
   }
 
   .dark .group:hover .border {
-    border-color: oklch(0.85 0.1 220 / 40%);
+    border-color: oklch(0.714 0.143 255 / 40%);
   }
 
   /* 优化输入框在深色模式下的对比度 */
   .dark input,
   .dark textarea,
   .dark select {
-    background-color: oklch(0.16 0.01 240);
-    border-color: oklch(1 0 0 / 22%);
-    color: oklch(0.9 0.02 240);
+    background-color: oklch(0.2 0.02 262);
+    border-color: oklch(0.373 0.031 260 / 70%);
+    color: oklch(0.92 0.01 255);
   }
 
   .dark input:focus,
   .dark textarea:focus,
   .dark select:focus {
-    background-color: oklch(0.18 0.01 240);
-    border-color: oklch(0.85 0.1 220);
+    background-color: oklch(0.22 0.02 262);
+    border-color: oklch(0.623 0.188 260);
     box-shadow:
-      0 0 0 3px oklch(0.85 0.1 220 / 25%),
+      0 0 0 3px oklch(0.623 0.188 260 / 25%),
       0 4px 6px -1px oklch(0 0 0 / 20%);
   }
 
@@ -264,31 +278,31 @@
   }
 
   .dark ::-webkit-scrollbar-track {
-    background: oklch(0.14 0.01 240);
+    background: oklch(0.16 0.02 262);
     border-radius: 6px;
     border: 1px solid oklch(1 0 0 / 8%);
   }
 
   .dark ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, oklch(0.32 0.02 240) 0%, oklch(0.28 0.01 240) 100%);
+    background: linear-gradient(135deg, oklch(0.33 0.03 260) 0%, oklch(0.28 0.03 257) 100%);
     border-radius: 6px;
     border: 1px solid oklch(1 0 0 / 15%);
   }
 
   .dark ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, oklch(0.42 0.03 240) 0%, oklch(0.38 0.02 240) 100%);
+    background: linear-gradient(135deg, oklch(0.42 0.04 260) 0%, oklch(0.37 0.03 260) 100%);
   }
 
   /* 优化卡片内容区域的深色模式效果 */
   .dark .bg-card {
-    background: linear-gradient(135deg, oklch(0.14 0.01 240) 0%, oklch(0.12 0.005 240) 100%);
+    background: linear-gradient(135deg, oklch(0.17 0.02 262) 0%, oklch(0.15 0.02 262) 100%);
     border-color: oklch(1 0 0 / 15%);
   }
 
   /* 优化焦点状态的深色模式效果 */
   .dark .focus-visible\:ring-primary {
-    --tw-ring-color: oklch(0.85 0.1 220 / 60%);
-    --tw-ring-offset-color: oklch(0.12 0.005 240);
+    --tw-ring-color: oklch(0.623 0.188 260 / 60%);
+    --tw-ring-offset-color: oklch(0.15 0.02 262);
   }
 }
 
@@ -336,7 +350,7 @@
 
   /* 移动端工具卡片优化 */
   .tool-card-mobile {
-    padding: 0.75rem;
+    padding: 0.625rem;
   }
 
   /* 移动端标签页优化 */
@@ -529,7 +543,7 @@
 
   /* 平板端工具卡片优化 */
   .tool-card-tablet {
-    padding: 1rem;
+    padding: 0.75rem;
   }
 }
 
@@ -546,6 +560,11 @@
 
   .grid-desktop-6 {
     grid-template-columns: repeat(6, 1fr);
+  }
+
+  /* 大屏幕工具卡片优化 */
+  .tool-card-desktop {
+    padding: 0.75rem;
   }
 
   /* 大屏幕容器优化 */
@@ -579,7 +598,7 @@
 
   /* 超小屏幕工具卡片优化 */
   .tool-card-xs {
-    padding: 0.5rem;
+    padding: 0.375rem;
   }
 
   /* 超小屏幕字体优化 */
