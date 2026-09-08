@@ -82,7 +82,7 @@ function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCar
 
   return (
     <Card
-      className="group cursor-pointer gap-2! sm:gap-3! transition-all duration-300 ease-out hover:shadow-xl hover:shadow-primary/10 hover:border-primary/40 dark:hover:border-primary/40 dark:hover:shadow-primary/20 border border-border/60 bg-linear-to-b from-card via-card/90 to-card/80 dark:from-muted/20 dark:via-muted/10 dark:to-background/40 backdrop-blur-xl touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:-translate-y-1 active:scale-[0.98] active:translate-y-0 will-change-transform tool-card-xs tool-card-mobile tool-card-tablet tool-card-desktop rounded-2xl"
+      className="group cursor-pointer gap-2! sm:gap-3! border border-border/70 bg-card/80 transition-[transform,border-color,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/8 dark:bg-card/70 touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.99] will-change-transform tool-card-xs tool-card-mobile tool-card-tablet tool-card-desktop rounded-xl"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onMouseEnter={() => {
@@ -94,11 +94,11 @@ function ToolCardComponent({ tool, showFavoriteButton = true, onClick }: ToolCar
       <CardHeader className="pb-2.5 p-3 sm:p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
-            <div className="p-2.5 sm:p-3 rounded-xl bg-linear-to-br from-blue-500 to-cyan-500 text-white ring-1 ring-white/20 shadow-sm shadow-blue-500/25 group-hover:from-blue-500 group-hover:to-cyan-400 group-hover:shadow-lg group-hover:shadow-blue-500/40 transition-all duration-500 group-hover:scale-110 shrink-0">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15 transition-transform duration-300 group-hover:scale-105 group-hover:bg-primary group-hover:text-primary-foreground sm:size-11">
               {IconComponent ? (
-                <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 transition-all duration-500 group-hover:-rotate-6 group-hover:scale-110 drop-shadow-sm" />
+                <IconComponent className="size-5 transition-transform duration-300 group-hover:scale-105 sm:size-5.5" />
               ) : (
-                <div className="h-5 w-5 sm:h-6 sm:w-6 flex items-center justify-center font-semibold text-sm sm:text-base transition-all duration-500 group-hover:-rotate-6 group-hover:scale-110 drop-shadow-sm">
+                <div className="flex size-5 items-center justify-center text-sm font-semibold sm:size-5.5 sm:text-base">
                   {firstLetter}
                 </div>
               )}

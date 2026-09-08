@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useFavorites, useRecentTools, useToolSearch } from "@/hooks/use-favorites"
 import { usePreload, useSmartPreload } from "@/lib/data"
 import { useRoutePrefetch } from "@/lib/routing"
-import type { Tool, ToolCategory } from "@/schemas/tool.schema"
+import type { Tool, ToolsData } from "@/schemas/tool.schema"
 
 interface UseToolDashboardStateOptions {
-  tools: ToolCategory[]
+  tools: ToolsData
 }
 
 export function useToolDashboardState({ tools }: UseToolDashboardStateOptions) {
@@ -73,4 +73,3 @@ export function useToolDashboardState({ tools }: UseToolDashboardStateOptions) {
     handleToolClick,
   }
 }
-

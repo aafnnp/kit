@@ -1,8 +1,8 @@
 import type { Tool, ToolsData } from "@/schemas/tool.schema"
 import { defineToolMeta, type ToolMeta } from "./tool-meta"
 
+type CategorizedTools = Record<string, Tool[]>
 type CategoryId = string
-type CategorizedTools = Record<CategoryId, Tool[]>
 
 const CATEGORY_ORDER: CategoryId[] = [
   "text-processing",
@@ -17,14 +17,12 @@ const CATEGORY_ORDER: CategoryId[] = [
   "developer-tools",
 ]
 
-type ToolMetaModule = { default: ToolMeta }
-
-const metaModules = import.meta.glob<ToolMetaModule>("/src/components/tools/*/meta.ts", {
+const metaModules = import.meta.glob<{ default: ToolMeta }>("/src/components/tools/*/meta.ts", {
   eager: true,
 })
 
 const groupedTools = Object.entries(metaModules).reduce<CategorizedTools>((acc, [path, mod]) => {
-  const meta = defineToolMeta(mod.default as ToolMeta)
+  const meta = defineToolMeta(mod.default)
   const slugFromPath = path.split("/components/tools/")[1]?.split("/")[0]
   if (slugFromPath && slugFromPath !== meta.slug) {
     throw new Error(`Tool meta slug mismatch for ${path}`)
