@@ -192,7 +192,8 @@ const Base64EncodeCore = () => {
                         {templates.map((template: EncodingTemplate) => (
                           <Button
                             key={template.id}
-                            variant={selectedTemplate === template.id ? "default" : "outline"}
+                            variant="outline"
+                            aria-pressed={selectedTemplate === template.id}
                             onClick={() => applyTemplate(template)}
                             className="h-auto p-3 text-left"
                           >
