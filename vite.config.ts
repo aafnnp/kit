@@ -66,16 +66,16 @@ export default defineConfig(() => ({
         manualChunks: (id) => {
           // 将 node_modules 中的依赖分离
           if (id.includes("node_modules")) {
-            // React 核心
-            if (id.includes("react") || id.includes("react-dom")) {
-              return "react-vendor"
-            }
             // UI 库 - 进一步拆分
             if (id.includes("@radix-ui")) {
               return "ui-vendor"
             }
             if (id.includes("lucide-react")) {
               return "ui-utils-vendor"
+            }
+            // React 核心
+            if (id.includes("react") || id.includes("react-dom")) {
+              return "react-vendor"
             }
             if (id.includes("motion")) {
               return "motion-vendor"
