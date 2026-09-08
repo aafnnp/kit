@@ -10,6 +10,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+        selected:
+          "border border-primary/50 bg-accent text-accent-foreground shadow-sm ring-1 ring-primary/20 hover:bg-accent/80 hover:text-accent-foreground",
         destructive:
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
@@ -37,10 +39,11 @@ const Button = React.forwardRef<
   React.ComponentProps<"button"> & VariantProps<typeof buttonVariants> & { asChild?: boolean }
 >(({ className, variant, size, asChild = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "button"
+  const resolvedVariant = props["aria-pressed"] === true && variant === "outline" ? "selected" : variant
   return (
     <Comp
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant: resolvedVariant, size, className }))}
       ref={ref}
       {...props}
     />

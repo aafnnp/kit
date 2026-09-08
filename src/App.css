@@ -204,6 +204,43 @@ body {
 
 /* 深色模式优化样式 */
 @layer components {
+  /*
+   * Shared active state: selected controls use a quiet surface and outline
+   * instead of a saturated fill, so active content remains readable.
+   */
+  button[aria-pressed="true"],
+  [role="tab"][data-state="active"],
+  [data-active="true"],
+  button[class~="border-primary"][class~="bg-primary/5"] {
+    background-color: var(--accent) !important;
+    border-color: var(--primary) !important;
+    color: var(--accent-foreground) !important;
+    box-shadow: 0 0 0 1px color-mix(in oklch, var(--primary) 12%, transparent);
+  }
+
+  button[aria-pressed="true"]:hover,
+  [role="tab"][data-state="active"]:hover,
+  [data-active="true"]:hover,
+  button[class~="border-primary"][class~="bg-primary/5"]:hover {
+    background-color: var(--accent) !important;
+  }
+
+  /* Explicitly reset utility text colors inside active controls.
+   * A child text-muted-foreground class does not inherit the parent's active color. */
+  button[aria-pressed="true"] .text-muted-foreground,
+  [role="tab"][data-state="active"] .text-muted-foreground,
+  [data-active="true"] .text-muted-foreground,
+  button[class~="border-primary"][class~="bg-primary/5"] .text-muted-foreground {
+    color: color-mix(in oklch, var(--accent-foreground) 78%, var(--foreground)) !important;
+  }
+
+  button[aria-pressed="true"] .text-primary,
+  [role="tab"][data-state="active"] .text-primary,
+  [data-active="true"] .text-primary,
+  button[class~="border-primary"][class~="bg-primary/5"] .text-primary {
+    color: var(--accent-foreground) !important;
+  }
+
   /* 优化卡片在深色模式下的视觉效果（manon.icu 深海军蓝方案） */
   .dark .group:hover {
     @apply ring-1 ring-primary/30 shadow-lg shadow-primary/15;

@@ -879,7 +879,8 @@ const FaviconGeneratorCore = () => {
                   {faviconTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? "default" : "outline"}
+                      variant="outline"
+                      aria-pressed={selectedTemplate === template.id}
                       onClick={() => applyTemplate(template.id)}
                       className="h-auto p-3 text-left"
                     >

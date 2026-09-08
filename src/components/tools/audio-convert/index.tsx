@@ -782,7 +782,8 @@ const AudioConvert = () => {
                         <Button
                           onClick={() => handleTemplateSelect(template.id)}
                           className="w-full mt-3"
-                          variant={selectedTemplate === template.id ? "default" : "outline"}
+                          variant="outline"
+                          aria-pressed={selectedTemplate === template.id}
                         >
                           {selectedTemplate === template.id ? "Applied" : "Apply Template"}
                         </Button>

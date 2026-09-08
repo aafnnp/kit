@@ -973,14 +973,38 @@ const MarkdownTOCCore = () => {
                   {tocTemplates.map((template) => (
                     <Button
                       key={template.id}
-                      variant={selectedTemplate === template.id ? "default" : "outline"}
+                      variant="outline"
+                      aria-pressed={selectedTemplate === template.id}
                       onClick={() => applyTemplate(template.id)}
-                      className="h-auto p-3 text-left"
+                      className={`h-auto min-w-0 overflow-hidden p-3 text-left transition-[border-color,background-color,box-shadow] ${
+                        selectedTemplate === template.id
+                          ? "border-primary bg-accent text-accent-foreground shadow-sm ring-1 ring-primary/30"
+                          : "border-border/80 bg-background/60 hover:border-primary/40 hover:bg-primary/5"
+                      }`}
                     >
-                      <div className="w-full">
-                        <div className="font-medium text-sm">{template.name}</div>
-                        <div className="text-xs text-muted-foreground mt-1">{template.description}</div>
-                        <div className="text-xs font-mono mt-1 bg-muted/30 px-1 rounded">{template.example}</div>
+                      <div className="min-w-0 w-full overflow-hidden">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <div className="truncate text-sm font-medium">{template.name}</div>
+                          {selectedTemplate === template.id && (
+                            <span className="shrink-0 rounded-full bg-primary/12 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                              Active
+                            </span>
+                          )}
+                        </div>
+                        <div
+                          className={`mt-1 line-clamp-2 text-xs ${
+                            selectedTemplate === template.id ? "text-accent-foreground/80" : "text-muted-foreground"
+                          }`}
+                        >
+                          {template.description}
+                        </div>
+                        <div
+                          className={`mt-1 max-w-full overflow-x-auto rounded px-1 text-left text-xs font-mono whitespace-nowrap ${
+                            selectedTemplate === template.id ? "bg-accent/70 text-accent-foreground" : "bg-muted/30"
+                          }`}
+                        >
+                          {template.example}
+                        </div>
                       </div>
                     </Button>
                   ))}
