@@ -116,10 +116,10 @@ export const VirtualToolGrid: React.FC<VirtualToolGridProps> = ({
     )
   }
 
-  // 渲染工具网格（flex 换行：完整行占满整行，不完整行自动居中，避免大屏下出现缺角）
+  // 渲染工具网格：不完整的最后一行也从左侧开始，保持模块边界对齐
   const renderToolGrid = (tools: Tool[]) => {
     return (
-      <div className="flex flex-wrap justify-center gap-4 mb-6">
+      <div className="mb-6 flex flex-wrap justify-start gap-4">
         {tools.map((tool, toolIndex) => (
           <motion.div
             key={tool.slug + toolIndex}

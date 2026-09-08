@@ -3,6 +3,7 @@
 export { default } from "./data"
 // 具名导出：数据与工具映射等
 export * from "./data"
+export * from "./tool-catalog"
 export * from "./tools-map"
 export * from "./tool-chunk-manifest"
 export * from "./tool-chunk-rules"

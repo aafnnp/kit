@@ -6,16 +6,7 @@ import { useTranslation } from "react-i18next"
 import { SettingsDialog } from "../features/settings-dialog"
 import { isDesktopApp } from "@/lib/utils"
 import { useLocation } from "@tanstack/react-router"
-import tools from "@/lib/data"
-import type { Tool, ToolCategory } from "@/schemas/tool.schema"
-
-const isTool = (obj: unknown): obj is Tool => {
-  return !!obj && typeof obj === "object" && "slug" in obj && "name" in obj
-}
-
-const isToolCategory = (obj: unknown): obj is ToolCategory => {
-  return !!obj && typeof obj === "object" && "id" in obj && Array.isArray((obj as ToolCategory).tools)
-}
+import tools, { findTool } from "@/lib/data"
 
 export function SiteHeader() {
   const { t } = useTranslation()
@@ -32,8 +23,7 @@ export function SiteHeader() {
     const match = pathname.match(/^\/tool\/([^/]+)/)
     if (match) {
       const slug = match[1]
-      const categories = (tools as ToolCategory[]).filter((c) => isToolCategory(c))
-      const tool = categories.flatMap((c) => c.tools).find((tool) => isTool(tool) && tool.slug === slug)
+      const tool = findTool(tools, slug)
       const toolName = tool ? t(`tools.${tool.slug}`, tool.name) : slug
       return `${t("navigation.tools", "工具")} / ${toolName}`
     }

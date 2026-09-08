@@ -1,35 +1,16 @@
 import { createFileRoute, lazyRouteComponent, useRouter } from "@tanstack/react-router"
 import { Suspense, useEffect, useMemo, useState } from "react"
 import { perfBus, mark, measure } from "@/lib/performance"
-import tools from "@/lib/data"
-import { getToolLoaderBySlug, hasTool } from "@/lib/data"
+import tools, { findToolLocation, getToolLoaderBySlug, hasTool, useSmartPreload } from "@/lib/data"
 import { ToolNotFound } from "@/components/common"
 import { ToolLoading } from "@/components/ui/loading"
 import { AdSenseAd } from "@/components/ads"
 import { useRoutePrefetch } from "@/lib/routing"
-import { useSmartPreload } from "@/lib/data"
 import { QueryClient } from "@tanstack/react-query"
-import type { Tool, ToolCategory } from "@/schemas/tool.schema"
 import { useTranslation } from "react-i18next"
 import { Input } from "@/components/ui/input"
-
-// 类型守卫：检查是否为工具
-function isTool(obj: unknown): obj is Tool {
-  return (
-    typeof obj === "object" && obj !== null && "slug" in obj && "name" in obj && typeof (obj as Tool).slug === "string"
-  )
-}
-
-// 类型守卫：检查是否为工具分类
-function isToolCategory(obj: unknown): obj is ToolCategory {
-  return (
-    typeof obj === "object" &&
-    obj !== null &&
-    "id" in obj &&
-    "tools" in obj &&
-    Array.isArray((obj as ToolCategory).tools)
-  )
-}
+import { CATEGORY_EMOJIS } from "@/lib/data"
+import { ChevronRight, Search, Wrench } from "lucide-react"
 
 export const Route = createFileRoute("/tool/$tool")({
   loader: async ({ context, params }) => {
@@ -54,13 +35,10 @@ function RouteComponent() {
   const router = useRouter()
   const { t } = useTranslation()
 
-  // 查找工具信息（使用类型守卫）
-  const categories = (tools as ToolCategory[]).filter((category) => isToolCategory(category))
-  const toolInfo = categories.flatMap((category) => category.tools).find((t) => isTool(t) && t.slug === toolSlug)
-
-  const activeCategory = categories.find((category) =>
-    category.tools.some((tool) => isTool(tool) && tool.slug === toolSlug),
-  )
+  const categories = tools
+  const toolLocation = findToolLocation(categories, toolSlug)
+  const toolInfo = toolLocation?.tool
+  const activeCategory = toolLocation?.category
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>(() => {
     if (activeCategory) return activeCategory.id
@@ -72,7 +50,7 @@ function RouteComponent() {
   const [toolSearch, setToolSearch] = useState("")
 
   const toolsInSelectedCategory = useMemo(() => {
-    const baseTools = selectedCategory?.tools.filter((tool) => isTool(tool)) ?? []
+    const baseTools = selectedCategory?.tools ?? []
     if (!toolSearch.trim()) return baseTools
     const keyword = toolSearch.trim().toLowerCase()
     return baseTools.filter((tool) => {
@@ -148,105 +126,133 @@ function RouteComponent() {
   }, [toolInfo])
 
   return (
-    <div className="grid md:grid-cols-[220px_minmax(240px,280px)_minmax(0,1fr)]">
-      {/* 左侧：工具大类列表 */}
-      <aside
-        className="border-r border-border/60 px-3 py-4 text-sm"
-        aria-label={t("tools.categories", "工具大类")}
-      >
-        <div className="mb-2 px-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {t("tools.categories", "工具大类")}
-        </div>
-        <div className="flex flex-col gap-1">
-          {categories.map((category) => {
-            const isActiveCategory = category.id === selectedCategoryId
-            return (
-              <button
-                key={category.id}
-                type="button"
-                onClick={() => setSelectedCategoryId(category.id)}
-                className={`flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs font-medium transition-colors ${
-                  isActiveCategory
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
-                aria-pressed={isActiveCategory}
-              >
-                <span className="truncate">{t(`tools.${category.id}`, category.id)}</span>
-              </button>
-            )
-          })}
-        </div>
-      </aside>
-
-      {/* 中间：当前大类下的工具列表 */}
-      <aside
-        className="border-r border-border/60 px-3 py-4 text-sm"
-        aria-label={t("tools.list", "工具列表")}
-      >
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <div className="px-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {t("tools.list", "工具")}
+    <div className="min-h-[calc(100vh-var(--header-height))] bg-background/20">
+      <div className="mx-auto grid w-full max-w-[1600px] gap-0 md:grid-cols-[220px_minmax(240px,280px)_minmax(0,1fr)]">
+        <aside
+          className="border-b border-border/70 px-4 py-4 md:sticky md:top-[var(--header-height)] md:h-[calc(100vh-var(--header-height))] md:overflow-y-auto md:border-b-0 md:border-r md:px-4 md:py-6"
+          aria-label={t("tools.categories", "工具大类")}
+        >
+          <div className="mb-4 flex items-center gap-2 px-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <Wrench className="size-3.5 text-primary" />
+            {t("tools.categories", "工具大类")}
           </div>
-          <Input
-            value={toolSearch}
-            onChange={(e) => setToolSearch(e.target.value)}
-            placeholder={t("tools.search-in-category", "在当前大类中搜索…")}
-            className="h-7 w-32 text-xs md:w-40"
-            aria-label={t("tools.search-in-category", "搜索当前大类下的工具")}
-          />
-        </div>
-        <div className="flex max-h-[calc(100vh-260px)] flex-col gap-1 overflow-auto">
-          {toolsInSelectedCategory.map((tool) => {
-            if (!isTool(tool)) return null
-            const isActiveTool = tool.slug === toolSlug
-            return (
-              <button
-                key={tool.slug}
-                type="button"
-                onClick={() => {
-                  if (tool.slug === toolSlug) return
-                  router.navigate({ to: "/tool/$tool", params: { tool: tool.slug } })
-                }}
-                className={`flex w-full flex-col rounded-md px-2 py-1.5 text-left text-xs transition-colors ${
-                  isActiveTool
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
-                aria-current={isActiveTool ? "page" : undefined}
-              >
-                <span className="truncate text-sm font-medium">{t(`tools.${tool.slug}`, tool.name)}</span>
-              </button>
-            )
-          })}
-        </div>
-      </aside>
+          <div className="flex gap-2 overflow-x-auto pb-1 md:flex-col md:overflow-visible">
+            {categories.map((category) => {
+              const isActiveCategory = category.id === selectedCategoryId
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  onClick={() => setSelectedCategoryId(category.id)}
+                  className={`flex min-w-max items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium transition-colors md:w-full ${
+                    isActiveCategory
+                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                  aria-pressed={isActiveCategory}
+                >
+                  <span aria-hidden="true">{CATEGORY_EMOJIS[category.id] ?? "🗂️"}</span>
+                  <span className="truncate">{t(`tools.${category.id}`, category.id)}</span>
+                  <span className={`ml-auto text-[10px] ${isActiveCategory ? "text-primary-foreground/70" : "text-muted-foreground/70"}`}>
+                    {category.tools.length}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </aside>
 
-      {/* 右侧：工具详情区域 */}
-      <section className="min-w-0 px-3 py-4">
-        <Suspense fallback={<ToolLoading toolName={toolInfo.name} />}>
-          {(() => {
-            const Comp = ToolComponent as React.ComponentType<{ onReady?: () => void }>
-            return (
-              <Comp
-                onReady={() => {
-                  const startMark = `tool_${toolSlug}_start`
-                  mark(startMark)
-                  const ms = measure(`tool_${toolSlug}_interactive`, startMark)
-                  if (ms != null) {
-                    perfBus.emit("tool_interactive", { slug: toolSlug, ms, ts: Date.now() })
-                  }
-                  trackToolUsage(toolSlug)
-                }}
-              />
-            )
-          })()}
-        </Suspense>
+        <aside
+          className="border-b border-border/70 px-4 py-5 md:sticky md:top-[var(--header-height)] md:h-[calc(100vh-var(--header-height))] md:overflow-y-auto md:border-b-0 md:border-r md:px-5 md:py-6"
+          aria-label={t("tools.list", "工具列表")}
+        >
+          <div className="mb-4">
+            <div className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              {t("tools.list", "工具")}
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="truncate text-base font-semibold">
+                {t(`tools.${selectedCategory?.id ?? ""}`, selectedCategory?.id ?? "")}
+              </h2>
+              <span className="text-xs text-muted-foreground">{toolsInSelectedCategory.length}</span>
+            </div>
+          </div>
+          <label className="relative mb-4 block">
+            <span className="sr-only">{t("tools.search-in-category", "在当前大类中搜索")}</span>
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={toolSearch}
+              onChange={(e) => setToolSearch(e.target.value)}
+              placeholder={t("tools.search-in-category", "在当前大类中搜索…")}
+              className="h-9 rounded-lg bg-background/70 pl-9 text-xs"
+              aria-label={t("tools.search-in-category", "搜索当前大类下的工具")}
+            />
+          </label>
+          <div className="flex max-h-[calc(100vh-250px)] flex-col gap-1 overflow-auto">
+            {toolsInSelectedCategory.map((tool) => {
+              const isActiveTool = tool.slug === toolSlug
+              return (
+                <button
+                  key={tool.slug}
+                  type="button"
+                  onClick={() => {
+                    if (tool.slug === toolSlug) return
+                    router.navigate({ to: "/tool/$tool", params: { tool: tool.slug } })
+                  }}
+                  className={`group flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-xs transition-colors ${
+                    isActiveTool
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                  aria-current={isActiveTool ? "page" : undefined}
+                >
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium">{t(`tools.${tool.slug}`, tool.name)}</span>
+                  <ChevronRight className={`size-3 shrink-0 transition-transform ${isActiveTool ? "translate-x-0.5" : "opacity-0 group-hover:opacity-60"}`} />
+                </button>
+              )
+            })}
+          </div>
+        </aside>
 
-        <div className="mt-6">
-          <AdSenseAd />
-        </div>
-      </section>
+        <section className="min-w-0 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-6 flex items-start justify-between gap-4 border-b border-border/70 pb-5">
+              <div className="min-w-0">
+                <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+                  <span>{t(`tools.${activeCategory?.id ?? ""}`, activeCategory?.id ?? "")}</span>
+                  <ChevronRight className="size-3" />
+                  <span className="truncate text-foreground/80">{t(`tools.${toolInfo.slug}`, toolInfo.name)}</span>
+                </div>
+                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t(`tools.${toolInfo.slug}`, toolInfo.name)}</h1>
+              </div>
+              <div className="hidden rounded-full border border-border/70 bg-background/60 px-3 py-1 text-[11px] text-muted-foreground sm:block">
+                {t("tools.local-processing", "Local processing")}
+              </div>
+            </div>
+            <Suspense fallback={<ToolLoading toolName={toolInfo.name} />}>
+              {(() => {
+                const Comp = ToolComponent as React.ComponentType<{ onReady?: () => void }>
+                return (
+                  <Comp
+                    onReady={() => {
+                      const startMark = `tool_${toolSlug}_start`
+                      mark(startMark)
+                      const ms = measure(`tool_${toolSlug}_interactive`, startMark)
+                      if (ms != null) {
+                        perfBus.emit("tool_interactive", { slug: toolSlug, ms, ts: Date.now() })
+                      }
+                      trackToolUsage(toolSlug)
+                    }}
+                  />
+                )
+              })()}
+            </Suspense>
+            <div className="mt-8">
+              <AdSenseAd />
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

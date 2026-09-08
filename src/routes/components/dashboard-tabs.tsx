@@ -1,19 +1,16 @@
 import { useCallback } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SearchBar, CategoryManager, ToolCard, VirtualToolGrid } from "@/components/features"
+import { CategoryManager, ToolCard, VirtualToolGrid } from "@/components/features"
 import { Button } from "@/components/ui/button"
 import { motion } from "motion/react"
 import { Heart, Clock, Grid3X3, Trash2, Settings } from "lucide-react"
 import type { TFunction } from "i18next"
 import type { Tool, ToolCategory } from "@/schemas/tool.schema"
-import { isDesktopApp } from "@/lib/utils"
 
 interface DashboardTabsProps {
-  isDesktop: boolean
   activeTab: string
   onTabChange: (value: string) => void
   searchQuery: string
-  onSearchChange: (value: string) => void
   allTools: Tool[]
   tools: ToolCategory[]
   filteredTools: ToolCategory[]
@@ -27,11 +24,9 @@ interface DashboardTabsProps {
 }
 
 export function DashboardTabs({
-  isDesktop,
   activeTab,
   onTabChange,
   searchQuery,
-  onSearchChange,
   allTools,
   tools,
   filteredTools,
@@ -69,7 +64,7 @@ export function DashboardTabs({
       if (activeTab === "favorites" || activeTab === "recent") {
         const list = toolsToRender as Tool[]
         return (
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-start gap-4">
             {list.map((tool, index) => (
               <motion.div
                 key={tool.slug + index}
@@ -101,21 +96,9 @@ export function DashboardTabs({
   const searchResultCount = filteredTools.reduce((acc, cat) => acc + cat.tools.length, 0)
 
   return (
-    <div
-      className={`sticky z-10 bg-background/95 backdrop-blur-md border-b border-border -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-4 mb-6 ${
-        isDesktopApp() ? "top-8" : "top-0"
-      }`}
-    >
-      {!isDesktop && (
-        <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-6">
-          <div className="w-full max-w-md mx-auto">
-            <SearchBar value={searchQuery} onChange={onSearchChange} placeholder={t("search.placeholder")} />
-          </div>
-        </div>
-      )}
-
+    <div className="mb-8">
       <Tabs value={activeTab} onValueChange={onTabChange} className="w-full tabs-mobile">
-        <TabsList className="grid w-full grid-cols-5 h-auto p-1" role="tablist">
+        <TabsList className="grid h-auto w-full grid-cols-5 rounded-xl border border-border/70 bg-muted/50 p-1" role="tablist">
           <TabsTrigger
             value="all"
             className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2 sm:py-1.5 px-2 sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
@@ -222,4 +205,3 @@ export function DashboardTabs({
     </div>
   )
 }
-

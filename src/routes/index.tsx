@@ -50,14 +50,19 @@ export const Route = createFileRoute("/")({
     return (
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-7xl">
         {!isDesktop && <AdSenseAd />}
-        {!isDesktop && <DashboardHero title={t("app.title")} description={t("app.description")} />}
+        <DashboardHero
+          title={t("app.title")}
+          description={t("app.description")}
+          toolCount={allTools.length}
+          categoryCount={tools.length}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
 
         <DashboardTabs
-          isDesktop={isDesktop}
           activeTab={activeTab}
           onTabChange={setActiveTab}
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
           allTools={allTools}
           tools={tools}
           filteredTools={filteredTools}
