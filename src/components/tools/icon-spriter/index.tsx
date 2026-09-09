@@ -1,4 +1,6 @@
 import React, { useCallback, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
+import i18n from "@/locales"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -18,8 +20,8 @@ import { zipSync } from "fflate"
 const validateIconFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 5 * 1024 * 1024 // 5MB
   const allowedTypes = ["image/svg+xml", "image/png", "image/x-icon", "image/vnd.microsoft.icon"]
-  if (!allowedTypes.includes(file.type)) return { isValid: false, error: "仅支持 SVG/PNG/ICO" }
-  if (file.size > maxSize) return { isValid: false, error: "单文件最大 5MB" }
+  if (!allowedTypes.includes(file.type)) return { isValid: false, error: i18n.t("iconSpriter.file-type-error") }
+  if (file.size > maxSize) return { isValid: false, error: i18n.t("iconSpriter.file-too-large") }
   return { isValid: true }
 }
 
@@ -42,7 +44,7 @@ const useDragAndDrop = (onFiles: (files: File[]) => void) => {
         ["image/svg+xml", "image/png", "image/x-icon", "image/vnd.microsoft.icon"].includes(f.type)
       )
       if (files.length) onFiles(files)
-      else toast.error("请拖入 SVG/PNG/ICO 文件")
+      else toast.error(i18n.t("iconSpriter.invalid-file-type"))
     },
     [onFiles]
   )
@@ -66,7 +68,7 @@ const useIconContent = () => {
         if (file.type === "image/svg+xml") resolve(reader.result as string)
         else resolve(`data:${file.type};base64,${btoa(reader.result as string)}`)
       }
-      reader.onerror = () => reject(new Error("读取失败"))
+      reader.onerror = () => reject(new Error(i18n.t("iconSpriter.read-failed")))
       if (file.type === "image/svg+xml") reader.readAsText(file)
       else reader.readAsBinaryString(file)
     })
@@ -116,6 +118,7 @@ const useIconSprite = () => {
 
 // 主组件
 const IconSpriter = () => {
+  const { t } = useTranslation()
   const [icons, setIcons] = useState<IconFile[]>([])
   const [sprite, setSprite] = useState("")
   const [spriteStats, setSpriteStats] = useState<SpriteStats | null>(null)
@@ -141,7 +144,7 @@ const IconSpriter = () => {
         const url = URL.createObjectURL(file)
         newIcons.push({ id, file, name: file.name, size: file.size, type: file.type, status: "pending", content, url })
       } catch (e: any) {
-        toast.error(`${file.name}: 读取失败`)
+        toast.error(t("iconSpriter.read-failed-name", { name: file.name }))
       }
     }
     if (newIcons.length) setIcons((prev) => [...prev, ...newIcons])
@@ -152,16 +155,16 @@ const IconSpriter = () => {
   const handleGenerate = async () => {
     const svgIcons = icons.filter((i) => i.type === "image/svg+xml")
     if (!svgIcons.length) {
-      toast.error("请上传 SVG 图标")
+      toast.error(t("iconSpriter.upload-svg-required"))
       return
     }
     try {
       const { sprite, stats } = await generateSprite(svgIcons, settings)
       setSprite(sprite)
       setSpriteStats(stats)
-      toast.success("雪碧图生成成功")
+      toast.success(t("iconSpriter.generate-success"))
     } catch (e: any) {
-      toast.error("生成失败: " + e.message)
+      toast.error(t("iconSpriter.generate-failed-msg", { error: e.message }))
     }
   }
 
@@ -177,7 +180,7 @@ const IconSpriter = () => {
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
-    toast.success("已导出 SVG 雪碧图")
+    toast.success(t("iconSpriter.export-svg-success"))
   }
 
   // 批量导出 ZIP
@@ -212,7 +215,7 @@ const IconSpriter = () => {
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
-    toast.success("已打包导出 ZIP")
+    toast.success(t("iconSpriter.export-zip-success"))
   }
 
   // 移除图标
@@ -225,24 +228,24 @@ const IconSpriter = () => {
     setIcons([])
     setSprite("")
     setSpriteStats(null)
-    toast.success("已清空")
+    toast.success(t("iconSpriter.clear-success"))
   }
 
   // 预设模板
   const presets = [
     {
-      label: "Symbol 雪碧图",
+      label: t("iconSpriter.preset-symbol"),
       value: { layout: "symbol", spacing: 0, naming: "auto", customPrefix: "icon", output: "svg" },
     },
     {
-      label: "文件名命名",
+      label: t("iconSpriter.preset-filename"),
       value: { layout: "symbol", spacing: 0, naming: "filename", customPrefix: "icon", output: "svg" },
     },
     {
-      label: "自定义前缀",
+      label: t("iconSpriter.preset-custom-prefix"),
       value: { layout: "symbol", spacing: 0, naming: "custom", customPrefix: "myicon", output: "svg" },
     },
-    { label: "自定义", value: null },
+    { label: t("iconSpriter.preset-custom"), value: null },
   ]
 
   return (
@@ -252,7 +255,7 @@ const IconSpriter = () => {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded-md z-50"
       >
-        跳转到主内容
+        {t("skipToContent")}
       </a>
       <div
         id="main-content"
@@ -263,10 +266,10 @@ const IconSpriter = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Layers className="h-5 w-5" />
-              图标雪碧图生成/管理工具
+              {t("iconSpriter.title")}
             </CardTitle>
             <CardDescription>
-              支持批量 SVG/PNG/ICO 拖拽上传，symbol 雪碧图生成，命名规范，实时预览，统计分析，导出 SVG/ZIP，键盘无障碍。
+              {t("iconSpriter.description")}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -289,17 +292,17 @@ const IconSpriter = () => {
               }}
             >
               <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">上传图标文件</h3>
-              <p className="text-muted-foreground mb-4">拖拽 SVG/PNG/ICO 到此，或点击选择文件，支持批量</p>
+              <h3 className="text-lg font-semibold mb-2">{t("iconSpriter.upload-title")}</h3>
+              <p className="text-muted-foreground mb-4">{t("iconSpriter.upload-desc")}</p>
               <Button
                 onClick={() => fileInputRef.current?.click()}
                 variant="outline"
                 className="mb-2"
               >
                 <FileImage className="mr-2 h-4 w-4" />
-                选择文件
+                {t("iconSpriter.select-file")}
               </Button>
-              <p className="text-xs text-muted-foreground">支持 SVG/PNG/ICO • 单文件最大 5MB</p>
+              <p className="text-xs text-muted-foreground">{t("iconSpriter.upload-hint")}</p>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -314,11 +317,11 @@ const IconSpriter = () => {
         {/* 雪碧图设置 */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">雪碧图设置</CardTitle>
+            <CardTitle className="text-lg">{t("iconSpriter.sprite-settings")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-4 items-center">
-              <Label htmlFor="preset">预设</Label>
+              <Label htmlFor="preset">{t("iconSpriter.preset")}</Label>
               <Select
                 value={
                   presets.find(
@@ -327,7 +330,7 @@ const IconSpriter = () => {
                       p.value.layout === settings.layout &&
                       p.value.naming === settings.naming &&
                       p.value.customPrefix === settings.customPrefix
-                  )?.label || "自定义"
+                  )?.label || t("iconSpriter.preset-custom")
                 }
                 onValueChange={(label) => {
                   const preset = presets.find((p) => p.label === label)
@@ -359,7 +362,7 @@ const IconSpriter = () => {
                 htmlFor="naming"
                 className="ml-4"
               >
-                命名方式
+                {t("iconSpriter.naming")}
               </Label>
               <Select
                 value={settings.naming}
@@ -369,9 +372,9 @@ const IconSpriter = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="auto">自动</SelectItem>
-                  <SelectItem value="filename">文件名</SelectItem>
-                  <SelectItem value="custom">自定义前缀</SelectItem>
+                  <SelectItem value="auto">{t("iconSpriter.naming-auto")}</SelectItem>
+                  <SelectItem value="filename">{t("iconSpriter.naming-filename")}</SelectItem>
+                  <SelectItem value="custom">{t("iconSpriter.naming-custom")}</SelectItem>
                 </SelectContent>
               </Select>
               {settings.naming === "custom" && (
@@ -396,10 +399,10 @@ const IconSpriter = () => {
                 {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    处理中...
+                    {t("iconSpriter.processing")}
                   </>
                 ) : (
-                  "生成雪碧图"
+                  t("iconSpriter.generate")
                 )}
               </Button>
               <Button
@@ -408,7 +411,7 @@ const IconSpriter = () => {
                 disabled={!sprite}
               >
                 <Download className="mr-2 h-4 w-4" />
-                导出 SVG
+                {t("iconSpriter.export-svg")}
               </Button>
               <Button
                 onClick={handleExportAll}
@@ -416,7 +419,7 @@ const IconSpriter = () => {
                 disabled={icons.length === 0}
               >
                 <Download className="mr-2 h-4 w-4" />
-                全部导出 ZIP
+                {t("iconSpriter.export-zip")}
               </Button>
               <Button
                 onClick={handleClearAll}
@@ -425,7 +428,7 @@ const IconSpriter = () => {
               >
                 {" "}
                 <Trash2 className="mr-2 h-4 w-4" />
-                清空全部
+                {t("iconSpriter.clear-all")}
               </Button>
             </CardContent>
           </Card>
@@ -436,7 +439,7 @@ const IconSpriter = () => {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Grid className="h-5 w-5" />
-                图标列表
+                {t("iconSpriter.icon-list")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -482,7 +485,7 @@ const IconSpriter = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Code2 className="h-5 w-5" />
-                SVG 雪碧图预览
+                {t("iconSpriter.sprite-preview")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -493,7 +496,7 @@ const IconSpriter = () => {
               />
               <div className="flex flex-col md:flex-row gap-4 mt-4 items-center">
                 <div className="flex-1 flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">可复制粘贴到 HTML 使用</span>
+                  <span className="text-xs text-muted-foreground">{t("iconSpriter.copy-hint")}</span>
                   <Button
                     size="sm"
                     variant="outline"
@@ -507,8 +510,11 @@ const IconSpriter = () => {
                   <div className="flex items-center gap-2 bg-muted/30 rounded px-3 py-2">
                     <BarChart3 className="h-5 w-5 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
-                      图标数: {spriteStats.iconCount}，总大小: {formatFileSize(spriteStats.totalSize)}，格式:{" "}
-                      {spriteStats.formats.join(", ")}
+                      {t("iconSpriter.stats", {
+                        count: spriteStats.iconCount,
+                        size: formatFileSize(spriteStats.totalSize),
+                        formats: spriteStats.formats.join(", "),
+                      })}
                     </span>
                   </div>
                 )}

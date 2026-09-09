@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react"
 import { getWorkerManager } from "@/lib/workers"
 import type { WorkerManager } from "@/lib/workers"
+import i18n from "@/locales"
 import type {
   AudioFile,
   ConvertSettings,
@@ -397,7 +398,7 @@ export function validateAudioFile(file: File): AudioValidationResult {
   if (!allowedTypes.includes(file.type)) {
     return {
       isValid: false,
-      error: "不支持的音频格式",
+      error: i18n.t("audioConvert.unsupported-audio-format"),
       supportedFormats: ["MP3", "WAV", "AAC", "OGG", "FLAC", "M4A", "WMA", "WebM"],
     }
   }
@@ -406,7 +407,7 @@ export function validateAudioFile(file: File): AudioValidationResult {
   if (file.size > maxSize) {
     return {
       isValid: false,
-      error: `文件过大，最大支持 ${formatFileSize(maxSize)}`,
+      error: `${i18n.t("audioConvert.file-too-large")} ${formatFileSize(maxSize)}`,
       maxSize,
     }
   }
@@ -414,7 +415,7 @@ export function validateAudioFile(file: File): AudioValidationResult {
   // 检查文件大小警告
   if (file.size > 100 * 1024 * 1024) {
     // 100MB
-    warnings.push("文件较大，处理可能需要较长时间")
+    warnings.push(i18n.t("audioConvert.large-file-warning"))
   }
 
   return {
@@ -485,7 +486,7 @@ export function getAudioStats(file: File): Promise<AudioStats> {
     }
 
     audio.onerror = () => {
-      reject(new Error("无法读取音频元数据"))
+      reject(new Error(i18n.t("audioConvert.metadata-read-failed")))
       URL.revokeObjectURL(url)
     }
   })

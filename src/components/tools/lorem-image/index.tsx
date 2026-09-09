@@ -1,4 +1,6 @@
 import { useCallback, useState } from "react"
+import { useTranslation } from "react-i18next"
+import i18n from "@/locales"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -70,7 +72,7 @@ function useBatchLoremImages(settings: LoremImageSettings) {
       }
       setImages(batch)
     } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : "生成失败"
+      const errorMessage = e instanceof Error ? e.message : i18n.t("loremImage.generate-failed")
       setError(errorMessage)
       toast.error(errorMessage)
     } finally {
@@ -83,6 +85,7 @@ function useBatchLoremImages(settings: LoremImageSettings) {
 
 // 主组件结构（后续将逐步完善 UI、批量、导出、无障碍等功能）
 const LoremImage = () => {
+  const { t } = useTranslation()
   const [settings, setSettings] = useState<LoremImageSettings>(defaultSettings)
   const { images, loading, error, generateBatch } = useBatchLoremImages(settings)
 
@@ -91,13 +94,13 @@ const LoremImage = () => {
   return (
     <Card className="max-w-2xl mx-auto mt-6">
       <CardHeader>
-        <CardTitle>占位图生成器（Lorem Image）</CardTitle>
-        <CardDescription>支持批量、格式、颜色、文本、主题等自定义，全面对齐其它图片工具体验</CardDescription>
+        <CardTitle>{t("loremImage.title")}</CardTitle>
+        <CardDescription>{t("loremImage.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {/* 参数设置区 */}
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <Label htmlFor="width">宽度</Label>
+          <Label htmlFor="width">{t("loremImage.width")}</Label>
           <Input
             id="width"
             type="number"
@@ -106,7 +109,7 @@ const LoremImage = () => {
             value={settings.width}
             onChange={(e) => setSettings((s) => ({ ...s, width: Number(e.target.value) }))}
           />
-          <Label htmlFor="height">高度</Label>
+          <Label htmlFor="height">{t("loremImage.height")}</Label>
           <Input
             id="height"
             type="number"
@@ -115,7 +118,7 @@ const LoremImage = () => {
             value={settings.height}
             onChange={(e) => setSettings((s) => ({ ...s, height: Number(e.target.value) }))}
           />
-          <Label htmlFor="format">格式</Label>
+          <Label htmlFor="format">{t("loremImage.format")}</Label>
           <Select
             value={settings.format}
             onValueChange={(v) => setSettings((s) => ({ ...s, format: v as LoremImageSettings["format"] }))}
@@ -130,28 +133,28 @@ const LoremImage = () => {
               <SelectItem value="svg">SVG</SelectItem>
             </SelectContent>
           </Select>
-          <Label htmlFor="bgColor">背景色</Label>
+          <Label htmlFor="bgColor">{t("loremImage.bgColor")}</Label>
           <Input
             id="bgColor"
             type="color"
             value={settings.bgColor}
             onChange={(e) => setSettings((s) => ({ ...s, bgColor: e.target.value }))}
           />
-          <Label htmlFor="fgColor">前景色</Label>
+          <Label htmlFor="fgColor">{t("loremImage.fgColor")}</Label>
           <Input
             id="fgColor"
             type="color"
             value={settings.fgColor}
             onChange={(e) => setSettings((s) => ({ ...s, fgColor: e.target.value }))}
           />
-          <Label htmlFor="text">文本</Label>
+          <Label htmlFor="text">{t("loremImage.text")}</Label>
           <Input
             id="text"
             type="text"
             value={settings.text}
             onChange={(e) => setSettings((s) => ({ ...s, text: e.target.value }))}
           />
-          <Label htmlFor="batchCount">批量数量</Label>
+          <Label htmlFor="batchCount">{t("loremImage.batchCount")}</Label>
           <Input
             id="batchCount"
             type="number"
@@ -166,7 +169,8 @@ const LoremImage = () => {
           disabled={loading}
           className="w-full mb-4"
         >
-          {loading ? <Loader2 className="animate-spin mr-2" /> : <ImageIcon className="mr-2" />}生成占位图
+          {loading ? <Loader2 className="animate-spin mr-2" /> : <ImageIcon className="mr-2" />}
+          {t("loremImage.generate")}
         </Button>
         {/* 错误提示 */}
         {error && (
@@ -187,7 +191,7 @@ const LoremImage = () => {
             >
               <img
                 src={img.url}
-                alt={img.text || `占位图 ${img.width}x${img.height}`}
+                alt={img.text || t("loremImage.alt", { width: img.width, height: img.height })}
                 className="w-full h-auto mb-2 border rounded"
                 style={{ background: img.bgColor }}
               />

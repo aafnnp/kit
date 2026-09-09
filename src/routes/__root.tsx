@@ -6,17 +6,18 @@ import { isDesktopApp } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { scheduleTTIMeasure, initWebVitals, initLongTaskObserver } from "@/lib/performance"
 import { useTranslation } from "react-i18next"
+import i18n from "@/locales"
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       {
         name: "keywords",
-        content: "AI 工具箱，提供各种 AI 工具和资源，帮助你提高工作效率。",
+        content: i18n.t("seo.description"),
       },
       {
         name: "description",
-        content: "AI 工具箱，提供各种 AI 工具和资源，帮助你提高工作效率。",
+        content: i18n.t("seo.description"),
       },
       { title: "Kit | Tools" },
       { name: "author", content: "Kit" },

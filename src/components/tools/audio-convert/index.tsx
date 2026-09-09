@@ -1,4 +1,5 @@
 import { useCallback, useState, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -53,6 +54,7 @@ import {
 
 // 主组件
 const AudioConvert = () => {
+  const { t } = useTranslation()
   // 状态管理
   const [audios, setAudios] = useState<AudioFile[]>([])
   const [convertSettings, setConvertSettings] = useState<ConvertSettings>({
@@ -93,7 +95,7 @@ const AudioConvert = () => {
     (audioId, error) => {
       // 音频转换出错
       setAudios((prev) => prev.map((a) => (a.id === audioId ? { ...a, status: "error", error } : a)))
-      toast.error(`转换失败: ${error}`)
+      toast.error(t("audioConvert.convert-failed", { error }))
     }
   )
   const { copyDataToClipboard } = useCopyToClipboard()

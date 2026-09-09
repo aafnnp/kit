@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -936,6 +937,7 @@ const generateHTMLFromResult = (result: JSONDiffResult): string => {
  * Features: Advanced JSON comparison, visual diff display, deep comparison, and multiple comparison modes
  */
 const JSONDiffCore = () => {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<"diff" | "history" | "templates" | "settings">("diff")
   const [leftJSON, setLeftJSON] = useState("")
   const [rightJSON, setRightJSON] = useState("")
@@ -1027,7 +1029,7 @@ const JSONDiffCore = () => {
             <h1 className="text-xl font-semibold tracking-tight">JSON Diff & Comparison</h1>
           </div>
           <p className="max-w-2xl text-sm text-muted-foreground">
-            对比两份 JSON，快速查看新增、删除与变更字段，并导出对比结果。适用于调试接口响应、配置变更和数据校验。
+            {t("jsonDiff.description")}
           </p>
         </div>
 
@@ -1091,7 +1093,7 @@ const JSONDiffCore = () => {
                       id="left-json"
                       value={leftJSON}
                       onChange={(e) => setLeftJSON(e.target.value)}
-                      placeholder="在此粘贴原始 JSON..."
+                      placeholder={t("jsonDiff.left-placeholder")}
                       className="mt-2 font-mono text-sm"
                       rows={12}
                     />
@@ -1108,7 +1110,7 @@ const JSONDiffCore = () => {
                       id="right-json"
                       value={rightJSON}
                       onChange={(e) => setRightJSON(e.target.value)}
-                      placeholder="在此粘贴修改后的 JSON..."
+                      placeholder={t("jsonDiff.right-placeholder")}
                       className="mt-2 font-mono text-sm"
                       rows={12}
                     />
@@ -1142,7 +1144,7 @@ const JSONDiffCore = () => {
 
                   {/* 操作区下的快捷选项 */}
                   <div className="space-y-3 border-t pt-4">
-                    <Label className="text-sm font-medium">对比选项</Label>
+                    <Label className="text-sm font-medium">{t("jsonDiff.options")}</Label>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <div className="flex items-center space-x-2">
                         <input
@@ -1156,7 +1158,7 @@ const JSONDiffCore = () => {
                           htmlFor="ignore-case"
                           className="text-xs sm:text-sm"
                         >
-                          忽略大小写
+                          {t("jsonDiff.ignore-case")}
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -1171,7 +1173,7 @@ const JSONDiffCore = () => {
                           htmlFor="ignore-array-order"
                           className="text-xs sm:text-sm"
                         >
-                          忽略数组顺序
+                          {t("jsonDiff.ignore-array-order")}
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -1186,7 +1188,7 @@ const JSONDiffCore = () => {
                           htmlFor="show-unchanged"
                           className="text-xs sm:text-sm"
                         >
-                          显示未变化字段
+                          {t("jsonDiff.show-unchanged")}
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -1201,7 +1203,7 @@ const JSONDiffCore = () => {
                           htmlFor="ignore-extra-keys"
                           className="text-xs sm:text-sm"
                         >
-                          忽略额外字段
+                          {t("jsonDiff.ignore-extra-keys")}
                         </Label>
                       </div>
                     </div>

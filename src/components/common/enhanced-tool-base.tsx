@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from "react"
+import { useTranslation } from "react-i18next"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -103,6 +104,7 @@ export function EnhancedToolBase<
 }: EnhancedToolBaseProps<TData, TTemplate, TSettings>) {
   // 状态管理
   const toolState = useToolState(initialData)
+  const { t } = useTranslation()
 
   // 模板管理
   const templateManager = useTemplateManager(templates, {
@@ -131,7 +133,7 @@ export function EnhancedToolBase<
     if (enableTemplates && templates.length > 0) {
       sysTabs.push({
         id: "templates",
-        label: "Templates",
+        label: t("enhancedToolBase.templates"),
         icon: <FileText className="h-4 w-4" />,
         content: (
           <TemplatePanel
@@ -146,7 +148,7 @@ export function EnhancedToolBase<
     if (enableSettings && settingGroups.length > 0) {
       sysTabs.push({
         id: "settings",
-        label: "Settings",
+        label: t("enhancedToolBase.settings"),
         icon: <Settings className="h-4 w-4" />,
         content: (
           <SettingsPanel
@@ -161,7 +163,7 @@ export function EnhancedToolBase<
     if (enableHistory) {
       sysTabs.push({
         id: "history",
-        label: "History",
+        label: t("enhancedToolBase.history"),
         icon: <History className="h-4 w-4" />,
         content: <HistoryPanel toolName={toolName} />,
       })
@@ -179,6 +181,7 @@ export function EnhancedToolBase<
     onTemplateApply,
     onSettingsChange,
     toolName,
+    t,
   ])
 
   // 所有标签页
@@ -186,14 +189,14 @@ export function EnhancedToolBase<
     const mainTabs: ToolTab[] = tabs || [
       {
         id: "main",
-        label: "Main",
+        label: t("enhancedToolBase.main"),
         icon: <Zap className="h-4 w-4" />,
         content: children,
       },
     ]
 
     return [...mainTabs, ...systemTabs]
-  }, [tabs, children, systemTabs])
+  }, [tabs, children, systemTabs, t])
 
   return (
     <ToolErrorBoundary toolName={toolName}>
@@ -202,7 +205,7 @@ export function EnhancedToolBase<
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded-md z-50"
-        >
+        >{t("skipToContent")}
           Skip to main content
         </a>
 
@@ -235,7 +238,7 @@ export function EnhancedToolBase<
                         variant="secondary"
                         className="animate-pulse"
                       >
-                        Loading...
+                        {t("enhancedToolBase.loading")}
                       </Badge>
                     )}
                     {toolState.isProcessing && (
@@ -243,9 +246,9 @@ export function EnhancedToolBase<
                         variant="default"
                         className="animate-pulse"
                       >
-                        Processing...
+                        {t("enhancedToolBase.processing")}
                       </Badge>
-                    )}
+                    )}{t("enhancedToolBase.error")}
                     {toolState.error && <Badge variant="destructive">Error</Badge>}
                   </div>
                 </div>
@@ -280,7 +283,7 @@ export function EnhancedToolBase<
               {enableProgress && toolState.isProcessing && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span>Progress</span>
+                    <span>{t("enhancedToolBase.progress")}</span>
                     <span>{Math.round(toolState.progress)}%</span>
                   </div>
                   <Progress
@@ -356,6 +359,7 @@ interface TemplatePanelProps<T extends BaseTemplate> {
 }
 
 function TemplatePanel<T extends BaseTemplate>({ templateManager, onTemplateApply }: TemplatePanelProps<T>) {
+  const { t } = useTranslation()
   const handleTemplateSelect = useCallback(
     (template: T) => {
       templateManager.applyTemplate(template.id, onTemplateApply)
@@ -366,10 +370,12 @@ function TemplatePanel<T extends BaseTemplate>({ templateManager, onTemplateAppl
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Templates</h3>
+        <h3 className="text-lg font-semibold">{t("enhancedToolBase.templates")}</h3>
         <div className="flex items-center gap-2">
-          <Badge variant="outline">{templateManager.stats.total} total</Badge>
-          {templateManager.stats.custom > 0 && <Badge variant="secondary">{templateManager.stats.custom} custom</Badge>}
+          <Badge variant="outline">{t("enhancedToolBase.total", { count: templateManager.stats.total })}</Badge>
+          {templateManager.stats.custom > 0 && (
+            <Badge variant="secondary">{t("enhancedToolBase.custom", { count: templateManager.stats.custom })}</Badge>
+          )}
         </div>
       </div>
 
@@ -396,7 +402,7 @@ function TemplatePanel<T extends BaseTemplate>({ templateManager, onTemplateAppl
                         variant="outline"
                         className="text-xs"
                       >
-                        Built-in
+                        {t("enhancedToolBase.builtIn")}
                       </Badge>
                     )}
                   </div>
@@ -418,19 +424,20 @@ interface SettingsPanelProps<T extends Record<string, any>> {
 }
 
 function SettingsPanel<T extends Record<string, any>>({ settingsManager }: SettingsPanelProps<T>) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Settings</h3>
+        <h3 className="text-lg font-semibold">{t("enhancedToolBase.settings")}</h3>
         <div className="flex items-center gap-2">
-          {settingsManager.isDirty && <Badge variant="secondary">Unsaved changes</Badge>}
-          {!settingsManager.isValid && <Badge variant="destructive">Validation errors</Badge>}
+          {settingsManager.isDirty && <Badge variant="secondary">{t("enhancedToolBase.unsavedChanges")}</Badge>}
+          {!settingsManager.isValid && <Badge variant="destructive">{t("enhancedToolBase.validationErrors")}</Badge>}
           <Button
             variant="outline"
             size="sm"
             onClick={settingsManager.resetSettings}
           >
-            Reset
+            {t("enhancedToolBase.reset")}
           </Button>
         </div>
       </div>
@@ -456,7 +463,7 @@ function SettingsPanel<T extends Record<string, any>>({ settingsManager }: Setti
                 </label>
                 {/* 这里需要根据 field.type 渲染不同的输入组件 */}
                 <div className="text-xs text-muted-foreground">
-                  Current: {JSON.stringify(settingsManager.settings[field.key])}
+                  {t("enhancedToolBase.current")}: {JSON.stringify(settingsManager.settings[field.key])}
                 </div>
                 {settingsManager.hasFieldError(field.key) && (
                   <p className="text-xs text-destructive">{settingsManager.getFieldError(field.key)}</p>
@@ -474,20 +481,21 @@ function SettingsPanel<T extends Record<string, any>>({ settingsManager }: Setti
 // HistoryPanelProps is imported from schemas.ts
 
 function HistoryPanel({ toolName }: { toolName: string }) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">History</h3>
-        <Badge variant="outline">Coming soon</Badge>
+        <h3 className="text-lg font-semibold">{t("enhancedToolBase.history")}</h3>
+        <Badge variant="outline">{t("enhancedToolBase.comingSoon")}</Badge>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Info className="h-5 w-5" />
-            History Feature
+            {t("enhancedToolBase.historyFeature")}
           </CardTitle>
-          <CardDescription>History tracking for {toolName} will be available in a future update.</CardDescription>
+          <CardDescription>{t("enhancedToolBase.historyDesc", { toolName })}</CardDescription>
         </CardHeader>
       </Card>
     </div>

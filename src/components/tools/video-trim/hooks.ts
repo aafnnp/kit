@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import { getWorkerManager } from '@/lib/workers'
+import i18n from '@/locales'
 import type { VideoFile, TrimSettings, TrimResult, VideoStats } from '@/components/tools/video-trim/schema'
 
 export interface UseVideoTrimReturn {
@@ -129,11 +130,11 @@ export function validateVideoFile(file: File): { isValid: boolean; error?: strin
   ]
 
   if (!allowedTypes.includes(file.type)) {
-    return { isValid: false, error: '不支持的格式' }
+    return { isValid: false, error: i18n.t('videoTrim.unsupported-format') }
   }
 
   if (file.size > maxSize) {
-    return { isValid: false, error: '文件过大，最大 500MB' }
+    return { isValid: false, error: i18n.t('videoTrim.file-too-large') }
   }
 
   return { isValid: true }
@@ -228,7 +229,7 @@ export function getVideoStats(file: File): Promise<VideoStats> {
     }
 
     video.onerror = () => {
-      reject(new Error('无法读取视频元数据'))
+      reject(new Error(i18n.t('videoTrim.metadata-read-failed')))
       URL.revokeObjectURL(url)
     }
   })

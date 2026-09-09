@@ -5,6 +5,7 @@
  */
 
 import { LogLevel } from "../data/logger"
+import i18n from "@/locales"
 
 export enum ErrorSeverity {
   LOW = "low",
@@ -163,36 +164,36 @@ class ErrorHandler {
 
     switch (category) {
       case ErrorCategory.NETWORK:
-        suggestions.push("检查网络连接")
-        suggestions.push("稍后重试")
-        suggestions.push("检查防火墙设置")
+        suggestions.push(i18n.t("errorHandler.check-network"))
+        suggestions.push(i18n.t("errorHandler.retry-later"))
+        suggestions.push(i18n.t("errorHandler.check-firewall"))
         break
       case ErrorCategory.VALIDATION:
-        suggestions.push("检查输入数据格式")
-        suggestions.push("确保所有必填字段已填写")
-        suggestions.push("参考工具使用说明")
+        suggestions.push(i18n.t("errorHandler.check-input-format"))
+        suggestions.push(i18n.t("errorHandler.fill-required-fields"))
+        suggestions.push(i18n.t("errorHandler.refer-to-manual"))
         break
       case ErrorCategory.RUNTIME:
-        suggestions.push("刷新页面重试")
-        suggestions.push("清除浏览器缓存")
-        suggestions.push("检查浏览器控制台获取更多信息")
+        suggestions.push(i18n.t("errorHandler.refresh-page"))
+        suggestions.push(i18n.t("errorHandler.clear-cache"))
+        suggestions.push(i18n.t("errorHandler.check-console"))
         break
       case ErrorCategory.SECURITY:
-        suggestions.push("检查权限设置")
-        suggestions.push("确认操作权限")
+        suggestions.push(i18n.t("errorHandler.check-permissions"))
+        suggestions.push(i18n.t("errorHandler.confirm-permissions"))
         break
       default:
-        suggestions.push("刷新页面重试")
-        suggestions.push("如果问题持续，请联系技术支持")
+        suggestions.push(i18n.t("errorHandler.refresh-page"))
+        suggestions.push(i18n.t("errorHandler.contact-support"))
     }
 
     // 根据错误消息添加特定建议
     if (error.message.includes("timeout")) {
-      suggestions.push("操作超时，请重试")
+      suggestions.push(i18n.t("errorHandler.operation-timeout"))
     } else if (error.message.includes("memory")) {
-      suggestions.push("数据量过大，尝试分批处理")
+      suggestions.push(i18n.t("errorHandler.data-too-large"))
     } else if (error.message.includes("permission")) {
-      suggestions.push("检查文件或操作权限")
+      suggestions.push(i18n.t("errorHandler.check-file-permissions"))
     }
 
     return suggestions

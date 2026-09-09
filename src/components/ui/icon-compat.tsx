@@ -3,6 +3,7 @@
  */
 
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { resourceOptimizer } from "@/lib/performance"
 
 interface IconProps {
@@ -96,26 +97,27 @@ export function IconBatch({ icons, ...commonProps }: { icons: string[]; size?: n
  * 图标映射显示组件（用于开发调试）
  */
 export function IconMappingDebug() {
+  const { t } = useTranslation()
   const stats = resourceOptimizer.getStats()
   const suggestions = resourceOptimizer.getOptimizationSuggestions()
 
   return (
     <div className="p-4 border rounded-lg bg-muted/50">
-      <h3 className="font-semibold mb-2">图标优化统计</h3>
+      <h3 className="font-semibold mb-2">{t("iconCompat.stats-title")}</h3>
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div>
-          <p>缓存图标数: {stats.cachedIcons}</p>
-          <p>缓存资源数: {stats.cachedResources}</p>
+          <p>{t("iconCompat.cached-icons")}: {stats.cachedIcons}</p>
+          <p>{t("iconCompat.cached-resources")}: {stats.cachedResources}</p>
         </div>
         <div>
-          <p>重量级依赖: {stats.dependencyAnalysis.heavy}</p>
-          <p>可优化依赖: {stats.dependencyAnalysis.optimizable}</p>
+          <p>{t("iconCompat.heavy-deps")}: {stats.dependencyAnalysis.heavy}</p>
+          <p>{t("iconCompat.optimizable-deps")}: {stats.dependencyAnalysis.optimizable}</p>
         </div>
       </div>
 
       {suggestions.length > 0 && (
         <div className="mt-4">
-          <h4 className="font-medium mb-2">优化建议:</h4>
+          <h4 className="font-medium mb-2">{t("iconCompat.suggestions")}:</h4>
           <ul className="text-xs space-y-1">
             {suggestions.map((suggestion, index) => (
               <li

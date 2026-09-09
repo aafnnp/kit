@@ -1,4 +1,5 @@
 import { useCallback, useState, useMemo, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -1034,6 +1035,7 @@ const useCopyToClipboard = () => {
  * Features: Advanced YAML/JSON conversion, validation, analysis, batch processing, comprehensive formatting
  */
 const YAMLToJSONCore = () => {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<"converter" | "batch" | "templates">("converter")
   const [yamlInput, setYamlInput] = useState("")
   const [jsonInput, setJsonInput] = useState("")
@@ -1130,7 +1132,7 @@ const YAMLToJSONCore = () => {
       .filter((input) => ["yaml", "json"].includes(input.inputFormat))
 
     if (inputs.length === 0) {
-      toast.error("No valid format:content pairs found. Use format: yaml:content or json:content")
+      toast.error(t("yamlToJson.no-valid-pairs"))
       return
     }
 
@@ -1145,9 +1147,9 @@ const YAMLToJSONCore = () => {
         settings
       )
       setBatches((prev) => [batch, ...prev])
-      toast.success(`已处理 ${batch.conversions.length} 个转换`)
+      toast.success(t("yamlToJson.batch-processed", { count: batch.conversions.length }))
     } catch (error) {
-      toast.error("批量处理失败")
+      toast.error(t("yamlToJson.batch-process-failed"))
       console.error(error)
     } finally {
       setIsProcessing(false)

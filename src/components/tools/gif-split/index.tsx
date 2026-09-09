@@ -1,4 +1,6 @@
 import React, { useCallback, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
+import i18n from "@/locales"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
@@ -14,8 +16,8 @@ import { zipSync } from "fflate"
 
 const validateGifFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 100 * 1024 * 1024 // 100MB
-  if (file.type !== "image/gif") return { isValid: false, error: "仅支持 GIF 文件" }
-  if (file.size > maxSize) return { isValid: false, error: "文件过大，最大 100MB" }
+  if (file.type !== "image/gif") return { isValid: false, error: i18n.t("gifSplit.file-type-error") }
+  if (file.size > maxSize) return { isValid: false, error: i18n.t("gifSplit.file-too-large") }
   return { isValid: true }
 }
 
@@ -36,7 +38,7 @@ const useDragAndDrop = (onFiles: (files: File[]) => void) => {
       setDragActive(false)
       const files = Array.from(e.dataTransfer.files).filter((f) => f.type === "image/gif")
       if (files.length) onFiles(files)
-      else toast.error("请拖入 GIF 文件")
+      else toast.error(i18n.t("gifSplit.invalid-file-type"))
     },
     [onFiles]
   )
@@ -102,7 +104,7 @@ const useGifSplit = () => {
     } catch (e: any) {
       setIsProcessing(false)
       setProgress(0)
-      throw new Error(e?.message || "GIF 解析失败")
+      throw new Error(e?.message || i18n.t("gifSplit.parse-failed"))
     }
   }, [])
   return { isProcessing, progress, processGif }
@@ -110,6 +112,7 @@ const useGifSplit = () => {
 
 // 主组件
 const GifSplit = () => {
+  const { t } = useTranslation()
   const [gifs, setGifs] = useState<GifFile[]>([])
   const { isProcessing, progress, processGif } = useGifSplit()
   const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(async (files) => {
@@ -134,10 +137,10 @@ const GifSplit = () => {
       try {
         const { frames, stats } = await processGif(gif.file)
         setGifs((prev) => prev.map((g) => (g.id === gif.id ? { ...g, status: "completed", frames, stats } : g)))
-        toast.success(`${gif.name} 拆分成功，共 ${frames.length} 帧`)
+        toast.success(t("gifSplit.split-success", { name: gif.name, count: frames.length }))
       } catch (e: any) {
         setGifs((prev) => prev.map((g) => (g.id === gif.id ? { ...g, status: "error", error: e.message } : g)))
-        toast.error(`${gif.name} 解析失败: ${e.message}`)
+        toast.error(t("gifSplit.parse-error", { name: gif.name, error: e.message }))
       }
     }
   }
@@ -150,7 +153,7 @@ const GifSplit = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    toast.success(`已导出第${frame.index + 1}帧`)
+    toast.success(t("gifSplit.export-frame-success", { index: frame.index + 1 }))
   }
 
   // 导出所有帧为 zip
@@ -182,7 +185,7 @@ const GifSplit = () => {
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
-    toast.success("所有帧已打包导出")
+    toast.success(t("gifSplit.export-all-success"))
   }
 
   // 移除 GIF
@@ -193,7 +196,7 @@ const GifSplit = () => {
   // 清空全部
   const handleClearAll = () => {
     setGifs([])
-    toast.success("已清空")
+    toast.success(t("gifSplit.clear-success"))
   }
 
   return (
@@ -203,7 +206,7 @@ const GifSplit = () => {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded-md z-50"
       >
-        跳转到主内容
+        {t("skipToContent")}
       </a>
       <div
         id="main-content"
@@ -214,10 +217,10 @@ const GifSplit = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Layers className="h-5 w-5" />
-              GIF 拆分/帧提取工具
+              {t("gifSplit.title")}
             </CardTitle>
             <CardDescription>
-              支持批量 GIF 文件拆分，帧导出，实时预览，统计分析，键盘无障碍，拖拽上传，导出 PNG/JPEG/ZIP。
+              {t("gifSplit.description")}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -240,17 +243,17 @@ const GifSplit = () => {
               }}
             >
               <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">上传 GIF 文件</h3>
-              <p className="text-muted-foreground mb-4">拖拽 GIF 到此，或点击选择文件，支持批量</p>
+              <h3 className="text-lg font-semibold mb-2">{t("gifSplit.upload-title")}</h3>
+              <p className="text-muted-foreground mb-4">{t("gifSplit.upload-desc")}</p>
               <Button
                 onClick={() => fileInputRef.current?.click()}
                 variant="outline"
                 className="mb-2"
               >
                 <FileImage className="mr-2 h-4 w-4" />
-                选择文件
+                {t("gifSplit.select-file")}
               </Button>
-              <p className="text-xs text-muted-foreground">仅支持 GIF • 最大 100MB</p>
+              <p className="text-xs text-muted-foreground">{t("gifSplit.upload-hint")}</p>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -274,10 +277,10 @@ const GifSplit = () => {
                 {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    处理中...
+                    {t("gifSplit.processing")}
                   </>
                 ) : (
-                  "批量拆分"
+                  t("gifSplit.batch-split")
                 )}
               </Button>
               <Button
@@ -287,7 +290,7 @@ const GifSplit = () => {
               >
                 {" "}
                 <Trash2 className="mr-2 h-4 w-4" />
-                清空全部
+                {t("gifSplit.clear-all")}
               </Button>
             </CardContent>
           </Card>
@@ -305,11 +308,12 @@ const GifSplit = () => {
                   {gif.name}
                 </CardTitle>
                 <CardDescription>
-                  大小: {formatFileSize(gif.size)}
+                  {t("gifSplit.size")}: {formatFileSize(gif.size)}
                   {gif.stats && (
                     <>
                       {" "}
-                      • 帧数: {gif.stats.frameCount} • 时长: {(gif.stats.duration / 1000).toFixed(2)}s • 分辨率:{" "}
+                      • {t("gifSplit.frame-count")}: {gif.stats.frameCount} • {t("gifSplit.duration")}:{" "}
+                      {(gif.stats.duration / 1000).toFixed(2)}s • {t("gifSplit.resolution")}:{" "}
                       {gif.stats.width}x{gif.stats.height}
                     </>
                   )}
@@ -320,12 +324,12 @@ const GifSplit = () => {
                 <div className="mb-2 flex items-center gap-4">
                   {gif.status === "processing" && (
                     <>
-                      <Loader2 className="animate-spin h-5 w-5 text-blue-500" /> 进度: {progress}%
+                      <Loader2 className="animate-spin h-5 w-5 text-blue-500" /> {t("gifSplit.progress")}: {progress}%
                     </>
                   )}
-                  {gif.status === "completed" && <span className="text-green-600">已完成</span>}
-                  {gif.status === "error" && <span className="text-red-600">错误: {gif.error}</span>}
-                  {gif.status === "pending" && <span className="text-blue-600">待处理</span>}
+                  {gif.status === "completed" && <span className="text-green-600">{t("gifSplit.completed")}</span>}
+                  {gif.status === "error" && <span className="text-red-600">{t("gifSplit.error")}: {gif.error}</span>}
+                  {gif.status === "pending" && <span className="text-blue-600">{t("gifSplit.pending")}</span>}
                   <Button
                     size="sm"
                     variant="ghost"
@@ -345,10 +349,12 @@ const GifSplit = () => {
                         >
                           <img
                             src={frame.imageDataUrl}
-                            alt={`帧${frame.index + 1}`}
+                            alt={t("gifSplit.frame-alt", { index: frame.index + 1 })}
                             className="w-20 h-20 object-contain border rounded cursor-pointer"
                           />
-                          <span className="text-xs text-muted-foreground">帧{frame.index + 1}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {t("gifSplit.frame-alt", { index: frame.index + 1 })}
+                          </span>
                           <Button
                             size="sm"
                             variant="outline"
@@ -365,14 +371,14 @@ const GifSplit = () => {
                         onClick={() => handleExportAllFrames(gif, "png")}
                       >
                         <Download className="h-4 w-4 mr-1" />
-                        全部导出 PNG (ZIP)
+                        {t("gifSplit.export-png-zip")}
                       </Button>
                       <Button
                         size="sm"
                         onClick={() => handleExportAllFrames(gif, "jpeg")}
                       >
                         <Download className="h-4 w-4 mr-1" />
-                        全部导出 JPEG (ZIP)
+                        {t("gifSplit.export-jpeg-zip")}
                       </Button>
                     </div>
                   </div>
@@ -382,9 +388,14 @@ const GifSplit = () => {
                   <div className="mt-4 p-3 bg-muted/30 rounded-lg flex items-center gap-6">
                     <BarChart3 className="h-5 w-5 text-muted-foreground" />
                     <div className="text-sm text-muted-foreground">
-                      帧数: {gif.stats.frameCount}，总时长: {(gif.stats.duration / 1000).toFixed(2)}s，平均帧间隔:{" "}
-                      {gif.stats.avgDelay.toFixed(1)}ms，分辨率: {gif.stats.width}x{gif.stats.height}，文件大小:{" "}
-                      {formatFileSize(gif.stats.fileSize)}
+                      {t("gifSplit.stats-summary", {
+                        frameCount: gif.stats.frameCount,
+                        duration: (gif.stats.duration / 1000).toFixed(2),
+                        avgDelay: gif.stats.avgDelay.toFixed(1),
+                        width: gif.stats.width,
+                        height: gif.stats.height,
+                        fileSize: formatFileSize(gif.stats.fileSize),
+                      })}
                     </div>
                   </div>
                 )}

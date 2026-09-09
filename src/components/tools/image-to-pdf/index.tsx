@@ -1,4 +1,6 @@
 import React, { useCallback, useState } from "react"
+import { useTranslation } from "react-i18next"
+import i18n from "@/locales"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -91,7 +93,7 @@ async function imagesToPdf(
       img = await pdfDoc.embedPng(imgBytes)
     } else {
       // 其它格式转为 PNG
-      toast.warning("部分图片格式暂不直接支持，已尝试自动转为 PNG")
+      toast.warning(i18n.t("imageToPdf.format-convert-warning"))
       img = await pdfDoc.embedPng(imgBytes)
     }
     const imgDims = img.scale(1)
@@ -115,6 +117,7 @@ async function imagesToPdf(
 
 // 主组件结构
 const ImageToPdf = () => {
+  const { t } = useTranslation()
   const [settings, setSettings] = useState<ImageToPdfSettings>(defaultSettings)
   const { files, addFiles, removeFile, clearFiles, error, setError } = useImageFiles()
   const [loading, setLoading] = useState(false)
@@ -168,26 +171,26 @@ const ImageToPdf = () => {
         pdfSize: blob.size,
         pageCount: files.length,
       })
-      toast.success(`PDF 导出成功，共 ${files.length} 页，用时 ${(t1 - t0).toFixed(0)}ms`)
+      toast.success(t("imageToPdf.export-success-msg", { count: files.length, ms: (t1 - t0).toFixed(0) }))
     } catch (e: any) {
-      setError(e.message || "PDF 生成失败")
-      toast.error(e.message || "PDF 生成失败")
+      setError(e.message || t("imageToPdf.generate-failed"))
+      toast.error(e.message || t("imageToPdf.generate-failed"))
     } finally {
       setLoading(false)
       setProgress(0)
     }
-  }, [files, settings, setError])
+  }, [files, settings, setError, t])
 
   return (
     <Card className="max-w-2xl mx-auto mt-6">
       <CardHeader>
-        <CardTitle>图片转 PDF（Image to PDF）</CardTitle>
-        <CardDescription>支持批量、格式、纸张、边距、拖拽上传，全面对齐其它图片工具体验</CardDescription>
+        <CardTitle>{t("imageToPdf.title")}</CardTitle>
+        <CardDescription>{t("imageToPdf.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {/* 参数设置区 */}
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <Label htmlFor="pageSize">纸张大小</Label>
+          <Label htmlFor="pageSize">{t("imageToPdf.paper-size")}</Label>
           <Select
             value={settings.pageSize}
             onValueChange={(v) => setSettings((s) => ({ ...s, pageSize: v as any }))}
@@ -202,7 +205,7 @@ const ImageToPdf = () => {
               <SelectItem value="Legal">Legal</SelectItem>
             </SelectContent>
           </Select>
-          <Label htmlFor="orientation">方向</Label>
+          <Label htmlFor="orientation">{t("imageToPdf.orientation")}</Label>
           <Select
             value={settings.orientation}
             onValueChange={(v) => setSettings((s) => ({ ...s, orientation: v as any }))}
@@ -211,11 +214,11 @@ const ImageToPdf = () => {
               <SelectValue>{settings.orientation}</SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="portrait">纵向</SelectItem>
-              <SelectItem value="landscape">横向</SelectItem>
+              <SelectItem value="portrait">{t("imageToPdf.portrait")}</SelectItem>
+              <SelectItem value="landscape">{t("imageToPdf.landscape")}</SelectItem>
             </SelectContent>
           </Select>
-          <Label htmlFor="margin">边距 (px)</Label>
+          <Label htmlFor="margin">{t("imageToPdf.margin")} (px)</Label>
           <Input
             id="margin"
             type="number"
@@ -224,7 +227,7 @@ const ImageToPdf = () => {
             value={settings.margin}
             onChange={(e) => setSettings((s) => ({ ...s, margin: Number(e.target.value) }))}
           />
-          <Label htmlFor="quality">图片质量</Label>
+          <Label htmlFor="quality">{t("imageToPdf.image-quality")}</Label>
           <Input
             id="quality"
             type="number"
@@ -244,7 +247,7 @@ const ImageToPdf = () => {
           onClick={() => document.getElementById("image-upload")?.click()}
         >
           <Upload className="mx-auto mb-2" />
-          拖拽图片到此处，或点击上传
+          {t("imageToPdf.upload-area-label")}
           <input
             id="image-upload"
             type="file"
@@ -258,14 +261,14 @@ const ImageToPdf = () => {
         {files.length > 0 && (
           <div className="mb-4">
             <div className="flex justify-between items-center mb-2">
-              <span>已选图片（{files.length}）</span>
+              <span>{t("imageToPdf.selected-images", { count: files.length })}</span>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={clearFiles}
               >
                 <Trash2 className="mr-1" />
-                清空
+                {t("imageToPdf.clear-images")}
               </Button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -287,7 +290,7 @@ const ImageToPdf = () => {
                     onClick={() => removeFile(f.id)}
                   >
                     <Trash2 className="mr-1" />
-                    移除
+                    {t("common.remove")}
                   </Button>
                 </div>
               ))}
@@ -309,9 +312,9 @@ const ImageToPdf = () => {
         {stats && (
           <div className="mb-2 text-sm text-muted-foreground flex items-center gap-4">
             <BarChart3 className="mr-1" />
-            <span>图片数：{stats.totalImages}</span>
-            <span>PDF页数：{stats.pageCount}</span>
-            <span>PDF大小：{(stats.pdfSize! / 1024).toFixed(1)} KB</span>
+            <span>{t("imageToPdf.image-count", { count: stats.totalImages })}</span>
+            <span>{t("imageToPdf.pdf-pages", { count: stats.pageCount })}</span>
+            <span>{t("imageToPdf.pdf-size", { size: (stats.pdfSize! / 1024).toFixed(1) })}</span>
           </div>
         )}
         {/* 生成 PDF 按钮 */}
@@ -320,7 +323,8 @@ const ImageToPdf = () => {
           className="w-full"
           onClick={handleExport}
         >
-          {loading ? <Loader2 className="animate-spin mr-2" /> : <Download className="mr-2" />}生成 PDF
+          {loading ? <Loader2 className="animate-spin mr-2" /> : <Download className="mr-2" />}
+          {t("imageToPdf.generate-pdf")}
         </Button>
       </CardContent>
     </Card>

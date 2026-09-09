@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -15,6 +16,7 @@ import { useDragAndDrop } from "@/hooks/use-drag-drop"
 
 // 主组件
 const VideoTrim = () => {
+  const { t } = useTranslation()
   const [videos, setVideos] = useState<VideoFile[]>([])
   const [trimSettings, setTrimSettings] = useState<TrimSettings>({ start: 0, end: 10, format: "mp4" })
   const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(
@@ -32,7 +34,7 @@ const VideoTrim = () => {
           const url = URL.createObjectURL(file)
           newVideos.push({ id, file, name: file.name, size: file.size, type: file.type, status: "pending", url, stats })
         } catch (e: any) {
-          toast.error(`${file.name}: 读取元数据失败`)
+          toast.error(t("videoTrim.metadata-read-failed-name", { name: file.name }))
         }
       }
       if (newVideos.length) setVideos((prev) => [...prev, ...newVideos])
@@ -65,7 +67,7 @@ const VideoTrim = () => {
     (videoId, error) => {
       // 处理错误
       setVideos((prev) => prev.map((v) => (v.id === videoId ? { ...v, status: "error", error } : v)))
-      toast.error(`视频 ${videoId} 处理失败: ${error}`)
+      toast.error(t("videoTrim.process-failed", { id: videoId, error }))
     }
   )
 
@@ -92,7 +94,7 @@ const VideoTrim = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    toast.success("已导出裁剪视频")
+    toast.success(t("videoTrim.export-success"))
   }
 
   // 批量导出 zip
@@ -111,7 +113,7 @@ const VideoTrim = () => {
     }
 
     await downloadAsZip(files, "trimmed_videos.zip")
-    toast.success("所有裁剪视频已打包导出")
+    toast.success(t("videoTrim.export-all-success"))
   }
 
   // 移除视频
@@ -122,15 +124,15 @@ const VideoTrim = () => {
   // 清空全部
   const handleClearAll = () => {
     setVideos([])
-    toast.success("已清空")
+    toast.success(t("videoTrim.clear-success"))
   }
 
   // 预设模板
   const presets = [
-    { label: "前10秒", value: { start: 0, end: 10 } },
-    { label: "10-20秒", value: { start: 10, end: 20 } },
-    { label: "前30秒", value: { start: 0, end: 30 } },
-    { label: "自定义", value: null },
+    { label: t("videoTrim.preset-10s"), value: { start: 0, end: 10 } },
+    { label: t("videoTrim.preset-10-20s"), value: { start: 10, end: 20 } },
+    { label: t("videoTrim.preset-30s"), value: { start: 0, end: 30 } },
+    { label: t("videoTrim.preset-custom"), value: null },
   ]
 
   return (
@@ -140,7 +142,7 @@ const VideoTrim = () => {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded-md z-50"
       >
-        跳转到主内容
+        {t("skipToContent")}
       </a>
       <div
         id="main-content"
@@ -151,10 +153,10 @@ const VideoTrim = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Scissors className="h-5 w-5" />
-              视频裁剪/分析工具
+              {t("videoTrim.title")}
             </CardTitle>
             <CardDescription>
-              支持批量视频裁剪，格式转换，实时预览，统计分析，键盘无障碍，拖拽上传，导出 MP4/WebM/ZIP。
+              {t("videoTrim.description")}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -177,17 +179,17 @@ const VideoTrim = () => {
               }}
             >
               <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">上传视频文件</h3>
-              <p className="text-muted-foreground mb-4">拖拽视频到此，或点击选择文件，支持批量</p>
+              <h3 className="text-lg font-semibold mb-2">{t("videoTrim.upload-title")}</h3>
+              <p className="text-muted-foreground mb-4">{t("videoTrim.upload-desc")}</p>
               <Button
                 onClick={() => fileInputRef.current?.click()}
                 variant="outline"
                 className="mb-2"
               >
                 <FileVideo2 className="mr-2 h-4 w-4" />
-                选择文件
+                {t("videoTrim.select-file")}
               </Button>
-              <p className="text-xs text-muted-foreground">支持 MP4/WebM/MOV/AVI • 最大 500MB</p>
+              <p className="text-xs text-muted-foreground">{t("videoTrim.upload-hint")}</p>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -202,11 +204,11 @@ const VideoTrim = () => {
         {/* 裁剪设置 */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">裁剪设置</CardTitle>
+            <CardTitle className="text-lg">{t("videoTrim.trim-settings")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-4 items-center">
-              <Label htmlFor="preset">预设</Label>
+              <Label htmlFor="preset">{t("videoTrim.preset")}</Label>
               <Select
                 value={
                   presets.find(
@@ -215,7 +217,7 @@ const VideoTrim = () => {
                     ? presets.find(
                         (p) => p.value && p.value.start === trimSettings.start && p.value.end === trimSettings.end
                       )!.label
-                    : "自定义"
+                    : t("videoTrim.preset-custom")
                 }
                 onValueChange={(label) => {
                   const preset = presets.find((p) => p.label === label)
@@ -240,7 +242,7 @@ const VideoTrim = () => {
                 htmlFor="start"
                 className="ml-4"
               >
-                起始秒
+                {t("videoTrim.start-seconds")}
               </Label>
               <Input
                 id="start"
@@ -254,7 +256,7 @@ const VideoTrim = () => {
                 htmlFor="end"
                 className="ml-4"
               >
-                结束秒
+                {t("videoTrim.end-seconds")}
               </Label>
               <Input
                 id="end"
@@ -268,7 +270,7 @@ const VideoTrim = () => {
                 htmlFor="format"
                 className="ml-4"
               >
-                导出格式
+                {t("videoTrim.export-format")}
               </Label>
               <Select
                 value={trimSettings.format}
@@ -298,10 +300,10 @@ const VideoTrim = () => {
                 {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    处理中...
+                    {t("videoTrim.processing")}
                   </>
                 ) : (
-                  "批量裁剪"
+                  t("videoTrim.batch-trim")
                 )}
               </Button>
               <Button
@@ -310,7 +312,7 @@ const VideoTrim = () => {
                 disabled={!videos.some((v) => v.status === "completed" && v.trimmedUrl)}
               >
                 <Download className="mr-2 h-4 w-4" />
-                全部导出 ZIP
+                {t("videoTrim.export-all-zip")}
               </Button>
               <Button
                 onClick={handleClearAll}
@@ -319,7 +321,7 @@ const VideoTrim = () => {
               >
                 {" "}
                 <Trash2 className="mr-2 h-4 w-4" />
-                清空全部
+                {t("videoTrim.clear-all")}
               </Button>
             </CardContent>
           </Card>
@@ -337,12 +339,13 @@ const VideoTrim = () => {
                   {video.name}
                 </CardTitle>
                 <CardDescription>
-                  大小: {formatFileSize(video.size)}
+                  {t("videoTrim.size")}: {formatFileSize(video.size)}
                   {video.stats && (
                     <>
                       {" "}
-                      • 时长: {video.stats.duration.toFixed(2)}s • 分辨率: {video.stats.width}x{video.stats.height} •
-                      码率: {video.stats.bitrate}bps • 格式: {video.stats.format}
+                      • {t("videoTrim.duration")}: {video.stats.duration.toFixed(2)}s • {t("videoTrim.resolution")}:{" "}
+                      {video.stats.width}x{video.stats.height} • {t("videoTrim.bitrate")}: {video.stats.bitrate}bps •{" "}
+                      {t("videoTrim.format")}: {video.stats.format}
                     </>
                   )}
                 </CardDescription>
@@ -352,12 +355,12 @@ const VideoTrim = () => {
                 <div className="mb-2 flex items-center gap-4">
                   {video.status === "processing" && (
                     <>
-                      <Loader2 className="animate-spin h-5 w-5 text-blue-500" /> 进度: {progress}%
+                      <Loader2 className="animate-spin h-5 w-5 text-blue-500" /> {t("videoTrim.progress")}: {progress}%
                     </>
                   )}
-                  {video.status === "completed" && <span className="text-green-600">已完成</span>}
-                  {video.status === "error" && <span className="text-red-600">错误: {video.error}</span>}
-                  {video.status === "pending" && <span className="text-blue-600">待处理</span>}
+                  {video.status === "completed" && <span className="text-green-600">{t("videoTrim.completed")}</span>}
+                  {video.status === "error" && <span className="text-red-600">{t("videoTrim.error")}: {video.error}</span>}
+                  {video.status === "pending" && <span className="text-blue-600">{t("videoTrim.pending")}</span>}
                   <Button
                     size="sm"
                     variant="ghost"
@@ -374,7 +377,7 @@ const VideoTrim = () => {
                       controls
                       className="w-48 h-32 border rounded"
                     />
-                    <span className="text-xs text-muted-foreground">原始</span>
+                    <span className="text-xs text-muted-foreground">{t("videoTrim.original")}</span>
                   </div>
                   {video.trimmedUrl && (
                     <div className="flex flex-col items-center gap-2">
@@ -383,7 +386,7 @@ const VideoTrim = () => {
                         controls
                         className="w-48 h-32 border rounded"
                       />
-                      <span className="text-xs text-green-600">裁剪后</span>
+                      <span className="text-xs text-green-600">{t("videoTrim.trimmed")}</span>
                       <Button
                         size="sm"
                         variant="outline"
@@ -399,9 +402,14 @@ const VideoTrim = () => {
                   <div className="mt-4 p-3 bg-muted/30 rounded-lg flex items-center gap-6">
                     <BarChart3 className="h-5 w-5 text-muted-foreground" />
                     <div className="text-sm text-muted-foreground">
-                      时长: {video.stats.duration.toFixed(2)}s，分辨率: {video.stats.width}x{video.stats.height}，码率:{" "}
-                      {video.stats.bitrate}bps，文件大小: {formatFileSize(video.stats.fileSize)}，格式:{" "}
-                      {video.stats.format}
+                      {t("videoTrim.stats-summary", {
+                        duration: video.stats.duration.toFixed(2),
+                        width: video.stats.width,
+                        height: video.stats.height,
+                        bitrate: video.stats.bitrate,
+                        fileSize: formatFileSize(video.stats.fileSize),
+                        format: video.stats.format,
+                      })}
                     </div>
                   </div>
                 )}

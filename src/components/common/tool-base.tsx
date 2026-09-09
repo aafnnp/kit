@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ToolErrorBoundary } from "@/components/common/tool-error-boundary"
@@ -24,6 +25,7 @@ const getGridColsClass = (count: number): string => {
 }
 
 export function ToolBase({ toolName, icon, description, children, tabs }: ToolBaseProps) {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState(tabs?.[0]?.id || "")
 
   return (
@@ -33,7 +35,7 @@ export function ToolBase({ toolName, icon, description, children, tabs }: ToolBa
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded-md z-50"
-        >
+        >{t("skipToContent")}
           Skip to main content
         </a>
 

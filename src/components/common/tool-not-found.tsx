@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { type ToolNotFoundProps } from "@/components/common/schemas"
 
 /**
@@ -9,11 +10,10 @@ import { type ToolNotFoundProps } from "@/components/common/schemas"
 export type { ToolNotFoundProps }
 
 export default function ToolNotFound({ toolSlug }: ToolNotFoundProps) {
+  const { t } = useTranslation()
   return (
     <div className="text-center text-red-500 text-xl mt-20">
-      工具未找到: {toolSlug}
-      <br />
-      Tool Not Found: {toolSlug}
+      {t("toolNotFound.message", { slug: toolSlug })}
     </div>
   )
 }

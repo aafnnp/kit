@@ -191,9 +191,9 @@ export function DependencyAnalyzer() {
               name="Package"
               className="h-5 w-5"
             />
-            依赖分析器
+            {t("dependencyAnalyzer.title")}
           </CardTitle>
-          <CardDescription>分析项目依赖并提供优化建议</CardDescription>
+          <CardDescription>{t("dependencyAnalyzer.desc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
@@ -203,7 +203,7 @@ export function DependencyAnalyzer() {
                   name="Loader2"
                   className="h-4 w-4 animate-spin"
                 />
-                正在分析依赖...
+                 {t("dependencyAnalyzer.analyzing")}
               </div>
             ) : (
               <Button onClick={performAnalysis}>
@@ -211,7 +211,7 @@ export function DependencyAnalyzer() {
                   name="Play"
                   className="h-4 w-4 mr-2"
                 />
-                开始分析
+                {t("dependencyAnalyzer.start")}
               </Button>
             )}
           </div>
@@ -228,7 +228,7 @@ export function DependencyAnalyzer() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">总依赖数</p>
+                <p className="text-sm text-muted-foreground">{t("dependencyAnalyzer.totalDeps")}</p>
                 <p className="text-2xl font-bold">{stats.totalDependencies}</p>
               </div>
               <Icon
@@ -243,7 +243,7 @@ export function DependencyAnalyzer() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">重量级依赖</p>
+                <p className="text-sm text-muted-foreground">{t("dependencyAnalyzer.heavyDeps")}</p>
                 <p className="text-2xl font-bold text-red-600">{stats.heavyDependencies}</p>
               </div>
               <Icon
@@ -258,7 +258,7 @@ export function DependencyAnalyzer() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">可优化依赖</p>
+                <p className="text-sm text-muted-foreground">{t("dependencyAnalyzer.optimizableDeps")}</p>
                 <p className="text-2xl font-bold text-yellow-600">{stats.optimizableDependencies}</p>
               </div>
               <Icon
@@ -273,7 +273,7 @@ export function DependencyAnalyzer() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">潜在节省</p>
+                <p className="text-sm text-muted-foreground">{t("dependencyAnalyzer.potentialSavings")}</p>
                 <p className="text-2xl font-bold text-green-600">{stats.potentialSavings}</p>
               </div>
               <Icon
@@ -289,7 +289,7 @@ export function DependencyAnalyzer() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>依赖详情</span>
+            <span>{t("dependencyAnalyzer.depsDetail")}</span>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
@@ -300,7 +300,7 @@ export function DependencyAnalyzer() {
                   name="RefreshCw"
                   className="h-4 w-4 mr-2"
                 />
-                重新分析
+                {t("dependencyAnalyzer.reanalyze")}
               </Button>
             </div>
           </CardTitle>
@@ -319,7 +319,7 @@ export function DependencyAnalyzer() {
                   name="AlertTriangle"
                   className="h-4 w-4"
                 />
-                重量级 ({stats.heavyDependencies})
+                {t("dependencyAnalyzer.heavy")} ({stats.heavyDependencies})
               </TabsTrigger>
               <TabsTrigger
                 value="optimizable"
@@ -329,7 +329,7 @@ export function DependencyAnalyzer() {
                   name="Zap"
                   className="h-4 w-4"
                 />
-                可优化 ({stats.optimizableDependencies})
+                {t("dependencyAnalyzer.optimizable")} ({stats.optimizableDependencies})
               </TabsTrigger>
               <TabsTrigger
                 value="light"
@@ -339,7 +339,7 @@ export function DependencyAnalyzer() {
                   name="Check"
                   className="h-4 w-4"
                 />
-                轻量级 ({stats.lightDependencies})
+                {t("dependencyAnalyzer.light")} ({stats.lightDependencies})
               </TabsTrigger>
             </TabsList>
 
@@ -360,7 +360,9 @@ export function DependencyAnalyzer() {
                       />
                       <span className="font-medium">{dep}</span>
                     </div>
-                    <Badge variant={getCategoryColor(selectedCategory) as any}>{selectedCategory}</Badge>
+                    <Badge variant={getCategoryColor(selectedCategory) as any}>
+                      {t(`dependencyAnalyzer.${selectedCategory}`)}
+                    </Badge>
                   </div>
                 ))}
 
@@ -370,7 +372,7 @@ export function DependencyAnalyzer() {
                       name="Package"
                       className="h-12 w-12 mx-auto mb-2 opacity-50"
                     />
-                    <p>此类别下暂无依赖</p>
+                    <p>{t("dependencyAnalyzer.noDepsInCategory")}</p>
                   </div>
                 )}
               </div>
@@ -387,9 +389,9 @@ export function DependencyAnalyzer() {
               name="ShieldAlert"
               className="h-5 w-5"
             />
-            依赖安全扫描
+            {t("dependencyAnalyzer.securityScan")}
           </CardTitle>
-          <CardDescription>导入 npm audit --json 输出以显示漏洞统计并优先替换高风险依赖</CardDescription>
+          <CardDescription>{t("dependencyAnalyzer.securityScanDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row gap-3 md:items-center">
@@ -402,7 +404,7 @@ export function DependencyAnalyzer() {
             </div>
             {auditTotals && (
               <div className="flex flex-wrap gap-2 text-sm">
-                <Badge variant="default">总计 {auditTotals.total}</Badge>
+                <Badge variant="default">{t("dependencyAnalyzer.total")} {auditTotals.total}</Badge>
                 <Badge variant="secondary">Low {auditTotals.low}</Badge>
                 <Badge variant="secondary">Moderate {auditTotals.moderate}</Badge>
                 <Badge variant="destructive">High {auditTotals.high}</Badge>
@@ -414,7 +416,7 @@ export function DependencyAnalyzer() {
           {/* 高风险包列表（Top 10） */}
           {auditTotals && (
             <div className="mt-4 space-y-2">
-              <div className="text-sm text-muted-foreground">高风险包（按严重程度排序，最多显示10项）</div>
+              <div className="text-sm text-muted-foreground">{t("dependencyAnalyzer.highRiskPackages")}</div>
               {Object.entries(auditIssuesByPkg)
                 .sort(
                   (a, b) => severityOrder.indexOf(b[1].highestSeverity) - severityOrder.indexOf(a[1].highestSeverity)
@@ -458,7 +460,7 @@ export function DependencyAnalyzer() {
                 name="Replace"
                 className="h-4 w-4 mr-2"
               />
-              基于审计生成替换脚本
+              {t("dependencyAnalyzer.generateScript")}
             </Button>
             <Button
               variant="outline"
@@ -469,7 +471,7 @@ export function DependencyAnalyzer() {
                 name="Download"
                 className="h-4 w-4 mr-2"
               />
-              导出替换计划 JSON
+              {t("dependencyAnalyzer.exportPlanJson")}
             </Button>
             {generatedScript && (
               <Button
@@ -485,7 +487,7 @@ export function DependencyAnalyzer() {
                   name="Clipboard"
                   className="h-4 w-4 mr-2"
                 />
-                复制脚本
+                {t("dependencyAnalyzer.copyScript")}
               </Button>
             )}
             <Button
@@ -502,7 +504,7 @@ export function DependencyAnalyzer() {
                 name="Terminal"
                 className="h-4 w-4 mr-2"
               />
-              复制应用命令
+              {t("dependencyAnalyzer.copyApplyCommand")}
             </Button>
             <Button
               variant="outline"
@@ -518,7 +520,7 @@ export function DependencyAnalyzer() {
                 name="GitPullRequest"
                 className="h-4 w-4 mr-2"
               />
-              复制创建 PR 命令
+              {t("dependencyAnalyzer.copyPrCommand")}
             </Button>
           </div>
         </CardContent>
@@ -533,7 +535,7 @@ export function DependencyAnalyzer() {
                 name="Lightbulb"
                 className="h-5 w-5"
               />
-              优化建议
+              {t("dependencyAnalyzer.suggestions")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -558,13 +560,13 @@ export function DependencyAnalyzer() {
       {/* 优化进度 */}
       <Card>
         <CardHeader>
-          <CardTitle>优化进度</CardTitle>
-          <CardDescription>基于轻量级依赖占比计算的优化程度</CardDescription>
+          <CardTitle>{t("dependencyAnalyzer.optimizeProgress")}</CardTitle>
+          <CardDescription>{t("dependencyAnalyzer.optimizeProgressDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span>优化程度</span>
+              <span>{t("dependencyAnalyzer.optimizeDegree")}</span>
               <span>{Math.round((stats.lightDependencies / stats.totalDependencies) * 100)}%</span>
             </div>
             <Progress
@@ -572,7 +574,7 @@ export function DependencyAnalyzer() {
               className="h-2"
             />
             <p className="text-xs text-muted-foreground">
-              {stats.lightDependencies} / {stats.totalDependencies} 个依赖已优化
+              {t("dependencyAnalyzer.depsOptimized", { light: stats.lightDependencies, total: stats.totalDependencies })}
             </p>
           </div>
         </CardContent>

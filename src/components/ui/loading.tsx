@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Skeleton } from './skeleton'
 import { Card, CardContent, CardHeader } from './card'
 
@@ -10,6 +11,7 @@ interface ToolLoadingProps {
  * 提供更好的加载体验，显示工具布局的骨架结构
  */
 export function ToolLoading({ toolName }: ToolLoadingProps) {
+  const { t } = useTranslation()
   return (
     <div className="w-full max-w-6xl mx-auto space-y-6">
       {/* Skip link for keyboard users */}
@@ -17,7 +19,7 @@ export function ToolLoading({ toolName }: ToolLoadingProps) {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary text-primary-foreground px-4 py-2 rounded-md z-50"
       >
-        Skip to main content
+        {t("skipToContent")}
       </a>
 
       <div id="main-content" className="flex flex-col gap-6">
@@ -76,7 +78,7 @@ export function ToolLoading({ toolName }: ToolLoadingProps) {
         <div className="flex items-center justify-center py-4">
           <div className="flex flex-col items-center space-y-2">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            {toolName && <p className="text-sm text-muted-foreground">正在加载 {toolName}...</p>}
+            {toolName && <p className="text-sm text-muted-foreground">{t("common.loadingTool", { name: toolName })}</p>}
           </div>
         </div>
       </div>

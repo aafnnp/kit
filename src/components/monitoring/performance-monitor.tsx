@@ -243,9 +243,9 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
                 {t("performanceMonitor.network-status")}
               </h4>
               <div className="space-y-1 text-muted-foreground">
-                <div>类型: {networkInfo.effectiveType}</div>
-                <div>下行: {networkInfo.downlink} Mbps</div>
-                <div>延迟: {networkInfo.rtt} ms</div>
+                <div>{t("performanceMonitor.network-type")}: {networkInfo.effectiveType}</div>
+                <div>{t("performanceMonitor.network-downlink")}: {networkInfo.downlink} Mbps</div>
+                <div>{t("performanceMonitor.network-latency")}: {networkInfo.rtt} ms</div>
                 <div>
                   {t("performanceMonitor.data-saver")}:{" "}
                   {networkInfo.saveData
@@ -303,7 +303,7 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({
                       key={metric.timestamp}
                       className="text-muted-foreground text-xs"
                     >
-                      {metric.strategy}: {metric.renderTime.toFixed(1)}ms |{metric.itemCount}项 |
+                      {metric.strategy}: {metric.renderTime.toFixed(1)}ms |{metric.itemCount}{t("performanceMonitor.item-count")} |
                       {(metric.memoryUsage / 1024 / 1024).toFixed(1)}MB
                     </div>
                   ))}
