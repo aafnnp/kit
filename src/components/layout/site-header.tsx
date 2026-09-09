@@ -17,7 +17,7 @@ export function SiteHeader() {
   const contextLabel = useMemo(() => {
     const pathname = location.pathname
     if (pathname === "/") {
-      return t("navigation.home", "首页")
+      return t("navigation.home")
     }
 
     const match = pathname.match(/^\/tool\/([^/]+)/)
@@ -25,10 +25,10 @@ export function SiteHeader() {
       const slug = match[1]
       const tool = findTool(tools, slug)
       const toolName = tool ? t(`tools.${tool.slug}`, tool.name) : slug
-      return `${t("navigation.tools", "工具")} / ${toolName}`
+      return `${t("navigation.tools")} / ${toolName}`
     }
 
-    return t("navigation.tools", "工具")
+    return t("navigation.tools")
   }, [location.pathname, t])
 
   return (
@@ -43,9 +43,9 @@ export function SiteHeader() {
           <div className="flex items-center gap-2">
             <div className="hidden md:flex items-center gap-2">
               <Input
-                placeholder={t("navigation.search-tools", "搜索工具…")}
+                placeholder={t("navigation.search-tools")}
                 className="h-8 w-48 lg:w-64 text-sm"
-                aria-label={t("navigation.search-tools", "搜索工具")}
+                aria-label={t("navigation.search-tools")}
               />
             </div>
             <Button
@@ -55,7 +55,7 @@ export function SiteHeader() {
               className="flex items-center justify-center p-2"
             >
               <IconSettings className="size-4! sm:size-5! text-primary shrink-0" />
-              <span className="sr-only">{t("navigation.settings", "设置")}</span>
+              <span className="sr-only">{t("navigation.settings")}</span>
             </Button>
           </div>
         </div>

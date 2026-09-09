@@ -27,7 +27,7 @@ export function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder || t("search.placeholder", "搜索工具...")}
+        placeholder={placeholder || t("search.placeholder")}
         className="pl-10 pr-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         autoComplete="off"
         spellCheck={false}
@@ -41,7 +41,7 @@ export function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
           className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           id="search-clear-button"
           tabIndex={0}
-          aria-label={t("search.clear", "清除搜索内容")}
+          aria-label={t("search.clear")}
         >
           <X className="h-3 w-3" />
         </Button>

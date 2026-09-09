@@ -2,7 +2,6 @@ export default {
   switchLanguage: "切换语言",
   chinese: "中文",
   english: "英文",
-  theme: "主题",
   light: "明亮",
   dark: "暗黑",
   followSystem: "跟随系统",
@@ -66,11 +65,6 @@ export default {
     clear: "清除记录",
     empty: "暂无使用记录",
     "start-using": "开始使用工具来查看最近记录",
-  },
-  category: {
-    management: "分类管理",
-    create: "创建分类",
-    createDesc: "创建一个新的工具分类来组织你的工具",
   },
   allTools: "所有工具",
   categories: "分类管理",
@@ -283,6 +277,36 @@ export default {
   navigation: {
     settings: "设置",
     "open-settings": "打开设置页面",
+    home: "首页",
+    tools: "工具",
+    "search-tools": "搜索工具...",
+  },
+  dashboard: {
+    workspace: "Kit 工具工作台",
+    "tools-count": "个工具",
+    "categories-count": "个分类",
+    "local-first": "本地优先处理",
+  },
+  theme: {
+    light: "浅色模式",
+    dark: "深色模式",
+    system: "系统模式",
+    toggle: "切换主题",
+  },
+  category: {
+    management: "分类管理",
+    create: "创建分类",
+    "create-desc": "创建一个新的工具分类来组织你的工具",
+    custom: "自定义分类",
+    edit: "编辑分类",
+    "edit-desc": "修改分类的名称和颜色",
+    "delete-confirm": "确定要删除这个分类吗？",
+    "name-zh": "中文名称",
+    "name-zh-placeholder": "输入中文名称",
+    "name-en": "英文名称",
+    "name-en-placeholder": "输入英文名称",
+    color: "分类颜色",
+    "add-tool": "添加工具到此分类",
   },
   // Tabs
   tabs: {
@@ -475,6 +499,11 @@ export default {
   },
   // Tools
   tools: {
+    categories: "工具分类",
+    list: "工具列表",
+    "search-in-category": "在当前分类中搜索工具...",
+    "local-processing": "本地处理",
+    count: "个工具",
     "text-processing": "文本处理",
     "color-design": "颜色设计",
     "image-audio-video": "图片/音频/视频",

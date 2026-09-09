@@ -4,7 +4,6 @@ export default {
   switchLanguage: "Switch Language",
   chinese: "Chinese",
   english: "English",
-  theme: "Theme",
   light: "Light",
   dark: "Dark",
   system: "System",
@@ -282,6 +281,36 @@ export default {
   navigation: {
     settings: "Settings",
     "open-settings": "Open Settings",
+    home: "Home",
+    tools: "Tools",
+    "search-tools": "Search tools...",
+  },
+  dashboard: {
+    workspace: "Kit workspace",
+    "tools-count": "tools",
+    "categories-count": "categories",
+    "local-first": "Runs locally",
+  },
+  theme: {
+    light: "Light mode",
+    dark: "Dark mode",
+    system: "System mode",
+    toggle: "Toggle theme",
+  },
+  category: {
+    management: "Category Management",
+    create: "Create Category",
+    "create-desc": "Create a new tool category to organize your tools",
+    custom: "Custom Categories",
+    edit: "Edit Category",
+    "edit-desc": "Update the category name and color",
+    "delete-confirm": "Are you sure you want to delete this category?",
+    "name-zh": "Chinese Name",
+    "name-zh-placeholder": "Enter Chinese name",
+    "name-en": "English Name",
+    "name-en-placeholder": "Enter English name",
+    color: "Category Color",
+    "add-tool": "Add a tool to this category",
   },
   // Tabs
   tabs: {
@@ -476,6 +505,11 @@ export default {
   },
   // Tools
   tools: {
+    categories: "Tool Categories",
+    list: "Tool List",
+    "search-in-category": "Search tools in this category...",
+    "local-processing": "Local processing",
+    count: "tools",
     "text-processing": "Text Processing",
     "color-design": "Color Design",
     "image-audio-video": "Image, Audio, Video",

@@ -130,11 +130,11 @@ function RouteComponent() {
       <div className="mx-auto grid w-full max-w-[1600px] gap-0 md:grid-cols-[220px_minmax(240px,280px)_minmax(0,1fr)]">
         <aside
           className="border-b border-border/70 px-4 py-4 md:sticky md:top-[var(--header-height)] md:h-[calc(100vh-var(--header-height))] md:overflow-y-auto md:border-b-0 md:border-r md:px-4 md:py-6"
-          aria-label={t("tools.categories", "工具大类")}
+          aria-label={t("tools.categories")}
         >
           <div className="mb-4 flex items-center gap-2 px-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             <Wrench className="size-3.5 text-primary" />
-            {t("tools.categories", "工具大类")}
+            {t("tools.categories")}
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1 md:flex-col md:overflow-visible">
             {categories.map((category) => {
@@ -164,11 +164,11 @@ function RouteComponent() {
 
         <aside
           className="border-b border-border/70 px-4 py-5 md:sticky md:top-[var(--header-height)] md:h-[calc(100vh-var(--header-height))] md:overflow-y-auto md:border-b-0 md:border-r md:px-5 md:py-6"
-          aria-label={t("tools.list", "工具列表")}
+          aria-label={t("tools.list")}
         >
           <div className="mb-4">
             <div className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              {t("tools.list", "工具")}
+              {t("tools.list")}
             </div>
             <div className="flex items-center justify-between gap-2">
               <h2 className="truncate text-base font-semibold">
@@ -178,14 +178,14 @@ function RouteComponent() {
             </div>
           </div>
           <label className="relative mb-4 block">
-            <span className="sr-only">{t("tools.search-in-category", "在当前大类中搜索")}</span>
+            <span className="sr-only">{t("tools.search-in-category")}</span>
             <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={toolSearch}
               onChange={(e) => setToolSearch(e.target.value)}
-              placeholder={t("tools.search-in-category", "在当前大类中搜索…")}
+              placeholder={t("tools.search-in-category")}
               className="h-9 rounded-lg bg-background/70 pl-9 text-xs"
-              aria-label={t("tools.search-in-category", "搜索当前大类下的工具")}
+              aria-label={t("tools.search-in-category")}
             />
           </label>
           <div className="flex max-h-[calc(100vh-250px)] flex-col gap-1 overflow-auto">
@@ -226,7 +226,7 @@ function RouteComponent() {
                 <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t(`tools.${toolInfo.slug}`, toolInfo.name)}</h1>
               </div>
               <div className="hidden rounded-full border border-border/70 bg-background/60 px-3 py-1 text-[11px] text-muted-foreground sm:block">
-                {t("tools.local-processing", "Local processing")}
+                {t("tools.local-processing")}
               </div>
             </div>
             <Suspense fallback={<ToolLoading toolName={toolInfo.name} />}>

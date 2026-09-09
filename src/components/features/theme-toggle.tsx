@@ -13,13 +13,13 @@ const ThemeToggle = React.forwardRef<HTMLButtonElement, React.ComponentProps<"bu
   const getThemeLabel = () => {
     switch (theme) {
       case "light":
-        return t("theme.light", "浅色模式")
+        return t("theme.light")
       case "dark":
-        return t("theme.dark", "深色模式")
+        return t("theme.dark")
       case "system":
-        return t("theme.system", "系统模式")
+        return t("theme.system")
       default:
-        return t("theme.toggle", "切换主题")
+        return t("theme.toggle")
     }
   }
 
@@ -52,7 +52,7 @@ const ThemeToggle = React.forwardRef<HTMLButtonElement, React.ComponentProps<"bu
           tabIndex={0}
         >
           <IconSun className="mr-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <span>{t("theme.light", "浅色")}</span>
+          <span>{t("theme.light")}</span>
           {theme === "light" && <div className="ml-auto h-2 w-2 rounded-full bg-primary animate-pulse" />}
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -64,7 +64,7 @@ const ThemeToggle = React.forwardRef<HTMLButtonElement, React.ComponentProps<"bu
           tabIndex={0}
         >
           <IconMoon className="mr-2 h-4 w-4 text-blue-600 dark:text-blue-300" />
-          <span>{t("theme.dark", "深色")}</span>
+          <span>{t("theme.dark")}</span>
           {theme === "dark" && <div className="ml-auto h-2 w-2 rounded-full bg-primary animate-pulse" />}
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -76,7 +76,7 @@ const ThemeToggle = React.forwardRef<HTMLButtonElement, React.ComponentProps<"bu
           tabIndex={0}
         >
           <IconDeviceDesktop className="mr-2 h-4 w-4 text-gray-500 dark:text-gray-400" />
-          <span>{t("theme.system", "系统")}</span>
+          <span>{t("theme.system")}</span>
           {theme === "system" && <div className="ml-auto h-2 w-2 rounded-full bg-primary animate-pulse" />}
         </DropdownMenuItem>
       </DropdownMenuContent>
