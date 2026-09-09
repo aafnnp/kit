@@ -104,7 +104,7 @@ export function CategoryManager({ allTools, onCategoryChange }: CategoryManagerP
 
   // 删除分类
   const handleDeleteCategory = (categoryId: string) => {
-    if (confirm(t("category.delete.confirm", "确定要删除这个分类吗？"))) {
+    if (confirm(t("category.delete-confirm"))) {
       deleteCategory(categoryId)
       onCategoryChange?.()
     }
@@ -158,7 +158,7 @@ export function CategoryManager({ allTools, onCategoryChange }: CategoryManagerP
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center justify-between">
         <div className="flex items-center gap-2">
           <Settings className="w-5 h-5" />
-          <h3 className="text-lg font-semibold">{t("category.management", "分类管理")}</h3>
+          <h3 className="text-lg font-semibold">{t("category.management")}</h3>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -193,38 +193,38 @@ export function CategoryManager({ allTools, onCategoryChange }: CategoryManagerP
             <DialogTrigger asChild>
               <Button className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
-                {t("category.create", "创建分类")}
+                {t("category.create")}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{t("category.create", "创建分类")}</DialogTitle>
-                <DialogDescription>{t("category.create.desc", "创建一个新的工具分类来组织你的工具")}</DialogDescription>
+                <DialogTitle>{t("category.create")}</DialogTitle>
+                <DialogDescription>{t("category.create-desc")}</DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="name-zh">{t("category.name.zh", "中文名称")}</Label>
+                  <Label htmlFor="name-zh">{t("category.name-zh")}</Label>
                   <Input
                     id="name-zh"
                     value={newCategoryName.zh}
                     onChange={(e) => setNewCategoryName((prev) => ({ ...prev, zh: e.target.value }))}
-                    placeholder={t("category.name.zh.placeholder", "输入中文名称")}
+                    placeholder={t("category.name-zh-placeholder")}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="name-en">{t("category.name.en", "英文名称")}</Label>
+                  <Label htmlFor="name-en">{t("category.name-en")}</Label>
                   <Input
                     id="name-en"
                     value={newCategoryName.en}
                     onChange={(e) => setNewCategoryName((prev) => ({ ...prev, en: e.target.value }))}
-                    placeholder={t("category.name.en.placeholder", "输入英文名称")}
+                    placeholder={t("category.name-en-placeholder")}
                   />
                 </div>
 
                 <div>
-                  <Label>{t("category.color", "分类颜色")}</Label>
+                  <Label>{t("category.color")}</Label>
                   <div className="flex gap-2 mt-2">
                     {CATEGORY_COLORS.map((color) => (
                       <button
@@ -245,9 +245,9 @@ export function CategoryManager({ allTools, onCategoryChange }: CategoryManagerP
                   variant="outline"
                   onClick={() => setIsCreateDialogOpen(false)}
                 >
-                  {t("common.cancel", "取消")}
+                  {t("common.cancel")}
                 </Button>
-                <Button onClick={handleCreateCategory}>{t("common.create", "创建")}</Button>
+                <Button onClick={handleCreateCategory}>{t("common.create")}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -257,7 +257,7 @@ export function CategoryManager({ allTools, onCategoryChange }: CategoryManagerP
       {/* 自定义分类列表 */}
       {customCategories.length > 0 && (
         <div className="space-y-4">
-          <h4 className="text-md font-medium">{t("category.custom", "自定义分类")}</h4>
+          <h4 className="text-md font-medium">{t("category.custom")}</h4>
 
           <DndContext
             sensors={sensors}
@@ -295,33 +295,33 @@ export function CategoryManager({ allTools, onCategoryChange }: CategoryManagerP
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t("category.edit", "编辑分类")}</DialogTitle>
-            <DialogDescription>{t("category.edit.desc", "修改分类的名称和颜色")}</DialogDescription>
+            <DialogTitle>{t("category.edit")}</DialogTitle>
+            <DialogDescription>{t("category.edit-desc")}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit-name-zh">{t("category.name.zh", "中文名称")}</Label>
+              <Label htmlFor="edit-name-zh">{t("category.name-zh")}</Label>
               <Input
                 id="edit-name-zh"
                 value={newCategoryName.zh}
                 onChange={(e) => setNewCategoryName((prev) => ({ ...prev, zh: e.target.value }))}
-                placeholder={t("category.name.zh.placeholder", "输入中文名称")}
+                placeholder={t("category.name-zh-placeholder")}
               />
             </div>
 
             <div>
-              <Label htmlFor="edit-name-en">{t("category.name.en", "英文名称")}</Label>
+              <Label htmlFor="edit-name-en">{t("category.name-en")}</Label>
               <Input
                 id="edit-name-en"
                 value={newCategoryName.en}
                 onChange={(e) => setNewCategoryName((prev) => ({ ...prev, en: e.target.value }))}
-                placeholder={t("category.name.en.placeholder", "输入英文名称")}
+                placeholder={t("category.name-en-placeholder")}
               />
             </div>
 
             <div>
-              <Label>{t("category.color", "分类颜色")}</Label>
+              <Label>{t("category.color")}</Label>
               <div className="flex gap-2 mt-2">
                 {CATEGORY_COLORS.map((color) => (
                   <button
@@ -342,9 +342,9 @@ export function CategoryManager({ allTools, onCategoryChange }: CategoryManagerP
               variant="outline"
               onClick={() => setIsEditDialogOpen(false)}
             >
-              {t("common.cancel", "取消")}
+              {t("common.cancel")}
             </Button>
-            <Button onClick={handleSaveEdit}>{t("common.save", "保存")}</Button>
+            <Button onClick={handleSaveEdit}>{t("common.save")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -396,7 +396,7 @@ function SortableCategoryCard({
               />
               <CardTitle className="text-base">{category.name[locale]}</CardTitle>
               <Badge variant="secondary">
-                {category.tools.length} {t("tools.count", "个工具")}
+                {category.tools.length} {t("tools.count")}
               </Badge>
             </div>
           </div>
@@ -449,7 +449,7 @@ function SortableCategoryCard({
           {/* 添加工具 */}
           <Select onValueChange={(toolSlug) => onAddTool(category.id, toolSlug)}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("category.add.tool", "添加工具到此分类")} />
+              <SelectValue placeholder={t("category.add-tool")} />
             </SelectTrigger>
             <SelectContent>
               {allTools
@@ -459,7 +459,7 @@ function SortableCategoryCard({
                     key={tool.slug}
                     value={tool.slug}
                   >
-                    {tool.name}
+                    {t(`tools.${tool.slug}`, tool.name)}
                   </SelectItem>
                 ))}
             </SelectContent>
