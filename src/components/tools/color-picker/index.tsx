@@ -45,7 +45,8 @@ import type {
   CMYK,
   LAB,
 } from "@/components/tools/color-picker/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeCsvCell, formatFileSize } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 
 // Utility functions
 
@@ -707,7 +708,7 @@ const useColorExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback(
@@ -767,7 +768,7 @@ const useColorExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
       .join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
@@ -778,7 +779,7 @@ const useColorExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 
     toast.success("Statistics exported")
   }, [])
@@ -819,22 +820,30 @@ const generateASEPalette = (colors: Color[]): string => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
+/**
+ * Enhanced Color Picker Tool
+ * Features: Real-time color analysis, palette generation, batch processing, accessibility checking
+ */
+const ColorPickerCore = () => {
+  const [activeTab, setActiveTab] = useState<"picker" | "files">("picker")
+  const [currentColor, setCurrentColor] = useState("#3498db")
+  const [files, setFiles] = useState<ColorFile[]>([])
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("material")
+  const [settings, setSettings] = useState<ColorSettings>({
+    format: "hex",
+    paletteSize: 5,
+    harmonyType: "complementary",
+    includeAccessibility: true,
+    generateNames: false,
+    sortBy: "hue",
+  })
 
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
+  const { generatePalette, processBatch } = useColorProcessing()
+  const { exportPalette, exportBatch, exportStatistics } = useColorExport()
+  const { copyToClipboard, copiedText } = useCopyToClipboard()
 
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
+  // 领域专用包装：共享 hook 只提供 copyToClipboard，这里保留原有的一步式调用
   const copyColorValue = useCallback(
     async (color: Color, format: ColorFormat, label?: string) => {
       let value = ""
@@ -867,42 +876,19 @@ const useCopyToClipboard = () => {
     [copyToClipboard]
   )
 
-  return { copyToClipboard, copyColorValue, copiedText }
-}
-
-/**
- * Enhanced Color Picker Tool
- * Features: Real-time color analysis, palette generation, batch processing, accessibility checking
- */
-const ColorPickerCore = () => {
-  const [activeTab, setActiveTab] = useState<"picker" | "files">("picker")
-  const [currentColor, setCurrentColor] = useState("#3498db")
-  const [files, setFiles] = useState<ColorFile[]>([])
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string>("material")
-  const [settings, setSettings] = useState<ColorSettings>({
-    format: "hex",
-    paletteSize: 5,
-    harmonyType: "complementary",
-    includeAccessibility: true,
-    generateNames: false,
-    sortBy: "hue",
-  })
-
-  const { generatePalette, processBatch } = useColorProcessing()
-  const { exportPalette, exportBatch, exportStatistics } = useColorExport()
-  const { copyToClipboard, copyColorValue, copiedText } = useCopyToClipboard()
-
   // Real-time color analysis
   const colorAnalysis = useRealTimeColorAnalysis(currentColor, settings)
+
+  // 注意：useFileProcessing 必须在组件顶层调用。此前它被放在
+  // useDragAndDrop 的回调中调用，违反了 Hooks 规则（回调不属于渲染路径）。
+  const { processBatch: processFileBatch } = useFileProcessing()
 
   // File drag and drop
   const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(
     useCallback(async (droppedFiles: File[]) => {
       setIsProcessing(true)
       try {
-        const { processBatch } = useFileProcessing()
-        const processedFiles = await processBatch(droppedFiles)
+        const processedFiles = await processFileBatch(droppedFiles)
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
@@ -910,7 +896,7 @@ const ColorPickerCore = () => {
       } finally {
         setIsProcessing(false)
       }
-    }, []),
+    }, [processFileBatch]),
     {
       accept: [".json", ".ase", ".aco", ".css", ".scss", ".txt"],
       multiple: true,

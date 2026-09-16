@@ -31,8 +31,8 @@ import {
   EncodingFormat,
 } from "@/components/tools/base64-encode/schema"
 import { formatFileSize } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 import {
-  useCopyToClipboard,
   useDragAndDrop,
   useEncodingExport,
   useFileProcessing,
@@ -82,13 +82,16 @@ const Base64EncodeCore = () => {
   // Real-time encoding
   const encodingResult = useRealTimeEncoding(input, operation, inputFormat, outputFormat)
 
+  // 注意：useFileProcessing 必须在组件顶层调用。此前它被放在
+  // useDragAndDrop 的回调中调用，违反了 Hooks 规则（回调不属于渲染路径）。
+  const { processBatch: processFileBatch } = useFileProcessing()
+
   // File drag and drop
   const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(
     useCallback(async (droppedFiles: File[]) => {
       setIsProcessing(true)
       try {
-        const { processBatch } = useFileProcessing()
-        const processedFiles = await processBatch(droppedFiles)
+        const processedFiles = await processFileBatch(droppedFiles)
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
@@ -96,7 +99,7 @@ const Base64EncodeCore = () => {
       } finally {
         setIsProcessing(false)
       }
-    }, [])
+    }, [processFileBatch])
   )
 
   // Apply template

@@ -41,7 +41,8 @@ import type {
   SortDirection,
   DataFormat,
 } from "@/components/tools/table-sorter/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeCsvCell, formatFileSize } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 // Types
 
 // Utility functions
@@ -570,7 +571,7 @@ const useTableExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportJSON = useCallback((data: TableData, filename?: string) => {
@@ -591,7 +592,7 @@ const useTableExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportTSV = useCallback((data: TableData, filename?: string) => {
@@ -608,7 +609,7 @@ const useTableExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback(
@@ -655,7 +656,7 @@ const useTableExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
       .join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
@@ -666,7 +667,7 @@ const useTableExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 
     toast.success("Statistics exported")
   }, [])
@@ -675,37 +676,6 @@ const useTableExport = () => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  const copyTableAsCSV = useCallback(
-    async (data: TableData, label?: string) => {
-      const csvContent = [
-        data.headers.join(","),
-        ...data.rows.map((row) => row.map((cell) => String(cell)).join(",")),
-      ].join("\n")
-
-      await copyToClipboard(csvContent, label || "table data")
-    },
-    [copyToClipboard]
-  )
-
-  return { copyToClipboard, copyTableAsCSV, copiedText }
-}
-
 // File drag and drop functionality
 const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const [dragActive, setDragActive] = useState(false)
@@ -785,18 +755,35 @@ const TableSorterCore = () => {
 
   const { processBatch } = useTableProcessing()
   const { exportCSV, exportJSON, exportTSV, exportBatch, exportStatistics } = useTableExport()
-  const { copyToClipboard, copyTableAsCSV, copiedText } = useCopyToClipboard()
+  const { copyToClipboard, copiedText } = useCopyToClipboard()
+
+  // 领域专用包装：共享 hook 只提供 copyToClipboard，这里保留原有的一步式调用。
+  // 顺带修复了原来手写 CSV 未转义内嵌引号的问题。
+  const copyTableAsCSV = useCallback(
+    async (data: TableData, label?: string) => {
+      const csvContent = [
+        data.headers.join(","),
+        ...data.rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")),
+      ].join("\n")
+
+      await copyToClipboard(csvContent, label || "table data")
+    },
+    [copyToClipboard]
+  )
 
   // Real-time table preview
   const tablePreview = useRealTimeTablePreview(inputData, settings, dataFormat)
+
+  // 注意：useFileProcessing 必须在组件顶层调用。此前它被放在
+  // useDragAndDrop 的回调中调用，违反了 Hooks 规则（回调不属于渲染路径）。
+  const { processBatch: processFileBatch } = useFileProcessing()
 
   // File drag and drop
   const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(
     useCallback(async (droppedFiles: File[]) => {
       setIsProcessing(true)
       try {
-        const { processBatch } = useFileProcessing()
-        const processedFiles = await processBatch(droppedFiles)
+        const processedFiles = await processFileBatch(droppedFiles)
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
@@ -804,7 +791,7 @@ const TableSorterCore = () => {
       } finally {
         setIsProcessing(false)
       }
-    }, [])
+    }, [processFileBatch])
   )
 
   // Apply preset

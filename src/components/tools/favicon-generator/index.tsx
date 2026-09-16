@@ -39,7 +39,8 @@ import type {
   FaviconFormat,
   FaviconSize,
 } from "@/components/tools/favicon-generator/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeCsvCell, formatFileSize } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 // Utility functions
 
 const validateImageFile = (file: File): { isValid: boolean; error?: string } => {
@@ -539,7 +540,7 @@ const useFaviconExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 
     toast.success("HTML code exported")
   }, [])
@@ -580,7 +581,7 @@ const useFaviconExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
       .join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
@@ -591,7 +592,7 @@ const useFaviconExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 
     toast.success("Statistics exported")
   }, [])
@@ -653,25 +654,6 @@ ${links.map((link) => `  ${link}`).join("\n")}
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // File drag and drop functionality
 const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const [dragActive, setDragActive] = useState(false)
@@ -753,12 +735,15 @@ const FaviconGeneratorCore = () => {
   const { exportFavicon, exportFaviconPackage, exportHTML } = useFaviconExport()
   const { copyToClipboard, copiedText } = useCopyToClipboard()
 
+  // 注意：useFileProcessing 必须在组件顶层调用。此前它被放在
+  // useDragAndDrop 的回调中调用，违反了 Hooks 规则（回调不属于渲染路径）。
+  const { processBatch: processFilesBatch } = useFileProcessing()
+
   // File drag and drop
   const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(
     useCallback(async (droppedFiles: File[]) => {
       setIsProcessing(true)
       try {
-        const { processBatch: processFilesBatch } = useFileProcessing()
         const processedFiles = await processFilesBatch(droppedFiles)
         setFiles((prev) => [...processedFiles, ...prev])
 
@@ -777,7 +762,7 @@ const FaviconGeneratorCore = () => {
       } finally {
         setIsProcessing(false)
       }
-    }, [])
+    }, [processFilesBatch])
   )
 
   // Apply template

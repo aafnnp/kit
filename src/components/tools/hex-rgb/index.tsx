@@ -42,7 +42,8 @@ import type {
   ConversionTemplate,
   ColorFormat,
 } from "@/components/tools/hex-rgb/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeCsvCell, formatFileSize } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 // Types
 
 // Utility functions
@@ -733,7 +734,7 @@ const useColorExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback(
@@ -793,7 +794,7 @@ const useColorExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
       .join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
@@ -804,7 +805,7 @@ const useColorExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 
     toast.success("Statistics exported")
   }, [])
@@ -842,37 +843,10 @@ const generateCSVExport = (conversions: ColorConversion[]): string => {
     c.error || "",
   ])
 
-  return [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
+  return [headers, ...rows].map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")).join("\n")
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  const copyColorValue = useCallback(
-    async (color: ConvertedColor, format: ColorFormat, label?: string) => {
-      const value = formatColorToString(color, format)
-      await copyToClipboard(value, label || `${format.toUpperCase()} color`)
-    },
-    [copyToClipboard]
-  )
-
-  return { copyToClipboard, copyColorValue, copiedText }
-}
-
 // File drag and drop functionality
 const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const [dragActive, setDragActive] = useState(false)
@@ -949,18 +923,30 @@ const HexRgbCore = () => {
 
   const { convertBatch, processBatch } = useColorConversion()
   const { exportConversions, exportBatch, exportStatistics } = useColorExport()
-  const { copyToClipboard, copyColorValue, copiedText } = useCopyToClipboard()
+  const { copyToClipboard, copiedText } = useCopyToClipboard()
+
+  // 领域专用包装：共享 hook 只提供 copyToClipboard，这里保留原有的一步式调用
+  const copyColorValue = useCallback(
+    async (color: ConvertedColor, format: ColorFormat, label?: string) => {
+      const value = formatColorToString(color, format)
+      await copyToClipboard(value, label || `${format.toUpperCase()} color`)
+    },
+    [copyToClipboard]
+  )
 
   // Real-time color conversion
   const conversionResult = useRealTimeConversion(inputColor, settings.inputFormat, settings.outputFormat)
+
+  // 注意：useFileProcessing 必须在组件顶层调用。此前它被放在
+  // useDragAndDrop 的回调中调用，违反了 Hooks 规则（回调不属于渲染路径）。
+  const { processBatch: processFileBatch } = useFileProcessing()
 
   // File drag and drop
   const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(
     useCallback(async (droppedFiles: File[]) => {
       setIsProcessing(true)
       try {
-        const { processBatch } = useFileProcessing()
-        const processedFiles = await processBatch(droppedFiles)
+        const processedFiles = await processFileBatch(droppedFiles)
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
@@ -968,7 +954,7 @@ const HexRgbCore = () => {
       } finally {
         setIsProcessing(false)
       }
-    }, [])
+    }, [processFileBatch])
   )
 
   // Apply template

@@ -36,7 +36,8 @@ import type {
   ExportFormat,
   BorderRadiusFile,
 } from "@/components/tools/border-radius/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeCsvCell, formatFileSize } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 
 // Utility functions
 
@@ -430,7 +431,7 @@ const useBorderRadiusExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback(
@@ -492,7 +493,7 @@ const useBorderRadiusExport = () => {
         stat.status,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
       .join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
@@ -503,7 +504,7 @@ const useBorderRadiusExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 
     toast.success("Statistics exported")
   }, [])
@@ -540,25 +541,6 @@ const generateTailwindClasses = (borderRadius: BorderRadius): string => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // File drag and drop functionality
 const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const [dragActive, setDragActive] = useState(false)
@@ -646,13 +628,16 @@ const BorderRadiusCore = () => {
   // Real-time border radius generation
   const borderRadiusPreview = useRealTimeBorderRadius(borderRadiusType, corners)
 
+  // 注意：useFileProcessing 必须在组件顶层调用。此前它被放在
+  // useDragAndDrop 的回调中调用，违反了 Hooks 规则（回调不属于渲染路径）。
+  const { processBatch: processFileBatch } = useFileProcessing()
+
   // File drag and drop
   const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(
     useCallback(async (droppedFiles: File[]) => {
       setIsProcessing(true)
       try {
-        const { processBatch } = useFileProcessing()
-        const processedFiles = await processBatch(droppedFiles)
+        const processedFiles = await processFileBatch(droppedFiles)
         setFiles((prev) => [...processedFiles, ...prev])
         toast.success(`Added ${processedFiles.length} file(s)`)
       } catch (error) {
@@ -660,7 +645,7 @@ const BorderRadiusCore = () => {
       } finally {
         setIsProcessing(false)
       }
-    }, [])
+    }, [processFileBatch])
   )
 
   // Apply template
