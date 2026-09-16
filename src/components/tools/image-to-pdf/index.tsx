@@ -164,7 +164,7 @@ const ImageToPdf = () => {
       a.href = url
       a.download = "images.pdf"
       a.click()
-      URL.revokeObjectURL(url)
+      setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
       setStats({
         totalImages: files.length,
         totalSize: files.reduce((s, f) => s + f.size, 0),

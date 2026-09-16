@@ -171,7 +171,7 @@ export function CodeFormatter() {
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [state.output, state.language])
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {

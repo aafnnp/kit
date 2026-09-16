@@ -399,7 +399,7 @@ export function useDataExportImport() {
       a.click()
       document.body.removeChild(a)
 
-      URL.revokeObjectURL(url)
+      setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
     } catch (error) {
       console.error("Failed to download data:", error)
       throw error

@@ -565,7 +565,7 @@ const ImageResizeCore = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
     toast.success("Results exported successfully")
   }, [images, settings, stats])
 

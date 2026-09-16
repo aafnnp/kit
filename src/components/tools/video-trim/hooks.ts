@@ -178,7 +178,7 @@ export function downloadFile(blob: Blob, filename: string): void {
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
-  URL.revokeObjectURL(url)
+  setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 }
 
 /**
@@ -225,11 +225,14 @@ export function getVideoStats(file: File): Promise<VideoStats> {
       }
 
       resolve(stats)
+      // url 是 <video> 的 src（仅用于读元数据），不是下载地址：必须立即释放，
+      // 否则整份视频会多存活 60 秒
       URL.revokeObjectURL(url)
     }
 
     video.onerror = () => {
       reject(new Error(i18n.t('videoTrim.metadata-read-failed')))
+      // 同上：非下载场景，立即释放
       URL.revokeObjectURL(url)
     }
   })

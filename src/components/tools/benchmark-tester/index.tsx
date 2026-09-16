@@ -499,7 +499,7 @@ const BenchmarkTester = () => {
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   // 导入基准测试结果

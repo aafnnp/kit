@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -801,8 +801,33 @@ const useQRGenerator = () => {
 }
 
 // Copy to clipboard functionality
+//
+// 保留本地实现：这里的 copyImageToClipboard 同时支持 (dataUrl | svgString)，
+// 比 @/hooks/use-clipboard 的版本更宽，无法直接替换。
 const useCopyToClipboard = () => {
   const [copiedText, setCopiedText] = useState<string | null>(null)
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // 卸载时清理定时器
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current !== null) {
+        clearTimeout(resetTimerRef.current)
+      }
+    }
+  }, [])
+
+  // 调度前先清掉上一个定时器，避免连续复制时提示被提前清空
+  const scheduleReset = useCallback(() => {
+    if (resetTimerRef.current !== null) {
+      clearTimeout(resetTimerRef.current)
+    }
+
+    resetTimerRef.current = setTimeout(() => {
+      resetTimerRef.current = null
+      setCopiedText(null)
+    }, 2000)
+  }, [])
 
   const copyToClipboard = useCallback(async (text: string, label?: string) => {
     try {
@@ -810,11 +835,11 @@ const useCopyToClipboard = () => {
       setCopiedText(label || "text")
       toast.success(`${label || "Text"} copied to clipboard`)
 
-      setTimeout(() => setCopiedText(null), 2000)
+      scheduleReset()
     } catch (error) {
       toast.error("Failed to copy to clipboard")
     }
-  }, [])
+  }, [scheduleReset])
 
   const copyImageToClipboard = useCallback(async (dataUrl?: string, svgString?: string, label?: string) => {
     try {
@@ -832,11 +857,11 @@ const useCopyToClipboard = () => {
       await navigator.clipboard.write([item])
       setCopiedText(label || "image")
       toast.success(`${label || "Image"} copied to clipboard`)
-      setTimeout(() => setCopiedText(null), 2000)
+      scheduleReset()
     } catch (error) {
       toast.error("Failed to copy image to clipboard")
     }
-  }, [])
+  }, [scheduleReset])
 
   return { copyToClipboard, copyImageToClipboard, copiedText }
 }
@@ -865,7 +890,7 @@ const useQRExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback(

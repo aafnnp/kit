@@ -147,7 +147,7 @@ export function DependencyAnalyzer() {
     document.body.appendChild(a)
     a.click()
     a.remove()
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
     toast.success(t("dependencyAnalyzer.script-generated"))
   }
 
@@ -165,7 +165,7 @@ export function DependencyAnalyzer() {
     document.body.appendChild(a)
     a.click()
     a.remove()
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
     toast.success(t("dependencyAnalyzer.plan-exported"))
   }
 

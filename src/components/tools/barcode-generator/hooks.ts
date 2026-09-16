@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react"
-import { toast } from "sonner"
 import { nanoid } from "nanoid"
 import {
   BarcodeResult,
@@ -971,26 +970,6 @@ export const useBarcodeGenerator = () => {
   }
 }
 
-// Copy to clipboard functionality
-export const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 export const useBarcodeExport = () => {
   const downloadBarcode = useCallback((barcode: BarcodeResult, filename?: string) => {
@@ -1015,7 +994,7 @@ export const useBarcodeExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback(

@@ -236,7 +236,7 @@ export function useTemplateManager<T extends BaseTemplate>(
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 
     toast.success(`Exported ${templatesToExport.length} template(s)`)
   }, [allTemplates, customTemplates])
