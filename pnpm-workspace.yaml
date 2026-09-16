@@ -1,8 +1,10 @@
 packages:
   - '.'
 
-allowBuilds:
-  '@parcel/watcher': true
-  esbuild: true
-  sharp: true
-  workerd: true
+# pnpm 10 只识别 onlyBuiltDependencies（依赖包名列表）。
+# 之前的 allowBuilds 不是有效字段，会被静默忽略，导致依赖的安装脚本行为不可预期。
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - sharp
+  - workerd

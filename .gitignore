@@ -35,8 +35,10 @@ build/icon.ico
 
 # wrangler files
 .wrangler
+# Cloudflare 本地开发变量文件（.dev.vars）始终忽略。
+# 注意：如果以后要提交 .dev.vars.example 模板，请在此处补回 `!.dev.vars.example`，
+# 并同时创建该文件——只有文件真实存在时否定规则才会生效。
 .dev.vars*
-!.dev.vars.example
 .env*
 !.env.example
 

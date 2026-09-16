@@ -100,10 +100,6 @@ export default defineConfig(() => ({
             if (id.includes("sonner")) {
               return "sonner-vendor"
             }
-            // 主题库
-            if (id.includes("next-themes")) {
-              return "theme-vendor"
-            }
             // 抽屉组件
             if (id.includes("vaul")) {
               return "vaul-vendor"
@@ -176,8 +172,8 @@ export default defineConfig(() => ({
     minify: "terser",
     terserOptions: {
       compress: {
-        // 移除console.log
-        drop_console: true,
+        // 注意：不要使用 drop_console，它会连同 console.warn/console.error 一起移除，
+        // 导致生产环境完全丢失诊断信息。仅通过下面的 pure_funcs 移除调试级别日志。
         // 移除debugger
         drop_debugger: true,
         // 移除未使用的代码
@@ -221,7 +217,12 @@ export default defineConfig(() => ({
   },
   // 启用esbuild优化
   esbuild: {
-    // 移除生产环境的console和debugger
-    drop: process.env.NODE_ENV === "production" ? ["console", "debugger"] : [],
+    // 移除生产环境的debugger；不要 drop "console"，否则 console.error/warn 也会被移除
+    drop: process.env.NODE_ENV === "production" ? ["debugger"] : [],
+    // 仅移除调试级别日志调用（保留 warn/error）
+    pure:
+      process.env.NODE_ENV === "production"
+        ? ["console.log", "console.info", "console.debug"]
+        : [],
   },
 }))
