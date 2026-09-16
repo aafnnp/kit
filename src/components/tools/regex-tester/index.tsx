@@ -33,7 +33,8 @@ import type {
   RegexPattern,
   RegexTestResult,
 } from "@/components/tools/regex-tester/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeCsvCell, escapeHtml, formatFileSize } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 // Types
 
 // Utility functions
@@ -274,28 +275,7 @@ const executeRegex = (pattern: string, text: string, settings: RegexSettings): R
   }
 }
 
-// Highlight matches in text
-const highlightMatches = (text: string, matches: RegexMatch[], highlightEnabled: boolean): string => {
-  if (!highlightEnabled || matches.length === 0) {
-    return text
-  }
-
-  // Sort matches by index in descending order to avoid index shifting
-  const sortedMatches = [...matches].sort((a, b) => b.index - a.index)
-
-  let highlightedText = text
-
-  sortedMatches.forEach((match, index) => {
-    const before = highlightedText.substring(0, match.index)
-    const matchText = highlightedText.substring(match.index, match.index + match.length)
-    const after = highlightedText.substring(match.index + match.length)
-
-    highlightedText =
-      before + `<mark class="bg-yellow-200 dark:bg-yellow-800" data-match="${index}">${matchText}</mark>` + after
-  })
-
-  return highlightedText
-}
+import { highlightMatches } from "./logic"
 
 // Custom hooks
 const useRegexTesting = () => {
@@ -394,7 +374,7 @@ const useRealTimeRegex = (pattern: string, text: string, settings: RegexSettings
           textLength: text.length,
           coverage: 0,
         },
-        highlightedText: text,
+        highlightedText: escapeHtml(text),
       }
     }
 
@@ -422,7 +402,7 @@ const useRealTimeRegex = (pattern: string, text: string, settings: RegexSettings
           coverage: 0,
         },
         error: error instanceof Error ? error.message : "Regex execution failed",
-        highlightedText: text,
+        highlightedText: escapeHtml(text),
       }
     }
   }, [pattern, text, settings])
@@ -512,7 +492,7 @@ const useRegexExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportTestReport = useCallback((pattern: string, text: string, result: RegexTestResult, filename?: string) => {
@@ -552,7 +532,7 @@ ${result.replacementResult ? `\nReplacement Result:\n${result.replacementResult}
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback((files: TextFile[], pattern: string) => {
@@ -579,7 +559,7 @@ ${result.replacementResult ? `\nReplacement Result:\n${result.replacementResult}
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportCSV = useCallback((files: TextFile[]) => {
@@ -605,7 +585,7 @@ ${result.replacementResult ? `\nReplacement Result:\n${result.replacementResult}
       file.statistics?.executionTime.toFixed(2) || 0,
     ])
 
-    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
+    const csvContent = [headers, ...rows].map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")).join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
@@ -615,32 +595,13 @@ ${result.replacementResult ? `\nReplacement Result:\n${result.replacementResult}
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportMatches, exportTestReport, exportBatch, exportCSV }
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // File drag and drop functionality
 const useDragAndDrop = (onFilesDropped: (files: File[]) => void) => {
   const [dragActive, setDragActive] = useState(false)
@@ -1280,7 +1241,7 @@ const RegexTesterCore = () => {
                     <div
                       className="p-4 border rounded-lg bg-background min-h-[120px] font-mono text-sm whitespace-pre-wrap overflow-auto"
                       dangerouslySetInnerHTML={{
-                        __html: realtimeResult.highlightedText || testText,
+                        __html: realtimeResult.highlightedText || escapeHtml(testText),
                       }}
                     />
                   </div>

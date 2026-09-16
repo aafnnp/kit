@@ -7,6 +7,7 @@ import { LruCache } from "@/lib/storage"
 import * as LucideIcons from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { idbGet, idbSet } from "@/lib/storage"
+import { sanitizeSvgMarkup } from "@/lib/utils/sanitize"
 
 // 图标缓存映射
 const iconCache = new LruCache<string, LucideIcon>(200)
@@ -334,10 +335,19 @@ class ResourceOptimizer {
     const computedKey = key || `sprite_${this.hash(spriteText)}`
     if (this.mountedSprites.has(computedKey)) return
 
+    // spriteText 可能来自网络请求，绝不能直接写入 innerHTML：
+    // 未消毒的 SVG 可内嵌 <script> / onload / javascript: 链接，
+    // 从而获得与页面同源的执行权限（Tauri 下还能触达原生 IPC）。
+    const sanitized = sanitizeSvgMarkup(spriteText)
+    if (!sanitized) {
+      console.warn("Refusing to mount sprite: markup was empty or failed sanitization")
+      return
+    }
+
     const container = document.createElement("div")
     container.setAttribute("data-sprite-key", computedKey)
     container.style.display = "none"
-    container.innerHTML = spriteText
+    container.innerHTML = sanitized
     document.body.prepend(container)
 
     this.mountedSprites.add(computedKey)

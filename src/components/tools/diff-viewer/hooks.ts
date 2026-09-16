@@ -3,6 +3,10 @@ import { nanoid } from "nanoid"
 import { toast } from "sonner"
 import type { DiffFile, DiffPair, DiffResult, DiffSettings } from "./schema"
 import { generateDiff, validateTextFile } from "./logic"
+import { downloadBlob, escapeCsvCell, escapeHtml } from "@/lib/utils"
+
+/** HTML 导出时允许使用的行样式类（其余一律回退为 unchanged，避免注入到 class 属性）。 */
+const DIFF_LINE_CLASSES = new Set(["added", "removed", "modified", "unchanged"])
 
 /**
  * 文本 diff 处理相关 hooks。
@@ -202,7 +206,7 @@ export const useDiffExport = () => {
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
     },
     [],
   )
@@ -224,7 +228,7 @@ export const useDiffExport = () => {
 
       const header = `
       <div class="diff-header">
-        <h2>Diff: ${leftName} vs ${rightName}</h2>
+        <h2>Diff: ${escapeHtml(leftName)} vs ${escapeHtml(rightName)}</h2>
         <p>Statistics: ${result.statistics.addedLines} added, ${result.statistics.removedLines} removed, ${result.statistics.modifiedLines} modified</p>
         <p>Similarity: ${result.statistics.similarity.toFixed(1)}%</p>
       </div>
@@ -232,23 +236,17 @@ export const useDiffExport = () => {
 
       const diffLines = result.lines
         .map((line, index) => {
-          const lineClass = line.type
+          const lineClass = DIFF_LINE_CLASSES.has(line.type) ? line.type : "unchanged"
           const lineNumber = `<span class="line-number">${index + 1}</span>`
-          return `<div class="diff-line ${lineClass}">${lineNumber}${line.content}</div>`
+          // 行内容是用户文本，必须转义后再写入 .html，否则打开导出文件即执行脚本
+          return `<div class="diff-line ${lineClass}">${lineNumber}${escapeHtml(line.content)}</div>`
         })
         .join("")
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Diff Report</title>${css}</head><body>${header}${diffLines}</body></html>`
 
       const blob = new Blob([html], { type: "text/html;charset=utf-8" })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = filename || "diff-report.html"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      downloadBlob(blob, filename || "diff-report.html")
     },
     [],
   )
@@ -273,7 +271,7 @@ export const useDiffExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportCSV = useCallback((pairs: DiffPair[]) => {
@@ -299,7 +297,7 @@ export const useDiffExport = () => {
       pair.result ? pair.result.statistics.executionTime.toFixed(2) : 0,
     ])
 
-    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
+    const csvContent = [headers, ...rows].map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")).join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
@@ -309,31 +307,10 @@ export const useDiffExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportUnifiedDiff, exportHTML, exportBatch, exportCSV }
-}
-
-/**
- * 文本复制 hook。
- */
-export const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
 }
 
 /**

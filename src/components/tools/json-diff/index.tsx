@@ -32,7 +32,8 @@ import type {
   DiffValidation,
   ExportFormat,
 } from "@/components/tools/json-diff/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeHtml, formatFileSize } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 
 // Utility functions
 
@@ -703,25 +704,6 @@ const useJSONDiff = () => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 const useJSONDiffExport = () => {
   const exportResult = useCallback((result: JSONDiffResult, format: ExportFormat, filename?: string) => {
@@ -773,7 +755,7 @@ const useJSONDiffExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportResult }
@@ -888,6 +870,9 @@ ${result.differences
   .join("\n")}`
 }
 
+/** HTML 导出时允许使用的样式类（其余一律忽略，避免注入到 class 属性）。 */
+const JSON_DIFF_TYPE_CLASSES = new Set(["added", "removed", "modified", "unchanged"])
+
 const generateHTMLFromResult = (result: JSONDiffResult): string => {
   return `<!DOCTYPE html>
 <html>
@@ -919,12 +904,12 @@ const generateHTMLFromResult = (result: JSONDiffResult): string => {
   ${result.differences
     .map(
       (diff) => `
-  <div class="diff ${diff.type}">
-    <div class="path">${diff.path}</div>
-    <div>Type: ${diff.type.toUpperCase()}</div>
-    ${diff.leftValue !== undefined ? `<div>Left: <span class="value">${JSON.stringify(diff.leftValue)}</span></div>` : ""}
-    ${diff.rightValue !== undefined ? `<div>Right: <span class="value">${JSON.stringify(diff.rightValue)}</span></div>` : ""}
-    <div>${diff.description}</div>
+  <div class="diff ${JSON_DIFF_TYPE_CLASSES.has(diff.type) ? diff.type : ""}">
+    <div class="path">${escapeHtml(diff.path)}</div>
+    <div>Type: ${escapeHtml(diff.type.toUpperCase())}</div>
+    ${diff.leftValue !== undefined ? `<div>Left: <span class="value">${escapeHtml(JSON.stringify(diff.leftValue))}</span></div>` : ""}
+    ${diff.rightValue !== undefined ? `<div>Right: <span class="value">${escapeHtml(JSON.stringify(diff.rightValue))}</span></div>` : ""}
+    <div>${escapeHtml(diff.description)}</div>
   </div>`,
     )
     .join("")}

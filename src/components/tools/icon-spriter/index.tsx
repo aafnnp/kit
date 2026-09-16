@@ -12,7 +12,7 @@ import { Upload, Download, Loader2, FileImage, Trash2, BarChart3, Layers, Grid, 
 // @ts-ignore
 import { nanoid } from "nanoid"
 import type { IconFile, SpriteSettings, SpriteStats } from "@/components/tools/icon-spriter/schema"
-import { formatFileSize } from "@/lib/utils"
+import { formatFileSize, sanitizeSvgMarkup } from "@/lib/utils"
 import { zipSync } from "fflate"
 
 // 工具函数
@@ -129,8 +129,11 @@ const IconSpriter = () => {
     customPrefix: "icon",
     output: "svg",
   })
+  // 注意：useIconContent 必须在组件顶层调用。此前它被放在
+  // useDragAndDrop 的回调中调用，违反了 Hooks 规则（回调不属于渲染路径）。
+  const { getContent } = useIconContent()
+
   const { dragActive, fileInputRef, handleDrag, handleDrop, handleFileInput } = useDragAndDrop(async (files) => {
-    const { getContent } = useIconContent()
     const newIcons: IconFile[] = []
     for (const file of files) {
       const valid = validateIconFile(file)
@@ -179,7 +182,7 @@ const IconSpriter = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
     toast.success(t("iconSpriter.export-svg-success"))
   }
 
@@ -214,7 +217,7 @@ const IconSpriter = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
     toast.success(t("iconSpriter.export-zip-success"))
   }
 
@@ -451,7 +454,7 @@ const IconSpriter = () => {
                   >
                     {icon.type === "image/svg+xml" ? (
                       <div className="w-16 h-16 border rounded flex items-center justify-center bg-white">
-                        <div dangerouslySetInnerHTML={{ __html: icon.content || "" }} />
+                        <div dangerouslySetInnerHTML={{ __html: sanitizeSvgMarkup(icon.content) }} />
                       </div>
                     ) : (
                       <img

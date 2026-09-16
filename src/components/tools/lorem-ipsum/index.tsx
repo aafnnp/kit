@@ -19,6 +19,11 @@ import {
   Settings,
 } from "lucide-react"
 import { nanoid } from "nanoid"
+import { downloadBlob, downloadCsv, escapeHtml } from "@/lib/utils"
+
+/** HTML 导出时允许的标题标签（titleStyle 不能直接当作标签名插入）。 */
+const HTML_TITLE_TAGS = new Set(["h1", "h2", "h3", "h4", "h5", "h6"])
+
 import type {
   GeneratedText,
   GenerationSettings,
@@ -27,6 +32,7 @@ import type {
   TextStyle,
   OutputFormat,
 } from "@/components/tools/lorem-ipsum/schema"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 // Types
 
 // Utility functions
@@ -742,13 +748,16 @@ const generateText = (settings: GenerationSettings): GeneratedText => {
   const allText = paragraphs.join("\n\n")
 
   switch (settings.outputFormat) {
-    case "html":
+    case "html": {
       if (title) {
-        const titleTag = settings.titleStyle === "none" ? "h1" : settings.titleStyle
-        content += `<${titleTag}>${title}</${titleTag}>\n\n`
+        const titleTag = HTML_TITLE_TAGS.has(settings.titleStyle) ? settings.titleStyle : "h1"
+        // 标题来自内置词库或用户自定义词，写入 .html 前必须转义
+        content += `<${titleTag}>${escapeHtml(title)}</${titleTag}>\n\n`
       }
-      content += paragraphs.map((p) => `<p>${p}</p>`).join("\n\n")
+      // 用户可通过 "Custom Words" 注入任意文本，未转义会在打开导出文件时执行脚本
+      content += paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join("\n\n")
       break
+    }
 
     case "markdown":
       if (title) {
@@ -873,14 +882,8 @@ const useTextExport = () => {
           : "text/plain"
 
     const blob = new Blob([generatedText.content], { type: `${mimeType};charset=utf-8` })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = filename || `lorem_ipsum_${generatedText.style}.${extension}`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    // 共享 downloadBlob 会延后 revokeObjectURL；同步 revoke 会在 Firefox/Safari 取消下载
+    downloadBlob(blob, filename || `lorem_ipsum_${generatedText.style}.${extension}`)
   }, [])
 
   const exportBatch = useCallback((generatedTexts: GeneratedText[]) => {
@@ -889,14 +892,7 @@ const useTextExport = () => {
       .join("\n")
 
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = "lorem_ipsum_batch.txt"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    downloadBlob(blob, "lorem_ipsum_batch.txt")
   }, [])
 
   const exportCSV = useCallback((generatedTexts: GeneratedText[]) => {
@@ -922,42 +918,14 @@ const useTextExport = () => {
       text.generatedAt.toISOString(),
     ])
 
-    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
-
-    const blob = new Blob([csvContent], { type: "text/csv" })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = "lorem_ipsum_stats.csv"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    // 交给共享 helper 处理引号翻倍 / 公式注入 / BOM
+    downloadCsv([headers, ...rows], "lorem_ipsum_stats.csv")
   }, [])
 
   return { exportText, exportBatch, exportCSV }
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 /**
  * Enhanced Lorem Ipsum Generator Tool
  * Features: Multiple text styles, batch generation, export capabilities, real-time generation

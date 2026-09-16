@@ -35,7 +35,8 @@ import type {
   ExportFormat,
   ViewMode,
 } from "@/components/tools/markdown-mermaid/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeHtml, formatFileSize } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 
 // Utility functions
 
@@ -831,25 +832,6 @@ const useMermaidDiagrams = () => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 const useMermaidExport = () => {
   const exportDiagram = useCallback((diagram: MermaidDiagram, format: ExportFormat, filename?: string) => {
@@ -891,7 +873,7 @@ const useMermaidExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportDiagram }
@@ -902,7 +884,7 @@ const generateHTMLFromDiagram = (diagram: MermaidDiagram): string => {
   return `<!DOCTYPE html>
 <html>
 <head>
-  <title>${diagram.name}</title>
+  <title>${escapeHtml(diagram.name)}</title>
   <meta charset="UTF-8">
   <style>
     body {
@@ -946,9 +928,9 @@ const generateHTMLFromDiagram = (diagram: MermaidDiagram): string => {
 <body>
   <div class="container">
     <div class="header">
-      <h1>${diagram.name}</h1>
+      <h1>${escapeHtml(diagram.name)}</h1>
       <p>Generated on: ${diagram.timestamp.toLocaleString()}</p>
-      <p>Type: ${diagram.type}</p>
+      <p>Type: ${escapeHtml(diagram.type)}</p>
     </div>
 
     <div class="diagram">
@@ -969,7 +951,7 @@ const generateHTMLFromDiagram = (diagram: MermaidDiagram): string => {
 
     <div class="code">
       <h3>Mermaid Code</h3>
-      ${diagram.code}
+      ${escapeHtml(diagram.code)}
     </div>
   </div>
 </body>
