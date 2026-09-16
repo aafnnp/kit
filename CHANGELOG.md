@@ -5,6 +5,56 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## v0.5.0
+
+*发布日期: 2026-09-16*
+
+### ✨ Features
+
+- **utils**: add shared export-escaping, SVG sanitizing and safe-math helpers ([85c84a4](../../commit/85c84a4))
+- **i18n**: complete zh/en localization across the app ([c4ed6f0](../../commit/c4ed6f0))
+- add bilingual interface translations ([defe6e7](../../commit/defe6e7))
+
+### 🐛 Bug Fixes
+
+- **tools**: defer object URL revoke so downloads are not cancelled ([6a0073b](../../commit/6a0073b))
+- **tools**: escape CSV cells with the shared helper ([bff1eda](../../commit/bff1eda))
+- **tools**: guard statistics divisions against NaN and Infinity ([bc0d7ab](../../commit/bc0d7ab))
+- **react**: hoist hooks out of event callbacks across tools ([c1f6c06](../../commit/c1f6c06))
+- **security**: escape untrusted data in HTML exports and sanitize raw SVG ([5676071](../../commit/5676071))
+- **theme**: drive Toaster from the app theme store and drop next-themes ([84d20b3](../../commit/84d20b3))
+- **hooks**: track and clean up the useCopyToClipboard reset timer ([0fb0d13](../../commit/0fb0d13))
+- unify active control states ([2d7749e](../../commit/2d7749e))
+
+### ⚡ Performance Improvements
+
+- reduce lucide icon bundle ([aa15690](../../commit/aa15690))
+
+### ♻️ Code Refactoring
+
+- **tools**: reuse the shared useCopyToClipboard hook ([457fbe3](../../commit/457fbe3))
+- refresh tool workspace UI ([2c5f491](../../commit/2c5f491))
+
+### 📚 Documentation
+
+- update changelog for v0.4.0 ([e7f4697](../../commit/e7f4697))
+
+### 🔧 Chores
+
+- **release**: 0.5.0 ([8e5dd55](../../commit/8e5dd55))
+- **ci**: run the test workflow on master ([1630b7b](../../commit/1630b7b))
+- **config**: fix vite, workspace and gitignore configuration ([b80aa03](../../commit/b80aa03))
+
+### 📊 统计信息
+
+- 总提交数: 18
+- 参与开发者: 1
+- 新功能: 3
+- 问题修复: 8
+- 对比版本: [v0.4.0...v0.5.0](../../compare/v0.4.0...v0.5.0)
+
+---
+
 ## v0.4.0
 
 *发布日期: 2026-08-28*
