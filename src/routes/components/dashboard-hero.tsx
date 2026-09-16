@@ -64,7 +64,7 @@ export function DashboardHero({
             value={searchQuery}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder={t("search.placeholder")}
-            className="h-12 rounded-xl border-border/80 bg-background/80 pl-11 pr-4 text-sm shadow-[0_12px_30px_-20px_hsl(var(--primary))] transition-shadow focus-visible:shadow-[0_14px_36px_-18px_hsl(var(--primary))]"
+            className="h-12 rounded-xl border-border/80 bg-background/80 pl-11 pr-4 text-sm shadow-[0_12px_30px_-20px_var(--primary)] transition-shadow focus-visible:shadow-[0_14px_36px_-18px_var(--primary)]"
             autoComplete="off"
             spellCheck={false}
           />

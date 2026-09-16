@@ -1,8 +1,10 @@
-import { useTheme } from "next-themes"
 import { Toaster as Sonner, ToasterProps } from "sonner"
+import { useTheme } from "@/lib/theme"
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+  // 使用应用自身的主题 store（next-themes 的 Provider 从未挂载，
+  // 之前这里始终解析为 "system"，用户显式选择深浅色时 toast 配色不会跟随）
+  const { theme } = useTheme()
 
   return (
     <Sonner
