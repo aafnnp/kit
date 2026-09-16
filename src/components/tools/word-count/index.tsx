@@ -9,7 +9,7 @@ import { toast } from "sonner"
 import { Upload, Download, FileText, Loader2, FileImage, Trash2, BarChart3, BookOpen, Target } from "lucide-react"
 import { nanoid } from "nanoid"
 import type { TextFile, TextAnalysis, AnalysisSettings, AnalysisStats } from "@/components/tools/word-count/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeCsvCell, formatFileSize } from "@/lib/utils"
 
 const validateTextFile = (file: File): { isValid: boolean; error?: string } => {
   const maxSize = 50 * 1024 * 1024 // 50MB
@@ -343,7 +343,7 @@ const useTextExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportCSV = useCallback((files: TextFile[]) => {
@@ -384,7 +384,7 @@ const useTextExport = () => {
         ]
       })
 
-    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
+    const csvContent = [headers, ...rows].map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")).join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
@@ -394,7 +394,7 @@ const useTextExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportAnalysis, exportCSV }

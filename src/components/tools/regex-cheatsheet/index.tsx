@@ -24,6 +24,7 @@ import {
   TestTube,
 } from "lucide-react"
 import { nanoid } from "nanoid"
+import { escapeCsvCell } from "@/lib/utils"
 import type {
   RegexPattern,
   RegexTest,
@@ -34,6 +35,7 @@ import type {
   RegexCheatsheet,
   ExportFormat,
 } from "@/components/tools/regex-cheatsheet/schema"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 // Utility functions
 
 // Regex Categories
@@ -505,25 +507,6 @@ const useRegexTester = () => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 const useRegexExport = () => {
   const exportPatterns = useCallback((patterns: RegexPattern[], format: ExportFormat, filename?: string) => {
@@ -570,7 +553,7 @@ const useRegexExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportPatterns }
@@ -588,7 +571,7 @@ const generateCSVFromPatterns = (patterns: RegexPattern[]): string => {
     pattern.useCase.join("; "),
   ])
 
-  return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
+  return [headers.join(","), ...rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))].join("\n")
 }
 
 const generateTextFromPatterns = (patterns: RegexPattern[]): string => {

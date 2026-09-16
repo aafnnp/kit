@@ -41,7 +41,8 @@ import type {
   JWTValidation,
   ExportFormat,
 } from "@/components/tools/jwt-decode/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeCsvCell, formatFileSize } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 // Enhanced Types
 
 // Utility functions
@@ -892,25 +893,6 @@ const useJWTDecoder = () => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 const useJWTExport = () => {
   const exportToken = useCallback((token: JWTToken, format: ExportFormat, filename?: string) => {
@@ -957,7 +939,7 @@ const useJWTExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback((batch: JWTBatch) => {
@@ -970,7 +952,7 @@ const useJWTExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportToken, exportBatch }
@@ -997,7 +979,7 @@ const generateCSVFromToken = (token: JWTToken): string => {
   rows.push(["security.riskScore", String(token.security.riskScore), "number", "Security Risk Score"])
   rows.push(["compliance.score", String(token.analysis.compliance.complianceScore), "number", "Compliance Score"])
 
-  return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
+  return [headers.join(","), ...rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))].join("\n")
 }
 
 const generateTextFromToken = (token: JWTToken): string => {

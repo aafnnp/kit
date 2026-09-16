@@ -38,7 +38,8 @@ import type {
   ExportFormat,
 } from "@/components/tools/matrix-math/schema"
 import { useMatrixOperations as useMatrixOperationsWorker } from "./hooks"
-import { formatNumberWithPrecision } from "@/lib/utils"
+import { escapeCsvCell, formatNumberWithPrecision } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 
 // Utility functions
 const formatNumber = formatNumberWithPrecision
@@ -1018,25 +1019,6 @@ const useMatrixOperations = () => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 const useMatrixExport = () => {
   const exportOperation = useCallback((operation: MatrixOperation, format: ExportFormat, filename?: string) => {
@@ -1088,7 +1070,7 @@ const useMatrixExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportMatrix = useCallback((matrix: Matrix, format: ExportFormat, filename?: string) => {
@@ -1130,7 +1112,7 @@ const useMatrixExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportOperation, exportMatrix }
@@ -1154,7 +1136,7 @@ const generateCSVFromOperation = (operation: MatrixOperation): string => {
     rows.push(["Result Dimensions", `${operation.result.rows}×${operation.result.cols}`])
   }
 
-  return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
+  return [headers.join(","), ...rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))].join("\n")
 }
 
 const generateTextFromOperation = (operation: MatrixOperation): string => {

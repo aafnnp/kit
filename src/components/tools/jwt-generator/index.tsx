@@ -39,7 +39,8 @@ import type {
   JWTAlgorithm,
   ExportFormat,
 } from "@/components/tools/jwt-generator/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeCsvCell, formatFileSize } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 // Utility functions
 
 // JWT generation functions
@@ -853,25 +854,6 @@ const useJWTGenerator = () => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 const useJWTExport = () => {
   const exportToken = useCallback((token: GeneratedJWT, format: ExportFormat, filename?: string) => {
@@ -918,7 +900,7 @@ const useJWTExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback((batch: JWTBatch) => {
@@ -931,7 +913,7 @@ const useJWTExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportToken, exportBatch }
@@ -959,7 +941,7 @@ const generateCSVFromToken = (token: GeneratedJWT): string => {
     rows.push([`payload.${key}`, String(value), typeof value, "JWT Payload"])
   })
 
-  return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
+  return [headers.join(","), ...rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))].join("\n")
 }
 
 const generateTextFromToken = (token: GeneratedJWT): string => {

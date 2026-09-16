@@ -23,6 +23,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import { nanoid } from "nanoid"
+import { escapeCsvCell } from "@/lib/utils"
 import type {
   LotteryItem,
   LotteryResult,
@@ -38,6 +39,7 @@ import type {
   SelectionMode,
   ExportFormat,
 } from "@/components/tools/lottery-picker/schema"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 
 // Utility functions
 
@@ -810,25 +812,6 @@ const useLotteryPicker = () => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 const useLotteryExport = () => {
   const exportResult = useCallback((result: LotteryResult, format: ExportFormat, filename?: string) => {
@@ -875,7 +858,7 @@ const useLotteryExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback((batch: LotteryBatch) => {
@@ -888,7 +871,7 @@ const useLotteryExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportResult, exportBatch }
@@ -905,7 +888,7 @@ const generateCSVFromResult = (result: LotteryResult): string => {
     result.timestamp.toISOString(),
   ])
 
-  return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
+  return [headers.join(","), ...rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))].join("\n")
 }
 
 const generateTextFromResult = (result: LotteryResult): string => {

@@ -26,7 +26,7 @@ import {
   History,
 } from "lucide-react"
 import { nanoid } from "nanoid"
-import { formatNumber } from "@/lib/utils"
+import { escapeCsvCell, formatNumber } from "@/lib/utils"
 import type {
   RomanConversion,
   ConversionMetadata,
@@ -39,6 +39,7 @@ import type {
   ConversionValidation,
   ExportFormat,
 } from "@/components/tools/roman-numeral/schema"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 // Utility functions
 
 // Roman numeral data and constants
@@ -694,25 +695,6 @@ const useRomanConversion = () => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 const useRomanExport = () => {
   const exportConversion = useCallback((conversion: RomanConversion, format: ExportFormat, filename?: string) => {
@@ -759,7 +741,7 @@ const useRomanExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportConversion }
@@ -781,7 +763,7 @@ const generateCSVFromConversion = (conversion: RomanConversion): string => {
     ["Timestamp", conversion.timestamp.toISOString()],
   ]
 
-  return [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
+  return [headers.join(","), ...rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))].join("\n")
 }
 
 const generateTextFromConversion = (conversion: RomanConversion): string => {
