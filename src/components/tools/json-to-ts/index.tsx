@@ -40,7 +40,8 @@ import type {
   JSONValidation,
   ExportFormat,
 } from "@/components/tools/json-to-ts/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeCsvCell, formatFileSize, safePercent } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 // Enhanced Types
 
 // Utility functions
@@ -575,7 +576,7 @@ const useTypeScriptGeneration = () => {
           averageComplexity,
           totalInputSize,
           totalOutputSize,
-          successRate: (validCount / results.length) * 100,
+          successRate: safePercent(validCount, results.length),
         }
 
         return {
@@ -660,7 +661,7 @@ const useTypeScriptExport = () => {
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
     },
     []
   )
@@ -710,7 +711,7 @@ const useTypeScriptExport = () => {
         stat.createdAt,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
       .join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
@@ -721,7 +722,7 @@ const useTypeScriptExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 
     toast.success("Statistics exported")
   }, [])
@@ -755,7 +756,7 @@ ${results
   .join("\n")}
 
 Statistics:
-- Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
+- Success Rate: ${safePercent(results.filter((result) => result.isValid).length, results.length).toFixed(1)}%
 - Average Complexity: ${(results.reduce((sum, result) => sum + result.statistics.complexity.depth, 0) / results.length).toFixed(1)} levels
 `
 }
@@ -793,29 +794,10 @@ const generateCSVFromResults = (results: TypeScriptGenerationResult[]): string =
     ])
   })
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
+  return rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")).join("\n")
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 /**
  * Enhanced JSON to TypeScript Interface Generator
  * Features: Advanced TypeScript generation, validation, analysis, batch processing, comprehensive type inference

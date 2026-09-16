@@ -48,7 +48,8 @@ import type {
   DeviceSize,
   ExportFormat,
 } from "@/components/tools/html-preview/schema"
-import { formatFileSize } from "@/lib/utils"
+import { formatFileSize, safePercent } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 
 // Utility functions
 
@@ -713,7 +714,7 @@ const useHTMLProcessing = () => {
           invalidCount,
           averageQuality,
           totalInputSize,
-          successRate: (validCount / results.length) * 100,
+          successRate: safePercent(validCount, results.length),
         }
 
         return {
@@ -759,25 +760,6 @@ const useRealTimeValidation = (html: string) => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 const useHTMLExport = () => {
   const exportResults = useCallback((results: HTMLProcessingResult[], format: ExportFormat, filename?: string) => {
@@ -821,7 +803,7 @@ const useHTMLExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportResults }
@@ -856,7 +838,7 @@ ${results
   .join("\n")}
 
 Statistics:
-- Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
+- Success Rate: ${safePercent(results.filter((result) => result.isValid).length, results.length).toFixed(1)}%
 - Average Quality: ${(results.reduce((sum, result) => sum + (result.analysis?.qualityScore || 0), 0) / results.length).toFixed(1)}
 - Total Size: ${formatFileSize(results.reduce((sum, result) => sum + result.statistics.inputSize, 0))}
 `

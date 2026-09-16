@@ -38,8 +38,9 @@ import type {
   JSONOperation,
   ExportFormat,
 } from "@/components/tools/json-pretty/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeCsvCell, formatFileSize, safePercent } from "@/lib/utils"
 import { processJSON, validateJSON } from "@/lib/json/json-processor"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 
 // JSON templates for common use cases
 const jsonTemplates: JSONTemplate[] = [
@@ -215,7 +216,7 @@ const useJSONProcessing = () => {
           averageSize,
           totalSize,
           operationDistribution,
-          successRate: (validCount / results.length) * 100,
+          successRate: safePercent(validCount, results.length),
         }
 
         return {
@@ -350,7 +351,7 @@ const useJSONExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback(
@@ -392,7 +393,7 @@ const useJSONExport = () => {
         stat.createdAt,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
       .join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
@@ -403,7 +404,7 @@ const useJSONExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 
     toast.success("Statistics exported")
   }, [])
@@ -438,7 +439,7 @@ ${results
   .join("\n")}
 
 Statistics:
-- Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
+- Success Rate: ${safePercent(results.filter((result) => result.isValid).length, results.length).toFixed(1)}%
 `
 }
 
@@ -462,7 +463,7 @@ const generateCSVFromResults = (results: JSONProcessingResult[]): string => {
     ])
   })
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
+  return rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")).join("\n")
 }
 
 const generateXMLFromResults = (results: JSONProcessingResult[]): string => {
@@ -498,25 +499,6 @@ const generateXMLFromResults = (results: JSONProcessingResult[]): string => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 /**
  * Enhanced JSON Pretty Tool
  * Features: Advanced JSON processing, validation, analysis, batch processing, comprehensive formatting

@@ -39,7 +39,8 @@ import type {
   URLEncodingType,
   ExportFormat,
 } from "@/components/tools/url-encode/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeCsvCell, formatFileSize, safePercent } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 // Enhanced Types
 
 // Utility functions
@@ -499,7 +500,7 @@ const useURLProcessing = () => {
           totalInputSize,
           totalOutputSize,
           operationDistribution,
-          successRate: (validCount / results.length) * 100,
+          successRate: safePercent(validCount, results.length),
         }
 
         return {
@@ -583,7 +584,7 @@ const useURLExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback(
@@ -631,7 +632,7 @@ const useURLExport = () => {
         stat.createdAt,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
       .join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
@@ -642,7 +643,7 @@ const useURLExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 
     toast.success("Statistics exported")
   }, [])
@@ -676,7 +677,7 @@ ${results
   .join("\n")}
 
 Statistics:
-- Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
+- Success Rate: ${safePercent(results.filter((result) => result.isValid).length, results.length).toFixed(1)}%
 - Average Compression Ratio: ${(results.reduce((sum, result) => sum + result.statistics.compressionRatio, 0) / results.length).toFixed(3)}
 `
 }
@@ -712,7 +713,7 @@ const generateCSVFromResults = (results: URLProcessingResult[]): string => {
     ])
   })
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
+  return rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")).join("\n")
 }
 
 const generateXMLFromResults = (results: URLProcessingResult[]): string => {
@@ -748,25 +749,6 @@ const generateXMLFromResults = (results: URLProcessingResult[]): string => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 /**
  * Enhanced URL Encode/Decode Tool
  * Features: Advanced URL processing, validation, analysis, batch processing, comprehensive encoding types

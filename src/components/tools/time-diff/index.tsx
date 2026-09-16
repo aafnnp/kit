@@ -23,6 +23,7 @@ import {
   Calculator,
 } from "lucide-react"
 import { nanoid } from "nanoid"
+import { escapeCsvCell, safePercent } from "@/lib/utils"
 import type {
   TimeDifference,
   Duration,
@@ -37,6 +38,7 @@ import type {
   DurationPrecision,
   ExportFormat,
 } from "@/components/tools/time-diff/schema"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 // Enhanced Types
 
 // Common timezones
@@ -477,7 +479,7 @@ const useTimeDiffCalculation = () => {
             },
             {} as Record<string, number>
           ),
-          successRate: (validCount / calculations.length) * 100,
+          successRate: safePercent(validCount, calculations.length),
         }
 
         return {
@@ -559,7 +561,7 @@ const useTimeDiffExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback(
@@ -601,7 +603,7 @@ const useTimeDiffExport = () => {
         stat.createdAt,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
       .join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
@@ -612,7 +614,7 @@ const useTimeDiffExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 
     toast.success("Statistics exported")
   }, [])
@@ -645,7 +647,7 @@ ${calculations
   .join("\n")}
 
 Statistics:
-- Success Rate: ${((calculations.filter((calc) => calc.isValid).length / calculations.length) * 100).toFixed(1)}%
+- Success Rate: ${safePercent(calculations.filter((calc) => calc.isValid).length, calculations.length).toFixed(1)}%
 `
 }
 
@@ -682,7 +684,7 @@ const generateCSVFromTimeDiffs = (calculations: TimeDifference[]): string => {
     ])
   })
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
+  return rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")).join("\n")
 }
 
 const generateXMLFromTimeDiffs = (calculations: TimeDifference[]): string => {
@@ -719,25 +721,6 @@ const generateXMLFromTimeDiffs = (calculations: TimeDifference[]): string => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 /**
  * Enhanced Time Diff Tool
  * Features: Advanced time difference calculation, timezone support, batch processing, comprehensive analysis

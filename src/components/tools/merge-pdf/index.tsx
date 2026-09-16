@@ -33,7 +33,8 @@ import type {
   PDFTemplate,
   PDFValidation,
 } from "@/components/tools/merge-pdf/schema"
-import { formatFileSize } from "@/lib/utils"
+import { formatFileSize, safePercent } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 
 // Dynamic import for pdf-lib to reduce initial bundle size
 let pdfLibModule: typeof import("pdf-lib") | null = null
@@ -678,25 +679,6 @@ const usePDFFileProcessor = () => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 const usePDFExport = () => {
   const downloadPDF = useCallback((blob: Blob, filename: string) => {
@@ -707,7 +689,7 @@ const usePDFExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportOperationReport = useCallback(
@@ -810,7 +792,7 @@ ${operations
   .join("\n")}
 
 Statistics:
-- Success Rate: ${((operations.filter((op) => op.status === "completed").length / operations.length) * 100).toFixed(1)}%
+- Success Rate: ${safePercent(operations.filter((op) => op.status === "completed").length, operations.length).toFixed(1)}%
 - Total Files Processed: ${operations.reduce((sum, op) => sum + op.files.length, 0)}
 - Total Pages Processed: ${operations.reduce((sum, op) => sum + op.files.reduce((fileSum, file) => fileSum + (file.pageCount || 0), 0), 0)}
 - Average Processing Time: ${(operations.filter((op) => op.result).reduce((sum, op) => sum + (op.result!.processingTime || 0), 0) / operations.filter((op) => op.result).length || 0).toFixed(2)}ms

@@ -1,5 +1,4 @@
-import { useCallback, useState, useMemo } from "react"
-import { toast } from "sonner"
+import { useCallback, useMemo } from "react"
 import { nanoid } from "nanoid"
 import {
   ImageProcessingResult,
@@ -14,7 +13,7 @@ import {
   ConversionDirection,
   ExportFormat,
 } from "@/components/tools/base64-image/schema"
-import { formatFileSize } from "@/lib/utils"
+import { formatFileSize, safePercent } from "@/lib/utils"
 
 // Utility functions
 export const detectImageFormat = (base64: string): string => {
@@ -391,7 +390,7 @@ ${results
   .join("\n")}
 
 Statistics:
-- Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
+- Success Rate: ${safePercent(results.filter((result) => result.isValid).length, results.length).toFixed(1)}%
 - Average Quality: ${(results.reduce((sum, result) => sum + (result.analysis?.qualityScore || 0), 0) / results.length).toFixed(1)}
 `
 }
@@ -529,7 +528,7 @@ export const useImageProcessing = () => {
           averageQuality,
           totalInputSize,
           totalOutputSize,
-          successRate: (validCount / results.length) * 100,
+          successRate: safePercent(validCount, results.length),
         }
 
         return {
@@ -572,26 +571,6 @@ export const useRealTimeValidation = (input: string, direction: ConversionDirect
       errors: validation.errors,
     }
   }, [input, direction])
-}
-
-// Copy to clipboard functionality
-export const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
 }
 
 // Export functionality
@@ -648,7 +627,7 @@ export const useImageExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportResults }

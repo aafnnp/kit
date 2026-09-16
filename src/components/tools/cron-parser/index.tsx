@@ -23,6 +23,7 @@ import {
   Code,
 } from "lucide-react"
 import { nanoid } from "nanoid"
+import { escapeCsvCell, safePercent } from "@/lib/utils"
 import type {
   CronBatch,
   CronExpression,
@@ -35,6 +36,7 @@ import type {
   CronValidation,
   ExportFormat,
 } from "@/components/tools/cron-parser/schema"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 
 // Utility functions
 
@@ -597,7 +599,7 @@ const useCronParsing = () => {
           fieldComplexity: {},
           averageNextRuns:
             cronExpressions.reduce((sum, expr) => sum + expr.nextRuns.length, 0) / cronExpressions.length,
-          successRate: (validCount / cronExpressions.length) * 100,
+          successRate: safePercent(validCount, cronExpressions.length),
         }
 
         return {
@@ -689,7 +691,7 @@ const useCronExport = () => {
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
     },
     []
   )
@@ -723,7 +725,7 @@ const useCronExport = () => {
         stat.createdAt,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
       .join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
@@ -734,7 +736,7 @@ const useCronExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 
     toast.success("Statistics exported")
   }, [])
@@ -774,7 +776,7 @@ ${expressions
   .join("\n")}
 
 Statistics:
-- Success Rate: ${((expressions.filter((expr) => expr.isValid).length / expressions.length) * 100).toFixed(1)}%
+- Success Rate: ${safePercent(expressions.filter((expr) => expr.isValid).length, expressions.length).toFixed(1)}%
 `
 }
 
@@ -805,7 +807,7 @@ const generateCSVFromCron = (expressions: CronExpression[]): string => {
     ])
   })
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
+  return rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")).join("\n")
 }
 
 const generateXMLFromCron = (expressions: CronExpression[]): string => {
@@ -841,25 +843,6 @@ const generateXMLFromCron = (expressions: CronExpression[]): string => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 /**
  * Enhanced Cron Parser Tool
  * Features: Expression parsing, validation, human-readable descriptions, schedule prediction

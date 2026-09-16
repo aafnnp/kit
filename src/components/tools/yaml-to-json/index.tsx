@@ -38,7 +38,8 @@ import type {
   DataFormat,
   ExportFormat,
 } from "@/components/tools/yaml-to-json/schema"
-import { formatFileSize } from "@/lib/utils"
+import { escapeCsvCell, formatFileSize, safePercent } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 
 // Advanced YAML parsing functions
 const parseYAMLValue = (value: string): any => {
@@ -699,7 +700,7 @@ const useConversion = () => {
           totalInputSize,
           totalOutputSize,
           formatDistribution,
-          successRate: (validCount / conversions.length) * 100,
+          successRate: safePercent(validCount, conversions.length),
         }
 
         return {
@@ -839,7 +840,7 @@ const useConversionExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback(
@@ -887,7 +888,7 @@ const useConversionExport = () => {
         stat.createdAt,
       ]),
     ]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
       .join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv" })
@@ -898,7 +899,7 @@ const useConversionExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
 
     toast.success("Statistics exported")
   }, [])
@@ -932,7 +933,7 @@ ${conversions
   .join("\n")}
 
 Statistics:
-- Success Rate: ${((conversions.filter((conv) => conv.isValid).length / conversions.length) * 100).toFixed(1)}%
+- Success Rate: ${safePercent(conversions.filter((conv) => conv.isValid).length, conversions.length).toFixed(1)}%
 - Average Compression Ratio: ${(conversions.reduce((sum, conv) => sum + conv.statistics.compressionRatio, 0) / conversions.length).toFixed(3)}
 `
 }
@@ -970,7 +971,7 @@ const generateCSVFromConversions = (conversions: ConversionResult[]): string => 
     ])
   })
 
-  return rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
+  return rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")).join("\n")
 }
 
 const generateXMLFromConversions = (conversions: ConversionResult[]): string => {
@@ -1011,25 +1012,6 @@ const generateXMLFromConversions = (conversions: ConversionResult[]): string => 
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 /**
  * Enhanced YAML ⇄ JSON Converter Tool
  * Features: Advanced YAML/JSON conversion, validation, analysis, batch processing, comprehensive formatting

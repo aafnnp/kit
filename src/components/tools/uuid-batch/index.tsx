@@ -27,6 +27,7 @@ import {
   BarChart3,
 } from "lucide-react"
 import { nanoid } from "nanoid"
+import { safeDivide } from "@/lib/utils"
 import type {
   BatchUUID,
   UUIDAnalysis,
@@ -44,6 +45,7 @@ import type {
   ExportFormat,
   ViewMode,
 } from "@/components/tools/uuid-batch/schema"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 
 // Utility functions
 
@@ -784,7 +786,7 @@ const useBatchProcessor = () => {
           averageQuality: averageQuality || 0,
           averageSecurity: averageSecurity || 0,
           generationTime,
-          collisionRate: duplicateCount / batchUUIDs.length,
+          collisionRate: safeDivide(duplicateCount, batchUUIDs.length),
           securityDistribution,
           qualityDistribution,
           lengthDistribution,
@@ -952,25 +954,6 @@ const getUUIDVersion = (type: UUIDType): number | undefined => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 const useBatchExport = () => {
   const exportBatch = useCallback((operation: BatchOperation, format: ExportFormat, filename?: string) => {
@@ -1090,7 +1073,7 @@ const useBatchExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportUUIDs = useCallback((uuids: BatchUUID[], format: ExportFormat, filename?: string) => {
@@ -1111,7 +1094,7 @@ const useBatchExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportBatch, exportUUIDs }

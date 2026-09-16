@@ -37,6 +37,7 @@ import {
   Activity,
 } from "lucide-react"
 import { nanoid } from "nanoid"
+import { safePercent } from "@/lib/utils"
 import type {
   IPLookupResult,
   IPInfo,
@@ -51,6 +52,7 @@ import type {
   IPValidation,
   ExportFormat,
 } from "@/components/tools/ip-info/schema"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 
 // Utility functions
 
@@ -569,7 +571,7 @@ const useIPLookup = () => {
           invalidCount,
           averageQuality,
           averageSecurity,
-          successRate: (validCount / results.length) * 100,
+          successRate: safePercent(validCount, results.length),
           geolocationDistribution,
           securityDistribution,
           networkDistribution,
@@ -620,25 +622,6 @@ const useRealTimeValidation = (ip: string) => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 const useIPExport = () => {
   const exportResults = useCallback((results: IPLookupResult[], format: ExportFormat, filename?: string) => {
@@ -757,7 +740,7 @@ const useIPExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportResults }
@@ -823,7 +806,7 @@ ${results
   .join("\n")}
 
 Statistics:
-- Success Rate: ${((results.filter((result) => result.isValid).length / results.length) * 100).toFixed(1)}%
+- Success Rate: ${safePercent(results.filter((result) => result.isValid).length, results.length).toFixed(1)}%
 - Average Quality Score: ${(results.reduce((sum, result) => sum + (result.analysis?.qualityScore || 0), 0) / results.length).toFixed(1)}
 - Average Security Score: ${(results.reduce((sum, result) => sum + (result.security?.securityScore || 0), 0) / results.length).toFixed(1)}
 - Average Processing Time: ${(results.reduce((sum, result) => sum + result.statistics.processingTime, 0) / results.length).toFixed(2)}ms
@@ -2134,8 +2117,8 @@ const IPInfoCore = () => {
                     </Card>
 
                     {/* Recommendations */}
-                    {(currentResult.security?.recommendations.length || 0) > 0 ||
-                      ((currentResult.analysis?.suggestedActions.length || 0) > 0 && (
+                    {((currentResult.security?.recommendations.length || 0) > 0 ||
+                      (currentResult.analysis?.suggestedActions.length || 0) > 0) && (
                         <Card>
                           <CardHeader className="pb-2">
                             <CardTitle className="text-sm">Recommendations</CardTitle>
@@ -2161,7 +2144,7 @@ const IPInfoCore = () => {
                             ))}
                           </CardContent>
                         </Card>
-                      ))}
+                      )}
                   </div>
                 ) : (
                   <div className="text-center py-8">
