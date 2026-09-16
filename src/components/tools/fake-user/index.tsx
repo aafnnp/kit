@@ -43,6 +43,7 @@ import type {
   UserTemplate,
   ExportFormat,
 } from "@/components/tools/fake-user/schema"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 // Utility functions
 
 // Data sources for fake user generation
@@ -1053,25 +1054,6 @@ const useFakeUserGenerator = () => {
 }
 
 // Copy to clipboard functionality
-const useCopyToClipboard = () => {
-  const [copiedText, setCopiedText] = useState<string | null>(null)
-
-  const copyToClipboard = useCallback(async (text: string, label?: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedText(label || "text")
-      toast.success(`${label || "Text"} copied to clipboard`)
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedText(null), 2000)
-    } catch (error: any) {
-      toast.error("Failed to copy to clipboard")
-    }
-  }, [])
-
-  return { copyToClipboard, copiedText }
-}
-
 // Export functionality
 const useUserExport = () => {
   const exportUser = useCallback((user: FakeUser, format: ExportFormat, filename?: string) => {
@@ -1118,7 +1100,7 @@ const useUserExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   const exportBatch = useCallback((batch: UserBatch) => {
@@ -1133,7 +1115,7 @@ const useUserExport = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 60_000) // 延后释放，同步 revoke 会取消下载
   }, [])
 
   return { exportUser, exportBatch }

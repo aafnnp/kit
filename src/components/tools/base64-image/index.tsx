@@ -40,7 +40,8 @@ import {
   ExportFormat,
 } from "@/components/tools/base64-image/schema"
 import { formatFileSize } from "@/lib/utils"
-import { imageTemplates, useImageProcessing, useRealTimeValidation, useCopyToClipboard, useImageExport } from "./hooks"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
+import { imageTemplates, useImageProcessing, useRealTimeValidation, useImageExport } from "./hooks"
 
 /**
  * Enhanced Base64 ⇄ Image Bidirectional Converter

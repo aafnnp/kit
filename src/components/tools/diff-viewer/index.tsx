@@ -36,12 +36,12 @@ import type {
   DiffViewMode,
 } from "@/components/tools/diff-viewer/schema"
 import { formatFileSize } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-clipboard"
 import {
   useDiffProcessing,
   useRealTimeDiff,
   useFileProcessing,
   useDiffExport,
-  useCopyToClipboard,
   useDragAndDrop,
 } from "@/components/tools/diff-viewer/hooks"
 
