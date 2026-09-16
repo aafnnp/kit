@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { formatFileSize, cn } from "./utils"
+import { formatFileSize, cn, safeDivide, safePercent, safeAverage } from "./utils"
 
 describe("formatFileSize", () => {
   it("returns 0 Bytes for zero", () => {
@@ -41,5 +41,54 @@ describe("cn", () => {
 
   it("merges objects and arrays", () => {
     expect(cn({ a: true, b: false }, ["c"])).toBe("a c")
+  })
+})
+
+describe("safeDivide", () => {
+  it("divides normally", () => {
+    expect(safeDivide(10, 4)).toBe(2.5)
+  })
+
+  it("returns the fallback instead of NaN/Infinity", () => {
+    expect(safeDivide(1, 0)).toBe(0)
+    expect(safeDivide(0, 0)).toBe(0)
+    expect(safeDivide(0, 0, 42)).toBe(42)
+    expect(safeDivide(1, Number.NaN)).toBe(0)
+    expect(safeDivide(Number.NaN, 2)).toBe(0)
+    expect(safeDivide(Number.POSITIVE_INFINITY, 2)).toBe(0)
+  })
+})
+
+describe("safePercent", () => {
+  it("computes a percentage", () => {
+    expect(safePercent(3, 4)).toBe(75)
+  })
+
+  it("returns the fallback for an empty denominator", () => {
+    expect(safePercent(0, 0)).toBe(0)
+    expect(safePercent(3, 0, 12)).toBe(12)
+  })
+
+  it("never yields NaN", () => {
+    expect(Number.isNaN(safePercent(1, 0))).toBe(false)
+    expect(Number.isNaN(safePercent(Number.NaN, 0))).toBe(false)
+  })
+})
+
+describe("safeAverage", () => {
+  it("averages values", () => {
+    expect(safeAverage([1, 2, 3])).toBe(2)
+  })
+
+  it("returns the fallback for an empty array instead of NaN", () => {
+    expect(safeAverage([])).toBe(0)
+    expect(safeAverage([], 5)).toBe(5)
+    expect(Number.isNaN(safeAverage([]))).toBe(false)
+  })
+
+  it("ignores non-finite entries", () => {
+    // 分母只统计有效值：4 / 2 = 2（而不是 4 / 3）
+    expect(safeAverage([1, Number.NaN, 3])).toBe(2)
+    expect(safeAverage([Number.POSITIVE_INFINITY, 2])).toBe(2)
   })
 })

@@ -6,6 +6,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatFileSize(bytes: number): string {
+  // 防御 NaN / Infinity / 负数：否则 Math.log 会得到 NaN，
+  // 最终输出 "NaN undefined" 之类的用户可见脏数据
+  if (!Number.isFinite(bytes) || bytes < 0) return "0 Bytes"
   if (bytes === 0) return "0 Bytes"
   if (bytes === 1) return "1 Bytes"
 
@@ -32,6 +35,45 @@ export function formatFileSize(bytes: number): string {
   // Format with appropriate precision, remove trailing zeros
   const formatted = value.toFixed(2).replace(/\.?0+$/, "")
   return `${formatted} ${sizes[sizeIndex]}`
+}
+
+/**
+ * 安全除法：分母为 0 / 非有限值（或分子非法）时返回 fallback，避免 NaN / Infinity
+ * 泄漏到用户可见的统计信息里。
+ */
+export function safeDivide(numerator: number, denominator: number, fallback = 0): number {
+  if (!Number.isFinite(numerator) || denominator === 0 || !Number.isFinite(denominator)) {
+    return fallback
+  }
+
+  const result = numerator / denominator
+  return Number.isFinite(result) ? result : fallback
+}
+
+/**
+ * 安全求百分比：(numerator / denominator) * 100，分母非法时返回 fallback。
+ */
+export function safePercent(numerator: number, denominator: number, fallback = 0): number {
+  if (denominator === 0 || !Number.isFinite(denominator) || !Number.isFinite(numerator)) {
+    return fallback
+  }
+
+  const result = (numerator / denominator) * 100
+  return Number.isFinite(result) ? result : fallback
+}
+
+/**
+ * 安全求平均：忽略非有限值；没有任何有效值时返回 fallback（而不是 NaN）。
+ */
+export function safeAverage(values: readonly number[], fallback = 0): number {
+  const finiteValues = values.filter((value) => Number.isFinite(value))
+
+  if (finiteValues.length === 0) {
+    return fallback
+  }
+
+  const sum = finiteValues.reduce((total, value) => total + value, 0)
+  return safeDivide(sum, finiteValues.length, fallback)
 }
 
 // 判断是 safari

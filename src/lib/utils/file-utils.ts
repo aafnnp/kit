@@ -1,4 +1,5 @@
 import { zipSync } from 'fflate'
+import { downloadBlob } from './export-utils'
 
 // 文件读取工具
 export const readFileAsText = async (file: File): Promise<string> => {
@@ -31,14 +32,9 @@ export const readFileAsArrayBuffer = async (file: File): Promise<ArrayBuffer> =>
 // 文件下载工具
 export const downloadFile = (content: string | Blob, filename: string, type?: string) => {
   const blob = content instanceof Blob ? content : new Blob([content], { type: type || 'text/plain' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = filename
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
+  // 统一走 downloadBlob：它会延后 revokeObjectURL，
+  // 避免同步释放导致 Firefox / Safari 取消下载
+  downloadBlob(blob, filename)
 }
 
 export const downloadFromUrl = (url: string, filename: string) => {
