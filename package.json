@@ -36,7 +36,12 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "node scripts/prepare-icons.mjs && tauri build",
     "fix:mac": "echo '请使用: ./scripts/fix-mac-gatekeeper.sh <应用路径>' && echo '例如: ./scripts/fix-mac-gatekeeper.sh ~/Downloads/Kit.app'",
-    "deploy": "pnpm run build:base && wrangler deploy"
+    "deploy": "pnpm run build:base && wrangler deploy",
+    "ext:install": "cd extension && npm install",
+    "ext:dev": "cd extension && npm run dev",
+    "ext:build": "cd extension && npm run build:all",
+    "ext:zip": "cd extension && npm run zip:all",
+    "ext:check": "cd extension && npm run compile"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

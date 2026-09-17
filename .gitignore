@@ -51,3 +51,8 @@ build-report.json
 
 # local pnpm store fallback
 .pnpm-store
+
+# WXT 浏览器扩展（extension/ 独立子项目）构建产物
+extension/.wxt
+extension/.output
+web-ext-artifacts
