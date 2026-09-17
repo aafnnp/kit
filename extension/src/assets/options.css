@@ -1,0 +1,73 @@
+/* options 是独立标签页，用更宽松的阅读宽度与更大的字号 */
+html,
+body {
+  min-height: 100vh;
+}
+
+.kit-options {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.kit-options__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.kit-options__title {
+  margin: 0;
+  font-size: 20px;
+}
+
+.kit-options__subtitle {
+  margin: 4px 0 0;
+  max-width: 46ch;
+  color: var(--kit-muted);
+  font-size: 12.5px;
+}
+
+.kit-options .kit-row {
+  align-items: center;
+}
+
+.kit-options .kit-section__title {
+  font-size: 12px;
+}
+
+.kit-options .kit-plugin-row {
+  padding: 12px 14px;
+}
+
+.kit-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.kit-setting-row + .kit-setting-row {
+  border-top: 1px solid var(--kit-border);
+}
+
+.kit-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--kit-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.kit-link:disabled {
+  color: var(--kit-muted);
+  cursor: default;
+}

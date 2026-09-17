@@ -1,0 +1,103 @@
+/* popup 专用：Chrome / Firefox 都会按内容尺寸渲染，这里只约束下限与宽度 */
+html,
+body {
+  width: 372px;
+  min-height: 380px;
+  max-height: 580px;
+  overflow: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 580px;
+}
+
+.kit-body {
+  max-height: 440px;
+}
+
+/* 取色器画布 */
+.kit-picker {
+  position: relative;
+  border: 1px solid var(--kit-border);
+  border-radius: var(--kit-radius);
+  overflow: auto;
+  max-height: 260px;
+  background: var(--kit-surface-2);
+  cursor: crosshair;
+}
+
+.kit-picker img {
+  display: block;
+  width: 100%;
+  image-rendering: pixelated;
+}
+
+.kit-picker__swatch {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--kit-border-strong);
+  border-radius: var(--kit-radius-sm);
+}
+
+.kit-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.kit-swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--kit-border-strong);
+  border-radius: var(--kit-radius-sm);
+  cursor: pointer;
+}
+
+.kit-preview {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--kit-border);
+  border-radius: var(--kit-radius);
+}
+
+.kit-qr {
+  display: flex;
+  justify-content: center;
+  padding: 12px;
+  border: 1px solid var(--kit-border);
+  border-radius: var(--kit-radius);
+  background: oklch(1 0 0);
+}
+
+.kit-qr img,
+.kit-qr canvas {
+  width: 168px;
+  height: 168px;
+  image-rendering: pixelated;
+}
+
+.kit-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.kit-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  border-bottom: 1px dashed var(--kit-border);
+  font-size: 12px;
+}
+
+.kit-list li:last-child {
+  border-bottom: 0;
+}
