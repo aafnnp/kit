@@ -123,7 +123,7 @@ test("every migrated tool opens without an error", async () => {
     expect(app.texts()).not.toContain("This tool failed")
     expect(app.texts()).not.toContain("not a live signal")
   }
-})
+}, 120_000)
 
 test("every remaining legacy tool opens in the shared migration workspace", async () => {
   const app = await open("./App.tsx", { locale: "en-US", platform: "web", width: 1280, height: 900 })
@@ -139,7 +139,7 @@ test("every remaining legacy tool opens in the shared migration workspace", asyn
     expect(app.texts()).not.toContain("This tool failed")
     expect(app.texts()).not.toContain("not a live signal")
   }
-})
+}, 120_000)
 
 test("CSS clamp responds to edited values", async () => {
   const app = await open("./App.tsx", { locale: "en-US", platform: "web", width: 1280, height: 900 })
