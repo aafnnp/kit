@@ -5,6 +5,55 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## Unreleased
+
+### ✨ Features
+
+- 界面配色改为取自 `icon.png`：深色石板底 `#0d1117`、内嵌 `#161b22` 浅格，以及青 `#00a6d0` / 紫 `#6b2dd1` / 橙 `#f16511` 三色强调；浅色主题以同一组色调反转出 `#f5f7fa` 画布与 `#e9eef5` 侧栏
+- 新增 `brand-*`、`ink-*`、`ink-surface` 主题令牌，侧栏徽标与欢迎横幅改用三竖条图标复刻（`components/brand.tsx`），欢迎页紫色渐变替换为图标式深色面板与三段色条
+- 分类色条按 `brand-cyan` / `brand-violet` / `brand-orange` 映射，收藏星标、警告徽标与密码强度统一使用品牌橙；生成器示例色改为品牌配色
+- 完成剩余 41 个旧工具的 NSH 注册与页面路由，覆盖 JSON/YAML、Markdown、SVG、JWT、QR/条码、图片、PDF、媒体、网络与开发场景；78 个旧工具均已迁移，另保留统一哈希工具（79 项）
+- 新增网络工具、图像与媒体分类；旧工具通过共享 NSH 工作区提供离线处理与明确的能力限制说明
+- 图片压缩、兼容转换与缩放接入系统图片选择器；新增 JPEG EXIF 检查、JPEG/文本转 PDF、Code 39 与 QR Code SVG 生成
+- API/DNS 工具不发送网络请求；汇率使用标注的示例数据；音视频/GIF 仅生成 FFmpeg 命令；PDF 合并、图片裁剪与 bcrypt 均显示 NSH 核心能力限制，不伪装成已执行操作
+- 时区转换支持 2008–2035 年的常用城市时区，并按日期应用现代夏令时规则
+
+### 🧪 Tests
+
+- 新增 YAML、安全 HTML、二维码、条码、JWT、PDF、IP 与图表逻辑测试；41 项逻辑测试与 8 项应用测试全部通过，79 个工具入口均有打开冒烟测试
+
+### ⚡ Performance
+
+- `nsh build .` 输出约 361.7 KB JavaScript；Web/macOS release 包各含约 215.7 KB JavaScript。Web 与 macOS 打包通过；当前环境缺少 Windows/Linux NSH runner，无法在本机打包这两端
+- NSH 动态交付仍不是本地懒加载分包的直接替代，不增加远程模块依赖
+
+## v0.6.0
+
+*发布日期: 2026-10-30*
+
+### 🚨 Breaking Changes
+
+- **desktop**: 使用 Native Shell (NSH) 0.3.0 替换 React 19 + Vite + Tauri 2，仅支持 macOS、Windows、Linux 与 Web；移除 iOS / Android 目标
+- **tools**: 首批迁移 15 个纯逻辑工具，其余 63 个工具暂未迁移（旧实现见提交 `26d2146`）
+
+### ✨ Features
+
+- 参考 DevToys 重构布局：可搜索 / 折叠的分类侧栏、欢迎页、工具页、收藏与最近使用
+- 浅色 / 深色 / 跟随系统主题，中英文界面切换，设置页与键盘快捷键（⌘/Ctrl+K、⌘/Ctrl+,、Esc）
+- 基于 NSH `Storage` 的收藏、最近使用、语言与外观持久化
+- 新增 15 个工具：JSON 格式化、JSON 转 TypeScript、CSV 转 JSON、JWT 解码、Base64、URL、字数统计、大小写转换、文本差异、正则测试、Lorem Ipsum、哈希、UUID、密码生成器、Unix 时间戳
+- 使用 NSH Rust 标准模块 `crypto` 计算哈希与安全随机数
+
+### 🧪 Tests
+
+- 新增 15 个纯逻辑测试与 5 个应用级交互测试（`nsh test`），覆盖全部已迁移工具的打开与关键交互
+
+### 📚 Documentation
+
+- 重写中英文 README，补充平台要求、目录结构、开发命令与迁移路线图
+
+---
+
 ## v0.5.0
 
 *发布日期: 2026-09-16*
@@ -495,4 +544,3 @@
 - 问题修复: 13
 
 ---
-

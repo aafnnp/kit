@@ -1,163 +1,116 @@
-# Kit — A Privacy-First, Cross-Platform Toolbox with 70+ Utilities
+# Kit — a local-first, cross-platform toolbox
 
-Subtitle: One app for developers, designers, and knowledge workers. Runs entirely on-device. Web + Desktop (Tauri).
+<p align="center">
+  <img src="./icon.png" width="120" alt="Kit Logo" />
+</p>
 
----
+> 🧰 A native toolbox built with [Native Shell (NSH)](https://nsh.dev) for **macOS, Windows, Linux and the web**. Everything runs on your device.
 
-## TL;DR
-
-- Kit bundles 70+ high-frequency tools across text, design, image/audio/video, crypto & hash, data format conversions, network, generators, and dev utilities.
-- 100% local processing, no cloud upload, works offline.
-- Ships for Web and Desktop (Windows/macOS/Linux via Tauri). MIT-licensed and free.
-- Try it online and get the app:
-  - Live demo: [kit.manon.icu](https://kit.manon.icu)
-  - Custom domain: `kit.manon.icu`
-  - GitHub: [aafnnp/kit](https://github.com/aafnnp/kit)
+[中文](./README.md) | [English](./README_EN.md)
 
 ---
 
-## Why I built Kit
+## Highlights
 
-We all hop between countless “small tools” daily: JSON formatter, image compressor, hash checksum, timestamp converter, JWT decoder… They’re scattered across random websites with inconsistent UX, ads, and privacy concerns. Kit consolidates these essentials into one modern, clean, offline-capable app.
+- **One codebase, four platforms**: macOS (AppKit), Windows (Win32 / Direct2D), Linux (GTK 4) and the web (HTML + WebAssembly).
+- **Native UI**: NSH renders with each platform's own views and text input — no WebView, no React and no virtual DOM.
+- **Local-first**: no accounts, no uploads, no telemetry. Hashing, compression and file work use NSH's Rust standard modules.
+- **DevToys-style workspace**: a searchable, collapsible sidebar with a welcome page and tool pages, plus favorites, recent tools, light/dark mode and English/Chinese UI.
+- **Testable by design**: every tool keeps its logic in `logic.ts`, separate from the UI, covered by `nsh test`.
 
----
+> Kit supports **macOS, Windows, Linux and the web only**. iOS and Android are intentionally out of scope.
 
-## Core Value
+## Tools (79: 78 legacy tools + one unified hash tool)
 
-- Privacy-first: 100% local processing in browser/desktop. No data leaves your device.
-- Speed: modern stack, code-splitting, predictive preloading, sub-second response.
-- Cross-platform: Web in one click; Tauri desktop for Windows/macOS/Linux.
-- Design: minimal, responsive, dark mode, tasteful motion.
-- Open source: MIT. Free to use and extend.
+| Category | Tools |
+| --- | --- |
+| Data | JSON formatter, JSON to TypeScript, CSV/Excel/TSV to JSON, YAML to JSON, JSON plot, table sorter, JWT decoder, JSON diff, prime checker, quadratic solver, Roman numerals, MIME lookup, HTTP status, fake user, random picker, matrix calculator |
+| Encoders / Decoders | Base64, image Base64 inspector, URL, URL inspector |
+| Text | Word & character count, case converter, text diff, regex tester, regex cheat sheet, Lorem Ipsum, Markdown TOC/outline, Mermaid inspector |
+| Color & Design | HEX/RGB/HSL/HSV/CMYK, color inspector, random color, CSS clamp, border radius, gradient, shadow, SVG minifier/sprite, favicon, Code 39, QR Code, SVG placeholder |
+| Crypto & Generators | Unified hash (MD5/SHA-1/SHA-256/384/512), MD5, SHA-256, bcrypt format inspector, JWT HS256 signer, UUID/batch, password generator/strength, content checksum |
+| Date & Time | Unix timestamp, time difference, time-zone conversion, cron parser, sample offline currency conversion |
+| Developer Tools | Git command helper, code formatter, safe HTML inspector, API request inspector, local benchmarks, source complexity |
+| Network Tools | DNS query builder, IPv4/CIDR inspector, User-Agent parser |
+| Images & Media | Image compress/compatible convert/resize, crop validation, JPEG EXIF, JPEG to PDF, PDF inspection, text to PDF, FFmpeg command templates for GIF/audio/video |
 
----
+## 🎨 Palette
 
-## What’s Inside (70+ tools, 8 categories)
+The interface takes its colours from the app icon, [icon.png](./icon.png): a slate canvas `#0d1117` with an inset `#161b22` plate, and three rounded bars in cyan `#00a6d0`, violet `#6b2dd1` and orange `#f16511`.
 
-- Text: word count, case converter, regex tester, diff (text/JSON), Markdown preview, text→PDF, table sort/filter, MD TOC
-- Color/Design: color picker, HEX↔RGB, gradients, shadows, border radius, favicon maker, CSS clamp
-- Image/AV: compress, resize, crop, format convert, EXIF viewer, SVG minify, GIF splitter, video trim, audio convert, image→PDF, SVG sprite
-- Crypto/Hash: MD5, SHA-256, Bcrypt, file checksum, password generator
-- Date/Time: timestamp↔date, cron parser, time diff, timezone convert
-- Data Formats: JSON/YAML/CSV/XLSX conversions, URL/Base64 codecs, JSON→TS interface, live HTML
-- Network: HTTP status lookup, UA parser, MIME search, DNS lookup, IP info, URL inspector
-- Generators & Dev: UUID/QR/Barcode/fake users/lottery, JWT decode/sign, regex cheatsheet, Mermaid preview, matrix ops, Roman↔Arabic
+| Role | Dark | Light | Where |
+| --- | --- | --- | --- |
+| Canvas / card | `#0d1117` / `#161b22` | `#f5f7fa` / `#ffffff` | Page and cards; dark reuses the icon canvas |
+| Sidebar | `#080b10` | `#e9eef5` | Layers away from the canvas: darker in dark, deeper in light |
+| Primary (violet) | `#7c3aed` | `#6b2dd1` | Primary buttons, selection, focus rings |
+| Accent (cyan) | `#2cc4e6` | `#0091b5` | Input focus, hovers, icon tiles |
+| Warning (orange) | `#ff8a3d` | `#d9560b` | Favorite stars, warning badges |
 
----
+Tokens live in [theme.json](./theme.json). Beyond the semantic colours it adds `brand-cyan` / `brand-violet` / `brand-orange` (readable variants per appearance), `ink-*` (fixed tints for ink surfaces) and `ink-surface` (the welcome banner). Category rails map through `accentBar` in [lib/types.ts](./lib/types.ts), and the sidebar mark and banner reuse the three-bar icon from [components/brand.tsx](./components/brand.tsx).
 
-## Thoughtful UX
+## Platform requirements
 
-- Global search + categories, favorites, and “recent”
-- Smart preloading of frequently used tools
-- Keyboard accessibility, responsive layouts from mobile to ultrawide
+| Platform | Build on | Runs on |
+| --- | --- | --- |
+| macOS | macOS + Xcode command line tools | macOS 14+ |
+| Windows | Windows | Windows 10 1809+ |
+| Linux | Linux | GTK 4.14+ |
+| Web | Any platform | Modern browsers with WebAssembly |
 
----
+## Development
 
-## Under the Hood
-
-- Frontend: React 19, TypeScript 5.9, Vite 8, TailwindCSS 4, Motion
-- Routing/Data: @tanstack/react-router, @tanstack/react-query
-- UI/UX: Radix UI, shadcn/ui, lucide-react, @dnd-kit
-- Desktop: Tauri 2 (Rust), multi-platform packaging
-- Perf: code-splitting, predictive preloading, tree-shaking, asset optimization
-- Deploy: Vercel (SPA), Cloudflare Assets (`kit.manon.icu`)
-- Automation: changelog generator, bundle analysis, build optimization
-
----
-
-## Who It’s For
-
-- Developers: formatting, hashing, parsing, visualization, regex, JSON/CSV/XLSX
-- Designers: color utilities, gradients, shadows, icons, batch image ops
-- Creators & office users: text stats, PDF conversion, table/data cleanup
-- Privacy-conscious users: audit the source, use fully offline
-
----
-
-## 3-Minute Start
-
-- Try online: [kit.manon.icu](https://kit.manon.icu)
-- Local dev
+The project pins **NSH 0.3.0**. `scripts/nsh.sh` (or `scripts/nsh.ps1` on Windows) downloads the matching CLI into `.tools/` on first use, so a stale system-wide `nsh` is never picked up.
 
 ```bash
-git clone https://github.com/aafnnp/kit.git
-cd kit
-npm install
-npm run dev
+./scripts/nsh.sh check .
+./scripts/nsh.sh test .
+./scripts/nsh.sh run . --target macos     # or linux / windows / web
+./scripts/nsh.sh package . --target macos # or web / linux / windows
 ```
 
-- Desktop (Tauri)
+Windows PowerShell:
 
-```bash
-# Install Tauri prerequisites first (see official docs)
-npm run tauri dev
-npm run tauri build
+```powershell
+.\scripts\nsh.ps1 check .
+.\scripts\nsh.ps1 test .
+.\scripts\nsh.ps1 run . --target windows
+.\scripts\nsh.ps1 package . --target windows
 ```
 
----
+Outputs land in `.nsh/out/`.
+Web and macOS packaging were verified locally; this machine lacks the NSH runners needed to package Windows and Linux.
 
-## Roadmap
+## Architecture
 
-- Near term: more tools, mobile polish, more locales, continued perf work
-- Long term: plugin system, optional cloud sync, team features, public APIs
+```
+App.tsx                  entry: sidebar + workspace + status bar
+components/              shell, DevToys-style navigation, shared UI
+lib/                     state, i18n, platform helpers, styles
+tools/registry.ts        single source of tool metadata and search
+tools/<slug>/logic.ts    core pure, testable logic
+tools/legacy-migration/  shared offline logic and NSH screens for the remaining legacy tools
+tests/                   logic tests
+App.test.tsx             app-level interaction tests
+theme.json               shadcn-style design tokens (light / dark)
+nsh.json                 app metadata, icon and capabilities
+```
 
----
+All 78 legacy tools are now registered and routed in NSH; the existing unified hash tool remains as an additional entry, for 79 total. Some former tools have explicitly labeled offline alternatives because NSH 0.3.0 does not grant network, process or general file access: API/DNS do not send requests, exchange rates are illustrative, audio/video/GIF tools only build FFmpeg commands, PDF merge only inspects input, image crop validates coordinates, and bcrypt checks hash format only. Image compression, compatible conversion and resizing use the system image picker. Locally, `nsh build .` emits about 361.7 KB of JavaScript; the Web/macOS release package contains about 215.7 KB.
 
-## Call to Action
+## Security and privacy
 
-If you’re tired of juggling a dozen sites for “tiny tasks” or care about privacy, give Kit a spin. It’s not one tool—it’s your Swiss Army knife for everyday digital chores.
+- The only declared capabilities are `clipboard` and `openUrl`; there is no network, file-system or process capability.
+- All text processing is local; hashing uses NSH's Rust `crypto` module.
+- Favorites, recent tools, language and appearance persist through NSH `Storage`.
 
-- Live: [kit.manon.icu](https://kit.manon.icu)
-- GitHub: [aafnnp/kit](https://github.com/aafnnp/kit)
-- Issues/Discussions: feedback and ideas welcome
+## Migration from React + Tauri
 
-If Kit helps you, please star the repo—it genuinely helps the project grow.
+v0.6.0 replaces the React 19 + Vite + Tauri 2 app with NSH 0.3.0. All 78 legacy tools now have NSH screens; the unified hash tool is retained as an additional consolidated tool.
 
----
+- The previous implementation remains in Git history at commit `26d2146`.
+- Cross-platform limits: the app does not declare network, process or general file access. Tools that would change device state or contact third parties therefore provide offline inspection/command templates; image picking is the only file flow.
+- Migration rule: keep core calculations pure and testable, and use NSH UI primitives. Do not reintroduce DOM or React dependencies.
 
-## Hacker News (Post Template)
+## License
 
-- Title (pick one):
-  - Kit — A privacy-first, cross-platform toolbox with 70+ local utilities
-  - Show HN: Kit — 70+ on-device utilities (Web + Tauri desktop), MIT-licensed
-- Text:
-
-I built Kit to consolidate the small-but-essential tools we use daily (formatters, image/AV utilities, hash/checksum, timestamp/cron, JWT, etc.) into one privacy-first app. Everything runs locally in the browser/desktop, offline capable, no data uploaded.
-
-- Live: https://kit.manon.icu
-- GitHub: https://github.com/aafnnp/kit
-- Desktop: Tauri 2 (Windows/macOS/Linux)
-- Stack: React, TypeScript, Vite, TailwindCSS, TanStack Router/Query
-
-Would love feedback—feature requests, UX nits, and perf notes are welcome.
-
----
-
-## Product Hunt (Listing Copy)
-
-- Name: Kit — Privacy-first toolbox with 70+ on-device utilities
-- Tagline: Do everyday tasks faster, locally. Web + Desktop (Tauri).
-- Description:
-
-Kit is a modern, open-source toolbox that bundles 70+ everyday utilities—text, design, image/audio/video, crypto & hash, data conversions, network tools, and developer helpers. Everything runs on-device for privacy and speed. Works on the web and ships desktop apps for Windows/macOS/Linux.
-
-- Key features:
-  - 100% on-device processing, offline capable
-  - 70+ tools across 8 categories (text, design, media, data, network…)
-  - Web + Tauri desktop, consistent UX, dark mode
-  - Smart preloading, code-splitting, optimized assets
-  - MIT-licensed, open source
-
-- Links:
-  - Live: https://kit.manon.icu
-  - GitHub: https://github.com/aafnnp/kit
-  - Website: kit.manon.icu
-
-- Media suggestions:
-  - Short demo GIFs: search → open tools, image compress, JSON→TS interface
-  - Screens: home grid, dark mode, a few representative tools
-  - “Privacy-first” badge, “Web + Desktop” platform chips
-
-- Founder’s note:
-
-Thanks for checking out Kit! I built it to streamline the dozens of little tasks we all repeat daily—now done locally, privately, and fast. I’d love to hear what tool you want next or any UX tweaks you’d like to see.
+[MIT](./LICENSE)

@@ -1,158 +1,102 @@
-name: "Build and Release"
+name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Release version (e.g., v1.0.0)"
-        required: false
-        type: string
-      prerelease:
-        description: "Mark as prerelease"
-        required: false
-        type: boolean
-        default: false
   push:
-    tags:
-      - "v*"
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  NSH_VERSION: "0.3.0"
 
 jobs:
-  # 代码质量检查
-  lint-and-build:
-    name: Lint and Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "lts/*"
-          cache: "pnpm"
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Type check
-        run: pnpm exec tsc --noEmit
-
-      - name: Lint
-        run: pnpm run lint || echo "Lint script not found, skipping..."
-
-      - name: Build frontend
-        run: pnpm run build
-
-  publish-tauri:
-    name: Build and Release Tauri (${{ matrix.platform }})
-    permissions:
-      contents: write
-    needs: [lint-and-build]
-    if: always() && (needs.lint-and-build.result == 'success' || needs.lint-and-build.result == 'skipped')
+  package:
+    name: Package ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - platform: "macos-15"
-          - platform: "ubuntu-22.04"
-          - platform: "windows-latest"
-    runs-on: ${{ matrix.platform }}
-    timeout-minutes: 60
+          - name: macOS
+            os: macos-14
+            target: macos
+            cli: ./scripts/nsh.sh
+          - name: Linux
+            os: ubuntu-24.04
+            target: linux
+            cli: ./scripts/nsh.sh
+          - name: Windows
+            os: windows-latest
+            target: windows
+            cli: ./scripts/nsh.ps1
+          - name: Web
+            os: ubuntu-24.04
+            target: web
+            cli: ./scripts/nsh.sh
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
+      - name: Linux runtime libraries
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libgtk-4-1
 
-      - name: Get version
-        id: version
-        shell: bash
+      - name: Cache NSH toolchain
+        uses: actions/cache@v4
+        with:
+          path: .tools/nsh
+          key: nsh-${{ runner.os }}-${{ env.NSH_VERSION }}
+
+      - name: Check and test
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
-            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          ${{ matrix.cli }} check .
+          ${{ matrix.cli }} test .
+
+      - name: Package
+        run: ${{ matrix.cli }} package . --target ${{ matrix.target }}
+
+      - name: Archive (macOS)
+        if: runner.os == 'macOS'
+        run: ditto -c -k --sequesterRsrc --keepParent .nsh/out/Kit.app kit-macos.zip
+
+      - name: Archive (Linux)
+        if: runner.os == 'Linux' && matrix.target == 'linux'
+        run: |
+          if ls .nsh/out/*.tar.gz >/dev/null 2>&1; then
+            cp .nsh/out/*.tar.gz kit-linux.tar.gz
           else
-            echo "version=v$(date +'%Y.%m.%d')-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+            tar -czf kit-linux.tar.gz -C .nsh/out .
           fi
 
-      - name: Install system dependencies (Ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
-            librsvg2-dev \
-            patchelf \
-            rpm
+      - name: Archive (Web)
+        if: matrix.target == 'web'
+        run: tar -czf kit-web.tar.gz -C .nsh/out/Kit .
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Archive (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path .nsh/out/* -DestinationPath kit-windows.zip
+
+      - name: Upload release archive
+        uses: actions/upload-artifact@v4
         with:
-          node-version: "lts/*"
-          cache: "pnpm"
-          cache-dependency-path: pnpm-lock.yaml
+          name: release-${{ matrix.target }}
+          path: kit-*
+          if-no-files-found: ignore
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+  publish:
+    name: Publish GitHub release
+    needs: package
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
         with:
-          components: rustfmt, clippy
+          pattern: release-*
+          path: release
+          merge-multiple: true
 
-      - name: Install frontend dependencies
-        run: pnpm install --frozen-lockfile --prefer-offline
-
-      - name: Sync version to app configs
-        run: node scripts/sync-version.mjs "${{ steps.version.outputs.version }}"
-
-      - name: Build Tauri app
+      - name: Create release
         env:
-          NODE_ENV: production
-        run: pnpm run tauri:build
-
-      - name: Get release info
-        id: release_info
-        shell: bash
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          VERSION="${VERSION#v}"
-          TAG_NAME="${{ steps.version.outputs.version }}"
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
-          echo "release_name=Kit ${VERSION}" >> $GITHUB_OUTPUT
-
-      - name: Upload release artifacts
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            src-tauri/target/release/bundle/**/*.dmg
-            src-tauri/target/release/bundle/**/*.app.tar.gz
-            src-tauri/target/release/bundle/**/*.AppImage
-            src-tauri/target/release/bundle/**/*.deb
-            src-tauri/target/release/bundle/**/*.rpm
-            src-tauri/target/release/bundle/**/*.msi
-            src-tauri/target/release/bundle/**/*.exe
-            src-tauri/target/release/bundle/**/*.zip
-          tag_name: ${{ steps.release_info.outputs.tag_name }}
-          name: ${{ steps.release_info.outputs.release_name }}
-          body: |
-            Release ${{ steps.release_info.outputs.release_name }}
-
-            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
-          draft: false
-          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
-          make_latest: ${{ matrix.platform == 'macos-15' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" release/* --generate-notes --repo "$GITHUB_REPOSITORY"

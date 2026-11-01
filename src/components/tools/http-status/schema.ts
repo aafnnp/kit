@@ -1,3 +1,0 @@
-/**
- * HTTP status code type
- */
