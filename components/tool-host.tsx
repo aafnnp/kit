@@ -1,3 +1,4 @@
+import type { Component } from "nsh"
 import { activeSlug } from "../lib/state"
 import JsonPretty from "../tools/json-pretty"
 import JsonToTs from "../tools/json-to-ts"
@@ -38,132 +39,69 @@ import CronParser from "../tools/cron-parser"
 import TableSorter from "../tools/table-sorter"
 import GitHelper from "../tools/git-helper"
 import LegacyMigrationTool from "../tools/legacy-migration"
+import { tools } from "../tools/registry"
 import { legacyToolSlugs } from "../tools/legacy-migration/catalog"
 
-/**
- * Mounts exactly one tool. Each branch is its own `If`, so switching tools
- * removes the old component and mounts the new one with fresh state.
- */
+const toolComponents: Record<string, Component> = {
+  "json-pretty": JsonPretty,
+  "json-to-ts": JsonToTs,
+  "csv-to-json": CsvToJson,
+  "jwt-decode": JwtDecode,
+  "base64-encode": Base64Encode,
+  "url-encode": UrlEncode,
+  "word-count": WordCount,
+  "char-case": CharCase,
+  "diff-viewer": DiffViewer,
+  "regex-tester": RegexTester,
+  "lorem-ipsum": LoremIpsum,
+  "hash": HashTool,
+  "uuid-generator": UuidGenerator,
+  "password-generator": PasswordGenerator,
+  "unix-timestamp": UnixTimestamp,
+  "roman-numeral": RomanNumeral,
+  "prime-checker": PrimeChecker,
+  "quadratic-solver": QuadraticSolver,
+  "markdown-toc": MarkdownToc,
+  "json-diff": JsonDiff,
+  "hex-rgb": HexRgb,
+  "url-parser": UrlParser,
+  "time-diff": TimeDiff,
+  "css-clamp": CssClamp,
+  "border-radius": BorderRadius,
+  "gradient-maker": GradientMaker,
+  "shadow-generator": ShadowGenerator,
+  "random-color": RandomColor,
+  "timezone-convert": TimezoneConvert,
+  "mime-search": MimeSearch,
+  "http-status": HttpStatus,
+  "fake-user": FakeUserGenerator,
+  "lottery-picker": LotteryPicker,
+  "matrix-math": MatrixMath,
+  "regex-cheatsheet": RegexCheatsheet,
+  "cron-parser": CronParser,
+  "table-sorter": TableSorter,
+  "git-helper": GitHelper,
+}
+
+for (const tool of tools) {
+  if (!legacyToolSlugs.has(tool.slug) && !toolComponents[tool.slug]) {
+    throw new Error(`No component registered for tool "${tool.slug}"`)
+  }
+}
+
+/** Mounts exactly one registry tool; switching slugs unmounts the old tool. */
 export function ToolHost() {
   return (
-    <>
-      <If when={activeSlug() === "json-pretty"}>
-        <JsonPretty />
-      </If>
-      <If when={activeSlug() === "json-to-ts"}>
-        <JsonToTs />
-      </If>
-      <If when={activeSlug() === "csv-to-json"}>
-        <CsvToJson />
-      </If>
-      <If when={activeSlug() === "jwt-decode"}>
-        <JwtDecode />
-      </If>
-      <If when={activeSlug() === "base64-encode"}>
-        <Base64Encode />
-      </If>
-      <If when={activeSlug() === "url-encode"}>
-        <UrlEncode />
-      </If>
-      <If when={activeSlug() === "word-count"}>
-        <WordCount />
-      </If>
-      <If when={activeSlug() === "char-case"}>
-        <CharCase />
-      </If>
-      <If when={activeSlug() === "diff-viewer"}>
-        <DiffViewer />
-      </If>
-      <If when={activeSlug() === "regex-tester"}>
-        <RegexTester />
-      </If>
-      <If when={activeSlug() === "lorem-ipsum"}>
-        <LoremIpsum />
-      </If>
-      <If when={activeSlug() === "hash"}>
-        <HashTool />
-      </If>
-      <If when={activeSlug() === "uuid-generator"}>
-        <UuidGenerator />
-      </If>
-      <If when={activeSlug() === "password-generator"}>
-        <PasswordGenerator />
-      </If>
-      <If when={activeSlug() === "unix-timestamp"}>
-        <UnixTimestamp />
-      </If>
-      <If when={activeSlug() === "roman-numeral"}>
-        <RomanNumeral />
-      </If>
-      <If when={activeSlug() === "prime-checker"}>
-        <PrimeChecker />
-      </If>
-      <If when={activeSlug() === "quadratic-solver"}>
-        <QuadraticSolver />
-      </If>
-      <If when={activeSlug() === "markdown-toc"}>
-        <MarkdownToc />
-      </If>
-      <If when={activeSlug() === "json-diff"}>
-        <JsonDiff />
-      </If>
-      <If when={activeSlug() === "hex-rgb"}>
-        <HexRgb />
-      </If>
-      <If when={activeSlug() === "url-parser"}>
-        <UrlParser />
-      </If>
-      <If when={activeSlug() === "time-diff"}>
-        <TimeDiff />
-      </If>
-      <If when={activeSlug() === "css-clamp"}>
-        <CssClamp />
-      </If>
-      <If when={activeSlug() === "border-radius"}>
-        <BorderRadius />
-      </If>
-      <If when={activeSlug() === "gradient-maker"}>
-        <GradientMaker />
-      </If>
-      <If when={activeSlug() === "shadow-generator"}>
-        <ShadowGenerator />
-      </If>
-      <If when={activeSlug() === "random-color"}>
-        <RandomColor />
-      </If>
-      <If when={activeSlug() === "timezone-convert"}>
-        <TimezoneConvert />
-      </If>
-      <If when={activeSlug() === "mime-search"}>
-        <MimeSearch />
-      </If>
-      <If when={activeSlug() === "http-status"}>
-        <HttpStatus />
-      </If>
-      <If when={activeSlug() === "fake-user"}>
-        <FakeUserGenerator />
-      </If>
-      <If when={activeSlug() === "lottery-picker"}>
-        <LotteryPicker />
-      </If>
-      <If when={activeSlug() === "matrix-math"}>
-        <MatrixMath />
-      </If>
-      <If when={activeSlug() === "regex-cheatsheet"}>
-        <RegexCheatsheet />
-      </If>
-      <If when={activeSlug() === "cron-parser"}>
-        <CronParser />
-      </If>
-      <If when={activeSlug() === "table-sorter"}>
-        <TableSorter />
-      </If>
-      <If when={activeSlug() === "git-helper"}>
-        <GitHelper />
-      </If>
-      <If when={legacyToolSlugs.has(activeSlug() ?? "")}>
-        <LegacyMigrationTool />
-      </If>
-    </>
+    <Each of={tools}>
+      {(tool) => {
+        const slug = tool().slug
+        const Component = toolComponents[slug] ?? (legacyToolSlugs.has(slug) ? LegacyMigrationTool : undefined)
+        return (
+          <If when={activeSlug() === slug}>
+            {Component ? <Component /> : null}
+          </If>
+        )
+      }}
+    </Each>
   )
 }

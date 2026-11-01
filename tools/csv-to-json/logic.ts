@@ -84,11 +84,27 @@ export function csvToJson(text: string, options: CsvOptions): { ok: true; output
   }
 
   const header = rows[0]!
-  const keys = header.map((key, index) => key.trim() || `column_${index + 1}`)
-  const data = rows.slice(1).map((row) => {
-    const record: Record<string, unknown> = {}
-    keys.forEach((key, index) => {
-      record[key] = convert(row[index] ?? "")
+  const used = new Set<string>()
+  const keys = header.map((key, index) => {
+    const base = key.trim() || `column_${index + 1}`
+    let candidate = base
+    let suffix = 2
+    while (used.has(candidate)) candidate = `${base}_${suffix++}`
+    used.add(candidate)
+    return candidate
+  })
+  const dataRows = rows.slice(1)
+  const mismatched = dataRows.findIndex((row) => row.length !== keys.length)
+  if (mismatched !== -1) {
+    return {
+      ok: false,
+      error: `Row ${mismatched + 2} has ${dataRows[mismatched]!.length} columns; the header has ${keys.length}`,
+    }
+  }
+  const data = dataRows.map((row) => {
+    const record = Object.create(null) as Record<string, unknown>
+    keys.forEach((key, column) => {
+      record[key] = convert(row[column] ?? "")
     })
     return record
   })

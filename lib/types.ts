@@ -29,4 +29,6 @@ export interface ToolMeta {
   name: Localized
   description: Localized
   keywords: string[]
+  /** Kept for old favorites/recent entries, but not listed or searched. */
+  hidden?: boolean
 }

@@ -48,6 +48,7 @@ export const legacyToolMeta: ToolMeta[] = [
     name: { zh: "本地基准测试", en: "Local Benchmark" },
     description: { zh: "对安全的字符串处理基准进行有限次数测量。", en: "Run a bounded benchmark of safe string operations." },
     keywords: ["benchmark", "performance", "基准", "性能"],
+    hidden: true,
   },
   {
     slug: "code-formatter",
@@ -64,6 +65,7 @@ export const legacyToolMeta: ToolMeta[] = [
     name: { zh: "颜色取值器", en: "Color Inspector" },
     description: { zh: "解析 HEX、RGB、HSL 与常见颜色信息。", en: "Inspect HEX, RGB, HSL and common color values." },
     keywords: ["color", "hex", "rgb", "hsl", "颜色"],
+    hidden: true,
   },
   {
     slug: "currency-convert",
@@ -88,6 +90,7 @@ export const legacyToolMeta: ToolMeta[] = [
     name: { zh: "表格文本转 JSON", en: "Spreadsheet Text to JSON" },
     description: { zh: "将复制的制表符表格转换为 JSON；无需上传工作簿。", en: "Convert copied tab-separated cells to JSON without uploading a workbook." },
     keywords: ["excel", "tsv", "spreadsheet", "json", "表格"],
+    hidden: true,
   },
   {
     slug: "exif-viewer",
@@ -112,6 +115,7 @@ export const legacyToolMeta: ToolMeta[] = [
     name: { zh: "内容校验和", en: "Content Checksum" },
     description: { zh: "对粘贴的文本或 Base64 字节计算摘要。", en: "Hash pasted text or Base64 bytes." },
     keywords: ["file", "hash", "checksum", "sha256", "文件", "校验和"],
+    hidden: true,
   },
   {
     slug: "gif-split",
@@ -125,8 +129,8 @@ export const legacyToolMeta: ToolMeta[] = [
     slug: "html-preview",
     category: "developer",
     icon: "🛡️",
-    name: { zh: "HTML 安全检查", en: "Safe HTML Inspector" },
-    description: { zh: "移除脚本和危险属性后检查 HTML，不执行或嵌入内容。", en: "Inspect HTML after removing scripts and unsafe attributes; nothing is executed or embedded." },
+    name: { zh: "HTML 安全检查", en: "HTML Safety Inspector" },
+    description: { zh: "启发式移除脚本和危险属性；不执行或嵌入内容，也不替代生产级 sanitizer。", en: "Heuristically strip scripts and unsafe attributes; nothing is executed or embedded, and this is not a production sanitizer." },
     keywords: ["html", "preview", "sanitize", "安全"],
   },
   {
@@ -232,6 +236,7 @@ export const legacyToolMeta: ToolMeta[] = [
     name: { zh: "MD5 摘要", en: "MD5 Digest" },
     description: { zh: "计算 MD5 摘要（不适用于安全或密码存储）。", en: "Compute an MD5 digest (not for security or password storage)." },
     keywords: ["md5", "hash", "digest", "摘要"],
+    hidden: true,
   },
   {
     slug: "merge-pdf",
@@ -248,6 +253,7 @@ export const legacyToolMeta: ToolMeta[] = [
     name: { zh: "密码强度分析", en: "Password Strength" },
     description: { zh: "在本地估算字符集熵与强度，不记录密码。", en: "Estimate alphabet entropy and strength locally; passwords are not stored." },
     keywords: ["password", "strength", "entropy", "密码"],
+    hidden: true,
   },
   {
     slug: "performance-analyzer",
@@ -280,13 +286,14 @@ export const legacyToolMeta: ToolMeta[] = [
     name: { zh: "SHA-256 摘要", en: "SHA-256 Digest" },
     description: { zh: "计算 SHA-256 内容摘要。", en: "Compute a SHA-256 content digest." },
     keywords: ["sha256", "hash", "digest", "摘要"],
+    hidden: true,
   },
   {
     slug: "svg-minify",
     category: "design",
     icon: "⏬",
     name: { zh: "SVG 压缩", en: "SVG Minifier" },
-    description: { zh: "压缩 SVG 文本并拒绝脚本、事件与外部资源。", en: "Minify SVG text and reject scripts, events and external resources." },
+    description: { zh: "压缩 SVG 文本，保留文本内容，并拒绝脚本、事件与外部资源。", en: "Minify SVG text while preserving text content, rejecting scripts, events and external resources." },
     keywords: ["svg", "minify", "vector", "压缩"],
   },
   {
@@ -312,6 +319,7 @@ export const legacyToolMeta: ToolMeta[] = [
     name: { zh: "UUID 批量生成", en: "UUID Batch Generator" },
     description: { zh: "一次生成 1–100 个 UUID v4。", en: "Generate 1–100 UUID v4 values at once." },
     keywords: ["uuid", "batch", "guid", "批量"],
+    hidden: true,
   },
   {
     slug: "video-trim",

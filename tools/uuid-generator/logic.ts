@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto"
+import { integerInRange } from "../../lib/validation"
 
 export interface UuidOptions {
   count: number
@@ -7,7 +8,7 @@ export interface UuidOptions {
 }
 
 export function generateUuids(options: UuidOptions): string[] {
-  const count = Math.max(1, Math.min(100, Math.floor(options.count)))
+  const count = integerInRange(options.count, 1, 100, "Count")
   const result: string[] = []
   for (let i = 0; i < count; i += 1) {
     let uuid: string = randomUUID()

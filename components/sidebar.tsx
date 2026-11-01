@@ -22,9 +22,10 @@ import {
   search as searchSignal,
 } from "../lib/state"
 import { L, pick } from "../lib/locale"
-import { categories, findTool, searchTools, tools, toolsInCategory } from "../tools/registry"
+import { categories, findTool, searchTools, toolsInCategory, visibleTools } from "../tools/registry"
 import type { ToolDefinition } from "../tools/registry"
 import { modKey, platformLabel } from "../lib/platform"
+import { APP_VERSION } from "../lib/version"
 import { BrandMark } from "./brand"
 
 function NavRow(props: {
@@ -109,7 +110,7 @@ export function Sidebar() {
             <Text class="text-sm font-semibold text-sidebar-foreground">Kit</Text>
             <Text class="text-[10px] text-muted-foreground">{L("本地优先的工具箱", "Local-first toolbox")}</Text>
           </View>
-          <Text class="text-[10px] text-muted-foreground">v0.6.0</Text>
+          <Text class="text-[10px] text-muted-foreground">v{APP_VERSION}</Text>
         </View>
 
         <View class="h-8 flex-row items-center gap-2 rounded-(--radius) border border-sidebar-border bg-background px-2">
@@ -124,7 +125,7 @@ export function Sidebar() {
             class="h-8 flex-1 bg-transparent px-0 text-xs text-foreground placeholder:text-muted-foreground"
           />
           {search() ? (
-            <View role="button" onPress={clearSearch} class="h-5 w-5 items-center justify-center rounded active:bg-muted">
+            <View role="button" accessibilityLabel={L("清除搜索", "Clear search")} onPress={clearSearch} class="h-5 w-5 items-center justify-center rounded active:bg-muted">
               <Text class="text-[10px] text-muted-foreground">✕</Text>
             </View>
           ) : null}
@@ -138,7 +139,7 @@ export function Sidebar() {
           active={route().name === "home"}
           onPress={goHome}
           testID="nav-home"
-          right={<Text class="text-[10px] text-muted-foreground">{tools.length}</Text>}
+          right={<Text class="text-[10px] text-muted-foreground">{visibleTools.length}</Text>}
         />
 
         <If when={search().trim().length > 0}>
@@ -185,7 +186,7 @@ export function Sidebar() {
                     testID={`category-${category.id}`}
                     class="h-8 flex-row items-center gap-1 rounded-md px-2 hover:bg-sidebar-accent/60 active:opacity-70"
                   >
-                    <Text class="w-3 text-[9px] text-muted-foreground">{isCollapsed(category.id) ? "▸" : "▾"}</Text>
+                    <Text class="w-3 text-[10px] text-muted-foreground">{isCollapsed(category.id) ? "▸" : "▾"}</Text>
                     <Text class="w-5 text-center text-sm">{category.icon}</Text>
                     <Text class="flex-1 truncate text-xs text-sidebar-foreground">{pick(category.name)}</Text>
                     <Text class="text-[10px] text-muted-foreground">{items.length}</Text>
@@ -216,6 +217,7 @@ export function Sidebar() {
           <View
             role="button"
             onPress={cycleAppearance}
+            accessibilityLabel={L("切换外观", "Cycle appearance")}
             testID="appearance-cycle"
             class="h-7 flex-1 flex-row items-center justify-center gap-1 rounded-md border border-sidebar-border bg-background active:opacity-70"
           >
@@ -227,6 +229,7 @@ export function Sidebar() {
           <View
             role="button"
             onPress={() => language.set(language() === "zh" ? "en" : "zh")}
+            accessibilityLabel={L("切换语言", "Toggle language")}
             testID="language-toggle"
             class="h-7 flex-1 flex-row items-center justify-center rounded-md border border-sidebar-border bg-background active:opacity-70"
           >
@@ -234,8 +237,8 @@ export function Sidebar() {
           </View>
         </View>
         <View class="flex-row items-center justify-between px-1">
-          <Text class="text-[9px] text-muted-foreground">{L("本地处理 · 无上传", "Local only · no uploads")}</Text>
-          <Text class="text-[9px] text-muted-foreground">{platformLabel()}</Text>
+          <Text class="text-[10px] text-muted-foreground">{L("本地处理 · 无上传", "Local only · no uploads")}</Text>
+          <Text class="text-[10px] text-muted-foreground">{platformLabel()}</Text>
         </View>
       </View>
     </View>

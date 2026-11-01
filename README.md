@@ -20,15 +20,15 @@
 
 > 本项目**只支持 macOS、Windows、Linux、Web**，不包含 iOS / Android。
 
-## 🧩 当前工具（79 个：78 个旧工具 + 1 个统一哈希工具）
+## 🧩 当前工具（71 个可见入口；8 个旧入口作为隐藏别名保留）
 
 | 分类 | 工具 |
 | --- | --- |
-| 数据格式 | JSON 格式化、JSON 转 TypeScript、CSV 转 JSON、Excel/TSV 转 JSON、YAML 转 JSON、JSON 图表、表格排序、JWT 解码、JSON 差异、质数检查、二次方程、罗马数字、MIME 查询、HTTP 状态码、虚拟用户、随机抽选、矩阵计算 |
+| 数据格式 | JSON 格式化、JSON 转 TypeScript、CSV/TSV 转 JSON、YAML 转 JSON、JSON 图表、表格排序、JWT 解码、JSON 差异、质数检查、二次方程、罗马数字、MIME 查询、HTTP 状态码、虚拟用户、随机抽选、矩阵计算 |
 | 编码 / 解码 | Base64 编解码、图片 Base64 检查、URL 编解码、URL 检查器 |
 | 文本工具 | 字数统计、大小写转换、文本差异对比、正则测试器、正则速查、Lorem Ipsum、Markdown 目录、Markdown 结构预览、Mermaid 图表检查 |
-| 颜色与设计 | HEX/RGB/HSL/HSV/CMYK、颜色取值器、随机颜色、CSS clamp、圆角、渐变、阴影、SVG 压缩、SVG Sprite、favicon、Code 39 条码、QR Code、SVG 占位图 |
-| 加密与生成器 | 统一哈希（MD5/SHA-1/SHA-256/384/512）、MD5、SHA-256、bcrypt 格式检查、JWT HS256 签名、UUID 生成与批量生成、密码生成与强度分析、文件内容校验和 |
+| 颜色与设计 | HEX/RGB/HSL/HSV/CMYK、随机颜色、CSS clamp、圆角、渐变、阴影、SVG 压缩、SVG Sprite、favicon、Code 39 条码、QR Code、SVG 占位图 |
+| 加密与生成器 | 统一哈希（MD5/SHA-1/SHA-256/384/512）、bcrypt 格式检查、JWT HS256 签名、UUID 生成、密码生成与强度分析 |
 | 日期与时间 | Unix 时间戳、时间差、时区转换、Cron 解析、离线示例汇率换算 |
 | 开发工具 | Git 命令助手、代码格式化、HTML 安全检查、API 请求检查、本地基准测试、源码复杂度分析 |
 | 网络工具 | DNS 查询构造、IPv4/CIDR 检查、User-Agent 解析 |
@@ -62,6 +62,9 @@
 项目固定使用 **NSH 0.3.0**。`scripts/nsh.sh`（Windows 为 `scripts/nsh.ps1`）会在首次运行时把对应平台的 CLI 下载到 `.tools/`，避免误用系统里较旧的 `nsh`。
 
 ```bash
+# 版本一致性检查
+./scripts/check-version.sh
+
 # 类型检查
 ./scripts/nsh.sh check .
 
@@ -106,21 +109,24 @@ lib/
   locale.ts              中英文与本地化文本
   platform.ts            平台能力与快捷键修饰键
   styles.ts              共享 Tailwind 类
+  version.ts             应用与 NSH 版本常量
+  validation.ts          共享输入上限与整数校验
 tools/
   registry.ts            唯一工具元数据源 + 搜索
   <slug>/logic.ts        核心工具的纯逻辑，可单测
-  legacy-migration/      其余旧工具的共享离线逻辑与 NSH 界面
+  legacy-migration/      旧工具规格表、共享离线逻辑与通用 NSH 界面
 tests/logic.test.ts      纯逻辑测试
 App.test.tsx             应用级交互测试
 theme.json               shadcn 风格设计令牌（浅色 / 深色）
 nsh.json                 应用元数据、图标、能力声明
+AGENTS.md                NSH 项目贡献与 AI 协作约定
 ```
 
-全部 78 个旧工具均已接入 NSH 注册与页面路由；另保留了原有的统一哈希工具，工具栏共 79 项。部分旧工具因 NSH 0.3.0 的跨平台能力而提供透明标注的离线替代：API/DNS 不发请求，汇率仅为示例，音视频与 GIF 工具只生成 FFmpeg 命令，PDF 合并仅检查输入，像素裁剪仅校验参数，bcrypt 只检查哈希格式。图片压缩、兼容转换和缩放通过系统图片选择器处理。应用不伪装这些受限功能已经执行。本机 `nsh build .` 输出约 361.7 KB JavaScript；Web/macOS release 包的 JavaScript 约 215.7 KB。
+全部 78 个旧工具均已接入 NSH 注册与页面路由；侧栏与搜索展示 71 个可见入口，8 个重复旧入口保留为隐藏别名，旧收藏/最近记录仍可打开。部分旧工具因 NSH 0.3.0 的跨平台能力而提供透明标注的离线替代：API/DNS 不发请求，汇率仅为示例，音视频与 GIF 工具只生成 FFmpeg 命令，PDF 合并仅检查输入，像素裁剪仅校验参数，bcrypt 只检查哈希格式。图片压缩、兼容转换和缩放通过系统图片选择器处理。应用不伪装这些受限功能已经执行。本机 `nsh build .` 输出约 375 KB JavaScript。
 
 ## 🔐 安全与隐私
 
-- 仅声明了剪贴板（`clipboard`）与打开外部链接（`openUrl`）能力；没有网络、文件系统、进程执行权限。
+- 仅声明了剪贴板（`clipboard`）、系统图片选择器（`picker`）与打开外部链接（`openUrl`）能力；没有任意文件系统、网络或进程执行权限，图片仅在用户主动选择时经系统选择器读取。
 - 所有文本处理在本地完成；哈希使用 NSH 的 Rust `crypto` 模块。
 - 收藏、最近使用、语言与外观通过 NSH `Storage` 持久化在设备上。
 

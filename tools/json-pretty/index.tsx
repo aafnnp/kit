@@ -1,11 +1,12 @@
 import { signal, Text, View } from "nsh"
 import { Badge, Button, Card, CardHeader, CopyButton, ErrorBanner, Field, OutputBox, Segmented, TextInput, Toggle } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { APP_VERSION } from "../../lib/version"
 import { formatJson, isValidJson, minifyJson } from "./logic"
 
 const SAMPLE = `{
   "name": "Kit",
-  "version": "0.6.0",
+  "version": "${APP_VERSION}",
   "platforms": ["macos", "windows", "linux", "web"],
   "local": true,
   "tools": 15

@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   NSH_VERSION: "0.3.0"
 
@@ -38,6 +42,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Version check
+        shell: bash
+        run: ./scripts/check-version.sh
 
       - name: Linux runtime libraries
         if: runner.os == 'Linux'

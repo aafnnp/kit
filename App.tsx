@@ -6,6 +6,7 @@ import { SettingsPage } from "./components/settings"
 import { ToolPage } from "./components/tool-page"
 import { L } from "./lib/locale"
 import { platformLabel } from "./lib/platform"
+import { NSH_VERSION } from "./lib/version"
 import {
   appearance,
   clearSearch,
@@ -24,7 +25,7 @@ function StatusBar() {
         <View class="h-1.5 w-1.5 rounded-full bg-up" />
         <Text class="text-[10px] text-muted-foreground">{L("本地处理 · 数据不会离开设备", "Local processing · data never leaves the device")}</Text>
       </View>
-      <Text class="text-[10px] text-muted-foreground">{platformLabel()} · NSH 0.3.0</Text>
+      <Text class="text-[10px] text-muted-foreground">{platformLabel()} · NSH {NSH_VERSION}</Text>
     </View>
   )
 }

@@ -2,9 +2,10 @@ import { Scroll, Text, View } from "nsh"
 import type { JSX } from "nsh"
 import { L, pick } from "../lib/locale"
 import { favorites, isFavorite, openTool, toggleFavorite } from "../lib/state"
-import { categories, tools, toolsInCategory } from "../tools/registry"
+import { categories, tools, toolsInCategory, visibleTools } from "../tools/registry"
 import type { ToolDefinition } from "../tools/registry"
 import { modKey } from "../lib/platform"
+import { APP_VERSION } from "../lib/version"
 import { accentBar } from "../lib/types"
 import { BrandMark } from "./brand"
 
@@ -73,7 +74,7 @@ export function Welcome() {
                 <Text class="rounded-full border border-white/15 bg-white/10 px-2 py-0.5 text-[10px] font-medium text-white">
                   {L("本地优先 · 无需账户", "Local-first · no account")}
                 </Text>
-                <Text class="text-[10px] text-white/60">v0.6.0</Text>
+                <Text class="text-[10px] text-white/60">v{APP_VERSION}</Text>
               </View>
               <Text class="text-3xl font-semibold tracking-tight text-white">{L("欢迎使用 Kit", "Welcome to Kit")}</Text>
             </View>
@@ -86,7 +87,7 @@ export function Welcome() {
           </Text>
           <View class="flex-row flex-wrap items-center gap-4 border-t border-white/10 pt-3">
             <View class="flex-row items-center gap-1.5">
-              <Text class="text-lg font-semibold text-ink-cyan">{tools.length}</Text>
+              <Text class="text-lg font-semibold text-ink-cyan">{visibleTools.length}</Text>
               <Text class="text-[11px] text-white/60">{L("个工具", "tools")}</Text>
             </View>
             <View class="flex-row items-center gap-1.5">

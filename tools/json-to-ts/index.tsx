@@ -1,6 +1,7 @@
 import { signal, Text, View } from "nsh"
 import { Button, Card, CardHeader, CopyButton, ErrorBanner, Field, OutputBox, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { APP_VERSION } from "../../lib/version"
 import { jsonToTs } from "./logic"
 
 const SAMPLE = `{
@@ -9,7 +10,7 @@ const SAMPLE = `{
   "openSource": true,
   "tags": ["tools", "local"],
   "author": { "name": "Ada", "email": "ada@example.com" },
-  "releases": [{ "version": "0.6.0", "date": "2026-10-30" }]
+  "releases": [{ "version": "${APP_VERSION}", "date": "2026-10-30" }]
 }`
 
 export default function JsonToTs() {

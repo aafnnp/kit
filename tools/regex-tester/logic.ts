@@ -17,6 +17,9 @@ export interface RegexResult {
 
 export function runRegex(pattern: string, flags: string, text: string): { ok: true; result: RegexResult } | { ok: false; error: string } {
   if (!pattern) return { ok: false, error: "Pattern is empty" }
+  if (pattern.length > 10_000 || text.length > 200_000) {
+    return { ok: false, error: "Pattern or text is too large to evaluate safely" }
+  }
   let regex: RegExp
   try {
     regex = new RegExp(pattern, flags)

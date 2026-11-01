@@ -96,7 +96,8 @@ function pascal(value: string): string {
     .split(/[^A-Za-z0-9]+/)
     .filter(Boolean)
   const name = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join("")
-  return name || "Item"
+  if (!name) return "Item"
+  return /^[A-Za-z_$]/.test(name) ? name : `Type${name}`
 }
 
 function singular(value: string): string {

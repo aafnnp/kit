@@ -100,13 +100,13 @@ const TOOLS: [string, string][] = [
 ]
 
 const LEGACY_TOOLS = [
-  "api-tester", "audio-convert", "barcode-generator", "base64-image", "bcrypt-hash", "benchmark-tester",
-  "code-formatter", "color-picker", "currency-convert", "dns-lookup", "excel-to-json", "exif-viewer",
-  "favicon-generator", "file-hash", "gif-split", "html-preview", "icon-spriter", "image-compress",
+  "api-tester", "audio-convert", "barcode-generator", "base64-image", "bcrypt-hash",
+  "code-formatter", "currency-convert", "dns-lookup", "exif-viewer",
+  "favicon-generator", "gif-split", "html-preview", "icon-spriter", "image-compress",
   "image-convert", "image-crop", "image-resize", "image-to-pdf", "ip-info", "json-plot", "jwt-generator",
-  "lorem-image", "markdown-mermaid", "markdown-preview", "md5-hash", "merge-pdf", "password-strength",
-  "performance-analyzer", "performance-tester", "qr-generator", "sha256-hash", "svg-minify", "text-to-pdf",
-  "user-agent", "uuid-batch", "video-trim", "yaml-to-json",
+  "lorem-image", "markdown-mermaid", "markdown-preview", "merge-pdf",
+  "performance-analyzer", "performance-tester", "qr-generator", "svg-minify", "text-to-pdf",
+  "user-agent", "video-trim", "yaml-to-json",
 ]
 
 test("every migrated tool opens without an error", async () => {
@@ -136,6 +136,8 @@ test("every remaining legacy tool opens in the shared migration workspace", asyn
     await app.waitFor(`id:sidebar-tool-${slug}`)
     await app.press(`id:sidebar-tool-${slug}`)
     await app.waitFor("id:migration-tool-input")
+    await app.press("id:migration-tool-run")
+    await app.waitUntil(() => app.shows("id:migration-tool-output") || app.shows("id:migration-tool-message"), { timeout: 2000 })
     expect(app.texts()).not.toContain("This tool failed")
     expect(app.texts()).not.toContain("not a live signal")
   }
@@ -166,4 +168,51 @@ test("Git helper filters commands and copies without executing them", async () =
   await app.press("id:git-copy-status")
   await app.waitUntil(() => app.clipboard() === "git status", { timeout: 2000 })
   expect(app.texts()).toContain("Check status")
+})
+
+test("image picker is granted and prepares selected images", async () => {
+  const app = await open("./App.tsx", { locale: "en-US", platform: "web", width: 1280, height: 900 })
+  await app.waitFor("id:welcome")
+  const png = Uint8Array.from(atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Z0GQAAAAASUVORK5CYII="), (char) => char.charCodeAt(0))
+  app.onPick(() => [{ name: "tiny.png", type: "image/png", data: png }])
+
+  await app.type("id:global-search", "image-compress")
+  await app.press("id:sidebar-tool-image-compress")
+  await app.waitFor("id:migration-tool-pick-image")
+  await app.press("id:migration-tool-pick-image")
+  await app.waitUntil(() => app.texts().some((text) => text.includes("tiny.png")), { timeout: 3000 })
+  expect(app.picks().length).toBe(1)
+  expect(app.picks()[0]!.format).toBe("compatible")
+  expect(app.picks()[0]!.maxDimension).toBe(2400)
+})
+
+test("clearing favorites and history requires a second press", async () => {
+  const app = await open("./App.tsx", { locale: "en-US", platform: "web", width: 1280, height: 900 })
+  await app.waitFor("id:welcome")
+  await app.press("id:favorite-json-pretty")
+  await app.waitUntil(() => (app.storage()["kit.favorites"] ?? "").includes("json-pretty"))
+  await app.press("id:nav-settings")
+  await app.waitFor("id:settings-clear")
+  await app.press("id:settings-clear")
+  await app.waitUntil(() => app.texts().some((text) => text.includes("Click again to confirm")))
+  expect((app.storage()["kit.favorites"] ?? "").includes("json-pretty")).toBe(true)
+  await app.press("id:settings-clear")
+  await app.waitUntil(() => app.storage()["kit.favorites"] === "[]")
+})
+
+test("hidden legacy aliases remain reachable from favorites", async () => {
+  const app = await open("./App.tsx", {
+    locale: "en-US",
+    platform: "web",
+    width: 1280,
+    height: 900,
+    storage: { "kit.favorites": '["benchmark-tester"]' },
+  })
+  await app.waitFor("id:welcome")
+  expect(app.shows("id:sidebar-favorite-benchmark-tester")).toBe(true)
+  await app.press("id:sidebar-favorite-benchmark-tester")
+  await app.waitFor("id:migration-tool-input")
+  await app.press("id:migration-tool-run")
+  await app.waitUntil(() => app.shows("id:migration-tool-output"), { timeout: 2000 })
+  expect(app.texts().some((text) => text.includes("Iterations: 10000"))).toBe(true)
 })

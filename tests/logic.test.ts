@@ -37,12 +37,15 @@ import { regexTips, searchRegexTips } from "../tools/regex-cheatsheet/logic"
 import { formatCronDate, nextCronRuns } from "../tools/cron-parser/logic"
 import { formatCsvTable, sortCsvTable } from "../tools/table-sorter/logic"
 import { gitCommands, searchGitCommands } from "../tools/git-helper/logic"
+import { legacyToolSpecs } from "../tools/legacy-migration/specs"
 import {
   createCode39Svg,
   createQrSvg,
+  formatCode,
   inspectHtml,
   inspectIpv4,
   jsonBarChart,
+  makeSvgSprite,
   minifySvg,
   runLegacyTool,
   signJwt,
@@ -441,4 +444,124 @@ test("legacy network, file and system helpers disclose their offline boundaries"
   expect(runLegacyTool("bcrypt-hash", `$2b$12$${"a".repeat(53)}`).output).toContain("no hash was generated")
   expect(runLegacyTool("file-hash", "base64:YQ==", "sha256").output).toBe(hashText("a", "sha256"))
   expect(() => runLegacyTool("image-crop", "0,0,20,20")).toThrow()
+})
+
+test("Mermaid parser understands shapes, labels and chained edges", () => {
+  const output = runLegacyTool("markdown-mermaid", "graph TD\nA[Start] --> B[Finish]\nB --> C{Decision}\nC -- yes --> D").output
+  expect(output).toContain("Direction: TD")
+  expect(output).toContain("A: Start")
+  expect(output).toContain("B: Finish")
+  expect(output).toContain("C: Decision")
+  expect(output).toContain("A → B")
+  expect(output).toContain("B → C")
+  expect(output).toContain("C → D")
+  expect(output).not.toContain("graph: graph")
+})
+
+test("command templates reject shell metacharacters", () => {
+  expect(() => runLegacyTool("audio-convert", "$(touch /tmp/kit-pwn).wav,mp3")).toThrow()
+  expect(() => runLegacyTool("audio-convert", "`touch /tmp/kit-pwn`.wav,mp3")).toThrow()
+  expect(runLegacyTool("audio-convert", "input.wav,mp3").output).toContain('"input.wav"')
+})
+
+test("CSV de-duplicates headers and rejects ragged rows", () => {
+  const duplicate = csvToJson("a,a\n1,2", { delimiter: ",", hasHeader: true, inferTypes: true })
+  expect(duplicate.ok).toBe(true)
+  if (duplicate.ok) {
+    expect(JSON.parse(duplicate.output)).toEqual([{ a: 1, a_2: 2 }])
+  }
+  const collision = csvToJson("a,a,a_2\n1,2,3", { delimiter: ",", hasHeader: true, inferTypes: true })
+  expect(collision.ok).toBe(true)
+  if (collision.ok) {
+    expect(JSON.parse(collision.output)).toEqual([{ a: 1, a_2: 2, a_2_2: 3 }])
+  }
+  const ragged = csvToJson("a,b\n1", { delimiter: ",", hasHeader: true, inferTypes: true })
+  expect(ragged.ok).toBe(false)
+})
+
+test("HTML inspection removes entity-obfuscated and protocol-relative URLs", () => {
+  const result = inspectHtml('<a href="&#106;avascript:alert(1)">x</a><img src="//evil.test/x.png"><div ok="1">y</div>')
+  expect(result.removed).toBe(2)
+  expect(result.html).toContain('<div ok="1">')
+  expect(result.html).not.toContain("javascript")
+  expect(result.html).not.toContain("//evil.test")
+})
+
+test("SVG minification preserves text while rejecting active resources", () => {
+  expect(minifySvg('<svg><text xml:space="preserve">Hello   world</text></svg>')).toContain("Hello   world")
+  expect(() => minifySvg('<svg><style>@import url(https://evil.test/x.css);</style></svg>')).toThrow()
+  expect(() => minifySvg('<svg><style>body{background:url(data:text/html;base64,abc)}</style></svg>')).toThrow()
+  expect(() => minifySvg('<svg><style>rect{fill:red}</style><style>@import "https://evil.test/x.css";</style></svg>')).toThrow()
+  expect(() => minifySvg('<svg><image href="//evil.test/x.png"/></svg>')).toThrow()
+  expect(() => minifySvg('<svg><use xlink:href="https://evil.test/x.svg#a"/></svg>')).toThrow()
+  expect(minifySvg('<svg><use xlink:href="#icon"/></svg>')).toContain('xlink:href="#icon"')
+})
+
+test("SVG sprites accept formatted documents with blank lines inside", () => {
+  const sprite = makeSvgSprite('<svg viewBox="0 0 24 24">\n\n<rect width="24" height="24"/>\n</svg>\n\n<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/></svg>')
+  expect(sprite).toContain('id="icon-1"')
+  expect(sprite).toContain('id="icon-2"')
+})
+
+test("CSS and HTML formatting preserve strings, URLs and quoted angles", () => {
+  const css = formatCode('body { background: url(data:image/svg+xml;base64,abc); content: "a;b"; }', "css")
+  expect(css).toContain("url(data:image/svg+xml;base64,abc)")
+  expect(css).toContain('content: "a;b"')
+  const html = formatCode('<div title="a>b"><span>x</span></div>', "html")
+  expect(html).toContain('<div title="a>b">')
+  expect(html).toContain("<span>")
+  expect(html).toContain("x")
+  expect(html).toContain("</span>")
+})
+
+test("JSON to TypeScript keeps generated interface names valid", () => {
+  const result = jsonToTs('{"123":{"x":1}}', "123")
+  expect(result.ok).toBe(true)
+  if (result.ok) {
+    expect(result.output).toContain("export interface Type123")
+    expect(result.output).not.toContain("export interface 123")
+  }
+})
+
+test("YAML supports sequences of mappings", () => {
+  const parsed = JSON.parse(yamlToJson("users:\n  - name: Ada\n    age: 36\n  - name: Grace\n    age: 85"))
+  expect(parsed).toEqual({ users: [{ name: "Ada", age: 36 }, { name: "Grace", age: 85 }] })
+})
+
+const LEGACY_INPUT_OVERRIDES: Record<string, string> = {
+  "base64-image": "data:image/png;base64,iVBORw0KGgo=",
+  "image-compress": "data:image/png;base64,iVBORw0KGgo=",
+  "image-convert": "data:image/png;base64,iVBORw0KGgo=",
+  "image-resize": "data:image/png;base64,iVBORw0KGgo=",
+  "merge-pdf": textToPdfBase64("Kit"),
+}
+const LEGACY_THROWING = new Set(["exif-viewer", "image-crop", "image-to-pdf"])
+
+test("every legacy tool specification has a runnable example", () => {
+  for (const spec of legacyToolSpecs) {
+    if (LEGACY_THROWING.has(spec.meta.slug)) continue
+    const input = LEGACY_INPUT_OVERRIDES[spec.meta.slug] ?? spec.defaultInput ?? ""
+    const result = spec.run(input, spec.secondary?.default ?? "", "")
+    expect(result.output.length).toBeGreaterThan(0)
+  }
+})
+
+test("YAML rejects duplicate keys in a mapping sequence item", () => {
+  expect(() => yamlToJson("users:\n  - name: Ada\n    name: Grace")).toThrow()
+})
+
+test("CSV keeps prototype-like header names", () => {
+  const result = csvToJson("__proto__,constructor\n1,2", { delimiter: ",", hasHeader: true, inferTypes: true })
+  expect(result.ok).toBe(true)
+  if (result.ok) {
+    expect(JSON.parse(result.output)).toEqual([JSON.parse('{"__proto__":1,"constructor":2}')])
+  }
+})
+
+test("YAML rejects a sequence where a mapping continuation is expected", () => {
+  expect(() => yamlToJson("users:\n  - name: Ada\n    - nested")).toThrow()
+})
+
+test("YAML keeps prototype-like mapping keys", () => {
+  expect(JSON.parse(yamlToJson("__proto__: value\nconstructor: other"))).toEqual(JSON.parse('{"__proto__":"value","constructor":"other"}'))
 })

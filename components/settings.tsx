@@ -1,10 +1,27 @@
-import { openUrl, Scroll, Text, View } from "nsh"
+import { cleanup, openUrl, Scroll, signal, Text, View } from "nsh"
 import { Button, Card, CardHeader, KeyHint, Segmented } from "./ui"
 import { L } from "../lib/locale"
 import { appearance, clearHistory, favorites, language, recent, type Appearance } from "../lib/state"
 import { modKey, modShiftKey, platformLabel } from "../lib/platform"
+import { APP_VERSION, NSH_VERSION } from "../lib/version"
 
 export function SettingsPage() {
+  const confirmingClear = signal(false)
+  let resetTimer: number | undefined
+  cleanup(() => {
+    if (resetTimer !== undefined) clearTimeout(resetTimer)
+  })
+  const requestClear = () => {
+    if (!confirmingClear()) {
+      confirmingClear.set(true)
+      resetTimer = setTimeout(() => confirmingClear.set(false), 4000)
+      return
+    }
+    if (resetTimer !== undefined) clearTimeout(resetTimer)
+    confirmingClear.set(false)
+    clearHistory()
+  }
+
   return (
     <Scroll class="flex-1" contentClass="p-4 md:p-6" testID="settings">
       <View class="mx-auto w-full max-w-3xl gap-4">
@@ -44,8 +61,8 @@ export function SettingsPage() {
           <CardHeader title={L("本地数据", "Local data")} description={L("收藏与最近记录保存在设备上，可随时清除。", "Favorites and recent tools are stored on this device.")} />
           <View class="flex-row flex-wrap items-center gap-2">
             <Text class="text-xs text-muted-foreground">{L(`收藏 ${favorites().length} 个 · 最近 ${recent().length} 个`, `${favorites().length} favorites · ${recent().length} recent`)}</Text>
-            <Button tone="danger" onPress={clearHistory} testID="settings-clear">
-              {L("清除收藏与历史", "Clear favorites and history")}
+            <Button tone="danger" onPress={requestClear} testID="settings-clear" accessibilityLabel={L("清除收藏与历史", "Clear favorites and history")}>
+              {confirmingClear() ? L("再次点击确认清除", "Click again to confirm") : L("清除收藏与历史", "Clear favorites and history")}
             </Button>
           </View>
         </Card>
@@ -63,8 +80,8 @@ export function SettingsPage() {
         <Card>
           <CardHeader title={L("关于 Kit", "About Kit")} />
           <View class="gap-1.5">
-            <Info label={L("版本", "Version")} value="0.6.0" />
-            <Info label={L("框架", "Framework")} value="Native Shell (NSH) 0.3.0" />
+            <Info label={L("版本", "Version")} value={APP_VERSION} />
+            <Info label={L("框架", "Framework")} value={`Native Shell (NSH) ${NSH_VERSION}`} />
             <Info label={L("平台", "Platform")} value={platformLabel()} />
             <Info label={L("界面", "UI")} value="TSX + Rust standard modules" />
             <Info label={L("许可", "License")} value="MIT" />
