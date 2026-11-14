@@ -5,7 +5,7 @@ on:
     tags: ["v*"]
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: release-${{ github.ref }}
@@ -15,8 +15,34 @@ env:
   NSH_VERSION: "0.3.0"
 
 jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version check
+        shell: bash
+        run: ./scripts/check-version.sh
+
+      - name: Linux runtime libraries
+        run: sudo apt-get update && sudo apt-get install -y libgtk-4-1
+
+      - name: Cache NSH toolchain
+        uses: actions/cache@v4
+        with:
+          path: .tools/nsh
+          key: nsh-${{ runner.os }}-${{ env.NSH_VERSION }}
+
+      - name: Type check
+        run: ./scripts/nsh.sh check .
+
+      - name: Tests
+        run: ./scripts/nsh.sh test .
+
   package:
     name: Package ${{ matrix.name }}
+    needs: test
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -42,9 +68,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Version check
+      # 标签构建直接用 v1.2.3 的版本号，其他触发方式追加提交号，保证每个产物可追溯。
+      - name: Resolve version
+        id: version
         shell: bash
-        run: ./scripts/check-version.sh
+        run: |
+          set -euo pipefail
+          base="$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' nsh.json | head -n1)"
+          if [ "${GITHUB_REF_TYPE:-}" = "tag" ]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version="${base}+g$(git rev-parse --short HEAD)"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "版本：${version}"
 
       - name: Linux runtime libraries
         if: runner.os == 'Linux'
@@ -56,60 +93,101 @@ jobs:
           path: .tools/nsh
           key: nsh-${{ runner.os }}-${{ env.NSH_VERSION }}
 
-      - name: Check and test
-        run: |
-          ${{ matrix.cli }} check .
-          ${{ matrix.cli }} test .
-
       - name: Package
         run: ${{ matrix.cli }} package . --target ${{ matrix.target }}
 
-      - name: Archive (macOS)
+      - name: Build portable archive (macOS)
         if: runner.os == 'macOS'
-        run: ditto -c -k --sequesterRsrc --keepParent .nsh/out/Kit.app kit-macos.zip
-
-      - name: Archive (Linux)
-        if: runner.os == 'Linux' && matrix.target == 'linux'
+        shell: bash
         run: |
-          if ls .nsh/out/*.tar.gz >/dev/null 2>&1; then
-            cp .nsh/out/*.tar.gz kit-linux.tar.gz
-          else
-            tar -czf kit-linux.tar.gz -C .nsh/out .
-          fi
+          set -euo pipefail
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent .nsh/out/Kit.app \
+            "dist/kit-${{ steps.version.outputs.version }}-macos.zip"
 
-      - name: Archive (Web)
-        if: matrix.target == 'web'
-        run: tar -czf kit-web.tar.gz -C .nsh/out/Kit .
+      - name: Build portable archive (Linux)
+        if: runner.os == 'Linux' && matrix.target == 'linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          tar -czf "dist/kit-${{ steps.version.outputs.version }}-linux.tar.gz" -C .nsh/out Kit
 
-      - name: Archive (Windows)
+      - name: Build portable archive (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: Compress-Archive -Path .nsh/out/* -DestinationPath kit-windows.zip
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          $out = "dist\kit-${{ steps.version.outputs.version }}-windows.zip"
+          $src = Get-ChildItem .nsh/out -Filter *.zip | Select-Object -First 1
+          if ($src) {
+            Copy-Item $src.FullName $out
+          } else {
+            Compress-Archive -Path .nsh/out/* -DestinationPath $out
+          }
+          if (-not (Test-Path $out)) { throw "未生成 Windows 压缩包：$out" }
+
+      - name: Build portable archive (Web)
+        if: matrix.target == 'web'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          tar -czf "dist/kit-${{ steps.version.outputs.version }}-web.tar.gz" -C .nsh/out/Kit .
 
       - name: Upload release archive
         uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.target }}
-          path: kit-*
-          if-no-files-found: ignore
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
 
   publish:
     name: Publish GitHub release
     needs: package
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     steps:
+      # 生成变更清单需要完整历史与标签，默认的浅克隆拿不到。
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/download-artifact@v4
         with:
           pattern: release-*
-          path: release
+          path: dist
           merge-multiple: true
 
-      - name: Create or update release
+      - name: Generate checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum -- * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Generate release notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          scripts/release-notes.sh "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY" > "$RUNNER_TEMP/notes.md"
+          cat "$RUNNER_TEMP/notes.md"
+
+      - name: Publish release assets
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
         run: |
-          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" release/* --clobber --repo "$GITHUB_REPOSITORY"
+          set -euo pipefail
+          notes="$RUNNER_TEMP/notes.md"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "$TAG" --notes-file "$notes"
+            gh release upload "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --clobber
           else
-            gh release create "$GITHUB_REF_NAME" release/* --generate-notes --repo "$GITHUB_REPOSITORY"
+            gh release create "$TAG" dist/* --repo "$GITHUB_REPOSITORY" \
+              --title "$TAG" --notes-file "$notes"
           fi

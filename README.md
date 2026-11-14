@@ -93,6 +93,18 @@ Windows PowerShell：
 
 产物在 `.nsh/out/`。本机已验证 Web 与 macOS 打包；Windows/Linux 需要对应 NSH runner，本机当前未安装。
 
+## 📦 发布
+
+推送 `v*` 标签后，`.github/workflows/release.yml` 会在 macOS、Linux、Windows 与 Web 上打包 `kit-<版本>-*` 产物，生成 `SHA256SUMS.txt` 与发布说明。
+
+```bash
+git tag v0.6.0
+git push origin v0.6.0
+
+# 本地预览发布说明
+./scripts/release-notes.sh v0.6.0 aafnnp/kit
+```
+
 ## 🗂️ 结构
 
 ```
