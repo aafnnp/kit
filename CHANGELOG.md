@@ -5,6 +5,21 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## v0.7.0
+
+*发布日期: 2026-11-14*
+
+### ✨ Features
+
+- 工具页取消 `max-w-5xl` 限宽，宽屏下使用全部可用宽度
+
+### 🔧 构建与 CI
+
+- 发布工作流按平台解析版本号，产出 `kit-<版本>-<平台>` 归档，汇总生成 `SHA256SUMS.txt` 与发布说明后创建或覆盖更新 Release
+- 新增 `scripts/release-notes.sh`，从本文件提取对应版本的变更生成发布说明
+- macOS runner 从 `macos-14` 升级到 `macos-15`，修复任务无法分配到 runner 的问题
+- 发布工作流支持 `workflow_dispatch` 手动触发打包验证，发布步骤仍限定 `v*` 标签
+
 ## v0.6.0
 
 *发布日期: 2026-11-01*
