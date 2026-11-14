@@ -13,7 +13,7 @@ export function ToolPage() {
 
   return (
     <Scroll class="flex-1" contentClass="p-4 md:p-6" testID="tool-page">
-      <View class="mx-auto w-full max-w-5xl gap-4">
+      <View class="w-full gap-4">
         {tool() ? (
           <>
             <View class="flex-row items-start justify-between gap-3">
