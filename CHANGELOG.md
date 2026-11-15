@@ -5,6 +5,15 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## v0.8.1
+
+*发布日期: 2026-11-15*
+
+### ♻️ 内部
+
+- NSH 工具链从 0.3.0 升级到 0.5.1：窗口改用 `Window.get("main").setBounds()`，输入事件改读 `{ value }`，`YNode` 改为 `ViewRef`，`Image` 的 `resizeMode` 移到 `style.objectFit`
+- 移除仓库内不再使用的 `.agents/skills` 与 `.cursor/rules`
+
 ## v0.8.0
 
 *发布日期: 2026-11-15*
@@ -36,7 +45,6 @@
 
 ### ♻️ 内部
 
-- NSH 工具链从 0.3.0 升级到 0.5.1：窗口改用 `Window.get("main").setBounds()`，输入事件改读 `{ value }`，`YNode` 改为 `ViewRef`，`Image` 的 `resizeMode` 移到 `style.objectFit`
 - 新增 `lib/text.ts`（字素分段）与 `lib/tool-run.ts`（统一运行/重置模型），`lib/validation.ts` 增加 `numberFromText`
 - 为 JSON、CSV、JWT、Base64、URL、JSON 差异、表格排序、矩阵与文本差异等 12 个入口补上 8 MiB 输入上限
 - 正则速查内容支持中英双语，`Segmented` 与复制按钮补充可访问性角色与标签

@@ -1,8 +1,8 @@
 {
   "name": "Kit",
   "id": "dev.kit.app",
-  "version": "0.8.0",
-  "build": 1,
+  "version": "0.8.1",
+  "build": 2,
   "icon": "icon.png",
   "appearance": "system",
   "theme": "theme.json",

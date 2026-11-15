@@ -1,5 +1,5 @@
 /** The app version, kept in sync with nsh.json by scripts/check-version.sh. */
-export const APP_VERSION = "0.8.0"
+export const APP_VERSION = "0.8.1"
 
 /** The NSH toolchain pinned by scripts/nsh.sh and CI. */
 export const NSH_VERSION = "0.5.1"
