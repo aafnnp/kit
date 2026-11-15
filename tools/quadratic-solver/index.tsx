@@ -1,4 +1,4 @@
-import { signal, Text, View } from "nsh"
+import { computed, signal, Text, View } from "nsh"
 import { Card, CardHeader, CopyButton, ErrorBanner, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
 import { formatRoot, solveQuadratic } from "./logic"
@@ -6,11 +6,11 @@ import { formatRoot, solveQuadratic } from "./logic"
 export default function QuadraticSolver() {
   const coefficients = signal({ a: "1", b: "-3", c: "2" })
   const values = () => coefficients()
-  const result = () => {
+  const result = computed(() => {
     const current = values()
     if (Object.values(current).some((value) => !value.trim() || !Number.isFinite(Number(value)))) return null
     return solveQuadratic(Number(current.a), Number(current.b), Number(current.c))
-  }
+  })
   const resultError = () => {
     const solution = result()
     return solution?.kind === "invalid" ? solution.error : ""

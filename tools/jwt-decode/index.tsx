@@ -1,33 +1,32 @@
 import { signal, Text, View } from "nsh"
-import { Badge, Button, Card, CardHeader, CopyButton, ErrorBanner, Field, OutputBox, TextInput } from "../../components/ui"
+import { Badge, Button, Card, CardHeader, CopyButton, ErrorBanner, OutputBox, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { createLiveRun } from "../../lib/tool-run"
 import { decodeJwt, timeClaims } from "./logic"
 
 const SAMPLE =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFkYSBMb3ZlbGFjZSIsImFkbWluIjp0cnVlLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6MjAwMDAwMDAwMH0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
 
+interface DecodedJwtView {
+  header: string
+  payload: string
+  expired: boolean | null
+}
+
 export default function JwtDecode() {
   const token = signal(SAMPLE)
-  const header = signal("")
-  const payload = signal("")
-  const error = signal("")
-  const expired = signal<boolean | null>(null)
-
-  const decode = () => {
+  const compute = (): DecodedJwtView => {
     const result = decodeJwt(token())
-    if (result.ok) {
-      header.set(JSON.stringify(result.jwt.header, null, 2))
-      payload.set(JSON.stringify(result.jwt.payload, null, 2))
-      const exp = result.jwt.payload.exp
-      expired.set(typeof exp === "number" ? exp * 1000 < Date.now() : null)
-      error.set("")
-    } else {
-      header.set("")
-      payload.set("")
-      expired.set(null)
-      error.set(result.error)
+    if (!result.ok) throw new Error(result.error)
+    const exp = result.jwt.payload.exp
+    return {
+      header: JSON.stringify(result.jwt.header, null, 2),
+      payload: JSON.stringify(result.jwt.payload, null, 2),
+      expired: typeof exp === "number" ? exp * 1000 < Date.now() : null,
     }
   }
+  const outcome = createLiveRun<DecodedJwtView | null>({ initial: null, compute, inputs: [token], delay: 300 })
+  const decoded = outcome.output
 
   return (
     <View class="gap-4">
@@ -36,8 +35,8 @@ export default function JwtDecode() {
           title={L("JWT 令牌", "JWT token")}
           description={L("仅解码查看，不校验签名；请勿粘贴生产环境令牌。", "Decodes for inspection only, without verifying. Avoid pasting production tokens.")}
           right={
-            expired() === null ? null : (
-              <Badge tone={expired() ? "down" : "up"}>{expired() ? L("已过期", "Expired") : L("未过期", "Not expired")}</Badge>
+            decoded()?.expired == null ? null : (
+              <Badge tone={decoded()!.expired ? "down" : "up"}>{decoded()!.expired ? L("已过期", "Expired") : L("未过期", "Not expired")}</Badge>
             )
           }
         />
@@ -51,30 +50,30 @@ export default function JwtDecode() {
           placeholder={L("粘贴 JWT…", "Paste a JWT…")}
         />
         <View class="flex-row flex-wrap gap-2">
-          <Button tone="primary" onPress={decode} testID="jwt-decode">
+          <Button tone="primary" onPress={() => outcome.run(compute)} testID="jwt-decode">
             {L("解码", "Decode")}
           </Button>
-          <Button tone="ghost" onPress={() => { token.set(SAMPLE); decode() }}>
+          <Button tone="ghost" onPress={() => token.set(SAMPLE)}>
             {L("示例", "Sample")}
           </Button>
         </View>
-        {error() ? <ErrorBanner message={error()} /> : null}
+        {outcome.error() ? <ErrorBanner message={outcome.error()} /> : null}
       </Card>
 
-      {header() || payload() ? (
+      {decoded() ? (
         <View class="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Card>
-            <CardHeader title={L("头部", "Header")} right={<CopyButton value={() => header()} />} />
-            <OutputBox value={header()} height={220} testID="jwt-header" />
+            <CardHeader title={L("头部", "Header")} right={<CopyButton value={() => decoded()?.header ?? ""} />} />
+            <OutputBox value={decoded()!.header} height={220} testID="jwt-header" />
           </Card>
           <Card>
-            <CardHeader title={L("载荷", "Payload")} right={<CopyButton value={() => payload()} />} />
-            <OutputBox value={payload()} height={220} testID="jwt-payload" />
+            <CardHeader title={L("载荷", "Payload")} right={<CopyButton value={() => decoded()?.payload ?? ""} />} />
+            <OutputBox value={decoded()!.payload} height={220} testID="jwt-payload" />
           </Card>
         </View>
       ) : null}
 
-      {payload() ? <Claims payload={payload()} /> : null}
+      {decoded() ? <Claims payload={decoded()!.payload} /> : null}
     </View>
   )
 }

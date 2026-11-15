@@ -15,7 +15,7 @@
 - **一套代码，四个平台**：macOS（AppKit）、Windows（Win32 / Direct2D）、Linux（GTK 4）、Web（HTML + WebAssembly）。
 - **原生 UI**：NSH 以各平台自己的视图、文本输入和交互方式渲染，不使用 WebView，也没有 React / 虚拟 DOM。
 - **本地优先**：无账户、无上传、无遥测；加密、压缩、文件等重活交给 NSH 的 Rust 标准模块。
-- **DevToys 式工作区**：左侧可搜索、可折叠的分类导航，右侧欢迎页与工具页；支持收藏、最近使用、深浅色与中英文切换。
+- **DevToys 式工作区**：左侧可搜索、可折叠的分类导航，右侧欢迎页与工具页；支持收藏、最近使用、深浅色与中英文切换；可在设置中显式开启工具草稿（默认关闭）。
 - **纯逻辑可测试**：每个工具的 `logic.ts` 与 UI 分离，使用 `nsh test` 做无头单元测试与交互测试。
 
 > 本项目**只支持 macOS、Windows、Linux、Web**，不包含 iOS / Android。

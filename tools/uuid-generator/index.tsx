@@ -1,4 +1,4 @@
-import { signal, Text, View } from "nsh"
+import { signal, View } from "nsh"
 import { Button, Card, CardHeader, CopyButton, Field, OutputBox, TextInput, Toggle } from "../../components/ui"
 import { L } from "../../lib/locale"
 import { generateUuids } from "./logic"
@@ -9,12 +9,18 @@ export default function UuidGenerator() {
   const braces = signal(false)
   const values = signal<string[]>(generateUuids({ count: 5, uppercase: false, braces: false }))
 
-  const generate = () => values.set(generateUuids({ count: count(), uppercase: uppercase(), braces: braces() }))
+  const generate = (size = count()) => values.set(generateUuids({ count: size, uppercase: false, braces: false }))
   const quick = (size: number) => {
     count.set(size)
-    values.set(generateUuids({ count: size, uppercase: uppercase(), braces: braces() }))
+    generate(size)
   }
-  const output = () => values().join("\n")
+  const present = (value: string) => {
+    let formatted = value
+    if (uppercase()) formatted = formatted.toUpperCase()
+    if (braces()) formatted = `{${formatted}}`
+    return formatted
+  }
+  const output = () => values().map(present).join("\n")
 
   const setCount = (value: string) => {
     const parsed = Number(value.replace(/[^0-9]/g, ""))
@@ -35,9 +41,9 @@ export default function UuidGenerator() {
           <Button onPress={() => quick(3)} testID="uuid-quick-3">3</Button>
           <Button onPress={() => quick(5)} testID="uuid-quick-5">5</Button>
           <Button onPress={() => quick(10)} testID="uuid-quick-10">10</Button>
-          <Toggle label={L("大写", "Uppercase")} checked={uppercase()} onChange={(value) => { uppercase.set(value); generate() }} />
-          <Toggle label={L("花括号", "Braces")} checked={braces()} onChange={(value) => { braces.set(value); generate() }} />
-          <Button tone="primary" onPress={generate} testID="uuid-generate">
+          <Toggle label={L("大写", "Uppercase")} checked={uppercase()} onChange={(value) => uppercase.set(value)} />
+          <Toggle label={L("花括号", "Braces")} checked={braces()} onChange={(value) => braces.set(value)} />
+          <Button tone="primary" onPress={() => generate()} testID="uuid-generate">
             {L("生成", "Generate")}
           </Button>
         </View>

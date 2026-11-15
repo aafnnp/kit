@@ -1,3 +1,5 @@
+import { guardInput, MAX_INPUT_LENGTH } from "../../lib/validation"
+
 export type JsonResult = { ok: true; output: string } | { ok: false; error: string }
 
 function sortValue(value: unknown): unknown {
@@ -13,6 +15,7 @@ function sortValue(value: unknown): unknown {
 
 export function formatJson(input: string, indent: number | "\t" = 2, sortKeys = false): JsonResult {
   if (!input.trim()) return { ok: false, error: "Input is empty" }
+  guardInput(input)
   try {
     const parsed: unknown = JSON.parse(input)
     const value = sortKeys ? sortValue(parsed) : parsed
@@ -24,6 +27,7 @@ export function formatJson(input: string, indent: number | "\t" = 2, sortKeys = 
 
 export function minifyJson(input: string, sortKeys = false): JsonResult {
   if (!input.trim()) return { ok: false, error: "Input is empty" }
+  guardInput(input)
   try {
     const parsed: unknown = JSON.parse(input)
     const value = sortKeys ? sortValue(parsed) : parsed
@@ -35,7 +39,7 @@ export function minifyJson(input: string, sortKeys = false): JsonResult {
 
 /** `true` when the text is valid JSON, for live validation in the UI. */
 export function isValidJson(input: string): boolean {
-  if (!input.trim()) return false
+  if (!input.trim() || input.length > MAX_INPUT_LENGTH) return false
   try {
     JSON.parse(input)
     return true

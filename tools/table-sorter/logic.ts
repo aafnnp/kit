@@ -1,4 +1,5 @@
 import { parseCsv } from "../csv-to-json/logic"
+import { guardInput } from "../../lib/validation"
 
 export type SortDirection = "ascending" | "descending"
 
@@ -22,6 +23,7 @@ function escapeCsv(value: string): string {
 }
 
 export function sortCsvTable(input: string, columnIndex: number, direction: SortDirection): string[][] {
+  guardInput(input)
   const rows = parseCsv(input)
   if (rows.length < 2) throw new Error("Include a header row and at least one data row.")
   const columnCount = rows[0]!.length

@@ -1,3 +1,5 @@
+import { guardInput } from "../../lib/validation"
+
 export interface DecodedJwt {
   header: Record<string, unknown>
   payload: Record<string, unknown>
@@ -14,6 +16,7 @@ function decodePart(part: string): string {
 }
 
 export function decodeJwt(token: string): { ok: true; jwt: DecodedJwt } | { ok: false; error: string } {
+  guardInput(token, "Token")
   const parts = token.trim().split(".")
   if (parts.length !== 3) return { ok: false, error: "A JWT has three parts separated by dots" }
 

@@ -20,6 +20,7 @@ export default function PasswordGenerator() {
   const symbols = signal(true)
   const avoidAmbiguous = signal(false)
   const password = signal(generatePassword({ ...initialOptions }))
+  const error = signal("")
 
   const options = (): PasswordOptions => ({
     length: length(),
@@ -31,7 +32,15 @@ export default function PasswordGenerator() {
   })
 
   const strength = computed(() => passwordStrength(password()))
-  const regenerate = () => password.set(generatePassword(options()))
+  const regenerate = () => {
+    if (!lowercase() && !uppercase() && !digits() && !symbols()) {
+      password.set("")
+      error.set(L("至少选择一种字符类型。", "Choose at least one character type."))
+      return
+    }
+    error.set("")
+    password.set(generatePassword(options()))
+  }
 
   const setLength = (value: string) => {
     const parsed = Number(value.replace(/[^0-9]/g, ""))
@@ -67,6 +76,7 @@ export default function PasswordGenerator() {
           description={L(`约 ${strength().bits} 位熵 · ${strengthLabel(strength().label)}`, `~${strength().bits} bits · ${strengthLabel(strength().label)}`)}
           right={<CopyButton value={() => password()} testID="password-copy" />}
         />
+        {error() ? <Text class="text-xs text-destructive">{error()}</Text> : null}
         <OutputBox value={password()} height={90} testID="password-output" />
         <View class="h-2 overflow-hidden rounded-full bg-muted">
           <View

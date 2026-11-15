@@ -1,3 +1,5 @@
+import { reverseGraphemes } from "../../lib/text"
+
 export type CaseKind =
   | "upper"
   | "lower"
@@ -12,9 +14,9 @@ export type CaseKind =
 
 export function splitWords(input: string): string[] {
   return input
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
-    .split(/[^A-Za-z0-9]+/)
+    .replace(/(\p{Ll}|\p{N})(\p{Lu})/gu, "$1 $2")
+    .replace(/(\p{Lu}+)(\p{Lu}\p{Ll})/gu, "$1 $2")
+    .split(/[^\p{L}\p{N}]+/u)
     .filter(Boolean)
 }
 
@@ -28,7 +30,7 @@ export function titleCase(input: string): string {
 
 export function sentenceCase(input: string): string {
   const lower = input.toLowerCase()
-  return lower.replace(/(^\s*[a-z])|([.!?。！？]\s*[a-z])/g, (match) => match.toUpperCase())
+  return lower.replace(/(^\s*\p{Ll})|([.!?。！？]\s*\p{Ll})/gu, (match) => match.toUpperCase())
 }
 
 export function convertCase(input: string, kind: CaseKind): string {
@@ -54,7 +56,7 @@ export function convertCase(input: string, kind: CaseKind): string {
     case "constant":
       return splitWords(input).map((word) => word.toUpperCase()).join("_")
     case "reverse":
-      return [...input].reverse().join("")
+      return reverseGraphemes(input)
   }
 }
 

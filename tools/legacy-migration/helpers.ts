@@ -424,7 +424,7 @@ export function qrFormat(mask: number): number {
   return ((data << 10) | bchRemainder(data << 10, 0x537)) ^ 0x5412
 }
 
-export function qrEcc(data: number[]): number[] {
+export function qrEcc(data: number[], eccCount = 7): number[] {
   const multiply = (left: number, right: number) => {
     let result = 0
     for (let i = 7; i >= 0; i -= 1) {
@@ -435,7 +435,7 @@ export function qrEcc(data: number[]): number[] {
   }
   let generator = [1]
   let root = 1
-  for (let i = 0; i < 7; i += 1) {
+  for (let i = 0; i < eccCount; i += 1) {
     const next = new Array<number>(generator.length + 1).fill(0)
     generator.forEach((value, index) => {
       next[index] ^= value
@@ -444,7 +444,7 @@ export function qrEcc(data: number[]): number[] {
     generator = next
     root = multiply(root, 2)
   }
-  const remainder = new Array<number>(7).fill(0)
+  const remainder = new Array<number>(eccCount).fill(0)
   for (const byte of data) {
     const factor = byte ^ remainder.shift()!
     remainder.push(0)
@@ -486,27 +486,48 @@ export function qrPenalty(matrix: boolean[][]): number {
   return score
 }
 
+interface QrVersion {
+  version: number
+  total: number
+  ecc: number
+  data: number
+}
+
+// Byte mode, error-correction level L, versions 1–5 (one RS block each).
+const QR_VERSIONS_L: QrVersion[] = [
+  { version: 1, total: 26, ecc: 7, data: 19 },
+  { version: 2, total: 44, ecc: 10, data: 34 },
+  { version: 3, total: 70, ecc: 15, data: 55 },
+  { version: 4, total: 100, ecc: 20, data: 80 },
+  { version: 5, total: 134, ecc: 26, data: 108 },
+]
+
 export function createQrSvg(source: string): string {
   const bytes = [...new TextEncoder().encode(source)]
-  if (!bytes.length || bytes.length > 17) throw new Error("Version 1-L QR supports 1–17 UTF-8 bytes.")
+  const chosen = QR_VERSIONS_L.find((entry) => entry.data >= bytes.length + 2)
+  if (!bytes.length || !chosen) {
+    throw new Error(`Version 1–5 L QR codes hold 1–106 UTF-8 bytes; this text is ${bytes.length}.`)
+  }
+
+  const capacityBits = chosen.data * 8
   const dataBits = [0, 1, 0, 0, ...Array.from({ length: 8 }, (_, bit) => (bytes.length >>> (7 - bit)) & 1)]
   for (const byte of bytes) dataBits.push(...Array.from({ length: 8 }, (_, bit) => (byte >>> (7 - bit)) & 1))
-  for (let count = 0; count < Math.min(4, 152 - dataBits.length); count += 1) dataBits.push(0)
+  for (let count = 0; count < Math.min(4, capacityBits - dataBits.length); count += 1) dataBits.push(0)
   while (dataBits.length % 8) dataBits.push(0)
   const data = Array.from({ length: dataBits.length / 8 }, (_, index) =>
     dataBits.slice(index * 8, index * 8 + 8).reduce((value, bit) => (value << 1) | bit, 0))
   let pad = 0xec
-  while (data.length < 19) {
+  while (data.length < chosen.data) {
     data.push(pad)
     pad = pad === 0xec ? 0x11 : 0xec
   }
-  const codewords = [...data, ...qrEcc(data)]
+  const codewords = [...data, ...qrEcc(data, chosen.ecc)]
   const bits = codewords.flatMap((byte) => Array.from({ length: 8 }, (_, bit) => (byte >>> (7 - bit)) & 1))
-  const size = 21
+  const size = 17 + chosen.version * 4
   const base = Array.from({ length: size }, () => new Array<boolean | null>(size).fill(null))
   const put = (row: number, col: number, value: boolean) => { if (row >= 0 && row < size && col >= 0 && col < size) base[row]![col] = value }
 
-  for (const [top, left] of [[0, 0], [0, 14], [14, 0]]) {
+  for (const [top, left] of [[0, 0], [0, size - 7], [size - 7, 0]]) {
     for (let row = -1; row <= 7; row += 1) {
       for (let col = -1; col <= 7; col += 1) {
         const distance = Math.max(Math.abs(row - 3), Math.abs(col - 3))
@@ -514,9 +535,17 @@ export function createQrSvg(source: string): string {
       }
     }
   }
-  for (let i = 8; i < 13; i += 1) {
+  for (let i = 8; i < size - 8; i += 1) {
     put(6, i, i % 2 === 0)
     put(i, 6, i % 2 === 0)
+  }
+  if (chosen.version >= 2) {
+    const center = size - 7
+    for (let row = -2; row <= 2; row += 1) {
+      for (let col = -2; col <= 2; col += 1) {
+        put(center + row, center + col, Math.max(Math.abs(row), Math.abs(col)) !== 1)
+      }
+    }
   }
   for (let i = 0; i < 9; i += 1) {
     if (i !== 6) { put(8, i, false); put(i, 8, false) }
@@ -525,7 +554,7 @@ export function createQrSvg(source: string): string {
     put(8, size - 1 - i, false)
     put(size - 1 - i, 8, false)
   }
-  put(8, 13, true)
+  put(8, size - 8, true)
 
   const reserved = base.map((row) => row.map((cell) => cell !== null))
   const bitMatrices = Array.from({ length: 8 }, () => Array.from({ length: size }, () => new Array<boolean>(size).fill(false)))
@@ -565,13 +594,13 @@ export function createQrSvg(source: string): string {
     for (let i = 9; i < 15; i += 1) matrix[8]![14 - i] = bit(i)
     for (let i = 0; i < 8; i += 1) matrix[8]![size - 1 - i] = bit(i)
     for (let i = 8; i < 15; i += 1) matrix[size - 15 + i]![8] = bit(i)
-    matrix[13]![8] = true
+    matrix[size - 8]![8] = true
   }
   const best = bitMatrices.reduce((bestIndex, matrix, index) =>
     qrPenalty(matrix) < qrPenalty(bitMatrices[bestIndex]!) ? index : bestIndex, 0)
   const matrix = bitMatrices[best]!
   const squares = matrix.flatMap((row, y) => row.flatMap((dark, x) => dark ? [`<rect x="${x}" y="${y}" width="1" height="1"/>`] : []))
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 29 29" shape-rendering="crispEdges"><rect x="-4" y="-4" width="29" height="29" fill="white"/><g fill="black">${squares.join("")}</g></svg>`
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -4 ${size + 8} ${size + 8}" shape-rendering="crispEdges"><rect x="-4" y="-4" width="${size + 8}" height="${size + 8}" fill="white"/><g fill="black">${squares.join("")}</g></svg>`
 }
 
 export function makePdf(objects: string[]): string {
@@ -674,6 +703,18 @@ export function formatIpv4(value: number): string {
   return [24, 16, 8, 0].map((shift) => (value >>> shift) & 255).join(".")
 }
 
+function ipv4Range(ip: number): string {
+  if ((ip >>> 24) === 10 || (ip >>> 20) === 0xac1 || (ip >>> 16) === 0xc0a8) return "Private (RFC 1918)"
+  if ((ip >>> 24) === 127) return "Loopback (127.0.0.0/8)"
+  if ((ip >>> 16) === 0xa9fe) return "Link-local (169.254.0.0/16)"
+  if (((ip & 0xffc00000) >>> 0) === 0x64400000) return "Carrier-grade NAT (100.64.0.0/10)"
+  if ((ip >>> 24) === 0) return "This network (0.0.0.0/8)"
+  if ((ip >>> 8) === 0xc00002 || (ip >>> 8) === 0xc63364 || (ip >>> 8) === 0xcb0071) return "Documentation"
+  if ((ip >>> 28) === 0xe) return "Multicast (224.0.0.0/4)"
+  if ((ip >>> 28) === 0xf) return "Reserved (240.0.0.0/4)"
+  return "Public"
+}
+
 export function inspectIpv4(source: string): string {
   const [address, prefixText, extra] = source.trim().split("/")
   if (extra !== undefined) throw new Error("Use one IPv4 address and an optional CIDR prefix.")
@@ -684,17 +725,15 @@ export function inspectIpv4(source: string): string {
   const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0
   const network = (ip & mask) >>> 0
   const broadcast = (network | (~mask >>> 0)) >>> 0
-  const privateAddress = (ip >>> 24) === 10 || (ip >>> 20) === 0xac1 || (ip >>> 16) === 0xc0a8
-  const loopback = (ip >>> 24) === 127
-  const linkLocal = (ip >>> 16) === 0xa9fe
   return [
     `Address: ${address}`,
-    `Class: ${privateAddress ? "Private (RFC 1918)" : loopback ? "Loopback" : linkLocal ? "Link-local" : "Other / public range"}`,
+    `Range: ${ipv4Range(ip)}`,
     `CIDR: ${formatIpv4(network)}/${prefix}`,
     `Netmask: ${formatIpv4(mask)}`,
     `Network: ${formatIpv4(network)}`,
     `Broadcast: ${formatIpv4(broadcast)}`,
     `Address count: ${2 ** (32 - prefix)}`,
+    `Usable hosts: ${prefix >= 31 ? 2 ** (32 - prefix) : Math.max(0, 2 ** (32 - prefix) - 2)}`,
     "Geolocation and external lookups are intentionally not performed.",
   ].join("\n")
 }
@@ -853,6 +892,21 @@ export function readExifValue(bytes: Uint8Array, tiff: number, little: boolean, 
     while (end < start + count && bytes[end] !== 0) end += 1
     return latin1(bytes.subarray(start, end))
   }
+  if (type === 5 || type === 10) {
+    const rationals: string[] = []
+    for (let index = 0; index < count; index += 1) {
+      const at = start + index * 8
+      const numerator = little
+        ? (bytes[at]! | (bytes[at + 1]! << 8) | (bytes[at + 2]! << 16) | (bytes[at + 3]! << 24)) >>> 0
+        : ((bytes[at]! << 24) | (bytes[at + 1]! << 16) | (bytes[at + 2]! << 8) | bytes[at + 3]!) >>> 0
+      const denominator = little
+        ? (bytes[at + 4]! | (bytes[at + 5]! << 8) | (bytes[at + 6]! << 16) | (bytes[at + 7]! << 24)) >>> 0
+        : ((bytes[at + 4]! << 24) | (bytes[at + 5]! << 16) | (bytes[at + 6]! << 8) | bytes[at + 7]!) >>> 0
+      rationals.push(denominator === 0 ? `${numerator}/0` : `${numerator}/${denominator}`)
+    }
+    return rationals.join(", ")
+  }
+
   const values: number[] = []
   for (let index = 0; index < count; index += 1) {
     const at = start + index * unit
@@ -865,6 +919,29 @@ export function readExifValue(bytes: Uint8Array, tiff: number, little: boolean, 
     } else return `(type ${type}, ${count} value${count === 1 ? "" : "s"})`
   }
   return values.length ? values.join(", ") : "(empty)"
+}
+
+export function orientationName(value: number): string {
+  switch (value) {
+    case 1:
+      return "Normal"
+    case 2:
+      return "Mirror horizontal"
+    case 3:
+      return "Rotate 180 CW"
+    case 4:
+      return "Mirror vertical"
+    case 5:
+      return "Mirror horizontal and rotate 270 CW"
+    case 6:
+      return "Rotate 90 CW"
+    case 7:
+      return "Mirror horizontal and rotate 90 CW"
+    case 8:
+      return "Rotate 270 CW"
+    default:
+      return "Unknown"
+  }
 }
 
 export function inspectExif(dataUrl: string): string {
@@ -896,8 +973,13 @@ export function inspectExif(dataUrl: string): string {
     if (ifd + 2 > segmentEnd) throw new Error("EXIF directory is outside its JPEG segment.")
     const count = Math.min(u16(ifd), 256)
     const tagNames: Record<number, string> = {
-      0x010f: "Make", 0x0110: "Model", 0x0112: "Orientation", 0x0131: "Software",
-      0x0132: "DateTime", 0x8298: "Copyright", 0x8825: "GPS metadata",
+      0x0100: "Image width", 0x0101: "Image height", 0x010e: "Description",
+      0x010f: "Make", 0x0110: "Model", 0x0112: "Orientation", 0x011a: "X resolution",
+      0x011b: "Y resolution", 0x0128: "Resolution unit", 0x0131: "Software",
+      0x0132: "DateTime", 0x8298: "Copyright", 0x829a: "Exposure time",
+      0x829d: "F number", 0x8825: "GPS metadata", 0x8827: "ISO speed",
+      0x9003: "DateTime original", 0x9209: "Flash", 0xa002: "Pixel width",
+      0xa003: "Pixel height", 0xa434: "Lens model",
     }
     for (let i = 0; i < count; i += 1) {
       const entry = ifd + 2 + i * 12
@@ -910,7 +992,8 @@ export function inspectExif(dataUrl: string): string {
         const unit = ({ 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8 } as Record<number, number>)[type]
         if (!unit) continue
         const value = items * unit <= 4 ? entry + 8 - tiff : u32(entry + 8)
-        results.push(`${tagNames[tag]}: ${readExifValue(bytes, tiff, little, type, items, value, segmentEnd)}`)
+        const text = readExifValue(bytes, tiff, little, type, items, value, segmentEnd)
+        results.push(tag === 0x0112 ? `Orientation: ${text} (${orientationName(Number(text))})` : `${tagNames[tag]}: ${text}`)
         }
       }
       return results.length ? results.join("\n") : "EXIF exists, but no supported descriptive tags were found."

@@ -46,7 +46,7 @@ export interface LegacyToolSpec {
   secondary?: { label: Localized; placeholder?: Localized; default?: string }
   imagePicker?: boolean
   pickOptions?: (value: string) => PickImagesOptions
-  run: (input: string, secondary: string, option: string) => LegacyToolResult
+  run: (input: string, secondary: string) => LegacyToolResult
 }
 
 type Details = Omit<LegacyToolSpec, "meta">
@@ -174,11 +174,10 @@ const details: Record<string, Details> = {
     defaultInput: "Kit toolbox",
     primaryLabel: { zh: "文本；Base64 请加前缀 base64:", en: "Text; prefix Base64 with base64:" },
     secondary: { label: { zh: "算法", en: "Algorithm" }, placeholder: { zh: "sha256", en: "sha256" }, default: "sha256" },
-    run: (input, secondary, option) => {
+    run: (input, secondary) => {
       const algorithm = (secondary || "sha256").trim().toLowerCase()
       if (!["md5", "sha1", "sha256", "sha384", "sha512"].includes(algorithm)) throw new Error("Choose md5, sha1, sha256, sha384 or sha512.")
-      const base64Input = option.toLowerCase() === "base64" || /^base64:/i.test(input)
-      const content = base64Input ? decodeBase64(input.replace(/^base64:/i, "")) : input
+      const content = /^base64:/i.test(input) ? decodeBase64(input.replace(/^base64:/i, "")) : input
       return { output: createHash(algorithm).update(content).digest("hex") }
     },
   },
@@ -257,8 +256,8 @@ const details: Record<string, Details> = {
     defaultInput: '[{"label":"A","value":12},{"label":"B","value":24}]',
     primaryLabel: { zh: "JSON 数组", en: "JSON array" },
     secondary: { label: { zh: "标签键,数值键", en: "Label key,value key" }, placeholder: { zh: "label,value", en: "label,value" }, default: "label,value" },
-    run: (input, secondary, option) => ({
-      output: jsonBarChart(input, (secondary || "label").split(",")[0]!.trim(), (secondary || "label,value").split(",")[1]?.trim() || option || "value"),
+    run: (input, secondary) => ({
+      output: jsonBarChart(input, (secondary || "label").split(",")[0]!.trim(), (secondary || "label,value").split(",")[1]?.trim() || "value"),
     }),
   },
   "jwt-generator": {
@@ -316,7 +315,7 @@ const details: Record<string, Details> = {
   },
   "qr-generator": {
     defaultInput: "Kit",
-    primaryLabel: { zh: "文本（最多 17 个 UTF-8 字节）", en: "Text (up to 17 UTF-8 bytes)" },
+    primaryLabel: { zh: "文本（最多 106 个 UTF-8 字节）", en: "Text (up to 106 UTF-8 bytes)" },
     primaryPlaceholder: { zh: "https://example.test", en: "https://example.test" },
     run: (input) => ({ output: createQrSvg(input) }),
   },

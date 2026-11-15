@@ -1,16 +1,16 @@
-import { signal, Text, View } from "nsh"
+import { computed, signal, Text, View } from "nsh"
 import { Button, Card, CardHeader, CopyButton, ErrorBanner, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
 import { analyzePrime } from "./logic"
 
 export default function PrimeChecker() {
   const input = signal("97")
-  const result = () => {
+  const result = computed(() => {
     const analysis = analyzePrime(input())
     return analysis.ok
       ? { error: "", value: analysis.value.toString(), prime: analysis.prime }
       : { error: analysis.error, value: "", prime: false }
-  }
+  })
 
   return (
     <View class="gap-4">

@@ -1,6 +1,7 @@
 import { cleanup, Clipboard, Scroll, signal, Text, View } from "nsh"
 import { Input } from "nsh/base"
 import type { JSX } from "nsh"
+import { localizeMessage } from "../lib/errors"
 import { L } from "../lib/locale"
 import { cardClass, inputClass, labelClass, monoClass } from "../lib/styles"
 
@@ -59,7 +60,7 @@ export function Button(props: {
   )
 }
 
-export function CopyButton(props: { value: string | (() => string); label?: string; testID?: string; class?: string }) {
+export function CopyButton(props: { value: string | (() => string); label?: string; testID?: string; class?: string; accessibilityLabel?: string }) {
   const copied = signal(false)
   let timer: number | undefined
   cleanup(() => {
@@ -78,9 +79,17 @@ export function CopyButton(props: { value: string | (() => string); label?: stri
       .catch(() => {})
   }
 
+  const label = () => (copied() ? L("已复制", "Copied") : (props.label ?? L("复制", "Copy")))
+
   return (
-    <Button onPress={copy} testID={props.testID} class={props.class} tone={copied() ? "primary" : "secondary"}>
-      {copied() ? L("已复制", "Copied") : (props.label ?? L("复制", "Copy"))}
+    <Button
+      onPress={copy}
+      testID={props.testID}
+      class={props.class}
+      tone={copied() ? "primary" : "secondary"}
+      accessibilityLabel={props.accessibilityLabel ?? label()}
+    >
+      {label()}
     </Button>
   )
 }
@@ -158,12 +167,20 @@ export function Segmented<T extends string>(props: {
   onChange: (value: T) => void
   testID?: string
   class?: string
+  label?: string
 }) {
   return (
-    <View class={`flex-row flex-wrap gap-1 rounded-(--radius) border border-border bg-muted/50 p-1 ${props.class ?? ""}`} testID={props.testID}>
+    <View
+      role="radiogroup"
+      accessibilityLabel={props.label ?? L("选项", "Options")}
+      class={`flex-row flex-wrap gap-1 rounded-(--radius) border border-border bg-muted/50 p-1 ${props.class ?? ""}`}
+      testID={props.testID}
+    >
       {props.options.map((option) => (
         <View
-          role="button"
+          role="radio"
+          accessibilityLabel={option.label}
+          accessibilityState={{ checked: props.value === option.value }}
           testID={`${props.testID ?? "segment"}-${option.value}`}
           onPress={() => props.onChange(option.value)}
           class="h-7 flex-row items-center justify-center rounded-md px-2.5 active:opacity-70"
@@ -251,7 +268,7 @@ export function Badge(props: { children: JSX.Element | string; tone?: "default" 
 export function ErrorBanner(props: { message: string }) {
   return (
     <View class="rounded-(--radius) border border-destructive/30 bg-destructive/10 p-3">
-      <Text class="select-text text-xs text-destructive">{props.message}</Text>
+      <Text class="select-text text-xs text-destructive">{localizeMessage(props.message)}</Text>
     </View>
   )
 }

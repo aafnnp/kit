@@ -1,6 +1,7 @@
 import { signal, Text, View } from "nsh"
 import { Button, Card, CardHeader, CopyButton, ErrorBanner, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { resetOnChange } from "../../lib/tool-run"
 import { parseLotteryItems, pickLottery } from "./logic"
 
 export default function LotteryPicker() {
@@ -8,6 +9,11 @@ export default function LotteryPicker() {
   const count = signal("1")
   const selected = signal<string[]>([])
   const error = signal("")
+
+  resetOnChange(() => {
+    selected.set([])
+    error.set("")
+  }, input, count)
 
   const draw = () => {
     try {

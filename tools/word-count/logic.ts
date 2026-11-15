@@ -1,3 +1,5 @@
+import { countGraphemes } from "../../lib/text"
+
 export interface TextStats {
   characters: number
   charactersNoSpaces: number
@@ -15,14 +17,13 @@ export function textStats(text: string, minutesPerWord = 200): TextStats {
     return { characters: 0, charactersNoSpaces: 0, words: 0, lines: 0, sentences: 0, paragraphs: 0, readingMinutes: 0 }
   }
 
-  const characters = [...text].length
-  const charactersNoSpaces = [...text.replace(/\s/g, "")].length
+  const characters = countGraphemes(text)
+  const charactersNoSpaces = countGraphemes(text.replace(/\s/g, ""))
   const cjk = text.match(CJK)?.length ?? 0
+  // Punctuation left behind after removing CJK must not count as a word.
   const latin = text
     .replace(CJK, " ")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length
+    .match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu)?.length ?? 0
   const words = latin + cjk
   const lines = text.split(/\r?\n/).length
   const sentences = text

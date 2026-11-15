@@ -1,3 +1,5 @@
+import { guardInput } from "../../lib/validation"
+
 export interface JsonDifference {
   path: string
   kind: "added" | "removed" | "changed"
@@ -19,6 +21,8 @@ function childPath(path: string, key: string | number): string {
 }
 
 export function compareJson(leftText: string, rightText: string): JsonDiffResult {
+  guardInput(leftText, "Left JSON")
+  guardInput(rightText, "Right JSON")
   const left: unknown = JSON.parse(leftText)
   const right: unknown = JSON.parse(rightText)
   const differences: JsonDifference[] = []

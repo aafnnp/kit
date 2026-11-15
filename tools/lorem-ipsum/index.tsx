@@ -1,4 +1,4 @@
-import { computed, signal, Text, View } from "nsh"
+import { computed, signal, View } from "nsh"
 import { Button, Card, CardHeader, CopyButton, Field, OutputBox, TextInput, Toggle } from "../../components/ui"
 import { L } from "../../lib/locale"
 import { generateLorem } from "./logic"
@@ -7,7 +7,7 @@ export default function LoremIpsum() {
   const paragraphs = signal(3)
   const sentences = signal(4)
   const startWithLorem = signal(true)
-  const seed = signal(20261030)
+  const seed = signal(Math.floor(Math.random() * 0xffffffff))
 
   const output = computed(() =>
     generateLorem({

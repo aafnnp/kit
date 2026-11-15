@@ -7,18 +7,28 @@ export interface ZonedTime {
 
 interface ZoneRule {
   standardOffset: number
-  daylight: "us" | "europe" | "sydney" | null
+  daylight: "us" | "europe" | "sydney" | "nz" | null
 }
 
 const ZONE_RULES: Record<string, ZoneRule> = {
   UTC: { standardOffset: 0, daylight: null },
   "America/Los_Angeles": { standardOffset: -480, daylight: "us" },
+  "America/Chicago": { standardOffset: -360, daylight: "us" },
+  "America/Denver": { standardOffset: -420, daylight: "us" },
   "America/New_York": { standardOffset: -300, daylight: "us" },
   "Europe/London": { standardOffset: 0, daylight: "europe" },
   "Europe/Paris": { standardOffset: 60, daylight: "europe" },
+  "Europe/Berlin": { standardOffset: 60, daylight: "europe" },
+  "Europe/Madrid": { standardOffset: 60, daylight: "europe" },
+  "Europe/Moscow": { standardOffset: 180, daylight: null },
+  "Asia/Dubai": { standardOffset: 240, daylight: null },
+  "Asia/Kolkata": { standardOffset: 330, daylight: null },
   "Asia/Shanghai": { standardOffset: 480, daylight: null },
+  "Asia/Singapore": { standardOffset: 480, daylight: null },
   "Asia/Tokyo": { standardOffset: 540, daylight: null },
+  "Asia/Seoul": { standardOffset: 540, daylight: null },
   "Australia/Sydney": { standardOffset: 600, daylight: "sydney" },
+  "Pacific/Auckland": { standardOffset: 720, daylight: "nz" },
 }
 
 function nthSunday(year: number, month: number, occurrence: number): number {
@@ -44,6 +54,12 @@ function isDaylightTime(timestamp: number, year: number, zone: ZoneRule): boolea
     const start = Date.UTC(year, 2, lastSunday(year, 2), 1)
     const end = Date.UTC(year, 9, lastSunday(year, 9), 1)
     return timestamp >= start && timestamp < end
+  }
+
+  if (zone.daylight === "nz") {
+    const start = Date.UTC(year, 8, lastSunday(year, 8), 2 - zone.standardOffset / 60)
+    const end = Date.UTC(year, 3, nthSunday(year, 3, 1), 3 - (zone.standardOffset + 60) / 60)
+    return timestamp >= start || timestamp < end
   }
 
   const start = Date.UTC(year, 9, nthSunday(year, 9, 1), 2 - zone.standardOffset / 60)

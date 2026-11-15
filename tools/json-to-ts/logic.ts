@@ -1,3 +1,5 @@
+import { guardInput } from "../../lib/validation"
+
 type Shape =
   | { kind: "primitive"; name: string }
   | { kind: "null" }
@@ -158,6 +160,7 @@ function typeName(shape: Shape, hint: string, emitter: Emitter): string {
 
 export function jsonToTs(input: string, rootName = "Root"): { ok: true; output: string } | { ok: false; error: string } {
   if (!input.trim()) return { ok: false, error: "Input is empty" }
+  guardInput(input)
   let value: unknown
   try {
     value = JSON.parse(input)
@@ -172,7 +175,9 @@ export function jsonToTs(input: string, rootName = "Root"): { ok: true; output: 
   }
 
   const emitter: Emitter = { interfaces: [], names: new Map(), used: new Set() }
-  const type = typeName(shape, root, emitter)
+  // A root array's item type must not reuse the alias name, or the output
+  // declares `Root` twice and will not compile.
+  const type = typeName(shape, shape.kind === "array" ? `${root}Item` : root, emitter)
   const alias = type === root ? "" : `export type ${root} = ${type}\n\n`
   return { ok: true, output: `${emitter.interfaces.join("\n\n")}\n\n${alias}`.trim() }
 }

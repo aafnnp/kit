@@ -1,3 +1,5 @@
+import { guardInput } from "../../lib/validation"
+
 function toBinary(text: string): string {
   const bytes = new TextEncoder().encode(text)
   let binary = ""
@@ -12,11 +14,13 @@ function fromBinary(binary: string): string {
 }
 
 export function encodeBase64(text: string, urlSafe = false): string {
+  guardInput(text)
   const base64 = btoa(toBinary(text))
   return urlSafe ? base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") : base64
 }
 
 export function decodeBase64(text: string, urlSafe = false): string {
+  guardInput(text)
   let value = text.trim().replace(/\s+/g, "")
   if (urlSafe) value = value.replace(/-/g, "+").replace(/_/g, "/")
   if (!/^[A-Za-z0-9+/]*={0,2}$/.test(value)) throw new Error("Invalid Base64 input")

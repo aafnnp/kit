@@ -10,11 +10,20 @@ export interface TimeDifference {
   milliseconds: number
 }
 
+/** Accepts ISO dates, Unix seconds (10 digits) and Unix milliseconds (13 digits). */
+export function parseInstant(input: string): number {
+  const text = input.trim()
+  if (!text) return Number.NaN
+  if (/^-?\d{10}$/.test(text)) return Number(text) * 1000
+  if (/^-?\d{13}$/.test(text)) return Number(text)
+  return Date.parse(text)
+}
+
 export function calculateTimeDifference(startInput: string, endInput: string):
   | { ok: true; difference: TimeDifference }
   | { ok: false; error: string } {
-  const start = Date.parse(startInput)
-  const end = Date.parse(endInput)
+  const start = parseInstant(startInput)
+  const end = parseInstant(endInput)
   if (!startInput.trim() || !endInput.trim() || !Number.isFinite(start) || !Number.isFinite(end)) {
     return { ok: false, error: "Enter two valid dates or timestamps." }
   }

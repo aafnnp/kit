@@ -1,6 +1,7 @@
 import { signal, Text, View } from "nsh"
 import { Card, CardHeader, CopyButton, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import type { HttpStatus as HttpStatusEntry } from "./logic"
 import { searchHttpStatuses } from "./logic"
 
 export default function HttpStatus() {
@@ -24,7 +25,7 @@ export default function HttpStatus() {
               <Text class="w-12 font-mono text-sm font-semibold text-primary">{status.code}</Text>
               <View class="min-w-0 flex-1 gap-0.5">
                 <Text class="text-xs font-medium text-foreground">{status.phrase}</Text>
-                <Text class="text-[11px] text-muted-foreground">{L(status.zh, status.category.replace("-", " "))}</Text>
+                <Text class="text-[11px] text-muted-foreground">{L(status.zh, categoryLabel(status.category))}</Text>
               </View>
               <CopyButton value={() => `${status.code} ${status.phrase}`} label="" testID={`http-status-copy-${status.code}`} />
             </View>
@@ -34,4 +35,19 @@ export default function HttpStatus() {
       </Card>
     </View>
   )
+}
+
+function categoryLabel(category: HttpStatusEntry["category"]): string {
+  switch (category) {
+    case "info":
+      return "Information"
+    case "success":
+      return "Success"
+    case "redirect":
+      return "Redirect"
+    case "client-error":
+      return "Client error"
+    default:
+      return "Server error"
+  }
 }

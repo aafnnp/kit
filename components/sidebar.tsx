@@ -75,7 +75,7 @@ function ToolRow(props: { tool: ToolDefinition; active: boolean; testID: string 
           role="button"
           accessibilityLabel={L("收藏", "Favorite")}
           onPress={() => toggleFavorite(props.tool.slug)}
-          class="h-6 w-6 items-center justify-center rounded-md active:bg-black/10"
+          class="-my-1 -mr-1 h-8 w-8 items-center justify-center rounded-md active:bg-black/10"
         >
           <Text class="text-xs" classList={{ "text-brand-orange": isFavorite(props.tool.slug), "text-muted-foreground": !isFavorite(props.tool.slug) }}>
             {isFavorite(props.tool.slug) ? "★" : "☆"}

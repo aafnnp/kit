@@ -1,32 +1,36 @@
-import { signal, Text, View } from "nsh"
+import { computed, signal, Text, View } from "nsh"
 import { Card, CardHeader, CopyButton, ErrorBanner, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { messageOf } from "../../lib/tool-run"
 import { convertTimeZones } from "./logic"
 
 const ZONES = [
   "UTC",
   "America/Los_Angeles",
+  "America/Chicago",
   "America/New_York",
   "Europe/London",
   "Europe/Paris",
+  "Europe/Berlin",
+  "Europe/Moscow",
+  "Asia/Dubai",
+  "Asia/Kolkata",
   "Asia/Shanghai",
   "Asia/Tokyo",
   "Australia/Sydney",
+  "Pacific/Auckland",
 ]
 
 export default function TimezoneConvert() {
   const input = signal("2025-01-01T12:00:00Z")
-  const error = signal("")
-  const times = () => {
+  const outcome = computed(() => {
     try {
-      error.set("")
-      return convertTimeZones(input(), ZONES)
+      return { times: convertTimeZones(input(), ZONES), error: "" }
     } catch (failure) {
-      error.set(failure instanceof Error ? failure.message : String(failure))
-      return []
+      return { times: [], error: messageOf(failure) }
     }
-  }
-  const rows = () => times()
+  })
+  const rows = () => outcome().times
   const allTimes = () => rows().map((row) => `${row.timeZone}: ${row.formatted} ${row.offsetLabel}`).join("\n")
 
   return (
@@ -37,7 +41,7 @@ export default function TimezoneConvert() {
           description={L("输入一个 ISO 日期时间，同时查看常用城市的当地时间。", "Enter an ISO date and time to see the local time in common cities.")}
         />
         <TextInput value={input()} onChange={(value) => input.set(value)} mono testID="timezone-input" placeholder="2025-01-01T12:00:00Z" />
-        {error() ? <ErrorBanner message={error()} /> : null}
+        {outcome().error ? <ErrorBanner message={outcome().error} /> : null}
       </Card>
       <Card>
         <CardHeader

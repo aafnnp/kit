@@ -1,24 +1,16 @@
 import { signal, Text, View } from "nsh"
 import { Button, Card, CardHeader, CopyButton, ErrorBanner, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { createLiveRun } from "../../lib/tool-run"
+import { numberFromText } from "../../lib/validation"
 import { generateLinearGradient } from "./logic"
 
 export default function GradientMaker() {
   const first = signal("#00A6D0")
   const second = signal("#6B2DD1")
   const angle = signal("135")
-  const output = signal("")
-  const error = signal("")
-
-  const generate = () => {
-    try {
-      output.set(generateLinearGradient(first(), second(), Number(angle())))
-      error.set("")
-    } catch (failure) {
-      output.set("")
-      error.set(failure instanceof Error ? failure.message : String(failure))
-    }
-  }
+  const compute = () => generateLinearGradient(first(), second(), numberFromText(angle(), "Angle"))
+  const outcome = createLiveRun({ initial: "", compute, inputs: [first, second, angle] })
 
   return (
     <View class="gap-4">
@@ -32,14 +24,14 @@ export default function GradientMaker() {
           <GradientField label={L("结束颜色", "Second color")} value={second()} update={(value) => second.set(value)} id="gradient-second" />
           <GradientField label={L("角度 (deg)", "Angle (deg)")} value={angle()} update={(value) => angle.set(value)} id="gradient-angle" />
         </View>
-        {error() ? <ErrorBanner message={error()} /> : null}
-        <Button tone="primary" onPress={generate} testID="gradient-generate">{L("生成", "Generate")}</Button>
+        {outcome.error() ? <ErrorBanner message={outcome.error()} /> : null}
+        <Button tone="primary" onPress={() => outcome.run(compute)} testID="gradient-generate">{L("生成", "Generate")}</Button>
       </Card>
-      {output() ? (
+      {outcome.output() ? (
         <Card>
-          <CardHeader title={L("预览与 CSS", "Preview & CSS")} right={<CopyButton value={() => output()} testID="gradient-copy" />} />
-          <View class="h-28 rounded-md border border-border" style={{ backgroundImage: output().replace("background: ", "").replace(";", "") }} />
-          <Text class="select-text font-mono text-xs text-foreground" testID="gradient-output">{output()}</Text>
+          <CardHeader title={L("预览与 CSS", "Preview & CSS")} right={<CopyButton value={outcome.output} testID="gradient-copy" />} />
+          <View class="h-28 rounded-md border border-border" style={{ backgroundImage: outcome.output().replace("background: ", "").replace(";", "") }} />
+          <Text class="select-text font-mono text-xs text-foreground" testID="gradient-output">{outcome.output()}</Text>
         </Card>
       ) : null}
     </View>

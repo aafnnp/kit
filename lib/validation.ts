@@ -18,3 +18,14 @@ export function integerFromText(value: string, minimum: number, maximum: number,
   if (!/^[+-]?\d+$/.test(text)) throw new Error(`${label} must be a whole number from ${minimum} to ${maximum}.`)
   return integerInRange(Number(text), minimum, maximum, label)
 }
+
+/** Parses a decimal number without treating an empty field as zero. */
+export function numberFromText(value: string, label = "Value"): number {
+  const text = value.trim()
+  if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(text)) {
+    throw new Error(`${label} must be a number.`)
+  }
+  const parsed = Number(text)
+  if (!Number.isFinite(parsed)) throw new Error(`${label} must be a finite number.`)
+  return parsed
+}

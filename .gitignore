@@ -12,3 +12,6 @@ node_modules/
 .DS_Store
 .idea/
 *.swp
+
+# Local Cloudflare state
+.wrangler/

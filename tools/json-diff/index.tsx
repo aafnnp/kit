@@ -1,6 +1,8 @@
 import { signal, Text, View } from "nsh"
 import { Button, Card, CardHeader, CopyButton, ErrorBanner, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { createLiveRun } from "../../lib/tool-run"
+import { persistDraft, restoreDraft } from "../../lib/drafts"
 import { compareJson, formatJsonValue, type JsonDiffResult } from "./logic"
 
 const LEFT_SAMPLE = '{\n  "name": "Kit",\n  "version": 1,\n  "features": ["json", "text"]\n}'
@@ -9,23 +11,20 @@ const RIGHT_SAMPLE = '{\n  "name": "Kit",\n  "version": 2,\n  "features": ["json
 export default function JsonDiff() {
   const left = signal(LEFT_SAMPLE)
   const right = signal(RIGHT_SAMPLE)
-  const result = signal<JsonDiffResult | null>(null)
-  const error = signal("")
+  restoreDraft("json-diff:left", LEFT_SAMPLE, left)
+  persistDraft("json-diff:left", left)
+  restoreDraft("json-diff:right", RIGHT_SAMPLE, right)
+  persistDraft("json-diff:right", right)
+  const compute = () => compareJson(left(), right())
+  const outcome = createLiveRun<JsonDiffResult | null>({ initial: null, compute, inputs: [left, right], delay: 400 })
 
-  const compare = () => {
-    try {
-      result.set(compareJson(left(), right()))
-      error.set("")
-    } catch (failure) {
-      result.set(null)
-      error.set(failure instanceof Error ? failure.message : String(failure))
-    }
-  }
+  const kindLabel = (kind: "added" | "removed" | "changed") =>
+    kind === "added" ? L("新增", "ADDED") : kind === "removed" ? L("删除", "REMOVED") : L("修改", "CHANGED")
 
-  const output = () => (result()?.differences ?? []).map((difference) => {
+  const output = () => (outcome.output()?.differences ?? []).map((difference) => {
     const oldValue = difference.kind === "added" ? "" : `  ${L("原值", "before")}: ${formatJsonValue(difference.before)}`
     const newValue = difference.kind === "removed" ? "" : `  ${L("新值", "after")}: ${formatJsonValue(difference.after)}`
-    return `${difference.kind.toUpperCase()} ${difference.path}\n${oldValue}${oldValue && newValue ? "\n" : ""}${newValue}`
+    return `${kindLabel(difference.kind)} ${difference.path}\n${oldValue}${oldValue && newValue ? "\n" : ""}${newValue}`
   }).join("\n\n")
 
   return (
@@ -41,20 +40,20 @@ export default function JsonDiff() {
         </Card>
       </View>
       <View class="flex-row flex-wrap gap-2">
-        <Button tone="primary" onPress={compare} testID="json-diff-compare">{L("比较", "Compare")}</Button>
-        <Button tone="ghost" onPress={() => { left.set(LEFT_SAMPLE); right.set(RIGHT_SAMPLE); result.set(null); error.set("") }}>
+        <Button tone="primary" onPress={() => outcome.run(compute)} testID="json-diff-compare">{L("比较", "Compare")}</Button>
+        <Button tone="ghost" onPress={() => { left.set(LEFT_SAMPLE); right.set(RIGHT_SAMPLE) }}>
           {L("重置示例", "Reset sample")}
         </Button>
       </View>
-      {error() ? <ErrorBanner message={error()} /> : null}
-      {result() ? (
+      {outcome.error() ? <ErrorBanner message={outcome.error()} /> : null}
+      {outcome.output() ? (
         <Card testID="json-diff-result">
           <CardHeader
             title={L("差异", "Differences")}
-            description={`${L("新增", "Added")} ${result()!.added} · ${L("删除", "Removed")} ${result()!.removed} · ${L("修改", "Changed")} ${result()!.changed}`}
+            description={`${L("新增", "Added")} ${outcome.output()!.added} · ${L("删除", "Removed")} ${outcome.output()!.removed} · ${L("修改", "Changed")} ${outcome.output()!.changed}`}
             right={<CopyButton value={output} testID="json-diff-copy" />}
           />
-          {result()!.differences.length ? (
+          {outcome.output()!.differences.length ? (
             <Text class="select-text font-mono text-xs text-foreground" testID="json-diff-output">{output()}</Text>
           ) : <Text class="text-sm text-muted-foreground">{L("两个 JSON 完全相同。", "The JSON values are identical.")}</Text>}
         </Card>

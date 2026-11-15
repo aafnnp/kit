@@ -1,6 +1,6 @@
 import { signal, Text, View } from "nsh"
 import { Card, CardHeader, CopyButton, TextInput } from "../../components/ui"
-import { L } from "../../lib/locale"
+import { L, pick } from "../../lib/locale"
 import { searchRegexTips } from "./logic"
 
 export default function RegexCheatsheet() {
@@ -20,11 +20,11 @@ export default function RegexCheatsheet() {
         {tips().map((tip) => (
           <Card>
             <CardHeader
-              title={tip.title}
-              right={<CopyButton value={tip.pattern} label={L("复制", "Copy")} testID={`regex-tip-copy-${tip.title}`} />}
+              title={pick(tip.title)}
+              right={<CopyButton value={tip.pattern} label={L("复制", "Copy")} testID={`regex-tip-copy-${tip.title.en}`} />}
             />
             <Text class="font-mono text-sm text-primary">{tip.pattern}</Text>
-            <Text class="text-xs text-muted-foreground">{tip.description}</Text>
+            <Text class="text-xs text-muted-foreground">{pick(tip.description)}</Text>
             <Text class="font-mono text-[11px] text-foreground">{tip.example}</Text>
           </Card>
         ))}

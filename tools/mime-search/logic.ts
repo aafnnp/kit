@@ -37,7 +37,6 @@ export const mimeDatabase: MimeEntry[] = [
   { mimeType: "text/javascript", extensions: ["js", "mjs"], category: "Text", description: "JavaScript source" },
   { mimeType: "text/markdown", extensions: ["md", "markdown"], category: "Text", description: "Markdown document" },
   { mimeType: "text/plain", extensions: ["txt"], category: "Text", description: "Plain text" },
-  { mimeType: "text/xml", extensions: ["xml"], category: "Text", description: "XML document" },
   { mimeType: "video/mp4", extensions: ["mp4"], category: "Video", description: "MP4 video" },
   { mimeType: "video/webm", extensions: ["webm"], category: "Video", description: "WebM video" },
 ]

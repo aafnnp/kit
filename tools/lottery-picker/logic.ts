@@ -1,4 +1,7 @@
+import { guardInput } from "../../lib/validation"
+
 export function parseLotteryItems(input: string): string[] {
+  guardInput(input, "Entries")
   return [...new Set(input.split(/[,\n;，；]+/).map((item) => item.trim()).filter(Boolean))]
 }
 

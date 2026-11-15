@@ -276,7 +276,7 @@ export const legacyToolMeta: ToolMeta[] = [
     category: "design",
     icon: "▦",
     name: { zh: "QR Code 生成器", en: "QR Code Generator" },
-    description: { zh: "生成标准 QR Code Model 2、版本 1-L 的 SVG。", en: "Generate a standard QR Code Model 2 version 1-L SVG." },
+    description: { zh: "生成标准 QR Code Model 2（版本 1–5，L 级纠错）的 SVG。", en: "Generate a standard QR Code Model 2 SVG (versions 1–5, level L)." },
     keywords: ["qr", "qrcode", "barcode", "二维码"],
   },
   {

@@ -1,6 +1,7 @@
 import { computed, signal, Text, View } from "nsh"
-import { Card, CardHeader, ErrorBanner, Field, TextInput } from "../../components/ui"
+import { Card, CardHeader, ErrorBanner, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { persistDraft, restoreDraft } from "../../lib/drafts"
 import { flagOptions, runRegex } from "./logic"
 
 const SAMPLE_TEXT = `Contact ada@example.com or grace@navy.mil.
@@ -11,6 +12,10 @@ export default function RegexTester() {
   const pattern = signal(SAMPLE_PATTERN)
   const flags = signal("g")
   const text = signal(SAMPLE_TEXT)
+  restoreDraft("regex-tester:pattern", SAMPLE_PATTERN, pattern)
+  persistDraft("regex-tester:pattern", pattern)
+  restoreDraft("regex-tester:text", SAMPLE_TEXT, text)
+  persistDraft("regex-tester:text", text)
 
   const outcome = computed(() => runRegex(pattern(), flags(), text()))
   const ok = computed(() => outcome().ok)

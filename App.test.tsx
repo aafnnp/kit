@@ -216,3 +216,27 @@ test("hidden legacy aliases remain reachable from favorites", async () => {
   await app.waitUntil(() => app.shows("id:migration-tool-output"), { timeout: 2000 })
   expect(app.texts().some((text) => text.includes("Iterations: 10000"))).toBe(true)
 })
+
+test("tool drafts restore when the setting is enabled", async () => {
+  const app = await open("./App.tsx", {
+    locale: "en-US",
+    platform: "web",
+    width: 1280,
+    height: 900,
+    storage: { "kit.drafts": "true" },
+  })
+  await app.waitFor("id:welcome")
+
+  await app.type("id:global-search", "json-pretty")
+  await app.press("id:sidebar-tool-json-pretty")
+  await app.waitFor("id:json-input")
+  await app.clear("id:json-input")
+  await app.type("id:json-input", '{"draft":true}')
+  await app.waitUntil(() => (app.storage()["kit.draft.json-pretty"] ?? "").includes("draft"), { timeout: 4000 })
+
+  await app.press("id:nav-home")
+  await app.type("id:global-search", "json-pretty")
+  await app.press("id:sidebar-tool-json-pretty")
+  await app.waitFor("id:json-input")
+  await app.waitUntil(() => (app.value("id:json-input") ?? "").includes("draft"), { timeout: 4000 })
+})

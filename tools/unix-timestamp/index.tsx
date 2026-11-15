@@ -1,21 +1,26 @@
 import { cleanup, signal, Text, View } from "nsh"
 import { Badge, Card, CardHeader, CopyButton, Field, Segmented, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { numberFromText } from "../../lib/validation"
 import { fromTimestamp, nowParts, parseDate, type DateParts, type TimeUnit } from "./logic"
 
 export default function UnixTimestamp() {
   const now = signal(Date.now())
   const unit = signal<TimeUnit>("seconds")
   const timestampInput = signal(String(Math.floor(Date.now() / 1000)))
-  const dateInput = signal(new Date().toISOString().slice(0, 19))
+  const dateInput = signal(`${new Date().toISOString().slice(0, 19)}Z`)
 
   const timer = setInterval(() => now.set(Date.now()), 1000)
   cleanup(() => clearInterval(timer))
 
   const current = () => nowParts(now())
   const fromStamp = (): DateParts | null => {
-    const value = Number(timestampInput().trim())
-    return Number.isFinite(value) ? fromTimestamp(value, unit()) : null
+    if (!timestampInput().trim()) return null
+    try {
+      return fromTimestamp(numberFromText(timestampInput(), "Timestamp"), unit())
+    } catch {
+      return null
+    }
   }
   const fromDate = (): DateParts | null => parseDate(dateInput())
 

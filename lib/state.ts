@@ -16,6 +16,7 @@ export const search = signal("")
 export const favorites = signal<string[]>([])
 export const recent = signal<string[]>([])
 export const appearance = signal<Appearance>("system")
+export const keepDrafts = signal(false)
 export const collapsed = signal<Record<string, boolean>>({})
 export const hydrated = signal(false)
 
@@ -84,6 +85,7 @@ const KEYS = {
   recent: "kit.recent",
   language: "kit.language",
   appearance: "kit.appearance",
+  drafts: "kit.drafts",
 } as const
 
 function parseArray(value: string | null): string[] {
@@ -102,11 +104,12 @@ function parseArray(value: string | null): string[] {
  */
 export async function hydrate() {
   try {
-    const [storedFavorites, storedRecent, storedLanguage, storedAppearance] = await Promise.all([
+    const [storedFavorites, storedRecent, storedLanguage, storedAppearance, storedDrafts] = await Promise.all([
       Storage.getItem(KEYS.favorites),
       Storage.getItem(KEYS.recent),
       Storage.getItem(KEYS.language),
       Storage.getItem(KEYS.appearance),
+      Storage.getItem(KEYS.drafts),
     ])
 
     favorites.set(parseArray(storedFavorites))
@@ -115,6 +118,7 @@ export async function hydrate() {
     if (storedAppearance === "system" || storedAppearance === "light" || storedAppearance === "dark") {
       appearance.set(storedAppearance)
     }
+    keepDrafts.set(storedDrafts === "true")
   } catch {
     // Storage is optional: the app still works without persisted settings.
   } finally {
@@ -134,3 +138,4 @@ persist(KEYS.favorites, () => JSON.stringify(favorites()))
 persist(KEYS.recent, () => JSON.stringify(recent()))
 persist(KEYS.language, () => language())
 persist(KEYS.appearance, () => appearance())
+persist(KEYS.drafts, () => String(keepDrafts()))

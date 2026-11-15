@@ -1,12 +1,19 @@
-export type UrlMode = "component" | "full"
+import { guardInput } from "../../lib/validation"
+
+export type UrlMode = "component" | "query" | "full"
 
 export function encodeUrl(text: string, mode: UrlMode): string {
-  return mode === "component" ? encodeURIComponent(text) : encodeURI(text)
+  guardInput(text)
+  if (mode === "full") return encodeURI(text)
+  const encoded = encodeURIComponent(text)
+  return mode === "query" ? encoded.replace(/%20/g, "+") : encoded
 }
 
 export function decodeUrl(text: string, mode: UrlMode): string {
+  guardInput(text)
   try {
-    return mode === "component" ? decodeURIComponent(text) : decodeURI(text)
+    if (mode === "full") return decodeURI(text)
+    return decodeURIComponent(mode === "query" ? text.replace(/\+/g, " ") : text)
   } catch (error) {
     throw new Error(`Invalid URL encoding: ${error instanceof Error ? error.message : String(error)}`)
   }

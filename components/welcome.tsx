@@ -32,7 +32,7 @@ function ToolCard(props: { tool: ToolDefinition }) {
         accessibilityLabel={L("收藏", "Favorite")}
         onPress={() => toggleFavorite(props.tool.slug)}
         testID={`favorite-${props.tool.slug}`}
-        class="h-7 w-7 items-center justify-center rounded-md active:bg-muted"
+        class="h-8 w-8 items-center justify-center rounded-md active:bg-muted"
       >
         <Text class="text-sm" classList={{ "text-brand-orange": active(), "text-muted-foreground": !active() }}>
           {active() ? "★" : "☆"}

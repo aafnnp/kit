@@ -1,6 +1,7 @@
 import { computed, signal, Scroll, Text, View } from "nsh"
-import { Badge, Card, CardHeader, ErrorBanner, TextInput } from "../../components/ui"
+import { Badge, Card, CardHeader, ErrorBanner, TextInput, Toggle } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { persistDraft, restoreDraft } from "../../lib/drafts"
 import { diffLines, type DiffResult } from "./logic"
 
 const BEFORE = `Hello world
@@ -18,10 +19,16 @@ type Outcome = { ok: true; result: DiffResult } | { ok: false; error: string }
 export default function DiffViewer() {
   const before = signal(BEFORE)
   const after = signal(AFTER)
+  restoreDraft("diff-viewer:before", BEFORE, before)
+  persistDraft("diff-viewer:before", before)
+  restoreDraft("diff-viewer:after", AFTER, after)
+  persistDraft("diff-viewer:after", after)
+  const ignoreWhitespace = signal(false)
+  const ignoreCase = signal(false)
 
   const outcome = computed<Outcome>(() => {
     try {
-      return { ok: true, result: diffLines(before(), after()) }
+      return { ok: true, result: diffLines(before(), after(), { ignoreWhitespace: ignoreWhitespace(), ignoreCase: ignoreCase() }) }
     } catch (error) {
       return { ok: false, error: error instanceof Error ? error.message : String(error) }
     }
@@ -73,6 +80,10 @@ export default function DiffViewer() {
             </View>
           }
         />
+        <View class="flex-row flex-wrap gap-2">
+          <Toggle label={L("忽略空白", "Ignore whitespace")} checked={ignoreWhitespace()} onChange={(value) => ignoreWhitespace.set(value)} testID="diff-ignore-whitespace" />
+          <Toggle label={L("忽略大小写", "Ignore case")} checked={ignoreCase()} onChange={(value) => ignoreCase.set(value)} testID="diff-ignore-case" />
+        </View>
         {ok() ? (
           <View class="max-h-80 overflow-hidden rounded-(--radius) border border-border" testID="diff-output">
             <Scroll class="flex-1">

@@ -11,6 +11,27 @@ interface ParsedCron {
   weekday: CronField
 }
 
+const MACROS: Record<string, string> = {
+  "@yearly": "0 0 1 1 *",
+  "@annually": "0 0 1 1 *",
+  "@monthly": "0 0 1 * *",
+  "@weekly": "0 0 * * 0",
+  "@daily": "0 0 * * *",
+  "@midnight": "0 0 * * *",
+  "@hourly": "0 * * * *",
+}
+
+const MONTH_NAMES = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+const WEEKDAY_NAMES = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+
+function expandNames(token: string, names: string[], offset: number): string {
+  return token.replace(/[A-Za-z]{3,}/g, (name) => {
+    const index = names.indexOf(name.toUpperCase())
+    if (index === -1) throw new Error(`Unknown cron name: ${name}`)
+    return String(index + offset)
+  })
+}
+
 const FIELD_RANGES = [
   [0, 59],
   [0, 23],
@@ -18,7 +39,9 @@ const FIELD_RANGES = [
   [1, 12],
   [0, 7],
 ] as const
-const MAX_SEARCH_MINUTES = 366 * 24 * 60
+// Eight years so leap-day schedules such as `30 2 29 2 *` still resolve.
+const MAX_SEARCH_YEARS = 8
+const MAX_STEPS = 1_000_000
 
 function parseField(token: string, minimum: number, maximum: number, sundayAlias = false): CronField {
   const values = new Set<number>()
@@ -66,11 +89,17 @@ function parseField(token: string, minimum: number, maximum: number, sundayAlias
 }
 
 function parseCron(expression: string): ParsedCron {
-  const parts = expression.trim().split(/\s+/)
+  const source = MACROS[expression.trim().toLowerCase()] ?? expression
+  const parts = source.trim().split(/\s+/)
   if (parts.length !== 5) throw new Error("Use five fields: minute hour day-of-month month day-of-week.")
   const fields = parts.map((part, index) => {
     const [minimum, maximum] = FIELD_RANGES[index]!
-    return parseField(part, minimum, maximum, index === 4)
+    const token = index === 3
+      ? expandNames(part, MONTH_NAMES, 1)
+      : index === 4
+        ? expandNames(part, WEEKDAY_NAMES, 0)
+        : part
+    return parseField(token === "?" ? "*" : token, minimum, maximum, index === 4)
   })
   return {
     minute: fields[0]!,
@@ -81,19 +110,14 @@ function parseCron(expression: string): ParsedCron {
   }
 }
 
-function matches(date: Date, cron: ParsedCron): boolean {
-  if (!cron.minute.values.has(date.getMinutes()) || !cron.hour.values.has(date.getHours()) || !cron.month.values.has(date.getMonth() + 1)) {
-    return false
-  }
-
+function matchesDay(date: Date, cron: ParsedCron): boolean {
   const dayOfMonthMatches = cron.day.values.has(date.getDate())
   const dayOfWeekMatches = cron.weekday.values.has(date.getDay())
-  const dayMatches = cron.day.all
+  return cron.day.all
     ? dayOfWeekMatches
     : cron.weekday.all
       ? dayOfMonthMatches
       : dayOfMonthMatches || dayOfWeekMatches
-  return dayMatches
 }
 
 export function nextCronRuns(expression: string, from: Date, count = 5): Date[] {
@@ -104,12 +128,33 @@ export function nextCronRuns(expression: string, from: Date, count = 5): Date[] 
   candidate.setSeconds(0, 0)
   candidate.setMinutes(candidate.getMinutes() + 1)
 
+  const limit = new Date(from)
+  limit.setFullYear(limit.getFullYear() + MAX_SEARCH_YEARS)
+
   const results: Date[] = []
-  for (let checked = 0; checked < MAX_SEARCH_MINUTES && results.length < count; checked += 1) {
-    if (matches(candidate, cron)) results.push(new Date(candidate))
-    candidate.setMinutes(candidate.getMinutes() + 1)
+  for (let step = 0; step < MAX_STEPS && results.length < count && candidate <= limit; step += 1) {
+    if (!cron.month.values.has(candidate.getMonth() + 1)) {
+      candidate.setMonth(candidate.getMonth() + 1, 1)
+      candidate.setHours(0, 0, 0, 0)
+      continue
+    }
+    if (!matchesDay(candidate, cron)) {
+      candidate.setDate(candidate.getDate() + 1)
+      candidate.setHours(0, 0, 0, 0)
+      continue
+    }
+    if (!cron.hour.values.has(candidate.getHours())) {
+      candidate.setHours(candidate.getHours() + 1, 0, 0, 0)
+      continue
+    }
+    if (!cron.minute.values.has(candidate.getMinutes())) {
+      candidate.setMinutes(candidate.getMinutes() + 1, 0, 0)
+      continue
+    }
+    results.push(new Date(candidate))
+    candidate.setMinutes(candidate.getMinutes() + 1, 0, 0)
   }
-  if (results.length !== count) throw new Error("No matching occurrence found within the next year.")
+  if (results.length !== count) throw new Error("No matching occurrence found within the next eight years.")
   return results
 }
 

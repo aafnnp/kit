@@ -1,9 +1,10 @@
 import { cleanup, openUrl, Scroll, signal, Text, View } from "nsh"
-import { Button, Card, CardHeader, KeyHint, Segmented } from "./ui"
+import { Button, Card, CardHeader, KeyHint, Segmented, Toggle } from "./ui"
 import { L } from "../lib/locale"
-import { appearance, clearHistory, favorites, language, recent, type Appearance } from "../lib/state"
+import { appearance, clearHistory, favorites, keepDrafts, language, recent, type Appearance } from "../lib/state"
 import { modKey, modShiftKey, platformLabel } from "../lib/platform"
 import { APP_VERSION, NSH_VERSION } from "../lib/version"
+import { clearDrafts } from "../lib/drafts"
 
 export function SettingsPage() {
   const confirmingClear = signal(false)
@@ -63,6 +64,19 @@ export function SettingsPage() {
             <Text class="text-xs text-muted-foreground">{L(`收藏 ${favorites().length} 个 · 最近 ${recent().length} 个`, `${favorites().length} favorites · ${recent().length} recent`)}</Text>
             <Button tone="danger" onPress={requestClear} testID="settings-clear" accessibilityLabel={L("清除收藏与历史", "Clear favorites and history")}>
               {confirmingClear() ? L("再次点击确认清除", "Click again to confirm") : L("清除收藏与历史", "Clear favorites and history")}
+            </Button>
+          </View>
+        </Card>
+
+        <Card>
+          <CardHeader
+            title={L("工具草稿", "Tool drafts")}
+            description={L("开启后在本机保存工具输入，便于下次继续；默认关闭。", "Save tool inputs on this device so you can continue later. Off by default.")}
+          />
+          <View class="flex-row flex-wrap items-center gap-2">
+            <Toggle label={L("保存工具草稿", "Keep tool drafts")} checked={keepDrafts()} onChange={(value) => keepDrafts.set(value)} testID="settings-drafts" />
+            <Button tone="secondary" onPress={() => void clearDrafts()} testID="settings-clear-drafts">
+              {L("清除草稿", "Clear drafts")}
             </Button>
           </View>
         </Card>

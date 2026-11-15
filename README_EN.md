@@ -15,7 +15,7 @@
 - **One codebase, four platforms**: macOS (AppKit), Windows (Win32 / Direct2D), Linux (GTK 4) and the web (HTML + WebAssembly).
 - **Native UI**: NSH renders with each platform's own views and text input — no WebView, no React and no virtual DOM.
 - **Local-first**: no accounts, no uploads, no telemetry. Hashing, compression and file work use NSH's Rust standard modules.
-- **DevToys-style workspace**: a searchable, collapsible sidebar with a welcome page and tool pages, plus favorites, recent tools, light/dark mode and English/Chinese UI.
+- **DevToys-style workspace**: a searchable, collapsible sidebar with a welcome page and tool pages, plus favorites, recent tools, light/dark mode and English/Chinese UI. Tool drafts are opt-in from Settings (off by default).
 - **Testable by design**: every tool keeps its logic in `logic.ts`, separate from the UI, covered by `nsh test`.
 
 > Kit supports **macOS, Windows, Linux and the web only**. iOS and Android are intentionally out of scope.

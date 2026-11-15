@@ -1,6 +1,7 @@
 import { computed, signal, Text, View } from "nsh"
 import { Card, CardHeader, Stat, TextInput } from "../../components/ui"
 import { L, n } from "../../lib/locale"
+import { persistDraft, restoreDraft } from "../../lib/drafts"
 import { textStats, topWords } from "./logic"
 
 const SAMPLE = `Kit is a local-first toolbox for everyday workflows.
@@ -10,6 +11,8 @@ Everything runs on your device: no uploads, no accounts, no tracking.
 
 export default function WordCount() {
   const text = signal(SAMPLE)
+  restoreDraft("word-count", SAMPLE, text)
+  persistDraft("word-count", text)
   const stats = computed(() => textStats(text()))
   const frequent = computed(() => topWords(text(), 5))
 

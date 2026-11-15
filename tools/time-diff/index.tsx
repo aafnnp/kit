@@ -1,4 +1,4 @@
-import { signal, Text, View } from "nsh"
+import { computed, signal, Text, View } from "nsh"
 import { Card, CardHeader, CopyButton, ErrorBanner, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
 import { calculateTimeDifference } from "./logic"
@@ -6,7 +6,7 @@ import { calculateTimeDifference } from "./logic"
 export default function TimeDiff() {
   const start = signal("2025-01-01T00:00:00Z")
   const end = signal("2025-01-02T03:04:05Z")
-  const result = () => {
+  const result = computed(() => {
     const calculation = calculateTimeDifference(start(), end())
     if (!calculation.ok) return { error: calculation.error, duration: "", totalMilliseconds: "", direction: "" }
     const value = calculation.difference
@@ -16,23 +16,23 @@ export default function TimeDiff() {
       totalMilliseconds: String(value.totalMilliseconds),
       direction: value.direction,
     }
-  }
+  })
 
   return (
     <View class="gap-4">
       <Card>
         <CardHeader
           title={L("时间差计算", "Time difference")}
-          description={L("输入两个日期，计算精确经过时长。", "Calculate the exact elapsed duration between two dates.")}
+          description={L("输入两个日期或 Unix 时间戳（秒/毫秒），计算精确经过时长。", "Enter two dates or Unix timestamps (seconds or milliseconds) to calculate the exact elapsed duration.")}
         />
         <View class="grid grid-cols-1 gap-3 md:grid-cols-2">
           <View class="gap-1">
             <Text class="text-xs font-medium text-muted-foreground">{L("开始", "Start")}</Text>
-            <TextInput value={start()} onChange={(value) => start.set(value)} mono testID="time-diff-start" placeholder="2025-01-01T00:00:00Z" />
+            <TextInput value={start()} onChange={(value) => start.set(value)} mono testID="time-diff-start" placeholder="2025-01-01T00:00:00Z 或 1735689600" />
           </View>
           <View class="gap-1">
             <Text class="text-xs font-medium text-muted-foreground">{L("结束", "End")}</Text>
-            <TextInput value={end()} onChange={(value) => end.set(value)} mono testID="time-diff-end" placeholder="2025-01-02T00:00:00Z" />
+            <TextInput value={end()} onChange={(value) => end.set(value)} mono testID="time-diff-end" placeholder="2025-01-02T00:00:00Z 或 1735776000" />
           </View>
         </View>
       </Card>

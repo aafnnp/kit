@@ -1,5 +1,6 @@
 import { Image, Picker, signal, Text, View } from "nsh"
 import { Button, Card, CardHeader, CopyButton, Field, OutputBox, TextInput } from "../../components/ui"
+import { localizeMessage } from "../../lib/errors"
 import { L, language, pick } from "../../lib/locale"
 import { activeSlug } from "../../lib/state"
 import { legacyToolSpecBySlug } from "./specs"
@@ -86,7 +87,7 @@ export default function LegacyMigrationTool() {
             {L("处理", "Process")}
           </Button>
         </View>
-        {error() ? <Text class="text-xs text-muted-foreground" testID="migration-tool-message">{error()}</Text> : null}
+        {error() ? <Text class="text-xs text-muted-foreground" testID="migration-tool-message">{localizeMessage(error())}</Text> : null}
       </Card>
       {pickedImage() && (slug === "image-compress" || slug === "image-convert" || slug === "image-resize" || slug === "base64-image") ? (
         <Card>

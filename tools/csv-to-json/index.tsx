@@ -1,6 +1,8 @@
-import { signal, Text, View } from "nsh"
-import { Button, Card, CardHeader, CopyButton, ErrorBanner, Field, OutputBox, Segmented, TextInput, Toggle } from "../../components/ui"
+import { signal, View } from "nsh"
+import { Button, Card, CardHeader, CopyButton, ErrorBanner, OutputBox, Segmented, TextInput, Toggle } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { createLiveRun } from "../../lib/tool-run"
+import { persistDraft, restoreDraft } from "../../lib/drafts"
 import { csvToJson, type Delimiter } from "./logic"
 
 const SAMPLE = `name,role,active,score
@@ -10,29 +12,27 @@ Linus,"Maintainer, Kernel",false,87`
 
 export default function CsvToJson() {
   const input = signal(SAMPLE)
+  restoreDraft("csv-to-json", SAMPLE, input)
+  persistDraft("csv-to-json", input)
   const delimiter = signal<Delimiter>(",")
   const hasHeader = signal(true)
   const inferTypes = signal(true)
-  const output = signal("")
-  const error = signal("")
-  const rows = signal(0)
 
-  const convert = () => {
+  const compute = () => {
     const result = csvToJson(input(), {
       delimiter: delimiter(),
       hasHeader: hasHeader(),
       inferTypes: inferTypes(),
     })
-    if (result.ok) {
-      output.set(result.output)
-      rows.set(result.rows)
-      error.set("")
-    } else {
-      output.set("")
-      rows.set(0)
-      error.set(result.error)
-    }
+    if (!result.ok) throw new Error(result.error)
+    return { output: result.output, rows: result.rows }
   }
+  const outcome = createLiveRun<{ output: string; rows: number }>({
+    initial: { output: "", rows: 0 },
+    compute,
+    inputs: [input, delimiter, hasHeader, inferTypes],
+    delay: 350,
+  })
 
   return (
     <View class="gap-4">
@@ -43,6 +43,7 @@ export default function CsvToJson() {
             value={delimiter()}
             onChange={(value) => delimiter.set(value)}
             testID="csv-delimiter"
+            label={L("分隔符", "Delimiter")}
             options={[
               { value: ",", label: L("逗号", "Comma") },
               { value: ";", label: L("分号", "Semicolon") },
@@ -60,10 +61,10 @@ export default function CsvToJson() {
           <CardHeader title={L("CSV", "CSV")} description={L("粘贴表格数据，或替换为你的数据。", "Paste tabular data or replace the sample.")} />
           <TextInput value={input()} onChange={(value) => input.set(value)} multiline height={280} mono testID="csv-input" />
           <View class="flex-row flex-wrap gap-2">
-            <Button tone="primary" onPress={convert} testID="csv-convert">
+            <Button tone="primary" onPress={() => outcome.run(compute)} testID="csv-convert">
               {L("转换", "Convert")}
             </Button>
-            <Button tone="ghost" onPress={() => { input.set(SAMPLE); output.set(""); error.set("") }}>
+            <Button tone="ghost" onPress={() => input.set(SAMPLE)}>
               {L("示例", "Sample")}
             </Button>
           </View>
@@ -72,11 +73,11 @@ export default function CsvToJson() {
         <Card>
           <CardHeader
             title={L("JSON", "JSON")}
-            description={rows() ? L(`已转换 ${rows()} 行数据`, `${rows()} rows converted`) : L("输出为格式化的 JSON 数组", "Formatted JSON array")}
-            right={<CopyButton value={() => output()} testID="csv-copy" />}
+            description={outcome.output().rows ? L(`已转换 ${outcome.output().rows} 行数据`, `${outcome.output().rows} rows converted`) : L("输出为格式化的 JSON 数组", "Formatted JSON array")}
+            right={<CopyButton value={() => outcome.output().output} testID="csv-copy" />}
           />
-          {error() ? <ErrorBanner message={error()} /> : null}
-          <OutputBox value={output()} height={320} testID="csv-output" />
+          {outcome.error() ? <ErrorBanner message={outcome.error()} /> : null}
+          <OutputBox value={outcome.output().output} height={320} testID="csv-output" />
         </Card>
       </View>
     </View>

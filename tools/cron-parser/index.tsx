@@ -1,23 +1,19 @@
 import { signal, Text, View } from "nsh"
 import { Button, Card, CardHeader, ErrorBanner, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { createLiveRun } from "../../lib/tool-run"
+import { persistDraft, restoreDraft } from "../../lib/drafts"
+import { integerFromText } from "../../lib/validation"
 import { formatCronDate, nextCronRuns } from "./logic"
 
 export default function CronParser() {
   const expression = signal("*/15 * * * *")
+  restoreDraft("cron-parser", "*/15 * * * *", expression)
+  persistDraft("cron-parser", expression)
   const count = signal("5")
-  const output = signal<string[]>([])
-  const error = signal("")
-
-  const calculate = () => {
-    try {
-      output.set(nextCronRuns(expression(), new Date(), Number(count())).map(formatCronDate))
-      error.set("")
-    } catch (failure) {
-      output.set([])
-      error.set(failure instanceof Error ? failure.message : String(failure))
-    }
-  }
+  const compute = () =>
+    nextCronRuns(expression(), new Date(), integerFromText(count(), 1, 10, "Count")).map(formatCronDate)
+  const outcome = createLiveRun<string[]>({ initial: [], compute, inputs: [expression, count], delay: 300 })
 
   return (
     <View class="gap-4">
@@ -35,16 +31,16 @@ export default function CronParser() {
             <Text class="text-xs font-medium text-muted-foreground">{L("次数", "Count")}</Text>
             <TextInput value={count()} onChange={(value) => count.set(value)} mono testID="cron-count" />
           </View>
-          <Button tone="primary" onPress={calculate} testID="cron-calculate">{L("计算", "Calculate")}</Button>
+          <Button tone="primary" onPress={() => outcome.run(compute)} testID="cron-calculate">{L("计算", "Calculate")}</Button>
         </View>
         <Text class="text-[11px] text-muted-foreground">{L("支持 *、列表、范围与步长；星期日使用 0 或 7。", "Supports *, lists, ranges and steps; Sunday is 0 or 7.")}</Text>
-        {error() ? <ErrorBanner message={error()} /> : null}
+        {outcome.error() ? <ErrorBanner message={outcome.error()} /> : null}
       </Card>
-      {output().length ? (
+      {outcome.output().length ? (
         <Card>
-          <CardHeader title={L("下次运行时间", "Next occurrences")} description={L("最多搜索未来一年。", "Searches up to one year ahead.")} />
+          <CardHeader title={L("下次运行时间", "Next occurrences")} description={L("最多搜索未来八年。", "Searches up to eight years ahead.")} />
           <View class="gap-1">
-            {output().map((date, index) => (
+            {outcome.output().map((date, index) => (
               <Text class="rounded-md bg-muted/30 px-3 py-2 font-mono text-xs text-foreground" testID={index === 0 ? "cron-next-run" : undefined}>
                 {date}
               </Text>

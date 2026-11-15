@@ -1,6 +1,8 @@
-import { signal, Text, View } from "nsh"
+import { signal, View } from "nsh"
 import { Button, Card, CardHeader, CopyButton, ErrorBanner, Field, OutputBox, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { createLiveRun } from "../../lib/tool-run"
+import { persistDraft, restoreDraft } from "../../lib/drafts"
 import { APP_VERSION } from "../../lib/version"
 import { jsonToTs } from "./logic"
 
@@ -15,20 +17,15 @@ const SAMPLE = `{
 
 export default function JsonToTs() {
   const input = signal(SAMPLE)
+  restoreDraft("json-to-ts", SAMPLE, input)
+  persistDraft("json-to-ts", input)
   const rootName = signal("Kit")
-  const output = signal("")
-  const error = signal("")
-
-  const generate = () => {
+  const compute = () => {
     const result = jsonToTs(input(), rootName() || "Root")
-    if (result.ok) {
-      output.set(result.output)
-      error.set("")
-    } else {
-      output.set("")
-      error.set(result.error)
-    }
+    if (!result.ok) throw new Error(result.error)
+    return result.output
   }
+  const outcome = createLiveRun({ initial: "", compute, inputs: [input, rootName], delay: 250 })
 
   return (
     <View class="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -47,10 +44,10 @@ export default function JsonToTs() {
           placeholder={L("粘贴 JSON…", "Paste JSON…")}
         />
         <View class="flex-row flex-wrap gap-2">
-          <Button tone="primary" onPress={generate} testID="json-ts-generate">
+          <Button tone="primary" onPress={() => outcome.run(compute)} testID="json-ts-generate">
             {L("生成类型", "Generate types")}
           </Button>
-          <Button tone="ghost" onPress={() => { input.set(SAMPLE); output.set(""); error.set("") }}>
+          <Button tone="ghost" onPress={() => input.set(SAMPLE)}>
             {L("示例", "Sample")}
           </Button>
         </View>
@@ -60,10 +57,10 @@ export default function JsonToTs() {
         <CardHeader
           title={L("TypeScript", "TypeScript")}
           description={L("数组对象会合并字段，缺失字段标记为可选。", "Objects in arrays are merged and missing fields become optional.")}
-          right={<CopyButton value={() => output()} testID="json-ts-copy" />}
+          right={<CopyButton value={outcome.output} testID="json-ts-copy" />}
         />
-        {error() ? <ErrorBanner message={error()} /> : null}
-        <OutputBox value={output()} height={380} testID="json-ts-output" />
+        {outcome.error() ? <ErrorBanner message={outcome.error()} /> : null}
+        <OutputBox value={outcome.output()} height={380} testID="json-ts-output" />
       </Card>
     </View>
   )

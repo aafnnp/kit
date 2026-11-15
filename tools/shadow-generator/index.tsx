@@ -1,6 +1,8 @@
 import { signal, Text, View } from "nsh"
 import { Button, Card, CardHeader, CopyButton, ErrorBanner, Segmented, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { createLiveRun } from "../../lib/tool-run"
+import { numberFromText } from "../../lib/validation"
 import { generateBoxShadow } from "./logic"
 
 export default function ShadowGenerator() {
@@ -11,20 +13,17 @@ export default function ShadowGenerator() {
   const color = signal("#0D1117")
   const opacity = signal("18")
   const inset = signal(false)
-  const output = signal("")
-  const error = signal("")
-  const generate = () => {
-    try {
-      output.set(generateBoxShadow({
-        x: Number(x()), y: Number(y()), blur: Number(blur()), spread: Number(spread()),
-        color: color(), opacity: Number(opacity()), inset: inset(),
-      }))
-      error.set("")
-    } catch (failure) {
-      output.set("")
-      error.set(failure instanceof Error ? failure.message : String(failure))
-    }
-  }
+  const compute = () =>
+    generateBoxShadow({
+      x: numberFromText(x(), "X offset"),
+      y: numberFromText(y(), "Y offset"),
+      blur: numberFromText(blur(), "Blur"),
+      spread: numberFromText(spread(), "Spread"),
+      color: color(),
+      opacity: numberFromText(opacity(), "Opacity"),
+      inset: inset(),
+    })
+  const outcome = createLiveRun({ initial: "", compute, inputs: [x, y, blur, spread, color, opacity, inset] })
 
   return (
     <View class="gap-4">
@@ -50,16 +49,16 @@ export default function ShadowGenerator() {
             { value: "inset", label: L("内阴影", "Inset") },
           ]}
         />
-        {error() ? <ErrorBanner message={error()} /> : null}
-        <Button tone="primary" onPress={generate} testID="shadow-generate">{L("生成预览", "Generate preview")}</Button>
+        {outcome.error() ? <ErrorBanner message={outcome.error()} /> : null}
+        <Button tone="primary" onPress={() => outcome.run(compute)} testID="shadow-generate">{L("生成预览", "Generate preview")}</Button>
       </Card>
-      {output() ? (
+      {outcome.output() ? (
         <Card>
-          <CardHeader title={L("CSS 预览", "CSS preview")} right={<CopyButton value={() => output()} testID="shadow-copy" />} />
+          <CardHeader title={L("CSS 预览", "CSS preview")} right={<CopyButton value={outcome.output} testID="shadow-copy" />} />
           <View class="flex-row items-center justify-center rounded-md bg-muted/40 p-8">
-            <View class="h-20 w-40 rounded-md border border-border bg-card" style={{ boxShadow: output().replace("box-shadow: ", "").replace(";", "") }} />
+            <View class="h-20 w-40 rounded-md border border-border bg-card" style={{ boxShadow: outcome.output().replace("box-shadow: ", "").replace(";", "") }} />
           </View>
-          <Text class="select-text font-mono text-xs text-foreground" testID="shadow-output">{output()}</Text>
+          <Text class="select-text font-mono text-xs text-foreground" testID="shadow-output">{outcome.output()}</Text>
         </Card>
       ) : null}
     </View>

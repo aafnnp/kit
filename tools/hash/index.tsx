@@ -1,5 +1,5 @@
 import { computed, signal, Text, View } from "nsh"
-import { Badge, Card, CardHeader, CopyButton, Field, OutputBox, Segmented, TextInput } from "../../components/ui"
+import { Badge, Card, CardHeader, CopyButton, OutputBox, Segmented, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
 import { algorithmLabels, algorithms, hashText, selfCheck, type HashAlgorithm, type HashEncoding } from "./logic"
 
@@ -8,6 +8,7 @@ export default function HashTool() {
   const algorithm = signal<HashAlgorithm>("sha256")
   const encoding = signal<HashEncoding>("hex")
   const output = computed(() => hashText(input(), algorithm(), encoding()))
+  const checked = computed(() => selfCheck(algorithm()))
 
   return (
     <View class="gap-4">
@@ -15,7 +16,7 @@ export default function HashTool() {
         <CardHeader
           title={L("哈希算法", "Algorithm")}
           description={L("文本在本地计算，不会离开设备。", "Hashed locally; the text never leaves the device.")}
-          right={<Badge tone={selfCheck(algorithm()) ? "up" : "warn"}>{selfCheck(algorithm()) ? L("自检通过", "Self-check passed") : L("自检失败", "Self-check failed")}</Badge>}
+          right={<Badge tone={checked() ? "up" : "warn"}>{checked() ? L("自检通过", "Self-check passed") : L("自检失败", "Self-check failed")}</Badge>}
         />
         <Segmented
           value={algorithm()}

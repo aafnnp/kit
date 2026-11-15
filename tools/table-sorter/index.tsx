@@ -1,6 +1,8 @@
 import { signal, Text, View } from "nsh"
 import { Button, Card, CardHeader, CopyButton, ErrorBanner, OutputBox, Segmented, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { createLiveRun } from "../../lib/tool-run"
+import { persistDraft, restoreDraft } from "../../lib/drafts"
 import { parseCsv } from "../csv-to-json/logic"
 import { formatCsvTable, sortCsvTable, type SortDirection } from "./logic"
 
@@ -8,10 +10,11 @@ const SAMPLE = "name,score\nAda,98\nGrace,100\nLinus,87"
 
 export default function TableSorter() {
   const input = signal(SAMPLE)
+  restoreDraft("table-sorter", SAMPLE, input)
+  persistDraft("table-sorter", input)
   const selectedColumn = signal("1")
   const direction = signal<SortDirection>("ascending")
-  const output = signal("")
-  const error = signal("")
+
   const headers = () => {
     try {
       return parseCsv(input())[0] ?? []
@@ -20,15 +23,8 @@ export default function TableSorter() {
     }
   }
 
-  const sort = () => {
-    try {
-      output.set(formatCsvTable(sortCsvTable(input(), Number(selectedColumn()), direction())))
-      error.set("")
-    } catch (failure) {
-      output.set("")
-      error.set(failure instanceof Error ? failure.message : String(failure))
-    }
-  }
+  const compute = () => formatCsvTable(sortCsvTable(input(), Number(selectedColumn()), direction()))
+  const outcome = createLiveRun({ initial: "", compute, inputs: [input, selectedColumn, direction], delay: 300 })
 
   return (
     <View class="gap-4">
@@ -44,6 +40,7 @@ export default function TableSorter() {
             value={selectedColumn()}
             onChange={(value) => selectedColumn.set(value)}
             testID="table-column"
+            label={L("排序列", "Sort column")}
             options={headers().map((header, index) => ({ value: String(index), label: header || `#${index + 1}` }))}
           />
         ) : null}
@@ -51,18 +48,19 @@ export default function TableSorter() {
           value={direction()}
           onChange={(value) => direction.set(value)}
           testID="table-direction"
+          label={L("排序方向", "Sort direction")}
           options={[
             { value: "ascending", label: L("升序", "Ascending") },
             { value: "descending", label: L("降序", "Descending") },
           ]}
         />
-        {error() ? <ErrorBanner message={error()} /> : null}
-        <Button tone="primary" onPress={sort} testID="table-sort">{L("排序", "Sort")}</Button>
+        {outcome.error() ? <ErrorBanner message={outcome.error()} /> : null}
+        <Button tone="primary" onPress={() => outcome.run(compute)} testID="table-sort">{L("排序", "Sort")}</Button>
       </Card>
-      {output() ? (
+      {outcome.output() ? (
         <Card>
-          <CardHeader title={L("排序结果", "Sorted CSV")} right={<CopyButton value={() => output()} testID="table-copy" />} />
-          <OutputBox value={output()} height={220} testID="table-output" />
+          <CardHeader title={L("排序结果", "Sorted CSV")} right={<CopyButton value={outcome.output} testID="table-copy" />} />
+          <OutputBox value={outcome.output()} height={220} testID="table-output" />
         </Card>
       ) : null}
     </View>

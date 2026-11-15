@@ -1,28 +1,22 @@
-import { signal, Text, View } from "nsh"
-import { Button, Card, CardHeader, CopyButton, ErrorBanner, Field, OutputBox, Segmented, TextInput, Toggle } from "../../components/ui"
+import { signal, View } from "nsh"
+import { Button, Card, CardHeader, CopyButton, ErrorBanner, OutputBox, Segmented, TextInput, Toggle } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { createLiveRun } from "../../lib/tool-run"
+import { persistDraft, restoreDraft } from "../../lib/drafts"
 import { decodeBase64, encodeBase64 } from "./logic"
 
 export default function Base64Encode() {
   const input = signal("Kit · 本地工具箱 🧰")
+  restoreDraft("base64-encode", "Kit · 本地工具箱 🧰", input)
+  persistDraft("base64-encode", input)
   const mode = signal<"encode" | "decode">("encode")
   const urlSafe = signal(false)
-  const output = signal("")
-  const error = signal("")
-
-  const convert = (next = mode()) => {
-    try {
-      output.set(next === "encode" ? encodeBase64(input(), urlSafe()) : decodeBase64(input(), urlSafe()))
-      error.set("")
-    } catch (failure) {
-      output.set("")
-      error.set(failure instanceof Error ? failure.message : String(failure))
-    }
-  }
+  const compute = () => (mode() === "encode" ? encodeBase64(input(), urlSafe()) : decodeBase64(input(), urlSafe()))
+  const outcome = createLiveRun({ initial: "", compute, inputs: [input, mode, urlSafe], delay: 250 })
 
   const swap = () => {
-    const current = output()
-    output.set(input())
+    const current = outcome.output()
+    if (!current) return
     input.set(current)
     mode.set(mode() === "encode" ? "decode" : "encode")
   }
@@ -37,14 +31,14 @@ export default function Base64Encode() {
         <View class="flex-row flex-wrap items-center gap-2">
           <Segmented
             value={mode()}
-            onChange={(value) => { mode.set(value); convert(value) }}
+            onChange={(value) => mode.set(value)}
             testID="base64-mode"
             options={[
               { value: "encode", label: L("编码", "Encode") },
               { value: "decode", label: L("解码", "Decode") },
             ]}
           />
-          <Toggle label={L("URL 安全", "URL-safe")} checked={urlSafe()} onChange={(value) => { urlSafe.set(value); convert() }} />
+          <Toggle label={L("URL 安全", "URL-safe")} checked={urlSafe()} onChange={(value) => urlSafe.set(value)} />
         </View>
       </Card>
 
@@ -54,14 +48,14 @@ export default function Base64Encode() {
           <TextInput value={input()} onChange={(value) => input.set(value)} multiline height={220} mono testID="base64-input" />
         </Card>
         <Card>
-          <CardHeader title={L("输出", "Output")} right={<CopyButton value={() => output()} testID="base64-copy" />} />
-          {error() ? <ErrorBanner message={error()} /> : null}
-          <OutputBox value={output()} height={220} testID="base64-output" />
+          <CardHeader title={L("输出", "Output")} right={<CopyButton value={outcome.output} testID="base64-copy" />} />
+          {outcome.error() ? <ErrorBanner message={outcome.error()} /> : null}
+          <OutputBox value={outcome.output()} height={220} testID="base64-output" />
         </Card>
       </View>
 
       <View class="flex-row flex-wrap gap-2">
-        <Button tone="primary" onPress={() => convert()} testID="base64-convert">
+        <Button tone="primary" onPress={() => outcome.run(compute)} testID="base64-convert">
           {L("转换", "Convert")}
         </Button>
         <Button onPress={swap} testID="base64-swap">

@@ -1,3 +1,5 @@
+import { guardInput } from "../../lib/validation"
+
 export type DiffKind = "same" | "add" | "remove"
 
 export interface DiffLine {
@@ -16,9 +18,25 @@ export interface DiffResult {
 
 const MAX_CELLS = 4_000_000
 
-export function diffLines(before: string, after: string): DiffResult {
+export interface DiffOptions {
+  ignoreWhitespace?: boolean
+  ignoreCase?: boolean
+}
+
+function normalizeLine(line: string, options: DiffOptions): string {
+  let value = line
+  if (options.ignoreWhitespace) value = value.replace(/\s+/g, " ").trim()
+  if (options.ignoreCase) value = value.toLowerCase()
+  return value
+}
+
+export function diffLines(before: string, after: string, options: DiffOptions = {}): DiffResult {
+  guardInput(before, "Original text")
+  guardInput(after, "New text")
   const a = before === "" ? [] : before.split(/\r?\n/)
   const b = after === "" ? [] : after.split(/\r?\n/)
+  const aNormalized = a.map((line) => normalizeLine(line, options))
+  const bNormalized = b.map((line) => normalizeLine(line, options))
 
   if (a.length * b.length > MAX_CELLS) {
     throw new Error("The texts are too large to compare line by line")
@@ -27,7 +45,7 @@ export function diffLines(before: string, after: string): DiffResult {
   const table: number[][] = Array.from({ length: a.length + 1 }, () => new Array<number>(b.length + 1).fill(0))
   for (let i = a.length - 1; i >= 0; i -= 1) {
     for (let j = b.length - 1; j >= 0; j -= 1) {
-      table[i]![j] = a[i] === b[j] ? table[i + 1]![j + 1]! + 1 : Math.max(table[i + 1]![j]!, table[i]![j + 1]!)
+      table[i]![j] = aNormalized[i] === bNormalized[j] ? table[i + 1]![j + 1]! + 1 : Math.max(table[i + 1]![j]!, table[i]![j + 1]!)
     }
   }
 
@@ -35,7 +53,7 @@ export function diffLines(before: string, after: string): DiffResult {
   let i = 0
   let j = 0
   while (i < a.length && j < b.length) {
-    if (a[i] === b[j]) {
+    if (aNormalized[i] === bNormalized[j]) {
       lines.push({ kind: "same", value: a[i]!, oldLine: i + 1, newLine: j + 1 })
       i += 1
       j += 1

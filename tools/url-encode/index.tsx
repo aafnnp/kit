@@ -1,26 +1,20 @@
 import { signal, Text, View } from "nsh"
 import { Button, Card, CardHeader, CopyButton, ErrorBanner, OutputBox, Segmented, TextInput } from "../../components/ui"
 import { L } from "../../lib/locale"
+import { createLiveRun } from "../../lib/tool-run"
+import { persistDraft, restoreDraft } from "../../lib/drafts"
 import { decodeUrl, encodeUrl, parseQuery, type UrlMode } from "./logic"
 
 const SAMPLE = "https://example.com/search?q=kit tools&lang=zh-CN&page=2"
 
 export default function UrlEncode() {
   const input = signal(SAMPLE)
+  restoreDraft("url-encode", SAMPLE, input)
+  persistDraft("url-encode", input)
   const mode = signal<"encode" | "decode">("encode")
   const scope = signal<UrlMode>("component")
-  const output = signal("")
-  const error = signal("")
-
-  const convert = (next = mode()) => {
-    try {
-      output.set(next === "encode" ? encodeUrl(input(), scope()) : decodeUrl(input(), scope()))
-      error.set("")
-    } catch (failure) {
-      output.set("")
-      error.set(failure instanceof Error ? failure.message : String(failure))
-    }
-  }
+  const compute = () => (mode() === "encode" ? encodeUrl(input(), scope()) : decodeUrl(input(), scope()))
+  const outcome = createLiveRun({ initial: "", compute, inputs: [input, mode, scope], delay: 250 })
 
   const query = () => {
     try {
@@ -33,11 +27,11 @@ export default function UrlEncode() {
   return (
     <View class="gap-4">
       <Card>
-        <CardHeader title={L("URL 编解码", "URL encoder / decoder")} description={L("组件模式编码 ?&= 等保留字符；完整 URL 模式保留 URL 结构。", "Component mode encodes reserved characters. Full-URL mode keeps the URL structure.")} />
+        <CardHeader title={L("URL 编解码", "URL encoder / decoder")} description={L("组件模式编码保留字符；查询串模式把空格编码为 +；完整 URL 模式保留 URL 结构。", "Component mode encodes reserved characters, query mode uses + for spaces, and full-URL mode keeps the URL structure.")} />
         <View class="flex-row flex-wrap items-center gap-2">
           <Segmented
             value={mode()}
-            onChange={(value) => { mode.set(value); convert(value) }}
+            onChange={(value) => mode.set(value)}
             testID="url-mode"
             options={[
               { value: "encode", label: L("编码", "Encode") },
@@ -50,6 +44,7 @@ export default function UrlEncode() {
             testID="url-scope"
             options={[
               { value: "component", label: L("组件", "Component") },
+              { value: "query", label: L("查询串", "Query") },
               { value: "full", label: L("完整 URL", "Full URL") },
             ]}
           />
@@ -62,9 +57,9 @@ export default function UrlEncode() {
           <TextInput value={input()} onChange={(value) => input.set(value)} multiline height={180} mono testID="url-input" />
         </Card>
         <Card>
-          <CardHeader title={L("输出", "Output")} right={<CopyButton value={() => output()} testID="url-copy" />} />
-          {error() ? <ErrorBanner message={error()} /> : null}
-          <OutputBox value={output()} height={180} testID="url-output" />
+          <CardHeader title={L("输出", "Output")} right={<CopyButton value={outcome.output} testID="url-copy" />} />
+          {outcome.error() ? <ErrorBanner message={outcome.error()} /> : null}
+          <OutputBox value={outcome.output()} height={180} testID="url-output" />
         </Card>
       </View>
 
@@ -83,10 +78,10 @@ export default function UrlEncode() {
       ) : null}
 
       <View class="flex-row flex-wrap gap-2">
-        <Button tone="primary" onPress={() => convert()} testID="url-convert">
+        <Button tone="primary" onPress={() => outcome.run(compute)} testID="url-convert">
           {L("转换", "Convert")}
         </Button>
-        <Button tone="ghost" onPress={() => { input.set(SAMPLE); output.set(""); error.set("") }}>
+        <Button tone="ghost" onPress={() => input.set(SAMPLE)}>
           {L("示例", "Sample")}
         </Button>
       </View>

@@ -1,3 +1,5 @@
+import { guardInput } from "../../lib/validation"
+
 export type Delimiter = "," | ";" | "\t" | "|"
 
 export interface CsvOptions {
@@ -69,6 +71,7 @@ function inferValue(value: string): unknown {
 
 export function csvToJson(text: string, options: CsvOptions): { ok: true; output: string; rows: number } | { ok: false; error: string } {
   if (!text.trim()) return { ok: false, error: "Input is empty" }
+  guardInput(text)
   let rows: string[][]
   try {
     rows = parseCsv(text, options.delimiter)

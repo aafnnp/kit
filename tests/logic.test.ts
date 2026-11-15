@@ -32,12 +32,15 @@ import { mimeDatabase, searchMime } from "../tools/mime-search/logic"
 import { httpStatuses, searchHttpStatuses } from "../tools/http-status/logic"
 import { generateFakeUser } from "../tools/fake-user/logic"
 import { parseLotteryItems, pickLottery } from "../tools/lottery-picker/logic"
-import { calculateMatrix, formatMatrix, parseMatrix } from "../tools/matrix-math/logic"
+import { calculateMatrix, determinant, formatMatrix, invertMatrix, parseMatrix } from "../tools/matrix-math/logic"
 import { regexTips, searchRegexTips } from "../tools/regex-cheatsheet/logic"
 import { formatCronDate, nextCronRuns } from "../tools/cron-parser/logic"
 import { formatCsvTable, sortCsvTable } from "../tools/table-sorter/logic"
 import { gitCommands, searchGitCommands } from "../tools/git-helper/logic"
 import { legacyToolSpecs } from "../tools/legacy-migration/specs"
+import { numberFromText } from "../lib/validation"
+import { localizeMessage } from "../lib/errors"
+import { language } from "../lib/locale"
 import {
   createCode39Svg,
   createQrSvg,
@@ -47,6 +50,8 @@ import {
   jsonBarChart,
   makeSvgSprite,
   minifySvg,
+  orientationName,
+  readExifValue,
   runLegacyTool,
   signJwt,
   textToPdfBase64,
@@ -69,6 +74,16 @@ test("JSON to TypeScript merges array objects", () => {
     expect(result.output).toContain("export interface Sample")
     expect(result.output).toContain("items: Item[]")
     expect(result.output).toContain("extra?: boolean")
+  }
+})
+
+test("JSON to TypeScript names root array items without duplicating the alias", () => {
+  const result = jsonToTs('[{"a":1},{"a":2,"b":3}]', "Root")
+  expect(result.ok).toBe(true)
+  if (result.ok) {
+    expect(result.output).toContain("export interface RootItem")
+    expect(result.output).toContain("export type Root = RootItem[]")
+    expect(result.output).not.toContain("export interface Root {")
   }
 })
 
@@ -99,6 +114,8 @@ test("URL encoding and query parsing", () => {
     { key: "a", value: "1" },
     { key: "b", value: "hello world" },
   ])
+  expect(encodeUrl("a b&c", "query")).toBe("a+b%26c")
+  expect(decodeUrl("a+b", "query")).toBe("a b")
 })
 
 test("JWT decodes header and payload", () => {
@@ -118,11 +135,33 @@ test("JWT decodes header and payload", () => {
 test("word count handles Latin and CJK", () => {
   const stats = textStats("Hello world.\n你好世界。", 200)
   expect(stats.characters).toBe(18)
-  expect(stats.words).toBe(7)
+  expect(stats.words).toBe(6)
   expect(stats.sentences).toBe(2)
   expect(stats.paragraphs).toBe(1)
   expect(stats.lines).toBe(2)
   expect(topWords("apple banana apple cherry apple").slice(0, 1)[0]).toEqual({ word: "apple", count: 3 })
+  expect(textStats("你好世界。这是测试！").words).toBe(8)
+  expect(textStats("Hello, world!").words).toBe(2)
+  expect(textStats("👨‍👩‍👧").characters).toBe(1)
+})
+
+test("tool error messages are localized", () => {
+  language.set("zh")
+  expect(localizeMessage("Input is empty")).toBe("输入为空。")
+  expect(localizeMessage("Count must be a whole number from 1 to 10.")).toBe("数量必须是 1 到 10 的整数。")
+  expect(localizeMessage("Input exceeds the 8 MiB processing limit.")).toBe("输入超过 8 MiB 处理上限。")
+  expect(localizeMessage("Pattern rejected for safety: nested quantifiers can backtrack exponentially.")).toContain("嵌套量词")
+  language.set("en")
+  expect(localizeMessage("Input is empty")).toBe("Input is empty")
+})
+
+test("numbers parsed from text reject empty and non-numeric fields", () => {
+  expect(numberFromText(" 12.5 ")).toBe(12.5)
+  expect(numberFromText("-3e2")).toBe(-300)
+  expect(() => numberFromText("")).toThrow()
+  expect(() => numberFromText("  ")).toThrow()
+  expect(() => numberFromText("abc")).toThrow()
+  expect(() => numberFromText("Infinity")).toThrow()
 })
 
 test("case conversion covers camel, snake and kebab", () => {
@@ -132,6 +171,9 @@ test("case conversion covers camel, snake and kebab", () => {
   expect(convertCase("kit local toolbox", "kebab")).toBe("kit-local-toolbox")
   expect(convertCase("kit local toolbox", "constant")).toBe("KIT_LOCAL_TOOLBOX")
   expect(convertCase("Kit", "reverse")).toBe("tiK")
+  expect(convertCase("你好 世界", "camel")).toBe("你好世界")
+  expect(convertCase("a👨‍👩‍👧b", "reverse")).toBe("b👨‍👩‍👧a")
+  expect(convertCase("hello. world", "sentence")).toBe("Hello. World")
 })
 
 test("diff reports additions and removals", () => {
@@ -140,6 +182,11 @@ test("diff reports additions and removals", () => {
   expect(diff.removed).toBe(1)
   expect(diff.unchanged).toBe(2)
   expect(diff.lines.map((line) => line.kind)).toEqual(["same", "remove", "same", "add"])
+  const spaced = diffLines("a  b", "a b")
+  expect([spaced.added, spaced.removed]).toEqual([1, 1])
+  const ignoredWhitespace = diffLines("a  b", "a b", { ignoreWhitespace: true })
+  expect([ignoredWhitespace.added, ignoredWhitespace.removed, ignoredWhitespace.unchanged]).toEqual([0, 0, 1])
+  expect(diffLines("Kit", "kit", { ignoreCase: true }).unchanged).toBe(1)
 })
 
 test("regex returns matches, groups and segments", () => {
@@ -151,6 +198,10 @@ test("regex returns matches, groups and segments", () => {
     expect(result.result.segments.filter((segment) => segment.match).length).toBe(2)
   }
   expect(runRegex("(", "", "x").ok).toBe(false)
+  expect(runRegex("(a+)+$", "", "a".repeat(24) + "b").ok).toBe(false)
+  expect(runRegex("(a|aa)+$", "", "aaab").ok).toBe(false)
+  expect(runRegex("(?:cat|dog)+", "", "catdog").ok).toBe(true)
+  expect(runRegex("(\\d{1,3}\\.){3}\\d{1,3}", "", "192.168.1.42").ok).toBe(true)
 })
 
 test("lorem is deterministic for a seed and starts with Lorem ipsum", () => {
@@ -228,6 +279,16 @@ test("Markdown TOC skips fences and disambiguates duplicate anchors", () => {
   const markdown = "# Guide\n\n## Intro\n\n## Intro\n\n```md\n# not a heading\n```\n"
   expect(parseHeadings(markdown).map((heading) => heading.slug)).toEqual(["guide", "intro", "intro-1"])
   expect(generateMarkdownToc(markdown)).toBe("- [Guide](#guide)\n  - [Intro](#intro)\n  - [Intro](#intro-1)")
+  expect(generateMarkdownToc("# A\n\n## B\n\n### C", { maxDepth: 2 })).toBe("- [A](#a)\n  - [B](#b)")
+  expect(generateMarkdownToc("# A\n\n## B\n\n## C\n\n### D", { numbered: true })).toBe(
+    "1. [A](#a)\n  1. [B](#b)\n  2. [C](#c)\n    1. [D](#d)",
+  )
+  const setext = parseHeadings("Title\n=====\n\nSub\n---\n\n## <b>Bold</b> `code` [link](https://example.test)")
+  expect(setext.map((heading) => [heading.level, heading.text, heading.slug])).toEqual([
+    [1, "Title", "title"],
+    [2, "Sub", "sub"],
+    [2, "Bold code link", "bold-code-link"],
+  ])
 })
 
 test("JSON diff reports nested edits, additions, removals and invalid JSON", () => {
@@ -260,6 +321,20 @@ test("color conversion accepts HEX and RGB and reports contrast", () => {
   expect(black.contrastWhite).toBe(21)
   expect(black.recommendedText).toBe("white")
   expect(() => parseColor("rgb(300,0,0)")).toThrow()
+  expect(parseColor("#ff000080")).toEqual({ r: 255, g: 0, b: 0 })
+  expect(Math.abs(convertColor("#00ff0080").alpha - 0.5) < 0.01).toBe(true)
+  expect(convertColor("hsl(0, 100%, 50%)").hex).toBe("#FF0000")
+  expect(convertColor("rgba(0, 0, 255, 0.25)").rgb).toEqual({ r: 0, g: 0, b: 255 })
+  expect(convertColor("rebeccapurple").hex).toBe("#663399")
+  expect(() => parseColor("hsl(0, 120%, 50%)")).toThrow()
+  expect(() => parseColor("rgb(300,0,0)")).toThrow()
+})
+
+test("EXIF reads rational values and orientation names", () => {
+  const rational = new Uint8Array([1, 0, 0, 0, 250, 0, 0, 0])
+  expect(readExifValue(rational, 0, true, 5, 1, 0, 8)).toBe("1/250")
+  expect(orientationName(1)).toBe("Normal")
+  expect(orientationName(6)).toBe("Rotate 90 CW")
 })
 
 test("URL inspector extracts repeated query parameters without exposing passwords", () => {
@@ -286,6 +361,11 @@ test("time difference preserves direction and splits elapsed units", () => {
   const reversed = calculateTimeDifference("2025-01-02T00:00:00Z", "2025-01-01T00:00:00Z")
   expect(reversed.ok && reversed.difference.direction).toBe("backward")
   expect(calculateTimeDifference("invalid", "2025-01-01").ok).toBe(false)
+  const epoch = calculateTimeDifference("1735689600", "1735776000")
+  expect(epoch.ok && epoch.difference.days).toBe(1)
+  expect(epoch.ok && epoch.difference.totalMilliseconds).toBe(86_400_000)
+  const epochMs = calculateTimeDifference("1735689600000", "1735776000000")
+  expect(epochMs.ok && epochMs.difference.days).toBe(1)
 })
 
 test("CSS clamp generator validates range and produces responsive declarations", () => {
@@ -329,7 +409,8 @@ test("timezone converter applies date-specific offsets", () => {
   expect(convertTimeZones("2025-07-01T12:00:00Z", ["Australia/Sydney"])[0]!.offsetLabel).toBe("UTC+10:00")
   expect(() => convertTimeZones("invalid", ["UTC"])).toThrow()
   expect(() => convertTimeZones("2007-01-01T12:00:00Z", ["UTC"])).toThrow()
-  expect(() => convertTimeZones("2025-01-01T12:00:00Z", ["Asia/Kolkata"])).toThrow()
+  expect(convertTimeZones("2025-01-01T12:00:00Z", ["Asia/Kolkata"])[0]!.offsetLabel).toBe("UTC+05:30")
+  expect(convertTimeZones("2025-07-01T00:00:00Z", ["Pacific/Auckland"])[0]!.offsetLabel).toBe("UTC+12:00")
 })
 
 test("MIME search matches extensions, names and case-insensitive queries", () => {
@@ -369,12 +450,17 @@ test("matrix calculator validates shapes and performs common operations", () => 
   expect(formatMatrix(calculateMatrix(a, b, "add"))).toBe("6\t8\n10\t12")
   expect(formatMatrix(calculateMatrix(a, b, "multiply"))).toBe("19\t22\n43\t50")
   expect(formatMatrix(calculateMatrix(a, null, "transpose"))).toBe("1\t3\n2\t4")
+  expect(determinant([[1, 2], [3, 4]])).toBe(-2)
+  expect(formatMatrix(invertMatrix([[4, 7], [2, 6]]))).toBe("0.6\t-0.7\n-0.2\t0.4")
+  expect(() => invertMatrix([[1, 2], [2, 4]])).toThrow()
+  expect(() => determinant([[1, 2, 3], [4, 5, 6]])).toThrow()
   expect(() => parseMatrix("1, 2\n3")).toThrow()
   expect(() => calculateMatrix(a, [[1], [2], [3]], "multiply")).toThrow()
 })
 
 test("regex cheat sheet can search syntax and examples", () => {
-  expect(searchRegexTips("lookahead").map((tip) => tip.title)).toEqual(["Positive lookahead"])
+  expect(searchRegexTips("lookahead").map((tip) => tip.title.en)).toEqual(["Positive lookahead"])
+  expect(searchRegexTips("前瞻").length).toBeGreaterThan(0)
   expect(searchRegexTips("\\d").length).toBeGreaterThan(0)
   expect(regexTips.length).toBeGreaterThan(10)
 })
@@ -389,6 +475,11 @@ test("cron parser expands fields and computes upcoming local occurrences", () =>
   expect(() => nextCronRuns("60 * * * *", new Date(), 1)).toThrow()
   expect(() => nextCronRuns("* * *", new Date(), 1)).toThrow()
   expect(() => nextCronRuns("* * * * *", new Date(), 11)).toThrow()
+  expect(formatCronDate(nextCronRuns("30 2 29 2 *", new Date(2025, 0, 1), 1)[0]!)).toBe("2028-02-29 02:30")
+  expect(formatCronDate(nextCronRuns("@daily", new Date(2025, 0, 1, 0, 0), 1)[0]!)).toBe("2025-01-02 00:00")
+  expect(formatCronDate(nextCronRuns("0 9 * * MON", new Date(2025, 0, 1, 0, 0), 1)[0]!)).toBe("2025-01-06 09:00")
+  expect(formatCronDate(nextCronRuns("0 0 1 JAN *", new Date(2025, 0, 1, 0, 0), 1)[0]!)).toBe("2026-01-01 00:00")
+  expect(() => nextCronRuns("0 0 * * XYZ", new Date(2025, 0, 1), 1)).toThrow()
 })
 
 test("table sorter preserves CSV fields and sorts numeric columns stably", () => {
@@ -402,6 +493,8 @@ test("Git helper searches localized command details and filters categories", () 
   expect(gitCommands.length).toBeGreaterThan(10)
   expect(searchGitCommands("快进式").map((command) => command.id)).toEqual(["pull"])
   expect(searchGitCommands("switch", "branch").map((command) => command.id)).toEqual(["branch-create", "branch-switch"])
+  expect(searchGitCommands("stash").map((command) => command.id)).toContain("stash")
+  expect(searchGitCommands("rebase", "branch").map((command) => command.id)).toEqual(["rebase"])
   expect(searchGitCommands("no-such-command")).toEqual([])
 })
 
@@ -418,7 +511,9 @@ test("legacy data converters reject unsafe YAML features and format supported co
 
 test("remaining tools produce validated QR, barcode, SVG and safe HTML output", () => {
   expect(createQrSvg("Kit").startsWith("<svg")).toBe(true)
-  expect(() => createQrSvg("abcdefghijklmnopqr")).toThrow()
+  expect(createQrSvg("a".repeat(18))).toContain('viewBox="-4 -4 33 33"')
+  expect(createQrSvg("a".repeat(106))).toContain('viewBox="-4 -4 45 45"')
+  expect(() => createQrSvg("a".repeat(107))).toThrow()
   expect(createCode39Svg("KIT-39")).toContain("<rect")
   expect(() => createCode39Svg("invalid!")).toThrow()
   expect(inspectHtml('<script>alert(1)</script><img src="x" onerror="x">').removed).toBe(2)
@@ -433,6 +528,9 @@ test("legacy helpers calculate JWTs, checksums, PDFs, IP ranges and plots locall
   const xref = Number(/startxref\n(\d+)/.exec(pdf)?.[1])
   expect(pdf.slice(xref, xref + 4)).toBe("xref")
   expect(inspectIpv4("192.168.1.42/24")).toContain("192.168.1.0/24")
+  expect(inspectIpv4("0.0.0.1/8")).toContain("This network")
+  expect(inspectIpv4("100.64.0.1/10")).toContain("Carrier-grade NAT")
+  expect(inspectIpv4("10.0.0.1/31")).toContain("Usable hosts: 2")
   expect(jsonBarChart("[1,2]").split("\n")).toHaveLength(2)
 })
 
@@ -541,7 +639,7 @@ test("every legacy tool specification has a runnable example", () => {
   for (const spec of legacyToolSpecs) {
     if (LEGACY_THROWING.has(spec.meta.slug)) continue
     const input = LEGACY_INPUT_OVERRIDES[spec.meta.slug] ?? spec.defaultInput ?? ""
-    const result = spec.run(input, spec.secondary?.default ?? "", "")
+    const result = spec.run(input, spec.secondary?.default ?? "")
     expect(result.output.length).toBeGreaterThan(0)
   }
 })

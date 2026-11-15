@@ -4,7 +4,7 @@ import { L } from "../../lib/locale"
 import { generateRandomColor } from "./logic"
 
 export default function RandomColor() {
-  const color = signal("#00A6D0")
+  const color = signal(generateRandomColor())
   const generate = () => color.set(generateRandomColor())
 
   return (
