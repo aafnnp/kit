@@ -4,6 +4,7 @@ import { L } from "../lib/locale"
 import { appearance, clearHistory, favorites, keepDrafts, language, recent, type Appearance } from "../lib/state"
 import { modKey, modShiftKey, platformLabel } from "../lib/platform"
 import { APP_VERSION, NSH_VERSION } from "../lib/version"
+import { updater } from "../lib/updater"
 import { clearDrafts } from "../lib/drafts"
 
 export function SettingsPage() {
@@ -91,6 +92,8 @@ export function SettingsPage() {
           </View>
         </Card>
 
+        <UpdateCard />
+
         <Card>
           <CardHeader title={L("关于 Kit", "About Kit")} />
           <View class="gap-1.5">
@@ -111,6 +114,88 @@ export function SettingsPage() {
         </Card>
       </View>
     </Scroll>
+  )
+}
+
+function UpdateCard() {
+  const found = () => updater.update()
+  const percent = () => Math.round(updater.progress() * 100)
+  const status = () => {
+    switch (updater.phase()) {
+      case "checking":
+        return L("正在检查更新…", "Checking for updates…")
+      case "current":
+        return L("已是最新版本。", "You're up to date.")
+      case "available":
+        return L(`发现新版本 v${found()?.version ?? ""}`, `Version ${found()?.version ?? ""} is available`)
+      case "downloading":
+        return updater.progress() > 0 ? L(`正在下载，已完成 ${percent()}%`, `Downloading, ${percent()}% done`) : L("正在下载…", "Downloading…")
+      case "installing":
+        return L("正在安装，应用即将重启…", "Installing; the app will restart…")
+      case "error":
+        return L("检查或安装更新失败。", "Checking or installing the update failed.")
+      default:
+        return L(`当前版本 v${APP_VERSION}`, `Current version v${APP_VERSION}`)
+    }
+  }
+
+  return (
+    <Card testID="settings-update">
+      <CardHeader
+        title={L("应用更新", "App updates")}
+        description={L("桌面版启动时向 GitHub Releases 检查新版本，可下载后就地替换并重启；Web 版随站点部署更新。", "Desktop builds check GitHub Releases at launch and can replace and restart in place; the web build updates with the site.")}
+      />
+      <View class="flex-row flex-wrap items-center justify-between gap-2">
+        <View class="gap-0.5">
+          <Text class="select-text text-xs text-foreground">v{APP_VERSION}</Text>
+          <Text class="text-xs text-muted-foreground" testID="settings-update-status">{status()}</Text>
+        </View>
+        <Button
+          onPress={() => void updater.check()}
+          disabled={updater.busy()}
+          testID="settings-update-check"
+          accessibilityLabel={L("检查更新", "Check for updates")}
+        >
+          {updater.phase() === "checking" ? L("检查中…", "Checking…") : L("检查更新", "Check for updates")}
+        </Button>
+      </View>
+
+      <If when={(updater.phase() === "available" || updater.phase() === "error") && found() !== null}>
+        <View class="gap-2 rounded-(--radius) border border-border bg-muted/30 p-3">
+          <Text class="text-xs font-medium text-foreground">
+            {L(`新版本 v${found()?.version ?? ""}`, `Version ${found()?.version ?? ""}`)}
+          </Text>
+          <If when={Boolean(found()?.notes)}>
+            <Text class="line-clamp-4 text-xs text-muted-foreground">{found()?.notes ?? ""}</Text>
+          </If>
+          <View class="flex-row flex-wrap gap-2">
+            <Button tone="primary" onPress={() => void updater.install()} disabled={updater.busy()} testID="settings-update-install">
+              {found()?.canInstall ? L("下载并安装", "Download and install") : L("前往下载", "Open download page")}
+            </Button>
+            <Button onPress={() => void updater.openDownload()} testID="settings-update-page">
+              {L("打开发布页", "Open release page")}
+            </Button>
+          </View>
+        </View>
+      </If>
+
+      <If when={updater.phase() === "downloading" || updater.phase() === "installing"}>
+        <View class="gap-1.5">
+          <View class="h-1.5 overflow-hidden rounded-full bg-muted">
+            <View class="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.max(6, percent())}%` }} />
+          </View>
+          <Text class="text-[11px] text-muted-foreground">
+            {updater.phase() === "installing"
+              ? L("正在替换应用…", "Replacing the app…")
+              : L("下载完成后将自动安装并重启。", "It installs and restarts when the download finishes.")}
+          </Text>
+        </View>
+      </If>
+
+      <If when={updater.phase() === "error" && updater.error() !== null}>
+        <Text class="text-xs text-destructive" testID="settings-update-error">{updater.error() ?? ""}</Text>
+      </If>
+    </Card>
   )
 }
 

@@ -2,6 +2,10 @@
 # release ships: kit-<version>-windows-<arch>.zip (portable) and
 # kit-<version>-windows-<arch>-setup.exe (Inno Setup, compiled by nsh when
 # ISCC.exe is installed).
+#
+# 同时把 nsh.json 的 updater 配置让 `nsh package` 写出的自动更新包，
+# 以 kit-<version>-windows-<nsh 架构>.zip 的名字放进同一目录，
+# 供 `nsh update-manifest` 生成 latest.json（arm64 在 NSH 里叫 aarch64）。
 param(
   [Parameter(Mandatory)][ValidateSet('windows')][string]$Target,
   [Parameter(Mandatory)][string]$Version,
@@ -27,16 +31,30 @@ $Zip = Join-Path $OutDir "$Prefix.zip"
 Copy-Item $Portable $Zip
 
 # 解开便携包，确认里面是可运行的目录而不是空壳。
-$Extract = Join-Path ([System.IO.Path]::GetTempPath()) ("kit-portable-" + [guid]::NewGuid().ToString('N'))
-try {
-  Expand-Archive -Path $Zip -DestinationPath $Extract
-  foreach ($File in @("$Name\$Name.exe", "$Name\nsh\app.json", "$Name\nsh\bundle.nshc")) {
-    if (-not (Test-Path (Join-Path $Extract $File))) { throw "$Zip 里没有 $File" }
+function Assert-PortableZip([string]$Path) {
+  $Extract = Join-Path ([System.IO.Path]::GetTempPath()) ("kit-portable-" + [guid]::NewGuid().ToString('N'))
+  try {
+    Expand-Archive -Path $Path -DestinationPath $Extract
+    foreach ($File in @("$Name\$Name.exe", "$Name\nsh\app.json", "$Name\nsh\bundle.nshc")) {
+      if (-not (Test-Path (Join-Path $Extract $File))) { throw "$Path 里没有 $File" }
+    }
+  }
+  finally {
+    Remove-Item $Extract -Recurse -Force -ErrorAction SilentlyContinue
   }
 }
-finally {
-  Remove-Item $Extract -Recurse -Force -ErrorAction SilentlyContinue
+
+Assert-PortableZip $Zip
+
+$NshArch = if ($Arch -eq 'arm64') { 'aarch64' } else { $Arch }
+$UpdateArchive = Join-Path $Built "$Name-$($Config.version)-windows-$NshArch.zip"
+if (-not (Test-Path $UpdateArchive)) {
+  throw "nsh package 没有生成自动更新包 ${UpdateArchive}（nsh.json 需要 updater 配置）"
 }
+$UpdateOut = Join-Path $OutDir "kit-$Version-windows-$NshArch.zip"
+Copy-Item $UpdateArchive $UpdateOut -Force
+Assert-PortableZip $UpdateOut
+Write-Host "已生成 ${UpdateOut}"
 
 $Setup = Join-Path $Built "$Name-setup.exe"
 if (-not (Test-Path $Setup)) {

@@ -2,10 +2,18 @@
 # 生成 GitHub Release 说明：安装指引 + CHANGELOG 中对应版本的条目。
 #
 # 用法：scripts/release-notes.sh <tag> [owner/repo] > notes.md
+#       scripts/release-notes.sh --section <tag> > changes.md
+# `--section` 只输出变更条目，作为 `nsh update-manifest --notes` 的内容。
 # 缺少该版本的 CHANGELOG 条目时，回退为列出上一个标签以来的提交。
 set -euo pipefail
 
-TAG="${1:?用法: release-notes.sh <tag> [owner/repo]}"
+MODE="full"
+if [[ "${1:-}" == "--section" ]]; then
+  MODE="section"
+  shift
+fi
+
+TAG="${1:?用法: release-notes.sh [--section] <tag> [owner/repo]}"
 REPO="${2:-${GITHUB_REPOSITORY:-aafnnp/kit}}"
 VERSION="${TAG#v}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -28,6 +36,11 @@ section="$(awk -v heading="## v${VERSION}" '
 if [[ -z "${section//[[:space:]]/}" ]]; then
   section="$(git -C "$ROOT" log --no-merges --pretty='- %s' "$RANGE" 2>/dev/null || true)"
   [[ -n "$section" ]] || section="- 无变更记录"
+fi
+
+if [[ "$MODE" == "section" ]]; then
+  printf '%s\n' "$section"
+  exit 0
 fi
 
 cat <<EOF

@@ -7,6 +7,7 @@ import { ToolPage } from "./components/tool-page"
 import { L } from "./lib/locale"
 import { platformLabel } from "./lib/platform"
 import { NSH_VERSION } from "./lib/version"
+import { startUpdateCheck, updater } from "./lib/updater"
 import {
   appearance,
   clearSearch,
@@ -25,13 +26,29 @@ function StatusBar() {
         <View class="h-1.5 w-1.5 rounded-full bg-up" />
         <Text class="text-[10px] text-muted-foreground">{L("本地处理 · 数据不会离开设备", "Local processing · data never leaves the device")}</Text>
       </View>
-      <Text class="text-[10px] text-muted-foreground">{platformLabel()} · NSH {NSH_VERSION}</Text>
+      <View class="flex-row items-center gap-3">
+        <If when={updater.phase() === "available"}>
+          <View
+            role="button"
+            onPress={openSettings}
+            accessibilityLabel={L("查看可用更新", "View available update")}
+            testID="status-update"
+            class="h-5 flex-row items-center gap-1 rounded-full bg-brand-orange/15 px-2 active:opacity-70"
+          >
+            <Text class="text-[10px] font-medium text-brand-orange">
+              {L("有更新", "Update")} v{updater.update()?.version}
+            </Text>
+          </View>
+        </If>
+        <Text class="text-[10px] text-muted-foreground">{platformLabel()} · NSH {NSH_VERSION}</Text>
+      </View>
     </View>
   )
 }
 
 function App() {
   void hydrate()
+  startUpdateCheck()
 
   effect(() => setColorScheme(appearance()))
 

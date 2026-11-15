@@ -15,6 +15,7 @@
 - **One codebase, four platforms**: macOS (AppKit), Windows (Win32 / Direct2D), Linux (GTK 4) and the web (HTML + WebAssembly).
 - **Native UI**: NSH renders with each platform's own views and text input — no WebView, no React and no virtual DOM.
 - **Local-first**: no accounts, no uploads, no telemetry. Hashing, compression and file work use NSH's Rust standard modules.
+- **In-place updates**: desktop builds check GitHub Releases at launch through `nsh/updater`; Settings shows the notes and download progress, then replaces and restarts the app. The web build updates when the site is deployed.
 - **DevToys-style workspace**: a searchable, collapsible sidebar with a welcome page and tool pages, plus favorites, recent tools, light/dark mode and English/Chinese UI. Tool drafts are opt-in from Settings (off by default).
 - **Testable by design**: every tool keeps its logic in `logic.ts`, separate from the UI, covered by `nsh test`.
 
@@ -81,16 +82,22 @@ Windows PowerShell:
 Outputs land in `.nsh/out/`.
 Web and macOS packaging were verified locally; this machine lacks the NSH runners needed to package Windows and Linux.
 
+## Releases and updates
+
+`nsh package` writes an update archive for each platform when `nsh.json` sets `updater.github`: `kit-<version>-<platform>-aarch64|x86_64.tar.gz` on macOS and Linux, and `kit-<version>-windows-aarch64|x86_64.zip` on Windows. The `publish` job runs `nsh update-manifest` to write `latest.json` (with the release notes and each archive's SHA-256), then uploads it next to `SHA256SUMS.txt`. The `.dmg`, `.deb` and `-setup.exe` files remain manual installers.
+
+Installed desktop apps read `latest.json` at launch. An update is checked for the app id, executable and, on macOS, its code signature before it replaces the app. macOS release builds are ad hoc signed; sign and notarize with a Developer ID before distributing broadly.
+
 ## Architecture
 
 ```
 App.tsx                  entry: sidebar + workspace + status bar
 components/              shell, DevToys-style navigation, shared UI
-lib/                     state, i18n, platform helpers, styles, version and validation
+lib/                     state, i18n, platform helpers, styles, version, validation, updater
 tools/registry.ts        single source of tool metadata and search
 tools/<slug>/logic.ts    core pure, testable logic
 tools/legacy-migration/  legacy tool specs, shared offline logic and the generic NSH screen
-tests/                   logic tests
+tests/                   logic and updater tests
 App.test.tsx             app-level interaction tests
 theme.json               shadcn-style design tokens (light / dark)
 nsh.json                 app metadata, icon and capabilities
@@ -104,6 +111,7 @@ All 78 legacy tools are registered and routed in NSH; navigation and search show
 - The only declared capabilities are `clipboard`, the system image picker (`picker`) and `openUrl`; there is no arbitrary file-system, network or process capability, and images are read only when the user picks them in the system picker.
 - All text processing is local; hashing uses NSH's Rust `crypto` module.
 - Favorites, recent tools, language and appearance persist through NSH `Storage`.
+- Updates only read the GitHub Releases source fixed by `nsh.json` at build time; app code cannot choose it. The requests use the platform's own network stack, so no `network` capability is declared or needed.
 
 ## Migration from React + Tauri
 

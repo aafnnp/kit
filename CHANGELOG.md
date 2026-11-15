@@ -5,6 +5,25 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## v0.9.0
+
+*发布日期: 2026-11-15*
+
+### ✨ Features
+
+- 接入 NSH 自动更新（`nsh/updater`）：启动时向 GitHub Releases 检查新版本，设置页显示当前版本、更新说明与下载进度；桌面版下载后可就地替换并重启，其余平台引导到发布页
+- 状态栏在发现新版本时显示可点击的提示，点击进入设置页；检查失败会保留错误信息并允许重试
+
+### 🔧 构建与 CI
+
+- `nsh.json` 声明 `updater.github`，`nsh package` 因此为每个平台写出自动更新包
+- 发布脚本同时整理自动更新包（macOS/Linux 为 `.tar.gz`，Windows 为 `.zip`），发布工作流用 `nsh update-manifest` 生成并上传 `latest.json`
+
+### 🧪 Tests
+
+- 新增更新控制器单元测试，覆盖发现新版本、已是最新、检查失败、无法就地安装、下载进度与并发检查去重
+- 设置页交互测试覆盖检查更新后的状态显示
+
 ## v0.8.1
 
 *发布日期: 2026-11-15*

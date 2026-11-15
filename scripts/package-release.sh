@@ -4,6 +4,10 @@
 #   macos: kit-<version>-macos-<arch>.zip 与 kit-<version>-macos-<arch>.dmg
 #   web:   kit-<version>-web.tar.gz
 #
+# 同时把 `nsh package` 因 nsh.json 的 updater 配置写出的自动更新包，
+# 以 kit-<version>-<os>-<nsh 架构>.tar.gz 的名字放进同一目录；
+# `nsh update-manifest` 从文件名读取平台，架构名用 NSH 的写法（aarch64）。
+#
 # 用法：scripts/package-release.sh <linux|macos|web> <版本> [架构] [输出目录]
 # 架构为 uname -m 的写法（x86_64 / aarch64 / arm64）；web 不需要。
 set -euo pipefail
@@ -43,6 +47,34 @@ deb_arch() {
   esac
 }
 
+# NSH 的架构名与 `uname -m` 在 Apple 芯片上不同。
+nsh_arch() {
+  case "$1" in
+    arm64 | aarch64) echo "aarch64" ;;
+    x86_64) echo "x86_64" ;;
+    *) fail "NSH 不支持的架构：$1" ;;
+  esac
+}
+
+# 把 `nsh package` 写出的自动更新包整理成发布名；平台后缀原样保留，
+# 供 `nsh update-manifest` 生成 latest.json 使用。
+stage_update_archive() {
+  local platform="$1" extension="$2" member="$3"
+  local app_version src dest
+  app_version="$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' nsh.json | head -n1)"
+  src="$BUILT/$NAME-${app_version}-${platform}.${extension}"
+  dest="$OUT/kit-${VERSION}-${platform}.${extension}"
+  [[ -f "$src" ]] || fail "缺少 ${src}，先运行 nsh package（nsh.json 需要 updater 配置）"
+  cp "$src" "$dest"
+
+  if [[ "$extension" == "tar.gz" ]]; then
+    tar -tzf "$dest" > "$WORK/update-tar-list.txt"
+    grep -qx "$member" "$WORK/update-tar-list.txt" ||
+      fail "$dest 里没有 $member"
+  fi
+  echo "已生成 ${dest}"
+}
+
 # Debian 的包名只能用小写字母、数字和 . + -。
 package_linux() {
   local arch="$1"
@@ -54,6 +86,8 @@ package_linux() {
   tar -tzf "$tarball" > "$WORK/tar-list.txt"
   grep -qx "$NAME/$EXECUTABLE" "$WORK/tar-list.txt" ||
     fail "$tarball 里没有 $NAME/$EXECUTABLE"
+
+  stage_update_archive "linux-$(nsh_arch "$arch")" "tar.gz" "$NAME/$EXECUTABLE"
 
   local debarch pkg deb root created_kb
   debarch="$(deb_arch "$arch")"
@@ -128,6 +162,9 @@ package_macos() {
     -format UDZO "$dmg"
   hdiutil verify -quiet "$dmg"
   echo "已生成 ${zip} 与 ${dmg}（${arch}）"
+
+  stage_update_archive "macos-$(nsh_arch "$arch")" "tar.gz" \
+    "$NAME.app/Contents/MacOS/$EXECUTABLE"
 }
 
 package_web() {

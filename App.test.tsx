@@ -200,6 +200,16 @@ test("clearing favorites and history requires a second press", async () => {
   await app.waitUntil(() => app.storage()["kit.favorites"] === "[]")
 })
 
+test("settings checks for updates", async () => {
+  const app = await open("./App.tsx", { locale: "en-US", platform: "web", width: 1280, height: 900 })
+  await app.waitFor("id:welcome")
+  await app.press("id:nav-settings")
+  await app.waitFor("id:settings-update")
+
+  await app.press("id:settings-update-check")
+  await app.waitUntil(() => app.texts().some((text) => text.includes("You're up to date.")))
+})
+
 test("hidden legacy aliases remain reachable from favorites", async () => {
   const app = await open("./App.tsx", {
     locale: "en-US",

@@ -1,11 +1,14 @@
 {
   "name": "Kit",
   "id": "dev.kit.app",
-  "version": "0.8.1",
-  "build": 2,
+  "version": "0.9.0",
+  "build": 3,
   "icon": "icon.png",
   "appearance": "system",
   "theme": "theme.json",
+  "updater": {
+    "github": "aafnnp/kit"
+  },
   "capabilities": {
     "clipboard": true,
     "picker": true,

@@ -155,6 +155,44 @@ jobs:
           path: dist
           merge-multiple: true
 
+      - name: Linux runtime libraries
+        run: sudo apt-get update && sudo apt-get install -y libgtk-4-1
+
+      - name: Cache NSH toolchain
+        uses: actions/cache@v4
+        with:
+          path: .tools/nsh
+          key: nsh-${{ runner.os }}-${{ runner.arch }}-${{ env.NSH_VERSION }}
+
+      - name: Generate release notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          scripts/release-notes.sh "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY" > "$RUNNER_TEMP/notes.md"
+          scripts/release-notes.sh --section "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY" > "$RUNNER_TEMP/changes.md"
+          cat "$RUNNER_TEMP/notes.md"
+
+      # 自动更新清单只描述 nsh package 写出的平台包；dmg、deb 和 setup.exe
+      # 仍作为手动安装包随发布提供。
+      - name: Generate update manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          archives=(
+            dist/kit-*-linux-x86_64.tar.gz
+            dist/kit-*-linux-aarch64.tar.gz
+            dist/kit-*-macos-x86_64.tar.gz
+            dist/kit-*-macos-aarch64.tar.gz
+            dist/kit-*-windows-x86_64.zip
+            dist/kit-*-windows-aarch64.zip
+          )
+          for archive in "${archives[@]}"; do
+            [[ -f "$archive" ]] || { echo "缺少自动更新包：$archive" >&2; exit 1; }
+          done
+          ./scripts/nsh.sh update-manifest "${archives[@]}" \
+            --notes "$RUNNER_TEMP/changes.md" -o dist
+          cat dist/latest.json
+
       - name: Generate checksums
         shell: bash
         run: |
@@ -162,13 +200,6 @@ jobs:
           cd dist
           sha256sum -- * > SHA256SUMS.txt
           cat SHA256SUMS.txt
-
-      - name: Generate release notes
-        shell: bash
-        run: |
-          set -euo pipefail
-          scripts/release-notes.sh "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY" > "$RUNNER_TEMP/notes.md"
-          cat "$RUNNER_TEMP/notes.md"
 
       - name: Publish release assets
         shell: bash

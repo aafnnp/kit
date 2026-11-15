@@ -15,6 +15,7 @@
 - **一套代码，四个平台**：macOS（AppKit）、Windows（Win32 / Direct2D）、Linux（GTK 4）、Web（HTML + WebAssembly）。
 - **原生 UI**：NSH 以各平台自己的视图、文本输入和交互方式渲染，不使用 WebView，也没有 React / 虚拟 DOM。
 - **本地优先**：无账户、无上传、无遥测；加密、压缩、文件等重活交给 NSH 的 Rust 标准模块。
+- **自动更新**：桌面版启动时通过 `nsh/updater` 检查 GitHub Releases，设置页可查看更新说明、下载进度并就地替换重启；Web 版随站点部署更新。
 - **DevToys 式工作区**：左侧可搜索、可折叠的分类导航，右侧欢迎页与工具页；支持收藏、最近使用、深浅色与中英文切换；可在设置中显式开启工具草稿（默认关闭）。
 - **纯逻辑可测试**：每个工具的 `logic.ts` 与 UI 分离，使用 `nsh test` 做无头单元测试与交互测试。
 
@@ -95,16 +96,16 @@ Windows PowerShell：
 
 ```bash
 # linux：tar.gz + deb；macos：zip + dmg；web：tar.gz
-./scripts/package-release.sh linux 0.8.1 x86_64 dist
-./scripts/package-release.sh macos 0.8.1 arm64 dist
-./scripts/package-release.sh web 0.8.1 '' dist
+./scripts/package-release.sh linux 0.9.0 x86_64 dist
+./scripts/package-release.sh macos 0.9.0 arm64 dist
+./scripts/package-release.sh web 0.9.0 '' dist
 ```
 
 Windows PowerShell：
 
 ```powershell
 # windows：便携 zip + Inno Setup 安装包
-.\scripts\package-release.ps1 -Target windows -Version 0.8.1 -Arch x86_64 -OutDir dist
+.\scripts\package-release.ps1 -Target windows -Version 0.9.0 -Arch x86_64 -OutDir dist
 ```
 
 本机已验证 Web 与 macOS 打包；Windows/Linux 需要对应 NSH runner，本机当前未安装。
@@ -119,15 +120,18 @@ Windows PowerShell：
 | Windows | x86_64、arm64 | `kit-<版本>-windows-<架构>.zip`、`-setup.exe` |
 | Linux | x86_64、aarch64 | `kit-<版本>-linux-<架构>.tar.gz`、`kit_<版本>_amd64/arm64.deb` |
 | Web | — | `kit-<版本>-web.tar.gz` |
+| 自动更新 | 全部桌面平台 | `kit-<版本>-<平台>-aarch64/x86_64.tar.gz`（Windows 为 `.zip`）、`latest.json` |
 
-`publish` 任务汇总全部产物，生成 `SHA256SUMS.txt` 与发布说明后提交到 GitHub Release。
+`nsh package` 还会按 `nsh.json` 的 `updater.github` 为每个平台写出自动更新包：macOS/Linux 为 `kit-<版本>-<平台>-aarch64|x86_64.tar.gz`，Windows 为 `kit-<版本>-windows-aarch64|x86_64.zip`。`publish` 任务用 `nsh update-manifest` 生成 `latest.json`（含更新说明与各平台包的 SHA-256），再连同 `SHA256SUMS.txt` 与发布说明提交到 GitHub Release。`.dmg`、`.deb` 与 `-setup.exe` 仅用于手动安装。
+
+应用启动时会读取 `latest.json`；桌面版下载后校验应用 id、可执行文件与 macOS 代码签名，然后替换并重启。macOS 发布包使用 ad-hoc 签名，正式分发请先用 Developer ID 签名并公证。
 
 ```bash
-git tag v0.6.0
-git push origin v0.6.0
+git tag v0.9.0
+git push origin v0.9.0
 
 # 本地预览发布说明
-./scripts/release-notes.sh v0.6.0 aafnnp/kit
+./scripts/release-notes.sh v0.9.0 aafnnp/kit
 ```
 
 ## 🗂️ 结构
@@ -145,6 +149,7 @@ lib/
   state.ts               路由、搜索、收藏、最近、持久化、快捷键
   locale.ts              中英文与本地化文本
   platform.ts            平台能力与快捷键修饰键
+  updater.ts             自动更新状态机与 nsh/updater 封装
   styles.ts              共享 Tailwind 类
   version.ts             应用与 NSH 版本常量
   validation.ts          共享输入上限与整数校验
@@ -153,6 +158,7 @@ tools/
   <slug>/logic.ts        核心工具的纯逻辑，可单测
   legacy-migration/      旧工具规格表、共享离线逻辑与通用 NSH 界面
 tests/logic.test.ts      纯逻辑测试
+tests/updater.test.ts    自动更新控制器测试
 App.test.tsx             应用级交互测试
 theme.json               shadcn 风格设计令牌（浅色 / 深色）
 nsh.json                 应用元数据、图标、能力声明
@@ -166,6 +172,7 @@ AGENTS.md                NSH 项目贡献与 AI 协作约定
 - 仅声明了剪贴板（`clipboard`）、系统图片选择器（`picker`）与打开外部链接（`openUrl`）能力；没有任意文件系统、网络或进程执行权限，图片仅在用户主动选择时经系统选择器读取。
 - 所有文本处理在本地完成；哈希使用 NSH 的 Rust `crypto` 模块。
 - 收藏、最近使用、语言与外观通过 NSH `Storage` 持久化在设备上。
+- 自动更新只向 `nsh.json` 声明的 GitHub Releases 来源请求清单与安装包，地址由构建时的配置固定，应用代码无法指定；请求使用平台自身网络栈，不需要 `network` 能力。
 
 ## 🔁 从 React + Tauri 迁移
 
