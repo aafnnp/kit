@@ -59,7 +59,7 @@ Tokens live in [theme.json](./theme.json). Beyond the semantic colours it adds `
 
 ## Development
 
-The project pins **NSH 0.3.0**. `scripts/nsh.sh` (or `scripts/nsh.ps1` on Windows) downloads the matching CLI into `.tools/` on first use, so a stale system-wide `nsh` is never picked up.
+The project pins **NSH 0.5.1**. `scripts/nsh.sh` (or `scripts/nsh.ps1` on Windows) downloads the matching CLI into `.tools/` on first use, so a stale system-wide `nsh` is never picked up.
 
 ```bash
 ./scripts/check-version.sh
@@ -97,7 +97,7 @@ nsh.json                 app metadata, icon and capabilities
 AGENTS.md                NSH contribution and AI-collaboration notes
 ```
 
-All 78 legacy tools are registered and routed in NSH; navigation and search show 71 visible entries, while 8 duplicate old entries remain as hidden aliases so old favorites and recent entries still open. Some former tools have explicitly labeled offline alternatives because NSH 0.3.0 does not grant network, process or general file access: API/DNS do not send requests, exchange rates are illustrative, audio/video/GIF tools only build FFmpeg commands, PDF merge only inspects input, image crop validates coordinates, and bcrypt checks hash format only. Image compression, compatible conversion and resizing use the system image picker. Locally, `nsh build .` emits about 375 KB of JavaScript.
+All 78 legacy tools are registered and routed in NSH; navigation and search show 71 visible entries, while 8 duplicate old entries remain as hidden aliases so old favorites and recent entries still open. Some former tools have explicitly labeled offline alternatives because NSH 0.5.1 does not grant network, process or general file access: API/DNS do not send requests, exchange rates are illustrative, audio/video/GIF tools only build FFmpeg commands, PDF merge only inspects input, image crop validates coordinates, and bcrypt checks hash format only. Image compression, compatible conversion and resizing use the system image picker. Locally, `nsh build .` emits about 417 KB of JavaScript.
 
 ## Security and privacy
 

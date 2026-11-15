@@ -2,4 +2,4 @@
 export const APP_VERSION = "0.8.0"
 
 /** The NSH toolchain pinned by scripts/nsh.sh and CI. */
-export const NSH_VERSION = "0.3.0"
+export const NSH_VERSION = "0.5.1"

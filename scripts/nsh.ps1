@@ -3,7 +3,7 @@
 $ErrorActionPreference = "Stop"
 
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$Version = if ($env:NSH_VERSION) { $env:NSH_VERSION } else { "0.3.0" }
+$Version = if ($env:NSH_VERSION) { $env:NSH_VERSION } else { "0.5.1" }
 $Bin = Join-Path $Root ".tools\nsh\bin\nsh.exe"
 
 if ((Test-Path $Bin) -and ((& $Bin --version 2>$null) -match [regex]::Escape($Version))) {
@@ -12,8 +12,8 @@ if ((Test-Path $Bin) -and ((& $Bin --version 2>$null) -match [regex]::Escape($Ve
 }
 
 $Archive = "nsh-windows-x86_64.zip"
-$ExpectedSha256 = "98e3310863ef2f2827191ab5cb7dee531235382fe0e9205f9c2b10845f828bfa"
-if ($Version -ne "0.3.0") { throw "No pinned NSH archive for $Version on Windows; add its SHA256 to scripts/nsh.ps1." }
+$ExpectedSha256 = "9dc4b74037033c8ff50b1047b4702b36e6fd66beb9f5d61411d3497f4751df90"
+if ($Version -ne "0.5.1") { throw "No pinned NSH archive for $Version on Windows; add its SHA256 to scripts/nsh.ps1." }
 $Url = "https://github.com/longbridge/nsh/releases/download/v$Version/$Archive"
 $Tools = Join-Path $Root ".tools"
 $Zip = Join-Path $Tools $Archive

@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NSH_VERSION: "0.3.0"
+  NSH_VERSION: "0.5.1"
 
 jobs:
   build:

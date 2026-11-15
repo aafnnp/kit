@@ -118,7 +118,7 @@ export function Sidebar() {
           <Input
             ref={(node) => registerSearchInput(node)}
             value={search()}
-            onChange={(value) => search.set(value)}
+            onChange={({ value }) => search.set(value)}
             onSubmit={submitSearch}
             placeholder={L(`搜索工具… ${modKey("K")}`, `Search tools… ${modKey("K")}`)}
             testID="global-search"

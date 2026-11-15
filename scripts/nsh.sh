@@ -4,7 +4,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="${NSH_VERSION:-0.3.0}"
+VERSION="${NSH_VERSION:-0.5.1}"
 BIN="$ROOT/.tools/nsh/bin/nsh"
 
 if [[ -x "$BIN" ]]; then
@@ -15,13 +15,13 @@ if [[ -x "$BIN" ]]; then
 fi
 
 case "$VERSION-$(uname -s)-$(uname -m)" in
-  0.3.0-Darwin-arm64)
+  0.5.1-Darwin-arm64)
     ARCHIVE="nsh-macos-arm64.tar.gz"
-    SHA256="34fdd2ec43d5e22986723e7633acf9223e365bd5bace1a502b5ae24fb75c266c"
+    SHA256="2710affd59e6345b6f87dfa1f579c36b9a9d7a58992b8399d14f39290da048a3"
     ;;
-  0.3.0-Linux-x86_64)
+  0.5.1-Linux-x86_64)
     ARCHIVE="nsh-linux-x86_64.tar.gz"
-    SHA256="539ecf9d76d156b5afa5a086212f23764bfc3945c7395a2119b73a3c66effed0"
+    SHA256="f34729e613196ca122d956deb543a92f319e053ff17dfc09ba04a6ec2fb79c74"
     ;;
   *)
     echo "No pinned NSH archive for $VERSION on $(uname -s)-$(uname -m)." >&2

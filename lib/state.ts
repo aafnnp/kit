@@ -1,5 +1,5 @@
 import { effect, signal, Storage } from "nsh"
-import type { YNode } from "nsh"
+import type { ViewRef } from "nsh"
 import type { Lang } from "./types"
 import { language } from "./locale"
 export { language }
@@ -20,9 +20,9 @@ export const keepDrafts = signal(false)
 export const collapsed = signal<Record<string, boolean>>({})
 export const hydrated = signal(false)
 
-let searchInput: YNode | undefined
+let searchInput: ViewRef | undefined
 
-export function registerSearchInput(ref: YNode | undefined) {
+export function registerSearchInput(ref: ViewRef | undefined) {
   searchInput = ref
 }
 

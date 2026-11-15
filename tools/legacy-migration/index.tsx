@@ -92,7 +92,7 @@ export default function LegacyMigrationTool() {
       {pickedImage() && (slug === "image-compress" || slug === "image-convert" || slug === "image-resize" || slug === "base64-image") ? (
         <Card>
           <CardHeader title={L("已选择图片", "Selected image")} description={L("预览在本机显示；图片数据不会上传。", "Preview is shown locally; image data is not uploaded.")} />
-          <Image src={pickedImage()} resizeMode="contain" style={{ width: 240, height: 180 }} />
+          <Image src={pickedImage()} style={{ width: 240, height: 180, objectFit: "contain" }} />
         </Card>
       ) : null}
       {output() ? (

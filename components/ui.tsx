@@ -134,7 +134,7 @@ export function TextInput(props: {
       accessibilityLabel={props.accessibilityLabel}
       autoFocus={props.autoFocus}
       multiline={props.multiline}
-      onChange={(value) => props.onChange(value)}
+      onChange={({ value }) => props.onChange(value)}
       onSubmit={() => props.onSubmit?.()}
       style={{ height: height() }}
       class={`${inputClass} ${props.mono ? monoClass : "text-sm"} ${props.class ?? ""}`}

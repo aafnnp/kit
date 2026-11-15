@@ -37,7 +37,7 @@ function App() {
 
   effect(() => {
     if (platform.os === "web") return
-    Window.setFrame({ size: { width: 1280, height: 840 } })
+    Window.get("main")?.setBounds({ size: { width: 1280, height: 840 } })
   })
 
   keymap.bind("mod+k", () => focusSearch())
