@@ -11,8 +11,15 @@ if ((Test-Path $Bin) -and ((& $Bin --version 2>$null) -match [regex]::Escape($Ve
   exit $LASTEXITCODE
 }
 
-$Archive = "nsh-windows-x86_64.zip"
-$ExpectedSha256 = "9dc4b74037033c8ff50b1047b4702b36e6fd66beb9f5d61411d3497f4751df90"
+$Archives = @{
+  X64   = @{ Archive = "nsh-windows-x86_64.zip"; Sha256 = "9dc4b74037033c8ff50b1047b4702b36e6fd66beb9f5d61411d3497f4751df90" }
+  Arm64 = @{ Archive = "nsh-windows-arm64.zip"; Sha256 = "a1a9a1299a3286bc6fefff5746b892dd9192a77668969ec2b6732666d42c28fe" }
+}
+$Processor = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString()
+$Pinned = $Archives[$Processor]
+if (-not $Pinned) { throw "No pinned NSH archive for Windows $Processor; add its SHA256 to scripts/nsh.ps1." }
+$Archive = $Pinned.Archive
+$ExpectedSha256 = $Pinned.Sha256
 if ($Version -ne "0.5.1") { throw "No pinned NSH archive for $Version on Windows; add its SHA256 to scripts/nsh.ps1." }
 $Url = "https://github.com/longbridge/nsh/releases/download/v$Version/$Archive"
 $Tools = Join-Path $Root ".tools"

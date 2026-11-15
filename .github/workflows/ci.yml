@@ -24,19 +24,46 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: macOS / macos
+          - name: macOS arm64 / macos
+            artifact: kit-macos-arm64
             os: macos-15
             target: macos
+            arch: arm64
             cli: ./scripts/nsh.sh
-          - name: Linux / linux
+            package_args: --arch arm64
+          - name: macOS x86_64 / macos
+            artifact: kit-macos-x86_64
+            os: macos-15-intel
+            target: macos
+            arch: x86_64
+            cli: ./scripts/nsh.sh
+            package_args: --arch x86_64
+          - name: Linux x86_64 / linux
+            artifact: kit-linux-x86_64
             os: ubuntu-24.04
             target: linux
+            arch: x86_64
             cli: ./scripts/nsh.sh
-          - name: Windows / windows
-            os: windows-latest
+          - name: Linux aarch64 / linux
+            artifact: kit-linux-aarch64
+            os: ubuntu-24.04-arm
+            target: linux
+            arch: aarch64
+            cli: ./scripts/nsh.sh
+          - name: Windows x86_64 / windows
+            artifact: kit-windows-x86_64
+            os: windows-2022
             target: windows
+            arch: x86_64
+            cli: ./scripts/nsh.ps1
+          - name: Windows arm64 / windows
+            artifact: kit-windows-arm64
+            os: windows-11-arm
+            target: windows
+            arch: arm64
             cli: ./scripts/nsh.ps1
           - name: Web
+            artifact: kit-web
             os: ubuntu-24.04
             target: web
             cli: ./scripts/nsh.sh
@@ -56,7 +83,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .tools/nsh
-          key: nsh-${{ runner.os }}-${{ env.NSH_VERSION }}
+          key: nsh-${{ runner.os }}-${{ runner.arch }}-${{ env.NSH_VERSION }}
 
       - name: Type check
         run: ${{ matrix.cli }} check .
@@ -65,11 +92,22 @@ jobs:
         run: ${{ matrix.cli }} test .
 
       - name: Package
-        run: ${{ matrix.cli }} package . --target ${{ matrix.target }}
+        run: ${{ matrix.cli }} package . --target ${{ matrix.target }} ${{ matrix.package_args }}
 
-      - name: Upload package
+      # 和发布走同一套整理脚本，构建平台与产物格式在 CI 就能验证。
+      - name: Stage release files (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: ./scripts/package-release.sh ${{ matrix.target }} 0.0.0-ci "${{ matrix.arch }}" dist
+
+      - name: Stage release files (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/package-release.ps1 -Target ${{ matrix.target }} -Version '0.0.0-ci' -Arch ${{ matrix.arch }} -OutDir dist
+
+      - name: Upload packages
         uses: actions/upload-artifact@v4
         with:
-          name: kit-${{ matrix.target }}
-          path: .nsh/out/
+          name: ${{ matrix.artifact }}
+          path: dist/*
           if-no-files-found: error

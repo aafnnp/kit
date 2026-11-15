@@ -19,9 +19,17 @@ case "$VERSION-$(uname -s)-$(uname -m)" in
     ARCHIVE="nsh-macos-arm64.tar.gz"
     SHA256="2710affd59e6345b6f87dfa1f579c36b9a9d7a58992b8399d14f39290da048a3"
     ;;
+  0.5.1-Darwin-x86_64)
+    ARCHIVE="nsh-macos-x86_64.tar.gz"
+    SHA256="7381ffe37180584fb12b0488756ffd9e8ff585fede2deac450a51336141ccd69"
+    ;;
   0.5.1-Linux-x86_64)
     ARCHIVE="nsh-linux-x86_64.tar.gz"
     SHA256="f34729e613196ca122d956deb543a92f319e053ff17dfc09ba04a6ec2fb79c74"
+    ;;
+  0.5.1-Linux-aarch64)
+    ARCHIVE="nsh-linux-arm64.tar.gz"
+    SHA256="6f182e61ce68115b99d29a096f4a935bf3e7aa2733cdf9f135274ccec00dfef6"
     ;;
   *)
     echo "No pinned NSH archive for $VERSION on $(uname -s)-$(uname -m)." >&2

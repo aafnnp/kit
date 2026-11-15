@@ -35,10 +35,15 @@ cat <<EOF
 
 | 平台 | 安装方式 |
 | --- | --- |
-| macOS | 解压 \`kit-${VERSION}-macos.zip\`，把 \`Kit.app\` 拖入「应用程序」 |
-| Windows | 解压 \`kit-${VERSION}-windows.zip\`，运行 \`Kit.exe\` |
-| Linux | 解压 \`kit-${VERSION}-linux.tar.gz\`，运行其中的 \`Kit\`（需要 GTK 4.14+） |
+| macOS（Apple 芯片） | 打开 \`kit-${VERSION}-macos-arm64.dmg\`，把 \`Kit\` 拖入「应用程序」；免安装用同名 \`.zip\` |
+| macOS（Intel） | 打开 \`kit-${VERSION}-macos-x86_64.dmg\`，把 \`Kit\` 拖入「应用程序」；免安装用同名 \`.zip\` |
+| Windows（x64） | 运行 \`kit-${VERSION}-windows-x86_64-setup.exe\`；免安装用 \`kit-${VERSION}-windows-x86_64.zip\` |
+| Windows（ARM64） | 运行 \`kit-${VERSION}-windows-arm64-setup.exe\`；免安装用 \`kit-${VERSION}-windows-arm64.zip\` |
+| Linux（x86_64） | \`sudo apt install ./kit_${VERSION}_amd64.deb\`；或解压 \`kit-${VERSION}-linux-x86_64.tar.gz\` 运行其中的 \`Kit\` |
+| Linux（aarch64） | \`sudo apt install ./kit_${VERSION}_arm64.deb\`；或解压 \`kit-${VERSION}-linux-aarch64.tar.gz\` 运行其中的 \`Kit\` |
 | Web | 解压 \`kit-${VERSION}-web.tar.gz\`，部署到任意静态站点 |
+
+Linux 需要 GTK 4.14+；macOS 应用使用 ad-hoc 签名，首次打开请右键选择「打开」。
 
 下载后可用 \`SHA256SUMS.txt\` 校验完整性。
 

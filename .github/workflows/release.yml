@@ -33,7 +33,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .tools/nsh
-          key: nsh-${{ runner.os }}-${{ env.NSH_VERSION }}
+          key: nsh-${{ runner.os }}-${{ runner.arch }}-${{ env.NSH_VERSION }}
 
       - name: Type check
         run: ./scripts/nsh.sh check .
@@ -49,19 +49,39 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: macOS
-            os: macos-15
-            target: macos
-            cli: ./scripts/nsh.sh
-          - name: Linux
+          - name: linux-x86_64
             os: ubuntu-24.04
             target: linux
+            arch: x86_64
             cli: ./scripts/nsh.sh
-          - name: Windows
-            os: windows-latest
+          - name: linux-aarch64
+            os: ubuntu-24.04-arm
+            target: linux
+            arch: aarch64
+            cli: ./scripts/nsh.sh
+          - name: windows-x86_64
+            os: windows-2022
             target: windows
+            arch: x86_64
             cli: ./scripts/nsh.ps1
-          - name: Web
+          - name: windows-arm64
+            os: windows-11-arm
+            target: windows
+            arch: arm64
+            cli: ./scripts/nsh.ps1
+          - name: macos-arm64
+            os: macos-15
+            target: macos
+            arch: arm64
+            cli: ./scripts/nsh.sh
+            package_args: --arch arm64
+          - name: macos-x86_64
+            os: macos-15-intel
+            target: macos
+            arch: x86_64
+            cli: ./scripts/nsh.sh
+            package_args: --arch x86_64
+          - name: web
             os: ubuntu-24.04
             target: web
             cli: ./scripts/nsh.sh
@@ -92,54 +112,26 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .tools/nsh
-          key: nsh-${{ runner.os }}-${{ env.NSH_VERSION }}
+          key: nsh-${{ runner.os }}-${{ runner.arch }}-${{ env.NSH_VERSION }}
 
       - name: Package
-        run: ${{ matrix.cli }} package . --target ${{ matrix.target }}
+        run: ${{ matrix.cli }} package . --target ${{ matrix.target }} ${{ matrix.package_args }}
 
-      - name: Build portable archive (macOS)
-        if: runner.os == 'macOS'
+      # 每个平台把自己的产物整理成 kit-<版本>-<平台>-<架构>.<扩展名>。
+      - name: Stage release files (Unix)
+        if: runner.os != 'Windows'
         shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p dist
-          ditto -c -k --sequesterRsrc --keepParent .nsh/out/Kit.app \
-            "dist/kit-${{ steps.version.outputs.version }}-macos.zip"
+        run: ./scripts/package-release.sh ${{ matrix.target }} "${{ steps.version.outputs.version }}" "${{ matrix.arch }}" dist
 
-      - name: Build portable archive (Linux)
-        if: runner.os == 'Linux' && matrix.target == 'linux'
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p dist
-          tar -czf "dist/kit-${{ steps.version.outputs.version }}-linux.tar.gz" -C .nsh/out Kit
-
-      - name: Build portable archive (Windows)
+      - name: Stage release files (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force -Path dist | Out-Null
-          $out = "dist\kit-${{ steps.version.outputs.version }}-windows.zip"
-          $src = Get-ChildItem .nsh/out -Filter *.zip | Select-Object -First 1
-          if ($src) {
-            Copy-Item $src.FullName $out
-          } else {
-            Compress-Archive -Path .nsh/out/* -DestinationPath $out
-          }
-          if (-not (Test-Path $out)) { throw "未生成 Windows 压缩包：$out" }
+        run: ./scripts/package-release.ps1 -Target ${{ matrix.target }} -Version '${{ steps.version.outputs.version }}' -Arch ${{ matrix.arch }} -OutDir dist
 
-      - name: Build portable archive (Web)
-        if: matrix.target == 'web'
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p dist
-          tar -czf "dist/kit-${{ steps.version.outputs.version }}-web.tar.gz" -C .nsh/out/Kit .
-
-      - name: Upload release archive
+      - name: Upload release files
         uses: actions/upload-artifact@v4
         with:
-          name: release-${{ matrix.target }}
+          name: release-${{ matrix.name }}
           path: dist/*
           if-no-files-found: error
           retention-days: 14

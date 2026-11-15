@@ -52,9 +52,9 @@
 
 | 平台 | 开发 / 打包环境 | 运行要求 |
 | --- | --- | --- |
-| macOS | macOS + Xcode 命令行工具 | macOS 14+ |
-| Windows | Windows | Windows 10 1809+ |
-| Linux | Linux | GTK 4.14+ |
+| macOS | macOS + Xcode 命令行工具 | macOS 14+（arm64 与 x86_64 分别构建） |
+| Windows | Windows | Windows 10 1809+（x64 与 ARM64） |
+| Linux | Linux | GTK 4.14+（x86_64 与 aarch64） |
 | Web | 任意平台 | 现代浏览器（WebAssembly） |
 
 ## 🚀 开发
@@ -78,7 +78,7 @@
 ./scripts/nsh.sh run . --target web       # 浏览器
 
 # 打包
-./scripts/nsh.sh package . --target macos
+./scripts/nsh.sh package . --target macos --arch arm64
 ./scripts/nsh.sh package . --target web
 ```
 
@@ -91,11 +91,36 @@ Windows PowerShell：
 .\scripts\nsh.ps1 package . --target windows
 ```
 
-产物在 `.nsh/out/`。本机已验证 Web 与 macOS 打包；Windows/Linux 需要对应 NSH runner，本机当前未安装。
+`nsh package` 的原始产物在 `.nsh/out/`。发布用的文件由 `scripts/package-release.sh`（Windows 为 `scripts/package-release.ps1`）整理：
+
+```bash
+# linux：tar.gz + deb；macos：zip + dmg；web：tar.gz
+./scripts/package-release.sh linux 0.8.1 x86_64 dist
+./scripts/package-release.sh macos 0.8.1 arm64 dist
+./scripts/package-release.sh web 0.8.1 '' dist
+```
+
+Windows PowerShell：
+
+```powershell
+# windows：便携 zip + Inno Setup 安装包
+.\scripts\package-release.ps1 -Target windows -Version 0.8.1 -Arch x86_64 -OutDir dist
+```
+
+本机已验证 Web 与 macOS 打包；Windows/Linux 需要对应 NSH runner，本机当前未安装。
 
 ## 📦 发布
 
-推送 `v*` 标签后，`.github/workflows/release.yml` 会在 macOS、Linux、Windows 与 Web 上打包 `kit-<版本>-*` 产物，生成 `SHA256SUMS.txt` 与发布说明。
+推送 `v*` 标签后，`.github/workflows/release.yml` 在 7 个平台上打包，产物按 `<平台>-<架构>` 命名：
+
+| 平台 | 架构 | 文件 |
+| --- | --- | --- |
+| macOS | arm64、x86_64 | `kit-<版本>-macos-<架构>.zip`、`.dmg` |
+| Windows | x86_64、arm64 | `kit-<版本>-windows-<架构>.zip`、`-setup.exe` |
+| Linux | x86_64、aarch64 | `kit-<版本>-linux-<架构>.tar.gz`、`kit_<版本>_amd64/arm64.deb` |
+| Web | — | `kit-<版本>-web.tar.gz` |
+
+`publish` 任务汇总全部产物，生成 `SHA256SUMS.txt` 与发布说明后提交到 GitHub Release。
 
 ```bash
 git tag v0.6.0
